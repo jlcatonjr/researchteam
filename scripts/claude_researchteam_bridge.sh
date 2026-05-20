@@ -19,6 +19,7 @@ Commands:
   validate      Run repository validator (if available)
   open-reader   Print path to main Zelda research guide
   open-summary  Print path to Zelda summary document
+  open-claude-dir Print path to Claude support folder
   plan-path     Print current ISO-week plan directory path
 EOF
 }
@@ -53,6 +54,10 @@ command_open_summary() {
   echo "$ROOT_DIR/Projects/ZeldaTimeline/ZeldaTimelineSummary.html"
 }
 
+command_open_claude_dir() {
+  echo "$ROOT_DIR/.claude"
+}
+
 command_plan_path() {
   week="$(date +%G-W%V)"
   echo "$ROOT_DIR/tmp/by-week/$week"
@@ -73,6 +78,9 @@ case "$cmd" in
     ;;
   open-summary)
     command_open_summary
+    ;;
+  open-claude-dir)
+    command_open_claude_dir
     ;;
   plan-path)
     command_plan_path

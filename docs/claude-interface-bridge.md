@@ -6,7 +6,8 @@ This document explains how Claude users can operate the ResearchTeam repository 
 
 1. Root guidance: `CLAUDE.md`
 2. Command bridge: `scripts/claude_researchteam_bridge.sh`
-3. Existing validator: `scripts/validate_agentteams_update.sh`
+3. Claude support folder: `.claude/`
+4. Existing validator: `scripts/validate_agentteams_update.sh`
 
 ## Prerequisites
 
@@ -43,7 +44,16 @@ Runs `scripts/validate_agentteams_update.sh`.
 ```bash
 bash scripts/claude_researchteam_bridge.sh open-reader
 bash scripts/claude_researchteam_bridge.sh open-summary
+bash scripts/claude_researchteam_bridge.sh open-claude-dir
 ```
+
+### Claude Support Folder
+
+The `.claude/` folder contains:
+
+- `README.md` with usage notes
+- `prompts/research-report.prompt.md` starter prompt template
+- `checklists/research-task-preflight.md` checklist for multi-step work
 
 ### Weekly Plan Directory
 
@@ -67,3 +77,4 @@ Returns the current `tmp/by-week/YYYY-Www/` path.
 - Backup snapshots in `.github/agents/.agentteams-backups/` are archival.
 - The main Zelda human-facing guide is:
   - `Projects/ZeldaTimeline/ZeldaTimelineResearchGuide.html`
+- Keep `CLAUDE.md` as the top-level entry point and `.claude/` as structured support content.

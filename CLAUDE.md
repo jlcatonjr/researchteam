@@ -34,6 +34,7 @@ bash scripts/claude_researchteam_bridge.sh status
 bash scripts/claude_researchteam_bridge.sh validate
 bash scripts/claude_researchteam_bridge.sh open-reader
 bash scripts/claude_researchteam_bridge.sh open-summary
+bash scripts/claude_researchteam_bridge.sh open-claude-dir
 ```
 
 ## Standard Workflow
@@ -51,8 +52,10 @@ bash scripts/claude_researchteam_bridge.sh open-summary
 - Agent infrastructure: `.github/agents/`
 - CI workflow: `.github/workflows/agentteams-sync.yml`
 - Bridge docs: `docs/claude-interface-bridge.md`
+- Claude support folder: `.claude/`
 
 ## Notes for Claude Users
 
 - If running outside a git worktree context, some validation checks may be reduced.
 - The repository includes archived agent backup trees under `.github/agents/.agentteams-backups/`; do not treat backups as active source-of-truth.
+- Use `.claude/README.md` for reusable templates and preflight checklists.

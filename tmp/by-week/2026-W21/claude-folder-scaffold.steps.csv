@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Create scaffold plan artifacts,"user request and bridge context","plan + steps files","done","weekly plan tracking"
+2,orchestrator,Create .claude starter files,"recommended structured approach",".claude/README.md + template assets","done","keep CLAUDE.md as entrypoint"
+3,orchestrator,Update bridge references,"existing CLAUDE.md/docs/script","linked references and helper command","done","cross-link root and folder"
+4,orchestrator,Validate updates,"new and edited files","syntax and diagnostics pass","done","bash -n and get_errors"
+5,orchestrator,Summarize handoff,"validation results","user-ready implementation summary","done","include key paths"
