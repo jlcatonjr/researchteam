@@ -88,21 +88,21 @@ Generated at: `2026-05-20T15:25:11Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-42897` | Microsoft Microsoft | Microsoft Exchange Server Cross-Site Scripting Vulnerability | added 2026-05-15 | EPSS 0.100260000, percentile 0.931580000 | CVSS 8.1 HIGH
-- `CVE-2026-20182` | Cisco Catalyst SD-WAN | Cisco Catalyst SD-WAN Controller Authentication Bypass Vulnerability | added 2026-05-14 | EPSS 0.236940000, percentile 0.960700000 | CVSS 10.0 CRITICAL
-- `CVE-2026-42208` | BerriAI LiteLLM | BerriAI LiteLLM SQL Injection Vulnerability | added 2026-05-08 | EPSS 0.431910000, percentile 0.975450000 | CVSS 9.8 CRITICAL
-- `CVE-2026-6973` | Ivanti Endpoint Manager Mobile (EPMM) | Ivanti Endpoint Manager Mobile (EPMM) Improper Input Validation Vulnerability | added 2026-05-07 | EPSS 0.061290000, percentile 0.908970000 | CVSS 7.2 HIGH
-- `CVE-2026-0300` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Out-of-bounds Write Vulnerability | added 2026-05-06 | EPSS 0.144330000, percentile 0.945110000 | CVSS 9.8 CRITICAL
-- `CVE-2026-31431` | Linux Kernel | Linux Kernel Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-05-01 | EPSS 0.025700000, percentile 0.857140000
-- `CVE-2026-41940` | WebPros cPanel & WHM and WP2 (WordPress Squared) | WebPros cPanel & WHM and WP2 (WordPress Squared) Missing Authentication for Critical Function Vulnerability | added 2026-04-30 | EPSS 0.885080000, percentile 0.995170000
-- `CVE-2024-1708` | ConnectWise ScreenConnect | ConnectWise ScreenConnect Path Traversal Vulnerability | added 2026-04-28 | EPSS 0.848100000, percentile 0.993550000
-- `CVE-2026-32202` | Microsoft Windows | Microsoft Windows Protection Mechanism Failure Vulnerability | added 2026-04-28 | EPSS 0.078880000, percentile 0.921070000
-- `CVE-2025-29635` | D-Link DIR-823X | D-Link DIR-823X Command Injection Vulnerability | added 2026-04-24 | EPSS 0.538020000, percentile 0.980290000
-- `CVE-2024-7399` | Samsung MagicINFO 9 Server | Samsung MagicINFO 9 Server Path Traversal Vulnerability | added 2026-04-24 | EPSS 0.822670000, percentile 0.992360000
-- `CVE-2024-57728` | SimpleHelp  SimpleHelp | SimpleHelp Path Traversal Vulnerability | added 2026-04-24 | EPSS 0.588220000, percentile 0.982430000
-- `CVE-2024-57726` | SimpleHelp  SimpleHelp | SimpleHelp Missing Authorization Vulnerability | added 2026-04-24 | EPSS 0.453700000, percentile 0.976510000
-- `CVE-2026-39987` | Marimo Marimo | Marimo Remote Code Execution Vulnerability | added 2026-04-23 | EPSS 0.818420000, percentile 0.992130000
-- `CVE-2026-33825` | Microsoft Defender | Microsoft Defender Insufficient Granularity of Access Control Vulnerability | added 2026-04-22 | EPSS 0.063780000, percentile 0.911130000
+- `UNKNOWN-CVE` | Unknown vendor Microsoft | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Catalyst SD-WAN | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor LiteLLM | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Endpoint Manager Mobile (EPMM) | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor PAN-OS | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Kernel | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor cPanel & WHM and WP2 (WordPress Squared) | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor ScreenConnect | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Windows | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor DIR-823X | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor MagicINFO 9 Server | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor SimpleHelp | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor SimpleHelp | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Marimo | Known exploited vulnerability | added n/a
+- `UNKNOWN-CVE` | Unknown vendor Defender | Known exploited vulnerability | added n/a
 
 **Prevention and mitigation playbook:**
 
@@ -111,11 +111,6 @@ Generated at: `2026-05-20T15:25:11Z`
 - Enforce patch windows with owner, SLA, and verification evidence for each critical CVE.
 - When patching is blocked, define compensating controls (WAF rules, ACL tightening, feature disablement).
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
-- Vendor/CISA required actions:
-  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
-  - Please adhere to CISA’s guidelines to assess exposure and mitigate risks associated with Cisco SD-WAN devices as outlined in CISA’s Emergency Directive 26-03 (URL listed below in Notes) and CISA’s Hunt & Hardening Guidance for Cisco SD-WAN Devices (URL listed below in Notes). Adhere to the applicable BOD 22-01 guidance for cloud services or discontinue use of the product if mitigations are not available.
-  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable. Until the vendor releases an official fix, the following workaround should be implemented:  - Restrict User-ID Authentication Portal access to only trusted zones.  - Disable User-ID Authentication Portal if not required. 5/13/2026: Palo Alto has released a variety of patches. If these are relevant to your environment, please apply the designated patch.
-  - "Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
 
 ### LLM and AI-Specific Threat Intelligence
 

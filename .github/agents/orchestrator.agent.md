@@ -144,13 +144,7 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 <!-- AGENTTEAMS:BEGIN authority_hierarchy v=1 -->
 ### Authority Hierarchy
 
-1. **JSTOR** (`https://www.jstor.org`) — humanities and social science peer-reviewed articles
-1. **PubMed / MEDLINE** (`https://pubmed.ncbi.nlm.nih.gov`) — biomedical and life-science literature
-2. **arXiv** (`https://arxiv.org`) — preprints in STEM fields
-2. **SSRN** (`https://ssrn.com`) — economics, law, and social science working papers
-2. **Semantic Scholar** (`https://www.semanticscholar.org`) — cross-disciplinary scholarly literature discovery and metadata
-3. **CrossRef** (`https://www.crossref.org`) — DOI resolution and bibliographic metadata verification
-3. **Google Scholar** (`https://scholar.google.com`) — broad academic literature discovery and citation counts
+1. **Project source files** — ground truth for all technical claims
 <!-- AGENTTEAMS:END authority_hierarchy -->
 
 ### Domain Agent Routing
@@ -162,7 +156,7 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 | Architecture and file hygiene | `@code-hygiene` | Backup files, script lifecycle, duplication, agent doc consistency |
 | Quality and structural defects | `@quality-auditor` | Purposeless content, structural weakness, pattern violations |
 | Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned evidence |
-| Style and standards | `@style-guardian` *(if in team)* | Style reference: N/A (style rules are defined in copilot-instructions.md) |
+| Style and standards | `@style-guardian` *(if in team)* | Style reference: N/A - no formal style guide defined for this project |
 | Technical accuracy | `@technical-validator` | Code, paths, counts, claims against source files |
 | Format conversion | `@format-converter` | Source format → output format `Markdown with Chicago citations` |
 | References and dependencies | `@reference-manager` | Database: `references/bibliography.bib` |

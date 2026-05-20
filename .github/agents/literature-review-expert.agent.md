@@ -49,30 +49,23 @@ You are the domain expert for **Literature Review** (component 2) in ResearchTea
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-Surveys the existing scholarly literature on the topic, identifies key themes and debates, and states the research gap or synthesis the report will address.
+{MANUAL:COMPONENT_SPEC}
 
 ## Sections
 
-1. Overview of the Field
-2. Key Themes and Debates
-3. Synthesis and Research Gap
+{MANUAL:COMPONENT_SECTIONS}
 
 ## Sources
 
-- 01-literature-review.md
+{MANUAL:COMPONENT_SOURCES}
 
 ## Quality Criteria
 
-- Minimum 10 Chicago-formatted citations
-- All citations verified via DOI or repository record
-- No citation fabrication
-- Research gap clearly articulated
-- Conflicting scholarly positions fairly represented
+{MANUAL:COMPONENT_QUALITY_CRITERIA}
 
 ## Cross-References
 
-- `topic-scoping`
-- `main-analysis`
+None specified.
 
 ## Tool Dependencies
 
