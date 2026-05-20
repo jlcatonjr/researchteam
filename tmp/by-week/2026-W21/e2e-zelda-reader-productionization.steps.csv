@@ -1,6 +1,6 @@
 step,agent,action,inputs,outputs,status,notes
-1,orchestrator,Review current reader implementation,"Projects/ZeldaTimeline/ZeldaTimelineReader.html","remaining gap list","pending","identify final polish items"
-2,orchestrator,Apply final reader enhancements,"reader html + summary file path","improved UX and summary discoverability","pending","implement small focused edits"
-3,orchestrator,Validate updated reader,"html/js checks","clean diagnostics","pending","ensure no regressions"
-4,orchestrator,Commit and push,"local git repo","remote main updated","pending","ship end-to-end"
-5,orchestrator,Summarize deployment,"execution outputs","user-ready completion report","pending","include commit hash"
+1,orchestrator,Review current reader implementation,"Projects/ZeldaTimeline/ZeldaTimelineReader.html","remaining gap list","done","identified summary discoverability and orientation gaps"
+2,orchestrator,Apply final reader enhancements,"reader html + summary file path","improved UX and summary discoverability","done","added readability polish and summary link actions"
+3,orchestrator,Validate updated reader,"html/js checks","clean diagnostics","done","reader diagnostics passed"
+4,orchestrator,Commit and push,"local git repo","remote main updated","done","pushed commit ebcff2b to origin/main"
+5,orchestrator,Summarize deployment,"execution outputs","user-ready completion report","done","final report includes commit hash and file paths"
