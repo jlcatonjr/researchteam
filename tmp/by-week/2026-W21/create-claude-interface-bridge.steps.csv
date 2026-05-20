@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Create Claude root guidance,"repo conventions and workflows","CLAUDE.md","done","map to reports/references/tmp conventions"
+2,orchestrator,Create bridge CLI script,"common repo actions","scripts/claude_researchteam_bridge.sh","done","status/validate/reader/summary commands"
+3,orchestrator,Create bridge documentation,"script and operating model","docs/claude-interface-bridge.md","done","onboarding and examples"
+4,orchestrator,Validate bridge artifacts,"new files","diagnostic/syntax pass","done","script executable"
+5,orchestrator,Summarize and handoff,"verification results","user-ready bridge summary","done","include file paths"
