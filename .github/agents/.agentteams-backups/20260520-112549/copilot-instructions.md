@@ -99,13 +99,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN authority_hierarchy v=1 -->
 ## Authority Hierarchy
 
-1. **JSTOR** (`https://www.jstor.org`) — humanities and social science peer-reviewed articles
-1. **PubMed / MEDLINE** (`https://pubmed.ncbi.nlm.nih.gov`) — biomedical and life-science literature
-2. **arXiv** (`https://arxiv.org`) — preprints in STEM fields
-2. **SSRN** (`https://ssrn.com`) — economics, law, and social science working papers
-2. **Semantic Scholar** (`https://www.semanticscholar.org`) — cross-disciplinary scholarly literature discovery and metadata
-3. **CrossRef** (`https://www.crossref.org`) — DOI resolution and bibliographic metadata verification
-3. **Google Scholar** (`https://scholar.google.com`) — broad academic literature discovery and citation counts
+1. **Project source files** — ground truth for all technical claims
 <!-- AGENTTEAMS:END authority_hierarchy -->
 
 ---
@@ -128,13 +122,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN source_repositories v=1 -->
 ## Source Repositories
 
-- `https://www.jstor.org` — humanities and social science peer-reviewed articles
-- `https://pubmed.ncbi.nlm.nih.gov` — biomedical and life-science literature
-- `https://arxiv.org` — preprints in STEM fields
-- `https://ssrn.com` — economics, law, and social science working papers
-- `https://www.semanticscholar.org` — cross-disciplinary scholarly literature discovery and metadata
-- `https://www.crossref.org` — DOI resolution and bibliographic metadata verification
-- `https://scholar.google.com` — broad academic literature discovery and citation counts
+- Project source files (read-only)
 <!-- AGENTTEAMS:END source_repositories -->
 
 ---

@@ -49,23 +49,30 @@ You are the domain expert for **Main Analysis** (component 3) in ResearchTeam. Y
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-{MANUAL:COMPONENT_SPEC}
+Conducts the core analytical work of the report, engaging directly with primary sources, applying the chosen methodology, and building the argument from the literature.
 
 ## Sections
 
-{MANUAL:COMPONENT_SECTIONS}
+1. Introduction to Analysis
+2. Evidence and Argument
+3. Counter-Arguments and Responses
+4. Conclusion of Analysis
 
 ## Sources
 
-{MANUAL:COMPONENT_SOURCES}
+- 02-analysis.md
 
 ## Quality Criteria
 
-{MANUAL:COMPONENT_QUALITY_CRITERIA}
+- Every factual claim supported by a verifiable Chicago citation
+- Counter-arguments acknowledged and addressed
+- Reasoning is logically valid and follows from cited evidence
+- No unsupported assertions
 
 ## Cross-References
 
-None specified.
+- `literature-review`
+- `conclusion`
 
 ## Tool Dependencies
 

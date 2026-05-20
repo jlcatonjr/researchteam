@@ -1,0 +1,8 @@
+file,category,token,line_no,section,context_snippet,auto_suggestion,status
+orchestrator.agent.md,MANUAL_PLACEHOLDER,STYLE_REFERENCE_PATH,176,Domain Agent Routing,"| Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned ",N/A — no formal style guide defined for this project,auto_filled
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_DOCS_URL,42,Official Documentation,Consult the official Pandoc documentation at: {MANUAL:TOOL_DOCS_URL},,pending
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_API_SURFACE,49,Key API Surface,<!-- AGENTTEAMS:BEGIN tool_api_surface v=1 --> | {MANUAL:TOOL_API_SURFACE} | <!-- AGENTTEAMS:END tool_api_surface -->,,pending
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_COMMON_PATTERNS,56,Common Patterns & Pitfalls,{MANUAL:TOOL_COMMON_PATTERNS},,pending
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_DOCS_URL,18,Official Documentation,{MANUAL:TOOL_DOCS_URL},,pending
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_API_SURFACE,22,Key API Surface,{MANUAL:TOOL_API_SURFACE},,pending
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_COMMON_PATTERNS,28,Common Patterns & Pitfalls,{MANUAL:TOOL_COMMON_PATTERNS},,pending

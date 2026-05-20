@@ -50,10 +50,10 @@ You are the **repository navigator** for ResearchTeam. You maintain the project 
 ### Workstream → Source File Mapping
 
 <!-- AGENTTEAMS:BEGIN workstream_source_map v=1 -->
-- `topic-scoping` → `00-research-plan.md`
-- `literature-review` → `01-literature-review.md`
-- `main-analysis` → `02-analysis.md`
-- `conclusion` → `03-conclusion.md`
+- `topic-scoping` → `TBD`
+- `literature-review` → `TBD`
+- `main-analysis` → `TBD`
+- `conclusion` → `TBD`
 <!-- AGENTTEAMS:END workstream_source_map -->
 
 ### Team Topology Graph

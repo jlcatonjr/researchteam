@@ -49,29 +49,23 @@ You are the domain expert for **Conclusion and Executive Summary** (component 4)
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-Summarises the findings, states the contribution to the field, and provides a concise executive summary suitable for a non-specialist audience.
+{MANUAL:COMPONENT_SPEC}
 
 ## Sections
 
-1. Summary of Findings
-2. Contribution and Significance
-3. Limitations and Future Research
-4. Executive Summary (200 words)
+{MANUAL:COMPONENT_SECTIONS}
 
 ## Sources
 
-- 03-conclusion.md
+{MANUAL:COMPONENT_SOURCES}
 
 ## Quality Criteria
 
-- Executive summary is 150–250 words
-- All claims traceable to the Main Analysis
-- Limitations honestly stated
-- No new citations introduced without prior appearance in the report
+{MANUAL:COMPONENT_QUALITY_CRITERIA}
 
 ## Cross-References
 
-- `main-analysis`
+None specified.
 
 ## Tool Dependencies
 

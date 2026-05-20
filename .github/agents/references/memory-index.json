@@ -1,0 +1,2052 @@
+{
+  "artifact_type": "memory-index",
+  "memory_index_schema_version": "1.2",
+  "project_name": "ResearchTeam",
+  "framework": "copilot-vscode",
+  "built_at": "2026-05-20T15:25:49.238942Z",
+  "source_count": 5,
+  "documents": [
+    {
+      "doc_id": 0,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/adversarial-conflict-audit-labor-matching.plan.md",
+      "title": "Plan Summary: Adversarial and Conflict Audit for Labor Matching Project",
+      "length": 90,
+      "snippet": "- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project,",
+      "paragraphs": [
+        "- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project, remediate defects, and report pass/block status - Agent sequence: @adversarial -> @technical-validator -> @reference-manager -> @conflict-auditor - Success criteria: - Every factual claim in project files is checked for overreach, ambiguit",
+        "- Completion status: COMPLETE - Completion date: April 18, 2026"
+      ],
+      "source_mtime": 1779285118.616748
+    },
+    {
+      "doc_id": 1,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/apply-audit-standards-egyptian-cosmopolitanism.plan.md",
+      "title": "Plan: Apply Audit Standards to Egyptian Cosmopolitan Project",
+      "length": 95,
+      "snippet": "- Trigger: User requested application of new fail-closed audit standards to the Egyptian cosmopolitan project. - Goal: Bring EgyptianDevelopment deliverables into compliance with strict fact and citation verification requirements. - Agent s",
+      "paragraphs": [
+        "- Trigger: User requested application of new fail-closed audit standards to the Egyptian cosmopolitan project. - Goal: Bring EgyptianDevelopment deliverables into compliance with strict fact and citation verification requirements. - Agent sequence: @security -> @technical-validator -> @reference-manager -> @primary-producer -> @conflict-auditor -> @agent-updater - Success criteria: - Every citation key in project markdown files resolves or is flagged as blocking. - Every unre",
+        "- Completion date: 2026-04-18 - Final status: Completed (project remains BLOCKED for release pending remediation of open MAJOR findings)"
+      ],
+      "source_mtime": 1779285118.6175292
+    },
+    {
+      "doc_id": 2,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/audit-rigour-tightening.plan.md",
+      "title": "Plan: Audit Rigour Tightening",
+      "length": 77,
+      "snippet": "- Trigger: User requested greater auditing rigour with near-zero error tolerance. - Goal: Enforce fail-closed fact and citation verification across orchestration and audit agents. - Agent sequence: @security -> @orchestrator -> @technical-v",
+      "paragraphs": [
+        "- Trigger: User requested greater auditing rigour with near-zero error tolerance. - Goal: Enforce fail-closed fact and citation verification across orchestration and audit agents. - Agent sequence: @security -> @orchestrator -> @technical-validator -> @reference-manager -> @conflict-auditor -> @agent-updater - Success criteria: - Fact verification requires explicit evidence mapping and UNVERIFIED blocking behavior. - Citation verification requires key-level, metadata-level, a",
+        "- Completion date: 2026-04-18 - Final status: Completed"
+      ],
+      "source_mtime": 1779285118.6182218
+    },
+    {
+      "doc_id": 3,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/egyptian-cosmopolitanism.plan.md",
+      "title": "Plan: Egyptian Cosmopolitanism and Religious Transformation",
+      "length": 107,
+      "snippet": "**Plan name:** egyptian-cosmopolitanism **Trigger:** User request \u2014 April 18, 2026 **Goal:** Produce a scholarly research report examining Egyptian cosmopolitan life before mass Jewish emigration (pre-1948), the impact on religious toleranc",
+      "paragraphs": [
+        "**Plan name:** egyptian-cosmopolitanism **Trigger:** User request \u2014 April 18, 2026 **Goal:** Produce a scholarly research report examining Egyptian cosmopolitan life before mass Jewish emigration (pre-1948), the impact on religious tolerance, and transformation over the following half-century, with attention to Coptic and Eastern Orthodox communities. **Output directory:** `EgyptianDevelopment/`",
+        "1. `@topic-scoping-expert` \u2192 Research plan and source strategy 2. `@literature-review-expert` \u2192 Survey of scholarly literature 3. `@main-analysis-expert` \u2192 Core analysis 4. `@conclusion-expert` \u2192 Conclusion and executive summary 5. `@reference-manager` \u2192 Compile and verify bibliography.bib",
+        "- Minimum 12 Chicago Author-Date citations, all verifiable via DOI or repository record - Covers: pre-1948 cosmopolitan Egypt; Jewish emigration and its causes; impact on religious pluralism; Coptic community treatment; Eastern Orthodox (Greek, Armenian) communities; transformation 1948\u20132000 - No fabricated references - Full Chicago bibliography appended",
+        "All outputs in `EgyptianDevelopment/` \u2014 remove folder to revert."
+      ],
+      "source_mtime": 1779285118.6188612
+    },
+    {
+      "doc_id": 4,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/labor-matching-macro-history.plan.md",
+      "title": "Plan Summary: Labor Matching Macro History Project",
+      "length": 85,
+      "snippet": "- Plan slug: labor-matching-macro-history - Trigger: Build a new project in Matching summarizing early history and influence of labor matching models in macroeconomics - Goal: Produce a representative, accurate four-part research deliverabl",
+      "paragraphs": [
+        "- Plan slug: labor-matching-macro-history - Trigger: Build a new project in Matching summarizing early history and influence of labor matching models in macroeconomics - Goal: Produce a representative, accurate four-part research deliverable with verified bibliography - Agent sequence: @topic-scoping-expert -> @literature-review-expert -> @main-analysis-expert -> @conclusion-expert -> @reference-manager - Success criteria: - New project created under Projects/Matching/LaborMa",
+        "- Completion status: COMPLETE - Completion date: April 18, 2026"
+      ],
+      "source_mtime": 1779285118.6195295
+    }
+  ],
+  "postings": {
+    "plan": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 3
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "summary": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "adversarial": [
+      {
+        "doc_id": 0,
+        "tf": 3
+      }
+    ],
+    "conflict": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      }
+    ],
+    "audit": [
+      {
+        "doc_id": 0,
+        "tf": 4
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "labor": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "matching": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 4
+      }
+    ],
+    "project": [
+      {
+        "doc_id": 0,
+        "tf": 4
+      },
+      {
+        "doc_id": 1,
+        "tf": 4
+      },
+      {
+        "doc_id": 4,
+        "tf": 4
+      }
+    ],
+    "slug": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "adversarial-conflict-audit-labor-matching": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "trigger": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "subject": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "factual": [
+      {
+        "doc_id": 0,
+        "tf": 3
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "claims": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "citations": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "audits": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "goal": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "labormatchingmacroeconomics": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "remediate": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "defects": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "report": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "pass": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "block": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "status": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "agent": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "sequence": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "technical-validator": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "reference-manager": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "conflict-auditor": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "success": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "criteria": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "every": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "claim": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      }
+    ],
+    "files": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "checked": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "overreach": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "ambiguity": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "contradiction": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "risk": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "citation": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "corresponding": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "bibliography": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "record": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "consistent": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "in-text": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "metadata": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "cross-file": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "contradictions": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "identified": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "either": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "resolved": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "explicitly": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "flagged": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "result": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "recorded": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "severity-labeled": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "findings": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "disposition": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      }
+    ],
+    "rollback": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "notes": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "revert": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "only": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "remediation": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "edits": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "user": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "rejects": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "changes": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "completion": [
+      {
+        "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "complete": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "date": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "april": [
+      {
+        "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "apply": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "standards": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "egyptian": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "cosmopolitan": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "requested": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "application": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "new": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 3
+      }
+    ],
+    "fail-closed": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "bring": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "egyptiandevelopment": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "deliverables": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "compliance": [
+      {
+        "doc_id": 1,
+        "tf": 3
+      }
+    ],
+    "strict": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "fact": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "verification": [
+      {
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 2,
+        "tf": 4
+      }
+    ],
+    "requirements": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "security": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "primary-producer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "agent-updater": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "key": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "markdown": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "resolves": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "blocking": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "unresolved": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "issue": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "tracked": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "include": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "auditable": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "section": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "audit-status": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "insertions": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "related": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "preserve": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "existing": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "argumentation": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "content": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "unless": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "correction": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "required": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "final": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "completed": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "remains": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "blocked": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "release": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "pending": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "open": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "major": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "rigour": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "tightening": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "greater": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "auditing": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "near-zero": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "error": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "tolerance": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "enforce": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "across": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "orchestration": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "agents": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "orchestrator": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "requires": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "explicit": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "evidence": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "mapping": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "unverified": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "behavior": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "key-level": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "metadata-level": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "resolver-level": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "checks": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "workflows": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "mandatory": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "gates": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "progression": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "failures": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "specific": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "updated": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "policy": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "sections": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "affected": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "unrelated": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "cosmopolitanism": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "religious": [
+      {
+        "doc_id": 3,
+        "tf": 3
+      }
+    ],
+    "transformation": [
+      {
+        "doc_id": 3,
+        "tf": 3
+      }
+    ],
+    "name": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "egyptian-cosmopolitanism": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "request": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "produce": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "scholarly": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "research": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "examining": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "life": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "before": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "mass": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "jewish": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "emigration": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "pre-1948": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "impact": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "over": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "following": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "half-century": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "attention": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "coptic": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "eastern": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "orthodox": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "communities": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "output": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "directory": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "topic-scoping-expert": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "source": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "strategy": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "literature-review-expert": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "survey": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "literature": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "main-analysis-expert": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "core": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "analysis": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "conclusion-expert": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "conclusion": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "executive": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "compile": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "verify": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "bib": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "minimum": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "chicago": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "author-date": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "verifiable": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "via": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "doi": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "repository": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "covers": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "egypt": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "causes": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "pluralism": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "community": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "treatment": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "greek": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "armenian": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "fabricated": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "references": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "full": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "appended": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "outputs": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "remove": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "folder": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "macro": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "history": [
+      {
+        "doc_id": 4,
+        "tf": 2
+      }
+    ],
+    "labor-matching-macro-history": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "build": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "summarizing": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "early": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "influence": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "models": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "macroeconomics": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "representative": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "accurate": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "four-part": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "deliverable": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "verified": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "created": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "under": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "projects": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "present": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "research-plan": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "literature-review": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "supported": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "standard": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "field-defining": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "sources": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "included": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "each": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "file": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "scope": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "framing": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ]
+  },
+  "avgdl": 90.8,
+  "N": 5
+}
