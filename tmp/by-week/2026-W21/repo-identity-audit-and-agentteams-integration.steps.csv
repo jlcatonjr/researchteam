@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Inventory identity and path references,"workspace files; .github; brief.json","reference inventory","done","active and backup scopes separated"
+2,orchestrator,Apply repository name and path updates,"inventory from step 1","updated active config/docs","done","updated active files; left backup snapshots unchanged"
+3,orchestrator,Audit project accuracy and infrastructure quality,"Projects/ directory contents","findings report","done","review completed for JSModules/cssfiles/Matching/ZeldaTimeline"
+4,orchestrator,Design AgentTeams update automation,"current agent infra; CI options","implementation plan with CI/CD","done","plan written to tmp/by-week/2026-W21/agentteams-update-merge-cicd-plan.md"
+5,orchestrator,Validate and summarize,"edited files and findings","final user report","done","validation complete; ready for user handoff"

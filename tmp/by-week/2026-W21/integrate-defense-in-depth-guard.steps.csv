@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Add workflow forbidden-path guard,".github/workflows/agentteams-sync.yml","pre/post filesystem checks","done","defense in depth"
+2,orchestrator,Update policy docs,"docs/agentteams-update-policy.md","guard policy note","done","document enforcement layer"
+3,orchestrator,Validate and close,"edited workflow/docs","clean diagnostics + completion stamps","done","finalize integration"

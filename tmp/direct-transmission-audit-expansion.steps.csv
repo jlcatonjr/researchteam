@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes
+1,@adversarial,Challenge current narrative assumptions,01-03 markdown files,Audit findings list,done,Identified over-strong claims and evidence gaps
+2,@conflict-auditor,Check cross-file consistency,01-03 markdown files,Contradiction findings,done,Resolved chronology and claim-strength inconsistencies
+3,@literature-review-expert,Broaden source set for last 20 years,Existing references + PDF reference corpus,Expanded source shortlist,done,Added multiple 2005-2024 sources
+4,@main-analysis-expert,Revise narratives per findings,Audit findings + expanded sources,Updated 01-03 markdown files,done,Revised framing and added expanded-source section
+5,@reference-manager,Update bibliography and citation alignment,Revised files + source shortlist,Updated bibliography.bib,done,Added supporting records for new citations
+6,@conflict-auditor,Final consistency re-audit,Updated files,Closed audit report,done,Audit closed with no blocking defects

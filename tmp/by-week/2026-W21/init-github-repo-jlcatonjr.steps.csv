@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Check git and gh prerequisites,"local workspace; gh cli","state and auth report","pending","detect blockers early"
+2,orchestrator,Initialize local git repository,"workspace files","git repo with main branch","pending","skip if already initialized"
+3,orchestrator,Create remote under jlcatonjr,"gh authenticated session","remote repository and origin mapping","pending","handle already-exists path"
+4,orchestrator,Commit and push main,"local repo and origin","remote branch content","pending","push current snapshot"
+5,orchestrator,Summarize setup status,"execution outputs","repo URL and next steps","pending","include any blockers"

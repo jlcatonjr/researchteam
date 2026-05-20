@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Zelda Timeline Report Reader</title>
+  <link rel="stylesheet" href="../cssfiles/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    .reader-header {
+      margin-bottom: 24px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 16px;
+    }
+
+    .reader-header h1 {
+      margin: 0;
+      line-height: 1.2 !important;
+    }
+
+    .reader-header p {
+      margin: 6px 0 !important;
+      font-size: 18px !important;
+    }
+
+    .doc-block {
+      margin-bottom: 56px;
+      scroll-margin-top: 24px;
+    }
+
+    .doc-block h1 {
+      font-size: 1.45em;
+    }
+
+    .doc-block h2,
+    .doc-block h3 {
+      scroll-margin-top: 24px;
+    }
+
+    .loading {
+      font-style: italic;
+      opacity: 0.75;
+    }
+
+    .error-box {
+      border: 1px solid #c00;
+      background: #fff5f5;
+      padding: 10px;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+
+    .fatal-box {
+      border: 2px solid #b00020;
+      background: #ffecef;
+      color: #600;
+      padding: 12px;
+      font-size: 16px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
+    .toc-link-doc {
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .toc-link-sub {
+      padding-left: 20px;
+      font-size: 0.75em;
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <h3 style="text-align: center;">Navigation</h3>
+    <ul id="sidebarList"></ul>
+  </aside>
+
+  <main class="main-content">
+    <section class="reader-header" id="Top">
+      <h1>Zelda Timeline Report</h1>
+      <p>Compiled reader for the standard 00-03 report set.</p>
+      <p>Includes branch themes, BOTW/TOTK placement analysis, and character distribution with Tingle coverage.</p>
+    </section>
+
+    <section id="readerContent" class="section_div">
+      <p class="loading">Loading report documents...</p>
+    </section>
+  </main>
+
+  <script>
+    mermaid.initialize({ startOnLoad: false, securityLevel: 'loose' });
+
+    const documents = [
+      { id: 'doc-00', file: '00-research-plan.md', title: '00 Research Plan' },
+      { id: 'doc-01', file: '01-literature-review.md', title: '01 Literature Review' },
+      { id: 'doc-02', file: '02-analysis.md', title: '02 Analysis' },
+      { id: 'doc-03', file: '03-conclusion.md', title: '03 Conclusion' }
+    ];
+
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
+    }
+
+    function addSidebarLink(listEl, href, label, extraClass) {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = href;
+      a.textContent = label;
+      if (extraClass) a.className = extraClass;
+      li.appendChild(a);
+      listEl.appendChild(li);
+    }
+
+    async function loadDocs() {
+      const container = document.getElementById('readerContent');
+      const sidebar = document.getElementById('sidebarList');
+      let hadFailure = false;
+      container.innerHTML = '';
+
+      addSidebarLink(sidebar, '#Top', 'Top', 'toc-link-doc');
+
+      for (const doc of documents) {
+        try {
+          const response = await fetch(doc.file);
+          if (!response.ok) {
+            throw new Error(`Failed to load ${doc.file} (${response.status})`);
+          }
+
+          const md = await response.text();
+          const html = marked.parse(md);
+
+          const article = document.createElement('article');
+          article.className = 'section_div doc-block';
+          article.id = doc.id;
+          article.innerHTML = html;
+
+          const headingNodes = article.querySelectorAll('h2, h3');
+          headingNodes.forEach((node, i) => {
+            if (!node.id) {
+              node.id = `${doc.id}-${slugify(node.textContent)}-${i + 1}`;
+            }
+          });
+
+          container.appendChild(article);
+
+          addSidebarLink(sidebar, `#${doc.id}`, doc.title, 'toc-link-doc');
+
+          headingNodes.forEach(node => {
+            const cls = node.tagName === 'H2' ? 'toc-link-sub' : 'toc-link-sub';
+            addSidebarLink(sidebar, `#${node.id}`, node.textContent, cls);
+          });
+        } catch (err) {
+          hadFailure = true;
+          const errorEl = document.createElement('div');
+          errorEl.className = 'error-box';
+          errorEl.textContent = `${doc.file}: ${err.message}`;
+          container.appendChild(errorEl);
+        }
+      }
+
+      if (hadFailure) {
+        const fatal = document.createElement('div');
+        fatal.className = 'fatal-box';
+        fatal.textContent = 'Reader completeness warning: one or more core report files failed to load. Do not treat this view as complete.';
+        container.prepend(fatal);
+      }
+
+      await mermaid.run({ querySelector: '.language-mermaid' });
+    }
+
+    loadDocs();
+  </script>
+</body>
+</html>

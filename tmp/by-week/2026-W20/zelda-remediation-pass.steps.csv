@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Patch 00-03 verification language and analysis structure,Existing ZeldaTimeline markdown files,Updated 00-03 markdown files,done,Aligned release-gate wording and added source-anchored BOTW/TOTK timeline graph with confidence levels
+2,orchestrator,Patch bibliography and reader robustness,bibliography.bib and ZeldaTimelineReader.html,Updated bib and reader,done,Updated undated web entry year format and added reader completeness warning plus mermaid support
+3,orchestrator,Run post-remediation consistency check,All remediated files,Updated remediation status and findings note,done,Verified updates via targeted grep and header readback checks

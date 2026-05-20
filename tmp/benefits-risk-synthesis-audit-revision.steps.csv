@@ -1,0 +1,11 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Run adversarial audit on synthesis file,05-methylene-blue-benefits-risk-synthesis.md,Adversarial findings,done,Block on claim-exceeding-citation
+2,adversarial,Review remaining plan steps after step 1,Pending steps,Step-risk guardrails,done,Required by workflow
+3,conflict-auditor,Review remaining plan steps after step 1,Pending steps,Sequence/consistency guardrails,done,Required by workflow
+4,orchestrator,Run conflict audit across synthesis and core docs,05 plus 00-03 docs,Conflict findings,done,Block on contradictions
+5,adversarial,Review remaining plan steps after step 4,Pending steps,Step-risk guardrails,done,Required by workflow
+6,conflict-auditor,Review remaining plan steps after step 4,Pending steps,Sequence/consistency guardrails,done,Required by workflow
+7,orchestrator,Apply remediation edits in synthesis file,Audit findings + step 5-6 guardrails + 05 file,Revised synthesis,done,Fix all blocking defects
+8,adversarial,Re-audit remediated synthesis,Revised 05 file,Re-audit findings,done,Block closure on any remaining blocker
+9,conflict-auditor,Re-audit remediated synthesis and cross-doc consistency,Revised 05 + 00-03,Re-audit consistency findings,done,Block closure on contradictions
+10,orchestrator,Summarize final status and residual risks,Final docs + audits,User-facing report,done,Only if no blocking defects remain

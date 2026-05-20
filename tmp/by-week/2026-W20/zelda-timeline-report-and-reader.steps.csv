@@ -1,0 +1,5 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Collect and verify sources,User brief and trusted repositories,Source set with URLs,done,Direct runtime web fetch blocked; used canonical official references plus user-provided timeline URL and marked conditional verification
+2,orchestrator,Draft standard template documents,Verified source set,00-03 markdown files,done,Included branch themes BOTW/TOTK placement and Tingle with character distribution analysis
+3,orchestrator,Build complete reader with sidebar,00-03 markdown files and project style conventions,HTML reader,done,Created complete HTML reader that loads all report documents and auto-builds sidebar navigation
+4,orchestrator,Run final consistency pass,All generated files,Issue summary and readiness note,done,Confirmed requested artifacts exist and required coverage items are present

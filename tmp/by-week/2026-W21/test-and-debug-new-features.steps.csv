@@ -1,0 +1,5 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Run targeted checks,"scripts/workflow/js files","test outputs and failures","done","found non-git validator failure and JS illegal return"
+2,orchestrator,Patch defects,"findings from step 1","fixed implementation","done","validator override/non-git handling + placeholder scope + sidebar handler fix"
+3,orchestrator,Re-run checks,"updated files","verification results","done","validator behavior and JS syntax verified"
+4,orchestrator,Summarize debug outcomes,"all findings and reruns","user-facing report","done","ready for handoff"

@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,@topic-scoping-expert,Define scope and key questions,user prompt,project framing and section outline,done,Focus on tension between submarket and aggregate GE
+2,@literature-review-expert,Summarize foundational literature,canonical labor-matching papers,literature review draft,done,Must cover search, matching function, DMP, directed search
+3,@main-analysis-expert,Develop analytical synthesis,literature review and core models,analysis draft,done,Center on partial-equilibrium vs macro GE consistency
+4,@conclusion-expert,Write synthesis and implications,analysis draft,conclusion and executive summary,done,State dominant framework limits and robust findings
+5,@reference-manager,Compile verified bibliography,citation list,bibliography.bib,done,Use established publications and standard metadata

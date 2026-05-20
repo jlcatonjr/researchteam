@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes
+1,@adversarial,Challenge assumptions and hidden risks,"User request; evidence packet","Assumption/risk notes",done,"Completed via generic subagent adversarial prompt because named agent routing unavailable"
+2,@conflict-auditor,Check plan consistency,"Plan + steps","Consistency notes",done,"Completed via generic subagent conflict-audit prompt because named agent routing unavailable"
+3,@primary-producer,Draft research-plan file,"Scope + methods","Projects/SiezureTransition/00-research-plan.md",done,"Created research question, scope, method, and evidence hierarchy"
+4,@primary-producer,Draft literature review,"Evidence packet + source hierarchy","Projects/SiezureTransition/01-literature-review.md",done,"Created 25-year synthesis with explicit 2021-2026 emphasis"
+5,@primary-producer,Draft transition analysis,"Evidence packet + risk framing","Projects/SiezureTransition/02-analysis.md",done,"Created safety-first transition analysis and non-claim boundaries"
+6,@primary-producer,Draft conclusion and recommendations,"Prior sections","Projects/SiezureTransition/03-conclusion.md",done,"Created executive summary and evidence-bounded conclusions"
+7,@primary-producer,Create bibliography,"Verified citation metadata","Projects/SiezureTransition/references/bibliography.bib",done,"Added PubMed-verified citation set with DOI/PMID/URL fields"
+8,@technical-validator,Verify factual and citation alignment,"All drafted files","Validation notes",done,"Cross-checked drafted claims against compiled evidence packet and explicit evidence-gap statements"
+9,@conflict-auditor,Final consistency audit,"All drafted files + validation notes","Closeout status",done,"No unresolved UNVERIFIED markers in drafted project files"

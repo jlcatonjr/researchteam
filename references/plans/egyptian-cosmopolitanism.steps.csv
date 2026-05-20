@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,topic-scoping-expert,Define research question and source strategy,User request,EgyptianDevelopment/00-research-plan.md,done,
+2,literature-review-expert,Survey scholarly literature and verify citations,Research plan,EgyptianDevelopment/01-literature-review.md,done,
+3,main-analysis-expert,Core analysis of cosmopolitanism and transformation,Literature review,EgyptianDevelopment/02-analysis.md,done,
+4,conclusion-expert,Conclusion and executive summary,Analysis,EgyptianDevelopment/03-conclusion.md,done,
+5,reference-manager,Compile verified bibliography,All reports,EgyptianDevelopment/references/bibliography.bib,done,

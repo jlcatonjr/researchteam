@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,@adversarial,Challenge factual assumptions and hidden presuppositions,Project markdown files,Adversarial findings ledger,done,Focus on over-generalized claims and unresolved debates
+2,@technical-validator,Validate factual claims against cited literature,Project markdown files plus bibliography,Fact-check findings and remediation list,done,Mark unsupported or weakly supported claims
+3,@reference-manager,Validate citation integrity and bibliography consistency,In-text citations and bibliography.bib,Citation findings and fixes,done,Check missing/unused/mismatched references
+4,@conflict-auditor,Run cross-file consistency review,All project files,Conflict audit report with status,done,Ensure no contradictions across sections
+5,@primary-producer,Apply remediation edits and finalize audit record,All findings,Updated files plus final audit report,done,Set release status pass/block with reasons

@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Review current SiezureTransition documents for insertion points,00-03 markdown files,Target sections for edits,done,Must preserve existing citation integrity
+2,orchestrator,Add profitability/availability analysis to literature review,01-literature-review.md,New subsection with bounded inferences,done,Do not imply efficacy from funding patterns
+3,orchestrator,Integrate impact on decision framework in analysis and conclusion,02-analysis.md;03-conclusion.md,Updated safety-weighted conclusions,done,Keep fail-closed framing
+4,adversarial,Audit revised documents for hidden assumptions and overreach,Updated 01-03 docs (+00 if modified),Findings report,done,Block on claim-exceeding-citation
+5,conflict-auditor,Audit cross-document consistency and claim alignment,Updated 01-03 docs (+00 if modified),Consistency report,done,Block on contradictions
+6,orchestrator,Apply remediation edits from audits,Audit findings + documents,Remediated docs,done,Resolve all blocking defects
+7,adversarial,Re-audit remediated documents for overreach,Remediated docs,Re-audit findings,done,Block finalization on any remaining blocker
+8,conflict-auditor,Re-audit remediated documents for consistency,Remediated docs,Re-audit consistency findings,done,Block finalization on any remaining contradiction
+9,orchestrator,Summarize updates and residual risks,Final docs + audit outcomes,User-facing completion report,done,Only complete if no blocking defects remain

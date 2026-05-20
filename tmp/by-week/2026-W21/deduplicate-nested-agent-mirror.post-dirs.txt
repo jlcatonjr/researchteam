@@ -1,0 +1,8 @@
+.github/agents
+.github/agents/.agentteams-backups
+.github/agents/.agentteams-backups/20260510-220548
+.github/agents/.agentteams-backups/20260512-225205
+.github/agents/.agentteams-backups/20260512-230159
+.github/agents/.agentteams-backups/20260512-230412
+.github/agents/.agentteams-backups/20260520-nested-agent-mirror
+.github/agents/references

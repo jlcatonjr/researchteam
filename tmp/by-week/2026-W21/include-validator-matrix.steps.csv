@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Add validator matrix section,"docs/agentteams-update-policy.md","documented test commands and expected outcomes","done","include pass/fail scenarios"
+2,orchestrator,Validate documentation update,"updated policy doc","no diagnostics","done","sanity check only"
+3,orchestrator,Record completion,"plan tracking files","completed statuses","done","closeout"

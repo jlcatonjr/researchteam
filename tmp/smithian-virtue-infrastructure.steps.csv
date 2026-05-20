@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,create standard folder/file scaffold,existing html draft and established project template,00-03 markdown files and references dir,done,Created scaffold and references directory
+2,orchestrator,extract and normalize references,html references section,references/bibliography.bib,done,Extracted references and normalized BibTeX records
+3,orchestrator,contextualize in literature,html body plus extracted citations,01-literature-review.md,done,Added contextual literature map and verification notes
+4,orchestrator,provide development guidance,current draft structure and literature gaps,03-conclusion.md guidance section,done,Added staged roadmap and readiness criteria
+5,orchestrator,final consistency pass,new files and links,validated infrastructure summary,done,Confirmed expected files exist and basic consistency

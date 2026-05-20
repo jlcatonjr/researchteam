@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,@primary-producer,Read voice standards and draft report,User request + voice guidance,Publication revision report draft,done,Drafted 2-paragraph publication recommendation and short references
+2,@adversarial,Audit report assumptions and rhetoric,Report draft,Adversarial findings,done,Recorded key presupposition failures and required revisions
+3,@conflict-auditor,Audit report-reference consistency,Report draft + references,Contradiction findings,done,No internal contradiction found
+4,@reference-manager,Finalize reference shortlist and format,Audit findings + bibliography,Updated report references,done,All listed references verified in bibliography
+5,@conflict-auditor,Close audit after revisions,Final report,Final audit status,done,Final status set to ACCEPT with major-revision recommendation

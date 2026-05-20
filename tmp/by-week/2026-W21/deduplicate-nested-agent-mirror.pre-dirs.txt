@@ -1,0 +1,3 @@
+.github/agents/.github
+.github/agents/.github/agents
+.github/agents/.github/agents/references

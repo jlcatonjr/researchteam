@@ -1,0 +1,64 @@
+{
+  "project_name": "ResearchTeam",
+  "project_goal": "Conduct rigorous scholarly research on any user-specified topic, producing well-structured research reports with verified citations drawn exclusively from established academic repositories (JSTOR, PubMed, SSRN, arXiv, Google Scholar, CrossRef, Semantic Scholar). All claims must be grounded in peer-reviewed or reputable scholarly sources and presented with Chicago bibliography/citation formatting.",
+  "deliverables": [
+    "Markdown research reports",
+    "BibTeX bibliography",
+    "Executive summary"
+  ],
+  "output_format": "Markdown with Chicago citations",
+  "primary_output_dir": "reports/",
+  "build_output_dir": "output/",
+  "figures_dir": "figures/",
+  "reference_db_path": "references/bibliography.bib",
+  "governance_agents": [
+    "adversarial",
+    "agent-refactor",
+    "agent-updater",
+    "cleanup",
+    "code-hygiene",
+    "conflict-auditor",
+    "conflict-resolution",
+    "navigator",
+    "repo-liaison",
+    "security"
+  ],
+  "selected_archetypes": [
+    "primary-producer",
+    "quality-auditor",
+    "cohesion-repairer",
+    "technical-validator",
+    "format-converter",
+    "reference-manager",
+    "output-compiler",
+    "visual-designer"
+  ],
+  "tools": [
+    {
+      "name": "BibTeX",
+      "category": "library"
+    },
+    {
+      "name": "Pandoc",
+      "category": "cli"
+    }
+  ],
+  "components": [
+    {
+      "slug": "topic-scoping",
+      "name": "Topic Scoping and Research Plan"
+    },
+    {
+      "slug": "literature-review",
+      "name": "Literature Review"
+    },
+    {
+      "slug": "main-analysis",
+      "name": "Main Analysis"
+    },
+    {
+      "slug": "conclusion",
+      "name": "Conclusion and Executive Summary"
+    }
+  ]
+}

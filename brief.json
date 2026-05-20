@@ -1,0 +1,179 @@
+{
+  "project_name": "ResearchTeam",
+  "project_goal": "Conduct rigorous scholarly research on any user-specified topic, producing well-structured research reports with verified citations drawn exclusively from established academic repositories (JSTOR, PubMed, SSRN, arXiv, Google Scholar, CrossRef, Semantic Scholar). All claims must be grounded in peer-reviewed or reputable scholarly sources and presented with Chicago bibliography/citation formatting.",
+  "deliverables": [
+    "Markdown research reports",
+    "BibTeX bibliography",
+    "Executive summary"
+  ],
+  "output_format": "Markdown with Chicago citations",
+  "primary_output_dir": "reports/",
+  "build_output_dir": "output/",
+  "figures_dir": "figures/",
+  "reference_db_path": "references/bibliography.bib",
+  "reference_key_convention": "AuthorYear",
+  "authority_sources": [
+    {
+      "name": "JSTOR",
+      "path": "https://www.jstor.org",
+      "scope": "humanities and social science peer-reviewed articles",
+      "rank": 1
+    },
+    {
+      "name": "PubMed / MEDLINE",
+      "path": "https://pubmed.ncbi.nlm.nih.gov",
+      "scope": "biomedical and life-science literature",
+      "rank": 1
+    },
+    {
+      "name": "arXiv",
+      "path": "https://arxiv.org",
+      "scope": "preprints in STEM fields",
+      "rank": 2
+    },
+    {
+      "name": "SSRN",
+      "path": "https://ssrn.com",
+      "scope": "economics, law, and social science working papers",
+      "rank": 2
+    },
+    {
+      "name": "Semantic Scholar",
+      "path": "https://www.semanticscholar.org",
+      "scope": "cross-disciplinary scholarly literature discovery and metadata",
+      "rank": 2
+    },
+    {
+      "name": "CrossRef",
+      "path": "https://www.crossref.org",
+      "scope": "DOI resolution and bibliographic metadata verification",
+      "rank": 3
+    },
+    {
+      "name": "Google Scholar",
+      "path": "https://scholar.google.com",
+      "scope": "broad academic literature discovery and citation counts",
+      "rank": 3
+    }
+  ],
+  "style_rules": [
+    "All citations must follow Chicago Author-Date style (17th edition)",
+    "Include a full Chicago-formatted bibliography at the end of every report",
+    "Inline citations use the form (Author Year, page) or (Author Year) for general references",
+    "Never fabricate or hallucinate sources; every citation must be verifiable via DOI, URL, or repository record",
+    "Launch a followup investigation for any citation missing a url",
+    "Audit all URLs for accuracy using playwright to load each (only use headless=False if loading fails or is anemic",
+    "Flag any source that cannot be verified as UNVERIFIED and exclude it from the final report",
+    "Prefer peer-reviewed journal articles and books over grey literature",
+    "Distinguish clearly between empirical findings, theoretical arguments, and author opinion",
+    "Summarise conflicting scholarly positions fairly before offering a synthesis",
+    "Use clear section headings: Introduction, Literature Review, Analysis, Conclusion, References"
+  ],
+  "tools": [
+    {
+      "name": "BibTeX",
+      "category": "library"
+    },
+    {
+      "name": "Pandoc",
+      "category": "cli"
+    },
+    {
+      "name": "CrossRef API",
+      "category": "other",
+      "docs_url": "https://api.crossref.org/swagger-ui/index.html",
+      "api_surface": "GET /works/{doi} — resolve a DOI and retrieve full bibliographic metadata.\nGET /works?query={title}&query.author={author} — search by title and author.\nReturns JSON with fields: DOI, title, author, published, container-title, volume, issue, page.",
+      "common_patterns": "Always verify DOIs via CrossRef before including a citation. Use the `mailto` query parameter for polite pool access. Treat HTTP 404 as DOI not found; flag as UNVERIFIED."
+    },
+    {
+      "name": "Semantic Scholar API",
+      "category": "other",
+      "docs_url": "https://api.semanticscholar.org/api-docs/",
+      "api_surface": "GET /graph/v1/paper/search?query={q}&fields=title,authors,year,externalIds,venue — keyword search.\nGET /graph/v1/paper/{paperId}?fields=title,authors,year,abstract,externalIds,citationCount — paper details.\nexternalIds includes DOI, ArXiv, PubMed identifiers.",
+      "common_patterns": "Use Semantic Scholar for cross-disciplinary discovery and citation counts. Always follow up with CrossRef or the source repository (PubMed, arXiv) to confirm metadata before adding to bibliography."
+    }
+  ],
+  "conversion_pipeline": "pandoc --from markdown --to html -o output/{slug}.html",
+  "components": [
+    {
+      "slug": "topic-scoping",
+      "name": "Topic Scoping and Research Plan",
+      "number": 1,
+      "output_file": "00-research-plan.md",
+      "description": "Defines the research question, scope boundaries, methodology, and a prioritised list of sources to consult. Produced before any drafting begins.",
+      "sections": [
+        "Research Question",
+        "Scope and Exclusions",
+        "Methodology",
+        "Source Strategy",
+        "Anticipated Structure"
+      ],
+      "quality_criteria": [
+        "Research question is specific and answerable",
+        "At least 5 candidate sources identified with repository URLs or DOIs",
+        "Scope explicitly states what is excluded",
+        "Methodology describes how evidence will be gathered and synthesised"
+      ]
+    },
+    {
+      "slug": "literature-review",
+      "name": "Literature Review",
+      "number": 2,
+      "output_file": "01-literature-review.md",
+      "description": "Surveys the existing scholarly literature on the topic, identifies key themes and debates, and states the research gap or synthesis the report will address.",
+      "sections": [
+        "Overview of the Field",
+        "Key Themes and Debates",
+        "Synthesis and Research Gap"
+      ],
+      "quality_criteria": [
+        "Minimum 10 Chicago-formatted citations",
+        "All citations verified via DOI or repository record",
+        "No citation fabrication",
+        "Research gap clearly articulated",
+        "Conflicting scholarly positions fairly represented"
+      ],
+      "cross_refs": ["topic-scoping", "main-analysis"]
+    },
+    {
+      "slug": "main-analysis",
+      "name": "Main Analysis",
+      "number": 3,
+      "output_file": "02-analysis.md",
+      "description": "Conducts the core analytical work of the report, engaging directly with primary sources, applying the chosen methodology, and building the argument from the literature.",
+      "sections": [
+        "Introduction to Analysis",
+        "Evidence and Argument",
+        "Counter-Arguments and Responses",
+        "Conclusion of Analysis"
+      ],
+      "quality_criteria": [
+        "Every factual claim supported by a verifiable Chicago citation",
+        "Counter-arguments acknowledged and addressed",
+        "Reasoning is logically valid and follows from cited evidence",
+        "No unsupported assertions"
+      ],
+      "cross_refs": ["literature-review", "conclusion"]
+    },
+    {
+      "slug": "conclusion",
+      "name": "Conclusion and Executive Summary",
+      "number": 4,
+      "output_file": "03-conclusion.md",
+      "description": "Summarises the findings, states the contribution to the field, and provides a concise executive summary suitable for a non-specialist audience.",
+      "sections": [
+        "Summary of Findings",
+        "Contribution and Significance",
+        "Limitations and Future Research",
+        "Executive Summary (200 words)"
+      ],
+      "quality_criteria": [
+        "Executive summary is 150–250 words",
+        "All claims traceable to the Main Analysis",
+        "Limitations honestly stated",
+        "No new citations introduced without prior appearance in the report"
+      ],
+      "cross_refs": ["main-analysis"]
+    }
+  ]
+}

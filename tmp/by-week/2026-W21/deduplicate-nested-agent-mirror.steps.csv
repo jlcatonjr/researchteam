@@ -1,0 +1,5 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Inventory nested mirror,".github/agents/.github","pre-dedupe file list","done","59 files inventoried and written to tmp/by-week/2026-W21"
+2,orchestrator,Archive nested mirror,".github/agents/.github","dated archive copy","done","archived to .github/agents/.agentteams-backups/20260520-nested-agent-mirror/.github"
+3,orchestrator,Remove active nested mirror,".github/agents/.github","deduplicated active tree","done","removed only after pre/archive count parity"
+4,orchestrator,Record post-state and validate,"active and archive paths","post-dedupe ledger and diagnostics","done","ledger updated and post-state directories captured"

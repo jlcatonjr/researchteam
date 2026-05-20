@@ -1,0 +1,5 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Implement Step 2 JS hardening,"sidebar.js; tableLoader.js; tableHTMLLoader.js","runtime-safe JS modules","done","sidebar guard and missing-table graceful handling added"
+2,orchestrator,Implement Step 1 infra normalization,".github/agents tree","authority and quarantine docs","done","non-destructive authority mapping and legacy mirror notice added"
+3,orchestrator,Implement Step 0 CI automation files,"workflow + validation + policy requirements","workflow/script/docs created","done","dry-run-first workflow and validator policy created"
+4,orchestrator,Validate and report,"edited files","error check and execution summary","done","file diagnostics run; ready for handoff"

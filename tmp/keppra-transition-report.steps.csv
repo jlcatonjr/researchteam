@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes
+1,@orchestrator,Create plan files,User request,tmp/keppra-transition-report.plan.md + .steps.csv,done,Plan created per constitutional rule 10
+2,@primary-producer,Draft 06-keppra-transition-report.md,bibliography.bib + 00-05 existing docs,Projects/SiezureTransition/06-keppra-transition-report.md,done,Full evidence-tiered report on LEV transition safety
+3,@reference-manager,Verify all citation keys in draft,06-keppra-transition-report.md + bibliography.bib,PASS — all 21 citations verified; tomson2018eurap added to bib,done,All keys verified; EURAP 2018 added for pregnancy section
+4,@adversarial,Presupposition audit of draft,06-keppra-transition-report.md,2 CRITICAL + 5 MAJOR + 5 MINOR blockers — all remediated,done,All blockers resolved before acceptance
+5,@conflict-auditor,Consistency audit across all SiezureTransition files,06-keppra-transition-report.md + 00-05 docs,PASS — 3 MINOR findings resolved,done,Consistent with 00/02/03; tier corrections and MB cross-ref applied
+6,@primary-producer,Apply any remediation from steps 4-5,Blocker/conflict findings,Updated 06-keppra-transition-report.md,done,All remediations applied
+7,@orchestrator,Mark plan complete,All steps done,Updated plan.md and steps.csv with completion date,done,Completed May 8 2026

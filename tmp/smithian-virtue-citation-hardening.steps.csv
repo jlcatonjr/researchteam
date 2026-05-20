@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,extract in-text citation inventory,html manuscript,citation token list,done,Identified malformed tokens and missing author-year records
+2,orchestrator,verify citations against local bibliographies,workspace bib files,verified vs unresolved mapping,done,Verified what exists locally and flagged missing sources
+3,orchestrator,update bibliography with locally verifiable entries,current project bibliography plus verified local records,expanded bibliography.bib,done,Added Smith1759 and LeightonLopez2013 only
+4,orchestrator,produce citation audit report,citation mapping and statuses,04-adversarial-conflict-audit.md,done,Audit produced with fail-closed blocker statuses
+5,orchestrator,final conflict/consistency check,new and updated files,updated plan artifacts,done,Session closed with unresolved blockers surfaced explicitly

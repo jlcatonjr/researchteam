@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Design rigorous Option 2 outline,User request + current manuscript context,Structured outline sections with anchor/enforcement logic,done,Must include anti-drift mechanisms explicitly
+2,orchestrator,Map citations to outline claims,Caton 2020 + provided references,Citation mapping embedded in outline,done,Use only relevant sources from provided list
+3,orchestrator,Write markdown deliverable,Outline + citation map,New markdown file in project folder,done,File should be directly usable for drafting section 7

@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes
+1,@security,Review multi-file policy hardening plan,"User request; target files list","Clearance decision",done,"Conditional PASS via local security protocol review; docs-only changes, no destructive operations"
+2,@orchestrator,Update constitutional and workflow gates,"Current orchestrator rules","Fail-closed workflow requirements",done,"No destructive file operations"
+3,@technical-validator,Strengthen factual verification protocol,"Existing CH rules","Evidence-first fact audit rules",done,"UNVERIFIED claims become blocking findings"
+4,@reference-manager,Strengthen citation verification protocol,"Existing anti-fabrication and verification flow","Citation integrity gate",done,"NOT-FOUND and UNVERIFIED are blocking"
+5,@conflict-auditor,Add contradiction categories and blocking behavior,"Current conflict categories and logging","Escalation rules for unresolved verification gaps",done,"Clean audit requires explicit zero-critical unresolved finding state"
+6,@agent-updater,Sync top-level instructions with stricter standards,"Updated agent policies","Aligned constitutional and style requirements",done,"Keep authority hierarchy intact"
+7,@orchestrator,Run final consistency pass,"All modified files","Consistent policy language",done,"Completed consistency scan across updated policy files"

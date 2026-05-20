@@ -1,0 +1,5 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Patch ai-voice and argument-weaver target agent files,agent files in ../jameslcaton/workingpapers/.github/agents,Updated agent definitions,done,Patched AI Voice identity and argument-weaver handoff target
+2,orchestrator,Add sourced timeline split graph to Zelda analysis,02-analysis.md,Graph section with reliable-source note,done,Inserted mermaid split graph and confidence/source note in analysis
+3,orchestrator,Update reader to support graph rendering and verify,ZeldaTimelineReader.html and updated analysis file,Renderable graph in reader,done,Added mermaid renderer plus completeness warning banner for partial load
+4,orchestrator,Validate and report completion,all edited files,Completion summary with remaining risks,done,Confirmed graph section and agent headers via grep/readback

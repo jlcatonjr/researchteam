@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes
+1,@topic-scoping-expert,Define project scope and structure,User request + existing repo conventions,00-research-plan.md draft,done,Prioritized post-1980 scholarship and named economists
+2,@literature-review-expert,Write modernized literature review,Scope doc + key authors,01-literature-review.md,done,Centered four decades of debate and mechanisms
+3,@main-analysis-expert,Produce synthesis and argument,Plan + literature review,02-analysis.md,done,Included RBC displacement and quantity-theory links
+4,@conclusion-expert,Draft conclusion and agenda,Analysis + review,03-conclusion.md,done,Delivered balanced findings and research priorities
+5,@reference-manager,Assemble bibliography,Citations from docs,references/bibliography.bib,done,Chicago author-date compatible entries added
+6,@conflict-auditor,Consistency pass across project,All created files,Internal consistency check,done,No blocking contradictions found in audit pass

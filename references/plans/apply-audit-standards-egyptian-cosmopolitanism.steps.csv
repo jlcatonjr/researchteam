@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes
+1,@security,Review audit-application changes,"Target EgyptianDevelopment files; docs-only policy updates","Clearance decision",done,"Conditional PASS via local security protocol review; no destructive or external-repo operations"
+2,@technical-validator,Extract and assess factual claims for verification status,"00-03 markdown files","Fact verification findings",done,"Marked unresolved major factual findings as blocking"
+3,@reference-manager,Extract and verify citation keys against bibliography,"00-03 markdown files and bibliography.bib","Citation verification findings",done,"Normalized Kraemer key and flagged scope-mismatch citation usage risk"
+4,@primary-producer,Apply compliance edits to project markdown files,"Fact and citation findings","Audit status sections and blocking markers",done,"Applied fail-closed status blocks in 00-03 deliverables"
+5,@conflict-auditor,Run consistency check on updated project files,"Updated EgyptianDevelopment files","Conflict findings",done,"Verified consistent BLOCKED status language and finding IDs across deliverables"
+6,@agent-updater,Sync plan completion metadata,"Plan and step files","Completed plan records",done,"Appended completion date and final status"

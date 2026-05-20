@@ -1,0 +1,261 @@
+html, body {
+  height: 100%;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  margin: 20px 0;     
+  font-family: sans-serif;
+  font-size: 24px;
+}
+/* ————— Sidebar ————— */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;           
+  left: 0;
+  width: 60px;         /* COLLAPSED WIDTH */
+  
+  overflow: hidden;    /* CHANGED: hide all overflow including text */
+  
+  background: #f7f7f7;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  box-sizing: border-box;
+  
+  transition: width 0.3s ease;
+  z-index: 1000;       /* ADDED: ensure sidebar stays on top */
+}
+.sidebar:hover {
+  width: 220px;        /* EXPANDED WIDTH */
+  overflow-y: auto;    /* ADDED: enable scrolling only when expanded */
+}
+
+/* force headings & items to wrap within the expanded width */
+.sidebar h3,
+.sidebar ul li {
+  width: 200px;        /* 220px total minus 2×10px padding */
+  box-sizing: border-box;
+  opacity: 0;          /* ADDED: hide text when collapsed */
+  transition: opacity 1s ease;
+}
+
+/* Show text when sidebar is hovered/expanded */
+.sidebar:hover h3,
+.sidebar:hover ul li {
+  opacity: 1;          /* ADDED: show text when expanded */
+  transition: opacity 0.1s ease;
+}
+
+.sidebar h3 {
+  margin: 0;
+  padding: 0 0 8px 10px;
+  font-size: 1.1em;
+  border-bottom: 1px solid #ccc;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.sidebar ul li + li {
+  margin-top: 8px;
+}
+
+.sidebar a {
+  display: block;
+  width: 100%;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 0.8em;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+}
+.sidebar a:hover {
+  text-decoration: underline;
+}
+
+.main-content {
+  margin-left: 80px;   /* CHANGED: add left margin to account for collapsed sidebar */
+  margin-right: 2.5%;
+  padding: 20px;
+  max-width: calc(100% - 80px - 2.5%); /* ADDED: prevent overflow */
+  box-sizing: border-box;
+  transition: margin-left 0.3s ease;
+}
+
+.section_div {
+  margin-top: 40px;
+  line-height: 2;
+}
+#Abstract {
+  margin: 5% !important;
+}
+p {
+  font-size: 24px;
+  margin-top: 15px !important;
+  margin-bottom: 10px !important;
+}
+#Bibliography {
+  line-height: 1.2 !important;
+}
+blockquote {
+  margin: 10px 40px !important;
+  line-height: 1 !important;
+}
+h1, h2, h3, h4 {
+  line-height: 1 !important;
+  text-align: left;
+  padding-right: 40px;
+}
+.title {
+  font-style: italic;
+  font-size: 32px;
+}
+
+/* ————— Small Phone Styles (Portrait) ————— */
+/* Keep sidebar visible even on small screens */
+@media screen and (max-width: 480px) {
+  body {
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  /* Keep sidebar visible but compact on small phones */
+  .sidebar {
+    width: 30px !important;  /* Very compact but still visible */
+  }
+  
+  .sidebar:hover {
+    width: 180px !important;  /* Smaller expanded width for small screens */
+  }
+  
+  /* Adjust main content for small phones - maintain left margin */
+  .main-content {
+    margin-left: 40px !important;  /* Maintain left margin for sidebar */
+    margin-right: 5px !important;
+    padding: 10px !important;
+    max-width: calc(100% - 40px - 5px) !important;
+  }
+  
+  /* Reduce font sizes */
+  p {
+    font-size: 14px !important;
+  }
+  
+  /* Remove excessive padding on headings */
+  h1, h2, h3, h4 {
+    padding-right: 5px !important;
+  }
+  
+  .title {
+    font-size: 18px;
+  }
+  
+  /* Adjust blockquote margins */
+  blockquote {
+    margin: 10px 10px !important;
+  }
+  
+  /* Override inline styles for mobile */
+  #Abstract p[style*="padding-right: 50px"] {
+    padding-right: 5px !important;
+  }
+  
+  #Abstract p[style*="font-size: 30px"] {
+    font-size: 18px !important;
+  }
+  
+  /* Adjust section margins */
+  .section_div {
+    margin-top: 20px;
+  }
+  
+  #Abstract {
+    margin: 2% !important;
+  }
+  
+  /* Make tables responsive */
+  .results-table {
+    font-size: 10px;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .results-table th,
+  .results-table td {
+    padding: 2px;
+    font-size: 9px;
+  }
+}
+
+/* ————— Large Phone / Small Tablet Styles (Landscape phones, small tablets) ————— */
+@media screen and (min-width: 481px) and (max-width: 768px) {
+  body {
+    font-size: 18px;
+    margin: 0;
+  }
+  
+  /* Keep sidebar visible but smaller on larger phones/small tablets */
+  .sidebar {
+    width: 40px;
+  }
+  
+  .sidebar:hover {
+    width: 250px;
+  }
+  
+  .main-content {
+    margin-left: 50px !important;
+    margin-right: 10px !important;
+    padding: 15px !important;
+    max-width: calc(100% - 50px - 10px) !important;
+  }
+  
+  p {
+    font-size: 18px !important;
+  }
+  
+  h1, h2, h3, h4 {
+    padding-right: 15px !important;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+  
+  blockquote {
+    margin: 10px 15px !important;
+  }
+  
+  /* Override inline styles */
+  #Abstract p[style*="padding-right: 50px"] {
+    padding-right: 15px !important;
+  }
+  
+  #Abstract p[style*="font-size: 30px"] {
+    font-size: 22px !important;
+  }
+  
+  .results-table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .results-table th,
+  .results-table td {
+    padding: 4px;
+    font-size: 11px;
+  }
+}
+
