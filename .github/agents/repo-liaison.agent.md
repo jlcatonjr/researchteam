@@ -3,7 +3,7 @@ name: Repo Liaison — ResearchTeam
 description: "Tracks agent documentation in repositories adjacent to ResearchTeam, communicates cross-repository impacts, maintains the adjacent-repos registry, and coordinates between orchestrators when this project's activity affects neighboring agent infrastructures."
 user-invokable: false
 tools: ['read', 'edit', 'search', 'execute', 'agent']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Return to Orchestrator
     agent: orchestrator

@@ -3,7 +3,7 @@ name: Tool Documentation Researcher — ResearchTeam
 description: "Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata"
 user-invokable: false
 tools: ['read', 'search']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Update Brief and Generated Docs
     agent: agent-updater

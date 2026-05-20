@@ -4,7 +4,7 @@ description: "Synchronizes agent documentation after project structure, delivera
 user-invokable: false
 tools: ['edit', 'search', 'execute', 'agent']
 agents: ['conflict-auditor', 'agent-refactor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Refactor Agent Docs
     agent: agent-refactor

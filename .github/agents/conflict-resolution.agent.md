@@ -3,7 +3,7 @@ name: Conflict Resolution — ResearchTeam
 description: "Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam"
 user-invokable: false
 tools: ['edit', 'search', 'read']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Return to Orchestrator
     agent: orchestrator

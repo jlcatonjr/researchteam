@@ -3,7 +3,7 @@ name: Security — ResearchTeam
 description: "Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds"
 user-invokable: false
 tools: ['read', 'search']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Return to Orchestrator
     agent: orchestrator

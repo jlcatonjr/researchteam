@@ -4,7 +4,7 @@ description: "Component expert for Literature Review in ResearchTeam — prepare
 user-invokable: false
 tools: ['read', 'search', 'agent']
 agents: ['primary-producer', 'adversarial', 'reference-manager']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Vet Brief Before Drafting
     agent: adversarial

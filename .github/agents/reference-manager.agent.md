@@ -4,7 +4,7 @@ description: "Manages the bibliography and reference database for ResearchTeam â
 user-invokable: false
 tools: ['read', 'edit', 'search']
 agents: ['conflict-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Run Conflict Audit
     agent: conflict-auditor

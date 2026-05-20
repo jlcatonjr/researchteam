@@ -29,7 +29,7 @@ agents:
   - literature-review-expert
   - main-analysis-expert
   - conclusion-expert
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Produce / Revise Deliverable
     agent: primary-producer

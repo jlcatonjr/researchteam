@@ -3,7 +3,7 @@ name: Adversarial — ResearchTeam
 description: "Presupposition critic: challenges the assumptions underlying any plan, proposal, or diagnosis produced by the agent team. Traces how justified changes in presuppositions cascade through dependent logic."
 user-invokable: true
 tools: ['read', 'search']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Return to Orchestrator
     agent: orchestrator

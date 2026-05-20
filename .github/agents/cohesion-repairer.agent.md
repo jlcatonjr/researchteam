@@ -4,7 +4,7 @@ description: "Repairs within-section cohesion failures in ResearchTeam deliverab
 user-invokable: false
 tools: ['read', 'edit']
 agents: ['quality-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Quality Re-Check
     agent: quality-auditor

@@ -4,7 +4,7 @@ description: "Drafts and revises deliverables in ResearchTeam from Component Bri
 user-invokable: false
 tools: ['read', 'edit', 'search']
 agents: ['cohesion-repairer', 'quality-auditor', 'conflict-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Cohesion Audit
     agent: cohesion-repairer

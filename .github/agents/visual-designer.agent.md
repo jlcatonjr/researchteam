@@ -4,7 +4,7 @@ description: "Creates and revises diagrams and figures for ResearchTeam using th
 user-invokable: false
 tools: ['read', 'edit', 'execute', 'search']
 agents: ['format-converter', 'quality-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Convert Figure Format
     agent: format-converter

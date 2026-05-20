@@ -4,7 +4,7 @@ description: "Read-only audit agent that verifies technical and factual accuracy
 user-invokable: false
 tools: ['read', 'search']
 agents: ['primary-producer', 'reference-manager', 'conflict-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Route Corrections to Primary Producer
     agent: primary-producer

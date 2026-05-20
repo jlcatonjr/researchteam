@@ -3,7 +3,7 @@ name: Cleanup — ResearchTeam
 description: "Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks"
 user-invokable: false
 tools: ['edit', 'search', 'execute']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Return to Orchestrator
     agent: orchestrator

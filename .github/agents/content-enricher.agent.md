@@ -4,7 +4,7 @@ description: "Fills in default template placeholders and underdeveloped sections
 user-invokable: true
 tools: ['read', 'edit', 'search']
 agents: ['primary-producer', 'technical-validator']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Validate Enriched Content
     agent: technical-validator

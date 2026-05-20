@@ -4,7 +4,7 @@ description: "Converts deliverables from their source format to Markdown with Ch
 user-invokable: false
 tools: ['read', 'edit', 'execute']
 agents: ['output-compiler', 'quality-auditor']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Pass to Output Compiler
     agent: output-compiler

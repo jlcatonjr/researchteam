@@ -4,7 +4,7 @@ description: "Manages Pandoc () in ResearchTeam — configuration, execution, ou
 user-invokable: false
 tools: ['read', 'edit', 'execute', 'search']
 agents: ['technical-validator', 'security']
-model: ["Claude Sonnet 4.6 (copilot)"]
+model: ["auto"]
 handoffs:
   - label: Validate Tool Output
     agent: technical-validator
