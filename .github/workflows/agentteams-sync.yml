@@ -38,6 +38,24 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install AgentTeams CLI
+        env:
+          AGENTTEAMS_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.agentteams_ref || '' }}
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+
+          if [[ -n "$AGENTTEAMS_REF" ]]; then
+            echo "Installing AgentTeams from ref: $AGENTTEAMS_REF"
+            python -m pip install "git+https://github.com/jlcatonjr/agentteams.git@${AGENTTEAMS_REF}"
+          else
+            echo "Installing AgentTeams from default branch"
+            python -m pip install "git+https://github.com/jlcatonjr/agentteams.git"
+          fi
+
+          command -v agentteams
+          agentteams --help >/dev/null
+
       - name: Resolve execution mode
         id: mode
         run: |

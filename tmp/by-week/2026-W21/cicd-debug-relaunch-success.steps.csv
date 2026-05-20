@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Create plan artifacts,"user request + workflow context","plan + steps csv","pending","weekly plan compliance"
+2,orchestrator,Investigate bootstrap paths,"repo docs + workflow","viable install strategy","pending","no manual runner setup required"
+3,orchestrator,Patch workflow for bootstrap,".github/workflows/agentteams-sync.yml","self-sufficient CI workflow","pending","install or fallback logic"
+4,orchestrator,Validate and push fix,"workflow update","commit on main and pushed","pending","ready for rerun"
+5,orchestrator,Trigger and evaluate run,"workflow_dispatch main","run conclusion + logs","pending","must capture failure details if any"
+6,orchestrator,Iterate on failures,"failed logs","additional patch(es)","pending","repeat until success or blocker"
+7,orchestrator,Final report,"all run outcomes","success confirmation + timeline","pending","include links and root causes"
