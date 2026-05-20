@@ -8,34 +8,124 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <style>
+    :root {
+      --paper: #fcf9f2;
+      --panel: #ffffff;
+      --ink: #201d16;
+      --muted: #5b5344;
+      --line: #d7cbb7;
+      --accent: #7a3e1d;
+      --accent-soft: #efe3cf;
+      --link: #234f8c;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: radial-gradient(circle at 20% 0%, #fffdf7 0%, var(--paper) 60%);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.7;
+    }
+
     .reader-header {
       margin-bottom: 24px;
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      background: linear-gradient(140deg, #fff8eb, #f3e8d5);
     }
 
     .reader-header h1 {
       margin: 0;
       line-height: 1.2 !important;
+      color: var(--accent);
+      font-size: 2rem;
     }
 
     .reader-header p {
       margin: 6px 0 !important;
-      font-size: 18px !important;
+      font-size: 1.05rem !important;
+      color: var(--muted);
     }
 
     .doc-block {
-      margin-bottom: 56px;
+      margin-bottom: 26px;
       scroll-margin-top: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--panel);
+      box-shadow: 0 8px 24px rgba(38, 28, 10, 0.08);
+      padding: 18px 18px 8px;
     }
 
-    .doc-block h1 {
-      font-size: 1.45em;
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      border: 1px solid #dbc8a9;
+    }
+
+    .doc-title {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.98rem;
+    }
+
+    .doc-source {
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-family: "Courier New", Courier, monospace;
+      background: #fffaf0;
+      border: 1px solid #e6d7be;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+
+    .doc-block h1,
+    .doc-block h2,
+    .doc-block h3 {
+      line-height: 1.3 !important;
+      margin-top: 1.2em;
+      margin-bottom: 0.45em;
+      color: #2a2419;
     }
 
     .doc-block h2,
     .doc-block h3 {
       scroll-margin-top: 24px;
+    }
+
+    .doc-block p,
+    .doc-block li {
+      font-size: 1.03rem;
+    }
+
+    .doc-block blockquote {
+      border-left: 3px solid #c8b08f;
+      margin: 12px 0;
+      padding: 4px 12px;
+      color: #4d4638;
+      background: #fffaf3;
+    }
+
+    .doc-block code {
+      background: #f7f1e5;
+      padding: 1px 4px;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .doc-block pre {
+      overflow: auto;
+      background: #f8f4ec;
+      border: 1px solid #e5d8c1;
+      border-radius: 8px;
+      padding: 10px;
     }
 
     .loading {
@@ -64,11 +154,73 @@
     .toc-link-doc {
       font-weight: 700;
       margin-top: 6px;
+      color: #2c2418;
     }
 
     .toc-link-sub {
-      padding-left: 20px;
-      font-size: 0.75em;
+      padding-left: 14px;
+      font-size: 0.82em;
+      color: #4a4335;
+    }
+
+    .sidebar {
+      background: #f4efe4;
+      border-right-color: #cfc2aa;
+    }
+
+    .sidebar h3 {
+      color: #3b3326;
+    }
+
+    .sidebar a {
+      color: #3b3326;
+      border-radius: 6px;
+      padding: 3px 6px 3px 10px;
+    }
+
+    .sidebar a:hover {
+      background: #e8dcc6;
+      text-decoration: none;
+    }
+
+    .main-content {
+      max-width: 980px;
+    }
+
+    .reader-note {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-left: 4px solid #ad622d;
+      border-radius: 8px;
+      background: #fff5e8;
+      color: #4f4231;
+      font-size: 0.95rem;
+    }
+
+    .reader-links {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .reader-links a {
+      display: inline-block;
+      border: 1px solid #ccb792;
+      border-radius: 8px;
+      padding: 6px 10px;
+      background: #fff8ea;
+      color: #3f3220;
+      text-decoration: none;
+      font-size: 0.92rem;
+    }
+
+    .reader-links a:hover {
+      background: #f2e3c6;
+    }
+
+    a {
+      color: var(--link);
     }
   </style>
 </head>
@@ -83,6 +235,11 @@
       <h1>Zelda Timeline Report</h1>
       <p>Compiled reader for the standard 00-03 report set.</p>
       <p>Includes branch themes, BOTW/TOTK placement analysis, and character distribution with Tingle coverage.</p>
+      <div class="reader-note">Reading tip: Use the sidebar for section jumps, and use the document badges to keep track of which report file you are in.</div>
+      <div class="reader-links">
+        <a href="ZeldaTimelineSummary.html">Open Human-Readable Summary</a>
+        <a href="04-adversarial-conflict-audit.md">Open Audit Notes</a>
+      </div>
     </section>
 
     <section id="readerContent" class="section_div">
@@ -125,7 +282,7 @@
       let hadFailure = false;
       container.innerHTML = '';
 
-      addSidebarLink(sidebar, '#Top', 'Top', 'toc-link-doc');
+      addSidebarLink(sidebar, '#Top', 'Overview', 'toc-link-doc');
 
       for (const doc of documents) {
         try {
@@ -140,9 +297,29 @@
           const article = document.createElement('article');
           article.className = 'section_div doc-block';
           article.id = doc.id;
-          article.innerHTML = html;
 
-          const headingNodes = article.querySelectorAll('h2, h3');
+          const meta = document.createElement('div');
+          meta.className = 'doc-meta';
+
+          const title = document.createElement('div');
+          title.className = 'doc-title';
+          title.textContent = doc.title;
+
+          const source = document.createElement('div');
+          source.className = 'doc-source';
+          source.textContent = doc.file;
+
+          meta.appendChild(title);
+          meta.appendChild(source);
+
+          const body = document.createElement('div');
+          body.className = 'doc-body';
+          body.innerHTML = html;
+
+          article.appendChild(meta);
+          article.appendChild(body);
+
+          const headingNodes = body.querySelectorAll('h2, h3');
           headingNodes.forEach((node, i) => {
             if (!node.id) {
               node.id = `${doc.id}-${slugify(node.textContent)}-${i + 1}`;
@@ -154,7 +331,7 @@
           addSidebarLink(sidebar, `#${doc.id}`, doc.title, 'toc-link-doc');
 
           headingNodes.forEach(node => {
-            const cls = node.tagName === 'H2' ? 'toc-link-sub' : 'toc-link-sub';
+            const cls = 'toc-link-sub';
             addSidebarLink(sidebar, `#${node.id}`, node.textContent, cls);
           });
         } catch (err) {

@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,Draft summary content,"ZeldaTimeline markdown reports","condensed narrative outline","done","human-readable emphasis"
+2,orchestrator,Create summary HTML file,"summary outline","new Zelda summary HTML document","done","standalone page with simple styling"
+3,orchestrator,Validate and report,"created HTML file","diagnostic check and final path","done","ready for user use"
