@@ -46,20 +46,14 @@ Verify CLI flags, configuration options, and rule/plugin behavior against this d
 ## Key API Surface
 
 <!-- AGENTTEAMS:BEGIN tool_api_surface v=1 -->
-- `pandoc <input.md> -o <output.html|pdf|docx>`
-- `pandoc --from markdown --to html5|pdf|docx <input.md> -o <output>`
-- `pandoc --citeproc --bibliography Projects/<project>/references/bibliography.bib <input.md> -o <output>`
-- `pandoc --metadata-file <metadata.yml> <input.md> -o <output>`
-- `pandoc --standalone <input.md> -o <output.html>`
-- `pandoc --pdf-engine=xelatex <input.md> -o <output.pdf>`
-- Exit behavior: non-zero exit codes and stderr content are treated as blocking unless explicitly triaged.
+{MANUAL:TOOL_API_SURFACE}
 <!-- AGENTTEAMS:END tool_api_surface -->
 
 <!-- Document the primary CLI commands, configuration file format, rule/plugin system, and output formats for Pandoc. -->
 
 ## Common Patterns & Pitfalls
 
-- Always pass `--citeproc` and `--bibliography <project-local bibliography path>` when converting research reports so citations are rendered.
+- Always pass `--citeproc` and `--bibliography references/bibliography.bib` when converting research reports so citations are rendered.
 - Use `--standalone` when producing self-contained HTML output.
 - YAML front-matter in Markdown files is stripped on conversion; ensure metadata is passed via `--metadata-file` in CI.
 - For PDF output, use `--pdf-engine=xelatex` to handle Unicode characters in citations.

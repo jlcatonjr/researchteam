@@ -37,7 +37,7 @@ Maintained by `@repo-liaison`. Every cross-repository update must be recorded he
 
 ## Cross-Orchestrator Coordination Log
 
-Coordination requests exchanged with adjacent orchestrators are saved as individual artifacts in `.github/agents/references/cross-orchestrator-requests/`. Summarize completed coordinations here.
+Coordination requests exchanged with adjacent orchestrators are saved as individual artifacts in `references/cross-orchestrator-requests/`. Summarize completed coordinations here.
 
 | Date | Adjacent repo | Direction | Outcome |
 |------|--------------|-----------|---------|

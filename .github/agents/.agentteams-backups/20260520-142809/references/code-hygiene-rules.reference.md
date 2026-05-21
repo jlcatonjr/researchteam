@@ -12,8 +12,8 @@
 
 **Enforcement check:**
 ```
-find Projects/ reports/ -type f \( -name "*.backup" -o -name "*.bak" -o -name "*_old.*" \
-  -o -name "*_v[0-9]*.*" -o -name "*_WRONG*" -o -name "*_legacy*" \) 2>/dev/null | grep -v node_modules
+find reports/ -name "*.backup" -o -name "*.bak" -o -name "*_old.*" \
+  -o -name "*_v[0-9]*.*" -o -name "*_WRONG*" -o -name "*_legacy*" | grep -v node_modules
 ```
 Expected: **zero files**.
 
@@ -28,9 +28,9 @@ Lifecycle: ONE-TIME | RECURRING | UTILITY
 Created: YYYY-MM-DD
 ```
 
-### CH-03 — No Ad-Hoc Scripts in Primary Deliverable Paths
+### CH-03 — No Ad-Hoc Scripts in `reports/`
 
-Source directories contain only production code. Investigative, debug, fix, and benchmark scripts must not reside in primary deliverable paths (`Projects/` and `reports/`, if present).
+Source directories contain only production code. Investigative, debug, fix, and benchmark scripts must not reside in `reports/`.
 
 ### CH-04 — Debug Artifacts Must Be Gitignored
 

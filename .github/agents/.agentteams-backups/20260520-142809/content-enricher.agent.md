@@ -22,7 +22,7 @@ You fill in default template placeholders and underdeveloped sections in the gen
 
 **Defaults audit CSV:** `.github/agents/references/defaults-audit.csv`
 **Agent files directory:** `.github/agents/`
-**Project source directory:** `Projects/` and/or `reports/`
+**Project source directory:** `reports/`
 
 ---
 
@@ -58,13 +58,13 @@ Focus on rows where `status == pending`.
 For each pending finding, read the relevant source material:
 
 - **Chapter component specs** (`COMPONENT_SPEC`, `COMPONENT_SECTIONS`, `COMPONENT_QUALITY_CRITERIA`):
-  Read the corresponding source material in `Projects/` (or `reports/` when present). Extract the chapter title, section headings, and describe the learning objectives.
+  Read the corresponding notebook in `reports/`. Extract the chapter title, section headings, and describe the learning objectives.
 
 - **Style reference** (`STYLE_REFERENCE_PATH`):
   Check if a style guide, README, or prose conventions document exists in the project root. If none exists, set to `"N/A — no formal style guide"`.
 
 - **Reference database** (`REFERENCE_DB_PATH`):
-  Check for project-local bibliography files such as `Projects/*/references/bibliography.bib` (or another `.bib`, `.json`, `.csv` location in active deliverable paths). If none exists, set to `"N/A — no citation database configured"`.
+  Check if a bibliography file (`.bib`, `.json`, `.csv`) exists. If none exists, set to `"N/A — no citation database configured"`.
 
 - **Tool documentation** (`TOOL_DOCS_URL`, `TOOL_API_SURFACE`, `TOOL_COMMON_PATTERNS`):
   Look these up from the official documentation. Use accurate URLs and describe only API surface relevant to the project's use cases.

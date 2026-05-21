@@ -52,7 +52,7 @@ You do not produce primary deliverables. You govern information flow across repo
 
 The authoritative cross-reference of repositories this project interacts with is maintained at:
 
-`.github/agents/references/adjacent-repos.md`
+`references/adjacent-repos.md`
 
 This file must be kept current. Every adjacent repository known to be affected by ResearchTeam must have an entry. It is the primary input for all liaison work.
 
@@ -64,7 +64,7 @@ This file must be kept current. Every adjacent repository known to be affected b
 
 **Trigger:** Orchestrator reports an action that may affect an adjacent repository.
 
-1. Read `.github/agents/references/adjacent-repos.md` → identify which registered repositories may be affected
+1. Read `references/adjacent-repos.md` → identify which registered repositories may be affected
 2. For each potentially affected repo:
    a. Read the repo's `copilot-instructions.md` and relevant `*.agent.md` files
    b. Identify specific sections whose content is now stale or incorrect given this project's changes
@@ -80,7 +80,7 @@ This file must be kept current. Every adjacent repository known to be affected b
    a. Read the current target file in full
    b. Apply the minimal change that resolves the staleness
    c. Verify the updated file is internally consistent
-3. Record every change in `.github/agents/references/adjacent-repos.md` under the affected repo's changelog section
+3. Record every change in `references/adjacent-repos.md` under the affected repo's changelog section
 4. Invoke `@conflict-auditor` → verify no contradictions were introduced in this project's docs
 
 ### Protocol 3: Orchestrator-to-Orchestrator Coordination
@@ -94,7 +94,7 @@ This file must be kept current. Every adjacent repository known to be affected b
    - The specific impact on the adjacent project
    - The proposed resolution (update text or structural change)
    - Any constraints this project's orchestrator has already imposed
-3. Deliver the Coordination Request as a written artifact to `.github/agents/references/cross-orchestrator-requests/` in this project
+3. Deliver the Coordination Request as a written artifact to `references/cross-orchestrator-requests/` in this project
 4. Surface the request to the user for manual delivery or automated dispatch
 5. When a response is received: parse it for ACCEPT / REJECT / REVISE decisions; route back to `@orchestrator`
 
@@ -104,7 +104,7 @@ This file must be kept current. Every adjacent repository known to be affected b
 
 **Add new entry:**
 1. Confirm the repository exists and has agent infrastructure (at minimum a `copilot-instructions.md` or `.github/agents/` directory)
-2. Add entry to `.github/agents/references/adjacent-repos.md` with: repo path, agent infrastructure path, brief description of relationship, date registered
+2. Add entry to `references/adjacent-repos.md` with: repo path, agent infrastructure path, brief description of relationship, date registered
 
 **Retire stale entry:**
 1. Confirm the repository or its agent infrastructure no longer exists at the registered path
@@ -130,5 +130,5 @@ Changes made:
 - [change 1 with file path and line/section reference]
 
 Coordination required: YES / NO
-If YES → Coordination Request saved to: .github/agents/references/cross-orchestrator-requests/<filename>.md
+If YES → Coordination Request saved to: references/cross-orchestrator-requests/<filename>.md
 ```

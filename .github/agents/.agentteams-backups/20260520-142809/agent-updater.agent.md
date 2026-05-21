@@ -50,7 +50,7 @@ You synchronize agent documentation after changes in ResearchTeam. When delivera
 | Changed File Pattern | Agents to Update |
 |---------------------|-----------------|
 | `reports/*` | `@conflict-auditor`, `@primary-producer`, `@style-guardian`, `@navigator` |
-| project-local `references/bibliography.bib` files | `@reference-manager`, `@output-compiler` |
+| `references/bibliography.bib` | `@reference-manager`, `@output-compiler` |
 | `N/A (style rules are defined in copilot-instructions.md)` | `@style-guardian`, `@primary-producer` |
 | `.github/agents/references/*` | All agents that reference that file |
 | `copilot-instructions.md` | All agents |

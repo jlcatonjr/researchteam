@@ -19,7 +19,7 @@ https://www.bibtex.org/ and https://tug.org/bibtex/
 
 ## Key API Surface
 
-BibTeX entries are plain-text records in `Projects/*/references/bibliography.bib` files (for example `Projects/ZeldaTimeline/references/bibliography.bib`). Each entry has the form:
+BibTeX entries are plain-text records in `references/bibliography.bib`. Each entry has the form:
 
 ```bibtex
 @article{AuthorYear,

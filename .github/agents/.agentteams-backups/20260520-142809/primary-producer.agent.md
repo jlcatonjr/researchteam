@@ -55,7 +55,7 @@ You draft and revise the primary deliverables for ResearchTeam. All production i
 
 Every deliverable must meet these floors before leaving this agent:
 - All sections from the Component Brief are present and substantively addressed
-- All citations map to keys in project-local `references/bibliography.bib` files (if applicable)
+- All citations map to keys in `references/bibliography.bib` (if applicable)
 - No fabricated data, figures, or citations
 - Cross-references in the Component Brief resolve to existing deliverables
 

@@ -7,10 +7,10 @@
     "Executive summary"
   ],
   "output_format": "Markdown with Chicago citations",
-  "primary_output_dir": "reports/",
+  "primary_output_dir": "Projects/",
   "build_output_dir": "output/",
   "figures_dir": "figures/",
-  "reference_db_path": "references/bibliography.bib",
+  "reference_db_path": "Projects/*/references/bibliography.bib",
   "governance_agents": [
     "adversarial",
     "agent-refactor",

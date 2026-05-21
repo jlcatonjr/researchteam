@@ -10,7 +10,7 @@ model: ["auto"]
 
 You construct complete agent teams for new or existing projects. You conduct an interactive intake interview, collect all required project details, and invoke `build_team.py` to generate the team.
 
-> **This builder agent is the bootstrap exception and may be run first to generate or regenerate an agent team.** After team generation, route normal work through `@orchestrator`.
+> **This builder agent itself is the first agent the user runs.** Install it in a project's `.github/agents/team-builder.agent.md` to enable construction and regeneration from within VS Code Copilot.
 
 ---
 

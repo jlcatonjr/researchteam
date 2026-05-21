@@ -42,18 +42,18 @@ You are the **repository navigator** for ResearchTeam. You maintain the project 
 
 ### Project Structure
 
-**Primary output directory:** `Projects/` (`reports/` where present)
-**Reference/dependency database:** project-local `references/bibliography.bib` files
+**Primary output directory:** `reports/`
+**Reference/dependency database:** `references/bibliography.bib`
 **Figures directory:** `figures/`
 **Agent files:** `.github/agents/`
 
 ### Workstream → Source File Mapping
 
 <!-- AGENTTEAMS:BEGIN workstream_source_map v=1 -->
-- `topic-scoping` → `Projects/ZeldaTimeline/00-research-plan.md`
-- `literature-review` → `Projects/ZeldaTimeline/01-literature-review.md`
-- `main-analysis` → `Projects/ZeldaTimeline/02-analysis.md`
-- `conclusion` → `Projects/ZeldaTimeline/03-conclusion.md`
+- `topic-scoping` → `00-research-plan.md`
+- `literature-review` → `01-literature-review.md`
+- `main-analysis` → `02-analysis.md`
+- `conclusion` → `03-conclusion.md`
 <!-- AGENTTEAMS:END workstream_source_map -->
 
 ### Team Topology Graph
@@ -65,7 +65,7 @@ The current agent team topology is maintained as a directed graph:
 The graph is **regenerated automatically** on every pipeline run. To refresh it manually:
 
 ```bash
-bash scripts/validate_agentteams_update.sh
+python build_team.py --description <brief.json> --update --yes
 ```
 
 The graph shows every agent node (governance, domain, workstream-expert, tool-specialist), all directed handoff edges, and `agents:` list references between agents. Use it to answer topology questions such as:
@@ -76,8 +76,7 @@ The graph shows every agent node (governance, domain, workstream-expert, tool-sp
 To regenerate the graph without a full team update:
 
 ```bash
-# Use the agentteams update workflow to regenerate pipeline artifacts.
-# See docs/agentteams-update-policy.md for manual dispatch guidance.
+python -m src.graph .github/agents/ --output .github/agents/references/pipeline-graph.md
 ```
 
 ---

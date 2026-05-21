@@ -26,7 +26,7 @@ You remove stale files from ResearchTeam: abandoned intermediate outputs, build 
 | Category | Pattern | Reason |
 |----------|---------|--------|
 | Primary deliverables | `reports/*` | Core authored output |
-| Reference database | project-local `references/bibliography.bib` files | Source of truth for references |
+| Reference database | `references/bibliography.bib` | Source of truth for references |
 | Agent files | `.github/agents/*.agent.md` | Team governance |
 | Agent reference data | `.github/agents/references/*` | Agent reference data |
 | Project instructions | `copilot-instructions.md` | Project conventions |
