@@ -15,5 +15,9 @@ Design intent:
 ## Usage
 
 1. Start with `CLAUDE.md` at repository root.
-2. Copy relevant template sections from this folder.
-3. Follow validation and planning requirements before major edits.
+2. Use the bridge script for status, validation, and navigation:
+   ```bash
+   bash scripts/claude_researchteam_bridge.sh help
+   ```
+3. Copy relevant template sections from this folder.
+4. Follow validation and planning requirements before major edits.

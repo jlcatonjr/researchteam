@@ -31,8 +31,9 @@ Before merging a sync PR, reviewers must confirm:
 
 ## Legacy Mirror Handling
 
-- `.github/agents/.github/**` is legacy mirror content and not source-of-truth.
-- Do not include legacy mirror files in sync scope or review baselines.
+- `.github/agents/.github/**` is forbidden nested mirror content and not source-of-truth.
+- `.github/agents/.agentteams-backups/**` is archival backup content and not source-of-truth.
+- Do not include either path family in sync scope or review baselines.
 
 ## Escalation
 
@@ -45,7 +46,7 @@ Escalate to maintainer review if:
 
 Use these commands to verify validator behavior locally:
 
-1. Baseline outside git worktree context (expected pass, exit 0)
+1. Baseline outside git worktree context (expected fail, exit 1)
 
 ```bash
 bash scripts/validate_agentteams_update.sh
@@ -53,10 +54,21 @@ echo $?
 ```
 
 Expected:
-- Message indicating no git worktree and no override.
+- Error indicating no git worktree and no override.
+- Exit code `1`.
+
+2. Allow-skip outside git worktree context (expected pass, exit 0)
+
+```bash
+VALIDATION_ALLOW_NO_GIT=1 bash scripts/validate_agentteams_update.sh
+echo $?
+```
+
+Expected:
+- Warning indicating skip is explicitly allowed.
 - Exit code `0`.
 
-2. Allowed changed file simulation (expected pass, exit 0)
+3. Allowed changed file simulation (expected pass, exit 0)
 
 ```bash
 VALIDATION_CHANGED_FILES='docs/agentteams-update-policy.md' bash scripts/validate_agentteams_update.sh
@@ -67,7 +79,7 @@ Expected:
 - Validation completes successfully.
 - Exit code `0`.
 
-3. Forbidden nested mirror simulation (expected fail, exit 1)
+4. Forbidden nested mirror simulation (expected fail, exit 1)
 
 ```bash
 VALIDATION_CHANGED_FILES='.github/agents/.github/reintroduced.txt' bash scripts/validate_agentteams_update.sh
@@ -78,7 +90,7 @@ Expected:
 - Error indicating forbidden nested mirror path.
 - Exit code `1`.
 
-4. Agent file with unresolved placeholders (expected fail, exit 1)
+5. Agent file with unresolved placeholders (expected fail, exit 1)
 
 ```bash
 VALIDATION_CHANGED_FILES='.github/agents/conclusion-expert.agent.md' bash scripts/validate_agentteams_update.sh

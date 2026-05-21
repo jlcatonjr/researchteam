@@ -8,6 +8,7 @@ This document explains how Claude users can operate the ResearchTeam repository 
 2. Command bridge: `scripts/claude_researchteam_bridge.sh`
 3. Claude support folder: `.claude/`
 4. Existing validator: `scripts/validate_agentteams_update.sh`
+5. Authority map: `docs/agent-infrastructure-authority.md`
 
 ## Prerequisites
 
@@ -75,6 +76,7 @@ Returns the current `tmp/by-week/YYYY-Www/` path.
 
 - Active source-of-truth agent files are in `.github/agents/`.
 - Backup snapshots in `.github/agents/.agentteams-backups/` are archival.
-- The main Zelda human-facing guide is:
-  - `Projects/ZeldaTimeline/ZeldaTimelineResearchGuide.html`
+- Do not manually edit AGENTTEAMS fenced sections in agent docs; use orchestrated update workflows.
+- Back up research and agent files before update or merge operations.
+- Project-specific reader and summary HTML files are located inside each project directory under `Projects/`.
 - Keep `CLAUDE.md` as the top-level entry point and `.claude/` as structured support content.
