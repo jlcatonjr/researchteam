@@ -49,19 +49,28 @@ You are the domain expert for **Conclusion and Executive Summary** (component 4)
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-{MANUAL:COMPONENT_SPEC}
+Deliver a conclusion and executive summary that synthesizes findings, states confidence limits, and provides a concise decision-grade takeaway.
 
 ## Sections
 
-{MANUAL:COMPONENT_SECTIONS}
+1. Findings synthesis
+2. Conclusion statement
+3. Executive summary bullets
+4. Implications and limitations
+5. Next research steps
 
 ## Sources
 
-{MANUAL:COMPONENT_SOURCES}
+- `Projects/ZeldaTimeline/03-conclusion.md`
+- `Projects/ZeldaTimeline/references/bibliography.bib`
+- Upstream findings from `Projects/ZeldaTimeline/02-analysis.md`
 
 ## Quality Criteria
 
-{MANUAL:COMPONENT_QUALITY_CRITERIA}
+- Conclusions are strictly supported by prior analysis.
+- Executive summary is concise and decision-useful.
+- Limitations are explicit and non-defensive.
+- No new uncited factual claims are introduced.
 
 ## Cross-References
 

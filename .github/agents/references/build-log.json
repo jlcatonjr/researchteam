@@ -23,7 +23,7 @@
   "files_written": [],
   "manual_required": 25,
   "template_hashes": {
-    "universal/orchestrator.template.md": "d9cb3ac51e4ec00f",
+    "universal/orchestrator.template.md": "5235f88a0e27869d",
     "universal/navigator.template.md": "a774c9a70b43505a",
     "universal/security.template.md": "6974720c9091639d",
     "universal/code-hygiene.template.md": "92c2224832e1bb45",
@@ -31,10 +31,10 @@
     "universal/conflict-auditor.template.md": "bd88a84d93a3500e",
     "universal/conflict-resolution.template.md": "a30ff077e5a03ce9",
     "universal/cleanup.template.md": "0c005812c2b52dd8",
-    "universal/agent-updater.template.md": "ab67407e29f2a653",
+    "universal/agent-updater.template.md": "8c51be1bff0c05ee",
     "universal/agent-refactor.template.md": "a9717cc56c35f4ac",
     "universal/repo-liaison.template.md": "f3ab2dffbbbb29ff",
-    "universal/git-operations.template.md": "b09209faaf14b17c",
+    "universal/git-operations.template.md": "564a362a85cd90bc",
     "domain/work-summarizer.template.md": "f696746ad47aad68",
     "domain/primary-producer.template.md": "c128e8f2fb52885f",
     "domain/quality-auditor.template.md": "5adfc79b00290c06",
@@ -54,10 +54,10 @@
     "universal/github-workflows-merge.reference.template.md": "9a85c14fca008010",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
-    "workstream-expert.template.md": "a03699e3caabb58c",
+    "workstream-expert.template.md": "13161f3a3cdf1789",
     "copilot-instructions.template.md": "3ccf82ef795fcace",
     "builder/team-builder-copilot-vscode.template.md": "6a0e998c5ce278f2",
-    "domain/content-enricher.template.md": "2dc5e25c4606657b"
+    "domain/content-enricher.template.md": "d7e6e4a50dcef1c7"
   },
   "output_files_map": [
     {
@@ -344,21 +344,10 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "c67624992300b25f",
+  "manifest_fingerprint": "dd73fc832eccb4dd",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "orchestrator.agent.md": "4fece453962ebc23",
-    "navigator.agent.md": "7421c878379ecdbd",
-    "security.agent.md": "caf036425fc18ba4",
-    "conflict-auditor.agent.md": "2d71bf1c89bda241",
-    "work-summarizer.agent.md": "7cf4597f83ae413d",
-    "technical-validator.agent.md": "2e2a2e5ecab00bc1",
-    "references/security-vulnerability-watch.reference.md": "c9df427ecefa69a2",
-    "references/security-vulnerability-watch.json": "af91d2c885d105c3",
-    "topic-scoping-expert.agent.md": "5ecad90fbb2592ae",
-    "literature-review-expert.agent.md": "bc296e2f481be6fe",
-    "main-analysis-expert.agent.md": "510d1faa23b34cba",
-    "conclusion-expert.agent.md": "f77096d0a2711996",
-    "../copilot-instructions.md": "ada9b09ba52a1727"
+    "references/security-vulnerability-watch.json": "6372e624cca19828",
+    "references/pipeline-graph.md": "68e2d7eff046d993"
   }
 }

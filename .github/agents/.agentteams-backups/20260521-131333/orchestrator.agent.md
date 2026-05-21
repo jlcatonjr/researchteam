@@ -152,7 +152,7 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 | Content Area | Agent | Key Indicators |
 |---|---|---|
 <!-- AGENTTEAMS:BEGIN routing_table_rows v=1 -->
-| Creating or revising primary Markdown research reports, BibTeX bibliography and Executive summary | `@primary-producer` | New work or revision in `Projects/` |
+| Creating or revising primary Markdown research reports, BibTeX bibliography and Executive summary | `@primary-producer` | New work or revision in `Projects/` or `reports/` |
 | Architecture and file hygiene | `@code-hygiene` | Backup files, script lifecycle, duplication, agent doc consistency |
 | Quality and structural defects | `@quality-auditor` | Purposeless content, structural weakness, pattern violations |
 | Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned evidence |
@@ -182,21 +182,6 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 ## Available Workflows
 
 > ⚠️ Destructive operations require `@security` clearance before use.
-
-### Workflow 0: Request Intake and Problem Framing (Mandatory)
-
-**Trigger:** Every incoming user request.
-
-Before invoking any workflow-specific trigger path (Workflows 1–10C), execute the following sequence:
-
-1. Identify the domain of the problem/request using Domain Agent Routing indicators
-2. Investigate and produce a findings report describing the problem and its domain relationship
-3. Invoke `@adversarial` and `@conflict-auditor` on the findings report; revise findings if required
-4. Prepare an implementation plan based on the revised findings report
-5. Invoke `@adversarial` and `@conflict-auditor` on the implementation plan; revise plan if required
-6. Proceed with end-to-end implementation according to the audited plan
-
-This mandatory intake lifecycle complements (and does not replace) the per-step reassessment rule: after each completed plan step, remaining steps must still be re-reviewed by `@adversarial` and `@conflict-auditor` before proceeding.
 
 ### Pre-Execution Requirement: Plan Documentation
 
@@ -235,7 +220,7 @@ Before executing any such step:
 
 1. Invoke the relevant `@*-expert` for the target workstream → read sources, prepare Component Brief *(If `@reference-manager` in team: verify references with `@reference-manager`)*
 2. Invoke `@adversarial` → review Component Brief for hidden presuppositions; route challenges back to workstream expert
-3. Invoke `@primary-producer` → produce `Projects/` deliverable from the Component Brief
+3. Invoke `@primary-producer` → produce a primary deliverable in `Projects/` or `reports/` from the Component Brief
 4. Return to the workstream expert → review draft against brief checklist; iterate with `@primary-producer` until ACCEPT
 5. Invoke `@quality-auditor` → audit accepted output for structural weaknesses, purposeless content, pattern violations
 6. *(If `@cohesion-repairer` in team)* Invoke `@cohesion-repairer` → repair within-section cohesion failures
@@ -347,7 +332,7 @@ Before executing any such step:
 3. If approved updates exist → invoke `@repo-liaison` → Protocol 2 (Update Adjacent Repo Docs); requires `@security` clearance on each write
 4. If the adjacent repository has its own orchestrator → invoke `@repo-liaison` → Protocol 3 (Orchestrator-to-Orchestrator Coordination); surface Coordination Request to user
 5. After all updates: invoke `@conflict-auditor` → verify internal consistency
-6. Invoke `@agent-updater` → run the repository change census and docs/API impact evaluation; update `references/adjacent-repos.md` with changelog entries
+6. Invoke `@agent-updater` → run the repository change census and docs/API impact evaluation; update `.github/agents/references/adjacent-repos.md` with changelog entries
 7. Invoke `@adversarial` → challenge the cross-repository documentation sync and any remaining coordination assumptions before closeout
 8. Invoke `@conflict-auditor` → verify the synchronized docs and coordination notes remain consistent
 9. → **Invoke Workflow 11: Final Check** (always; after all conditional branches above complete)

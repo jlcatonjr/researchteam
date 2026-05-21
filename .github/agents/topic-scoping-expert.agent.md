@@ -49,28 +49,19 @@ You are the domain expert for **Topic Scoping and Research Plan** (component 1) 
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-Define the research question, scope boundaries, core sub-questions, initial source strategy, and execution plan for the Zelda timeline research workstream.
+{MANUAL:COMPONENT_SPEC}
 
 ## Sections
 
-1. Research objective and scope
-2. Key questions and hypotheses
-3. Preliminary source plan
-4. Method and workflow plan
-5. Risks, constraints, and validation checkpoints
+{MANUAL:COMPONENT_SECTIONS}
 
 ## Sources
 
-- `Projects/ZeldaTimeline/00-research-plan.md`
-- `Projects/ZeldaTimeline/references/bibliography.bib`
-- Project governance docs in `.github/`
+{MANUAL:COMPONENT_SOURCES}
 
 ## Quality Criteria
 
-- Scope is explicit and non-overlapping with later sections.
-- Questions are testable and source-grounded.
-- Method steps are reproducible and auditable.
-- Risks and assumptions are explicitly listed.
+{MANUAL:COMPONENT_QUALITY_CRITERIA}
 
 ## Cross-References
 

@@ -49,28 +49,19 @@ You are the domain expert for **Main Analysis** (component 3) in ResearchTeam. Y
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-Develop the core analytical argument that evaluates chronology hypotheses against source evidence and explains the most defensible synthesis.
+{MANUAL:COMPONENT_SPEC}
 
 ## Sections
 
-1. Analytical framework and assumptions
-2. Evidence-by-claim evaluation
-3. Counterarguments and sensitivity checks
-4. Integrated timeline synthesis
-5. Limits of inference
+{MANUAL:COMPONENT_SECTIONS}
 
 ## Sources
 
-- `Projects/ZeldaTimeline/02-analysis.md`
-- `Projects/ZeldaTimeline/references/bibliography.bib`
-- Inputs from `Projects/ZeldaTimeline/00-research-plan.md` and `Projects/ZeldaTimeline/01-literature-review.md`
+{MANUAL:COMPONENT_SOURCES}
 
 ## Quality Criteria
 
-- Claims are supported by explicit evidence citations.
-- Counterarguments are addressed directly.
-- Assumptions and uncertainty are transparent.
-- Final synthesis follows from prior sections.
+{MANUAL:COMPONENT_QUALITY_CRITERIA}
 
 ## Cross-References
 

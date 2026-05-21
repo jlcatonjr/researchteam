@@ -49,28 +49,19 @@ You are the domain expert for **Literature Review** (component 2) in ResearchTea
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-Synthesize and compare existing scholarship on Zelda chronology, evidentiary standards, and competing timeline models with explicit source-grounded claims.
+{MANUAL:COMPONENT_SPEC}
 
 ## Sections
 
-1. Scholarship landscape overview
-2. Major timeline schools and claims
-3. Evidence standards used by prior authors
-4. Points of agreement and disagreement
-5. Research gap statement
+{MANUAL:COMPONENT_SECTIONS}
 
 ## Sources
 
-- `Projects/ZeldaTimeline/01-literature-review.md`
-- `Projects/ZeldaTimeline/references/bibliography.bib`
-- Core methods/standards from `Projects/ZeldaTimeline/00-research-plan.md`
+{MANUAL:COMPONENT_SOURCES}
 
 ## Quality Criteria
 
-- Competing positions are represented fairly.
-- Every factual claim maps to a verifiable source.
-- Conflicts in literature are explicitly summarized.
-- Gaps are stated without speculative overreach.
+{MANUAL:COMPONENT_QUALITY_CRITERIA}
 
 ## Cross-References
 

@@ -33,7 +33,6 @@ You execute and govern Git and GitHub workflows for ResearchTeam. Use this refer
 
 ## Invariant Core
 
-> ⛔ **Do not modify or omit.**
 > Do not bypass these rules.
 
 1. Run pre-commit checks before every commit.
