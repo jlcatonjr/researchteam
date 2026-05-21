@@ -74,7 +74,7 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-05-21T18:41:03Z`
+Generated at: `2026-05-21T17:12:06Z`
 
 **Sources:**
 
@@ -88,21 +88,21 @@ Generated at: `2026-05-21T18:41:03Z`
 
 **Current major vulnerabilities:**
 
-- `UNKNOWN-CVE` | Unknown vendor Windows | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor DirectX | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Acrobat and Reader | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Internet Explorer | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Internet Explorer | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Defender | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Defender | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Microsoft | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Catalyst SD-WAN | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor LiteLLM | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Endpoint Manager Mobile (EPMM) | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor PAN-OS | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Kernel | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor cPanel & WHM and WP2 (WordPress Squared) | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor ScreenConnect | Known exploited vulnerability | added n/a
+- `CVE-2008-4250` | Microsoft Windows | Microsoft Windows Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.936170000, percentile 0.998430000 | CVSS 9.8 CRITICAL
+- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.740660000, percentile 0.988550000 | CVSS 8.8 HIGH
+- `CVE-2009-3459` | Adobe Acrobat and Reader | Adobe Acrobat and Reader Heap-Based Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.905150000, percentile 0.996250000 | CVSS 8.8 HIGH
+- `CVE-2010-0249` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.886370000, percentile 0.995220000 | CVSS 8.8 HIGH
+- `CVE-2010-0806` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.882230000, percentile 0.995050000 | CVSS 8.8 HIGH
+- `CVE-2026-41091` | Microsoft Defender | Microsoft Defender Link Following Vulnerability | added 2026-05-20 | EPSS 0.121010000, percentile 0.938870000
+- `CVE-2026-45498` | Microsoft Defender | Microsoft Defender Denial of Service Vulnerability | added 2026-05-20 | EPSS 0.022710000, percentile 0.848380000
+- `CVE-2026-42897` | Microsoft Microsoft | Microsoft Exchange Server Cross-Site Scripting Vulnerability | added 2026-05-15 | EPSS 0.100260000, percentile 0.931590000
+- `CVE-2026-20182` | Cisco Catalyst SD-WAN | Cisco Catalyst SD-WAN Controller Authentication Bypass Vulnerability | added 2026-05-14 | EPSS 0.691910000, percentile 0.986620000
+- `CVE-2026-42208` | BerriAI LiteLLM | BerriAI LiteLLM SQL Injection Vulnerability | added 2026-05-08 | EPSS 0.431910000, percentile 0.975470000
+- `CVE-2026-6973` | Ivanti Endpoint Manager Mobile (EPMM) | Ivanti Endpoint Manager Mobile (EPMM) Improper Input Validation Vulnerability | added 2026-05-07 | EPSS 0.061290000, percentile 0.908990000
+- `CVE-2026-0300` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Out-of-bounds Write Vulnerability | added 2026-05-06 | EPSS 0.144330000, percentile 0.945130000
+- `CVE-2026-31431` | Linux Kernel | Linux Kernel Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-05-01 | EPSS 0.025700000, percentile 0.857190000
+- `CVE-2026-41940` | WebPros cPanel & WHM and WP2 (WordPress Squared) | WebPros cPanel & WHM and WP2 (WordPress Squared) Missing Authentication for Critical Function Vulnerability | added 2026-04-30 | EPSS 0.886340000, percentile 0.995220000
+- `CVE-2024-1708` | ConnectWise ScreenConnect | ConnectWise ScreenConnect Path Traversal Vulnerability | added 2026-04-28 | EPSS 0.848100000, percentile 0.993550000
 
 **Prevention and mitigation playbook:**
 
@@ -111,6 +111,11 @@ Generated at: `2026-05-21T18:41:03Z`
 - Enforce patch windows with owner, SLA, and verification evidence for each critical CVE.
 - When patching is blocked, define compensating controls (WAF rules, ACL tightening, feature disablement).
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
+- Vendor/CISA required actions:
+  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
+  - Please adhere to CISA’s guidelines to assess exposure and mitigate risks associated with Cisco SD-WAN devices as outlined in CISA’s Emergency Directive 26-03 (URL listed below in Notes) and CISA’s Hunt & Hardening Guidance for Cisco SD-WAN Devices (URL listed below in Notes). Adhere to the applicable BOD 22-01 guidance for cloud services or discontinue use of the product if mitigations are not available.
+  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable. Until the vendor releases an official fix, the following workaround should be implemented:  - Restrict User-ID Authentication Portal access to only trusted zones.  - Disable User-ID Authentication Portal if not required. 5/13/2026: Palo Alto has released a variety of patches. If these are relevant to your environment, please apply the designated patch.
+  - "Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
 
 ### LLM and AI-Specific Threat Intelligence
 

@@ -1,0 +1,248 @@
+{
+  "artifact_type": "backup-manifest",
+  "manifest_schema_version": "1.0",
+  "agentteams_version": null,
+  "framework": "copilot-vscode",
+  "description_path": "/Users/jamescaton/githubrepositories/researchteam/.github/agents/_build-description.json",
+  "output_root": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
+  "reason": "pre-update",
+  "timestamp_utc": "2026-05-21T19:00:08Z",
+  "total_files": 39,
+  "total_bytes": 269911,
+  "files": [
+    {
+      "source_path": "orchestrator.agent.md",
+      "backup_path": "orchestrator.agent.md",
+      "source_size_bytes": 29180,
+      "source_sha256": "81e21b7d63d65e4e9dc3c2445c9bb6ede5db7bb9b969cae31f9141015c2b02f2"
+    },
+    {
+      "source_path": "navigator.agent.md",
+      "backup_path": "navigator.agent.md",
+      "source_size_bytes": 3513,
+      "source_sha256": "b5aee739102027bf28a3c77a45d77100c9df79945bc809e1a69f48089338aae0"
+    },
+    {
+      "source_path": "security.agent.md",
+      "backup_path": "security.agent.md",
+      "source_size_bytes": 22799,
+      "source_sha256": "6f4694dc39ef2135bd05015b8a7dcc4e5b4d25b907c3e397f24428942b1c8a81"
+    },
+    {
+      "source_path": "code-hygiene.agent.md",
+      "backup_path": "code-hygiene.agent.md",
+      "source_size_bytes": 6713,
+      "source_sha256": "e7e97107188c6ccb81b156d97f4e9315fa61bbeb7a64fe9fd9b9396d5dd08897"
+    },
+    {
+      "source_path": "adversarial.agent.md",
+      "backup_path": "adversarial.agent.md",
+      "source_size_bytes": 4313,
+      "source_sha256": "1ccf738362905f3e0d3cdfa19e8385ae7af751399cd4553e5da2a0bd8c777a2f"
+    },
+    {
+      "source_path": "conflict-auditor.agent.md",
+      "backup_path": "conflict-auditor.agent.md",
+      "source_size_bytes": 7361,
+      "source_sha256": "439a60a846cae4c9d076e87f95c70f2e4e47bcda63d61cabcb0078272842eba6"
+    },
+    {
+      "source_path": "conflict-resolution.agent.md",
+      "backup_path": "conflict-resolution.agent.md",
+      "source_size_bytes": 2794,
+      "source_sha256": "689b1be37b429a3ed170ab813c6d6fed54b8d2438ae0986eb5ca5e42bf5a4c5f"
+    },
+    {
+      "source_path": "cleanup.agent.md",
+      "backup_path": "cleanup.agent.md",
+      "source_size_bytes": 3081,
+      "source_sha256": "4ba28137d248b43aa0292650ed592723ecf153c80520121bb687b82dda6c78f3"
+    },
+    {
+      "source_path": "agent-updater.agent.md",
+      "backup_path": "agent-updater.agent.md",
+      "source_size_bytes": 5236,
+      "source_sha256": "3caa9005d8b5aecc465b51834d4d7e9a0fe99ae06911033c5c71b4470044b9d0"
+    },
+    {
+      "source_path": "agent-refactor.agent.md",
+      "backup_path": "agent-refactor.agent.md",
+      "source_size_bytes": 2568,
+      "source_sha256": "59e6546971991914bdb72f98ddca3a7215fbabc6d295ba510780fa64b59f1bfa"
+    },
+    {
+      "source_path": "repo-liaison.agent.md",
+      "backup_path": "repo-liaison.agent.md",
+      "source_size_bytes": 6518,
+      "source_sha256": "4d8afdaea90d0fdeffbab357e15a15658cd7e42df323afa4ad8c31757f6f9286"
+    },
+    {
+      "source_path": "git-operations.agent.md",
+      "backup_path": "git-operations.agent.md",
+      "source_size_bytes": 2263,
+      "source_sha256": "4cbdd474439876c7611c8d092efd3c3ff17de157ffd55672a4cfa8809d062201"
+    },
+    {
+      "source_path": "work-summarizer.agent.md",
+      "backup_path": "work-summarizer.agent.md",
+      "source_size_bytes": 7268,
+      "source_sha256": "7cf4597f83ae413dadce12f3472ee4bab65aa37caa8cfb4a9333944e8a590c7a"
+    },
+    {
+      "source_path": "primary-producer.agent.md",
+      "backup_path": "primary-producer.agent.md",
+      "source_size_bytes": 3347,
+      "source_sha256": "38e31c8e6a92b53e94067f86ef66af839a0168e47e938d3a4438ea7423155941"
+    },
+    {
+      "source_path": "quality-auditor.agent.md",
+      "backup_path": "quality-auditor.agent.md",
+      "source_size_bytes": 2537,
+      "source_sha256": "787dc0fd0f5d8b56b2954f7e04d6ec2bf397d8912e79cbebd7298f75d320afaa"
+    },
+    {
+      "source_path": "cohesion-repairer.agent.md",
+      "backup_path": "cohesion-repairer.agent.md",
+      "source_size_bytes": 2468,
+      "source_sha256": "a10a6ad25435c6e4a172e9b3f48285616ce27cd6bc2d475452a98be099730edb"
+    },
+    {
+      "source_path": "technical-validator.agent.md",
+      "backup_path": "technical-validator.agent.md",
+      "source_size_bytes": 4704,
+      "source_sha256": "2e2a2e5ecab00bc1cd7d4c8b7625161c6272ce8f96790cf0d09cb3ba47287d01"
+    },
+    {
+      "source_path": "format-converter.agent.md",
+      "backup_path": "format-converter.agent.md",
+      "source_size_bytes": 2371,
+      "source_sha256": "bf93e1679ad66f148e11948fc10791f9d8ded05a30844cd37f72cc4c08a4b549"
+    },
+    {
+      "source_path": "reference-manager.agent.md",
+      "backup_path": "reference-manager.agent.md",
+      "source_size_bytes": 4363,
+      "source_sha256": "b0d75af30c7348a7888461ed283aba79e68856c6d916984e565cfe2579c6bed8"
+    },
+    {
+      "source_path": "output-compiler.agent.md",
+      "backup_path": "output-compiler.agent.md",
+      "source_size_bytes": 2309,
+      "source_sha256": "0f8898b645fdca78e54438919d62f4a6136a3ed42ab7d6d90fcee66d9ec585b4"
+    },
+    {
+      "source_path": "visual-designer.agent.md",
+      "backup_path": "visual-designer.agent.md",
+      "source_size_bytes": 2391,
+      "source_sha256": "bd63ecff88babfbd7446db2e7573e9b124af2b3cb6462c53c197597d1c32284e"
+    },
+    {
+      "source_path": "tool-doc-researcher.agent.md",
+      "backup_path": "tool-doc-researcher.agent.md",
+      "source_size_bytes": 6498,
+      "source_sha256": "7e475a906ca59ce0fe6686c3a3d547f1925d0078644757b93d9dc8a351d5eeb2"
+    },
+    {
+      "source_path": "tool-pandoc.agent.md",
+      "backup_path": "tool-pandoc.agent.md",
+      "source_size_bytes": 4114,
+      "source_sha256": "42453cd3f648d74359562dec8f493ed333cc62adf5f73d512df178d7254d290e"
+    },
+    {
+      "source_path": "references/ref-bibtex-reference.md",
+      "backup_path": "references/ref-bibtex-reference.md",
+      "source_size_bytes": 1881,
+      "source_sha256": "78524ac36b306bacb1098c9c86c6c51d26b555c635b4e15981854f630a9c8f4e"
+    },
+    {
+      "source_path": "references/code-hygiene-rules.reference.md",
+      "backup_path": "references/code-hygiene-rules.reference.md",
+      "source_size_bytes": 4884,
+      "source_sha256": "4c1e7414781e15630cbffcd44eea3bde8ed4354ff28eff855383925b0d5be77b"
+    },
+    {
+      "source_path": "references/security-vulnerability-watch.reference.md",
+      "backup_path": "references/security-vulnerability-watch.reference.md",
+      "source_size_bytes": 11039,
+      "source_sha256": "7095a53fcda65b40f669c4dd7300b192dba55e75a16c88f13e2fbc26555f65eb"
+    },
+    {
+      "source_path": "references/security-vulnerability-watch.json",
+      "backup_path": "references/security-vulnerability-watch.json",
+      "source_size_bytes": 17047,
+      "source_sha256": "82de1ae2f78e0ce7f7b1bbad305f1ed4fc151a58d1ae0655dcf28e2574d2c98b"
+    },
+    {
+      "source_path": "references/adjacent-repos.md",
+      "backup_path": "references/adjacent-repos.md",
+      "source_size_bytes": 1855,
+      "source_sha256": "91c35c837b6b892a9ca09f3841e0b254135bbed921ad818ce2ee601947c3935c"
+    },
+    {
+      "source_path": "topic-scoping-expert.agent.md",
+      "backup_path": "topic-scoping-expert.agent.md",
+      "source_size_bytes": 3969,
+      "source_sha256": "2279d5f26a0be2e936f68533ab67b71708070dd5685e7d79a9d3898ea53debb7"
+    },
+    {
+      "source_path": "literature-review-expert.agent.md",
+      "backup_path": "literature-review-expert.agent.md",
+      "source_size_bytes": 3911,
+      "source_sha256": "07dee4da3fbf4fd4d7ca1d8563fa01f64099bcc14c935a34c05c1b3a08de4d71"
+    },
+    {
+      "source_path": "main-analysis-expert.agent.md",
+      "backup_path": "main-analysis-expert.agent.md",
+      "source_size_bytes": 3874,
+      "source_sha256": "3cb72c9dbb7ad7353c41aa96a547eba0f45f1c9f8309deb3fc6b8f257226c50b"
+    },
+    {
+      "source_path": "conclusion-expert.agent.md",
+      "backup_path": "conclusion-expert.agent.md",
+      "source_size_bytes": 3965,
+      "source_sha256": "1f5186850dcb8b9fcad82aaa01b655389249ceaac96eee53ca13ad72f1d839bf"
+    },
+    {
+      "source_path": "/Users/jamescaton/githubrepositories/researchteam/.github/copilot-instructions.md",
+      "backup_path": "copilot-instructions.md",
+      "source_size_bytes": 7855,
+      "source_sha256": "e95626ff69b4243f837aed3596693553597285a561918779adab04343b3c0caa"
+    },
+    {
+      "source_path": "team-builder.agent.md",
+      "backup_path": "team-builder.agent.md",
+      "source_size_bytes": 4451,
+      "source_sha256": "a6818a1f3ca9eb8e7876cc6ac1c2f5f4cc67c4bf270784e89db20fe47809b74e"
+    },
+    {
+      "source_path": "SETUP-REQUIRED.md",
+      "backup_path": "SETUP-REQUIRED.md",
+      "source_size_bytes": 1047,
+      "source_sha256": "5a73a1da962ec7151d03e36f313f2872e95d070468e401c9ac153e90bda62982"
+    },
+    {
+      "source_path": "content-enricher.agent.md",
+      "backup_path": "content-enricher.agent.md",
+      "source_size_bytes": 5289,
+      "source_sha256": "5100441e7cece795085f3d29924d799625ba129bfd1efadee923332de474e62e"
+    },
+    {
+      "source_path": "references/pipeline-graph.md",
+      "backup_path": "references/pipeline-graph.md",
+      "source_size_bytes": 60052,
+      "source_sha256": "68e2d7eff046d993fc5d11de3df5a6e2402d7b008f04c3e6661929948fbe3818"
+    },
+    {
+      "source_path": "references/adjacent-repos-changelog.csv",
+      "backup_path": "references/adjacent-repos-changelog.csv",
+      "source_size_bytes": 45,
+      "source_sha256": "f2b9cecd8d849cc4bb3f9d9341b5656ce4b77ce5ab902deb466e60d84d7788c0"
+    },
+    {
+      "source_path": "references/adjacent-repos-coordination-log.csv",
+      "backup_path": "references/adjacent-repos-coordination-log.csv",
+      "source_size_bytes": 38,
+      "source_sha256": "8d21cc87349960106a613d1848d877c4c8e25160da6460004d8d97e968cf7f85"
+    }
+  ]
+}

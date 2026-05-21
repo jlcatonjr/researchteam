@@ -344,10 +344,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "dd73fc832eccb4dd",
+  "manifest_fingerprint": "27b6821a4837f338",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "6372e624cca19828",
-    "references/pipeline-graph.md": "68e2d7eff046d993"
+    "security.agent.md": "03ce9227c3fc2825",
+    "references/security-vulnerability-watch.reference.md": "21562a4740aae6d7",
+    "references/security-vulnerability-watch.json": "f3f18df2c2e13508"
   }
 }
