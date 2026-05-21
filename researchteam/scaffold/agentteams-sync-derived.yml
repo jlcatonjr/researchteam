@@ -1,0 +1,159 @@
+name: ResearchTeam + AgentTeams Sync
+
+on:
+  workflow_dispatch:
+    inputs:
+      researchteam_ref:
+        description: "ResearchTeam ref (branch/tag/SHA; leave blank for default)"
+        required: false
+        default: ""
+      agentteams_ref:
+        description: "AgentTeams ref (branch/tag/SHA; leave blank for default)"
+        required: false
+        default: ""
+      dry_run:
+        description: "Run without writing changes (layer-2 dry-run only)"
+        required: false
+        type: boolean
+        default: true
+      open_pr:
+        description: "Open a PR when changes exist (manual runs only)"
+        required: false
+        type: boolean
+        default: false
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    outputs:
+      has_diff: ${{ steps.diff.outputs.has_diff }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # ── Layer-2: researchteam-managed files ──────────────────────────────
+      - name: Install ResearchTeam CLI
+        env:
+          RT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.researchteam_ref || '' }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$RT_REF" ]]; then
+            pip install "git+https://github.com/jlcatonjr/researchteam.git@${RT_REF}"
+          else
+            pip install "git+https://github.com/jlcatonjr/researchteam.git"
+          fi
+          researchteam --version
+
+      - name: Resolve execution mode
+        id: mode
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "dry_run=true"  >> "$GITHUB_OUTPUT"
+            echo "open_pr=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=${{ inputs.dry_run }}"   >> "$GITHUB_OUTPUT"
+            echo "open_pr=${{ inputs.open_pr }}"   >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Sync layer-2 managed files
+        run: |
+          set -euo pipefail
+          DRY_RUN_FLAG=""
+          if [[ "${{ steps.mode.outputs.dry_run }}" == "true" ]]; then
+            DRY_RUN_FLAG="--dry-run"
+          fi
+          researchteam update --layer2-only --yes $DRY_RUN_FLAG
+
+      # ── Layer-1: agentteams-managed agent files ───────────────────────────
+      - name: Preflight forbidden-path guard
+        run: |
+          if [[ -d ".github/agents/.github" ]]; then
+            echo "ERROR: Forbidden nested mirror path exists: .github/agents/.github"
+            exit 1
+          fi
+
+      - name: Install AgentTeams CLI
+        env:
+          AT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.agentteams_ref || '' }}
+        run: |
+          set -euo pipefail
+          if [[ -n "$AT_REF" ]]; then
+            pip install "git+https://github.com/jlcatonjr/agentteams.git@${AT_REF}"
+          else
+            pip install "git+https://github.com/jlcatonjr/agentteams.git"
+          fi
+          agentteams --help >/dev/null
+
+      - name: Run AgentTeams update merge
+        run: |
+          set -euo pipefail
+          agentteams --description brief.json --update --merge --yes \
+            2>&1 | tee agentteams-update.log
+
+      - name: Post-run forbidden-path guard
+        run: |
+          if [[ -d ".github/agents/.github" ]]; then
+            echo "ERROR: Forbidden nested mirror path reintroduced: .github/agents/.github"
+            exit 1
+          fi
+
+      - name: Validate changed paths and fences
+        run: bash scripts/validate_agentteams_update.sh
+
+      - name: Capture diff
+        id: diff
+        run: |
+          git status --porcelain > changed-files.txt
+          if [[ -s changed-files.txt ]]; then
+            echo "has_diff=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "has_diff=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-artifacts
+          path: |
+            agentteams-update.log
+            changed-files.txt
+
+  open-pr:
+    runs-on: ubuntu-latest
+    needs: sync
+    if: >
+      needs.sync.outputs.has_diff == 'true' &&
+      github.event_name == 'workflow_dispatch' &&
+      inputs.dry_run == false &&
+      inputs.open_pr == true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/researchteam-sync-${{ github.run_id }}
+          title: "chore: researchteam + agentteams sync update"
+          commit-message: "chore: apply researchteam layer-2 and agentteams layer-1 sync"
+          body: |
+            Automated sync from ResearchTeam upstream (layer-2) and AgentTeams (layer-1).
+
+            **Reviewer checklist:**
+            - [ ] Layer-2 changed files are documentation/scripts only (no user research content)
+            - [ ] Layer-1 changed files are within `.github/` scope
+            - [ ] No AGENTTEAMS fence mismatches
+            - [ ] No unresolved `{MANUAL:*}` placeholders introduced
+            - [ ] `brief.json` and `Projects/` are untouched

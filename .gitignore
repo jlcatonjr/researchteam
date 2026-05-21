@@ -1,0 +1,10 @@
+# Ignore all files in tmp (plan artifacts, logs, and local scratch)
+tmp/
+
+# Python package build and virtual environment artifacts
+.venv/
+*.egg-info/
+dist/
+build/
+__pycache__/
+*.pyc

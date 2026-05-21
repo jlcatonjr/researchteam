@@ -1,0 +1,4 @@
+[researchteam]
+upstream = https://github.com/jlcatonjr/researchteam
+ref = main
+is_upstream = true

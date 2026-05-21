@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "researchteam"
+version = "0.1.0"
+description = "Agent-based research workflow framework with auto-updating infrastructure"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []
+
+[project.scripts]
+researchteam = "researchteam.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["researchteam*"]
+
+[tool.setuptools.package-data]
+researchteam = ["scaffold/*"]

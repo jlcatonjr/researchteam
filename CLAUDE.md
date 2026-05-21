@@ -54,6 +54,23 @@ bash scripts/claude_researchteam_bridge.sh open-claude-dir
 - Authority map: `docs/agent-infrastructure-authority.md`
 - Claude support folder: `.claude/`
 
+## Keeping Infrastructure Current
+
+This repository is pip-installable. If you are working in a derived project (not the upstream repo), keep layer-2 infrastructure files current with:
+
+```bash
+researchteam update          # interactive — shows diffs before applying
+researchteam update --yes    # non-interactive (CI-safe)
+researchteam update --dry-run  # preview only
+```
+
+`researchteam update` syncs `docs/`, `scripts/`, `.claude/`, `CLAUDE.md`, and `README.md` from the upstream template, then runs `agentteams --update --merge` for agent infrastructure. It never touches `brief.json`, `Projects/`, or `references/`.
+
+To install the CLI:
+```bash
+pip install git+https://github.com/jlcatonjr/researchteam.git
+```
+
 ## Notes for Claude Users
 
 - If running outside a git worktree context, some validation checks may be reduced.
