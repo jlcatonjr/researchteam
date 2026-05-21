@@ -34,10 +34,10 @@ SECTION MANIFEST — copilot-instructions.template.md
 
 | Path | Purpose |
 |------|---------|
-| `reports/` | Primary authored deliverables |
+| `Projects/` | Primary authored deliverables |
 | `output/` | Compiled/converted output artifacts |
 | `figures/` | Diagrams and figures |
-| `references/bibliography.bib` | Reference/bibliography database |
+| `Projects/*/references/bibliography.bib` | Reference/bibliography database |
 | `.github/agents/` | Agent definition files |
 | `.github/agents/references/` | Shared reference data |
 <!-- AGENTTEAMS:END directory_structure -->
@@ -47,7 +47,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN output_conventions v=1 -->
 ## Output Conventions
 
-- All primary deliverables are authored in `reports/` as `Markdown research reports, BibTeX bibliography and Executive summary`
+- All primary deliverables are authored in `Projects/` as `Markdown research reports, BibTeX bibliography and Executive summary`
 - Compiled output lives in `output/` and is **never edited directly**
 - Figures are generated from source files in `figures/` — source files are authoritative
 - Every deliverable must correspond to a Component Spec defined by a workstream expert
@@ -110,12 +110,12 @@ SECTION MANIFEST — copilot-instructions.template.md
 2. **Code hygiene second** — code changes require `@code-hygiene` audit before merge
 3. **Authority hierarchy is ground truth** — no agent may contradict a higher-authority source
 4. **Primary deliverables are the canonical output** — build artifacts are derived, never primary
-5. **No fabricated references** — every citation must be verifiable in `references/bibliography.bib`
+5. **No fabricated references** — every citation must be verifiable in a project bibliography source (for example `Projects/*/references/bibliography.bib`)
 6. **Voice fidelity** — style governance rulings are authoritative when a style-governance agent is present
 7. **Living documentation** — agent docs must not accumulate stale content
 8. **Always close with `@conflict-auditor`** — required after any multi-file change session
-9. **Every request must generate a plan** — any request involving two or more implementation steps (steps that write, create, rename, delete, or make agent decisions) must produce: (a) a summary saved to `tmp/<plan-slug>.plan.md` and (b) a step-by-step CSV saved to `tmp/<plan-slug>.steps.csv` before the first step executes; the CSV must include columns: `step`, `agent`, `action`, `inputs`, `outputs`, `status`, `notes`; initial `status` for all rows is `pending`; after each step completes, pass remaining steps through `@adversarial` and `@conflict-auditor` before proceeding; create `tmp/` if it does not exist
-9. **Fail-closed verification** — unresolved factual or citation verification findings must block final acceptance and output compilation
+9. **Every request must generate a plan** — any request involving two or more implementation steps (steps that write, create, rename, delete, or make agent decisions) must produce: (a) a summary saved to `tmp/by-week/YYYY-Www/<plan-slug>.plan.md` and (b) a step-by-step CSV saved to `tmp/by-week/YYYY-Www/<plan-slug>.steps.csv` before the first step executes; the CSV must include columns: `step`, `agent`, `action`, `inputs`, `outputs`, `status`, `notes`; initial `status` for all rows is `pending`; after each step completes, pass remaining steps through `@adversarial` and `@conflict-auditor` before proceeding; create `tmp/by-week/YYYY-Www/` if it does not exist; legacy undated `tmp/` plans are read-only fallback inputs.
+10. **Fail-closed verification** — unresolved factual or citation verification findings must block final acceptance and output compilation
 
 ---
 

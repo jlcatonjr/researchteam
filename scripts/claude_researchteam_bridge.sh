@@ -47,7 +47,7 @@ command_validate() {
 }
 
 command_open_reader() {
-  echo "$ROOT_DIR/Projects/ZeldaTimeline/ZeldaTimelineResearchGuide.html"
+  echo "$ROOT_DIR/Projects/ZeldaTimeline/ZeldaTimelineReader.html"
 }
 
 command_open_summary() {
