@@ -23,7 +23,7 @@
   "files_written": [],
   "manual_required": 25,
   "template_hashes": {
-    "universal/orchestrator.template.md": "5235f88a0e27869d",
+    "universal/orchestrator.template.md": "5cd5feac9cfd9cb8",
     "universal/navigator.template.md": "a774c9a70b43505a",
     "universal/security.template.md": "6974720c9091639d",
     "universal/code-hygiene.template.md": "92c2224832e1bb45",
@@ -344,11 +344,22 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "27b6821a4837f338",
+  "manifest_fingerprint": "1ec5c4d2814d0cd7",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "03ce9227c3fc2825",
-    "references/security-vulnerability-watch.reference.md": "21562a4740aae6d7",
-    "references/security-vulnerability-watch.json": "f3f18df2c2e13508"
+    "orchestrator.agent.md": "c9212b8330d6563b",
+    "navigator.agent.md": "fc5a2512427d7cd8",
+    "security.agent.md": "26337955b574cf5d",
+    "conflict-auditor.agent.md": "6c6fd419f252de6b",
+    "git-operations.agent.md": "f930ce39792dc6a9",
+    "work-summarizer.agent.md": "4cc9e4eb4dc8c2e6",
+    "technical-validator.agent.md": "b4d9dbdb91f59786",
+    "tool-pandoc.agent.md": "90faec50dfe72bdc",
+    "references/security-vulnerability-watch.reference.md": "7b75546c1200711b",
+    "references/security-vulnerability-watch.json": "bbed73fd14411464",
+    "topic-scoping-expert.agent.md": "7968a499aa248ba4",
+    "literature-review-expert.agent.md": "6dcf4686bb447fb2",
+    "main-analysis-expert.agent.md": "ac85777343d4a9a6",
+    "conclusion-expert.agent.md": "7c4949afc84b8c3f"
   }
 }

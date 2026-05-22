@@ -97,3 +97,7 @@ Recommended action: <correction specifics>
 - *(If `@reference-manager` in team)* Delegate reference database inconsistencies to `@reference-manager`.
 - Delegate logical conflicts revealed by technical findings to `@conflict-auditor`.
 - **Fail closed.** Do not provide PASS/clearance output when any CRITICAL or MAJOR finding remains unresolved.
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

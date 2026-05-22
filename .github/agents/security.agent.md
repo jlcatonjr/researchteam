@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-05-21T18:41:03Z`
+Generated at: `2026-05-22T17:31:42Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.05.21, items 1599) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.05.21, items 1601) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -88,21 +88,21 @@ Generated at: `2026-05-21T18:41:03Z`
 
 **Current major vulnerabilities:**
 
-- `UNKNOWN-CVE` | Unknown vendor Windows | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor DirectX | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Acrobat and Reader | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Internet Explorer | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Internet Explorer | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Defender | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Defender | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Microsoft | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Catalyst SD-WAN | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor LiteLLM | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Endpoint Manager Mobile (EPMM) | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor PAN-OS | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor Kernel | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor cPanel & WHM and WP2 (WordPress Squared) | Known exploited vulnerability | added n/a
-- `UNKNOWN-CVE` | Unknown vendor ScreenConnect | Known exploited vulnerability | added n/a
+- `CVE-2025-34291` | Langflow Langflow | Langflow Origin Validation Error Vulnerability | added 2026-05-21 | EPSS 0.312000000, percentile 0.968300000 | CVSS 8.8 HIGH
+- `CVE-2026-34926` | Trend Micro Apex One | Trend Micro Apex One (On-Premise) Directory Traversal Vulnerability | added 2026-05-21 | EPSS 0.002530000, percentile 0.486950000 | CVSS 6.7 MEDIUM
+- `CVE-2008-4250` | Microsoft Windows | Microsoft Windows Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.925260000, percentile 0.997470000 | CVSS 9.8 CRITICAL
+- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.554900000, percentile 0.981080000 | CVSS 8.8 HIGH
+- `CVE-2009-3459` | Adobe Acrobat and Reader | Adobe Acrobat and Reader Heap-Based Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.910180000, percentile 0.996490000 | CVSS 8.8 HIGH
+- `CVE-2010-0249` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.886770000, percentile 0.995230000
+- `CVE-2010-0806` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.872530000, percentile 0.994620000
+- `CVE-2026-41091` | Microsoft Defender | Microsoft Defender Link Following Vulnerability | added 2026-05-20 | EPSS 0.065510000, percentile 0.912470000
+- `CVE-2026-45498` | Microsoft Defender | Microsoft Defender Denial of Service Vulnerability | added 2026-05-20 | EPSS 0.027720000, percentile 0.862170000
+- `CVE-2026-42897` | Microsoft Microsoft | Microsoft Exchange Server Cross-Site Scripting Vulnerability | added 2026-05-15 | EPSS 0.062880000, percentile 0.910450000
+- `CVE-2026-20182` | Cisco Catalyst SD-WAN | Cisco Catalyst SD-WAN Controller Authentication Bypass Vulnerability | added 2026-05-14 | EPSS 0.773240000, percentile 0.989980000
+- `CVE-2026-42208` | BerriAI LiteLLM | BerriAI LiteLLM SQL Injection Vulnerability | added 2026-05-08 | EPSS 0.542620000, percentile 0.980570000
+- `CVE-2026-6973` | Ivanti Endpoint Manager Mobile (EPMM) | Ivanti Endpoint Manager Mobile (EPMM) Improper Input Validation Vulnerability | added 2026-05-07 | EPSS 0.049070000, percentile 0.897100000
+- `CVE-2026-0300` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Out-of-bounds Write Vulnerability | added 2026-05-06 | EPSS 0.043530000, percentile 0.890530000
+- `CVE-2026-31431` | Linux Kernel | Linux Kernel Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-05-01 | EPSS 0.024210000, percentile 0.853130000
 
 **Prevention and mitigation playbook:**
 
@@ -111,6 +111,11 @@ Generated at: `2026-05-21T18:41:03Z`
 - Enforce patch windows with owner, SLA, and verification evidence for each critical CVE.
 - When patching is blocked, define compensating controls (WAF rules, ACL tightening, feature disablement).
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
+- Vendor/CISA required actions:
+  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
+  - Please adhere to CISA’s guidelines to assess exposure and mitigate risks associated with Cisco SD-WAN devices as outlined in CISA’s Emergency Directive 26-03 (URL listed below in Notes) and CISA’s Hunt & Hardening Guidance for Cisco SD-WAN Devices (URL listed below in Notes). Adhere to the applicable BOD 22-01 guidance for cloud services or discontinue use of the product if mitigations are not available.
+  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable. Until the vendor releases an official fix, the following workaround should be implemented:  - Restrict User-ID Authentication Portal access to only trusted zones.  - Disable User-ID Authentication Portal if not required. 5/13/2026: Palo Alto has released a variety of patches. If these are relevant to your environment, please apply the designated patch.
+  - "Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
 
 ### LLM and AI-Specific Threat Intelligence
 
@@ -273,3 +278,7 @@ Use this table to determine the verdict. **Criteria are deterministic** — mode
 
 > **Precedence rule:** If a finding matches multiple rows, apply the **most restrictive** verdict (HALT > CONDITIONAL PASS > PASS).
 <!-- AGENTTEAMS:END security_rules_invariant -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

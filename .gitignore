@@ -1,6 +1,9 @@
 # Ignore all files in tmp (plan artifacts, logs, and local scratch)
 tmp/
 
+# agentteams update/migration backups (local rollback artifacts)
+.github/agents/.agentteams-backups/
+
 # Python package build and virtual environment artifacts
 .venv/
 *.egg-info/
