@@ -46,7 +46,31 @@ Verify CLI flags, configuration options, and rule/plugin behavior against this d
 ## Key API Surface
 
 <!-- AGENTTEAMS:BEGIN tool_api_surface v=1 -->
-{MANUAL:TOOL_API_SURFACE}
+**Primary command:** `pandoc [OPTIONS] [FILES]`
+
+| Flag / Option | Purpose |
+|---|---|
+| `--from` / `-f` | Input format (e.g., `markdown`, `html`, `latex`) |
+| `--to` / `-t` | Output format (e.g., `html5`, `latex`, `pdf`) |
+| `-o FILE` | Output file path |
+| `--citeproc` | Process citations using CSL |
+| `--bibliography FILE` | BibTeX/CSL bibliography file |
+| `--csl FILE` | CSL citation style file |
+| `--standalone` / `-s` | Produce a complete document with header/footer |
+| `--toc` | Include a table of contents |
+| `--metadata-file FILE` | YAML metadata file |
+| `--pdf-engine` | PDF engine selector (e.g., `xelatex`) |
+
+**Common invocations:**
+
+- `pandoc <input.md> -o <output.html|pdf|docx>`
+- `pandoc --from markdown --to html5|pdf|docx <input.md> -o <output>`
+- `pandoc --citeproc --bibliography references/bibliography.bib <input.md> -o <output>`
+- `pandoc --metadata-file <metadata.yml> <input.md> -o <output>`
+- `pandoc --standalone <input.md> -o <output.html>`
+- `pandoc --pdf-engine=xelatex <input.md> -o <output.pdf>`
+
+**Exit behavior:** non-zero exit codes and stderr content are treated as blocking unless explicitly triaged.
 <!-- AGENTTEAMS:END tool_api_surface -->
 
 <!-- Document the primary CLI commands, configuration file format, rule/plugin system, and output formats for Pandoc. -->
