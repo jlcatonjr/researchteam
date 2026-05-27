@@ -144,7 +144,13 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 <!-- AGENTTEAMS:BEGIN authority_hierarchy v=1 -->
 ### Authority Hierarchy
 
-1. **Project source files** — ground truth for all technical claims
+1. **JSTOR** (`https://www.jstor.org`) — humanities and social science peer-reviewed articles
+1. **PubMed / MEDLINE** (`https://pubmed.ncbi.nlm.nih.gov`) — biomedical and life-science literature
+2. **arXiv** (`https://arxiv.org`) — preprints in STEM fields
+2. **SSRN** (`https://ssrn.com`) — economics, law, and social science working papers
+2. **Semantic Scholar** (`https://www.semanticscholar.org`) — cross-disciplinary scholarly literature discovery and metadata
+3. **CrossRef** (`https://www.crossref.org`) — DOI resolution and bibliographic metadata verification
+3. **Google Scholar** (`https://scholar.google.com`) — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END authority_hierarchy -->
 
 ### Domain Agent Routing
@@ -152,14 +158,14 @@ You coordinate all agent operations for **ResearchTeam**. You route work to doma
 | Content Area | Agent | Key Indicators |
 |---|---|---|
 <!-- AGENTTEAMS:BEGIN routing_table_rows v=1 -->
-| Creating or revising primary Markdown research reports, BibTeX bibliography and Executive summary | `@primary-producer` | New work or revision in `Projects/` |
+| Creating or revising primary Markdown research reports, BibTeX bibliography and Executive summary | `@primary-producer` | New work or revision in `reports/` |
 | Architecture and file hygiene | `@code-hygiene` | Backup files, script lifecycle, duplication, agent doc consistency |
 | Quality and structural defects | `@quality-auditor` | Purposeless content, structural weakness, pattern violations |
 | Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned evidence |
 | Style and standards | `@style-guardian` *(if in team)* | Style reference: N/A - no formal style guide defined for this project |
 | Technical accuracy | `@technical-validator` | Code, paths, counts, claims against source files |
 | Format conversion | `@format-converter` | Source format → output format `Markdown with Chicago citations` |
-| References and dependencies | `@reference-manager` | Database: `Projects/*/references/bibliography.bib` |
+| References and dependencies | `@reference-manager` | Database: `references/bibliography.bib` |
 | Final compilation | `@output-compiler` | Final assembly and build |
 | Diagrams and figures | `@visual-designer` *(if in team)* | Files in `figures/` |
 | Cross-repository impact and liaison | `@repo-liaison` | Adjacent repo docs, cross-orchestrator coordination, registry maintenance |
@@ -250,7 +256,7 @@ A workflow step may attach a workflow-specific instruction to its closeout refer
 
 1. Invoke the relevant `@*-expert` for the target workstream → read sources, prepare Component Brief *(If `@reference-manager` in team: verify references with `@reference-manager`)*
 2. Invoke `@adversarial` → review Component Brief for hidden presuppositions; route challenges back to workstream expert
-3. Invoke `@primary-producer` → produce `Projects/` deliverable from the Component Brief
+3. Invoke `@primary-producer` → produce `reports/` deliverable from the Component Brief
 4. Return to the workstream expert → review draft against brief checklist; iterate with `@primary-producer` until ACCEPT
 5. Invoke `@quality-auditor` → audit accepted output for structural weaknesses, purposeless content, pattern violations
 6. *(If `@cohesion-repairer` in team)* Invoke `@cohesion-repairer` → repair within-section cohesion failures

@@ -2,7 +2,7 @@
   "schema_version": "1.2",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "project_type": "research",
+  "project_type": "mixed",
   "archetypes": [
     "primary-producer",
     "quality-auditor",
@@ -20,8 +20,10 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
-  "manual_required": 25,
+  "files_written": [
+    ".github/agents/references/framework-watch.reference.md"
+  ],
+  "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "5cd5feac9cfd9cb8",
     "universal/navigator.template.md": "a774c9a70b43505a",
@@ -50,6 +52,7 @@
     "domain/code-hygiene-rules-reference.template.md": "8d7af49f0273b4dd",
     "universal/security-vulnerability-watch.reference.template.md": "1680e6cfd2a72275",
     "universal/security-vulnerability-watch.json.template": "ebcec1b04ad46caa",
+    "universal/framework-watch.reference.template.md": "7e895e4a5ccc6540",
     "universal/adjacent-repos.reference.template.md": "d5f6783fe18f21c6",
     "universal/github-workflows-merge.reference.template.md": "9a85c14fca008010",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
@@ -224,6 +227,12 @@
       "component_slug": null
     },
     {
+      "path": "references/framework-watch.reference.md",
+      "template": "universal/framework-watch.reference.template.md",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
       "path": "references/adjacent-repos.md",
       "template": "universal/adjacent-repos.reference.template.md",
       "type": "artifact",
@@ -344,22 +353,21 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "1ec5c4d2814d0cd7",
+  "manifest_fingerprint": "a006beabcbd67154",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "orchestrator.agent.md": "c9212b8330d6563b",
-    "navigator.agent.md": "fc5a2512427d7cd8",
-    "security.agent.md": "26337955b574cf5d",
-    "conflict-auditor.agent.md": "6c6fd419f252de6b",
-    "git-operations.agent.md": "f930ce39792dc6a9",
-    "work-summarizer.agent.md": "4cc9e4eb4dc8c2e6",
-    "technical-validator.agent.md": "b4d9dbdb91f59786",
-    "tool-pandoc.agent.md": "90faec50dfe72bdc",
-    "references/security-vulnerability-watch.reference.md": "7b75546c1200711b",
-    "references/security-vulnerability-watch.json": "bbed73fd14411464",
-    "topic-scoping-expert.agent.md": "7968a499aa248ba4",
-    "literature-review-expert.agent.md": "6dcf4686bb447fb2",
-    "main-analysis-expert.agent.md": "ac85777343d4a9a6",
-    "conclusion-expert.agent.md": "7c4949afc84b8c3f"
+    "references/framework-watch.reference.md": "b53c1706eff9bfbb",
+    "orchestrator.agent.md": "5376f75c95fb28d7",
+    "navigator.agent.md": "d97c9ce3e60a0e18",
+    "security.agent.md": "0fc384e4937ce871",
+    "conflict-auditor.agent.md": "68d81bfa6a259462",
+    "technical-validator.agent.md": "e2cc18d53ac22e82",
+    "references/security-vulnerability-watch.reference.md": "8a48c0207b53f5b1",
+    "references/security-vulnerability-watch.json": "4d9ef00bb8250b02",
+    "topic-scoping-expert.agent.md": "f61a6834bf3317d2",
+    "literature-review-expert.agent.md": "b3501822a52c5210",
+    "main-analysis-expert.agent.md": "ab76123a6e66339c",
+    "conclusion-expert.agent.md": "439d4d1df0739333",
+    "../copilot-instructions.md": "74dc32b906b07b36"
   }
 }

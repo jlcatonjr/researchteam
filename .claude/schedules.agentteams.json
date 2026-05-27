@@ -1,0 +1,14 @@
+{
+  "_agentteams_managed": "Recurring routine specs emitted by the copilot-vscode\u2192claude bridge. Enroll with Claude's /schedule skill; agentteams does not run them itself. Edit cron fields as needed before enrolling.",
+  "routines": [
+    {
+      "agent": "work-summarizer",
+      "bridge": "copilot-vscode-to-claude",
+      "cron": "0 22 * * *",
+      "description": "Daily append-first work summary capture (22:00 UTC).",
+      "name": "agentteams-work-summarizer",
+      "tier": "cheap"
+    }
+  ],
+  "schema_version": "1.0"
+}

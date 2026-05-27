@@ -1,0 +1,55 @@
+{
+  "_agentteams_managed": "Example hooks block emitted by the agentteams copilot-vscode\u2192claude bridge. Merge into your own .claude/settings.json; do not overwrite blindly. Hooks fire .claude/hook-guard.sh which logs to .claude/hook-notices/. See bridge:copilot-vscode-to-claude:hooks.",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "bash .claude/hook-guard.sh PostToolUse agent-updater",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash .claude/hook-guard.sh PostToolUse cleanup",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      },
+      {
+        "hooks": [
+          {
+            "command": "bash .claude/hook-guard.sh PostToolUse code-hygiene",
+            "type": "command"
+          }
+        ],
+        "matcher": "Write|Edit"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "command": "bash .claude/hook-guard.sh PreToolUse security",
+            "type": "command"
+          }
+        ],
+        "matcher": "Bash|Write|Edit"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "command": "bash .claude/hook-guard.sh Stop work-summarizer",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  }
+}

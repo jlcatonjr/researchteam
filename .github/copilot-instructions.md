@@ -34,10 +34,10 @@ SECTION MANIFEST — copilot-instructions.template.md
 
 | Path | Purpose |
 |------|---------|
-| `Projects/` | Primary authored deliverables |
+| `reports/` | Primary authored deliverables |
 | `output/` | Compiled/converted output artifacts |
 | `figures/` | Diagrams and figures |
-| `Projects/*/references/bibliography.bib` | Reference/bibliography database |
+| `references/bibliography.bib` | Reference/bibliography database |
 | `.github/agents/` | Agent definition files |
 | `.github/agents/references/` | Shared reference data |
 <!-- AGENTTEAMS:END directory_structure -->
@@ -47,7 +47,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN output_conventions v=1 -->
 ## Output Conventions
 
-- All primary deliverables are authored in `Projects/` as `Markdown research reports, BibTeX bibliography and Executive summary`
+- All primary deliverables are authored in `reports/` as `Markdown research reports, BibTeX bibliography and Executive summary`
 - Compiled output lives in `output/` and is **never edited directly**
 - Figures are generated from source files in `figures/` — source files are authoritative
 - Every deliverable must correspond to a Component Spec defined by a workstream expert
@@ -99,7 +99,13 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN authority_hierarchy v=1 -->
 ## Authority Hierarchy
 
-1. **Project source files** — ground truth for all technical claims
+1. **JSTOR** (`https://www.jstor.org`) — humanities and social science peer-reviewed articles
+1. **PubMed / MEDLINE** (`https://pubmed.ncbi.nlm.nih.gov`) — biomedical and life-science literature
+2. **arXiv** (`https://arxiv.org`) — preprints in STEM fields
+2. **SSRN** (`https://ssrn.com`) — economics, law, and social science working papers
+2. **Semantic Scholar** (`https://www.semanticscholar.org`) — cross-disciplinary scholarly literature discovery and metadata
+3. **CrossRef** (`https://www.crossref.org`) — DOI resolution and bibliographic metadata verification
+3. **Google Scholar** (`https://scholar.google.com`) — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END authority_hierarchy -->
 
 ---
@@ -122,7 +128,13 @@ SECTION MANIFEST — copilot-instructions.template.md
 <!-- AGENTTEAMS:BEGIN source_repositories v=1 -->
 ## Source Repositories
 
-- Project source files (read-only)
+- `https://www.jstor.org` — humanities and social science peer-reviewed articles
+- `https://pubmed.ncbi.nlm.nih.gov` — biomedical and life-science literature
+- `https://arxiv.org` — preprints in STEM fields
+- `https://ssrn.com` — economics, law, and social science working papers
+- `https://www.semanticscholar.org` — cross-disciplinary scholarly literature discovery and metadata
+- `https://www.crossref.org` — DOI resolution and bibliographic metadata verification
+- `https://scholar.google.com` — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END source_repositories -->
 
 ---

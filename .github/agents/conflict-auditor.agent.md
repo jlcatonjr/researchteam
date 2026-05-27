@@ -89,7 +89,13 @@ Append to `.github/agents/references/conflict-log.csv` with columns:
 
 ### Source Layer (authoritative — read-only)
 <!-- AGENTTEAMS:BEGIN authority_sources_list v=1 -->
-- Project source files (read-only)
+- `https://www.jstor.org` — humanities and social science peer-reviewed articles
+- `https://pubmed.ncbi.nlm.nih.gov` — biomedical and life-science literature
+- `https://arxiv.org` — preprints in STEM fields
+- `https://ssrn.com` — economics, law, and social science working papers
+- `https://www.semanticscholar.org` — cross-disciplinary scholarly literature discovery and metadata
+- `https://www.crossref.org` — DOI resolution and bibliographic metadata verification
+- `https://scholar.google.com` — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END authority_sources_list -->
 
 ---

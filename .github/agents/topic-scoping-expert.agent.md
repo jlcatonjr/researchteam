@@ -49,19 +49,26 @@ You are the domain expert for **Topic Scoping and Research Plan** (component 1) 
 <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
 ## Component Specification
 
-{MANUAL:COMPONENT_SPEC}
+Defines the research question, scope boundaries, methodology, and a prioritised list of sources to consult. Produced before any drafting begins.
 
 ## Sections
 
-{MANUAL:COMPONENT_SECTIONS}
+1. Research Question
+2. Scope and Exclusions
+3. Methodology
+4. Source Strategy
+5. Anticipated Structure
 
 ## Sources
 
-{MANUAL:COMPONENT_SOURCES}
+- 00-research-plan.md
 
 ## Quality Criteria
 
-{MANUAL:COMPONENT_QUALITY_CRITERIA}
+- Research question is specific and answerable
+- At least 5 candidate sources identified with repository URLs or DOIs
+- Scope explicitly states what is excluded
+- Methodology describes how evidence will be gathered and synthesised
 
 ## Cross-References
 
