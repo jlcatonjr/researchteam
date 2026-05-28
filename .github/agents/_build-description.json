@@ -46,19 +46,23 @@
   "components": [
     {
       "slug": "topic-scoping",
-      "name": "Topic Scoping and Research Plan"
+      "name": "Topic Scoping and Research Plan",
+      "output_file": "00-research-plan.md"
     },
     {
       "slug": "literature-review",
-      "name": "Literature Review"
+      "name": "Literature Review",
+      "output_file": "01-literature-review.md"
     },
     {
       "slug": "main-analysis",
-      "name": "Main Analysis"
+      "name": "Main Analysis",
+      "output_file": "02-analysis.md"
     },
     {
       "slug": "conclusion",
-      "name": "Conclusion and Executive Summary"
+      "name": "Conclusion and Executive Summary",
+      "output_file": "03-conclusion.md"
     }
   ]
 }
