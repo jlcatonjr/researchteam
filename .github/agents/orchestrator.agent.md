@@ -417,7 +417,7 @@ A workflow step may attach a workflow-specific instruction to its closeout refer
 4. Invoke `@conflict-auditor` → verify summaries do not contradict authority sources
 5. Present audited summaries as a numbered list to the user
 6. If no at-large issues are found: note "No at-large issues detected"
-7. If a plan reached all `done` during this session: invoke `@work-summarizer` to append/update `workSummaries/daily/YYYY-MM-DD.md` before closeout
+7. If a plan reached all `done` during this session, **or** this session produced executed work (commits, applied changes/migrations, data mutations, or adjacent-repo activity): invoke `@work-summarizer` to append/update `workSummaries/daily/YYYY-MM-DD.md` before closeout
 <!-- AGENTTEAMS:END available_workflows -->
 
 ## Project-Specific Notes

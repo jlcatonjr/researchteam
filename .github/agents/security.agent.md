@@ -74,35 +74,35 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-05-25T15:30:10Z`
+Generated at: `2026-06-02T13:52:19Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.05.22, items 1602) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.06.01, items 1608) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
-- NVD (NIST): skipped — https://services.nvd.nist.gov/rest/json/cves/2.0
+- NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
 - OSV.dev: skipped — https://api.osv.dev/v1/querybatch
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - MITRE ATLAS: static — https://atlas.mitre.org/
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-9082` | Drupal Core | Drupal Core SQL Injection Vulnerability | added 2026-05-22 | EPSS 0.125710000, percentile 0.940410000
-- `CVE-2025-34291` | Langflow Langflow | Langflow Origin Validation Error Vulnerability | added 2026-05-21 | EPSS 0.318540000, percentile 0.968810000
-- `CVE-2026-34926` | Trend Micro Apex One | Trend Micro Apex One (On-Premise) Directory Traversal Vulnerability | added 2026-05-21 | EPSS 0.001930000, percentile 0.408700000
-- `CVE-2008-4250` | Microsoft Windows | Microsoft Windows Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.920780000, percentile 0.997180000
-- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.530160000, percentile 0.979960000
-- `CVE-2009-3459` | Adobe Acrobat and Reader | Adobe Acrobat and Reader Heap-Based Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.880730000, percentile 0.994990000
-- `CVE-2010-0249` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.886770000, percentile 0.995240000
-- `CVE-2010-0806` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.872530000, percentile 0.994640000
-- `CVE-2026-41091` | Microsoft Defender | Microsoft Defender Link Following Vulnerability | added 2026-05-20 | EPSS 0.045270000, percentile 0.892910000
-- `CVE-2026-45498` | Microsoft Defender | Microsoft Defender Denial of Service Vulnerability | added 2026-05-20 | EPSS 0.032110000, percentile 0.872000000
-- `CVE-2026-42897` | Microsoft Microsoft | Microsoft Exchange Server Cross-Site Scripting Vulnerability | added 2026-05-15 | EPSS 0.084050000, percentile 0.924240000
-- `CVE-2026-20182` | Cisco Catalyst SD-WAN | Cisco Catalyst SD-WAN Controller Authentication Bypass Vulnerability | added 2026-05-14 | EPSS 0.773240000, percentile 0.990000000
-- `CVE-2026-42208` | BerriAI LiteLLM | BerriAI LiteLLM SQL Injection Vulnerability | added 2026-05-08 | EPSS 0.542620000, percentile 0.980590000
-- `CVE-2026-6973` | Ivanti Endpoint Manager Mobile (EPMM) | Ivanti Endpoint Manager Mobile (EPMM) Improper Input Validation Vulnerability | added 2026-05-07 | EPSS 0.049070000, percentile 0.897200000
-- `CVE-2026-0300` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Out-of-bounds Write Vulnerability | added 2026-05-06 | EPSS 0.043530000, percentile 0.890640000
+- `CVE-2024-21182` | Oracle WebLogic Server | Oracle WebLogic Server Unspecified Vulnerability | added 2026-06-01 | EPSS 0.876670000, percentile 0.994830000 | CVSS 7.5 HIGH
+- `CVE-2026-0257` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Authentication Bypass Vulnerability | added 2026-05-29 | EPSS 0.415050000, percentile 0.974760000 | CVSS 9.1 CRITICAL
+- `CVE-2026-48027` | Nx Nx Console | Nx Console Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.268490000, percentile 0.964500000 | CVSS 9.8 CRITICAL
+- `CVE-2026-45321` | TanStack TanStack | TanStack Unspecified Vulnerability | added 2026-05-27 | EPSS 0.170510000, percentile 0.951050000 | CVSS 9.6 CRITICAL
+- `CVE-2026-8398` | Daemon Daemon Tools Lite | Daemon Tools Lite Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.154830000, percentile 0.947800000 | CVSS 9.8 CRITICAL
+- `CVE-2026-48172` | LiteSpeed cPanel Plugin | LiteSpeed cPanel Plugin Privilege Escalation Vulnerability | added 2026-05-26 | EPSS 0.079560000, percentile 0.921950000
+- `CVE-2026-9082` | Drupal Core | Drupal Core SQL Injection Vulnerability | added 2026-05-22 | EPSS 0.346520000, percentile 0.970900000
+- `CVE-2025-34291` | Langflow Langflow | Langflow Origin Validation Error Vulnerability | added 2026-05-21 | EPSS 0.327460000, percentile 0.969610000
+- `CVE-2026-34926` | Trend Micro Apex One | Trend Micro Apex One (On-Premise) Directory Traversal Vulnerability | added 2026-05-21 | EPSS 0.010180000, percentile 0.774870000
+- `CVE-2008-4250` | Microsoft Windows | Microsoft Windows Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.920780000, percentile 0.997200000
+- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.530160000, percentile 0.980060000
+- `CVE-2009-3459` | Adobe Acrobat and Reader | Adobe Acrobat and Reader Heap-Based Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.880730000, percentile 0.995010000
+- `CVE-2010-0249` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.887880000, percentile 0.995330000
+- `CVE-2010-0806` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.872530000, percentile 0.994670000
+- `CVE-2026-41091` | Microsoft Defender | Microsoft Defender Link Following Vulnerability | added 2026-05-20 | EPSS 0.080130000, percentile 0.922370000
 
 **Prevention and mitigation playbook:**
 
@@ -113,8 +113,6 @@ Generated at: `2026-05-25T15:30:10Z`
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
 - Vendor/CISA required actions:
   - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
-  - Please adhere to CISA’s guidelines to assess exposure and mitigate risks associated with Cisco SD-WAN devices as outlined in CISA’s Emergency Directive 26-03 (URL listed below in Notes) and CISA’s Hunt & Hardening Guidance for Cisco SD-WAN Devices (URL listed below in Notes). Adhere to the applicable BOD 22-01 guidance for cloud services or discontinue use of the product if mitigations are not available.
-  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable. Until the vendor releases an official fix, the following workaround should be implemented:  - Restrict User-ID Authentication Portal access to only trusted zones.  - Disable User-ID Authentication Portal if not required. 5/13/2026: Palo Alto has released a variety of patches. If these are relevant to your environment, please apply the designated patch.
 
 ### LLM and AI-Specific Threat Intelligence
 
@@ -192,6 +190,7 @@ Cleared for: [specific action cleared, or NONE if HALT]
 | Any bulk edit affecting 3+ files simultaneously | Data integrity |
 | Any output compilation that pulls from external URLs | Supply chain risk |
 | Any execution of `batch_update.py` or `build_team.py --self --update` | Infrastructure scope — bulk cross-repo write |
+| Any invocation of `agentteams … --bridge-refresh` against an external project | Destructive at target — see `references/bridge-refresh-safety.md` Pre-Flight; clear only when Pre-Flight §II all-pass |
 | Any committed file containing absolute filesystem paths with home directory (`/Users/`, `/home/`) | OPSEC — PII exposure in artifacts |
 | Any committed or tracked file containing a local machine hostname, OS username, MAC address, local network IP (192.168.x.x, 10.x.x.x, 172.16-31.x.x), or machine-local absolute path outside `~/` notation | OPSEC — machine-specific information exposure |
 | Any agent with `edit` or `execute` tools acting outside its declared workstream | Excessive agency (LLM06) |

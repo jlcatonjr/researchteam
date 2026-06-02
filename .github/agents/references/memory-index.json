@@ -2,17 +2,17 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "18aaba5ff584e763ed38b0b6d9da1dd00c3906482f3b07bd0012f024c2efb994",
+  "index_build_id": "563a411d61e5abfbc3b9671f45b668a57c17219f1de4dc5e893b74ddbcbcf074",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
   "vector_dim": null,
   "fallback_policy": "non-blocking-file-read-then-search",
-  "source_fingerprint": "0022b88bdfa778b869f9c894eb82b1b0672ded8907cc16d86d7c28cc8f966ee6",
+  "source_fingerprint": "7aa5346334e617d27f73019bd5b4464e12e350128481d478757bcbe3aca6d3bd",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-05-25T15:30:15.082890Z",
-  "source_count": 6,
+  "built_at": "2026-06-02T13:53:01.164759Z",
+  "source_count": 10,
   "documents": [
     {
       "doc_id": 0,
@@ -44,10 +44,68 @@
       ],
       "source_hash": "9ad40b7a2fadc0426bb95e91d49eb4f5c725b3ec505a775af0e614f01a313702",
       "source_mtime": 1779327232.1620755,
-      "vector_norm_sq": 10294.132521578407
+      "vector_norm_sq": 12433.018379806925
     },
     {
       "doc_id": 1,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/agent-inventory.md",
+      "title": "Agent Team Bridge Inventory",
+      "length": 766,
+      "snippet": "Lightweight compatibility inventory generated from source canonical files.",
+      "paragraphs": [
+        "Lightweight compatibility inventory generated from source canonical files."
+      ],
+      "source_hash": "5327c75292cc79a70b98f505c08bb49464b58e1620ddf9123758ec06c412db74",
+      "source_mtime": 1779913896.9762769,
+      "vector_norm_sq": 29896.94580184488
+    },
+    {
+      "doc_id": 2,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/domain-boundary.md",
+      "title": "Domain Boundary \u2014 Memory-Index Vector vs Retrieval-Integrator",
+      "length": 63,
+      "snippet": "The agentteams `memory_index` module ships a `--query-strategy vector` mode that is a **local sparse tf-idf vector-space ranking for memory-history retrieval only**. It is stdlib-only, deterministic, and scoped to durable text sources (work",
+      "paragraphs": [
+        "The agentteams `memory_index` module ships a `--query-strategy vector` mode that is a **local sparse tf-idf vector-space ranking for memory-history retrieval only**. It is stdlib-only, deterministic, and scoped to durable text sources (work summaries, CHANGELOG, durable plans).",
+        "It is **separate** from any project-level retrieval-integrator validation contract (e.g., relational metadata retrieval against project data tables). When a project's retrieval contract has `mode: relational-metadata`, that is independent from the memory-index's `vector_runtime_mode: sparse-tfidf-cosine` \u2014 the two retrieval surfaces address different questions and must not be conflated."
+      ],
+      "source_hash": "c762c32e4245519f48c289bcd7d40a1b7f0a27e43c096850149897ddb0950689",
+      "source_mtime": 1779913896.9766994,
+      "vector_norm_sq": 181.3966084025245
+    },
+    {
+      "doc_id": 3,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/entrypoint.md",
+      "title": "Bridge Entrypoint: copilot-vscode -> claude",
+      "length": 81,
+      "snippet": "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
+      "paragraphs": [
+        "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
+        "Before falling back to grep / filesystem search for thematic or cross-summary questions, query the agentteams memory-index:",
+        "``` agentteams --query-index \"<the user's question>\" --query-strategy vector --query-k 5 ```",
+        "Some installations require `--description PATH` for read-only queries \u2014 pass the project brief if so. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
+        "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
+      ],
+      "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
+      "source_mtime": 1779913896.976602,
+      "vector_norm_sq": 178.58722904540568
+    },
+    {
+      "doc_id": 4,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/quickstart-snippet.md",
+      "title": "Bridge Quickstart Snippet",
+      "length": 59,
+      "snippet": "```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
+      "paragraphs": [
+        "```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
+        "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
+      ],
+      "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
+      "source_mtime": 1779913896.9764993,
+      "vector_norm_sq": 119.51040857444752
+    },
+    {
+      "doc_id": 5,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/adversarial-conflict-audit-labor-matching.plan.md",
       "title": "Plan Summary: Adversarial and Conflict Audit for Labor Matching Project",
       "length": 90,
@@ -58,10 +116,10 @@
       ],
       "source_hash": "1798e17f99965864da5490d874dfc605be0c62612150c65ceb7e93736c7119dd",
       "source_mtime": 1779285118.616748,
-      "vector_norm_sq": 141.36628967737917
+      "vector_norm_sq": 206.84632748832388
     },
     {
-      "doc_id": 2,
+      "doc_id": 6,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/apply-audit-standards-egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Apply Audit Standards to Egyptian Cosmopolitan Project",
       "length": 95,
@@ -72,10 +130,10 @@
       ],
       "source_hash": "dfb9ca73bc83b6a10e39a6acaaf599c92b998d14a601d128250ee5832db7a0d4",
       "source_mtime": 1779285118.6175292,
-      "vector_norm_sq": 152.7878322651066
+      "vector_norm_sq": 237.41365271315271
     },
     {
-      "doc_id": 3,
+      "doc_id": 7,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/audit-rigour-tightening.plan.md",
       "title": "Plan: Audit Rigour Tightening",
       "length": 77,
@@ -86,10 +144,10 @@
       ],
       "source_hash": "f6ca314a0d2691fe38ced7cb00be95c292e7f470bd105e7d84b0a8cff49de12d",
       "source_mtime": 1779285118.6182218,
-      "vector_norm_sq": 124.10739474517031
+      "vector_norm_sq": 195.24037503257085
     },
     {
-      "doc_id": 4,
+      "doc_id": 8,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Egyptian Cosmopolitanism and Religious Transformation",
       "length": 107,
@@ -102,10 +160,10 @@
       ],
       "source_hash": "42f2a6b74aeb113c2abe80e53fcb59e3e4841103da4a99b822f0417ccc233afd",
       "source_mtime": 1779285118.6188612,
-      "vector_norm_sq": 244.58290927952285
+      "vector_norm_sq": 406.8445086327399
     },
     {
-      "doc_id": 5,
+      "doc_id": 9,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/labor-matching-macro-history.plan.md",
       "title": "Plan Summary: Labor Matching Macro History Project",
       "length": 85,
@@ -116,7 +174,7 @@
       ],
       "source_hash": "5f4cd24bee302d3e521911e083471663b8d0b429cff5c9d4d5b4449147b16dbb",
       "source_mtime": 1779285118.6195295,
-      "vector_norm_sq": 118.92865618639351
+      "vector_norm_sq": 209.02620018841347
     }
   ],
   "postings": {
@@ -124,6 +182,10 @@
       {
         "doc_id": 0,
         "tf": 34
+      },
+      {
+        "doc_id": 1,
+        "tf": 82
       }
     ],
     "conduct": [
@@ -150,7 +212,7 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
@@ -160,11 +222,15 @@
         "tf": 6
       },
       {
-        "doc_id": 4,
+        "doc_id": 1,
         "tf": 2
       },
       {
-        "doc_id": 5,
+        "doc_id": 8,
+        "tf": 2
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -180,7 +246,11 @@
         "tf": 5
       },
       {
-        "doc_id": 3,
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -200,6 +270,10 @@
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "pip-installable": [
@@ -211,6 +285,10 @@
     "framework": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -238,7 +316,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -249,10 +327,14 @@
       },
       {
         "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -260,6 +342,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "claims": [
@@ -268,11 +354,11 @@
         "tf": 1
       },
       {
-        "doc_id": 1,
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -300,7 +386,15 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -335,14 +429,26 @@
       },
       {
         "doc_id": 1,
-        "tf": 4
+        "tf": 5
       },
       {
         "doc_id": 2,
-        "tf": 4
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       },
       {
         "doc_id": 5,
+        "tf": 4
+      },
+      {
+        "doc_id": 6,
+        "tf": 4
+      },
+      {
+        "doc_id": 9,
         "tf": 4
       }
     ],
@@ -356,6 +462,10 @@
       {
         "doc_id": 0,
         "tf": 7
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "updates": [
@@ -388,23 +498,27 @@
         "tf": 2
       },
       {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
         "doc_id": 3,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
         "tf": 1
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -414,7 +528,11 @@
         "tf": 2
       },
       {
-        "doc_id": 2,
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -446,6 +564,10 @@
       {
         "doc_id": 0,
         "tf": 13
+      },
+      {
+        "doc_id": 1,
+        "tf": 3
       }
     ],
     "https": [
@@ -458,6 +580,10 @@
       {
         "doc_id": 0,
         "tf": 17
+      },
+      {
+        "doc_id": 1,
+        "tf": 30
       }
     ],
     "com": [
@@ -482,6 +608,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "new": [
@@ -490,11 +620,15 @@
         "tf": 2
       },
       {
-        "doc_id": 2,
+        "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 3
       }
     ],
@@ -534,6 +668,10 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
       }
     ],
     "directory": [
@@ -542,7 +680,11 @@
         "tf": 4
       },
       {
-        "doc_id": 4,
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -556,6 +698,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "initial": [
@@ -567,6 +713,10 @@
     "commit": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -580,6 +730,14 @@
       {
         "doc_id": 0,
         "tf": 5
+      },
+      {
+        "doc_id": 1,
+        "tf": 4
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "json": [
@@ -600,7 +758,19 @@
         "tf": 2
       },
       {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
         "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -616,7 +786,11 @@
         "tf": 12
       },
       {
-        "doc_id": 3,
+        "doc_id": 1,
+        "tf": 31
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -626,7 +800,11 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -646,6 +824,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "onboarding": [
@@ -664,6 +846,18 @@
       {
         "doc_id": 0,
         "tf": 15
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "copilot-instructions": [
@@ -676,12 +870,20 @@
       {
         "doc_id": 0,
         "tf": 7
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "reference": [
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 1,
+        "tf": 6
       }
     ],
     "command": [
@@ -694,6 +896,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "name": [
@@ -702,7 +908,7 @@
         "tf": 4
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -721,6 +927,10 @@
     "template": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -743,11 +953,7 @@
       },
       {
         "doc_id": 1,
-        "tf": 2
-      },
-      {
-        "doc_id": 2,
-        "tf": 2
+        "tf": 5
       },
       {
         "doc_id": 3,
@@ -755,6 +961,18 @@
       },
       {
         "doc_id": 5,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -762,12 +980,28 @@
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "agentteams": [
       {
         "doc_id": 0,
         "tf": 10
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "layer2-only": [
@@ -782,15 +1016,19 @@
         "tf": 5
       },
       {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
         "doc_id": 2,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -819,10 +1057,14 @@
       },
       {
         "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -836,6 +1078,10 @@
       {
         "doc_id": 0,
         "tf": 7
+      },
+      {
+        "doc_id": 1,
+        "tf": 6
       }
     ],
     "apply": [
@@ -844,7 +1090,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -866,19 +1112,19 @@
         "tf": 1
       },
       {
-        "doc_id": 1,
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -964,12 +1210,20 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "main": [
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "set": [
@@ -988,6 +1242,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "confirmation": [
@@ -1002,7 +1260,11 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -1016,6 +1278,10 @@
       {
         "doc_id": 0,
         "tf": 4
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "override": [
@@ -1033,6 +1299,10 @@
     "architecture": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1072,7 +1342,15 @@
         "tf": 1
       },
       {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
         "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -1130,7 +1408,7 @@
         "tf": 5
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -1140,11 +1418,19 @@
         "tf": 7
       },
       {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
         "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 2
       }
     ],
@@ -1166,7 +1452,7 @@
         "tf": 1
       },
       {
-        "doc_id": 1,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -1182,23 +1468,23 @@
         "tf": 1
       },
       {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -1214,7 +1500,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -1234,6 +1520,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "schedule": [
@@ -1282,6 +1572,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "optionally": [
@@ -1330,12 +1624,20 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "path": [
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "purpose": [
@@ -1348,6 +1650,14 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "deliverables": [
@@ -1356,7 +1666,11 @@
         "tf": 2
       },
       {
-        "doc_id": 2,
+        "doc_id": 1,
+        "tf": 9
+      },
+      {
+        "doc_id": 6,
         "tf": 2
       }
     ],
@@ -1382,11 +1696,27 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "plans": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -1394,11 +1724,19 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "tmp": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1415,22 +1753,26 @@
       },
       {
         "doc_id": 1,
-        "tf": 2
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 3
+        "tf": 4
       },
       {
         "doc_id": 5,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 3
+      },
+      {
+        "doc_id": 9,
         "tf": 2
       }
     ],
@@ -1438,6 +1780,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 3
       }
     ],
     "agent": [
@@ -1447,11 +1793,7 @@
       },
       {
         "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
+        "tf": 46
       },
       {
         "doc_id": 3,
@@ -1464,17 +1806,45 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
       }
     ],
     "governance": [
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "data": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
         "tf": 1
       }
     ],
@@ -1506,12 +1876,36 @@
       {
         "doc_id": 0,
         "tf": 4
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
       }
     ],
     "validation": [
       {
         "doc_id": 0,
         "tf": 4
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "policy": [
@@ -1520,7 +1914,7 @@
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -1528,6 +1922,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 7
       }
     ],
     "installable": [
@@ -1540,12 +1938,20 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "repo": [
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "orchestrator": [
@@ -1554,7 +1960,15 @@
         "tf": 5
       },
       {
-        "doc_id": 3,
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -1574,6 +1988,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "requests": [
@@ -1586,11 +2004,19 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 3
       }
     ],
     "constitutional": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1598,6 +2024,14 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "ensures": [
@@ -1616,7 +2050,11 @@
         "tf": 2
       },
       {
-        "doc_id": 2,
+        "doc_id": 5,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
         "tf": 2
       }
     ],
@@ -1624,11 +2062,19 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "session": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1636,11 +2082,19 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "consistency": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1648,11 +2102,19 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "bypass": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -1678,11 +2140,19 @@
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 1,
+        "tf": 4
       }
     ],
     "builder": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1708,6 +2178,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 4
       }
     ],
     "workflow": [
@@ -1720,11 +2194,23 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
       }
     ],
     "domain": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
         "tf": 1
       }
     ],
@@ -1750,6 +2236,14 @@
       {
         "doc_id": 0,
         "tf": 4
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
     "full": [
@@ -1758,7 +2252,7 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -1796,6 +2290,10 @@
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "declared": [
@@ -1820,11 +2318,19 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "git-operations": [
       {
         "doc_id": 0,
+        "tf": 1
+      },
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -1852,7 +2358,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -1868,7 +2378,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -1876,17 +2386,33 @@
       {
         "doc_id": 0,
         "tf": 4
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "users": [
       {
         "doc_id": 0,
         "tf": 2
+      },
+      {
+        "doc_id": 1,
+        "tf": 29
       }
     ],
     "use": [
       {
         "doc_id": 0,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
         "tf": 2
       }
     ],
@@ -1960,6 +2486,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 4
       }
     ],
     "initialize": [
@@ -1980,23 +2510,23 @@
         "tf": 1
       },
       {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2046,6 +2576,22 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
       }
     ],
     "copies": [
@@ -2072,7 +2618,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2082,7 +2628,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2104,7 +2654,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -2118,12 +2668,20 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "map": [
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "faq": [
@@ -2202,6 +2760,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 2
       }
     ],
     "logs": [
@@ -2216,7 +2778,11 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -2230,6 +2796,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 1,
+        "tf": 1
       }
     ],
     "folder": [
@@ -2238,11 +2808,11 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2258,211 +2828,703 @@
         "tf": 1
       }
     ],
-    "summary": [
+    "inventory": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "lightweight": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "compatibility": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "generated": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "source": [
+      {
+        "doc_id": 1,
+        "tf": 5
+      },
+      {
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
         "tf": 1
+      }
+    ],
+    "canonical": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "invokable": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "role": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "routes": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "jamescaton": [
+      {
+        "doc_id": 1,
+        "tf": 29
+      }
+    ],
+    "githubrepositories": [
+      {
+        "doc_id": 1,
+        "tf": 29
       }
     ],
     "adversarial": [
       {
         "doc_id": 1,
         "tf": 3
-      }
-    ],
-    "conflict": [
-      {
-        "doc_id": 1,
-        "tf": 2
-      }
-    ],
-    "audit": [
-      {
-        "doc_id": 1,
-        "tf": 4
-      },
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
-      }
-    ],
-    "labor": [
-      {
-        "doc_id": 1,
-        "tf": 1
       },
       {
         "doc_id": 5,
-        "tf": 2
+        "tf": 3
       }
     ],
-    "matching": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 4
-      }
-    ],
-    "slug": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "adversarial-conflict-audit-labor-matching": [
+    "presupposition": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "trigger": [
+    "critic": [
       {
         "doc_id": 1,
         "tf": 1
-      },
+      }
+    ],
+    "challenges": [
       {
-        "doc_id": 2,
+        "doc_id": 1,
         "tf": 1
-      },
+      }
+    ],
+    "assumptions": [
       {
-        "doc_id": 3,
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "underlying": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "proposal": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "diagnosis": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "produced": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "traces": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "justified": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "presuppositions": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "cascade": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "through": [
+      {
+        "doc_id": 1,
         "tf": 1
       },
       {
         "doc_id": 4,
         "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
       }
     ],
-    "subject": [
+    "dependent": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "factual": [
+    "logic": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "refactor": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "extracts": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "spec": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "compliance": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 3
+      }
+    ],
+    "across": [
       {
         "doc_id": 1,
         "tf": 3
       },
       {
-        "doc_id": 2,
+        "doc_id": 7,
         "tf": 1
       }
     ],
-    "audits": [
+    "agent-refactor": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "updater": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "labormatchingmacroeconomics": [
+    "synchronizes": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "deliverable": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "agent-updater": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
-    "remediate": [
+    "cleanup": [
+      {
+        "doc_id": 1,
+        "tf": 3
+      }
+    ],
+    "removes": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "defects": [
+    "stale": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "report": [
+    "drafts": [
+      {
+        "doc_id": 1,
+        "tf": 6
+      }
+    ],
+    "orphaned": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "mandatory": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "checks": [
+      {
+        "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 7,
         "tf": 1
       }
     ],
-    "pass": [
+    "tool": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "specialist": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "block": [
+    "pandoc": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "manages": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "configuration": [
       {
         "doc_id": 1,
         "tf": 1
+      }
+    ],
+    "execution": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "interpretation": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "integration": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "tool-pandoc": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "code": [
+      {
+        "doc_id": 1,
+        "tf": 2
       },
       {
         "doc_id": 3,
         "tf": 1
       }
     ],
-    "technical-validator": [
+    "hygiene": [
       {
         "doc_id": 1,
-        "tf": 1
-      },
+        "tf": 2
+      }
+    ],
+    "read-only": [
       {
-        "doc_id": 2,
-        "tf": 1
+        "doc_id": 1,
+        "tf": 3
       },
       {
         "doc_id": 3,
         "tf": 1
       }
     ],
-    "reference-manager": [
+    "auditor": [
+      {
+        "doc_id": 1,
+        "tf": 4
+      }
+    ],
+    "modular": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "script": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "lifecycle": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "anti-sprawl": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "quality": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "delegates": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "removals": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "structural": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "extraction": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "code-hygiene": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "cohesion": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "repairer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "repairs": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "within-section": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "failures": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "disjointedness": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "broken": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "transitions": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "missing": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "argumentative": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "spine": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "does": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "reorganize": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "sections": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "cohesion-repairer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "conclusion": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 9,
         "tf": 1
+      }
+    ],
+    "executive": [
+      {
+        "doc_id": 1,
+        "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
+      }
+    ],
+    "summary": [
+      {
+        "doc_id": 1,
+        "tf": 2
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "expert": [
+      {
+        "doc_id": 1,
+        "tf": 9
+      }
+    ],
+    "component": [
+      {
+        "doc_id": 1,
+        "tf": 9
+      }
+    ],
+    "prepares": [
+      {
+        "doc_id": 1,
+        "tf": 4
+      }
+    ],
+    "briefs": [
+      {
+        "doc_id": 1,
+        "tf": 5
+      }
+    ],
+    "reviews": [
+      {
+        "doc_id": 1,
+        "tf": 5
+      }
+    ],
+    "against": [
+      {
+        "doc_id": 1,
+        "tf": 4
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "approves": [
+      {
+        "doc_id": 1,
+        "tf": 4
+      }
+    ],
+    "conclusion-expert": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "conflict": [
+      {
+        "doc_id": 1,
+        "tf": 5
+      },
+      {
+        "doc_id": 5,
+        "tf": 2
+      }
+    ],
+    "detects": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "logical": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "conflicts": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "material": [
+      {
+        "doc_id": 1,
         "tf": 1
       }
     ],
@@ -2472,7 +3534,297 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "resolution": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "accept": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "reject": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "revise": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "decisions": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "flagged": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "conflict-resolution": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "enricher": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "fills": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "placeholders": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "underdeveloped": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "materials": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "content-enricher": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "format": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "converter": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "converts": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "markdown": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "chicago": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 2
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "final": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "format-converter": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "executes": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "governs": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "including": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "push": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "pull": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "rebase": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "handling": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "literature": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      }
+    ],
+    "literature-review-expert": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "analysis": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "main-analysis-expert": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "navigator": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "repository": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      }
+    ],
+    "navigation": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "maintenance": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "location": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "lookups": [
+      {
+        "doc_id": 1,
         "tf": 1
       },
       {
@@ -2480,13 +3832,147 @@
         "tf": 1
       }
     ],
-    "success": [
+    "dependency": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "queries": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "compiler": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "assembles": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "converted": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "components": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "ordering": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "manifest": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "output-compiler": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "producer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "revises": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "provided": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "workstream": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "primary-producer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "audit": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
+        "tf": 4
+      },
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
+        "tf": 2
+      }
+    ],
+    "inspects": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "defects": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "inconsistencies": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "llm-generated": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "prose": [
+      {
+        "doc_id": 1,
         "tf": 1
       },
       {
@@ -2496,85 +3982,27 @@
       {
         "doc_id": 4,
         "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
       }
     ],
-    "criteria": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "claim": [
+    "patterns": [
       {
         "doc_id": 1,
         "tf": 2
       }
     ],
-    "checked": [
+    "rewrite": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "overreach": [
+    "quality-auditor": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "ambiguity": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "contradiction": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "risk": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "citation": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 3
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
-      }
-    ],
-    "corresponding": [
+    "manager": [
       {
         "doc_id": 1,
         "tf": 1
@@ -2586,31 +4014,517 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 2
+      },
+      {
+        "doc_id": 9,
+        "tf": 2
+      }
+    ],
+    "database": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "strict": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "citation": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 3
+      },
+      {
+        "doc_id": 7,
+        "tf": 2
+      }
+    ],
+    "verification": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 3
+      },
+      {
+        "doc_id": 7,
+        "tf": 4
+      }
+    ],
+    "anti-fabrication": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "enforcement": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "fail-closed": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "gates": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "reference-manager": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "liaison": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "tracks": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "repositories": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "adjacent": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "communicates": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "cross-repository": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "impacts": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "maintains": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "adjacent-repos": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "between": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "orchestrators": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "activity": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "affects": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "neighboring": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "infrastructures": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "repo-liaison": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "security": [
+      {
+        "doc_id": 1,
+        "tf": 3
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "top-priority": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "sentinel": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "actions": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "credential": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "exposure": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "destructive": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "sensitive": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "leakage": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "action": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "proceeds": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "teams": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "module": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "interactively": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "constructs": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "conducting": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "intake": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "interview": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "invoking": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "pipeline": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "team-builder": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "technical": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "validator": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "verifies": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "factual": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 3
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "accuracy": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "claim": [
+      {
+        "doc_id": 1,
+        "tf": 1
       },
       {
         "doc_id": 5,
         "tf": 2
       }
     ],
-    "record": [
+    "must": [
       {
         "doc_id": 1,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
         "tf": 1
       }
     ],
-    "consistent": [
+    "verifiable": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      }
+    ],
+    "evidence": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "on-disk": [
       {
         "doc_id": 1,
         "tf": 1
       }
     ],
-    "in-text": [
+    "technical-validator": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "researcher": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "locates": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "official": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "api": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "surfaces": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "usage": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "tools": [
       {
         "doc_id": 1,
         "tf": 1
@@ -2620,101 +4534,9 @@
       {
         "doc_id": 1,
         "tf": 1
-      }
-    ],
-    "cross-file": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "contradictions": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "identified": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "resolved": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "explicitly": [
-      {
-        "doc_id": 1,
-        "tf": 1
       },
       {
         "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "flagged": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "result": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "recorded": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "severity-labeled": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "findings": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "disposition": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      }
-    ],
-    "rollback": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
         "tf": 1
       },
       {
@@ -2722,7 +4544,117 @@
         "tf": 1
       }
     ],
-    "notes": [
+    "tool-doc-researcher": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "topic": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "scoping": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "topic-scoping-expert": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "visual": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "designer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "creates": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "diagrams": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "figures": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "approved": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "diagram": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "toolchain": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "visual-designer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "summarizer": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "synthesizes": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "daily": [
+      {
+        "doc_id": 1,
+        "tf": 2
+      }
+    ],
+    "monthly": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "summaries": [
       {
         "doc_id": 1,
         "tf": 1
@@ -2737,6 +4669,42 @@
       },
       {
         "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "supports": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "append-first": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "capture": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "legacy": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "fallback": [
+      {
+        "doc_id": 1,
+        "tf": 1
+      }
+    ],
+    "audits": [
+      {
+        "doc_id": 1,
         "tf": 1
       },
       {
@@ -2744,11 +4712,7 @@
         "tf": 1
       }
     ],
-    "revert": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
+    "boundary": [
       {
         "doc_id": 2,
         "tf": 1
@@ -2762,231 +4726,149 @@
         "tf": 1
       }
     ],
-    "remediation": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
+    "memory-index": [
       {
         "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "edits": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "rejects": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "completion": [
-      {
-        "doc_id": 1,
         "tf": 2
       },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "vector": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "retrieval-integrator": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "memory_index": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "ships": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "query-strategy": [
       {
         "doc_id": 2,
         "tf": 1
       },
       {
         "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 2
-      }
-    ],
-    "date": [
-      {
-        "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "april": [
-      {
-        "doc_id": 1,
         "tf": 1
       },
       {
         "doc_id": 4,
         "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
       }
     ],
-    "standards": [
+    "mode": [
       {
         "doc_id": 2,
         "tf": 2
-      }
-    ],
-    "egyptian": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 2
-      }
-    ],
-    "cosmopolitan": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 2
-      }
-    ],
-    "requested": [
-      {
-        "doc_id": 2,
-        "tf": 1
       },
       {
         "doc_id": 3,
         "tf": 1
       }
     ],
-    "application": [
+    "local": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "fail-closed": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "bring": [
+    "sparse": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "egyptiandevelopment": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 2
-      }
-    ],
-    "compliance": [
-      {
-        "doc_id": 2,
-        "tf": 3
-      }
-    ],
-    "strict": [
+    "tf-idf": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "fact": [
+    "vector-space": [
       {
         "doc_id": 2,
         "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
       }
     ],
-    "verification": [
+    "ranking": [
       {
         "doc_id": 2,
-        "tf": 3
-      },
+        "tf": 1
+      }
+    ],
+    "memory-history": [
       {
-        "doc_id": 3,
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "retrieval": [
+      {
+        "doc_id": 2,
         "tf": 4
-      }
-    ],
-    "requirements": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "security": [
-      {
-        "doc_id": 2,
-        "tf": 1
       },
       {
         "doc_id": 3,
         "tf": 1
-      }
-    ],
-    "primary-producer": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "agent-updater": [
-      {
-        "doc_id": 2,
-        "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
-    "markdown": [
+    "stdlib-only": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "resolves": [
+    "deterministic": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "blocking": [
+    "scoped": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "durable": [
       {
         "doc_id": 2,
         "tf": 2
@@ -2994,9 +4876,99 @@
       {
         "doc_id": 3,
         "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
-    "unresolved": [
+    "text": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "changelog": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "separate": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "project-level": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "contract": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "relational": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "tables": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "relational-metadata": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "independent": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "vector_runtime_mode": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "sparse-tfidf-cosine": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "address": [
       {
         "doc_id": 2,
         "tf": 1
@@ -3006,19 +4978,7 @@
         "tf": 1
       }
     ],
-    "issue": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "tracked": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "include": [
+    "different": [
       {
         "doc_id": 2,
         "tf": 1
@@ -3028,37 +4988,21 @@
         "tf": 1
       }
     ],
-    "auditable": [
+    "questions": [
       {
         "doc_id": 2,
         "tf": 1
-      }
-    ],
-    "section": [
+      },
       {
-        "doc_id": 2,
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
         "tf": 1
       }
     ],
-    "audit-status": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "insertions": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "related": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "preserve": [
+    "conflated": [
       {
         "doc_id": 2,
         "tf": 1
@@ -3068,25 +5012,13 @@
         "tf": 1
       }
     ],
-    "argumentation": [
+    "direction": [
       {
         "doc_id": 2,
         "tf": 1
       }
     ],
-    "unless": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "correction": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "final": [
+    "copilot-vscode": [
       {
         "doc_id": 2,
         "tf": 1
@@ -3094,13 +5026,165 @@
       {
         "doc_id": 3,
         "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
       }
     ],
-    "completed": [
+    "entrypoint": [
       {
-        "doc_id": 2,
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "interface": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "definitions": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "remain": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "orchestrator-first": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "team-based": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "surface": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "falling": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "back": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "grep": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "filesystem": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "search": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "thematic": [
+      {
+        "doc_id": 3,
         "tf": 1
       },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "cross-summary": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "query": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "query-index": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "question": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "query-k": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "installations": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "require": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "pass": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "index": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "code-symbol": [
       {
         "doc_id": 3,
         "tf": 1
@@ -3108,713 +5192,1267 @@
     ],
     "remains": [
       {
-        "doc_id": 2,
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "domain-boundary": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "contracts": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "quickstart": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "snippet": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "first": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "prompt": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "multi-step": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "cross-repo": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "retrieval-first": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "seen": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "bridges": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "src": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "to-": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "target": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "labor": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 2
+      }
+    ],
+    "matching": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 4
+      }
+    ],
+    "slug": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "adversarial-conflict-audit-labor-matching": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "trigger": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "subject": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "labormatchingmacroeconomics": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "remediate": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "report": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "block": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "success": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "criteria": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "checked": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "overreach": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "ambiguity": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "contradiction": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "risk": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "corresponding": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "record": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      }
+    ],
+    "consistent": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "in-text": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "cross-file": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "contradictions": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "identified": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "resolved": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "explicitly": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "result": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "recorded": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "severity-labeled": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "findings": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "disposition": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "rollback": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "notes": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "revert": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      }
+    ],
+    "remediation": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "edits": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "rejects": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "completion": [
+      {
+        "doc_id": 5,
+        "tf": 2
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 2
+      }
+    ],
+    "date": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "april": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      }
+    ],
+    "standards": [
+      {
+        "doc_id": 6,
+        "tf": 2
+      }
+    ],
+    "egyptian": [
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 2
+      }
+    ],
+    "cosmopolitan": [
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 2
+      }
+    ],
+    "requested": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "application": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "bring": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "egyptiandevelopment": [
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 2
+      }
+    ],
+    "fact": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 2
+      }
+    ],
+    "requirements": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "resolves": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "blocking": [
+      {
+        "doc_id": 6,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "unresolved": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "issue": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "tracked": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "include": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "auditable": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "section": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "audit-status": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "insertions": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "related": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "preserve": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "argumentation": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "unless": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "correction": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "completed": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "blocked": [
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "release": [
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "pending": [
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "open": [
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "major": [
       {
-        "doc_id": 2,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "rigour": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 2
       }
     ],
     "tightening": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "greater": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "auditing": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "near-zero": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "error": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "tolerance": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "enforce": [
       {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "across": [
-      {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "orchestration": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "requires": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 2
       }
     ],
     "explicit": [
       {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "evidence": [
-      {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "mapping": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "unverified": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "behavior": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "key-level": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "metadata-level": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "resolver-level": [
       {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "checks": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "mandatory": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "gates": [
-      {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "progression": [
       {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "failures": [
-      {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "specific": [
       {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "sections": [
-      {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "affected": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "unrelated": [
       {
-        "doc_id": 3,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "cosmopolitanism": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "religious": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 3
       }
     ],
     "transformation": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 3
       }
     ],
     "egyptian-cosmopolitanism": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "request": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "produce": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "examining": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "life": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "mass": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "jewish": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "emigration": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "pre-1948": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "impact": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "over": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "following": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "half-century": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "attention": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "coptic": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "eastern": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "orthodox": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "communities": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 2
-      }
-    ],
-    "topic-scoping-expert": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "source": [
-      {
-        "doc_id": 4,
-        "tf": 1
       }
     ],
     "strategy": [
       {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "literature-review-expert": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "survey": [
       {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "literature": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "main-analysis-expert": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "core": [
       {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "analysis": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "conclusion-expert": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "conclusion": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "executive": [
-      {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "compile": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "verify": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "bib": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "minimum": [
       {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "chicago": [
-      {
-        "doc_id": 4,
-        "tf": 2
-      },
-      {
-        "doc_id": 5,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "author-date": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "verifiable": [
-      {
-        "doc_id": 4,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "via": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "doi": [
       {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "repository": [
-      {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "egypt": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "causes": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "pluralism": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "community": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "treatment": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "greek": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "armenian": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "fabricated": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "appended": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "outputs": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "remove": [
       {
-        "doc_id": 4,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "macro": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "history": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "labor-matching-macro-history": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "summarizing": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "early": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "influence": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "models": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "macroeconomics": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "representative": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "accurate": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "four-part": [
       {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "deliverable": [
-      {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "under": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "present": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "research-plan": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "literature-review": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "supported": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "standard": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "field-defining": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "included": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "scope": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "framing": [
       {
-        "doc_id": 5,
+        "doc_id": 9,
         "tf": 1
       }
     ]
   },
-  "avgdl": 195.83333333333334,
-  "N": 6
+  "avgdl": 214.4,
+  "N": 10
 }
