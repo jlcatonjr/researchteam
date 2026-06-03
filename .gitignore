@@ -11,3 +11,6 @@ dist/
 build/
 __pycache__/
 *.pyc
+
+# Archival update backups (any location) — never tracked (update-policy)
+**/.agentteams-backups/
