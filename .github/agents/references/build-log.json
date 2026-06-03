@@ -20,13 +20,16 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".github/agents/references/unix-philosophy-mapping.reference.md",
+    ".github/agents/references/ai-bad-habits-watch.reference.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "fc0d1c26a3ecd7c9",
-    "universal/navigator.template.md": "d9403dac8f58f98a",
-    "universal/security.template.md": "1f92979a12d14cc9",
-    "universal/code-hygiene.template.md": "269d3c94f2b04341",
+    "universal/navigator.template.md": "a0d0ac008e49068f",
+    "universal/security.template.md": "22e1e8b5bd521eaf",
+    "universal/code-hygiene.template.md": "4d857b0585c8e31f",
     "universal/adversarial.template.md": "de9896b303a341be",
     "universal/conflict-auditor.template.md": "2ab99de3a03b6850",
     "universal/conflict-resolution.template.md": "426ec99b00bbdfb4",
@@ -47,9 +50,11 @@
     "domain/tool-doc-researcher.template.md": "e8d631f82cbb055e",
     "domain/tool-cli.template.md": "49dc4c644d8696e1",
     "domain/tool-reference.template.md": "cf44c4bf906ba8b8",
-    "domain/code-hygiene-rules-reference.template.md": "e23c582740ab6cd1",
+    "domain/code-hygiene-rules-reference.template.md": "6f1e6ae79203a025",
+    "domain/unix-philosophy-mapping-reference.template.md": "6bba3ba218962376",
     "universal/security-vulnerability-watch.reference.template.md": "1680e6cfd2a72275",
     "universal/security-vulnerability-watch.json.template": "ebcec1b04ad46caa",
+    "universal/ai-bad-habits-watch.reference.template.md": "690a289b3fdbdf9e",
     "universal/framework-watch.reference.template.md": "7e895e4a5ccc6540",
     "universal/adjacent-repos.reference.template.md": "d5f6783fe18f21c6",
     "universal/github-workflows-merge.reference.template.md": "9a85c14fca008010",
@@ -213,6 +218,12 @@
       "component_slug": null
     },
     {
+      "path": "references/unix-philosophy-mapping.reference.md",
+      "template": "domain/unix-philosophy-mapping-reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/security-vulnerability-watch.reference.md",
       "template": "universal/security-vulnerability-watch.reference.template.md",
       "type": "artifact",
@@ -221,6 +232,12 @@
     {
       "path": "references/security-vulnerability-watch.json",
       "template": "universal/security-vulnerability-watch.json.template",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/ai-bad-habits-watch.reference.md",
+      "template": "universal/ai-bad-habits-watch.reference.template.md",
       "type": "artifact",
       "component_slug": null
     },
@@ -351,19 +368,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "0c5f7036bb74400e",
+  "manifest_fingerprint": "6d905e2434df3f32",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "orchestrator.agent.md": "5dcdedcd1d678390",
-    "security.agent.md": "e59a3f59032f5d6f",
-    "conflict-auditor.agent.md": "9d2cdb7e52de26b2",
-    "git-operations.agent.md": "9a205a22f7c7ce28",
-    "work-summarizer.agent.md": "d15a122e773194b7",
-    "technical-validator.agent.md": "00751f2bec8ad425",
-    "references/security-vulnerability-watch.reference.md": "0dddf1b7dc3e9361",
-    "references/security-vulnerability-watch.json": "54ac5f5300ca8108",
-    "references/framework-watch.reference.md": "033c3c037954b48b",
-    "../copilot-instructions.md": "04dd694cba8867bf",
-    "references/pipeline-graph.md": "6bbc72d0af515bac"
+    "references/unix-philosophy-mapping.reference.md": "d22cf271caa52dd1",
+    "references/ai-bad-habits-watch.reference.md": "246afa3a98bc8850",
+    "security.agent.md": "38cadd3100122d61",
+    "references/security-vulnerability-watch.reference.md": "d2cf522c824b04da",
+    "references/security-vulnerability-watch.json": "e51e913413a25b7e",
+    "references/framework-watch.reference.md": "d56f29b4d5e16cbc"
   }
 }

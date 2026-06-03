@@ -1,10 +1,10 @@
 {
   "artifact_type": "delivery-receipt",
   "receipt_schema_version": "1.0",
-  "delivered_at": "2026-06-02T13:53:01Z",
+  "delivered_at": "2026-06-03T14:44:45Z",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "manifest_fingerprint": "0c5f7036bb74400e",
+  "manifest_fingerprint": "6d905e2434df3f32",
   "fingerprint_algo_version": 1,
   "output_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
   "agentteams_version": "1.0.0rc6"
