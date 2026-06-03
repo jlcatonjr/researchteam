@@ -15,6 +15,7 @@ handoffs:
     prompt: "Reference database operation complete."
     send: false
 ---
+<!-- AGENTTEAMS:BEGIN content v=1 -->
 
 # Reference Manager — ResearchTeam
 
@@ -97,3 +98,8 @@ Checks: KEY_RESOLUTION=<PASS|FAIL>, METADATA_COMPLETENESS=<PASS|FAIL>, SOURCE_AU
 Action taken: <description or "none">
 Escalation required: YES|NO — <reason if YES>
 ```
+<!-- AGENTTEAMS:END content -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

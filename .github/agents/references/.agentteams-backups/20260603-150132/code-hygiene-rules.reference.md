@@ -1,4 +1,3 @@
-<!-- AGENTTEAMS:BEGIN content v=1 -->
 # Code Hygiene Rules — Enforcement Catalog (ResearchTeam)
 
 > **Authoritative source for:** `@code-hygiene` agent rule enforcement
@@ -115,4 +114,3 @@ No two agent files may make contradictory claims about the same fact (e.g., whic
 
 Description and enforcement check.
 -->
-<!-- AGENTTEAMS:END content -->

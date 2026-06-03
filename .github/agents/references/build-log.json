@@ -20,10 +20,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/unix-philosophy-mapping.reference.md",
-    ".github/agents/references/ai-bad-habits-watch.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "fc0d1c26a3ecd7c9",
@@ -368,14 +365,28 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "6d905e2434df3f32",
+  "manifest_fingerprint": "f90cd4e7a9c0559a",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/unix-philosophy-mapping.reference.md": "d22cf271caa52dd1",
-    "references/ai-bad-habits-watch.reference.md": "246afa3a98bc8850",
-    "security.agent.md": "38cadd3100122d61",
-    "references/security-vulnerability-watch.reference.md": "d2cf522c824b04da",
-    "references/security-vulnerability-watch.json": "e51e913413a25b7e",
-    "references/framework-watch.reference.md": "d56f29b4d5e16cbc"
+    "security.agent.md": "0900807a5e98be08",
+    "code-hygiene.agent.md": "7bdaca03a2b49900",
+    "adversarial.agent.md": "da47fcab3428b622",
+    "conflict-resolution.agent.md": "671df76e1f366272",
+    "cleanup.agent.md": "7ea1a25823ff305f",
+    "agent-updater.agent.md": "d69e5774ae01ecbf",
+    "agent-refactor.agent.md": "e89ed5d7214c9ebd",
+    "repo-liaison.agent.md": "a7ca29cae5706426",
+    "primary-producer.agent.md": "55e73f1e5998e24a",
+    "quality-auditor.agent.md": "515687e0913c7577",
+    "cohesion-repairer.agent.md": "8f2de9fd3dd3ff2b",
+    "format-converter.agent.md": "e484c886631c7e50",
+    "reference-manager.agent.md": "c78e4f7f8f47684e",
+    "output-compiler.agent.md": "07897818bf0566f3",
+    "visual-designer.agent.md": "31198e666f8e5383",
+    "tool-doc-researcher.agent.md": "670863c8eecd1d54",
+    "references/security-vulnerability-watch.json": "d1509453d15af8f5",
+    "references/framework-watch.reference.md": "5ffa4d813527de8e",
+    "team-builder.agent.md": "9dcf3f165ffd2bce",
+    "content-enricher.agent.md": "2ff237a293a35cdc"
   }
 }

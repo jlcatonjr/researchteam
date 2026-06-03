@@ -74,7 +74,7 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-06-03T14:44:00Z`
+Generated at: `2026-06-03T15:05:00Z`
 
 **Sources:**
 

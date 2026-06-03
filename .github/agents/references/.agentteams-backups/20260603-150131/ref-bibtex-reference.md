@@ -1,4 +1,3 @@
-<!-- AGENTTEAMS:BEGIN content v=1 -->
 # BibTeX Reference — ResearchTeam
 
 > Quick-reference for **BibTeX ** (library) in ResearchTeam.
@@ -57,4 +56,3 @@ BibTeX entries are plain-text records in `Projects/*/references/bibliography.bib
 
 - `@technical-validator` — verify technical accuracy of BibTeX usage
 - `@primary-producer` — implements code that depends on BibTeX
-<!-- AGENTTEAMS:END content -->

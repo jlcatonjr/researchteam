@@ -1,3 +1,4 @@
+<!-- AGENTTEAMS:BEGIN content v=1 -->
 # SETUP-REQUIRED.md
 
 The following **3 placeholder(s)** remain unresolved for project **ResearchTeam** and require manual attention.
@@ -32,3 +33,4 @@ The following **3 placeholder(s)** remain unresolved for project **ResearchTeam*
 ---
 
 Once all items above are resolved, invoke `@conflict-auditor` to verify consistency.
+<!-- AGENTTEAMS:END content -->
