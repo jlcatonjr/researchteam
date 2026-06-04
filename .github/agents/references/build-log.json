@@ -2,7 +2,7 @@
   "schema_version": "1.2",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "project_type": "mixed",
+  "project_type": "research",
   "archetypes": [
     "primary-producer",
     "quality-auditor",
@@ -21,7 +21,7 @@
     "conclusion"
   ],
   "files_written": [],
-  "manual_required": 8,
+  "manual_required": 21,
   "template_hashes": {
     "universal/orchestrator.template.md": "fc0d1c26a3ecd7c9",
     "universal/navigator.template.md": "a0d0ac008e49068f",
@@ -365,28 +365,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "f90cd4e7a9c0559a",
+  "manifest_fingerprint": "6b343c40541c1261",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "0900807a5e98be08",
-    "code-hygiene.agent.md": "7bdaca03a2b49900",
-    "adversarial.agent.md": "da47fcab3428b622",
-    "conflict-resolution.agent.md": "671df76e1f366272",
-    "cleanup.agent.md": "7ea1a25823ff305f",
-    "agent-updater.agent.md": "d69e5774ae01ecbf",
-    "agent-refactor.agent.md": "e89ed5d7214c9ebd",
-    "repo-liaison.agent.md": "a7ca29cae5706426",
-    "primary-producer.agent.md": "55e73f1e5998e24a",
-    "quality-auditor.agent.md": "515687e0913c7577",
-    "cohesion-repairer.agent.md": "8f2de9fd3dd3ff2b",
-    "format-converter.agent.md": "e484c886631c7e50",
-    "reference-manager.agent.md": "c78e4f7f8f47684e",
-    "output-compiler.agent.md": "07897818bf0566f3",
-    "visual-designer.agent.md": "31198e666f8e5383",
-    "tool-doc-researcher.agent.md": "670863c8eecd1d54",
-    "references/security-vulnerability-watch.json": "d1509453d15af8f5",
-    "references/framework-watch.reference.md": "5ffa4d813527de8e",
-    "team-builder.agent.md": "9dcf3f165ffd2bce",
-    "content-enricher.agent.md": "2ff237a293a35cdc"
+    "security.agent.md": "d0bc3b849d652193",
+    "references/security-vulnerability-watch.reference.md": "7fb3d6e7357a3a02",
+    "references/security-vulnerability-watch.json": "1a0d7383f96c6ff3",
+    "references/framework-watch.reference.md": "a3fc04822180dffc"
   }
 }

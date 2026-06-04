@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-06-03T15:05:00Z`
+Generated at: `2026-06-04T13:58:15Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.06.02, items 1610) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.06.03, items 1611) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -88,21 +88,21 @@ Generated at: `2026-06-03T15:05:00Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2022-0492` | Linux Kernel | Linux Kernel Improper Authentication Vulnerability | added 2026-06-02 | EPSS 0.263410000, percentile 0.964090000 | CVSS 7.8 HIGH
-- `CVE-2025-48595` | Android Framework | Android Framework Integer Overflow Vulnerability | added 2026-06-02 | EPSS 0.004010000, percentile 0.610800000 | CVSS 8.4 HIGH
-- `CVE-2024-21182` | Oracle WebLogic Server | Oracle WebLogic Server Unspecified Vulnerability | added 2026-06-01 | EPSS 0.896490000, percentile 0.995810000 | CVSS 7.5 HIGH
-- `CVE-2026-0257` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Authentication Bypass Vulnerability | added 2026-05-29 | EPSS 0.363440000, percentile 0.971980000 | CVSS 9.1 CRITICAL
-- `CVE-2026-48027` | Nx Nx Console | Nx Console Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.320650000, percentile 0.969150000 | CVSS 9.8 CRITICAL
+- `CVE-2026-45247` | Mirasvit Mirasvit Full Page Cache Warmer | Mirasvit Full Page Cache Warmer Deserialization of Untrusted Data Vulnerability | added 2026-06-03 | EPSS 0.061490000, percentile 0.909740000 | CVSS 9.8 CRITICAL
+- `CVE-2022-0492` | Linux Kernel | Linux Kernel Improper Authentication Vulnerability | added 2026-06-02 | EPSS 0.289730000, percentile 0.966590000 | CVSS 7.8 HIGH
+- `CVE-2025-48595` | Android Framework | Android Framework Integer Overflow Vulnerability | added 2026-06-02 | EPSS 0.004010000, percentile 0.611000000 | CVSS 8.4 HIGH
+- `CVE-2024-21182` | Oracle WebLogic Server | Oracle WebLogic Server Unspecified Vulnerability | added 2026-06-01 | EPSS 0.896490000, percentile 0.995800000 | CVSS 7.5 HIGH
+- `CVE-2026-0257` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Authentication Bypass Vulnerability | added 2026-05-29 | EPSS 0.464530000, percentile 0.977170000 | CVSS 9.1 CRITICAL
+- `CVE-2026-48027` | Nx Nx Console | Nx Console Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.320650000, percentile 0.969170000
 - `CVE-2026-45321` | TanStack TanStack | TanStack Unspecified Vulnerability | added 2026-05-27 | EPSS 0.170510000, percentile 0.951110000
-- `CVE-2026-8398` | Daemon Daemon Tools Lite | Daemon Tools Lite Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.154830000, percentile 0.947880000
-- `CVE-2026-48172` | LiteSpeed cPanel Plugin | LiteSpeed cPanel Plugin Privilege Escalation Vulnerability | added 2026-05-26 | EPSS 0.079560000, percentile 0.922050000
-- `CVE-2026-9082` | Drupal Core | Drupal Core SQL Injection Vulnerability | added 2026-05-22 | EPSS 0.130330000, percentile 0.942200000
-- `CVE-2025-34291` | Langflow Langflow | Langflow Origin Validation Error Vulnerability | added 2026-05-21 | EPSS 0.327460000, percentile 0.969660000
-- `CVE-2026-34926` | Trend Micro Apex One | Trend Micro Apex One (On-Premise) Directory Traversal Vulnerability | added 2026-05-21 | EPSS 0.010180000, percentile 0.775230000
+- `CVE-2026-8398` | Daemon Daemon Tools Lite | Daemon Tools Lite Embedded Malicious Code Vulnerability | added 2026-05-27 | EPSS 0.143900000, percentile 0.945450000
+- `CVE-2026-48172` | LiteSpeed cPanel Plugin | LiteSpeed cPanel Plugin Privilege Escalation Vulnerability | added 2026-05-26 | EPSS 0.079560000, percentile 0.922080000
+- `CVE-2026-9082` | Drupal Core | Drupal Core SQL Injection Vulnerability | added 2026-05-22 | EPSS 0.076650000, percentile 0.920400000
+- `CVE-2025-34291` | Langflow Langflow | Langflow Origin Validation Error Vulnerability | added 2026-05-21 | EPSS 0.327460000, percentile 0.969680000
+- `CVE-2026-34926` | Trend Micro Apex One | Trend Micro Apex One (On-Premise) Directory Traversal Vulnerability | added 2026-05-21 | EPSS 0.010180000, percentile 0.775330000
 - `CVE-2008-4250` | Microsoft Windows | Microsoft Windows Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.920780000, percentile 0.997210000
-- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.530160000, percentile 0.980100000
+- `CVE-2009-1537` | Microsoft DirectX | Microsoft DirectX NULL Byte Overwrite Vulnerability | added 2026-05-20 | EPSS 0.530160000, percentile 0.980090000
 - `CVE-2009-3459` | Adobe Acrobat and Reader | Adobe Acrobat and Reader Heap-Based Buffer Overflow Vulnerability | added 2026-05-20 | EPSS 0.880730000, percentile 0.995010000
-- `CVE-2010-0249` | Microsoft Internet Explorer | Microsoft Internet Explorer Use-After-Free Vulnerability | added 2026-05-20 | EPSS 0.887880000, percentile 0.995330000
 
 **Prevention and mitigation playbook:**
 
