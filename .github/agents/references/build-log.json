@@ -2,7 +2,7 @@
   "schema_version": "1.2",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "project_type": "research",
+  "project_type": "mixed",
   "archetypes": [
     "primary-producer",
     "quality-auditor",
@@ -20,10 +20,13 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
-  "manual_required": 21,
+  "files_written": [
+    ".github/agents/references/ref-pandoc-reference.md",
+    ".github/agents/references/work-summary-backfill.reference.md"
+  ],
+  "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "fc0d1c26a3ecd7c9",
+    "universal/orchestrator.template.md": "b2da8904757b0cb1",
     "universal/navigator.template.md": "a0d0ac008e49068f",
     "universal/security.template.md": "22e1e8b5bd521eaf",
     "universal/code-hygiene.template.md": "4d857b0585c8e31f",
@@ -31,11 +34,11 @@
     "universal/conflict-auditor.template.md": "2ab99de3a03b6850",
     "universal/conflict-resolution.template.md": "426ec99b00bbdfb4",
     "universal/cleanup.template.md": "bf795b64968349f6",
-    "universal/agent-updater.template.md": "8c51be1bff0c05ee",
+    "universal/agent-updater.template.md": "c9636a2efa322a6d",
     "universal/agent-refactor.template.md": "a9717cc56c35f4ac",
     "universal/repo-liaison.template.md": "f3ab2dffbbbb29ff",
     "universal/git-operations.template.md": "df8b2433d8b7e471",
-    "domain/work-summarizer.template.md": "7f3d52d4dfd79acf",
+    "domain/work-summarizer.template.md": "fb11f5101db630c1",
     "domain/primary-producer.template.md": "c128e8f2fb52885f",
     "domain/quality-auditor.template.md": "5103798809fb292c",
     "domain/cohesion-repairer.template.md": "a2c3b4844110b04a",
@@ -44,9 +47,9 @@
     "domain/reference-manager.template.md": "f7538df16abbbba8",
     "domain/output-compiler.template.md": "fd90f3a13765386a",
     "domain/visual-designer.template.md": "cae39ee7b6d167f4",
-    "domain/tool-doc-researcher.template.md": "e8d631f82cbb055e",
-    "domain/tool-cli.template.md": "49dc4c644d8696e1",
-    "domain/tool-reference.template.md": "cf44c4bf906ba8b8",
+    "domain/tool-doc-researcher.template.md": "5725070c1a407895",
+    "domain/tool-cli.doc.template.md": "c5a4440c4ad425a7",
+    "domain/tool-reference.template.md": "5ce5638b7094cc86",
     "domain/code-hygiene-rules-reference.template.md": "6f1e6ae79203a025",
     "domain/unix-philosophy-mapping-reference.template.md": "6bba3ba218962376",
     "universal/security-vulnerability-watch.reference.template.md": "1680e6cfd2a72275",
@@ -57,9 +60,10 @@
     "universal/github-workflows-merge.reference.template.md": "9a85c14fca008010",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
+    "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "workstream-expert.template.md": "13161f3a3cdf1789",
     "copilot-instructions.template.md": "5d87300872d94df8",
-    "builder/team-builder-copilot-vscode.template.md": "6a0e998c5ce278f2",
+    "builder/team-builder-copilot-vscode.template.md": "07815e88da7ae6e1",
     "domain/content-enricher.template.md": "d7e6e4a50dcef1c7"
   },
   "output_files_map": [
@@ -196,17 +200,19 @@
       "component_slug": null
     },
     {
-      "path": "tool-pandoc.agent.md",
-      "template": "domain/tool-cli.template.md",
-      "fallback_template": "domain/tool-specific.template.md",
-      "type": "agent",
-      "component_slug": null
+      "path": "references/ref-pandoc-reference.md",
+      "template": "domain/tool-cli.doc.template.md",
+      "fallback_template": "domain/tool-specific.doc.template.md",
+      "type": "reference",
+      "component_slug": null,
+      "tool_slug": "tool-pandoc"
     },
     {
       "path": "references/ref-bibtex-reference.md",
       "template": "domain/tool-reference.template.md",
       "type": "reference",
-      "component_slug": null
+      "component_slug": null,
+      "tool_slug": "ref-bibtex"
     },
     {
       "path": "references/code-hygiene-rules.reference.md",
@@ -265,6 +271,12 @@
     {
       "path": "references/work-summary-tooling.reference.md",
       "template": "universal/work-summary-tooling.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/work-summary-backfill.reference.md",
+      "template": "universal/work-summary-backfill.reference.template.md",
       "type": "reference",
       "component_slug": null
     },
@@ -346,7 +358,6 @@
     "output-compiler",
     "visual-designer",
     "tool-doc-researcher",
-    "tool-pandoc",
     "topic-scoping-expert",
     "literature-review-expert",
     "main-analysis-expert",
@@ -365,12 +376,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "6b343c40541c1261",
+  "manifest_fingerprint": "fdaed6f3e07c8525",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "d0bc3b849d652193",
-    "references/security-vulnerability-watch.reference.md": "7fb3d6e7357a3a02",
-    "references/security-vulnerability-watch.json": "1a0d7383f96c6ff3",
-    "references/framework-watch.reference.md": "a3fc04822180dffc"
+    "references/ref-pandoc-reference.md": "093ac30ea36b66a5",
+    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "orchestrator.agent.md": "3ee82c505f4d83fc",
+    "security.agent.md": "5c423a2ed73e223b",
+    "work-summarizer.agent.md": "8798162dc00f632d",
+    "references/security-vulnerability-watch.reference.md": "2cda30deebe1b583",
+    "references/security-vulnerability-watch.json": "37f841393be0cc06",
+    "references/framework-watch.reference.md": "dbaa62004b71b27a"
   }
 }
