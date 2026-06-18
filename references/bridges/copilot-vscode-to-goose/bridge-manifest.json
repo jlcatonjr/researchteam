@@ -1,0 +1,135 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-06-18T04:01:08.155172+00:00",
+  "source_framework": "copilot-vscode",
+  "target_framework": "goose",
+  "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
+  "source_hashes": [
+    {
+      "path": "agents/_build-description.json",
+      "sha256": "70c9ec3a5f25b5c22ad8a1d03f9be121f78473d0dc839bce0efb746bf46a7468"
+    },
+    {
+      "path": "agents/adversarial.agent.md",
+      "sha256": "da47fcab3428b6223ded616e90c7474f9060ad786407af92b2ecece1bed8ed9e"
+    },
+    {
+      "path": "agents/agent-refactor.agent.md",
+      "sha256": "e89ed5d7214c9ebd92963f2c51fad9592a1afa2f33d813cac076887b4de4efa8"
+    },
+    {
+      "path": "agents/agent-updater.agent.md",
+      "sha256": "d69e5774ae01ecbf177b41f9913123d2c408502650ff170367542eb3fe23eeb5"
+    },
+    {
+      "path": "agents/cleanup.agent.md",
+      "sha256": "7ea1a25823ff305f5f513224ec4de38e50be20d738610b5941370d8406f7e697"
+    },
+    {
+      "path": "agents/code-hygiene.agent.md",
+      "sha256": "7bdaca03a2b4990066805cd5e4bebcfa7128234be7293f05e22656e185305263"
+    },
+    {
+      "path": "agents/cohesion-repairer.agent.md",
+      "sha256": "8f2de9fd3dd3ff2b452a332497b90fab89c431bda657e80c4a737f274ed05bed"
+    },
+    {
+      "path": "agents/conclusion-expert.agent.md",
+      "sha256": "439d4d1df0739333634ba702563e09b525b86bca1ea34fb216cf71b55ee92bf0"
+    },
+    {
+      "path": "agents/conflict-auditor.agent.md",
+      "sha256": "9d2cdb7e52de26b2e7da225646a6e3b4f6766427bba64d0e3b6668e3a51e506f"
+    },
+    {
+      "path": "agents/conflict-resolution.agent.md",
+      "sha256": "671df76e1f3662724220bf065ce8a9895b2ce5328a885471117b505263475905"
+    },
+    {
+      "path": "agents/content-enricher.agent.md",
+      "sha256": "2ff237a293a35cdc7430393cbefcd0af2e3d7b5ffc87aef0206f1e7f697fe7c3"
+    },
+    {
+      "path": "agents/format-converter.agent.md",
+      "sha256": "e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f"
+    },
+    {
+      "path": "agents/git-operations.agent.md",
+      "sha256": "9a205a22f7c7ce287349c5144d150f679020cede527b89009f2d54b171af2b5d"
+    },
+    {
+      "path": "agents/literature-review-expert.agent.md",
+      "sha256": "b3501822a52c521046924d9ac51890ed0a23fea08d415587ab56718db4a11b7c"
+    },
+    {
+      "path": "agents/main-analysis-expert.agent.md",
+      "sha256": "ab76123a6e66339cf64cf1d93ba8aa1687c72a208a965e144cc647688b716ced"
+    },
+    {
+      "path": "agents/navigator.agent.md",
+      "sha256": "d97c9ce3e60a0e184fa918375d8b28253b26f98003337737917e208e321144e9"
+    },
+    {
+      "path": "agents/orchestrator.agent.md",
+      "sha256": "3ee82c505f4d83fc1a5afb573cab17b39e435c47c22991a09094794b3511cb44"
+    },
+    {
+      "path": "agents/output-compiler.agent.md",
+      "sha256": "07897818bf0566f3fd551cd2ac70b81de798701fb6538226c566b3e2ec190cb2"
+    },
+    {
+      "path": "agents/primary-producer.agent.md",
+      "sha256": "55e73f1e5998e24aa3922890325e1059239b8c7a23cf1b25b62e1fd75f4f278f"
+    },
+    {
+      "path": "agents/quality-auditor.agent.md",
+      "sha256": "515687e0913c757789e952acac075908bec841cb8514bd5c8a8e6319399efa72"
+    },
+    {
+      "path": "agents/reference-manager.agent.md",
+      "sha256": "c78e4f7f8f47684e8af8ac55fef30a57232cf2bfa41d7e8ca59c100d7f9964c0"
+    },
+    {
+      "path": "agents/repo-liaison.agent.md",
+      "sha256": "a7ca29cae5706426fbdf895c78621f95291dcdde696f07594d70fd9f357c085a"
+    },
+    {
+      "path": "agents/security.agent.md",
+      "sha256": "5c423a2ed73e223b8e5e0cb848bf35fcc59e53a7155c20085c4a71d266fdea2f"
+    },
+    {
+      "path": "agents/team-builder.agent.md",
+      "sha256": "9dcf3f165ffd2bcebcdb47ee49151f82c740f6fef21b3dc15ea1fdb5a0a6f2c9"
+    },
+    {
+      "path": "agents/technical-validator.agent.md",
+      "sha256": "00751f2bec8ad425ff64afe29f50fe19815bc9da4f013ffd67f284a91f5622cb"
+    },
+    {
+      "path": "agents/tool-doc-researcher.agent.md",
+      "sha256": "670863c8eecd1d54074cf986d1aa7a8739db867eeeeb17ca5e9643e70fbf5f03"
+    },
+    {
+      "path": "agents/tool-pandoc.agent.md",
+      "sha256": "b555c1b28b5d2f7e1965bb459099462e3a98cf643c7aa81b86bb53eed8470c9b"
+    },
+    {
+      "path": "agents/topic-scoping-expert.agent.md",
+      "sha256": "f61a6834bf3317d2fd8c05c30e179e39f9516b70e1017f1f56590e191fb1e8c6"
+    },
+    {
+      "path": "agents/visual-designer.agent.md",
+      "sha256": "31198e666f8e5383c91e00f5f60904322bda54517d45ec44fc43bec27ffa74eb"
+    },
+    {
+      "path": "agents/work-summarizer.agent.md",
+      "sha256": "8798162dc00f632dcf75b050ffeb01c40cb9705c87f24bd516af0fd3c5bd1087"
+    },
+    {
+      "path": "copilot-instructions.md",
+      "sha256": "04dd694cba8867bf814bad5194ccf58d63ddda5b0ab77f4de51df95382e26cbb"
+    }
+  ],
+  "inventory_count": 29,
+  "bridge_version": "1"
+}

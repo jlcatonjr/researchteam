@@ -1,0 +1,8 @@
+file,category,token,line_no,section,context_snippet,auto_suggestion,status
+orchestrator.agent.md,MANUAL_PLACEHOLDER,STYLE_REFERENCE_PATH,176,Domain Agent Routing,"| Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned ",N/A — no formal style guide defined for this project,auto_filled
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_DOCS_URL,42,Official Documentation,Consult the official Pandoc documentation at: https://pandoc.org/MANUAL.html,https://pandoc.org/MANUAL.html,ai_filled
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_API_SURFACE,49,Key API Surface,Key Pandoc CLI surfaces and flags are documented in the fenced API section,Core pandoc command and flag set documented,ai_filled
+tool-pandoc.agent.md,MANUAL_PLACEHOLDER,TOOL_COMMON_PATTERNS,56,Common Patterns & Pitfalls,Common patterns and pitfalls are documented in the section below,Patterns include citeproc usage bibliography handling and PDF engine guidance,ai_filled
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_DOCS_URL,18,Official Documentation,https://www.bibtex.org/ and https://tug.org/bibtex/,https://www.bibtex.org/ ; https://tug.org/bibtex/,ai_filled
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_API_SURFACE,22,Key API Surface,BibTeX entries in references/bibliography.bib with standard entry types and citation key conventions,BibTeX entry schema and key convention documented,ai_filled
+references/ref-bibtex-reference.md,TOOL_METADATA,TOOL_COMMON_PATTERNS,28,Common Patterns & Pitfalls,DOI verification proper noun bracing deduplication and no fabricated metadata guidance,Common pitfalls and safeguards documented,ai_filled
