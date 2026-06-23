@@ -20,10 +20,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/ref-pandoc-reference.md",
-    ".github/agents/references/work-summary-backfill.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "b2da8904757b0cb1",
@@ -379,13 +376,6 @@
   "manifest_fingerprint": "fdaed6f3e07c8525",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/ref-pandoc-reference.md": "093ac30ea36b66a5",
-    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
-    "orchestrator.agent.md": "3ee82c505f4d83fc",
-    "security.agent.md": "5c423a2ed73e223b",
-    "work-summarizer.agent.md": "8798162dc00f632d",
-    "references/security-vulnerability-watch.reference.md": "2cda30deebe1b583",
-    "references/security-vulnerability-watch.json": "37f841393be0cc06",
-    "references/framework-watch.reference.md": "dbaa62004b71b27a"
+    "references/security-vulnerability-watch.json": "ec1a29b9386610fb"
   }
 }

@@ -2,17 +2,17 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "131fbe458f77b23c51e03c0c14abd8d9b1de707f084bc8ba595f27f52178fb8b",
+  "index_build_id": "a35d5fd92dc07ab3b29a65670ccb1194983f30013faea5dbd571fc15925077f5",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
   "vector_dim": null,
   "fallback_policy": "non-blocking-file-read-then-search",
-  "source_fingerprint": "7aa5346334e617d27f73019bd5b4464e12e350128481d478757bcbe3aca6d3bd",
+  "source_fingerprint": "ed58d881a5fe71e7d0e5f5b746b01d336735d9047edd8483b89d694ff884a872",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-06-15T12:37:13.658644Z",
-  "source_count": 10,
+  "built_at": "2026-06-15T13:37:35.045488Z",
+  "source_count": 11,
   "documents": [
     {
       "doc_id": 0,
@@ -44,7 +44,7 @@
       ],
       "source_hash": "9ad40b7a2fadc0426bb95e91d49eb4f5c725b3ec505a775af0e614f01a313702",
       "source_mtime": 1779327232.1620755,
-      "vector_norm_sq": 12433.018379806925
+      "vector_norm_sq": 12547.621419832542
     },
     {
       "doc_id": 1,
@@ -56,11 +56,24 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "5327c75292cc79a70b98f505c08bb49464b58e1620ddf9123758ec06c412db74",
-      "source_mtime": 1779913896.9762769,
-      "vector_norm_sq": 29896.94580184488
+      "source_mtime": 1781527034.2922316,
+      "vector_norm_sq": 23086.653450370213
     },
     {
       "doc_id": 2,
+      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/bridge-merge.report.md",
+      "title": "Bridge Merge Report",
+      "length": 47,
+      "snippet": "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubreposit",
+      "paragraphs": [
+        "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/quickstart-snippet.md - skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/.claude/README.md - skipped (no-rendered-fence): /Users/jamescaton/githubrepositorie"
+      ],
+      "source_hash": "393cf8a6992913e1cad5e231305d2d2687de96a3bbe83856d0753c7faac76b08",
+      "source_mtime": 1781527034.2961106,
+      "vector_norm_sq": 332.1376674406103
+    },
+    {
+      "doc_id": 3,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/domain-boundary.md",
       "title": "Domain Boundary \u2014 Memory-Index Vector vs Retrieval-Integrator",
       "length": 63,
@@ -70,11 +83,11 @@
         "It is **separate** from any project-level retrieval-integrator validation contract (e.g., relational metadata retrieval against project data tables). When a project's retrieval contract has `mode: relational-metadata`, that is independent from the memory-index's `vector_runtime_mode: sparse-tfidf-cosine` \u2014 the two retrieval surfaces address different questions and must not be conflated."
       ],
       "source_hash": "c762c32e4245519f48c289bcd7d40a1b7f0a27e43c096850149897ddb0950689",
-      "source_mtime": 1779913896.9766994,
-      "vector_norm_sq": 181.3966084025245
+      "source_mtime": 1781527034.2937293,
+      "vector_norm_sq": 202.5046133123808
     },
     {
-      "doc_id": 3,
+      "doc_id": 4,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/entrypoint.md",
       "title": "Bridge Entrypoint: copilot-vscode -> claude",
       "length": 81,
@@ -87,11 +100,11 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
-      "source_mtime": 1779913896.976602,
-      "vector_norm_sq": 178.58722904540568
+      "source_mtime": 1781527034.2934585,
+      "vector_norm_sq": 199.43681921019558
     },
     {
-      "doc_id": 4,
+      "doc_id": 5,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/quickstart-snippet.md",
       "title": "Bridge Quickstart Snippet",
       "length": 59,
@@ -101,11 +114,11 @@
         "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
       ],
       "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
-      "source_mtime": 1779913896.9764993,
-      "vector_norm_sq": 119.51040857444752
+      "source_mtime": 1781527034.2929251,
+      "vector_norm_sq": 133.79524115442194
     },
     {
-      "doc_id": 5,
+      "doc_id": 6,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/adversarial-conflict-audit-labor-matching.plan.md",
       "title": "Plan Summary: Adversarial and Conflict Audit for Labor Matching Project",
       "length": 90,
@@ -116,10 +129,10 @@
       ],
       "source_hash": "1798e17f99965864da5490d874dfc605be0c62612150c65ceb7e93736c7119dd",
       "source_mtime": 1779285118.616748,
-      "vector_norm_sq": 206.84632748832388
+      "vector_norm_sq": 234.53441805035789
     },
     {
-      "doc_id": 6,
+      "doc_id": 7,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/apply-audit-standards-egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Apply Audit Standards to Egyptian Cosmopolitan Project",
       "length": 95,
@@ -130,10 +143,10 @@
       ],
       "source_hash": "dfb9ca73bc83b6a10e39a6acaaf599c92b998d14a601d128250ee5832db7a0d4",
       "source_mtime": 1779285118.6175292,
-      "vector_norm_sq": 237.41365271315271
+      "vector_norm_sq": 267.4355453251521
     },
     {
-      "doc_id": 7,
+      "doc_id": 8,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/audit-rigour-tightening.plan.md",
       "title": "Plan: Audit Rigour Tightening",
       "length": 77,
@@ -144,10 +157,10 @@
       ],
       "source_hash": "f6ca314a0d2691fe38ced7cb00be95c292e7f470bd105e7d84b0a8cff49de12d",
       "source_mtime": 1779285118.6182218,
-      "vector_norm_sq": 195.24037503257085
+      "vector_norm_sq": 218.69620587274707
     },
     {
-      "doc_id": 8,
+      "doc_id": 9,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Egyptian Cosmopolitanism and Religious Transformation",
       "length": 107,
@@ -160,10 +173,10 @@
       ],
       "source_hash": "42f2a6b74aeb113c2abe80e53fcb59e3e4841103da4a99b822f0417ccc233afd",
       "source_mtime": 1779285118.6188612,
-      "vector_norm_sq": 406.8445086327399
+      "vector_norm_sq": 448.5482708836518
     },
     {
-      "doc_id": 9,
+      "doc_id": 10,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/labor-matching-macro-history.plan.md",
       "title": "Plan Summary: Labor Matching Macro History Project",
       "length": 85,
@@ -174,7 +187,7 @@
       ],
       "source_hash": "5f4cd24bee302d3e521911e083471663b8d0b429cff5c9d4d5b4449147b16dbb",
       "source_mtime": 1779285118.6195295,
-      "vector_norm_sq": 209.02620018841347
+      "vector_norm_sq": 234.43283885552813
     }
   ],
   "postings": {
@@ -186,6 +199,10 @@
       {
         "doc_id": 1,
         "tf": 82
+      },
+      {
+        "doc_id": 2,
+        "tf": 5
       }
     ],
     "conduct": [
@@ -212,7 +229,7 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
@@ -226,11 +243,11 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -250,7 +267,7 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -288,7 +305,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -316,7 +333,7 @@
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -330,11 +347,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -354,11 +371,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -390,11 +407,11 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -432,23 +449,23 @@
         "tf": 5
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 4
       },
       {
         "doc_id": 6,
         "tf": 4
       },
       {
-        "doc_id": 9,
+        "doc_id": 7,
+        "tf": 4
+      },
+      {
+        "doc_id": 10,
         "tf": 4
       }
     ],
@@ -464,7 +481,7 @@
         "tf": 7
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -498,11 +515,7 @@
         "tf": 2
       },
       {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
+        "doc_id": 4,
         "tf": 1
       },
       {
@@ -511,14 +524,18 @@
       },
       {
         "doc_id": 7,
-        "tf": 2
-      },
-      {
-        "doc_id": 8,
         "tf": 1
       },
       {
+        "doc_id": 8,
+        "tf": 2
+      },
+      {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -532,7 +549,7 @@
         "tf": 2
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -610,7 +627,7 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -624,11 +641,11 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 3
       }
     ],
@@ -666,11 +683,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -680,11 +697,11 @@
         "tf": 4
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -736,7 +753,7 @@
         "tf": 4
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -762,15 +779,15 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -790,7 +807,7 @@
         "tf": 31
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -804,7 +821,11 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 2,
+        "tf": 2
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -826,7 +847,7 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -849,7 +870,7 @@
       },
       {
         "doc_id": 2,
-        "tf": 1
+        "tf": 5
       },
       {
         "doc_id": 3,
@@ -857,6 +878,10 @@
       },
       {
         "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -898,7 +923,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -908,7 +933,7 @@
         "tf": 4
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -956,12 +981,8 @@
         "tf": 5
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 2
       },
       {
         "doc_id": 6,
@@ -969,10 +990,14 @@
       },
       {
         "doc_id": 7,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -982,7 +1007,7 @@
         "tf": 3
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -992,15 +1017,15 @@
         "tf": 10
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -1016,11 +1041,7 @@
         "tf": 5
       },
       {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
+        "doc_id": 3,
         "tf": 1
       },
       {
@@ -1029,6 +1050,10 @@
       },
       {
         "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -1060,11 +1085,11 @@
         "tf": 2
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -1090,7 +1115,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -1112,19 +1137,19 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 2
-      },
-      {
         "doc_id": 6,
         "tf": 2
       },
       {
         "doc_id": 7,
+        "tf": 2
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -1264,7 +1289,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -1281,6 +1306,10 @@
       },
       {
         "doc_id": 1,
+        "tf": 1
+      },
+      {
+        "doc_id": 2,
         "tf": 1
       }
     ],
@@ -1342,15 +1371,15 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
         "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -1394,6 +1423,10 @@
       {
         "doc_id": 0,
         "tf": 3
+      },
+      {
+        "doc_id": 2,
+        "tf": 1
       }
     ],
     "user-owned": [
@@ -1408,7 +1441,7 @@
         "tf": 5
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -1418,19 +1451,19 @@
         "tf": 7
       },
       {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
         "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 5,
         "tf": 1
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 2
       }
     ],
@@ -1452,7 +1485,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -1465,10 +1498,6 @@
     "sequence": [
       {
         "doc_id": 0,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
         "tf": 1
       },
       {
@@ -1486,6 +1515,10 @@
       {
         "doc_id": 9,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "derived-repo": [
@@ -1500,7 +1533,7 @@
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -1566,6 +1599,10 @@
       {
         "doc_id": 0,
         "tf": 1
+      },
+      {
+        "doc_id": 2,
+        "tf": 2
       }
     ],
     "integrity": [
@@ -1636,7 +1673,7 @@
         "tf": 3
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -1656,7 +1693,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -1670,7 +1707,7 @@
         "tf": 9
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       }
     ],
@@ -1708,15 +1745,15 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
         "doc_id": 3,
         "tf": 1
       },
       {
         "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -1756,12 +1793,8 @@
         "tf": 4
       },
       {
-        "doc_id": 5,
-        "tf": 2
-      },
-      {
         "doc_id": 6,
-        "tf": 1
+        "tf": 2
       },
       {
         "doc_id": 7,
@@ -1769,10 +1802,14 @@
       },
       {
         "doc_id": 8,
-        "tf": 3
+        "tf": 1
       },
       {
         "doc_id": 9,
+        "tf": 3
+      },
+      {
+        "doc_id": 10,
         "tf": 2
       }
     ],
@@ -1796,10 +1833,6 @@
         "tf": 46
       },
       {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
         "doc_id": 4,
         "tf": 1
       },
@@ -1822,6 +1855,10 @@
       {
         "doc_id": 9,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "governance": [
@@ -1830,7 +1867,7 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -1844,7 +1881,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -1887,10 +1924,14 @@
       },
       {
         "doc_id": 3,
-        "tf": 2
+        "tf": 1
       },
       {
         "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
         "tf": 2
       }
     ],
@@ -1900,11 +1941,11 @@
         "tf": 4
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -1914,7 +1955,7 @@
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -1964,11 +2005,11 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -2030,7 +2071,7 @@
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -2050,11 +2091,11 @@
         "tf": 2
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 2
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       }
     ],
@@ -2114,7 +2155,7 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -2196,7 +2237,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -2210,7 +2251,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -2238,11 +2279,11 @@
         "tf": 4
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -2252,7 +2293,7 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2362,7 +2403,7 @@
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2378,7 +2419,7 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -2400,6 +2441,10 @@
       {
         "doc_id": 1,
         "tf": 29
+      },
+      {
+        "doc_id": 2,
+        "tf": 5
       }
     ],
     "use": [
@@ -2408,11 +2453,11 @@
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 2
       }
     ],
@@ -2510,10 +2555,6 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -2527,6 +2568,10 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2582,15 +2627,15 @@
         "tf": 3
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 2
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 2
       }
     ],
@@ -2618,7 +2663,7 @@
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2632,7 +2677,11 @@
         "tf": 3
       },
       {
-        "doc_id": 9,
+        "doc_id": 2,
+        "tf": 2
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2654,7 +2703,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -2782,7 +2831,7 @@
         "tf": 3
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2808,11 +2857,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2840,7 +2889,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -2862,15 +2911,15 @@
         "tf": 5
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -2880,7 +2929,7 @@
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -2906,12 +2955,20 @@
       {
         "doc_id": 1,
         "tf": 29
+      },
+      {
+        "doc_id": 2,
+        "tf": 5
       }
     ],
     "githubrepositories": [
       {
         "doc_id": 1,
         "tf": 29
+      },
+      {
+        "doc_id": 2,
+        "tf": 5
       }
     ],
     "adversarial": [
@@ -2920,7 +2977,7 @@
         "tf": 3
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 3
       }
     ],
@@ -3002,7 +3059,7 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -3042,7 +3099,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 3
       }
     ],
@@ -3052,7 +3109,7 @@
         "tf": 3
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3080,7 +3137,7 @@
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3090,11 +3147,11 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3134,7 +3191,7 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3144,7 +3201,7 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3208,7 +3265,7 @@
         "tf": 2
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -3224,7 +3281,7 @@
         "tf": 3
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -3324,7 +3381,7 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3382,7 +3439,7 @@
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3398,11 +3455,11 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3412,7 +3469,7 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -3422,15 +3479,15 @@
         "tf": 2
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 8,
+        "doc_id": 6,
         "tf": 1
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3470,7 +3527,7 @@
         "tf": 4
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -3486,11 +3543,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3500,7 +3557,7 @@
         "tf": 5
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 2
       }
     ],
@@ -3534,15 +3591,15 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
       {
         "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3582,11 +3639,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -3656,7 +3713,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -3666,11 +3723,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3680,11 +3737,11 @@
         "tf": 2
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -3742,7 +3799,7 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -3752,11 +3809,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3766,11 +3823,11 @@
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3780,11 +3837,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3800,7 +3857,7 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -3828,7 +3885,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -3844,7 +3901,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -3920,7 +3977,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -3930,15 +3987,15 @@
         "tf": 2
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 4
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 2
       }
     ],
@@ -3954,7 +4011,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -3976,11 +4033,11 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -4014,15 +4071,15 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 2
       }
     ],
@@ -4038,7 +4095,7 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -4048,15 +4105,15 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 3
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 2
       }
     ],
@@ -4066,11 +4123,11 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 3
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 4
       }
     ],
@@ -4092,11 +4149,11 @@
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -4106,17 +4163,13 @@
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "reference-manager": [
       {
         "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
         "tf": 1
       },
       {
@@ -4133,6 +4186,10 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -4196,7 +4253,7 @@
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -4242,11 +4299,11 @@
         "tf": 3
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -4286,7 +4343,7 @@
         "tf": 1
       },
       {
-        "doc_id": 4,
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -4326,7 +4383,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -4402,11 +4459,11 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 3
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
@@ -4422,7 +4479,7 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 2
       }
     ],
@@ -4432,11 +4489,11 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 3,
+        "doc_id": 4,
         "tf": 1
       }
     ],
@@ -4446,7 +4503,7 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
@@ -4456,7 +4513,7 @@
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -4472,15 +4529,15 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
       {
         "doc_id": 7,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -4514,7 +4571,7 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       }
     ],
@@ -4536,11 +4593,11 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
+        "doc_id": 3,
         "tf": 1
       },
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
@@ -4568,11 +4625,11 @@
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -4660,15 +4717,15 @@
         "tf": 1
       },
       {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
         "doc_id": 3,
         "tf": 1
       },
       {
         "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
         "tf": 1
       }
     ],
@@ -4708,673 +4765,699 @@
         "tf": 1
       },
       {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "boundary": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "memory-index": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "vector": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "retrieval-integrator": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "memory_index": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "ships": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "query-strategy": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "mode": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "local": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "sparse": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "tf-idf": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "vector-space": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "ranking": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "memory-history": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "retrieval": [
-      {
-        "doc_id": 2,
-        "tf": 4
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "stdlib-only": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "deterministic": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "scoped": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "durable": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "text": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "changelog": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "separate": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "project-level": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "contract": [
-      {
-        "doc_id": 2,
-        "tf": 2
-      }
-    ],
-    "relational": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "tables": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "relational-metadata": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "independent": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "vector_runtime_mode": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "sparse-tfidf-cosine": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "address": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "different": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "questions": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "conflated": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "direction": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      }
-    ],
-    "copilot-vscode": [
-      {
-        "doc_id": 2,
-        "tf": 1
-      },
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "entrypoint": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "interface": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "definitions": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "remain": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "orchestrator-first": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "team-based": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "surface": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "falling": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "back": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "grep": [
-      {
-        "doc_id": 3,
-        "tf": 2
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "filesystem": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "search": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "thematic": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "cross-summary": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "query": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "query-index": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "question": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "query-k": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "installations": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "require": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "pass": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "index": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "code-symbol": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      }
-    ],
-    "remains": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
-        "tf": 1
-      }
-    ],
-    "domain-boundary": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "contracts": [
-      {
-        "doc_id": 3,
-        "tf": 1
-      },
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "quickstart": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "snippet": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "first": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "prompt": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "multi-step": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "cross-repo": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "retrieval-first": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "seen": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "bridges": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "src": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "to-": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "target": [
-      {
-        "doc_id": 4,
-        "tf": 1
-      }
-    ],
-    "labor": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 9,
-        "tf": 2
-      }
-    ],
-    "matching": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 9,
-        "tf": 4
-      }
-    ],
-    "slug": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 9,
-        "tf": 1
-      }
-    ],
-    "adversarial-conflict-audit-labor-matching": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "trigger": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 6,
-        "tf": 1
-      },
-      {
-        "doc_id": 7,
-        "tf": 1
-      },
-      {
-        "doc_id": 8,
-        "tf": 1
-      },
-      {
-        "doc_id": 9,
-        "tf": 1
-      }
-    ],
-    "subject": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      }
-    ],
-    "labormatchingmacroeconomics": [
-      {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 9,
-        "tf": 1
-      }
-    ],
-    "remediate": [
-      {
-        "doc_id": 5,
         "tf": 1
       }
     ],
     "report": [
       {
+        "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
+      }
+    ],
+    "skipped": [
+      {
+        "doc_id": 2,
+        "tf": 3
+      }
+    ],
+    "agentteams-bridge": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "merged": [
+      {
+        "doc_id": 2,
+        "tf": 2
+      }
+    ],
+    "agent-team": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "quickstart-snippet": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "no-rendered-fence": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "skills": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "recall": [
+      {
+        "doc_id": 2,
+        "tf": 1
+      }
+    ],
+    "boundary": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
         "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "memory-index": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "vector": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "retrieval-integrator": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "memory_index": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "ships": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "query-strategy": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "mode": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "local": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "sparse": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "tf-idf": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "vector-space": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "ranking": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "memory-history": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "retrieval": [
+      {
+        "doc_id": 3,
+        "tf": 4
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "stdlib-only": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "deterministic": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "scoped": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "durable": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "text": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "changelog": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "separate": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "project-level": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "contract": [
+      {
+        "doc_id": 3,
+        "tf": 2
+      }
+    ],
+    "relational": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "tables": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "relational-metadata": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "independent": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "vector_runtime_mode": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "sparse-tfidf-cosine": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "address": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "different": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "questions": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "conflated": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "direction": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      }
+    ],
+    "copilot-vscode": [
+      {
+        "doc_id": 3,
+        "tf": 1
+      },
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "entrypoint": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "interface": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "definitions": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "remain": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "orchestrator-first": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "team-based": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "surface": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "falling": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "back": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "grep": [
+      {
+        "doc_id": 4,
+        "tf": 2
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "filesystem": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "search": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "thematic": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "cross-summary": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "query": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "query-index": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "question": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "query-k": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "installations": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "require": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "pass": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "index": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "code-symbol": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      }
+    ],
+    "remains": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
+        "tf": 1
+      }
+    ],
+    "domain-boundary": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "contracts": [
+      {
+        "doc_id": 4,
+        "tf": 1
+      },
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "quickstart": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "snippet": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "first": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "prompt": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "multi-step": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "cross-repo": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "retrieval-first": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "seen": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "bridges": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "src": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "to-": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "target": [
+      {
+        "doc_id": 5,
+        "tf": 1
+      }
+    ],
+    "labor": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 2
+      }
+    ],
+    "matching": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 4
+      }
+    ],
+    "slug": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
+      }
+    ],
+    "adversarial-conflict-audit-labor-matching": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "trigger": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 7,
         "tf": 1
       },
       {
@@ -5383,25 +5466,47 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
+      }
+    ],
+    "subject": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      }
+    ],
+    "labormatchingmacroeconomics": [
+      {
+        "doc_id": 6,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
+      }
+    ],
+    "remediate": [
+      {
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "block": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "success": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5415,15 +5520,15 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "criteria": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5437,141 +5542,141 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "checked": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "overreach": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "ambiguity": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "contradiction": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "risk": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "corresponding": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "record": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "consistent": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "in-text": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "cross-file": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "contradictions": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "identified": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "resolved": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "explicitly": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "result": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "recorded": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "severity-labeled": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "findings": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "disposition": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       }
     ],
     "rollback": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5585,15 +5690,15 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "notes": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5607,15 +5712,15 @@
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "revert": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5625,63 +5730,63 @@
       },
       {
         "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "remediation": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "edits": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "rejects": [
       {
-        "doc_id": 5,
+        "doc_id": 6,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "completion": [
       {
-        "doc_id": 5,
-        "tf": 2
-      },
-      {
         "doc_id": 6,
-        "tf": 1
+        "tf": 2
       },
       {
         "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 2
       }
     ],
     "date": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
         "doc_id": 6,
         "tf": 1
       },
@@ -5690,769 +5795,773 @@
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 8,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "april": [
       {
-        "doc_id": 5,
-        "tf": 1
-      },
-      {
-        "doc_id": 8,
+        "doc_id": 6,
         "tf": 1
       },
       {
         "doc_id": 9,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "standards": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       }
     ],
     "egyptian": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "cosmopolitan": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "requested": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "application": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "bring": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "egyptiandevelopment": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "fact": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "requirements": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "resolves": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "blocking": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 2
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "unresolved": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "issue": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "tracked": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "include": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "auditable": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "section": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "audit-status": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "insertions": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "related": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "preserve": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "argumentation": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "unless": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "correction": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "completed": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       },
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "blocked": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "release": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "pending": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "open": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "major": [
       {
-        "doc_id": 6,
+        "doc_id": 7,
         "tf": 1
       }
     ],
     "rigour": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "tightening": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "greater": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "auditing": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "near-zero": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "error": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "tolerance": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       },
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "enforce": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "orchestration": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "requires": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 2
       }
     ],
     "explicit": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "mapping": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "unverified": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "behavior": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "key-level": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "metadata-level": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "resolver-level": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "progression": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "specific": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "affected": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "unrelated": [
       {
-        "doc_id": 7,
+        "doc_id": 8,
         "tf": 1
       }
     ],
     "cosmopolitanism": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "religious": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 3
       }
     ],
     "transformation": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 3
       }
     ],
     "egyptian-cosmopolitanism": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "request": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "produce": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "examining": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "life": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "mass": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "jewish": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "emigration": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "pre-1948": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "impact": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "over": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "following": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "half-century": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "attention": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "coptic": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "eastern": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "orthodox": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "communities": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 2
       }
     ],
     "strategy": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "survey": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "core": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "compile": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "verify": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "bib": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "minimum": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "author-date": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "via": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "doi": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "egypt": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "causes": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "pluralism": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "community": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "treatment": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "greek": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "armenian": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "fabricated": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "appended": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "outputs": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       }
     ],
     "remove": [
       {
-        "doc_id": 8,
+        "doc_id": 9,
         "tf": 1
       },
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "macro": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "history": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 2
       }
     ],
     "labor-matching-macro-history": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "summarizing": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "early": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "influence": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "models": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "macroeconomics": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "representative": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "accurate": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "four-part": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "under": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "present": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "research-plan": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "literature-review": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "supported": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "standard": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "field-defining": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "included": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "scope": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ],
     "framing": [
       {
-        "doc_id": 9,
+        "doc_id": 10,
         "tf": 1
       }
     ]
   },
-  "avgdl": 214.4,
-  "N": 10
+  "avgdl": 199.1818181818182,
+  "N": 11
 }
