@@ -22,3 +22,12 @@ generated recipe YAML files, `.goosehints` enrichment, or AGENTS.md content.
 To validate recipe structure: `agentteams --framework goose --recipe-check --output <recipes-dir>`
 checks version string, no model: key, sub_recipe path resolution, and non-empty instructions.
 For full recipe generation (alternative to bridge): `agentteams --convert-from .github/agents --framework goose --output .goose/recipes`
+
+## CLI + MCP entry recipe
+
+The bridge emits `.goose/recipes/bridge-orchestrator.yaml` — run it with
+`goose run --recipe .goose/recipes/bridge-orchestrator.yaml` to start the
+bridged team WITH the `developer` (CLI) extension by default. Pass
+`--target-host-features bridge:<source>-to-goose:mcp` and build the source
+with an MCP token first to also wire the selected (first-party, read-only,
+orchestrator-scoped) MCP servers into that recipe.
