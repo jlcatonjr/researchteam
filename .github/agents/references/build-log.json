@@ -10,6 +10,8 @@
     "technical-validator",
     "format-converter",
     "reference-manager",
+    "output-compiler",
+    "visual-designer",
     "tool-doc-researcher"
   ],
   "components": [
@@ -18,10 +20,12 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
-  "manual_required": 8,
+  "files_written": [
+    ".github/agents/references/parallelization.reference.md"
+  ],
+  "manual_required": 21,
   "template_hashes": {
-    "universal/orchestrator.template.md": "22bdb9653dd48384",
+    "universal/orchestrator.template.md": "ee34760e1f596c17",
     "universal/navigator.template.md": "a0d0ac008e49068f",
     "universal/security.template.md": "22e1e8b5bd521eaf",
     "universal/code-hygiene.template.md": "5212068c8a00a608",
@@ -40,6 +44,8 @@
     "domain/technical-validator.template.md": "63e5171f48e91180",
     "domain/format-converter.template.md": "ecf8c801f1d66dab",
     "domain/reference-manager.template.md": "f7538df16abbbba8",
+    "domain/output-compiler.template.md": "fd90f3a13765386a",
+    "domain/visual-designer.template.md": "cae39ee7b6d167f4",
     "domain/tool-doc-researcher.template.md": "438a7b161ae728c0",
     "domain/tool-cli.doc.template.md": "c5a4440c4ad425a7",
     "domain/tool-reference.template.md": "5ce5638b7094cc86",
@@ -54,8 +60,9 @@
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
+    "universal/parallelization.reference.template.md": "2c872341050a7781",
     "workstream-expert.template.md": "13161f3a3cdf1789",
-    "copilot-instructions.template.md": "5d87300872d94df8",
+    "copilot-instructions.template.md": "9c56d724f06a9549",
     "builder/team-builder-copilot-vscode.template.md": "5708c3fd29801a3d",
     "domain/content-enricher.template.md": "d7e6e4a50dcef1c7"
   },
@@ -175,6 +182,18 @@
       "component_slug": null
     },
     {
+      "path": "output-compiler.agent.md",
+      "template": "domain/output-compiler.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "visual-designer.agent.md",
+      "template": "domain/visual-designer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
       "path": "tool-doc-researcher.agent.md",
       "template": "domain/tool-doc-researcher.template.md",
       "type": "agent",
@@ -262,6 +281,12 @@
       "component_slug": null
     },
     {
+      "path": "references/parallelization.reference.md",
+      "template": "universal/parallelization.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "topic-scoping-expert.agent.md",
       "template": "workstream-expert.template.md",
       "type": "agent",
@@ -336,6 +361,8 @@
     "technical-validator",
     "format-converter",
     "reference-manager",
+    "output-compiler",
+    "visual-designer",
     "tool-doc-researcher",
     "topic-scoping-expert",
     "literature-review-expert",
@@ -355,13 +382,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "3d643e6a3b3a1eae",
+  "manifest_fingerprint": "e3655604bb87ad0f",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "8f7656a924a68186",
-    "references/security-vulnerability-watch.reference.md": "cf6fa4ab46678a4a",
-    "references/security-vulnerability-watch.json": "f782c3a3d106eb2c",
-    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "fa972a9efea49857",
+    "references/parallelization.reference.md": "d2321bf5ac1ed2f8",
+    "security.agent.md": "e00f81caca89fdc0",
+    "references/security-vulnerability-watch.reference.md": "63a5c720a428cfe5",
+    "references/security-vulnerability-watch.json": "68f6969a5907e959",
+    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "4d016ac02cb90ed0",
     "orchestrator.agent.md": "5a0237e6882dcefd",
     "navigator.agent.md": "d97c9ce3e60a0e18",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
@@ -380,11 +408,15 @@
     "technical-validator.agent.md": "7580da1eda2b2014",
     "format-converter.agent.md": "f39d63dc2e32f3ef",
     "reference-manager.agent.md": "c78e4f7f8f47684e",
+    "output-compiler.agent.md": "07897818bf0566f3",
+    "visual-designer.agent.md": "31198e666f8e5383",
     "tool-doc-researcher.agent.md": "a2b4c1826300262a",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
+    "references/unix-philosophy-mapping.reference.md": "1fbce6420b521b86",
     "references/framework-watch.reference.md": "2fed453f6a875de8",
     "references/adjacent-repos.md": "91c35c837b6b892a",
+    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
     "topic-scoping-expert.agent.md": "f61a6834bf3317d2",
     "literature-review-expert.agent.md": "b3501822a52c5210",
     "main-analysis-expert.agent.md": "ab76123a6e66339c",
@@ -394,7 +426,6 @@
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "2ff237a293a35cdc",
     "references/pipeline-graph.md": "6bbc72d0af515bac",
-    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d"

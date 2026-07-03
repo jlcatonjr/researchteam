@@ -14,3 +14,12 @@ __pycache__/
 
 # Archival update backups (any location) — never tracked (update-policy)
 **/.agentteams-backups/
+
+# agentteams local artifacts — do not commit
+.agentteams-backups/
+.agentteams-fleet/
+bridge-merge.report.md
+*.bak
+*.bak.*
+*.prelabel.bak
+.DS_Store
