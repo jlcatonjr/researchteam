@@ -20,10 +20,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/pipeline-graph.svg",
-    ".github/agents/references/pipeline-handoffs.svg"
-  ],
+  "files_written": [],
   "manual_required": 21,
   "template_hashes": {
     "universal/orchestrator.template.md": "ee34760e1f596c17",
@@ -395,16 +392,15 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "6d2a0511e27fc160",
+  "manifest_fingerprint": "3c22267b8f9a59a1",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/pipeline-graph.svg": "29785ddacd9212fb",
-    "references/pipeline-handoffs.svg": "22f00364586f6511",
-    "security.agent.md": "e3e9a78bfc91055a",
-    "cohesion-repairer.agent.md": "28cacb798ea5ea37",
-    "references/security-vulnerability-watch.reference.md": "164a8eb470c0496d",
-    "references/security-vulnerability-watch.json": "268ca9d13c03115d",
-    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "fa972a9efea49857",
+    "security.agent.md": "322111a5db0c4a46",
+    "references/security-vulnerability-watch.reference.md": "5ca841e43414fb35",
+    "references/security-vulnerability-watch.json": "a3951762327afda9",
+    "references/pipeline-graph.md": "a5d90fdfb52c882f",
+    "references/pipeline-graph.svg": "073e163b9add11e4",
+    "references/pipeline-handoffs.svg": "237852b1336f0e4b",
     "orchestrator.agent.md": "5a0237e6882dcefd",
     "navigator.agent.md": "d97c9ce3e60a0e18",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
@@ -419,6 +415,7 @@
     "work-summarizer.agent.md": "d596ef235fcd72bc",
     "primary-producer.agent.md": "55e73f1e5998e24a",
     "quality-auditor.agent.md": "ff4050dbce3acbf3",
+    "cohesion-repairer.agent.md": "28cacb798ea5ea37",
     "technical-validator.agent.md": "7580da1eda2b2014",
     "format-converter.agent.md": "f39d63dc2e32f3ef",
     "reference-manager.agent.md": "c78e4f7f8f47684e",
@@ -439,7 +436,6 @@
     "team-builder.agent.md": "9dcf3f165ffd2bce",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "2ff237a293a35cdc",
-    "references/pipeline-graph.md": "6bbc72d0af515bac",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
