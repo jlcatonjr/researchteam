@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2360 590" width="2360" height="590" font-family="monospace">
+  <title>ResearchTeam — Agent Team Topology</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="#8a8a8a"/>
+    </marker>
+  </defs>
+  <path d="M148,295 C194,295 194,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M148,295 C510,295 510,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M800,295 C520,295 520,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M800,295 C836,295 836,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M592,295 C314,295 314,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M592,295 C628,295 628,295 664,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M592,295 C416,295 416,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M592,295 C732,295 732,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1600,319 C1236,319 1236,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1292,559 C978,559 978,295 664,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1292,559 C1406,559 1406,319 1520,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1292,559 C766,559 766,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1292,559 C1082,559 1082,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1292,559 C1404,559 1404,367 1516,367" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1312,223 C1092,223 1092,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1312,223 C1516,223 1516,319 1720,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1400,271 C718,271 718,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1400,271 C1136,271 1136,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1400,271 C1794,271 1794,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1400,271 C1792,271 1792,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M392,295 C932,295 932,271 1472,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M392,295 C632,295 632,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M392,295 C1164,295 1164,295 1936,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1648,271 C1056,271 1056,295 464,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1648,271 C1260,271 1260,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M168,247 C520,247 520,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M168,247 C1178,247 1178,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M168,247 C1052,247 1052,295 1936,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1636,223 C1254,223 1254,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1636,223 C1678,223 1678,271 1720,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1636,223 C1678,223 1678,319 1720,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1300,511 C882,511 882,295 464,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1300,511 C1386,511 1386,271 1472,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1300,511 C1086,511 1086,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1300,511 C1408,511 1408,367 1516,367" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1340,319 C688,319 688,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1340,319 C1106,319 1106,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1340,319 C1764,319 1764,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1340,319 C1762,319 1762,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1324,367 C680,367 680,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1324,367 C1098,367 1098,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1324,367 C1756,367 1756,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1324,367 C1754,367 1754,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1280,31 C1076,31 1076,295 872,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1356,295 1356,271 1720,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1590,295 1590,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1356,295 1356,319 1720,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1588,295 1588,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1082,295 1082,463 1172,463" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1254,295 1254,367 1516,367" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1464,295 1464,295 1936,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1048,295 1048,79 1104,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1030,295 1030,415 1068,415" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1076,295 1076,175 1160,175" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M992,295 C1076,295 1076,127 1160,127" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M1864,271 C1900,271 1900,295 1936,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M2340,271 C1746,271 1746,223 1152,223" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M2340,271 C1290,271 1290,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M2340,271 C2030,271 2030,319 1720,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-start="url(#arrow)" marker-end="url(#arrow)"/>
+  <path d="M2344,319 C1292,319 1292,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1292,463 C766,463 766,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1292,463 C1404,463 1404,367 1516,367" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M2112,295 C2150,295 2150,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M2112,295 C2148,295 2148,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1360,79 C912,79 912,295 464,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1396,415 C716,415 716,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1396,415 C1792,415 1792,271 2188,271" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1396,415 C1790,415 1790,319 2184,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1304,175 C1394,175 1394,223 1484,223" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1304,175 C1512,175 1512,319 1720,319" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M1304,127 C670,127 670,295 36,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1304,127 C772,127 772,295 240,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  <path d="M1304,127 C1620,127 1620,295 1936,295" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="36" y="280" width="112" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="92" y="300" font-size="13" text-anchor="middle" fill="#000000">Adversarial</text>
+  <rect x="664" y="280" width="136" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="732" y="300" font-size="13" text-anchor="middle" fill="#000000">Agent Refactor</text>
+  <rect x="464" y="280" width="128" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="528" y="300" font-size="13" text-anchor="middle" fill="#000000">Agent Updater</text>
+  <rect x="1520" y="304" width="80" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1560" y="324" font-size="13" text-anchor="middle" fill="#000000">Cleanup</text>
+  <rect x="1172" y="544" width="120" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1232" y="564" font-size="13" text-anchor="middle" fill="#000000">Code Hygiene</text>
+  <rect x="1152" y="208" width="160" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1232" y="228" font-size="13" text-anchor="middle" fill="#000000">Cohesion Repairer</text>
+  <rect x="1064" y="256" width="336" height="30" rx="6" fill="#fff8e8" stroke="#ccaa44" stroke-width="1.5"/>
+  <text x="1232" y="276" font-size="13" text-anchor="middle" fill="#000000">Conclusion and Executive Summary Expert</text>
+  <rect x="240" y="280" width="152" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="316" y="300" font-size="13" text-anchor="middle" fill="#000000">Conflict Auditor</text>
+  <rect x="1472" y="256" width="176" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1560" y="276" font-size="13" text-anchor="middle" fill="#000000">Conflict Resolution</text>
+  <rect x="16" y="232" width="152" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="92" y="252" font-size="13" text-anchor="middle" fill="#000000">Content Enricher</text>
+  <rect x="1484" y="208" width="152" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1560" y="228" font-size="13" text-anchor="middle" fill="#000000">Format Converter</text>
+  <rect x="1164" y="496" width="136" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1232" y="516" font-size="13" text-anchor="middle" fill="#000000">Git Operations</text>
+  <rect x="1124" y="304" width="216" height="30" rx="6" fill="#fff8e8" stroke="#ccaa44" stroke-width="1.5"/>
+  <text x="1232" y="324" font-size="13" text-anchor="middle" fill="#000000">Literature Review Expert</text>
+  <rect x="1140" y="352" width="184" height="30" rx="6" fill="#fff8e8" stroke="#ccaa44" stroke-width="1.5"/>
+  <text x="1232" y="372" font-size="13" text-anchor="middle" fill="#000000">Main Analysis Expert</text>
+  <rect x="1184" y="16" width="96" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1232" y="36" font-size="13" text-anchor="middle" fill="#000000">Navigator</text>
+  <rect x="872" y="280" width="120" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="932" y="300" font-size="13" text-anchor="middle" fill="#000000">Orchestrator</text>
+  <rect x="1720" y="256" width="144" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1792" y="276" font-size="13" text-anchor="middle" fill="#000000">Output Compiler</text>
+  <rect x="2188" y="256" width="152" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="2264" y="276" font-size="13" text-anchor="middle" fill="#000000">Primary Producer</text>
+  <rect x="1720" y="304" width="144" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1792" y="324" font-size="13" text-anchor="middle" fill="#000000">Quality Auditor</text>
+  <rect x="2184" y="304" width="160" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="2264" y="324" font-size="13" text-anchor="middle" fill="#000000">Reference Manager</text>
+  <rect x="1172" y="448" width="120" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1232" y="468" font-size="13" text-anchor="middle" fill="#000000">Repo Liaison</text>
+  <rect x="1516" y="352" width="88" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="1560" y="372" font-size="13" text-anchor="middle" fill="#000000">Security</text>
+  <rect x="32" y="328" width="120" height="30" rx="6" fill="#e8e8ff" stroke="#6666cc" stroke-width="1.5"/>
+  <text x="92" y="348" font-size="13" text-anchor="middle" fill="#000000">Team Builder</text>
+  <rect x="1936" y="280" width="176" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="2024" y="300" font-size="13" text-anchor="middle" fill="#000000">Technical Validator</text>
+  <rect x="1104" y="64" width="256" height="30" rx="6" fill="#ffe8e8" stroke="#cc6666" stroke-width="1.5"/>
+  <text x="1232" y="84" font-size="13" text-anchor="middle" fill="#000000">Tool Documentation Researcher</text>
+  <rect x="1068" y="400" width="328" height="30" rx="6" fill="#fff8e8" stroke="#ccaa44" stroke-width="1.5"/>
+  <text x="1232" y="420" font-size="13" text-anchor="middle" fill="#000000">Topic Scoping and Research Plan Expert</text>
+  <rect x="1160" y="160" width="144" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1232" y="180" font-size="13" text-anchor="middle" fill="#000000">Visual Designer</text>
+  <rect x="1160" y="112" width="144" height="30" rx="6" fill="#e8ffe8" stroke="#66aa66" stroke-width="1.5"/>
+  <text x="1232" y="132" font-size="13" text-anchor="middle" fill="#000000">Work Summarizer</text>
+</svg>

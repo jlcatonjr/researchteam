@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 158" width="440" height="158" font-family="monospace">
+  <title>researchteam — Module Dependencies</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="#8a8a8a"/>
+    </marker>
+  </defs>
+  <path d="M244,79 C292,79 292,103 340,103" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,79 C286,79 286,55 328,55" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,127 C296,127 296,103 340,103" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,127 C290,127 290,55 328,55" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,79 C100,79 100,31 136,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,79 C106,79 106,79 148,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,79 C196,79 196,55 328,55" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,79 C102,79 102,127 140,127" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="136" y="16" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="36" font-size="13" text-anchor="middle" fill="#000000">researchteam</text>
+  <rect x="340" y="88" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="376" y="108" font-size="13" text-anchor="middle" fill="#000000">_fetch</text>
+  <rect x="148" y="64" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="84" font-size="13" text-anchor="middle" fill="#000000">_init_cmd</text>
+  <rect x="328" y="40" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="376" y="60" font-size="13" text-anchor="middle" fill="#000000">_manifest</text>
+  <rect x="140" y="112" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="132" font-size="13" text-anchor="middle" fill="#000000">_update_cmd</text>
+  <rect x="16" y="64" width="48" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="40" y="84" font-size="13" text-anchor="middle" fill="#000000">cli</text>
+</svg>

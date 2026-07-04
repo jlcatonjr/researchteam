@@ -21,7 +21,8 @@
     "conclusion"
   ],
   "files_written": [
-    ".github/agents/references/parallelization.reference.md"
+    ".github/agents/references/pipeline-graph.svg",
+    ".github/agents/references/pipeline-handoffs.svg"
   ],
   "manual_required": 21,
   "template_hashes": {
@@ -335,6 +336,18 @@
       "component_slug": null
     },
     {
+      "path": "references/pipeline-graph.svg",
+      "template": "",
+      "type": "graph-svg",
+      "component_slug": null
+    },
+    {
+      "path": "references/pipeline-handoffs.svg",
+      "template": "",
+      "type": "graph-svg",
+      "component_slug": null
+    },
+    {
       "path": "content-enricher.agent.md",
       "template": "domain/content-enricher.template.md",
       "type": "agent",
@@ -382,14 +395,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "e3655604bb87ad0f",
+  "manifest_fingerprint": "6d2a0511e27fc160",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/parallelization.reference.md": "d2321bf5ac1ed2f8",
-    "security.agent.md": "e00f81caca89fdc0",
-    "references/security-vulnerability-watch.reference.md": "63a5c720a428cfe5",
-    "references/security-vulnerability-watch.json": "68f6969a5907e959",
-    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "4d016ac02cb90ed0",
+    "references/pipeline-graph.svg": "29785ddacd9212fb",
+    "references/pipeline-handoffs.svg": "22f00364586f6511",
+    "security.agent.md": "e3e9a78bfc91055a",
+    "cohesion-repairer.agent.md": "28cacb798ea5ea37",
+    "references/security-vulnerability-watch.reference.md": "164a8eb470c0496d",
+    "references/security-vulnerability-watch.json": "268ca9d13c03115d",
+    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "fa972a9efea49857",
     "orchestrator.agent.md": "5a0237e6882dcefd",
     "navigator.agent.md": "d97c9ce3e60a0e18",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
@@ -404,7 +419,6 @@
     "work-summarizer.agent.md": "d596ef235fcd72bc",
     "primary-producer.agent.md": "55e73f1e5998e24a",
     "quality-auditor.agent.md": "ff4050dbce3acbf3",
-    "cohesion-repairer.agent.md": "8f2de9fd3dd3ff2b",
     "technical-validator.agent.md": "7580da1eda2b2014",
     "format-converter.agent.md": "f39d63dc2e32f3ef",
     "reference-manager.agent.md": "c78e4f7f8f47684e",
@@ -428,6 +442,7 @@
     "references/pipeline-graph.md": "6bbc72d0af515bac",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
-    "references/work-summary-backfill.reference.md": "0169973c90979a3d"
+    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "d2321bf5ac1ed2f8"
   }
 }

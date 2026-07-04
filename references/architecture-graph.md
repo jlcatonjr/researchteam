@@ -14,13 +14,7 @@
 
 Inter-package import dependencies (module-level detail in the tables below).
 
-```mermaid
-flowchart LR
-    classDef root fill:#e8eefb,stroke:#1b3fa0,color:#000
-    classDef sub  fill:#eef6ee,stroke:#3f8f4f,color:#000
-    researchteam["researchteam"]
-    class researchteam root
-```
+![researchteam package dependency diagram](architecture-graph.svg)
 
 ---
 
@@ -29,6 +23,14 @@ flowchart LR
 | Package | Modules | Depends on |
 | --- | --- | --- |
 | `researchteam` | 6 | — |
+
+---
+
+## Module Dependency Diagram
+
+Every module, coloured by package (full adjacency in the table below).
+
+![researchteam module dependencies](architecture-modules.svg)
 
 ---
 
@@ -53,7 +55,18 @@ _None detected (standard library only)._
 
 ---
 
-## DOT Source
+## Diagram Source
+
+<details>
+<summary>Mermaid &amp; DOT source for the diagram above</summary>
+
+```mermaid
+flowchart LR
+    classDef root fill:#e8eefb,stroke:#1b3fa0,color:#000
+    classDef sub  fill:#eef6ee,stroke:#3f8f4f,color:#000
+    researchteam["researchteam"]
+    class researchteam root
+```
 
 ```dot
 digraph "researchteam architecture" {
@@ -63,6 +76,8 @@ digraph "researchteam architecture" {
     "researchteam" [fillcolor="#e8eefb"];
 }
 ```
+
+</details>
 
 ---
 
