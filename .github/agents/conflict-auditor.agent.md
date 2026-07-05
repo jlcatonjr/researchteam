@@ -166,3 +166,28 @@ Per-strategy thresholds (the two scales are not comparable):
 
 Open the cited file and reference its decision in the conflict log. The index is a history layer, **not authoritative** — when it conflicts with current state on disk, trust disk and queue an `SR` finding. Never block on the index; if both strategies are inconclusive, fall back to filesystem search + `git log`.
 <!-- AGENTTEAMS:END memory_index_consultation -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Interpretation-advisor cross-checks
+
+Two checks specific to `@interpretation-advisor` outputs:
+
+1. **Reasoning-reference carve-out.** Files under `.github/agents/references/methodology/`
+   matching `*.methodology.guide.md` are **reasoning references** (like
+   `unix-philosophy-mapping.reference.md`), not report deliverables. Their interpretive
+   attributions are **exempt from the deliverable-layer `FACT_UNVERIFIED` (FU) /
+   `CITATION_UNVERIFIED` (CU) zero-defect gate**, provided (a) every lineage arrow is either
+   attributed to a named secondary source *as that source's claim* or marked
+   `[editors' inference — unsourced]`, and (b) the guide carries `status: provisional` until
+   its full audit chain clears. This carve-out does **not** extend to compiled deliverables:
+   a `[editors' inference — unsourced]` line that anchors a released report claim is a
+   blocking finding as usual.
+
+2. **Boundary overlap.** Flag as a conflict any case where
+   `Projects/<project>/interpretation/interpretive-map.md` **restates** the chosen-methodology
+   prose owned by `@topic-scoping-expert` (component `00`) or the "Key Themes and Debates"
+   prose owned by `@literature-review-expert` (component `01`), rather than supplying only
+   *provenance/genealogy*. Report the overlap; the **orchestrator** is the tie-break owner.

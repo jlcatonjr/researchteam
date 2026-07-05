@@ -31,7 +31,8 @@
     "format-converter",
     "reference-manager",
     "output-compiler",
-    "visual-designer"
+    "visual-designer",
+    "interpretation-advisor"
   ],
   "tools": [
     {

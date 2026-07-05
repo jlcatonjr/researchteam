@@ -118,3 +118,13 @@ Revision instructions (if REVISE): <specific corrections>
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Interpretive directives input (from `@interpretation-advisor`)
+
+When an Interpretive Map exists for the project
+(`Projects/<project>/interpretation/interpretive-map.md`), treat its **interpretive
+directives** as an input to your Component Brief. Use its **methodological-genealogy and
+conflict provenance** to frame *which* methodology the report adopts and why — but the
+choice of the report's methodology and source strategy remains **yours**; the advisor
+supplies provenance, not the decision. Where a methodology guide it cites is
+`status: provisional`, mark any claim drawn from it as provisional in the brief.
