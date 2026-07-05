@@ -118,3 +118,15 @@ Revision instructions (if REVISE): <specific corrections>
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Interpretive directives input (from `@interpretation-advisor`)
+
+When an Interpretive Map exists for the project
+(`Projects/<project>/interpretation/interpretive-map.md`), treat its **interpretive
+directives** as an input to your Component Brief: apply each tradition's *own standard of
+evidence* when weighing its claims, and disambiguate load-bearing terms
+("equilibrium", "capital", "uncertainty", …) *per school* before adjudicating a dispute.
+The advisor supplies interpretive scaffolding; **you** still own the analysis and
+counter-argument handling. Any lineage claim you carry over keeps its `(per …)` /
+`[editors' inference — unsourced]` tag — never upgrade an inference to a stated fact — and
+`status: provisional` guide claims stay marked provisional.

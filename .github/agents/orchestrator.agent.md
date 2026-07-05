@@ -29,6 +29,7 @@ agents:
   - literature-review-expert
   - main-analysis-expert
   - conclusion-expert
+  - interpretation-advisor
 model: ["auto"]
 handoffs:
   - label: Produce / Revise Deliverable
@@ -425,3 +426,24 @@ A workflow step may attach a workflow-specific instruction to its closeout refer
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Routing: interpretation & methodological genealogy → `@interpretation-advisor`
+
+When a request needs the **interpretive/methodological framing** of a topic — which
+scholarly traditions govern each perspective, their methodological commitments and
+philosophy-of-science provenance, the centuries-spanning genealogy of the key concepts
+(back to foundational figures such as Aristotle), or the intellectual/political conflicts
+that shape the field — route to `@interpretation-advisor` **early**, after topic-scoping
+and before the literature-review Component Brief is finalized.
+
+- `@interpretation-advisor` is a **read-only advisory archetype** (in `selected_archetypes`,
+  not a compiled component). It **commissions**: `@primary-producer` writes the per-project
+  `Projects/<project>/interpretation/interpretive-map.md` (an internal **scaffold**, not a
+  compiled report section); `@content-enricher` persists methodology guides under
+  `.github/agents/references/methodology/`.
+- Its interpretive directives are an **input** to the topic-scoping, literature-review, and
+  main-analysis Component Briefs (see those agents' Project-Specific Notes).
+- **Tie-break owner** for any boundary overlap between the interpretive map and
+  `@topic-scoping-expert`'s chosen-methodology section or `@literature-review-expert`'s
+  themes/debates section: **you (the orchestrator)**. `@conflict-auditor` flags the overlap;
+  you decide which owner keeps the content.

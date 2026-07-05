@@ -118,3 +118,14 @@ Revision instructions (if REVISE): <specific corrections>
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Interpretive directives input (from `@interpretation-advisor`)
+
+When an Interpretive Map exists for the project
+(`Projects/<project>/interpretation/interpretive-map.md`), treat its **interpretive
+directives** as an input to your Component Brief: read each source *on its own school's
+terms* (per the advisor's nuances table), and let its **conflict register** inform how you
+present debates. The advisor supplies the *provenance* of a debate (where each side's
+commitments originate); **you** still own the "Key Themes and Debates" prose and the
+research-gap statement — do not merely restate the map. Mark any claim drawn from a
+`status: provisional` methodology guide as provisional.

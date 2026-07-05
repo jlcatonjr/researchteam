@@ -9,7 +9,9 @@ The following paths are authoritative for active agent infrastructure:
 
 - `.github/copilot-instructions.md`
 - `.github/agents/*.agent.md`
-- `.github/agents/references/**`
+- `.github/agents/references/**` (includes `.github/agents/references/methodology/**` —
+  the interpretive methodology guide library: reasoning references commissioned by
+  `@interpretation-advisor`, authored by `@content-enricher`, maintained by `@agent-updater`)
 - `.github/agents/_build-description.json`
 
 ## Non-Authoritative / Legacy Mirror Paths
