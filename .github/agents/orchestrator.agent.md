@@ -447,3 +447,38 @@ and before the literature-review Component Brief is finalized.
   `@topic-scoping-expert`'s chosen-methodology section or `@literature-review-expert`'s
   themes/debates section: **you (the orchestrator)**. `@conflict-auditor` flags the overlap;
   you decide which owner keeps the content.
+
+### Methodology-coverage check (advisory — makes a skipped advisor *loud*, not blocking)
+
+The routing above is advisory, so a session that reaches deliverables without ever invoking
+`@interpretation-advisor` produces no interpretive map — and because the consuming experts act
+only "when a map exists," the absence is a **silent no-op**. To surface that gap (not to force
+interpretation onto projects that don't need it), run the detector at **project closeout** and
+before handing a project to `@output-compiler`:
+
+```bash
+bash scripts/claude_researchteam_bridge.sh methodology-check <project>
+# or directly: bash scripts/check_methodology_coverage.sh <project>
+```
+
+- **Exit 0 (COVERED)** — the project has `interpretation/interpretive-map.md` and every domain
+  guide it references exists. A `status: provisional` guide passes; mark provisional-derived
+  claims provisional in-text.
+- **Exit 1 (MISSING-MAP / MISSING-GUIDE)** — **surface it and decide.** This is **advisory,
+  not a hard compile block**: `@interpretation-advisor` is a non-compiled advisory archetype
+  (see its own Project-Specific Notes), so a missing map must never silently block a
+  deliverable. If the project has a genuine interpretive/methodological contest, route it to
+  `@interpretation-advisor` to commission the map (→ `@primary-producer`) and, if the domain
+  has no on-disk guide, the guide (→ `@content-enricher`), then re-run. Its commission handoffs
+  are **`send: false` by design** — dispatch them explicitly after the human review beat; do
+  **not** auto-fire them (that review beat is load-bearing for the anti-fabrication discipline).
+  If the project is genuinely interpretation-exempt (e.g. a narrow empirical / data-collection
+  report with no interpretive contest), record the exemption in the session's work-summary and
+  proceed — do **not** manufacture a ceremonial map.
+- **Escape hatch / CI:** `METHODOLOGY_COVERAGE_ADVISORY=1` downgrades any non-zero exit to a
+  warning (exit 0) — the intended mode for CI annotation and for exempt projects.
+
+> **Coverage is opt-in by intent, not mandatory-by-default.** The detector *scans* every
+> research project, but a MISSING result is a prompt for a human judgement ("does this project
+> warrant interpretation?"), never an automatic gate failure. This preserves the advisor's
+> audited non-compiling, human-in-loop design.
