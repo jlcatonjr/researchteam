@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0" name="viewport"/>
+    <!-- <title>James L Caton</title> -->
+    <link rel = "stylesheet" href="./cssfiles/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+        </script>    
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <!-- remove any existing viewport tag -->
+        <script>
+          window.addEventListener('load', () => {
+            // remove old viewport if present
+            document.querySelectorAll('meta[name=viewport]').forEach(m=>m.remove());
+            // create a new one matching the iframe’s innerWidth
+            const m = document.createElement('meta');
+            m.name    = 'viewport';
+            m.content = `width=${Math.round(window.innerWidth)}`;
+            document.head.appendChild(m);
+          });
+        </script>
+
+</head>
+<body>
+    <aside class="sidebar">
+        <h3 style="text-align: center;">Content</h3>
+        <ul id="sidebarList"></ul>
+      </aside>    
+      <div class="main-content">    
+    <div class = "section_div" id = "UsingReinforcementLearningWithEnsembleVotingForRomanianDiacriticRestoration">
+        <p style="text-align: center; font-size: 30px; font-weight: bold; line-height: 1; padding-right: 50px" class = "no-number">
+        Using Reinforcement Learning With Ensemble Voting for Romanian Diacritic Restoration</p>
+        <p style = "text-align: right; font-weight: bold; line-height: 1; padding-right: 50px;" class = "no-number">Ingrid M. Caton</p>
+
+        <!-- <p style = "text-align:right;padding-right: 50px;" class = "no-number"><a href = "./UsingReinforcementLearningWithEnsembleVotingForRomanianDiacriticRestoration.pdf">View PDF</a></p> -->
+        <h2>1. Using Reinforcement Learning With Ensemble Voting for Romanian Diacritic Restoration</h2>
+        <p>
+            Although large language models have proven broadly capable, their performance under one-shot prompting is often inconsistent (Brown et al. 2020). One-shot prompting has not been shown to fully resolve diacritic restoration: on their own, one-shot prompts can restore some diacritics, but in our informal observations there remains a set of words for which one-shot queries struggle to surpass roughly 80% accuracy. We do not characterize this threshold systematically here, and treat it as motivating observation rather than an established result. Separately, while the largest proprietary LLMs can be costly to instantiate and run at scale, our approach instead uses small, locally run LLaMA 3.2 agents; cost is therefore a secondary motivation, and we note that evolutionary training plus brute-force ensemble search incurs its own compute overhead, which we do not benchmark.
+        </p>
+        <p>
+           Part of the reliability problem might be addressed by identifying a set of parameters that generates better results. However, because large language models are not trained specifically for diacritic placement, we expect that even fine-tuned LLMs may retain blind spots — specific words and contexts that are not consistently predicted (we do not test fine-tuning directly in this study). On the other hand, agent performance can be augmented by tools that employ explicit methods for diacritic placement. Such tools have not, on their own, solved the problem either, so — as with parameter tuning — adding tools alone is unlikely to fully resolve diacritic restoration. We likewise expect reinforcement learning to improve accuracy without eliminating these blind spots.
+        </p>
+        <p>
+            We propose — and in this paper test — a composite approach intended to improve over individual agents and over single methods by combining them. Agents who are given tools can be allowed to decide between using the prediction provided by their tool or can decide to predict using the their own judgment (that is, the LLM can decide outside of the constraint of the model). Likewise, we can allow an agent who uses a specific method, e.g., agents that only use a tuned LLM with relatively high predictive accuracy, to participate with other such highly rated agents in ensemble voting. Specifically, if we allow agents to be trained on a diversity of data sets, we can allow multiple of the best agents from each training set to participate together in predicting observations that were not included in any of the training sets. While it would be tempting to simply select the agents that perform best, the agents that perform best on the new data set most likely are trained with data that has features similar to the features of the testing data. Instead, we could select the top performing agent or agents from each group to predict a new data set using ensemble voting.
+        </p>
+        <p>
+            While choice for tje last round of selection could be justified, we instead compare the accuracy of prediction of the testing data using every possible combination of ensemble agents selected from different rounds. The simplest approach for this case would be to select one agent from each training group to form combinations. The group selected from this set would be the group whose ensemble voting generated the highest accuracy. Finally, ensemble voting from this group will be used as a tool to place diacritics in any context. 
+        </p>
+    </div>
+    <div class = "section_div" id = "ReinforcementLearningforAgentTuning">
+        <h2>
+            2. Reinforcement Learning for Agent Tuning
+        </h2>
+        <p class = "no-number">2.1 Attribute Mutation and Reproduction</p>
+        <p>
+            All agents are assigned parameters that are passed as part of any LLAMA 3.2 query. LLAMA parameters include:
+        </p>
+        <!-- use letters -->
+        <ol type="a">
+            <li><i>temperature</i></li>
+            <li><i>max_tokens</i></li>
+            <li><i>top_p</i></li>
+            <li><i>frequency_penalty</i></li>
+            <li><i>presence_penalty</i></li>
+        </ol>
+
+        <p class= "no-number">
+            In additions to these attributes, agents may have strategy specific attributes.  These may include:
+        </p>
+        <ol type = "a">
+            <li><i>use_tools</i></li>
+            <li><i>analysis_weight_synset</i></li>
+            <li><i>analysis_weight_phonetic</i></li>
+            <li><i>analysis_weight_frequency</i></li>
+            <li><i>analysis_confidence_threshold</i></li>
+            <li><i>strategy_aggression</i></li>
+            <li><i>prefer_common_patterns</i></li>
+            <li><i>conservative_threshold</i></li>
+            <li><i>aggressive_threshold</i></li>
+        </ol>
+        <p class = "no-number">2.2 Tool Usage</p>
+        <p>
+            Agents in our reinforcement learning framework may employ a sophisticated multi-strategy approach to diacritic restoration that combines direct LLM inference with external analysis tools. Each agent operates according to a discrete strategy space that determines both its analytical methodology and decision-making processes. The strategy selection mechanism is governed by eleven distinct parameters that are evolved through reinforcement learning, creating a rich landscape of possible agent behaviors.
+        </p>
+
+        <p class = "no-number"><strong>2.2.1 Strategy Space Definition</strong></p>
+        <p>
+            The complete strategy space $\mathcal{S}$ for each agent $i$ at time $t$ is defined by the parameter vector:
+        </p>
+        <blockquote>
+            $\mathbf{s}_{i,t} = \langle u_t, w_s, w_p, w_f, w_c, \theta_c, \alpha, \phi_p, \phi_c, \tau_{con}, \tau_{agg} \rangle$
+        </blockquote>
+        <p>
+            where each component represents a specific strategic dimension:
+        </p>
+        <ul>
+            <li>$u_t \in \{0, 1\}$ : Binary tool usage indicator</li>
+            <li>$w_s, w_p, w_f, w_c \in [0, 1]$ : Analysis weights for synset, phonetic, frequency, and contextual strategies</li>
+            <li>$\theta_c \in [0.1, 0.95]$ : Confidence threshold for accepting tool recommendations</li>
+            <li>$\alpha \in [0, 1]$ : Aggression factor for low-confidence decisions</li>
+            <li>$\phi_p, \phi_c \in \{0, 1\}$ : Binary indicators for pattern preference and contextual analysis usage</li>
+            <li>$\tau_{con}, \tau_{agg} \in [0.01, 0.99]$ : Conservative and aggressive confidence thresholds with constraint $\tau_{con} < \tau_{agg}$</li>
+        </ul>
+
+        <p class = "no-number"><strong>2.2.2 Primary Strategy Classes</strong></p>
+        <p>
+            Agents select between two fundamental strategy classes based on the tool usage indicator $u_t$:
+        </p>
+
+        <p class = "no-number"><em>Strategy Class A: Direct LLM Inference ($u_t = 0$)</em></p>
+        <p>
+            Agents employing Strategy Class A rely exclusively on the large language model's inherent capabilities for diacritic restoration. The decision process follows:
+        </p>
+        <blockquote>
+            $\hat{y}_{i,t} = \text{LLM}(\mathbf{x}_t; \boldsymbol{\theta}_{i,t}^{LLM})$
+        </blockquote>
+        <p>
+            where $\mathbf{x}_t$ is the input sentence without diacritics and $\boldsymbol{\theta}_{i,t}^{LLM}$ represents the agent's LLM parameters (temperature, top_p, frequency_penalty, presence_penalty, max_tokens).
+        </p>
+
+        <p class = "no-number"><em>Strategy Class B: Tool-Augmented Analysis ($u_t = 1$)</em></p>
+        <p>
+            Agents using Strategy Class B integrate external analysis tools with LLM inference. This creates a hierarchical decision process: a tool recommendation is accepted when its combined confidence clears the agent's evolved thresholds (Section 2.2.5); otherwise the word is left as produced by the LLM. The tool thus acts as a gated override rather than an unconditional one.
+        </p>
+
+        <p class = "no-number"><strong>2.2.3 Tool-Augmented Analysis Framework</strong></p>
+        <p>
+            For agents with $u_t = 1$, the system employs four distinct analytical strategies that operate in parallel before being combined through a weighted consensus mechanism:
+        </p>
+
+        <p class = "no-number"><em>Strategy B.1: Synset-Based Semantic Analysis</em></p>
+        <p>
+            This strategy leverages Romanian WordNet (RoWordNet) synsets to validate diacritic variants through semantic consistency. The <strong>synset_score</strong> quantifies how many semantic meanings (synsets) are available for each diacritic variant, providing evidence of lexical validity. For each word $w_j$ in the input sentence, the strategy computes:
+        </p>
+        <blockquote>
+            $\text{synset_score}(w_j, v_{j,k}) = \frac{|\text{Synsets}(v_{j,k})|}{|\mathcal{V}_j|} \cdot \text{semantic_consistency}(v_{j,k}, \text{context}_j)$
+        </blockquote>
+        <p>
+            where $v_{j,k}$ represents the $k$-th diacritic variant of word $w_j$, and $\mathcal{V}_j$ is the set of all possible variants. The <strong>semantic_consistency</strong> component evaluates whether the variant's semantic meaning aligns with the surrounding sentence context. Variants with multiple synsets receive higher base scores (typically 0.8 for unique synset holders, 0.6 for contested variants), while semantic consistency provides contextual validation through RoWordNet's semantic relationships. When only one variant possesses synsets among all possibilities, it receives maximum confidence; when multiple variants have synsets, the system applies comparative semantic analysis to determine the most contextually appropriate choice.
+        </p>
+
+        <p class = "no-number"><em>Strategy B.2: Phonetic Pattern Recognition</em></p>
+        <p>
+            This strategy applies Romanian-specific phonetic rules to identify high-probability diacritic placements. The <strong>phonetic_score</strong> evaluates rule-based evidence for diacritic placement using linguistically-motivated patterns:
+        </p>
+        <blockquote>
+            $\text{phonetic_score}(w_j, v_{j,k}) = \sum_{r \in \mathcal{R}} \mathbb{I}[\text{rule}_r(w_j) = v_{j,k}] \cdot \text{weight}_r$
+        </blockquote>
+        <p>
+            where $\mathcal{R}$ represents the set of Romanian phonetic rules and $\text{weight}_r$ indicates rule reliability. The implemented rules include: (1) High-confidence transformations for function words ('si'→'și', 'ca'→'că', 'in'→'în') with weights 0.9-0.95; (2) Positional rules for î/â distribution (î at word boundaries, â in medial positions) with weight 0.6; (3) Morphological endings (words ending in 'ă', 'ț', 'ș') with weight 0.6; (4) Conservative defaults for short function words and unknown patterns with weight 0.1-0.4. The system implements phonetic constraints that prevent inappropriate diacritic placement in grammatical particles and ensure morphophonological consistency with Romanian orthographic conventions.
+        </p>
+
+        <p class = "no-number"><em>Strategy B.3: Frequency-Based Pattern Analysis</em></p>
+        <p>
+            This strategy uses word frequency data from the wordfreq library (Speer 2022) to estimate diacritic probabilities. We note that wordfreq was frozen by its maintainer in 2021, so these frequencies reflect a 2021-era snapshot rather than current usage. The <strong>frequency_score</strong> provides corpus-based estimates:
+        </p>
+        <blockquote>
+            $\text{frequency_score}(w_j, v_{j,k}) = \frac{\text{freq}(v_{j,k})}{\sum_{v \in \mathcal{V}_j} \text{freq}(v)} \cdot \text{confidence_multiplier}(\phi_p)$
+        </blockquote>
+        <p>
+            where the <strong>confidence_multiplier</strong> adjusts based on the agent's preference for common patterns ($\phi_p$). The confidence calculation employs hand-set frequency thresholds (fixed a priori, not tuned in this study; we did not perform a sensitivity analysis): very high frequency words (freq > 1e-4) receive confidence 0.85, high frequency words (freq > 1e-5) receive 0.70, medium frequency words (freq > 1e-6) receive 0.55, and rare words receive 0.30. When multiple variants exist, the system calculates frequency ratios between top candidates; ratios exceeding 5.0 boost confidence by 20%, while ratios below 2.0 reduce confidence by 15%. The confidence_multiplier implements agent-specific frequency preferences: agents with $\phi_p = 1$ (prefer common patterns) maintain full confidence scores, while agents with $\phi_p = 0$ receive 85% of base confidence, allowing exploration of less frequent but potentially correct variants.
+        </p>
+
+        <p class = "no-number"><em>Strategy B.4: Contextual N-gram Analysis</em></p>
+        <p>
+            When $\phi_c = 1$, agents utilize contextual n-gram analysis using Romanian corpus data from subs2vec. The <strong>contextual_score</strong> leverages large-scale corpus statistics to evaluate diacritic variants in context:
+        </p>
+        <blockquote>
+            $\text{contextual_score}(w_j, v_{j,k}) = \lambda \cdot P(w_{j-1}, v_{j,k}, w_{j+1}) + (1-\lambda) \cdot P(w_{j-1}, v_{j,k})$
+        </blockquote>
+        <p>
+            where $\lambda$ balances trigram and bigram evidence, and probabilities are estimated from the Romanian OpenSubtitles corpus via subs2vec. The system implements memory-persistent trigram and bigram engines that load over 1 million n-grams from the Romanian corpus. For each word position, the contextual analyzer evaluates all possible trigrams $P(w_{j-1}, v_{j,k}, w_{j+1})$ and bigrams $P(w_{j-1}, v_{j,k})$ where $v_{j,k}$ represents each candidate diacritic variant. The scoring employs comparative analysis: rather than using absolute n-gram frequencies, the system computes relative probabilities among competing variants for the same context position. This approach accounts for corpus sparsity and provides robust confidence estimation even for rare trigrams. The weighting parameter $\lambda$ (typically 0.7) prioritizes trigram evidence while maintaining bigram backup for contexts where trigram data is unavailable.
+        </p>
+
+        <p class = "no-number"><strong>2.2.4 Multi-Strategy Integration</strong></p>
+        <p>
+            Tool-augmented agents combine individual strategy scores through a weighted consensus mechanism:
+        </p>
+        <blockquote>
+            $\text{combined_score}(w_j, v_{j,k}) = w_s \cdot \text{synset_score}(w_j, v_{j,k}) + w_p \cdot \text{phonetic_score}(w_j, v_{j,k}) + w_f \cdot \text{frequency_score}(w_j, v_{j,k}) + w_c \cdot \text{contextual_score}(w_j, v_{j,k})$
+        </blockquote>
+        <p>
+            The optimal variant for each word is then selected as:
+        </p>
+        <blockquote>
+            $v_j^* = \arg\max_{v_{j,k} \in \mathcal{V}_j} \text{combined_score}(w_j, v_{j,k})$
+        </blockquote>
+
+        <p class = "no-number"><strong>2.2.5 Confidence-Based Decision Thresholds</strong></p>
+        <p>
+            The final decision to accept or reject tool recommendations employs a sophisticated three-tier confidence system governed by evolved threshold parameters. The decision mechanism operates through a hierarchical evaluation process that balances analytical confidence with agent-specific risk tolerance:
+        </p>
+        <blockquote>
+            $\text{decision}(w_j) = \begin{cases}
+            v_j^* & \text{if } \text{combined_score}(w_j, v_j^*) \geq \theta_c \\
+            v_j^* & \text{if } \tau_{con} \leq \text{combined_score}(w_j, v_j^*) < \theta_c \text{ and } \alpha > \tau_{agg} \\
+            w_j & \text{otherwise}
+            \end{cases}$
+        </blockquote>
+        <p>
+            The primary confidence threshold $\theta_c$ (analysis_confidence_threshold) represents the minimum combined score required for immediate tool recommendation acceptance, with evolutionary range $[0.1, 0.95]$. The aggressive acceptance threshold $\tau_{agg}$ implements a dynamic confidence adjustment based on the agent's strategy aggression parameter $\alpha$:
+        </p>
+        <blockquote>
+            $\tau_{agg} = (1.0 - \alpha) \times 0.5 + 0.1$
+        </blockquote>
+        <p>
+            This formulation ensures that highly aggressive agents ($\alpha \rightarrow 1$) have lower effective thresholds ($\tau_{agg} \rightarrow 0.1$), while conservative agents ($\alpha \rightarrow 0$) require higher confidence ($\tau_{agg} \rightarrow 0.6$). The conservative threshold $\tau_{con}$ provides a lower bound below which no recommendations are accepted regardless of aggression level. 
+        </p>
+        <p>
+            <strong>Threshold Interaction Effects:</strong> The system implements a sophisticated interaction between multiple confidence parameters that creates distinct behavioral regimes. Agents with high $\theta_c$ (>0.8) and low $\alpha$ (<0.3) exhibit ultra-conservative behavior, accepting only the most confident tool recommendations. Conversely, agents with low $\theta_c$ (<0.4) and high $\alpha$ (>0.7) demonstrate aggressive restoration patterns, applying diacritics even with moderate tool confidence. The intermediate region ($0.4 \leq \theta_c \leq 0.8$, $0.3 \leq \alpha \leq 0.7$) produces balanced agents that selectively apply recommendations based on contextual evidence strength.
+        </p>
+
+        <p class = "no-number"><strong>2.2.6 Strategy Evolution and Mutation</strong></p>
+        <p>
+            All strategy parameters undergo evolutionary pressure through a sophisticated mutation operator that preserves parameter relationships while enabling exploration of the strategy space. The mutation process operates at two distinct levels: discrete binary parameters and continuous real-valued parameters, each with parameter-specific perturbation characteristics:
+        </p>
+        <blockquote>
+            $s'_{i,t+1} = \begin{cases}
+            \neg s_{i,t} & \text{if } s_{i,t} \in \{u_t, \phi_p, \phi_c\} \text{ and } \xi < \mu \\
+            \text{clip}(s_{i,t} + \mathcal{N}(0, \sigma^2), [a, b]) & \text{if } s_{i,t} \in \mathbb{R} \text{ and } \xi < \mu \\
+            s_{i,t} & \text{otherwise}
+            \end{cases}$
+        </blockquote>
+        <p>
+            where $\xi \sim \text{Uniform}(0,1)$, $\mu = 0.10$ represents the per-parameter mutation rate, and parameter-specific noise scales $\sigma^2$ vary by strategic function. The mutation operator implements distinct perturbation magnitudes: strategy weights ($w_s, w_p, w_f, w_c$) use $\sigma = 0.1$, confidence thresholds use $\sigma = 0.05$, and behavioral parameters use $\sigma = 0.2$.
+        </p>
+        <p>
+            <strong>Threshold Mutation Constraints:</strong> The confidence threshold parameters require specialized mutation logic to maintain valid decision boundaries. The conservative and aggressive thresholds ($\tau_{con}, \tau_{agg}$) must satisfy the ordering constraint $\tau_{con} < \tau_{agg}$ to ensure coherent decision logic. The mutation operator addresses this through coordinated threshold evolution:
+        </p>
+        <blockquote>
+            $\tau'_{con} = \max(0.01, \min(\tau_{agg} - 0.01, \tau_{con} + \mathcal{N}(0, 0.01)))$ <br>
+            $\tau'_{agg} = \max(\tau'_{con} + 0.01, \min(0.99, \tau_{agg} + \mathcal{N}(0, 0.01)))$
+        </blockquote>
+        <p>
+            This sequential mutation process ensures that conservative thresholds never exceed aggressive thresholds while allowing both parameters to explore their full feasible ranges $[0.01, 0.98]$ and $[0.02, 0.99]$ respectively.
+        </p>
+        <p>
+            <strong>Mutation-Driven Strategy Discovery:</strong> The evolutionary mutation process enables discovery of superior parameter combinations through systematic exploration of the $2^3 \times \mathbb{R}^8$ strategy space (three binary parameters $u_t, \phi_p, \phi_c$ and eight continuous parameters $w_s, w_p, w_f, w_c, \theta_c, \alpha, \tau_{con}, \tau_{agg}$). Mutation rates are calibrated to balance exploration and exploitation: the 10% per-parameter mutation rate ensures substantial strategy diversity across generations while maintaining sufficient stability for strategy refinement. High-performing strategies undergo gradual optimization through small perturbations, while poorly-performing strategies experience larger mutations that can lead to strategy regime changes. This dual-scale mutation process facilitates both local optimization within strategy clusters and global exploration across distinct analytical approaches.
+        </p>
+        <p>
+            <strong>Confidence Boundary Evolution:</strong> The mutation process directly impacts confidence interpretation boundaries through threshold parameter evolution. Agents that discover effective confidence boundaries through mutation gain competitive advantages and propagate these threshold configurations to subsequent generations. This creates evolutionary pressure toward threshold combinations that optimize the trade-off between precision (avoiding false positive diacritic placements) and recall (correctly identifying required diacritics). The system's ability to evolve confidence interpretation boundaries represents a key advantage over fixed-threshold approaches, as different text domains and difficulty levels may require distinct confidence calibration strategies.
+        </p>
+
+        <p class = "no-number"><strong>2.2.7 Strategy Space Combinatorics</strong></p>
+        <p>
+            The complete strategy space contains $2^3 \times \mathbb{R}^8$ possible configurations; discretizing the eight continuous parameters to three decimal places yields on the order of $2^3 \times (10^3)^8$ candidate combinations — a space far too large to enumerate, motivating the evolutionary search. The evolutionary algorithm explores this space through:
+        </p>
+        <ul>
+            <li>Random initialization across the full parameter ranges</li>
+            <li>Mutation-driven exploration with parameter-specific perturbation scales</li>
+            <li>Selection pressure favoring strategies that maximize reward functions</li>
+            <li>Cross-generational strategy preservation through elite agent selection</li>
+        </ul>
+        <p>
+            This framework ensures that agents can discover optimal combinations of analytical strategies while maintaining diversity in the population's approach to diacritic restoration challenges.
+        </p>
+
+        <p class = "no-number"></p><strong>2.3 Reward Allocation</strong></p>
+        <p>
+            Even without fine tuning, LLMs generate impressive predictions. The landscape of LLM parameter values - that is, the correspondence of agent parameter values to expected outcomes - is too vast to explore and, <i>ex ante</i>, should be assume to be lumpy and discontinuous. We could develop a neural network to predict correspondence between inputs and the best parameter values, but this would add a layer of complexity and increase usage of computational resources in a manner that would likely limit the breadth of pottential applications for the solution. We elect to use a simple economic model of reinforcement learning where agents incur a fixed marginal cost each period. For an agent to survive, its performance must generate rewards that exceed its costs. We set a fixed aggregate reward value that is divided amongst agents according to the relative performance of each agent. Mechanically, dividing a fixed reward pool by each agent's share of (squared) performance is a form of fitness-proportional selection (Goldberg 1989; Holland 1992); we frame it in economic terms because agents face a survival constraint, but we do not claim a market mechanism with inter-agent transactions or endogenous prices.
+        </p>
+        <blockquote>
+            $R_t = \sum_{i=1}^{N} r_{i,t}$
+        </blockquote>
+        <p class = "no-number">
+            Now, each $r_t$ is divided according to two general criterion: 1) how accurate was the agent and 2) how quickly did the agent generate the response. Accuracy is estimated on two margins. First, what is the overall accuracy, measured by the proportion of correct predictions to the total number of words?
+        </p>
+        <blockquote>
+            $a_{i_t} = \frac{c_{i,t}}{N}$
+        </blockquote>
+        <p>
+            Second, did the agent correctly predict the target word, which is a word that is typically difficult for AI systems of all kinds to predict.
+        </p>
+        <blockquote>
+            $a_{i_t}^{target} = \{1\ \text{if}\ \hat{c}_{i,t}^{target} \equiv c_{i,t}^{target}\ \text{else}\ 0\}$
+        </blockquote>
+        <p class = "no-number">
+            We wish to provide increasing rates of reward for accuracy. For example, 0.1 percentage increase from 0.8 to 0.9 should be reward more highly than a 0.1 percentage increase from 0.2 to 0.3. When reward is allocated, it is allocated according to the squared value of each agent's accuracy. Each agent's squared accuracy is divided by the sum of squared accuracies:
+        </p>
+        <blockquote>
+            $R_{a_{i_t}} = R_{accuracy}\frac{a_{i_t}^2}{\sum_{j=1}^{N} a_{j,t}^2}$
+        </blockquote>
+        <p class = "no-number">
+            Likewise, the agent's average restoration of a word, supposing the number of restoration attempts is greater than 1, would be the squared value of target word accuracy divide by the sum of squared values of target word accuracies:
+        </p>
+        <blockquote>
+            $R_{a_{i_t}^{target}} = R_{accuracy}^{target}\frac{a_{i_t}^{target^2}}{\sum_{j=1}^{N} a_{j,t}^{target^2}}$
+        </blockquote>
+        <p class = "no-number">
+            We alo reward agent time efficiency with increasing returns. To accomplish this, we squared the difference between the agent's time taken to generate a prediction and the time taken by the slowest agent:
+        </p>
+        <blockquote>
+            $E_{i_t} = \frac{(T_{max} - T_{i,t})^2}{\sum_{j=1}^{N} (T_{max} - T_{j,t})^2}$
+        </blockquote>
+        <p class = "no-number">
+            $E_{i_t}$ is augmented by the accuracy reward of the agent to generate efficiency reward for overall accuracy and for target word accuracy:
+            </p>
+        <blockquote>
+            $R_{ea_{i_t}} = R_{efficiency} E_{i_t}\frac{a_{i_t}^2}{\sum_{j=1}^{N} a_{j,t}^2}$
+        </blockquote>
+        <p>
+            Likewise, target accuracy is also augmented:
+        </p>
+        <blockquote>
+            $R_{ea_{i_t}^{target}} = R_{efficiency}^{target} E_{i_t^{target}}\frac{a_{i_t}^{target^2}}{\sum_{j=1}^{N} a_{j,t}^{target^2}}$
+        </blockquote>
+        <p>
+            Notice that if an agent's accuracy is 0, its reward for time efficiency will also be 0. If an agent is fast and accurate, that agent will receive a greater reward than another agent who is equally accurate, but relatively slower. 
+        </p>
+        <p>
+            In our model, we split the total reward into four equal parts:
+        </p>
+        <blockquote>
+            $R^* = R_{accuracy} + R_{accuracy}^{target} + R_{efficiency} + R_{efficiency}^{target}$
+        </blockquote>
+        <p class = "no-number">
+            The aggregate value of rewards is the same in every period:
+        </p>
+        <blockquote>
+            $R_t = R^*$
+        </blockquote>
+        <p class = "no-number">
+            Since each agent consumes one life-unit per period, the value of the reward, $R$ determines the average number of agents that can be supported in the environment. We will use this fact to quickly select from a relatiely large pool of agents. We amend the rule that $R_t = R$ by differentiating between the starting population and the target population. $R_0 = N_0$. The value of $R_t$ decreases over so that $R_{t \ge 0} = \frac{R_0}{t+1}\ \text{if}\ R_t > R^*$. 
+        </p>
+        <p>
+            Agents are trained over three generations The performance of each agent across each generation is recorded. Agents are ranked by average accuracy within the generation. If multiple agents record the same accuracy, then the tie breaker is set by the target word accuracy. From each generation, a fixed number of the top performers will be selected for testing that occurs after all three generations have completed.
+        </p>
+        <p>
+            Selecting top performers from each generation is intended to integrate diverse perspectives. Performance in each generation reflects the information contained in that generation. The aim is to avoid selecting only agents who performed well in the generation that happened to be relatively easy to predict. We did not run an ablation comparing this generation-balanced selection against naive top-k selection, so its benefit remains a design hypothesis rather than a measured effect. It also ensures that the information set from each generation is appropriately represented during testing. If an agent is ranked amongst top performers across multiple generations, it will be included in the set of top performers from earlier generation and leave spots to be filled in any later generation where it was ranked amongst the top performers.
+        </p>
+        <p class = "no-number"><strong>2.4 Testing and Ensemble Voting</strong></p>
+        <p>
+            Following the completion of the evolutionary training phase, the system transitions to a rigorous two-stage evaluation protocol designed to assess agent performance on unseen data and optimize ensemble composition through systematic selection procedures. The testing framework operates on three disjoint data partitions: the training corpus $\mathcal{D}_{train}$, the individual testing corpus $\mathcal{D}_{test}$, and the ensemble validation corpus $\mathcal{D}_{ensemble}$. We note that $\mathcal{D}_{test}$ is used for both individual-agent selection and ensemble selection (Section 2.4.2), so metrics reported on $\mathcal{D}_{test}$ are in-sample selection quantities; only $\mathcal{D}_{ensemble}$ provides a held-out estimate.
+        </p>
+
+        <p class = "no-number"><strong>2.4.1 Post-Training Individual Agent Evaluation</strong></p>
+        <p>
+            The first testing phase evaluates the top-performing agents from each generation on previously unseen data. Let $\mathcal{A}^*_G = \{A^*_{g,1}, A^*_{g,2}, \ldots, A^*_{g,k_g}\}$ represent the set of elite agents selected from generation $g \in \{1, 2, \ldots, G\}$, where $k_g$ denotes the number of top performers selected from generation $g$. The generation-balanced selection ensures equal representation across training epochs:
+        </p>
+        <blockquote>
+            $\mathcal{A}^*_{balanced} = \bigcup_{g=1}^{G} \mathcal{A}^*_g \text{ subject to } |\mathcal{A}^*_g| = \kappa \text{ for all } g$
+        </blockquote>
+        <p>
+            where $\kappa$ represents the uniform number of agents selected per generation. Each selected agent $A^*_{g,i}$ undergoes comprehensive evaluation on the testing corpus $\mathcal{D}_{test} = \{(x_j, y_j)\}_{j=1}^{N_{test}}$, where $x_j$ represents input sentences without diacritics and $y_j$ represents the corresponding ground truth restorations.
+        </p>
+        <p>
+            Individual agent performance is measured through dual metrics that capture both overall restoration accuracy and precise word-level matching:
+        </p>
+        <blockquote>
+            $\text{accuracy}(A^*_{g,i}) = \frac{1}{N_{test}} \sum_{j=1}^{N_{test}} \frac{|\text{correct_words}(A^*_{g,i}(x_j), y_j)|}{|\text{words}(y_j)|}$
+        </blockquote>
+        <blockquote>
+            $\text{word_restored}(A^*_{g,i}) = \frac{1}{N_{test}} \sum_{j=1}^{N_{test}} \mathbb{I}[A^*_{g,i}(x_j) = y_j]$
+        </blockquote>
+        <p>
+            The word-level accuracy metric employs strict exact-match criteria, ensuring that only perfectly restored sentences contribute to the word_restored score, thereby providing rigorous evaluation of complete restoration capability.
+        </p>
+
+        <p class = "no-number"><strong>2.4.2 Brute-Force Ensemble Optimization</strong></p>
+        <p>
+            The second phase implements systematic ensemble optimization through exhaustive evaluation of agent combinations. Given the set of tested agents $\mathcal{A}^*_{balanced}$ with $|\mathcal{A}^*_{balanced}| = M$ members, the system evaluates all possible $\binom{M}{K}$ combinations of size $K$ (where $K = \text{ENSEMBLE_SIZE}$) to identify the optimal ensemble configuration:
+        </p>
+        <blockquote>
+            $\mathcal{E}^* = \arg\max_{\mathcal{E} \subseteq \mathcal{A}^*_{balanced}, |\mathcal{E}|=K} \text{ensemble_accuracy}(\mathcal{E}, \mathcal{D}_{test})$
+        </blockquote>
+        <p>
+            The optimization process incorporates generation-balanced constraints to ensure diverse representation across training epochs. For each candidate ensemble $\mathcal{E} = \{A_{e_1}, A_{e_2}, \ldots, A_{e_K}\}$, the system enforces equal generation representation:
+        </p>
+        <blockquote>
+            $|\{A \in \mathcal{E} : \text{generation}(A) = g\}| = \lfloor K/G \rfloor \text{ for all } g \in \{1, 2, \ldots, G\}$
+        </blockquote>
+        <p>
+            with remaining slots allocated to maximize performance while maintaining generational diversity.
+        </p>
+
+        <p class = "no-number"><strong>2.4.3 Majority Voting Mechanism</strong></p>
+        <p>
+            The ensemble decision-making process employs word-level majority voting to combine individual agent predictions. For a given input sentence $x = (w_1, w_2, \ldots, w_n)$, each agent $A_i \in \mathcal{E}$ produces a prediction $\hat{y}_i = A_i(x) = (\hat{w}_{i,1}, \hat{w}_{i,2}, \ldots, \hat{w}_{i,n_i})$. The ensemble prediction $\hat{y}_{ensemble}$ is constructed through position-wise majority voting:
+        </p>
+        <blockquote>
+            $\hat{w}_{ensemble,j} = \arg\max_{w} \sum_{i=1}^{K} \mathbb{I}[\hat{w}_{i,j} = w]$
+        </blockquote>
+        <p>
+            where $\mathbb{I}[\cdot]$ represents the indicator function and the maximization is taken over all word variants proposed by ensemble members at position $j$. This voting mechanism handles variable-length predictions through dynamic padding and ensures robust consensus formation even when agents produce differing sentence structures.
+        </p>
+
+        <p class = "no-number"><strong>2.4.4 Final Ensemble Validation</strong></p>
+        <p>
+            The optimized ensemble $\mathcal{E}^*$ undergoes final validation on the reserved ensemble corpus $\mathcal{D}_{ensemble}$, which is held out from both training and optimization. Because $\mathcal{E}^*$ is chosen to maximize accuracy on $\mathcal{D}_{test}$, accuracy on $\mathcal{D}_{test}$ is optimistically biased; the $\mathcal{D}_{ensemble}$ figure is the appropriate held-out estimate of generalization (subject to the small sample size discussed in Section 3.10):
+        </p>
+        <blockquote>
+            $\text{validation_accuracy}(\mathcal{E}^*) = \frac{1}{N_{ensemble}} \sum_{j=1}^{N_{ensemble}} \text{accuracy}(\text{vote}(\mathcal{E}^*(x_j)), y_j)$
+        </blockquote>
+        <p>
+            where $\text{vote}(\cdot)$ represents the majority voting function and $N_{ensemble} = |\mathcal{D}_{ensemble}|$. The validation phase employs identical performance metrics to enable direct comparison with individual agent performance, providing empirical evidence of ensemble effectiveness.
+        </p>
+        <p>
+            This comprehensive testing framework ensures that the final ensemble represents a robust, generalizable solution that leverages the diverse capabilities developed across multiple generations of evolutionary optimization while maintaining strict evaluation standards through independent data partitioning and rigorous performance measurement protocols.
+        </p>
+    </div>
+    
+    <div class = "section_div" id = "ExperimentalResults">
+        <h2>3. Experimental Results</h2>
+        <p>
+            The experimental framework conducted two distinct sets of experiments to evaluate the effectiveness of tool-augmented agents versus direct LLM inference agents in Romanian diacritic restoration. This section presents a comprehensive analysis of agent performance across three critical phases: training, individual testing/ensemble optimization, and final ensemble voting.
+        </p>
+
+        <p class = "no-number"><strong>3.1 Experimental Setup</strong></p>
+        <p>
+            Two ensemble configurations were evaluated:
+        </p>
+        <ul>
+            <li><strong>Tool-Enhanced Pool:</strong> 9 candidate agents (6 tool-using and 3 non-tool), all drawn from the strategy-class-B-capable population (tool-augmented analysis)</li>
+            <li><strong>Direct Inference Pool:</strong> 9 candidate agents using exclusively strategy class A (direct LLM inference) without tool augmentation</li>
+        </ul>
+        <p>
+            From each 9-agent pool, a 3-agent <em>ensemble</em> was selected through generation-balanced optimization. Final ensemble composition: Tool-Enhanced (Agent_398, Agent_433, Agent_78) and Direct Inference (Agent_181, Agent_333, Agent_428). Throughout, "pool" denotes the 9 candidates and "ensemble" the 3 voting members.
+        </p>
+
+        <p class = "no-number"><strong>3.2 Performance Trajectory Analysis</strong></p>
+        <p>
+            Figure 1 presents comprehensive trajectory analysis showing agent performance evolution across all experimental phases.
+        </p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="performance_trajectories.png" alt="Performance Trajectories Analysis" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+            <p style="font-style: italic; margin-top: 10px; font-size: 14px;">
+                <strong>Figure 1: Agent Performance Trajectories Across Experimental Phases.</strong> 
+                The plots show individual agent trajectories (thin lines), selected agent averages (thick lines with squares), 
+                and ensemble-level performance indicators (stars). Tool-Enhanced agents (red) and Direct Inference agents (blue) 
+                show distinct performance patterns across training, initial testing, and ensemble testing phases.
+            </p>
+        </div>
+
+        <p class = "no-number"><strong>3.3 Training Performance Analysis</strong></p>
+        <p>
+            During the reinforcement learning training phase, distinct performance patterns emerged between the ensemble types:
+        </p>
+
+        <p class = "no-number"><em>Tool-Enhanced Pool Performance (9 agents total):</em></p>
+        <ul>
+            <li><strong>Average Training Accuracy:</strong> 82.2% (range: 70.5% - 88.3%)</li>
+            <li><strong>Average Word Restoration:</strong> 35.4% (range: 16.7% - 45.5%)</li>
+            <li><strong>Best Performer:</strong> Agent_435 with 88.3% accuracy, 36.4% word restoration</li>
+            <li><strong>Selected Agents:</strong> Agent_398 (80.4% acc, 42.9% word rest), Agent_433 (76.6% acc, 16.7% word rest), Agent_78 (70.5% acc, 45.5% word rest)</li>
+        </ul>
+
+        <p class = "no-number"><em>Direct Inference Pool Performance (9 agents total):</em></p>
+        <ul>
+            <li><strong>Average Training Accuracy:</strong> 83.6% (range: 77.7% - 89.6%)</li>
+            <li><strong>Average Word Restoration:</strong> 44.1% (range: 27.3% - 54.5%)</li>
+            <li><strong>Best Performer:</strong> Agent_436 with 89.6% accuracy, 54.5% word restoration</li>
+            <li><strong>Selected Agents:</strong> Agent_181 (82.1% acc, 54.5% word rest), Agent_333 (77.7% acc, 31.8% word rest), Agent_428 (86.8% acc, 47.4% word rest)</li>
+        </ul>
+
+        <p class = "no-number"><strong>Training Phase Key Findings:</strong></p>
+        <blockquote>
+            <strong>Average Performance:</strong> Direct inference agents achieved marginally higher average training accuracy (83.6% vs 82.2%) and higher word restoration (44.1% vs 35.4%) during the evolutionary training phase. We report these as descriptive differences; no significance test was performed (see Section 3.10).
+        </blockquote>
+
+        <p class = "no-number"><strong>3.4 Individual Testing and Ensemble Optimization</strong></p>
+        <p>
+            Post-training individual agent evaluation on unseen data revealed dramatic performance improvements and critical insights for ensemble composition:
+        </p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="agent_performance_analysis.png" alt="Agent Performance Analysis" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+            <p style="font-style: italic; margin-top: 10px; font-size: 14px;">
+                <strong>Figure 2: Comprehensive Agent Performance Analysis.</strong> 
+                Multi-panel analysis showing performance across experimental phases, tool usage patterns, and selection criteria. 
+                The bottom-right panel reveals that selection was merit-based rather than tool-usage based, with both tool-using 
+                and non-tool-using agents selected based on individual performance.
+            </p>
+        </div>
+
+        <p class = "no-number"><em>Tool-Enhanced Ensemble Initial Test Results:</em></p>
+        <ul>
+            <li><strong>Average Initial Test Accuracy:</strong> 84.6% (selected agents only)</li>
+            <li><strong>Best Individual Performance:</strong> Agent_405 (not selected): 98.4% accuracy, 90.9% word restoration</li>
+            <li><strong>Selected Agent Performance:</strong> Agent_433: 95.8% accuracy, 90.9% word restoration; Agent_398: 93.6% accuracy, 86.4% word restoration; Agent_78: 58.2% accuracy, 13.6% word restoration</li>
+        </ul>
+
+        <p class = "no-number"><em>Direct Inference Ensemble Initial Test Results:</em></p>
+        <ul>
+            <li><strong>Average Initial Test Accuracy:</strong> 97.6% (selected agents only)</li>
+            <li><strong>Best Individual Performance:</strong> Agent_74 (not selected): 98.9% accuracy, 100.0% word restoration</li>
+            <li><strong>Selected Agent Performance:</strong> Agent_428: 98.1% accuracy, 95.5% word restoration; Agent_181: 97.9% accuracy, 100.0% word restoration; Agent_333: 97.4% accuracy, 90.9% word restoration</li>
+        </ul>
+
+        <p class = "no-number"><strong>Individual Testing Key Findings:</strong></p>
+        <blockquote>
+            <strong>Higher selected-agent test scores for direct inference:</strong> The selected direct-inference agents averaged 97.6% initial test accuracy versus 84.6% for the selected tool-enhanced agents. Because agents were selected using this same $\mathcal{D}_{test}$, this gap reflects selection as much as generalization. The tool-enhanced average is further depressed by one weak selected member (Agent_78, 58.2%); the other two selected tool agents scored 95.8% and 93.6%.
+        </blockquote>
+        <blockquote>
+            <strong>Performance Distribution:</strong> While tool-enhanced agents showed greater performance variance, direct inference agents exhibited consistently high performance across all selected agents.
+        </blockquote>
+
+        <p class = "no-number"><strong>3.5 Scatter Plot Analysis</strong></p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            <img src="accuracy_vs_word_restoration_scatter.png" alt="Accuracy vs Word Restoration Scatter Analysis" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 4px;">
+            <p style="font-style: italic; margin-top: 10px; font-size: 14px;">
+                <strong>Figure 3: Accuracy vs Word Restoration Performance Correlation.</strong> 
+                Scatter plots across experimental phases showing the relationship between sentence-level accuracy and 
+                word-level restoration rates. Stars indicate ensemble-level performance during optimal selection (initial testing) 
+                and actual ensemble voting phases.
+            </p>
+        </div>
+
+        <p class = "no-number"><strong>3.6 Final Ensemble Voting Performance</strong></p>
+        <p>
+            The final ensemble voting mechanism revealed crucial insights about collective intelligence capabilities:
+        </p>
+
+        <p class = "no-number"><em>Tool-Enhanced Ensemble Results:</em></p>
+        <ul>
+            <li><strong>Final Accuracy:</strong> 83.5%</li>
+            <li><strong>Final Word Restoration:</strong> 95.5%</li>
+            <li><strong>Ensemble vs. its constituents:</strong> The ensemble's 83.5% accuracy did not exceed its strongest constituent on the individual test (Agent_433 scored 95.8% on $\mathcal{D}_{test}$); the ensemble's advantage is in word restoration (95.5%), which is higher than that of its constituent agents. (An earlier draft reported "+45.5 pp" and attributed "83.5%" to Agent_398; the baseline for that delta was not clearly defined and the attribution did not match Agent_398's measured scores of 80.4% in training and 93.6% on the individual test, so both have been removed pending reconciliation — see Section 3.10.)</li>
+        </ul>
+
+        <p class = "no-number"><em>Direct Inference Ensemble Results:</em></p>
+        <ul>
+            <li><strong>Final Accuracy:</strong> 79.7%</li>
+            <li><strong>Final Word Restoration:</strong> 81.8%</li>
+            <li><strong>Ensemble vs. its constituents:</strong> The direct-inference ensemble's 79.7% accuracy is below its selected constituents' individual-test scores (97.4%–98.1%), as expected for an out-of-selection voting set; its word restoration is 81.8%. (An earlier draft reported the ensemble "underperformed best individual (Agent_181: 82.5%) by 2.8 pp" and "+59.1 pp" word restoration; the "82.5%" figure matched no measured score for Agent_181 — 82.1% in training, 97.9% on the individual test — and the baseline for "+59.1 pp" was undefined, so both have been removed pending reconciliation.)</li>
+        </ul>
+
+        <p class = "no-number"><strong>3.7 Comparative Analysis and Discussion</strong></p>
+        
+        <p class = "no-number"><strong>An Observed Cross-Ensemble Difference (single comparison):</strong></p>
+        <blockquote>
+            Although the selected direct-inference agents scored higher individually, in this single comparison the
+            tool-enhanced ensemble scored higher on both final-voting metrics: accuracy (83.5% vs 79.7%) and
+            word restoration (95.5% vs 81.8%). We cannot attribute this to tool augmentation per se: the comparison is
+            unreplicated, uses 22 test sentences, and the ensembles were selected on the same test set. One plausible
+            explanation is the analytic diversity contributed by tools, consistent with the ensemble-diversity literature
+            (Krogh and Vedelsby 1995; Kuncheva and Whitaker 2003); but a confound — selection bias or sampling noise —
+            cannot be excluded with the present data.
+        </blockquote>
+
+        <p class = "no-number"><strong>Ensemble Effectiveness Analysis:</strong></p>
+        <blockquote>
+            In this run, ensemble voting was associated with higher word restoration for both ensemble types relative to their
+            constituent agents, with the tool-enhanced ensemble reaching 95.5% word restoration on the 22-sentence set. This
+            pattern is suggestive but, given the sample size, not established; on 22 sentences a single sentence shifts the
+            metric by roughly 4.5 pp.
+        </blockquote>
+
+        <p class = "no-number"><strong>Selection vs. Performance Paradox:</strong></p>
+        <blockquote>
+            The selection process favored agents with the highest individual testing performance, yet the tool-enhanced
+            ensemble (containing agents with lower individual scores) scored higher than the direct inference ensemble
+            (containing agents with higher individual scores) in final voting. This is consistent with the well-established
+            result that individual accuracy does not by itself predict ensemble gain (Krogh and Vedelsby 1995; Kuncheva and
+            Whitaker 2003). We emphasize that the present data — a single pair of 3-agent ensembles on 22 sentences — are too
+            limited to establish complementarity as the cause rather than a contributing possibility.
+        </blockquote>
+
+        <p class = "no-number"><strong>3.8 Statistical Summary and Validation</strong></p>
+        <p>
+            The experiments were conducted on 22 test sentences per phase. This is a small sample: the differences reported below
+            are descriptive and should be read as preliminary. We did not establish statistical significance, and we caution against
+            treating any single-comparison gap as conclusive. In particular, gaps within roughly 4.5 pp correspond to one sentence on
+            this set. Confirmatory evaluation on a larger held-out corpus with significance testing (e.g., bootstrap or McNemar's test;
+            Dror et al. 2018) remains future work.
+        </p>
+        
+        <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+            <thead>
+                <tr style="background-color: #f2f2f2; border-bottom: 2px solid #333;">
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Phase</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Metric</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Tool-Enhanced</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Direct Inference</th>
+                    <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Advantage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Training</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Average Accuracy</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">82.2%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">83.6%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #007acc;">Direct (-1.4pp)</td>
+                </tr>
+                <tr style="background-color: #f9f9f9;">
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Training</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Average Word Restoration</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">35.4%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">44.1%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #007acc;">Direct (-8.7pp)</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Training</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Best Individual Accuracy</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">88.3% (Agent_435)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">89.6% (Agent_436)</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #007acc;">Direct (-1.3pp)</td>
+                </tr>
+                <tr style="background-color: #f9f9f9;">
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Individual Testing</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Average Initial Accuracy</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">84.6%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">97.6%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #007acc;">Direct (-12.9pp)</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Individual Testing</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Best Individual Initial Accuracy</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">98.4%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">98.9%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #007acc;">Direct (-0.5pp)</td>
+                </tr>
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Ensemble Voting</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Final Accuracy</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">83.5%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">79.7%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #d73027;">Tool-Enhanced (+3.8pp)</td>
+                </tr>
+                <tr style="background-color: #f9f9f9;">
+                    <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Ensemble Voting</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">Final Word Restoration</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">95.5%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px;">81.8%</td>
+                    <td style="border: 1px solid #ddd; padding: 8px; color: #d73027;">Tool-Enhanced (+13.7pp)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p class = "no-number"><strong>3.9 Implications for Ensemble Learning</strong></p>
+        <p>
+            Read with the small-sample caveats above, the results are <em>consistent with</em> several hypotheses for ensemble learning in NLP tasks, which larger studies would be needed to confirm:
+        </p>
+        <ul>
+            <li><strong>Individual excellence need not predict collective performance:</strong> the ensemble containing individually weaker agents scored higher in voting — consistent with established ensemble-diversity theory (Krogh and Vedelsby 1995; Kuncheva and Whitaker 2003), though that theory also holds that diversity does not <em>guarantee</em> such an outcome.</li>
+            <li><strong>Possible benefit of tool augmentation:</strong> the tool-augmented agents may contribute analytical diversity that helps the ensemble, but we cannot rule out selection effects.</li>
+            <li><strong>Word restoration:</strong> ensemble voting was associated with higher word-restoration rates than the constituent agents in this run.</li>
+            <li><strong>Complementarity as a hypothesis:</strong> analytic diversity (tools vs. direct inference) is a plausible driver of the observed difference, offered here as a hypothesis rather than a demonstrated mechanism.</li>
+        </ul>
+
+        <p>
+            In our single, small-sample comparison, tool-enhanced ensemble voting performed better than direct-inference ensemble voting on both metrics. Whether it is generally superior for Romanian diacritic restoration requires replication on larger held-out data and comparison against established neural Romanian baselines (e.g., Ruseti et al. 2020; Náplava et al. 2018, 2021), which we leave to future work.
+        </p>
+
+        <p class = "no-number"><strong>3.10 Limitations</strong></p>
+        <p>
+            We list the principal threats to validity so that the results above are read with appropriate caution:
+        </p>
+        <ul>
+            <li><strong>Small sample.</strong> All phases use 22 test sentences. With exact-match word restoration, a single sentence moves the metric by ~4.5 pp — comparable to the headline gaps (e.g., the +3.8 pp ensemble accuracy difference). No power analysis was performed.</li>
+            <li><strong>No significance testing.</strong> All reported differences are descriptive; we did not run significance tests (e.g., bootstrap or McNemar's; Dror et al. 2018).</li>
+            <li><strong>Selection on the test set.</strong> Both individual agents and the final ensemble are chosen by maximizing accuracy on $\mathcal{D}_{test}$. Accuracy reported on $\mathcal{D}_{test}$ is therefore optimistically biased and partly reflects selection; the held-out $\mathcal{D}_{ensemble}$ figure is the appropriate generalization estimate, and the cross-ensemble comparison may be influenced by this selection.</li>
+            <li><strong>Single, unreplicated comparison.</strong> The central observation rests on one tool-enhanced ensemble versus one direct-inference ensemble; it has not been replicated across random partitions or seeds.</li>
+            <li><strong>No external baseline.</strong> We do not compare against published neural Romanian diacritic-restoration systems, so absolute performance cannot be situated against the state of the art.</li>
+            <li><strong>Unspecified model and fixed heuristics.</strong> The exact LLaMA 3.2 checkpoint, quantization, and decoding settings should be reported for reproducibility; the four tool strategies use hand-set constants that were not tuned, and an English-centric base model was used without comparison to Romanian-tuned LLMs (e.g., Masala et al. 2024).</li>
+            <li><strong>Figures pending reconciliation.</strong> Two per-agent comparison figures from an earlier draft (an "83.5%" for Agent_398 and an "82.5%" for Agent_181, with "+45.5 pp"/"+59.1 pp" word-restoration deltas) did not match the per-phase measurements and have been removed; these comparisons should be recomputed from the logged results before publication.</li>
+        </ul>
+    </div>
+
+    <script>
+        // Populate sidebar with navigation links
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarList = document.getElementById('sidebarList');
+            const content = document.querySelector('.main-content') || document.body;
+            
+            // Clear existing sidebar content
+            sidebarList.innerHTML = '';
+            
+            // Find only main headings (h2 elements only)
+            const headings = [];
+            
+            // Get only h2 elements for main sections
+            const h2Elements = content.querySelectorAll('h2');
+            console.log('Found h2 elements:', h2Elements.length);
+            h2Elements.forEach((element, index) => {
+                if (element.textContent.trim() && !element.textContent.includes('Content')) {
+                    // Create ID if it doesn't exist
+                    if (!element.id) {
+                        element.id = 'heading-' + index;
+                    }
+                    headings.push({
+                        element: element,
+                        text: element.textContent.trim(),
+                        level: 2,
+                        id: element.id
+                    });
+                }
+            });
+            
+            console.log('Total main headings found:', headings.length);
+            
+            // Create sidebar navigation
+            headings.forEach(heading => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                
+                a.href = '#' + heading.id;
+                a.textContent = heading.text;
+                a.style.display = 'block';
+                a.style.padding = '8px 10px';
+                a.style.textDecoration = 'none';
+                a.style.color = '#333';
+                a.style.borderRadius = '3px';
+                a.style.fontWeight = 'bold';
+                a.style.fontSize = '14px';
+                a.style.marginTop = '5px';
+                
+                // Add hover effect
+                a.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f0f0f0';
+                });
+                a.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+                
+                // Add click handler for smooth scrolling
+                a.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.getElementById(heading.id);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Highlight the target briefly
+                        const originalBackground = target.style.backgroundColor;
+                        target.style.backgroundColor = '#fff3cd';
+                        target.style.transition = 'background-color 0.3s';
+                        setTimeout(() => {
+                            target.style.backgroundColor = originalBackground;
+                        }, 1500);
+                    }
+                });
+                
+                li.appendChild(a);
+                li.style.listStyle = 'none';
+                li.style.margin = '0';
+                
+                sidebarList.appendChild(li);
+            });
+        });
+    </script>
+
+</body>
+</html>

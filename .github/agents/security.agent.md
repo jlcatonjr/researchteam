@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-07-04T14:18:56Z`
+Generated at: `2026-07-07T23:29:23Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.07.01, items 1631) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.07.07, items 1635) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -88,21 +88,21 @@ Generated at: `2026-07-04T14:18:56Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-45659` | Microsoft SharePoint Server | Microsoft SharePoint Server Deserialization of Untrusted Data Vulnerability | added 2026-07-01 | EPSS 0.032190000, percentile 0.866790000 | CVSS 8.8 HIGH
-- `CVE-2026-48558` | SimpleHelp  SimpleHelp | SimpleHelp Authentication Bypass Vulnerability | added 2026-06-29 | EPSS 0.011600000, percentile 0.632820000 | CVSS 10.0 CRITICAL
-- `CVE-2026-12569` | PTC Windchill and FlexPLM | PTC Windchill and FlexPLM Improper Input Validation Vulnerability | added 2026-06-25 | EPSS 0.011060000, percentile 0.618430000 | CVSS 9.8 CRITICAL
-- `CVE-2026-20230` | Cisco Unified Communications Manager | Cisco Unified Communications Manager Server-Side Request Forgery (SSRF) Vulnerability | added 2026-06-25 | EPSS 0.416940000, percentile 0.985120000 | CVSS 8.6 HIGH
-- `CVE-2025-67038` | Lantronix EDS5000 | Lantronix EDS5000 Code Injection Vulnerability | added 2026-06-23 | EPSS 0.011310000, percentile 0.625100000 | CVSS 9.8 CRITICAL
-- `CVE-2026-34910` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Improper Input Validation Vulnerability | added 2026-06-23 | EPSS 0.785550000, percentile 0.995350000
-- `CVE-2026-34909` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Path Traversal Vulnerability | added 2026-06-23 | EPSS 0.022690000, percentile 0.809260000
-- `CVE-2026-34908` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Improper Access Control Vulnerability | added 2026-06-23 | EPSS 0.024520000, percentile 0.824270000
-- `CVE-2026-20253` | Splunk Enterprise | Splunk Enterprise Missing Authentication for Critical Function Vulnerability | added 2026-06-18 | EPSS 0.881710000, percentile 0.997480000
-- `CVE-2026-48907` | Widget Factory Joomla Content Editor  | Widget Factory Joomla Content Editor Improper Access Control Vulnerability | added 2026-06-16 | EPSS 0.804250000, percentile 0.995730000
-- `CVE-2026-54420` | LiteSpeed cPanel Plugin | LiteSpeed cPanel Plugin UNIX Symbolic Link (Symlink) Following Vulnerability | added 2026-06-15 | EPSS 0.012610000, percentile 0.660630000
-- `CVE-2026-20262` | Cisco Catalyst SD-WAN Manager | Cisco Catalyst SD-WAN Manager Directory or Path Traversal Vulnerability | added 2026-06-15 | EPSS 0.076830000, percentile 0.938650000
-- `CVE-2026-35273` | Oracle  PeopleSoft Enterprise PeopleTools | Oracle PeopleSoft Enterprise PeopleTools Missing Authentication for Critical Function Vulnerability | added 2026-06-12 | EPSS 0.923300000, percentile 0.998110000
-- `CVE-2026-10520` | Ivanti Sentry | Ivanti Sentry OS Command Injection Vulnerability | added 2026-06-11 | EPSS 0.990410000, percentile 0.999250000
-- `CVE-2026-11645` | Google Chromium V8 | Google Chromium V8 Out-of-Bounds Read and Write Vulnerability | added 2026-06-09 | EPSS 0.016540000, percentile 0.737160000
+- `CVE-2026-48908` | JoomShaper SP Page Builder | JoomShaper SP Page Builder Unrestricted Upload of File with Dangerous Type Vulnerability | added 2026-07-07 | EPSS 0.008030000, percentile 0.522740000 | CVSS 9.8 CRITICAL
+- `CVE-2026-55255` | Langflow Langflow | Langflow Authorization Bypass Through User-Controlled Key Vulnerability | added 2026-07-07 | EPSS 0.002330000, percentile 0.141480000 | CVSS 8.4 HIGH
+- `CVE-2026-56290` | Joomlack Page Builder | Joomlack Page Builder Improper Access Control Vulnerability | added 2026-07-07 | EPSS 0.003560000, percentile 0.276260000 | CVSS 9.8 CRITICAL
+- `CVE-2026-48282` | Adobe ColdFusion | Adobe ColdFusion Path Traversal Vulnerability | added 2026-07-07 | EPSS 0.010210000, percentile 0.592390000 | CVSS 10.0 CRITICAL
+- `CVE-2026-45659` | Microsoft SharePoint Server | Microsoft SharePoint Server Deserialization of Untrusted Data Vulnerability | added 2026-07-01 | EPSS 0.032190000, percentile 0.866900000 | CVSS 8.8 HIGH
+- `CVE-2026-48558` | SimpleHelp  SimpleHelp | SimpleHelp Authentication Bypass Vulnerability | added 2026-06-29 | EPSS 0.011600000, percentile 0.633020000
+- `CVE-2026-12569` | PTC Windchill and FlexPLM | PTC Windchill and FlexPLM Improper Input Validation Vulnerability | added 2026-06-25 | EPSS 0.012470000, percentile 0.657560000
+- `CVE-2026-20230` | Cisco Unified Communications Manager | Cisco Unified Communications Manager Server-Side Request Forgery (SSRF) Vulnerability | added 2026-06-25 | EPSS 0.416940000, percentile 0.985130000
+- `CVE-2025-67038` | Lantronix EDS5000 | Lantronix EDS5000 Code Injection Vulnerability | added 2026-06-23 | EPSS 0.008890000, percentile 0.549920000
+- `CVE-2026-34910` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Improper Input Validation Vulnerability | added 2026-06-23 | EPSS 0.785550000, percentile 0.995360000
+- `CVE-2026-34909` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Path Traversal Vulnerability | added 2026-06-23 | EPSS 0.022690000, percentile 0.809390000
+- `CVE-2026-34908` | Ubiquiti UniFi OS | Ubiquiti UniFi OS Improper Access Control Vulnerability | added 2026-06-23 | EPSS 0.024520000, percentile 0.824390000
+- `CVE-2026-20253` | Splunk Enterprise | Splunk Enterprise Missing Authentication for Critical Function Vulnerability | added 2026-06-18 | EPSS 0.881710000, percentile 0.997490000
+- `CVE-2026-48907` | Widget Factory Joomla Content Editor  | Widget Factory Joomla Content Editor Improper Access Control Vulnerability | added 2026-06-16 | EPSS 0.804250000, percentile 0.995740000
+- `CVE-2026-54420` | LiteSpeed cPanel Plugin | LiteSpeed cPanel Plugin UNIX Symbolic Link (Symlink) Following Vulnerability | added 2026-06-15 | EPSS 0.012610000, percentile 0.660880000
 
 **Prevention and mitigation playbook:**
 
@@ -113,7 +113,6 @@ Generated at: `2026-07-04T14:18:56Z`
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
 - Vendor/CISA required actions:
   - Apply mitigations in accordance with vendor instructions, ensuring compliance with CISA’s BOD 26-04 Prioritizing Security Updates Based on Risk (see URL in Notes) guidance and CISA’s “Forensics Triage Requirements” (see URL in Notes). Follow applicable BOD 26-04 guidance for cloud services or discontinue use of the product if mitigations are unavailable. Stakeholders are responsible for evaluating each asset's internet exposure and ensuring adherence to BOD 26-04 patching guidelines.
-  - Apply mitigations per vendor instructions, follow applicable BOD 22-01 guidance for cloud services, or discontinue use of the product if mitigations are unavailable.
 
 ### LLM and AI-Specific Threat Intelligence
 

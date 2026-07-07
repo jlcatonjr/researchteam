@@ -1,0 +1,584 @@
+% Bibliography for "Using Reinforcement Learning With Ensemble Voting for
+% Romanian Diacritic Restoration" (Ingrid M. Caton)
+% Compiled 2026-05-29.
+%
+% DOI / link policy: every entry carries a DOI where one exists. DOIs were
+% resolved this session against the Crossref REST API (api.crossref.org) or,
+% for arXiv-native works, the deterministic DataCite scheme 10.48550/arXiv.<id>.
+% Entries with no DOI carry a reliable canonical link instead (official author
+% page, ACL Anthology, publisher catalogue, JMLR, BnF Gallica, or Zenodo).
+% No DOIs, URLs, or locators were invented; unverifiable locators were omitted.
+% Pre-2017 ACL Anthology papers (W02, L16, L18) predate Anthology DOI minting,
+% so the Anthology landing page is given as the reliable link.
+
+% =====================================================================
+% A. DIACRITIC RESTORATION — TASK, METHODS, SURVEYS
+% =====================================================================
+
+@inproceedings{mihalcea2002letter,
+  author    = {Mihalcea, Rada and Nastase, Vivi},
+  title     = {Letter Level Learning for Language Independent Diacritics Restoration},
+  booktitle = {Proceedings of the 6th Conference on Natural Language Learning (CoNLL-2002)},
+  year      = {2002},
+  pages     = {105--111},
+  publisher = {Association for Computational Linguistics},
+  url       = {https://aclanthology.org/W02-2021/},
+  note      = {No DOI (pre-2017 ACL Anthology). Language-independent, raw-text-only; evaluated on Czech, Hungarian, Polish, Romanian (>98\% avg accuracy).}
+}
+
+@inproceedings{mihalcea2002lettersvswords,
+  author    = {Mihalcea, Rada F.},
+  title     = {Diacritics Restoration: Learning from Letters versus Learning from Words},
+  booktitle = {Computational Linguistics and Intelligent Text Processing (CICLing 2002)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {2276},
+  year      = {2002},
+  pages     = {339--348},
+  publisher = {Springer},
+  doi       = {10.1007/3-540-45715-1_35},
+  url       = {https://doi.org/10.1007/3-540-45715-1_35},
+  note      = {Compares letter-level vs word-level learning for restoration.}
+}
+
+@inproceedings{tufis2007diacritics,
+  author    = {Tufi\c{s}, Dan and Ceau\c{s}u, Alexandru},
+  title     = {Diacritics Restoration in Romanian Texts},
+  booktitle = {Proceedings of the International Workshop on Recent Advances in Natural Language Processing (RANLP)},
+  year      = {2007},
+  publisher = {RACAI},
+  url       = {https://www.racai.ro/media/TufisCeausuRANLP2007.pdf},
+  note      = {No DOI (RANLP 2007 not DOI-minted). Canonical statistical approach to Romanian restoration. Reliable link: RACAI institutional PDF.}
+}
+
+@inproceedings{depauw2007resourcescarce,
+  author    = {De Pauw, Guy and Wagacha, Peter W. and de Schryver, Gilles-Maurice},
+  title     = {Automatic Diacritic Restoration for Resource-Scarce Languages},
+  booktitle = {Text, Speech and Dialogue (TSD 2007)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {4629},
+  year      = {2007},
+  pages     = {170--179},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-540-74628-7_24},
+  url       = {https://doi.org/10.1007/978-3-540-74628-7_24},
+  note      = {Memory-based restoration framed for low-resource settings.}
+}
+
+@inproceedings{naplava2018diacritics,
+  author    = {N\'{a}plava, Jakub and Straka, Milan and Strakov\'{a}, Jana and Haji\v{c}, Jan},
+  title     = {Diacritics Restoration Using Neural Networks},
+  booktitle = {Proceedings of the Eleventh International Conference on Language Resources and Evaluation (LREC 2018)},
+  year      = {2018},
+  publisher = {European Language Resources Association (ELRA)},
+  url       = {https://aclanthology.org/L18-1247/},
+  note      = {No DOI (pre-2017-scheme LREC). Character-level RNN restoration across many languages incl. Romanian. Reliable link: ACL Anthology.}
+}
+
+@article{ruseti2020romanian,
+  author  = {Ruseti, Stefan and Cotet, Teodor-Mihai and Dascalu, Mihai},
+  title   = {Romanian Diacritics Restoration Using Recurrent Neural Networks},
+  journal = {arXiv preprint arXiv:2009.02743},
+  year    = {2020},
+  doi     = {10.48550/arXiv.2009.02743},
+  url     = {https://arxiv.org/abs/2009.02743},
+  note    = {Romanian-optimized multi-level RNN; closest neural RNN-era reference for the task.}
+}
+
+@article{naplava2021bert,
+  author  = {N\'{a}plava, Jakub and Straka, Milan and Strakov\'{a}, Jana},
+  title   = {Diacritics Restoration Using {BERT} with Analysis on {Czech} Language},
+  journal = {The Prague Bulletin of Mathematical Linguistics},
+  number  = {116},
+  pages   = {27--42},
+  year    = {2021},
+  doi     = {10.14712/00326585.013},
+  url     = {https://doi.org/10.14712/00326585.013},
+  note    = {Added per review (P4). Transformer/BERT-era restoration superseding the 2018 RNN paper by the same group; the "why not just fine-tune BERT" baseline. Also arXiv:2105.11408.}
+}
+
+@inproceedings{nutu2019deep,
+  author    = {Nu\c{t}u, Maria and L\H{o}rincz, Be\'{a}ta and Stan, Adriana},
+  title     = {Deep Learning for Automatic Diacritics Restoration in Romanian},
+  booktitle = {2019 IEEE 15th International Conference on Intelligent Computer Communication and Processing (ICCP)},
+  year      = {2019},
+  publisher = {IEEE},
+  doi       = {10.1109/ICCP48234.2019.8959557},
+  url       = {https://doi.org/10.1109/ICCP48234.2019.8959557},
+  note      = {Compares recurrent/convolutional architectures for Romanian restoration.}
+}
+
+@article{asahiah2018survey,
+  author  = {Asahiah, Franklin O. and \d{O}d\d{e}j\d{o}b\'{i}, \d{O}d\d{e}t\'{u}nj\'{i} \`{A}j\`{a}d\'{i} and Ad\'{a}g\'{u}nod\`{o}, Emmanuel R\'{o}t\`{i}m\'{i}},
+  title   = {A Survey of Diacritic Restoration in Abjad and Alphabet Writing Systems},
+  journal = {Natural Language Engineering},
+  volume  = {24},
+  number  = {1},
+  pages   = {123--154},
+  year    = {2018},
+  publisher = {Cambridge University Press},
+  doi     = {10.1017/S1351324917000407},
+  url     = {https://doi.org/10.1017/S1351324917000407},
+  note    = {Cross-writing-system survey; situates the restoration task taxonomically.}
+}
+
+% =====================================================================
+% B. ROMANIAN NLP RESOURCES, MODELS, AND TOOLS (closely related)
+% =====================================================================
+
+@article{tufis2013rowordnet,
+  author  = {Tufi\c{s}, Dan and Ion, Radu and B\u{a}rbu Mititelu, Verginica and \c{S}tef\u{a}nescu, Dan},
+  title   = {The Romanian Wordnet in a Nutshell},
+  journal = {Language Resources and Evaluation},
+  volume  = {47},
+  number  = {4},
+  pages   = {1305--1314},
+  year    = {2013},
+  publisher = {Springer},
+  doi     = {10.1007/s10579-013-9230-7},
+  url     = {https://doi.org/10.1007/s10579-013-9230-7},
+  note    = {RoWordNet — the semantic resource behind the article's synset (Strategy B.1) analysis.}
+}
+
+@misc{dumitrescu2021rowordnet,
+  author       = {Dumitrescu, \c{S}tefan Daniel and others},
+  title        = {{RoWordNet}: Romanian WordNet (Data + Python API)},
+  howpublished = {GitHub repository},
+  url          = {https://github.com/dumitrescustefan/RoWordNet},
+  note         = {Software, no DOI. Python API used operationally by the article's diac\_rowordnet module. Reliable link: official repository.}
+}
+
+@inproceedings{masala2020robert,
+  author    = {Masala, Mihai and Ruseti, Stefan and Dascalu, Mihai},
+  title     = {{RoBERT} -- A Romanian {BERT} Model},
+  booktitle = {Proceedings of the 28th International Conference on Computational Linguistics (COLING 2020)},
+  year      = {2020},
+  pages     = {6626--6637},
+  publisher = {International Committee on Computational Linguistics},
+  doi       = {10.18653/v1/2020.coling-main.581},
+  url       = {https://doi.org/10.18653/v1/2020.coling-main.581},
+  note      = {Romanian transformer LM; representative Romanian-specific neural baseline.}
+}
+
+@inproceedings{dumitrescu2020birth,
+  author    = {Dumitrescu, \c{S}tefan Daniel and Avram, Andrei-Marius and Pyysalo, Sampo},
+  title     = {The Birth of {Romanian BERT}},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2020},
+  year      = {2020},
+  pages     = {4324--4328},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/2020.findings-emnlp.387},
+  url       = {https://doi.org/10.18653/v1/2020.findings-emnlp.387},
+  note      = {First monolingual Romanian BERT; key Romanian-NLP infrastructure.}
+}
+
+@inproceedings{masala2024vorbesti,
+  author    = {Masala, Mihai and Ilie-Ablachim, Denis C. and Dima, Alexandru and Corlatescu, Dragos and Zavelca, Miruna and Olaru, Ovio and Terian, Simina and Terian, Andrei and Leordeanu, Marius and Velicu, Horia and Popescu, Marius and Dascalu, Mihai and Rebedea, Traian},
+  title     = {``Vorbe\c{s}ti Rom\^{a}ne\c{s}te?'' A Recipe to Train Powerful Romanian {LLM}s with English Instructions},
+  booktitle = {Findings of the Association for Computational Linguistics: EMNLP 2024},
+  year      = {2024},
+  doi       = {10.18653/v1/2024.findings-emnlp.681},
+  url       = {https://doi.org/10.18653/v1/2024.findings-emnlp.681},
+  note      = {From author's Literature\_review.txt. Also arXiv:2406.18266. Open Romanian LLMs (RoLLMs) — natural alternative backbone to LLaMA 3.2.}
+}
+
+@article{vanparidon2021subs2vec,
+  author  = {van Paridon, Jeroen and Thompson, Bill},
+  title   = {subs2vec: Word Embeddings from Subtitles in 55 Languages},
+  journal = {Behavior Research Methods},
+  volume  = {53},
+  pages   = {629--655},
+  year    = {2021},
+  doi     = {10.3758/s13428-020-01406-3},
+  url     = {https://doi.org/10.3758/s13428-020-01406-3},
+  note    = {Romanian OpenSubtitles n-gram/embedding source for the article's contextual (Strategy B.4) analysis. Code: https://github.com/jvparidon/subs2vec.}
+}
+
+@inproceedings{lison2016opensubtitles,
+  author    = {Lison, Pierre and Tiedemann, J\"{o}rg},
+  title     = {{OpenSubtitles2016}: Extracting Large Parallel Corpora from Movie and TV Subtitles},
+  booktitle = {Proceedings of the Tenth International Conference on Language Resources and Evaluation (LREC 2016)},
+  year      = {2016},
+  publisher = {European Language Resources Association (ELRA)},
+  url       = {https://aclanthology.org/L16-1147/},
+  note      = {No DOI (pre-2017-scheme LREC). Underlying subtitle corpus for subs2vec. Reliable link: ACL Anthology.}
+}
+
+@misc{speer2022wordfreq,
+  author       = {Speer, Robyn},
+  title        = {rspeer/wordfreq: v3.0},
+  year         = {2022},
+  howpublished = {Software, archived on Zenodo},
+  doi          = {10.5281/zenodo.7199437},
+  url          = {https://doi.org/10.5281/zenodo.7199437},
+  note         = {Frequency source for the article's frequency-based analysis (Strategy B.3). Code: https://github.com/rspeer/wordfreq. CURRENCY CAVEAT (per review P5): the maintainer froze wordfreq in 2021 and stopped updates over generative-AI contamination of web text; cite as a 2021-era frozen frequency snapshot, not a current authority.}
+}
+
+% =====================================================================
+% C. ENSEMBLE LEARNING AND VOTING (methodological core)
+% =====================================================================
+
+@incollection{dietterich2000ensemble,
+  author    = {Dietterich, Thomas G.},
+  title     = {Ensemble Methods in Machine Learning},
+  booktitle = {Multiple Classifier Systems (MCS 2000)},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {1857},
+  pages     = {1--15},
+  year      = {2000},
+  publisher = {Springer},
+  doi       = {10.1007/3-540-45014-9_1},
+  url       = {https://doi.org/10.1007/3-540-45014-9_1},
+  note      = {Canonical framing of why ensembles outperform constituents.}
+}
+
+@article{breiman1996bagging,
+  author  = {Breiman, Leo},
+  title   = {Bagging Predictors},
+  journal = {Machine Learning},
+  volume  = {24},
+  number  = {2},
+  pages   = {123--140},
+  year    = {1996},
+  doi     = {10.1007/BF00058655},
+  url     = {https://doi.org/10.1007/BF00058655},
+  note    = {Foundational variance-reduction-by-aggregation result.}
+}
+
+@article{breiman2001randomforests,
+  author  = {Breiman, Leo},
+  title   = {Random Forests},
+  journal = {Machine Learning},
+  volume  = {45},
+  number  = {1},
+  pages   = {5--32},
+  year    = {2001},
+  doi     = {10.1023/A:1010933404324},
+  url     = {https://doi.org/10.1023/A:1010933404324},
+  note    = {Diversity-through-randomization ensemble; parallels diverse-training-set selection.}
+}
+
+@article{freund1997adaboost,
+  author  = {Freund, Yoav and Schapire, Robert E.},
+  title   = {A Decision-Theoretic Generalization of On-Line Learning and an Application to Boosting},
+  journal = {Journal of Computer and System Sciences},
+  volume  = {55},
+  number  = {1},
+  pages   = {119--139},
+  year    = {1997},
+  doi     = {10.1006/jcss.1997.1504},
+  url     = {https://doi.org/10.1006/jcss.1997.1504},
+  note    = {Boosting; complementary weak-learner combination theory.}
+}
+
+@article{wolpert1992stacked,
+  author  = {Wolpert, David H.},
+  title   = {Stacked Generalization},
+  journal = {Neural Networks},
+  volume  = {5},
+  number  = {2},
+  pages   = {241--259},
+  year    = {1992},
+  doi     = {10.1016/S0893-6080(05)80023-1},
+  url     = {https://doi.org/10.1016/S0893-6080(05)80023-1},
+  note    = {Learned combiners over base learners; relevant to ensemble-composition optimization.}
+}
+
+@inproceedings{krogh1995ambiguity,
+  author    = {Krogh, Anders and Vedelsby, Jesper},
+  title     = {Neural Network Ensembles, Cross Validation, and Active Learning},
+  booktitle = {Advances in Neural Information Processing Systems 7 (NIPS 1994)},
+  pages     = {231--238},
+  year      = {1995},
+  publisher = {MIT Press},
+  url       = {https://proceedings.neurips.cc/paper/1994/hash/b8c37e33defde51cf91e1e03e51657da-Abstract.html},
+  note      = {Added per review (P4). The ambiguity / bias-variance-covariance decomposition — the actual formal statement of WHY ensemble diversity reduces error; the load-bearing citation for "individual excellence != collective intelligence." No DOI (NIPS 1994 proceedings). Reliable link: NeurIPS proceedings.}
+}
+
+@article{kuncheva2003diversity,
+  author  = {Kuncheva, Ludmila I. and Whitaker, Christopher J.},
+  title   = {Measures of Diversity in Classifier Ensembles and Their Relationship with the Ensemble Accuracy},
+  journal = {Machine Learning},
+  volume  = {51},
+  number  = {2},
+  pages   = {181--207},
+  year    = {2003},
+  doi     = {10.1023/A:1022859003006},
+  url     = {https://doi.org/10.1023/A:1022859003006},
+  note    = {Added per review (P4). Shows the diversity-accuracy relationship is weak and measure-dependent — cited to keep the article's diversity claim HONEST, not to over-sell it.}
+}
+
+@article{hansen1990ensembles,
+  author  = {Hansen, Lars Kai and Salamon, Peter},
+  title   = {Neural Network Ensembles},
+  journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume  = {12},
+  number  = {10},
+  pages   = {993--1001},
+  year    = {1990},
+  doi     = {10.1109/34.58871},
+  url     = {https://doi.org/10.1109/34.58871},
+  note    = {Early demonstration that voting over networks reduces error; direct antecedent of agent voting.}
+}
+
+@book{kuncheva2014combining,
+  author    = {Kuncheva, Ludmila I.},
+  title     = {Combining Pattern Classifiers: Methods and Algorithms},
+  edition   = {2nd},
+  publisher = {Wiley},
+  year      = {2014},
+  doi       = {10.1002/9781118914564},
+  url       = {https://doi.org/10.1002/9781118914564},
+  note      = {Reference text on majority/plurality/weighted voting and diversity measures.}
+}
+
+@book{zhou2012ensemble,
+  author    = {Zhou, Zhi-Hua},
+  title     = {Ensemble Methods: Foundations and Algorithms},
+  publisher = {Chapman and Hall/CRC},
+  year      = {2012},
+  doi       = {10.1201/b12207},
+  url       = {https://doi.org/10.1201/b12207},
+  note      = {Contains the "many could be better than all" selective-ensemble result matching the article's finding.}
+}
+
+@book{condorcet1785essai,
+  author    = {de Condorcet, Marie Jean Antoine Nicolas de Caritat, Marquis},
+  title     = {Essai sur l'application de l'analyse \`{a} la probabilit\'{e} des d\'{e}cisions rendues \`{a} la pluralit\'{e} des voix},
+  publisher = {Imprimerie Royale, Paris},
+  year      = {1785},
+  url       = {https://gallica.bnf.fr/ark:/12148/bpt6k1057808s},
+  note      = {No DOI (1785). Condorcet Jury Theorem — formal basis for majority voting. Reliable link: BnF Gallica digitized original.}
+}
+
+% =====================================================================
+% D. REINFORCEMENT LEARNING, EVOLUTIONARY COMPUTATION, AGENT ECONOMIES
+% =====================================================================
+
+@book{sutton2018reinforcement,
+  author    = {Sutton, Richard S. and Barto, Andrew G.},
+  title     = {Reinforcement Learning: An Introduction},
+  edition   = {2nd},
+  publisher = {MIT Press},
+  year      = {2018},
+  url       = {http://incompleteideas.net/book/the-book-2nd.html},
+  note      = {No DOI. Standard RL reference. Reliable link: authors' official book page.}
+}
+
+@book{holland1992adaptation,
+  author    = {Holland, John H.},
+  title     = {Adaptation in Natural and Artificial Systems},
+  edition   = {2nd},
+  publisher = {MIT Press},
+  year      = {1992},
+  isbn      = {9780262581110},
+  url       = {https://mitpress.mit.edu/9780262581110/adaptation-in-natural-and-artificial-systems/},
+  note      = {No DOI. Genetic algorithms and classifier systems (bucket-brigade credit assignment). Reliable link: MIT Press catalogue.}
+}
+
+@book{goldberg1989genetic,
+  author    = {Goldberg, David E.},
+  title     = {Genetic Algorithms in Search, Optimization, and Machine Learning},
+  publisher = {Addison-Wesley},
+  year      = {1989},
+  isbn      = {9780201157673},
+  url       = {https://books.google.com/books/about/Genetic_Algorithms_in_Search_Optimizatio.html?id=2IIJAAAACAAJ},
+  note      = {No DOI. Selection/mutation/population-based search. Reliable link: publisher record via Google Books.}
+}
+
+@book{eiben2015introduction,
+  author    = {Eiben, A. E. and Smith, J. E.},
+  title     = {Introduction to Evolutionary Computing},
+  edition   = {2nd},
+  publisher = {Springer},
+  year      = {2015},
+  doi       = {10.1007/978-3-662-44874-8},
+  url       = {https://doi.org/10.1007/978-3-662-44874-8},
+  note      = {Modern EC reference; mutation operators with parameter-specific perturbation scales.}
+}
+
+@article{baum2000economy,
+  author  = {Baum, Eric B.},
+  title   = {Toward a Model of Intelligence as an Economy of Agents},
+  journal = {Machine Learning},
+  volume  = {35},
+  number  = {2},
+  pages   = {155--185},
+  year    = {2000},
+  doi     = {10.1023/A:1007593124513},
+  url     = {https://doi.org/10.1023/A:1007593124513},
+  note    = {The "Hayek Machine": agents in a market, surviving on earned reward — closest precedent to the article's economic RL with marginal cost and relative-performance reward division.}
+}
+
+@incollection{tesfatsion2006ace,
+  author    = {Tesfatsion, Leigh},
+  title     = {Agent-Based Computational Economics: A Constructive Approach to Economic Theory},
+  booktitle = {Handbook of Computational Economics, Volume 2: Agent-Based Computational Economics},
+  editor    = {Tesfatsion, Leigh and Judd, Kenneth L.},
+  pages     = {831--880},
+  publisher = {Elsevier},
+  year      = {2006},
+  doi       = {10.1016/S1574-0021(05)02016-2},
+  url       = {https://doi.org/10.1016/S1574-0021(05)02016-2},
+  note      = {Survey of population-of-agents-with-survival modeling; frames the article's economic-selection metaphor.}
+}
+
+@article{stanley2002neat,
+  author  = {Stanley, Kenneth O. and Miikkulainen, Risto},
+  title   = {Evolving Neural Networks through Augmenting Topologies},
+  journal = {Evolutionary Computation},
+  volume  = {10},
+  number  = {2},
+  pages   = {99--127},
+  year    = {2002},
+  doi     = {10.1162/106365602320169811},
+  url     = {https://doi.org/10.1162/106365602320169811},
+  note    = {Neuroevolution; precedent for evolving agent configurations rather than gradient training.}
+}
+
+@article{bergstra2012random,
+  author  = {Bergstra, James and Bengio, Yoshua},
+  title   = {Random Search for Hyper-Parameter Optimization},
+  journal = {Journal of Machine Learning Research},
+  volume  = {13},
+  pages   = {281--305},
+  year    = {2012},
+  url     = {https://www.jmlr.org/papers/v13/bergstra12a.html},
+  note    = {No DOI (JMLR does not mint DOIs). Baseline for parameter-space exploration. Reliable link: JMLR canonical page.}
+}
+
+% =====================================================================
+% E. LARGE LANGUAGE MODELS, PROMPTING, TOOL USE, LLM ENSEMBLES
+% =====================================================================
+
+@article{touvron2023llama,
+  author  = {Touvron, Hugo and Lavril, Thibaut and Izacard, Gautier and Martinet, Xavier and Lachaux, Marie-Anne and Lacroix, Timoth\'{e}e and Rozi\`{e}re, Baptiste and Goyal, Naman and Hambro, Eric and Azhar, Faisal and others},
+  title   = {{LLaMA}: Open and Efficient Foundation Language Models},
+  journal = {arXiv preprint arXiv:2302.13971},
+  year    = {2023},
+  doi     = {10.48550/arXiv.2302.13971},
+  url     = {https://arxiv.org/abs/2302.13971},
+  note    = {Origin of the LLaMA family; the article's agents query LLaMA 3.2.}
+}
+
+@article{grattafiori2024llama3,
+  author  = {{Llama Team, AI @ Meta}},
+  title   = {The {Llama 3} Herd of Models},
+  journal = {arXiv preprint arXiv:2407.21783},
+  year    = {2024},
+  doi     = {10.48550/arXiv.2407.21783},
+  url     = {https://arxiv.org/abs/2407.21783},
+  note    = {Technical report for the Llama 3.x line (incl. 3.2) used as the article's base model.}
+}
+
+@inproceedings{brown2020gpt3,
+  author    = {Brown, Tom B. and Mann, Benjamin and Ryder, Nick and Subbiah, Melanie and Kaplan, Jared and Dhariwal, Prafulla and others},
+  title     = {Language Models Are Few-Shot Learners},
+  booktitle = {Advances in Neural Information Processing Systems 33 (NeurIPS 2020)},
+  year      = {2020},
+  doi       = {10.48550/arXiv.2005.14165},
+  url       = {https://arxiv.org/abs/2005.14165},
+  note      = {NeurIPS 2020. In-context/one-shot prompting whose unreliability the article motivates against. DOI given for the canonical arXiv record (NeurIPS proceedings are not DOI-minted).}
+}
+
+@inproceedings{wang2023selfconsistency,
+  author    = {Wang, Xuezhi and Wei, Jason and Schuurmans, Dale and Le, Quoc and Chi, Ed and Narang, Sharan and Chowdhery, Aakanksha and Zhou, Denny},
+  title     = {Self-Consistency Improves Chain of Thought Reasoning in Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR 2023)},
+  year      = {2023},
+  doi       = {10.48550/arXiv.2203.11171},
+  url       = {https://arxiv.org/abs/2203.11171},
+  note      = {ICLR 2023 (OpenReview, not DOI-minted); DOI given for the canonical arXiv record. Majority vote over sampled outputs — single-model analogue of the article's cross-agent voting.}
+}
+
+@inproceedings{jiang2023llmblender,
+  author    = {Jiang, Dongfu and Ren, Xiang and Lin, Bill Yuchen},
+  title     = {{LLM-Blender}: Ensembling Large Language Models with Pairwise Ranking and Generative Fusion},
+  booktitle = {Proceedings of the 61st Annual Meeting of the Association for Computational Linguistics (ACL 2023)},
+  pages     = {14165--14178},
+  year      = {2023},
+  doi       = {10.18653/v1/2023.acl-long.792},
+  url       = {https://doi.org/10.18653/v1/2023.acl-long.792},
+  note      = {Ensembling heterogeneous LLMs; directly comparable to combining diverse agents.}
+}
+
+@article{li2024moreagents,
+  author  = {Li, Junyou and Zhang, Qin and Yu, Yangbin and Fu, Qiang and Ye, Deheng},
+  title   = {More Agents Is All You Need},
+  journal = {arXiv preprint arXiv:2402.05120},
+  year    = {2024},
+  doi     = {10.48550/arXiv.2402.05120},
+  url     = {https://arxiv.org/abs/2402.05120},
+  note    = {Sampling-and-voting ("Agent Forest") — accuracy scales with agent count; strongest contemporaneous parallel to the article's thesis.}
+}
+
+@article{schick2023toolformer,
+  author  = {Schick, Timo and Dwivedi-Yu, Jane and Dess\`{i}, Roberto and Raileanu, Roberta and Lomeli, Maria and Zettlemoyer, Luke and Cancedda, Nicola and Scialom, Thomas},
+  title   = {{Toolformer}: Language Models Can Teach Themselves to Use Tools},
+  journal = {arXiv preprint arXiv:2302.04761},
+  year    = {2023},
+  doi     = {10.48550/arXiv.2302.04761},
+  url     = {https://arxiv.org/abs/2302.04761},
+  note    = {NeurIPS 2023. Tool-use vs. self-reliance decision — mirrors the article's use\_tools / confidence-threshold gating.}
+}
+
+@inproceedings{yao2023react,
+  author    = {Yao, Shunyu and Zhao, Jeffrey and Yu, Dian and Du, Nan and Shafran, Izhak and Narasimhan, Karthik and Cao, Yuan},
+  title     = {{ReAct}: Synergizing Reasoning and Acting in Language Models},
+  booktitle = {International Conference on Learning Representations (ICLR 2023)},
+  year      = {2023},
+  doi       = {10.48550/arXiv.2210.03629},
+  url       = {https://arxiv.org/abs/2210.03629},
+  note      = {ICLR 2023; DOI given for canonical arXiv record. Agent paradigm interleaving tool actions and model reasoning.}
+}
+
+% =====================================================================
+% F. LEXICAL / N-GRAM FOUNDATIONS
+% =====================================================================
+
+@article{miller1995wordnet,
+  author  = {Miller, George A.},
+  title   = {{WordNet}: A Lexical Database for English},
+  journal = {Communications of the ACM},
+  volume  = {38},
+  number  = {11},
+  pages   = {39--41},
+  year    = {1995},
+  doi     = {10.1145/219717.219748},
+  url     = {https://doi.org/10.1145/219717.219748},
+  note    = {Origin of the synset abstraction the article's Strategy B.1 relies on (via RoWordNet).}
+}
+
+@book{fellbaum1998wordnet,
+  editor    = {Fellbaum, Christiane},
+  title     = {{WordNet}: An Electronic Lexical Database},
+  publisher = {MIT Press},
+  year      = {1998},
+  doi       = {10.7551/mitpress/7287.001.0001},
+  url       = {https://doi.org/10.7551/mitpress/7287.001.0001},
+  note      = {Standard WordNet reference.}
+}
+
+@book{jurafsky2024speech,
+  author    = {Jurafsky, Daniel and Martin, James H.},
+  title     = {Speech and Language Processing},
+  edition   = {3rd (draft)},
+  year      = {2024},
+  url       = {https://web.stanford.edu/~jurafsky/slp3/},
+  note      = {No DOI (open draft). n-gram language models and smoothing underpinning the article's bigram/trigram scoring. Reliable link: authors' official page.}
+}
+
+% =====================================================================
+% G. EVALUATION METHODOLOGY
+% =====================================================================
+
+@inproceedings{dror2018hitchhiker,
+  author    = {Dror, Rotem and Baumer, Gili and Shlomov, Segev and Reichart, Roi},
+  title     = {The Hitchhiker's Guide to Testing Statistical Significance in Natural Language Processing},
+  booktitle = {Proceedings of the 56th Annual Meeting of the Association for Computational Linguistics (ACL 2018)},
+  pages     = {1383--1392},
+  year      = {2018},
+  publisher = {Association for Computational Linguistics},
+  doi       = {10.18653/v1/P18-1128},
+  url       = {https://doi.org/10.18653/v1/P18-1128},
+  note      = {Added per review (P4/C-2). Significance-testing protocol for NLP — directly responsive to the article's unsupported "22 sentences provide sufficient statistical power" claim.}
+}

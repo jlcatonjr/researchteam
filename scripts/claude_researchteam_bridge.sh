@@ -21,6 +21,17 @@ Commands:
   open-summary  Print path to Zelda summary document
   open-claude-dir Print path to Claude support folder
   plan-path     Print current ISO-week plan directory path
+  methodology-check [project]
+                Run the interpretation-advisor methodology-coverage detector
+                (advisory: surfaces projects missing an interpretive map / guide).
+                No arg scans all research projects; a name checks one.
+  citation-audit [project]
+                Run the 2-fold citation & claim integrity detector: bibliography /
+                URL structural integrity + an in-text citation-backing signal.
+                DEFECT (duplicate key / missing title|author) blocks; NEEDS-REVIEW is
+                advisory. No arg scans all research projects; a name checks one.
+                This is the mechanical layer; the full doubled semantic audit is in
+                docs/citation-claim-audit-protocol.md.
 EOF
 }
 
@@ -63,6 +74,24 @@ command_plan_path() {
   echo "$ROOT_DIR/tmp/by-week/$week"
 }
 
+command_methodology_check() {
+  if [[ -x "scripts/check_methodology_coverage.sh" ]]; then
+    bash scripts/check_methodology_coverage.sh "$@"
+  else
+    echo "Methodology-coverage detector not found at scripts/check_methodology_coverage.sh" >&2
+    exit 1
+  fi
+}
+
+command_citation_audit() {
+  if [[ -x "scripts/check_citation_integrity.sh" ]]; then
+    bash scripts/check_citation_integrity.sh "$@"
+  else
+    echo "Citation-integrity detector not found at scripts/check_citation_integrity.sh" >&2
+    exit 1
+  fi
+}
+
 case "$cmd" in
   help)
     print_help
@@ -84,6 +113,14 @@ case "$cmd" in
     ;;
   plan-path)
     command_plan_path
+    ;;
+  methodology-check)
+    shift
+    command_methodology_check "$@"
+    ;;
+  citation-audit)
+    shift
+    command_citation_audit "$@"
     ;;
   *)
     echo "Unknown command: $cmd"

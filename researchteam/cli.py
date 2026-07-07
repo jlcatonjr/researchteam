@@ -65,6 +65,13 @@ def main() -> None:
         help="Only sync layer-2 files; skip agentteams --update --merge",
     )
     update_p.add_argument(
+        "--layer1-only",
+        action="store_true",
+        help="Only run the agentteams --update --merge (union descriptor); skip layer-2 file "
+        "sync. Use to integrate the current agent state without touching managed files "
+        "(safe on the upstream repo; used by the auto-integration git hook).",
+    )
+    update_p.add_argument(
         "--ref",
         default=None,
         metavar="REF",
@@ -73,6 +80,12 @@ def main() -> None:
 
     # ---- status --------------------------------------------------------------
     sub.add_parser("status", help="Show marker info and CLI version")
+
+    sub.add_parser(
+        "doctor",
+        help="Diagnose researchteam↔agentteams toolchain health (agentteams resolvable, "
+        "runnable, non-ephemeral install; descriptor reconciliation)",
+    )
 
     args = parser.parse_args()
 
@@ -84,10 +97,22 @@ def main() -> None:
         root = _find_repo_root(require_marker=True)
         ref = args.ref or _read_marker_ref(root)
         from ._update_cmd import run_update
-        run_update(root, ref=ref, yes=args.yes, dry_run=args.dry_run, layer2_only=args.layer2_only)
+        run_update(
+            root,
+            ref=ref,
+            yes=args.yes,
+            dry_run=args.dry_run,
+            layer2_only=args.layer2_only,
+            layer1_only=args.layer1_only,
+        )
 
     elif args.command == "status":
         _cmd_status()
+
+    elif args.command == "doctor":
+        root = _find_repo_root(require_marker=False)
+        from ._doctor_cmd import run_doctor
+        run_doctor(root)
 
 
 # ---------------------------------------------------------------------------

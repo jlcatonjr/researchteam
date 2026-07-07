@@ -77,6 +77,7 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
         print(f"\nNext steps:\n  cd {name}")
     print("  Edit brief.json with your project name and goal")
     print("  bash scripts/claude_researchteam_bridge.sh help")
+    print("  bash scripts/claude_researchteam_bridge.sh citation-audit  # 2-fold citation & claim audit")
     print("  researchteam update  # keep layer-2 files current")
 
 

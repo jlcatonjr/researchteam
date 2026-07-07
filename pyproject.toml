@@ -9,7 +9,17 @@ description = "Agent-based research workflow framework with auto-updating infras
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
+# Base install stays dependency-free so `pip install researchteam` (and the
+# `pip install git+https://github.com/jlcatonjr/researchteam.git` quick-start) always
+# resolves. `agentteams` is NOT on PyPI, so it must never be a hard dependency.
 dependencies = []
+
+# Layer-1 (`researchteam update`'s agent-team regeneration) needs `agentteams`. It is an
+# OPTIONAL extra installed from git, never a PyPI floor. Prefer an editable install from a
+# stable local checkout for development:  pip install -e /path/to/agentteams
+# `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
+[project.optional-dependencies]
+update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"

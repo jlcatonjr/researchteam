@@ -14,6 +14,31 @@ Define review and rollback policy for automated AgentTeams synchronization runs 
 3. Auto-merge is disabled by default.
 4. Workflow defense-in-depth guard must fail CI if `.github/agents/.github/` exists before or after update execution.
 
+## Automatic Integration (keep the tree always integrated)
+
+Goal: the committed repository state should always equal what `agentteams --update --merge` would
+generate, so the "latest agentteams update" is integrated without a manual step. Three layers:
+
+1. **Pre-commit hook (local, immediate).** When agent infrastructure is staged (`*.agent.md`,
+   `brief.json`, `_build-description.json`), the hook regenerates and re-stages the derived
+   artifacts before the commit is created:
+   - the AgentTeams-managed block refreshes the topology/architecture graphs;
+   - the `RESEARCHTEAM:agentteams-integrate` block runs the full union-descriptor merge via
+     `researchteam update --layer1-only` and re-stages the result.
+   Both are **non-blocking** (skip cleanly if the tools are absent) so a commit never fails on them.
+2. **On-demand / manual.** `researchteam update --layer1-only` runs the same union-descriptor merge
+   with **no** layer-2 file sync — safe on the upstream repo (a full `researchteam update` there would
+   overwrite local managed-file edits with the older upstream versions).
+3. **CI backstop (remote, periodic).** The `agentteams-sync` workflow runs the merge on schedule and
+   on `workflow_dispatch`, opening a PR when drift exists (see Execution Policy).
+
+**Propagation caveat.** Git hooks are **per-clone** and are not version-controlled, so the hook does
+not travel with `git push`/`clone`. Its durable install is `agentteams --install-git-hooks`; the
+`RESEARCHTEAM:agentteams-integrate` block should live in that installer (agentteams repo) for
+cross-repo propagation. Until then, add the block per clone (it is present in the upstream repo and
+in each derived repo updated by a maintainer). The CI backstop (layer 3) is the version-controlled,
+always-propagating guarantee.
+
 ## Reviewer Gate
 
 Before merging a sync PR, reviewers must confirm:

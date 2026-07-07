@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-06-23T23:07:47.656701+00:00",
+  "generated_at": "2026-07-06T13:39:57.629764+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
@@ -27,7 +27,7 @@
     },
     {
       "path": "agents/cohesion-repairer.agent.md",
-      "sha256": "8f2de9fd3dd3ff2b452a332497b90fab89c431bda657e80c4a737f274ed05bed"
+      "sha256": "28cacb798ea5ea3744562d18552ef86f61aa6f1b06bdb578ae5c25afaac8a10e"
     },
     {
       "path": "agents/conclusion-expert.agent.md",
@@ -35,7 +35,7 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "eb3ba427594715a316986e8e9fb5cce8db9650a0011e438224e0606dd2d293de"
+      "sha256": "1a5a04ce1639ba7ea29186d39f1f037ba94d6e8d5c3361e23afd969f769c6cec"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
@@ -47,19 +47,23 @@
     },
     {
       "path": "agents/format-converter.agent.md",
-      "sha256": "f39d63dc2e32f3efbee740ed3bb8b05389579b645d03f7190b002c5c363a6808"
+      "sha256": "e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f"
     },
     {
       "path": "agents/git-operations.agent.md",
       "sha256": "9a205a22f7c7ce287349c5144d150f679020cede527b89009f2d54b171af2b5d"
     },
     {
+      "path": "agents/interpretation-advisor.agent.md",
+      "sha256": "cd9ca0f36372240b18d04ad90a586d6534da4b78035a5f41a48521d236ea5fff"
+    },
+    {
       "path": "agents/literature-review-expert.agent.md",
-      "sha256": "b3501822a52c521046924d9ac51890ed0a23fea08d415587ab56718db4a11b7c"
+      "sha256": "3db6ddc13f9ad09c4b2aa46f5b4ea3cd9c96b3170a2694d19da65358e97ee342"
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
-      "sha256": "ab76123a6e66339cf64cf1d93ba8aa1687c72a208a965e144cc647688b716ced"
+      "sha256": "1f6c9db4d466c9c29dc562a34cb9fadff472cb191ab00c562449ea7d8b11e0e2"
     },
     {
       "path": "agents/navigator.agent.md",
@@ -67,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "5a0237e6882dcefd29fc93cfb549aa7d0dbed36d92cfa5c8e5ac3d16c623d605"
+      "sha256": "74f3319641eba30ea47303c9cb0dde395dbd6eba4e6b7d3fdcd8018974895e42"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -75,7 +79,7 @@
     },
     {
       "path": "agents/primary-producer.agent.md",
-      "sha256": "55e73f1e5998e24aa3922890325e1059239b8c7a23cf1b25b62e1fd75f4f278f"
+      "sha256": "01a9c2ee57aeddf2c8b00afb4eb3e8f2eb1d73dc10a895719b48054483551e6e"
     },
     {
       "path": "agents/quality-auditor.agent.md",
@@ -91,7 +95,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "8f7656a924a681865e7be4980375b389069a2e25bd2d34684200f3b28f880b68"
+      "sha256": "4f52ec55afb05747419474399cecd8c4d67a1eb03d95323bf7a1b438e69f27c3"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -111,7 +115,7 @@
     },
     {
       "path": "agents/topic-scoping-expert.agent.md",
-      "sha256": "f61a6834bf3317d2fd8c05c30e179e39f9516b70e1017f1f56590e191fb1e8c6"
+      "sha256": "f8d78987bcdc3f7517948e0a6831b90eb16141f5d25ec3679549b9e0df34453d"
     },
     {
       "path": "agents/visual-designer.agent.md",
@@ -126,6 +130,6 @@
       "sha256": "04dd694cba8867bf814bad5194ccf58d63ddda5b0ab77f4de51df95382e26cbb"
     }
   ],
-  "inventory_count": 29,
+  "inventory_count": 30,
   "bridge_version": "1"
 }

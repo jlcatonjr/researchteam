@@ -20,6 +20,7 @@ handoffs:
     send: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
+
 # Format Converter — ResearchTeam
 
 You convert deliverables from their authored format to the final output format required by ResearchTeam.

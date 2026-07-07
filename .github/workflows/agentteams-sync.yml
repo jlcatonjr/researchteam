@@ -102,6 +102,43 @@ jobs:
         run: |
           bash scripts/validate_agentteams_update.sh
 
+      - name: Methodology-coverage detector tests
+        run: |
+          # Blocking: the detector's own unit tests must pass (bash 3.2-safe fixtures).
+          bash scripts/tests/test_methodology_coverage.sh
+
+      - name: Methodology-coverage advisory scan
+        run: |
+          # Advisory only (non-blocking): surface projects missing an interpretive map.
+          # A MISSING result is a prompt for human judgement, never an automatic gate
+          # failure — interpretation is a non-compiled, opt-in-by-intent scaffold.
+          set -uo pipefail
+          if [[ -x scripts/check_methodology_coverage.sh ]]; then
+            METHODOLOGY_COVERAGE_ADVISORY=1 bash scripts/check_methodology_coverage.sh \
+              | tee methodology-coverage.log
+          else
+            echo "detector not present; skipping advisory scan"
+          fi
+
+      - name: Citation-integrity detector tests
+        run: |
+          # Blocking (upstream only): the detector's own unit tests must pass (bash 3.2-safe).
+          bash scripts/tests/test_citation_integrity.sh
+
+      - name: Citation-integrity advisory scan
+        run: |
+          # Advisory only (non-blocking): surface citation/bibliography structural signals.
+          # The real blocking gate lives at pre-compile via the 2-fold audit protocol +
+          # orchestrator Rule 12 (docs/citation-claim-audit-protocol.md), not this infra-sync
+          # workflow, so DEFECTs are downgraded to warn-only here.
+          set -uo pipefail
+          if [[ -x scripts/check_citation_integrity.sh ]]; then
+            CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
+              | tee citation-integrity.log
+          else
+            echo "detector not present; skipping advisory scan"
+          fi
+
       - name: Capture diff list
         id: diff
         run: |
@@ -120,6 +157,8 @@ jobs:
           path: |
             agentteams-update.log
             changed-files.txt
+            methodology-coverage.log
+            citation-integrity.log
 
   open-pr:
     runs-on: ubuntu-latest

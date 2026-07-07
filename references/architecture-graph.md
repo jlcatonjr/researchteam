@@ -3,9 +3,9 @@
 
 > **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually — changes will be overwritten.
 
-- Modules mapped: **6**
+- Modules mapped: **7**
 - Packages: **1**
-- Internal import edges: **8**
+- Internal import edges: **9**
 - Distinct external dependencies: **0**
 
 ---
@@ -22,7 +22,7 @@ Inter-package import dependencies (module-level detail in the tables below).
 
 | Package | Modules | Depends on |
 | --- | --- | --- |
-| `researchteam` | 6 | — |
+| `researchteam` | 7 | — |
 
 ---
 
@@ -39,11 +39,12 @@ Every module, coloured by package (full adjacency in the table below).
 | Module | Imports (internal) | Imported by |
 | --- | --- | --- |
 | `researchteam` | — | `researchteam.cli` |
+| `researchteam._doctor_cmd` | — | `researchteam.cli` |
 | `researchteam._fetch` | — | `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._update_cmd` | `researchteam._fetch`, `researchteam._manifest` | `researchteam.cli` |
-| `researchteam.cli` | `researchteam`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._update_cmd` | — |
+| `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._update_cmd` | — |
 
 ---
 
@@ -95,6 +96,14 @@ digraph "researchteam architecture" {
       "external": [],
       "repo_local": []
     },
+    "researchteam._doctor_cmd": {
+      "package": "researchteam",
+      "path": "researchteam/_doctor_cmd.py",
+      "is_package": false,
+      "imports_internal": [],
+      "external": [],
+      "repo_local": []
+    },
     "researchteam._fetch": {
       "package": "researchteam",
       "path": "researchteam/_fetch.py",
@@ -139,6 +148,7 @@ digraph "researchteam architecture" {
       "is_package": false,
       "imports_internal": [
         "researchteam",
+        "researchteam._doctor_cmd",
         "researchteam._init_cmd",
         "researchteam._manifest",
         "researchteam._update_cmd"
@@ -168,6 +178,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam.cli",
       "target": "researchteam"
+    },
+    {
+      "source": "researchteam.cli",
+      "target": "researchteam._doctor_cmd"
     },
     {
       "source": "researchteam.cli",

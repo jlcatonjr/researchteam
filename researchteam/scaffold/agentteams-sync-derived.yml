@@ -112,6 +112,21 @@ jobs:
       - name: Validate changed paths and fences
         run: bash scripts/validate_agentteams_update.sh
 
+      - name: Citation-integrity advisory scan
+        run: |
+          # Advisory only, and guarded. The detector is a researchteam-managed file that
+          # arrives via `researchteam update`; skip cleanly if not present yet. The blocking
+          # unit tests are intentionally UPSTREAM-ONLY (test fixtures are never synced into
+          # research repos). The enforcing gate is pre-compile — orchestrator Rule 12 + the
+          # 2-fold audit protocol (docs/citation-claim-audit-protocol.md) — not this workflow.
+          set -uo pipefail
+          if [[ -x scripts/check_citation_integrity.sh ]]; then
+            CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
+              | tee citation-integrity.log
+          else
+            echo "citation-integrity detector not present yet (run: researchteam update)"
+          fi
+
       - name: Capture diff
         id: diff
         run: |
@@ -129,6 +144,7 @@ jobs:
           path: |
             agentteams-update.log
             changed-files.txt
+            citation-integrity.log
 
   open-pr:
     runs-on: ubuntu-latest

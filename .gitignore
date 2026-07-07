@@ -23,3 +23,6 @@ bridge-merge.report.md
 *.bak.*
 *.prelabel.bak
 .DS_Store
+
+# researchteam layer-1 union temp descriptor (created+removed during agentteams merge)
+.rt-descriptor-*.json

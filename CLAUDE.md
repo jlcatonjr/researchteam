@@ -18,6 +18,11 @@ Primary outputs:
 3. Preserve existing file structure and naming conventions.
 4. For multi-step work, create a plan and step CSV in `tmp/by-week/YYYY-Www/`.
 5. Prefer non-destructive changes unless explicitly requested.
+6. When a project is initiated or developed, run the 2-fold citation & claim audit before
+   compiling — `bash scripts/claude_researchteam_bridge.sh citation-audit <project>` (mechanical
+   layer), then the doubled semantic audit in `docs/citation-claim-audit-protocol.md`. Unresolved
+   citation/claim findings block compilation (fail-closed). A clean run means WELL-FORMED, not
+   proof of non-fabrication.
 
 ## Quick Start
 

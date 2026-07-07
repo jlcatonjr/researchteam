@@ -1,0 +1,129 @@
+html, body {
+  height: 100%;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  margin: 10px 0;     
+  font-family: sans-serif;
+  font-size: 24px;
+}
+/* ————— Sidebar ————— */
+.sidebar {
+  position: fixed;
+  top: 0;
+  bottom: 0;           
+  left: 0;
+  width: 60px;         /* COLLAPSED WIDTH */
+  
+  overflow-x: hidden;  
+  overflow-y: auto;    
+  
+  background: #f7f7f7;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  box-sizing: border-box;
+  
+  transition: width 0.3s ease;
+}
+.sidebar:hover {
+  width: 220px;        /* EXPANDED WIDTH */
+}
+
+/* force headings & items to wrap within the expanded width */
+.sidebar h3,
+.sidebar ul li {
+  width: 200px;        /* 220px total minus 2×10px padding */
+  box-sizing: border-box;
+}
+
+.sidebar h3 {
+  margin: 0;
+  padding: 0 0 8px 10px;
+  font-size: 1.1em;
+  border-bottom: 1px solid #ccc;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0 0 0;
+}
+
+.sidebar ul li + li {
+  margin-top: 8px;
+}
+
+.sidebar a {
+  display: block;
+  width: 100%;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 0.8em;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+}
+.sidebar a:hover {
+  text-decoration: underline;
+}
+
+.main-content {
+  margin-left: 5%;    
+  margin-right: 0%;    /* Increase right margin from 2.5% to 5% */
+  padding: 0px;
+  max-width: 100%;      /* Add explicit max-width constraint */
+  box-sizing: border-box;
+  transition: margin-left 0.3s ease;
+  overflow-x: auto;    /* Add horizontal scroll fallback */
+}
+
+.section_div {
+  margin-top: 40px;
+  line-height: 2;
+}
+p {
+  font-size: 24px;
+  margin-top: 15px !important;
+  margin-bottom: 10px !important;
+}
+#Bibliography {
+  line-height: 1.2 !important;
+}
+blockquote {
+  margin: 10px 40px !important;
+  line-height: 1 !important;
+}
+h1, h2, h3, h4 {
+  line-height: 1 !important;
+  text-align: left;
+  padding-right: 40px;
+}
+.title {
+  font-style: italic;
+  font-size: 32px;
+}
+/* Add to style.css */
+.MathJax_Display {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  margin: 10px 0;
+}
+
+/* For inline math */
+.MathJax {
+  max-width: 100%;
+  overflow-x: auto;
+}
+blockquote {
+  margin: 10px 40px !important;
+  line-height: 1 !important;
+  overflow-x: auto;          /* Add horizontal scroll for long equations */
+  /*white-space: nowrap;       /* Prevent wrapping that could break equations */
+  max-width: calc(100% - 80px); /* Account for left/right margins */
+}
