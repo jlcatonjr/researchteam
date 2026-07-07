@@ -75,7 +75,9 @@ command_plan_path() {
 }
 
 command_methodology_check() {
-  if [[ -x "scripts/check_methodology_coverage.sh" ]]; then
+  # -f (not -x): the script is invoked via `bash`, which does not require the executable
+  # bit — and `researchteam update` may sync it without one on some platforms.
+  if [[ -f "scripts/check_methodology_coverage.sh" ]]; then
     bash scripts/check_methodology_coverage.sh "$@"
   else
     echo "Methodology-coverage detector not found at scripts/check_methodology_coverage.sh" >&2
@@ -84,7 +86,7 @@ command_methodology_check() {
 }
 
 command_citation_audit() {
-  if [[ -x "scripts/check_citation_integrity.sh" ]]; then
+  if [[ -f "scripts/check_citation_integrity.sh" ]]; then
     bash scripts/check_citation_integrity.sh "$@"
   else
     echo "Citation-integrity detector not found at scripts/check_citation_integrity.sh" >&2

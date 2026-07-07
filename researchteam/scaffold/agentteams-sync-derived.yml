@@ -120,7 +120,7 @@ jobs:
           # research repos). The enforcing gate is pre-compile — orchestrator Rule 12 + the
           # 2-fold audit protocol (docs/citation-claim-audit-protocol.md) — not this workflow.
           set -uo pipefail
-          if [[ -x scripts/check_citation_integrity.sh ]]; then
+          if [[ -f scripts/check_citation_integrity.sh ]]; then
             CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
               | tee citation-integrity.log
           else

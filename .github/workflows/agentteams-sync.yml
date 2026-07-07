@@ -132,7 +132,7 @@ jobs:
           # orchestrator Rule 12 (docs/citation-claim-audit-protocol.md), not this infra-sync
           # workflow, so DEFECTs are downgraded to warn-only here.
           set -uo pipefail
-          if [[ -x scripts/check_citation_integrity.sh ]]; then
+          if [[ -f scripts/check_citation_integrity.sh ]]; then
             CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
               | tee citation-integrity.log
           else

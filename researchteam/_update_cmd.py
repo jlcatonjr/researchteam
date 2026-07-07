@@ -80,6 +80,8 @@ def run_update(
 
             local_path.parent.mkdir(parents=True, exist_ok=True)
             local_path.write_text(remote_content, encoding="utf-8")
+            if rel_path.endswith(".sh"):  # preserve executability of managed shell scripts
+                local_path.chmod(local_path.stat().st_mode | 0o111)
             updated.append(rel_path)
             print(f"  Updated {rel_path}")
         else:
@@ -90,6 +92,8 @@ def run_update(
 
             local_path.parent.mkdir(parents=True, exist_ok=True)
             local_path.write_text(remote_content, encoding="utf-8")
+            if rel_path.endswith(".sh"):  # preserve executability of managed shell scripts
+                local_path.chmod(local_path.stat().st_mode | 0o111)
             updated.append(rel_path)
             print(f"  Created {rel_path}")
 
