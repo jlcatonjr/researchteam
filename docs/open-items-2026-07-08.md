@@ -27,6 +27,25 @@ derived-repo updates + private-repo baselines). **Revised after an adversarial a
   derived repos and carries the "how agents build it" routing — only the *in-agent-frontmatter* PSN
   pointer doesn't propagate (a convenience, not the routing home).
 
+## 0.2 Code-index integration (F-CODEIDX) — this session
+Integrated agentteams' **code & API vector index (retrieval surface #2)** — full audited record in
+`docs/code-index-integration-plan.md` (binding R1–R11). Branch `feat/code-index-integration`
+(`7ac7743` non-bridge + `eda95d8` claude bridge regen); **not yet merged to main / pushed**.
+- ✅ Shipped: `.gitignore` cache block; managed `docs/retrieval-surfaces.md` (4-surface superset that
+  supersedes the bridge's 3-surface `domain-boundary.md`); guarded `code-query` bridge command; PSN
+  pointers (navigator/reference-manager/literature-review-expert/orchestrator); advisory `doctor`
+  `--query-code` probe; `.claude/skills/code-recall.md`. Gates: lit-lib 10/10, citation 38/38, doctor
+  green, `--bridge-check` PASS, build+query proven, cache verified gitignored. No revert triggered.
+- ⏸️ **Deferred (validated):** full agent-team `--update` regen (orthogonal — code-index isn't in the
+  agent templates); goose bridge regen (`/code-recall` is claude-only).
+- 🆕 **New open items** (added to the tiers below by tag): P2 `[AT]` upstream asks — agentteams emit the
+  `references/code-index/` gitignore into managed projects; a `domain-boundary` hook that points at a
+  project's `retrieval-surfaces.md` (the durable end to 3-vs-4); goose `code-query` parity. P2 `[RT]` —
+  a `code-query` smoke test + CI wiring (mirrors the pending library-test item). Accepted lags: the
+  `memory-index.json` 2-vs-3-surface embedding self-heals on the next weekly `--update`; every local
+  `researchteam update` re-refreshes the gitignored cache (no tracked change). Note: `.gitignore` is a
+  MANAGED full-overwrite file — derived-local ignore lines must be upstreamed or they're lost.
+
 ## Status (DONE — for context)
 Shipped to `jlcatonjr/researchteam@main`: citation audit + `[LINK]`/`[REFURL]` + `--layer1-only`
 auto-integration + literature library, with bash-3.2 tests, docs, `MANAGED_FILES`. Source links
