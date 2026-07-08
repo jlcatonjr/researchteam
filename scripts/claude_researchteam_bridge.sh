@@ -32,6 +32,14 @@ Commands:
                 advisory. No arg scans all research projects; a name checks one.
                 This is the mechanical layer; the full doubled semantic audit is in
                 docs/citation-claim-audit-protocol.md.
+  library-build <project>
+                (Re)build the project's vectorized literature library (stdlib TF-IDF over the
+                agents' relevance summaries). Records ship UNVERIFIED; navigation not evidence.
+  library-query <project> "<terms>"
+                Lexical-similarity candidates from the library (NAVIGATION only, NOT evidence).
+  library-check <project>
+                Fail-closed integrity gate for the library.
+                See docs/literature-library-protocol.md for the full protocol + honest ceiling.
 EOF
 }
 
@@ -94,6 +102,33 @@ command_citation_audit() {
   fi
 }
 
+command_library_build() {
+  if [[ -f "scripts/build_literature_library.py" ]]; then
+    python3 scripts/build_literature_library.py "$@"
+  else
+    echo "Literature-library builder not found at scripts/build_literature_library.py" >&2
+    exit 1
+  fi
+}
+
+command_library_query() {
+  if [[ -f "scripts/query_literature_library.py" ]]; then
+    python3 scripts/query_literature_library.py "$@"
+  else
+    echo "Literature-library query not found at scripts/query_literature_library.py" >&2
+    exit 1
+  fi
+}
+
+command_library_check() {
+  if [[ -f "scripts/check_literature_library_integrity.sh" ]]; then
+    bash scripts/check_literature_library_integrity.sh "$@"
+  else
+    echo "Literature-library gate not found at scripts/check_literature_library_integrity.sh" >&2
+    exit 1
+  fi
+}
+
 case "$cmd" in
   help)
     print_help
@@ -123,6 +158,18 @@ case "$cmd" in
   citation-audit)
     shift
     command_citation_audit "$@"
+    ;;
+  library-build)
+    shift
+    command_library_build "$@"
+    ;;
+  library-query)
+    shift
+    command_library_query "$@"
+    ;;
+  library-check)
+    shift
+    command_library_check "$@"
     ;;
   *)
     echo "Unknown command: $cmd"

@@ -129,3 +129,15 @@ present debates. The advisor supplies the *provenance* of a debate (where each s
 commitments originate); **you** still own the "Key Themes and Debates" prose and the
 research-gap statement — do not merely restate the map. Mark any claim drawn from a
 `status: provisional` methodology guide as provisional.
+
+### Feeding the project literature library
+
+As you investigate and deem a source relevant, ensure it enters the project **literature library**
+with a substantive **relevance summary** — *why/how this source matters to this project*, in your own
+words. `@reference-manager` owns and edits the records
+(`Projects/<project>/references/library/literature.jsonl`); you supply the relevance judgment your
+investigation produced. This is what makes the library "build out as the agents investigate."
+Navigate related sources with
+`bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"` — candidates are
+**navigation, not evidence** (never anchor a claim on a vector hit). Full protocol:
+`docs/literature-library-protocol.md`.

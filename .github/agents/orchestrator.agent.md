@@ -533,3 +533,24 @@ one document; do not restate it here:
   passes are correlated, so convergence raises detection of non-systematic slips but does **not**
   prove non-fabrication; residual `UNVERIFIED` items are for **human, out-of-band** resolution. Never
   report the audit as proof that nothing was fabricated.
+
+### Routing: per-project vectorized literature library
+
+Each project builds its own **literature library** (`Projects/<project>/references/library/`) — a
+vectorized store of the sources deemed relevant during investigation. `@reference-manager` owns and
+edits the records; `@literature-review-expert` supplies the relevance judgments. Route literature
+curation to them; treat the library as **navigation, not evidence** (a vector candidate never anchors
+a claim).
+
+- **Advisory closeout hook** (patterned on the methodology-coverage / 2-fold-audit hooks): at project
+  closeout, before handing to `@output-compiler`, rebuild + gate the library:
+  ```bash
+  bash scripts/claude_researchteam_bridge.sh library-build <project>
+  bash scripts/claude_researchteam_bridge.sh library-check <project>
+  ```
+  `NEEDS-ENRICHMENT` (seeded/thin relevance) is **advisory** — surface it so the experts author the
+  missing relevance summaries; it never blocks. A `DEFECT` (stale index, missing source link,
+  self-attested resolution) blocks reliance on the library until fixed.
+- **Ceiling (binding):** the library ships `UNVERIFIED`; "vectorized" = lexical TF-IDF (semantic =
+  STUB); never claim semantic search, or proven / exhaustive relevance. Protocol:
+  `docs/literature-library-protocol.md`.

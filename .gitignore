@@ -26,3 +26,10 @@ bridge-merge.report.md
 
 # researchteam layer-1 union temp descriptor (created+removed during agentteams merge)
 .rt-descriptor-*.json
+
+# Per-project literature library — optional out-of-band full-text corpus + bulky vector store are
+# regenerable and never committed (the durable pins are literature.jsonl + *.provenance.json).
+# The base index (literature.jsonl / term-vectors.jsonl / library-manifest.json) IS committed.
+# See docs/literature-library-protocol.md.
+**/references/library/corpus/*.txt
+**/references/library/vectors/store/

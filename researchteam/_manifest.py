@@ -11,6 +11,7 @@ MANAGED_FILES = [
     "docs/agentteams-update-policy.md",
     "docs/agent-infrastructure-authority.md",
     "docs/citation-claim-audit-protocol.md",
+    "docs/literature-library-protocol.md",
     ".claude/README.md",
     ".claude/checklists/research-task-preflight.md",
     ".claude/prompts/research-report.prompt.md",
@@ -18,6 +19,9 @@ MANAGED_FILES = [
     "scripts/validate_agentteams_update.sh",
     "scripts/check_methodology_coverage.sh",
     "scripts/check_citation_integrity.sh",
+    "scripts/build_literature_library.py",
+    "scripts/query_literature_library.py",
+    "scripts/check_literature_library_integrity.sh",
 ]
 
 # Path prefixes (and exact paths) excluded when scaffolding a new derived repo.

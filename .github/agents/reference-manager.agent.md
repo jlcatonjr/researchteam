@@ -103,3 +103,19 @@ Escalation required: YES|NO — <reason if YES>
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Literature-librarian responsibility (per-project vectorized library)
+
+You own each project's **literature library** — `Projects/<project>/references/library/` — the
+vectorized store of the sources deemed relevant during investigation. As you add/verify a citation,
+create or enrich its `literature.jsonl` record with a **substantive `relevance.summary`** in your own
+words (*why this source matters to the project*) and set `relevance.source: "agent-authored"`. A first
+`library-build` seeds records from `.bib` notes; the gate flags every seeded/thin record
+`NEEDS-ENRICHMENT` until you author/confirm it (this is how the library builds out as the project is
+investigated). Rebuild + gate:
+`bash scripts/claude_researchteam_bridge.sh library-build|library-check <project>`.
+
+**Ceiling (binding):** records ship `UNVERIFIED`; vector similarity is **navigation, not evidence**
+(never a link/claim anchor); vectors are computed by the real stdlib vectoriser, never authored; this
+is lexical TF-IDF (semantic = STUB); `source_db` is never inferred from a URL host. Full protocol:
+`docs/literature-library-protocol.md`.

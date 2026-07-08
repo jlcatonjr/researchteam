@@ -17,6 +17,21 @@
       "detail": "AGENTTEAMS"
     },
     {
+      "label": "script: check_literature_library_integrity",
+      "type": "shell",
+      "command": "bash scripts/check_literature_library_integrity.sh",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "AGENTTEAMS"
+    },
+    {
       "label": "script: check_methodology_coverage",
       "type": "shell",
       "command": "bash scripts/check_methodology_coverage.sh",
