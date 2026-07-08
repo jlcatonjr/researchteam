@@ -109,7 +109,7 @@ run "$R" P; assert "missing author/editor is DEFECT" 1 "author/editor" "$CODE" "
 # 5. editor satisfies the "who" requirement (edited volume) -> no DEFECT
 R="$TMP_ROOT/s5"
 mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
-@book{Fell1998, editor = {Fellbaum, Christiane}, title = {WordNet}, year = {1998}}
+@book{Fell1998, editor = {Fellbaum, Christiane}, title = {WordNet}, year = {1998}, url = {https://search.worldcat.org/isbn/9780262061971}}
 EOF
 mkfile "$R/Projects/P/01-x.md" <<'EOF'
 # X
@@ -125,7 +125,7 @@ assert_absent "editor: no META defect"            "DEFECT\[META\]" "$OUT"
 # 6. missing YEAR is advisory (NEEDS-REVIEW[META]), NOT a DEFECT -> exit 0
 R="$TMP_ROOT/s6"
 mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
-@misc{Repo2021, author = {Doe, Jane}, title = {A Tool}, howpublished = {GitHub}}
+@misc{Repo2021, author = {Doe, Jane}, title = {A Tool}, howpublished = {GitHub}, url = {https://example.org/tool}}
 EOF
 mkfile "$R/Projects/P/01-x.md" <<'EOF'
 # X
@@ -141,7 +141,7 @@ assert_absent "missing year not a DEFECT"          "DEFECT\[" "$OUT"
 # 7. in-text citation with no bib backing -> NEEDS-REVIEW[CU], exit 0
 R="$TMP_ROOT/s7"
 mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
-@article{Real2010, author = {Real, R.}, title = {T}, year = {2010}}
+@article{Real2010, author = {Real, R.}, title = {T}, year = {2010}, doi = {10.1000/real.2010}}
 EOF
 mkfile "$R/Projects/P/01-x.md" <<'EOF'
 # X
@@ -161,7 +161,8 @@ mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
 @article{Team2024,
   author = {{Llama Team, AI @ Meta}},
   title  = {A Big Model},
-  year   = {2024}
+  year   = {2024},
+  url    = {https://example.org/big-model}
 }
 EOF
 mkfile "$R/Projects/P/01-x.md" <<'EOF'
@@ -178,8 +179,8 @@ assert_absent "@-in-field: no false META"         "DEFECT\[META\]" "$OUT"
 # 9. Citation-free project (DiacriticReplacement shape) must NOT hard-fail.
 R="$TMP_ROOT/s9"
 mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
-@article{A2001, author = {A, A.}, title = {One}, year = {2001}}
-@article{B2002, author = {B, B.}, title = {Two}, year = {2002}}
+@article{A2001, author = {A, A.}, title = {One}, year = {2001}, url = {https://example.org/a}}
+@article{B2002, author = {B, B.}, title = {Two}, year = {2002}, doi = {10.1000/b.2002}}
 EOF
 mkfile "$R/Projects/P/02-claims-inventory.md" <<'EOF'
 # Claims Inventory
@@ -200,7 +201,7 @@ assert "advisory downgrade exits 0"              0 "ADVISORY" "$CODE" "$OUT"
 # 11. Recursive discovery of a NESTED project (Projects/Category/Proj).
 R="$TMP_ROOT/s11"
 mkfile "$R/Projects/Category/Proj/references/bibliography.bib" <<'EOF'
-@article{X2000, author = {X, X.}, title = {T}, year = {2000}}
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
 EOF
 mkfile "$R/Projects/Category/Proj/01-x.md" <<'EOF'
 # X
@@ -216,7 +217,7 @@ assert "nested: exactly one project"             0 "Projects checked: 1" "$CODE"
 # 12. Backup/asset trees are pruned from discovery.
 R="$TMP_ROOT/s12"
 mkfile "$R/Projects/Real/references/bibliography.bib" <<'EOF'
-@article{X2000, author = {X, X.}, title = {T}, year = {2000}}
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
 EOF
 mkfile "$R/Projects/Real/01-x.md" <<'EOF'
 # X
@@ -236,7 +237,7 @@ assert_absent "backup DEFECT not surfaced"         "Shadow" "$OUT"
 # 13. Hidden .projects/ is discovered by default.
 R="$TMP_ROOT/s13"
 mkfile "$R/.projects/Hidden/references/bibliography.bib" <<'EOF'
-@article{X2000, author = {X, X.}, title = {T}, year = {2000}}
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
 EOF
 mkfile "$R/.projects/Hidden/01-x.md" <<'EOF'
 # X
@@ -249,13 +250,47 @@ assert ".projects/ discovered"                   0 ".projects/Hidden" "$CODE" "$
 
 # 14. Nonexistent named target -> exit 2
 R="$TMP_ROOT/s14"; mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
-@article{X2000, author = {X, X.}, title = {T}, year = {2000}}
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
 EOF
 run "$R" does-not-exist; assert "nonexistent target exit 2" 2 "no research project matches" "$CODE" "$OUT"
 
 # 15. Empty root (no Projects/ or .projects/) -> exit 0
 R="$TMP_ROOT/s15"; mkdir -p "$R"
 run "$R"; assert "empty root exit 0"             0 "nothing to check" "$CODE" "$OUT"
+
+# 15b. DEFECT[LINK]: an entry with no url and no doi (isbn only is NOT a link) -> exit 1
+R="$TMP_ROOT/s15b"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@book{NoLink2000, author = {A, A.}, title = {A Book}, year = {2000}, isbn = {9780000000000}}
+EOF
+run "$R" P
+assert "no source link is DEFECT[LINK]"          1 "DEFECT\[LINK\]" "$CODE" "$OUT"
+assert "LINK message guides remediation"         1 "no source link" "$CODE" "$OUT"
+
+# 15c. A url OR a doi satisfies the link requirement (no LINK defect)
+R="$TMP_ROOT/s15c"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@book{HasUrl2001, author = {B, B.}, title = {T}, year = {2001}, url = {https://search.worldcat.org/isbn/9780000000001}}
+@article{HasDoi2002, author = {C, C.}, title = {T}, year = {2002}, doi = {10.1000/x}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+See (B 2001) and (C 2002).
+## References
+B, B. 2001. "T."
+C, C. 2002. "T."
+EOF
+run "$R" P
+assert        "url/doi entries PASS"             0 "PASS" "$CODE" "$OUT"
+assert_absent "url/doi entries not flagged LINK"   "DEFECT\[LINK\]" "$OUT"
+
+# 15d. Advisory mode downgrades a LINK defect to exit 0
+R="$TMP_ROOT/s15d"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@book{NoLink2000, author = {A, A.}, title = {A Book}, year = {2000}, isbn = {9780000000000}}
+EOF
+run_advisory "$R" P
+assert "LINK advisory downgrade exits 0"         0 "ADVISORY" "$CODE" "$OUT"
 
 # 16. Ceiling banner is always printed (WELL-FORMED != RESOLVED honesty).
 run "$TMP_ROOT/s1" Good

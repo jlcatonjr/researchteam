@@ -22,6 +22,9 @@ set -uo pipefail
 #   DEFECT        gate-eligible, MECHANICALLY CERTAIN ONLY:
 #                   [DUP]  duplicate citation key within a .bib
 #                   [META] .bib entry with no title, or with no author AND no editor
+#                   [LINK] .bib entry with no source link (no url and no doi). Every citation
+#                          must link to its source; a purchase link or a descriptive URL
+#                          (e.g. RePEc, WorldCat) is acceptable when no direct link exists.
 #   NEEDS-REVIEW  ADVISORY ONLY (never affects exit code) — every heuristic/fuzzy signal:
 #                   [CU]   in-text (Author Year) with no bibliography backing
 #                   [RM]   a deliverable "## References" entry absent from the .bib
@@ -130,7 +133,7 @@ bib_entries_tsv() {
       }
       return out
     }
-    function flush(   lc, t, key, yr, who, tit, hy, s){
+    function flush(   lc, t, key, yr, who, tit, hy, hl, s){
       if (cur == "") return
       lc = tolower(cur)
       t = ""; if (match(cur, /@[A-Za-z]+/)) t = tolower(substr(cur, RSTART+1, RLENGTH-1))
@@ -144,12 +147,15 @@ bib_entries_tsv() {
       who = (lc ~ /author[ \t]*=/ || lc ~ /editor[ \t]*=/) ? 1 : 0
       tit = (lc ~ /title[ \t]*=/) ? 1 : 0
       hy  = (lc ~ /year[ \t]*=/) ? 1 : 0
+      # source link present = a url= or doi= field (a doi resolves via https://doi.org/...).
+      # The url may be a direct, purchase, or descriptive URL (RePEc, WorldCat, etc.).
+      hl  = (lc ~ /[^a-z]url[ \t]*=/ || lc ~ /[^a-z]doi[ \t]*=/ || lc ~ /^url[ \t]*=/ || lc ~ /^doi[ \t]*=/) ? 1 : 0
       yr = ""
       if (match(cur, /[Yy][Ee][Aa][Rr][ \t]*=[ \t]*[{"]?[ \t]*[0-9][0-9][0-9][0-9]/)){
         s = substr(cur, RSTART, RLENGTH); if (match(s, /[0-9][0-9][0-9][0-9]/)) yr = substr(s, RSTART, RLENGTH)
       }
       if (yr == "") yr = "-"    # placeholder: keep the TSV column count stable ("read" collapses empty tab fields)
-      printf "%s\t%s\t%d\t%d\t%d\t%s\n", key, yr, who, tit, hy, surnames_of(cur)
+      printf "%s\t%s\t%d\t%d\t%d\t%d\t%s\n", key, yr, who, tit, hy, hl, surnames_of(cur)
       cur = ""
     }
     /^[ \t]*@[A-Za-z]+[ \t]*\{/ { flush(); cur = $0 " "; next }
@@ -159,7 +165,7 @@ bib_entries_tsv() {
 }
 
 # Index for the fuzzy (advisory) matchers:  year <TAB> lowerkey <TAB> surnames
-bib_index() { bib_entries_tsv "$1" | awk -F'\t' '{ printf "%s\t%s\t%s\n", $2, $1, $6 }'; }
+bib_index() { bib_entries_tsv "$1" | awk -F'\t' '{ printf "%s\t%s\t%s\n", $2, $1, $7 }'; }
 
 # Is (surname, year) backed by any entry in the index file? 0=backed, 1=not.
 backed_in_index() {
@@ -222,12 +228,13 @@ check_bib_defects() {
   bib_entries_tsv "$bib" | cut -f1 | sort | uniq -d | while IFS= read -r k; do
     [ -n "$k" ] && emit "DEFECT[DUP]" "$rel: citation key defined more than once: '$k'"
   done
-  bib_entries_tsv "$bib" | while IFS=$'\t' read -r key year who title hasyear surn; do
+  bib_entries_tsv "$bib" | while IFS=$'\t' read -r key year who title hasyear haslink surn; do
     [ -n "$key" ] || continue
     local miss=""
     [ "$title" = "0" ] && miss="${miss}title "
     [ "$who" = "0" ]   && miss="${miss}author/editor "
     [ -n "$miss" ] && emit "DEFECT[META]" "$rel: entry '$key' missing required field(s): $miss"
+    [ "$haslink" = "0" ] && emit "DEFECT[LINK]" "$rel: entry '$key' has no source link — add a url (direct, a purchase link, or a descriptive URL e.g. RePEc/WorldCat) or a doi"
     [ "$hasyear" = "0" ] && emit "NEEDS-REVIEW[META]" "$rel: entry '$key' has no year (ok for software/forthcoming — verify)"
   done
 }
@@ -382,10 +389,10 @@ EOF
   if [ "$defects" -gt 0 ]; then
     if [ "$ADVISORY" = "1" ]; then
       echo "ADVISORY mode: DEFECT(s) found but not blocking (exit 0)."
-      echo "Remediation: fix duplicate keys / missing title or author-editor fields, then re-run."
+      echo "Remediation: fix duplicate keys / missing title or author-editor / missing source links, then re-run."
       return 0
     fi
-    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor) before compiling."
+    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor / missing source link) before compiling."
     return 1
   fi
 
