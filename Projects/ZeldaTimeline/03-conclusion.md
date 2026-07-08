@@ -41,14 +41,14 @@ Character mapping supports this approach. Link, Zelda, and Ganon/Ganondorf funct
 
 ## References
 
-Nintendo. 2011. The Legend of Zelda: Hyrule Historia. Milwaukie, OR: Dark Horse Books.
+Nintendo. 2011. The Legend of Zelda: Hyrule Historia. Milwaukie, OR: Dark Horse Books. https://search.worldcat.org/isbn/9781616550417
 
-Nintendo. 2017. The Legend of Zelda: Breath of the Wild - Creating a Champion. Milwaukie, OR: Dark Horse Books.
+Nintendo. 2017. The Legend of Zelda: Breath of the Wild - Creating a Champion. Milwaukie, OR: Dark Horse Books. https://search.worldcat.org/isbn/9781506707402
 
-Nintendo. 2018. The Legend of Zelda Encyclopedia. Milwaukie, OR: Dark Horse Books.
+Nintendo. 2018. The Legend of Zelda Encyclopedia. Milwaukie, OR: Dark Horse Books. https://search.worldcat.org/isbn/9781506706382
 
-Nintendo EPD. 2017. The Legend of Zelda: Breath of the Wild. Nintendo Switch/Wii U video game. Kyoto: Nintendo.
+Nintendo EPD. 2017. The Legend of Zelda: Breath of the Wild. Nintendo Switch/Wii U video game. Kyoto: Nintendo. https://www.nintendo.com/us/store/products/the-legend-of-zelda-breath-of-the-wild-switch/
 
-Nintendo EPD. 2023. The Legend of Zelda: Tears of the Kingdom. Nintendo Switch video game. Kyoto: Nintendo.
+Nintendo EPD. 2023. The Legend of Zelda: Tears of the Kingdom. Nintendo Switch video game. Kyoto: Nintendo. https://www.nintendo.com/us/store/products/the-legend-of-zelda-tears-of-the-kingdom-switch/
 
 Zelda Wiki (Fandom). n.d. The Legend of Zelda timeline. Accessed May 13, 2026. https://zelda.fandom.com/wiki/The_Legend_of_Zelda_timeline
