@@ -18,7 +18,8 @@ __pycache__/
 # agentteams local artifacts — do not commit
 .agentteams-backups/
 .agentteams-fleet/
-bridge-merge.report.md
+bridge-*.report.md
+**/bridge-*.report.md
 *.bak
 *.bak.*
 *.prelabel.bak

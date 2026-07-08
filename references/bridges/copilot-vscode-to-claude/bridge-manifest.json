@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-06T13:39:57.629764+00:00",
+  "generated_at": "2026-07-08T18:33:15.551660+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
@@ -59,7 +59,7 @@
     },
     {
       "path": "agents/literature-review-expert.agent.md",
-      "sha256": "3db6ddc13f9ad09c4b2aa46f5b4ea3cd9c96b3170a2694d19da65358e97ee342"
+      "sha256": "2133b295289badfafab27afc62a5d73d26a0a00a40bd6209eabc05e88866d6c0"
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
@@ -67,11 +67,11 @@
     },
     {
       "path": "agents/navigator.agent.md",
-      "sha256": "d97c9ce3e60a0e184fa918375d8b28253b26f98003337737917e208e321144e9"
+      "sha256": "c50676731fbb114abfe4d172ee09ba2459e36044adc61f2e63ee4b5b54928045"
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "74f3319641eba30ea47303c9cb0dde395dbd6eba4e6b7d3fdcd8018974895e42"
+      "sha256": "7461bfc2cce19cdf021b976434af2c9ef79be35246a95a6562177e91677a74c0"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -87,7 +87,7 @@
     },
     {
       "path": "agents/reference-manager.agent.md",
-      "sha256": "c78e4f7f8f47684e8af8ac55fef30a57232cf2bfa41d7e8ca59c100d7f9964c0"
+      "sha256": "6ab0e3a7ef89f611e5d2a9ca452708d3bc936618526640dcbc586e8ddfe464b6"
     },
     {
       "path": "agents/repo-liaison.agent.md",
@@ -95,7 +95,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "4f52ec55afb05747419474399cecd8c4d67a1eb03d95323bf7a1b438e69f27c3"
+      "sha256": "15d81c31dd223a1c30dc3e5fbf664ecae49f8bd347e3a91426fb2f6b06a708e3"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -127,7 +127,7 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "04dd694cba8867bf814bad5194ccf58d63ddda5b0ab77f4de51df95382e26cbb"
+      "sha256": "ca1f0ae3337abca335a3f0c6584d2ac85dacd8489ad330d1df62a60bc03bb2c1"
     }
   ],
   "inventory_count": 30,
