@@ -1,38 +1,44 @@
-# Open Items — ResearchTeam work review (2026-07-08, REVISED)
+# Open Items — ResearchTeam work review (2026-07-08, REVISED ×2)
 
 Review of everything built across recent sessions (2-fold citation & claim audit; `[LINK]`/`[REFURL]`
 source-link standards; agentteams auto-integration; per-project vectorized literature library;
-derived-repo updates + private-repo baselines). **Revised after an adversarial audit** (§0).
+derived-repo updates + private-repo baselines). **Revised after an adversarial audit** (§0), then
+**refreshed after resolving P0 + re-updating both derived repos via the on-PATH CLI** (§0.1).
 
 ## 0. What the audit corrected (binding)
-- **No infra gate is currently RED.** `validate` is **green (exit 0) in all three repos** now
+- **No infra gate is currently RED.** `validate` is **green (exit 0) in all three repos**
   (researchteam, OrthodoxLLM, SSH) — the draft's "P0: gate RED" was a *transient* during-update state
   (dirty `.vscode/tasks.json`), not persistent. Downgraded.
-- **The one genuinely-immediate item was missing:** the `researchteam` CLI is **not on PATH**
-  (installed only in the repo `.venv`, editable) — now **P0 (M1)**.
 - Misdiagnoses fixed: the `.vscode/` validate gap is latent (and `validate` only diffs *unstaged
   tracked* files, so a one-line regex fix helps little); OrthodoxLLM's `.git` bloat is
   `index/text/*.jsonl` (its own corpus, from the baseline snapshot commit), **not** `.npz`/LFS; SSH bib
-  remediation is **project-owner** work, not the maintainer's. Added M2–M4.
+  remediation is **project-owner** work, not the maintainer's.
 - Ownership tags: **[RT]** researchteam-maintainer · **[PO]** project-owner · **[AT]** upstream-agentteams.
+
+## 0.1 Resolved this session (2026-07-08)
+- ✅ **P0 — `researchteam` now on PATH.** Installed **editable** into anaconda from the stable repo
+  path (`/opt/anaconda3/bin/researchteam`, version 0.1.0, `MANAGED_FILES` current, points at the
+  stable checkout — not a worktree, so it won't go stale). `researchteam doctor` all-green.
+- ✅ **Both derived repos re-updated via the bare on-PATH `researchteam update`** (the real workflow).
+  Dry-runs showed **0 layer-2 changes** (already fully synced from the prior session); the agentteams
+  merges regenerated only timestamps/counters (fences balanced, user content preserved). No
+  corruption; capabilities work. Committed atop baselines (`c827381`, `644809e`).
+- ⬇️ **Item 3 downgraded:** the **synced** `docs/literature-library-protocol.md` already reaches the
+  derived repos and carries the "how agents build it" routing — only the *in-agent-frontmatter* PSN
+  pointer doesn't propagate (a convenience, not the routing home).
 
 ## Status (DONE — for context)
 Shipped to `jlcatonjr/researchteam@main`: citation audit + `[LINK]`/`[REFURL]` + `--layer1-only`
 auto-integration + literature library, with bash-3.2 tests, docs, `MANAGED_FILES`. Source links
 remediated for ZeldaTimeline + development-of-offices. **OrthodoxLLM** and **SocialScienceHumanities**
-each have a **private GitHub repo** (revert baseline pushed) and are **updated** (no corruption; R7
-rename verified — OrthodoxLLM's instance-local `check_library_integrity.sh` byte-identical). Both
-update-results committed atop their baselines → revert = one `git reset`.
+each have a **private GitHub repo** (revert baseline pushed) and are **fully updated** (no corruption;
+R7 rename verified — OrthodoxLLM's instance-local `check_library_integrity.sh` byte-identical). Revert
+of any bad change = one `git reset` to a prior commit on the private repo.
 
 ---
 
 ## P0 — Truly immediate
-1. **[RT/env] `researchteam` is not on PATH.** `command -v researchteam` → not found; it lives only in
-   `researchteam/.venv/bin` (editable) — absent from anaconda and the bare shell. The documented
-   `researchteam update` workflow (CLAUDE.md Quick Start) can't run in a normal shell; a future update
-   would silently fail to launch. **Fix:** `pip install -e /path/to/researchteam` into an environment
-   on PATH (as `agentteams` already is), or document venv activation. *(Everything this session ran via
-   the explicit `.venv/bin/researchteam` path, so work was unblocked — but the user-facing workflow is.)*
+*(none — the researchteam-on-PATH blocker is resolved; §0.1. `validate` is green ×3.)*
 
 ## P1 — Soon (cheap, real, RT-maintainer)
 2. **[RT] Wire the existing library test into CI + add a query smoke test (M2).** `scripts/tests/
