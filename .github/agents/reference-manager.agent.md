@@ -119,3 +119,11 @@ investigated). Rebuild + gate:
 (never a link/claim anchor); vectors are computed by the real stdlib vectoriser, never authored; this
 is lexical TF-IDF (semantic = STUB); `source_db` is never inferred from a URL host. Full protocol:
 `docs/literature-library-protocol.md`.
+
+### Retrieval surfaces — do not conflate the code index with the library
+
+Surface #2 (**code index**, `/code-recall` · `bash scripts/claude_researchteam_bridge.sh code-query`)
+indexes the *code and APIs* that do the collecting/analysis; surface #4 (**literature library**,
+`library-query`, above) vectorizes the *agents' relevance summaries* for cited sources. Different
+corpora, different questions — never merge them, and **never anchor a citation on either** (both are
+navigation, not evidence). Canonical 4-surface map: `docs/retrieval-surfaces.md`.

@@ -141,3 +141,10 @@ Navigate related sources with
 `bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"` — candidates are
 **navigation, not evidence** (never anchor a claim on a vector hit). Full protocol:
 `docs/literature-library-protocol.md`.
+
+### Retrieval surfaces — code vs sources
+
+For *source* discovery use `library-query` (surface #4, above). For *code / API* questions ("which
+collector does this", "which API does that script call") use `/code-recall` ·
+`bash scripts/claude_researchteam_bridge.sh code-query "<terms>"` (surface #2). They cover **disjoint**
+corpora and both are **navigation, not evidence**. Canonical map: `docs/retrieval-surfaces.md`.

@@ -69,6 +69,23 @@ def run_doctor(root: Path) -> None:
             else:
                 ok(f"agentteams source is stable: {src}")
 
+            # --- 3b. F-CODEIDX capability probe (advisory) ----------------------------
+            # The code & API index (retrieval surface #2) rides in on the agentteams
+            # `update` extra. If the resolved agentteams predates it, `--query-code` /
+            # `/code-recall` / the bridge `code-query` command are unavailable. Advisory,
+            # not fatal (the base workflow does not require it).
+            help_probe = subprocess.run([exe, "--help"], capture_output=True, text=True)
+            help_text = (help_probe.stdout or "") + (help_probe.stderr or "")
+            if "--query-code" in help_text:
+                ok("agentteams exposes the code & API index (--query-code); surface #2 available.")
+            else:
+                warn(
+                    "agentteams does not expose --query-code — the code & API index (F-CODEIDX) is "
+                    "unavailable.\n"
+                    "         Refresh the extra: pip install -U 'agentteams @ "
+                    "git+https://github.com/jlcatonjr/agentteams'. See docs/retrieval-surfaces.md."
+                )
+
     # --- 4. descriptor health (content vs roster reconciliation) -----------------------
     brief = root / "brief.json"
     manifest = root / ".github" / "agents" / "_build-description.json"

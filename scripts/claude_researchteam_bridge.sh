@@ -40,6 +40,10 @@ Commands:
   library-check <project>
                 Fail-closed integrity gate for the library.
                 See docs/literature-library-protocol.md for the full protocol + honest ceiling.
+  code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
+                Retrieval surface #2 (agentteams code & API index) — ranked candidates for
+                "where is this function / which API does this script call". NAVIGATION ONLY, not
+                evidence. Needs the optional `agentteams` extra. See docs/retrieval-surfaces.md.
 EOF
 }
 
@@ -129,6 +133,31 @@ command_library_check() {
   fi
 }
 
+command_code_query() {
+  # Surface #2 (code index) — thin convenience over `agentteams --query-code`. NAVIGATION ONLY:
+  # a hit is a candidate to open, never evidence and never a claim/link anchor. See
+  # docs/retrieval-surfaces.md. Unlike the library-* commands (which guard a LOCAL script), this
+  # shells to the external `agentteams` console script — the optional `update` extra that may be
+  # absent or stale in a derived repo — so guard on the BINARY, message modeled on
+  # researchteam/_update_cmd.py::_preflight_agentteams.
+  if ! command -v agentteams >/dev/null 2>&1; then
+    echo "[code-query] needs 'agentteams' (the optional 'update' extra), which is not on PATH." >&2
+    echo "  Install from the canonical checkout, into an env on your PATH:" >&2
+    echo "    pip install -e /path/to/agentteams --no-build-isolation" >&2
+    echo "  (do NOT 'pip install -e' from a temporary git worktree). Then: researchteam doctor" >&2
+    exit 1
+  fi
+  if [[ $# -lt 1 ]]; then
+    echo 'usage: code-query "<query text>" [--code-kind local|api|doc|all] [--code-query-k N]' >&2
+    exit 2
+  fi
+  local query="$1"; shift
+  # Explicit --description + --output so the descriptor and the cache location
+  # (.github/agents/references/code-index) always resolve — do NOT rely on the framework-default
+  # --output. The query auto-refreshes a stale/absent partition first (query-time staleness).
+  agentteams --query-code "$query" --description brief.json --output .github/agents "$@"
+}
+
 case "$cmd" in
   help)
     print_help
@@ -170,6 +199,10 @@ case "$cmd" in
   library-check)
     shift
     command_library_check "$@"
+    ;;
+  code-query)
+    shift
+    command_code_query "$@"
     ;;
   *)
     echo "Unknown command: $cmd"

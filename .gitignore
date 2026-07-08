@@ -33,3 +33,11 @@ bridge-merge.report.md
 # See docs/literature-library-protocol.md.
 **/references/library/corpus/*.txt
 **/references/library/vectors/store/
+
+# agentteams code & API index (F-CODEIDX) — a gitignored local cache (manifest.json + per-kind
+# partitions) that embeds machine-specific resolved paths/versions; regenerable, NEVER committed and
+# NEVER drift-tracked. Both patterns are load-bearing: the root-anchored one, and the `**/` one that
+# matches the actual cache location `.github/agents/references/code-index/`. Query-time staleness keeps
+# it fresh. See docs/retrieval-surfaces.md and docs/code-index-integration-plan.md.
+references/code-index/
+**/references/code-index/

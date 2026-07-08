@@ -448,6 +448,15 @@ A workflow step may attach a workflow-specific instruction to its closeout refer
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+### Retrieval surfaces (four — route by question, navigation only)
+
+An agent may reach four **distinct, navigation-only** retrieval surfaces; keep them unconflated (none
+is evidence or a claim anchor): **prose** (`/recall`), **code / API** (`/code-recall` ·
+`bash scripts/claude_researchteam_bridge.sh code-query`), the project **retrieval-integrator** contract,
+and the researchteam **literature library** (`library-query`). The canonical, complete boundary —
+agentteams sees 3, researchteam adds the library as #4 — is `docs/retrieval-surfaces.md` (it supersedes
+the bridge's regenerated `domain-boundary.md`).
+
 ### Routing: interpretation & methodological genealogy → `@interpretation-advisor`
 
 When a request needs the **interpretive/methodological framing** of a topic — which

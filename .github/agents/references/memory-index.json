@@ -2,7 +2,7 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "4cd78e532d9f9e5aac49e93b0224fc366816b40864924cdd3acea9dbf15ac641",
+  "index_build_id": "2e837118aa1884306595df9fcbde42fcd3b8657a4896215c89ffe0dd8834719e",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
@@ -11,7 +11,7 @@
   "source_fingerprint": "76fe9df31e98587bf4d8323802436d03dd3b8192832dd00541a50409b9fdce28",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-07-08T13:07:18.388575Z",
+  "built_at": "2026-07-08T18:32:48.280124Z",
   "source_count": 17,
   "documents": [
     {

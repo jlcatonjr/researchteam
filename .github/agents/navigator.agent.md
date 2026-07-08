@@ -92,3 +92,16 @@ To regenerate the graph without a full team update:
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+### Retrieval surfaces (navigation only — pick the right one)
+
+Four local, lexical indexes help you *locate* things; none is evidence, none is exhaustive
+(*absence of a hit ≠ absence*), and a hit never anchors a claim. Route by the question:
+
+- **Prose** ("where did we decide / write about X") → `agentteams --query-index` · `/recall`.
+- **Code / APIs** ("where is this function, which API does this script call") →
+  `agentteams --query-code` · `/code-recall` · `bash scripts/claude_researchteam_bridge.sh code-query "<terms>"`.
+- **Research sources** ("what did the team read about X, and why") → `library-query`.
+- **Project retrieval-integrator** — the project's own relational/metadata contract.
+
+Canonical 4-surface boundary: `docs/retrieval-surfaces.md` (supersedes the bridge's `domain-boundary.md`).

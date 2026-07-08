@@ -12,6 +12,7 @@ MANAGED_FILES = [
     "docs/agent-infrastructure-authority.md",
     "docs/citation-claim-audit-protocol.md",
     "docs/literature-library-protocol.md",
+    "docs/retrieval-surfaces.md",
     ".claude/README.md",
     ".claude/checklists/research-task-preflight.md",
     ".claude/prompts/research-report.prompt.md",
