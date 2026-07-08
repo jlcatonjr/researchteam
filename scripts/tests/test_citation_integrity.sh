@@ -77,7 +77,7 @@ mkfile "$R/Projects/Good/01-analysis.md" <<'EOF'
 Search frictions matter (Diamond 1971).
 
 ## References
-Diamond, Peter A. 1971. "A Model of Price Adjustment." Journal of Economic Theory.
+Diamond, Peter A. 1971. "A Model of Price Adjustment." Journal of Economic Theory. https://doi.org/10.1016/0022-0531(71)90013-5
 EOF
 run "$R" Good
 assert        "clean project PASSes"            0 "PASS" "$CODE" "$OUT"
@@ -116,7 +116,7 @@ mkfile "$R/Projects/P/01-x.md" <<'EOF'
 As shown (Fellbaum 1998).
 
 ## References
-Fellbaum, Christiane, ed. 1998. WordNet.
+Fellbaum, Christiane, ed. 1998. WordNet. https://search.worldcat.org/isbn/9780262061971
 EOF
 run "$R" P
 assert        "editor satisfies who (PASS)"     0 "PASS" "$CODE" "$OUT"
@@ -148,7 +148,7 @@ mkfile "$R/Projects/P/01-x.md" <<'EOF'
 A claim with a fabricated cite (Ghost 2099) and a real one (Real 2010).
 
 ## References
-Real, R. 2010. "T."
+Real, R. 2010. "T." https://doi.org/10.1000/real.2010
 EOF
 run "$R" P
 assert "in-text miss is advisory CU"             0 "NEEDS-REVIEW\[CU\]" "$CODE" "$OUT"
@@ -170,7 +170,7 @@ mkfile "$R/Projects/P/01-x.md" <<'EOF'
 Per the team (Team 2024).
 
 ## References
-Llama Team. 2024. "A Big Model."
+Llama Team. 2024. "A Big Model." https://example.org/big-model
 EOF
 run "$R" P
 assert        "@-in-field parses (PASS)"        0 "PASS" "$CODE" "$OUT"
@@ -208,7 +208,7 @@ mkfile "$R/Projects/Category/Proj/01-x.md" <<'EOF'
 See (X 2000).
 
 ## References
-X, X. 2000. "T."
+X, X. 2000. "T." https://example.org/x
 EOF
 run "$R"
 assert "nested project discovered"               0 "Category/Proj" "$CODE" "$OUT"
@@ -223,7 +223,7 @@ mkfile "$R/Projects/Real/01-x.md" <<'EOF'
 # X
 See (X 2000).
 ## References
-X, X. 2000. "T."
+X, X. 2000. "T." https://example.org/x
 EOF
 # a would-be "project" inside a backup tree that MUST be excluded
 mkfile "$R/Projects/.agentteams-backups/Shadow/references/bibliography.bib" <<'EOF'
@@ -243,7 +243,7 @@ mkfile "$R/.projects/Hidden/01-x.md" <<'EOF'
 # X
 See (X 2000).
 ## References
-X, X. 2000. "T."
+X, X. 2000. "T." https://example.org/x
 EOF
 run "$R"
 assert ".projects/ discovered"                   0 ".projects/Hidden" "$CODE" "$OUT"
@@ -277,8 +277,8 @@ mkfile "$R/Projects/P/01-x.md" <<'EOF'
 # X
 See (B 2001) and (C 2002).
 ## References
-B, B. 2001. "T."
-C, C. 2002. "T."
+B, B. 2001. "T." https://search.worldcat.org/isbn/9780000000001
+C, C. 2002. "T." https://doi.org/10.1000/x
 EOF
 run "$R" P
 assert        "url/doi entries PASS"             0 "PASS" "$CODE" "$OUT"
@@ -291,6 +291,71 @@ mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
 EOF
 run_advisory "$R" P
 assert "LINK advisory downgrade exits 0"         0 "ADVISORY" "$CODE" "$OUT"
+
+# 15e. DEFECT[REFURL]: a reference-list entry that embeds no URL -> exit 1
+R="$TMP_ROOT/s15e"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@article{Link2010, author = {Link, L.}, title = {T}, year = {2010}, url = {https://example.org/link}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (Link 2010).
+
+## References
+Link, L. 2010. "T." Journal of Things.
+EOF
+run "$R" P
+assert "reference-list entry w/o URL is DEFECT[REFURL]" 1 "DEFECT\[REFURL\]" "$CODE" "$OUT"
+
+# 15f. A reference-list entry that embeds the URL is clean (no REFURL)
+R="$TMP_ROOT/s15f"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@article{Link2010, author = {Link, L.}, title = {T}, year = {2010}, url = {https://example.org/link}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (Link 2010).
+
+## References
+Link, L. 2010. "T." Journal of Things. https://example.org/link
+EOF
+run "$R" P
+assert        "reference-list entry w/ URL passes"   0 "PASS" "$CODE" "$OUT"
+assert_absent "no REFURL when URL embedded"            "DEFECT\[REFURL\]" "$OUT"
+
+# 15g. "Works cited (trailing text)" heading is detected; bulleted entries are checked; a
+#      non-author bullet (**Primary texts:**) is excluded.
+R="$TMP_ROOT/s15g"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@book{Author2000, author = {Author, An}, title = {A Book}, year = {2000}, url = {https://example.org/book}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (Author 2000).
+
+## Works cited (Chicago author-date)
+- Author, An. 2000. *A Book.* City: Press.
+- **Primary texts:** Acts 6:1-6; 1 Clement 42-44.
+EOF
+run "$R" P
+assert        "Works-cited heading + bullet -> REFURL"   1 "DEFECT\[REFURL\]" "$CODE" "$OUT"
+assert_absent "non-author bullet excluded"                "Primary texts" "$OUT"
+assert_absent "Works-cited detected (no no-refs STRUCT)"  "no '## References' section" "$OUT"
+
+# 15h. Advisory mode downgrades a REFURL defect to exit 0
+R="$TMP_ROOT/s15h"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@article{Link2010, author = {Link, L.}, title = {T}, year = {2010}, url = {https://example.org/link}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (Link 2010).
+
+## References
+Link, L. 2010. "T." Journal of Things.
+EOF
+run_advisory "$R" P
+assert "REFURL advisory downgrade exits 0"       0 "ADVISORY" "$CODE" "$OUT"
 
 # 16. Ceiling banner is always printed (WELL-FORMED != RESOLVED honesty).
 run "$TMP_ROOT/s1" Good

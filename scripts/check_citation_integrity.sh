@@ -25,6 +25,9 @@ set -uo pipefail
 #                   [LINK] .bib entry with no source link (no url and no doi). Every citation
 #                          must link to its source; a purchase link or a descriptive URL
 #                          (e.g. RePEc, WorldCat) is acceptable when no direct link exists.
+#                   [REFURL] a reference-list entry (in the document's "## References" /
+#                          "## Works cited" section) that embeds no http(s) URL. The source
+#                          link listed in the .bib must also appear in the end-of-document entry.
 #   NEEDS-REVIEW  ADVISORY ONLY (never affects exit code) — every heuristic/fuzzy signal:
 #                   [CU]   in-text (Author Year) with no bibliography backing
 #                   [RM]   a deliverable "## References" entry absent from the .bib
@@ -215,7 +218,8 @@ split_deliverable() {
   : > "$WORK/refs"; : > "$WORK/body"
   awk '
     BEGIN{ inref=0 }
-    /^#{1,6}[ \t]+([Rr]eferences|[Bb]ibliography|[Ww]orks [Cc]ited)[ \t]*$/ { inref=1; next }
+    # A references heading may carry trailing text, e.g. "## Works cited (Chicago author-date)".
+    /^#{1,6}[ \t]+([Rr]eferences|[Bb]ibliography|[Ww]orks [Cc]ited|[Ss]ources)([ \t].*)?$/ { inref=1; next }
     /^#{1,6}[ \t]+/ { if (inref==1) inref=0 }
     { if (inref==1) print > REFS; else print > BODY }
   ' REFS="$WORK/refs" BODY="$WORK/body" "$1"
@@ -307,6 +311,15 @@ audit_project() {
         [ -n "$s" ] || continue
         backed_in_index "$s" "$y" "$idx" || emit "NEEDS-REVIEW[RM]" "$frel: reference '$s $y' not found in the .bib"
       done
+      # [REFURL] the source link in the .bib must also be embedded in the reference-list entry
+      # at the end of the document. A reference entry = an optional list bullet, then a
+      # capitalized author, then a year. Flag any such entry line that carries no http(s) URL.
+      grep -E '^[ \t]*([-*][ \t]*|[0-9]+\.[ \t]*)?[A-Z][A-Za-z.'"'"'-]+.*[12][0-9][0-9][0-9]' "$WORK/refs" 2>/dev/null \
+        | grep -vE 'https?://' \
+        | while IFS= read -r rline; do
+            lbl="$(printf '%s' "$rline" | sed -E 's/^[ \t]*([-*][ \t]*|[0-9]+\.[ \t]*)?//; s/[*_]//g' | cut -c1-55)"
+            emit "DEFECT[REFURL]" "$frel: reference-list entry embeds no source URL: \"$lbl\""
+          done
     fi
 
     { cat "$WORK/itp"; refs_pairs "$WORK/refs"; } >> "$cited"
@@ -389,10 +402,10 @@ EOF
   if [ "$defects" -gt 0 ]; then
     if [ "$ADVISORY" = "1" ]; then
       echo "ADVISORY mode: DEFECT(s) found but not blocking (exit 0)."
-      echo "Remediation: fix duplicate keys / missing title or author-editor / missing source links, then re-run."
+      echo "Remediation: fix duplicate keys / missing title or author-editor / missing source links / reference-list URLs, then re-run."
       return 0
     fi
-    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor / missing source link) before compiling."
+    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor / missing source link / reference-list URL) before compiling."
     return 1
   fi
 

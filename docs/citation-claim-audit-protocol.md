@@ -10,9 +10,10 @@ Two audit **dimensions**, run in **two independent rounds**:
 
 - **Dimension A — Citation & bibliography integrity.** Every in-text citation is backed by a real
   bibliography record; **every record carries a source link** (a `url` or `doi` — a direct link, a
-  purchase link, or a descriptive URL such as RePEc/WorldCat when no direct link exists); every
-  record carries its metadata; URLs are well-formed; the `.bib` and each deliverable's
-  `## References` block do not drift.
+  purchase link, or a descriptive URL such as RePEc/WorldCat when no direct link exists), **and that
+  link is also embedded in the reference-list entry at the end of the document** (the
+  `## References` / `## Works cited` section); every record carries its metadata; URLs are
+  well-formed; the `.bib` and each deliverable's reference list do not drift.
 - **Dimension B — Claim & interpretation integrity.** Every fact and interpretation is paired with
   the reference(s) cited to justify it; no claim outruns its evidence; no citation is mis-attributed.
 
@@ -55,7 +56,7 @@ citation-audit [project]`) checks the machine-certain subset and code-tags every
 
 | Class | Codes | Meaning | Exit effect |
 |-------|-------|---------|-------------|
-| `DEFECT` | `[DUP]` `[META]` `[LINK]` | duplicate key; entry with no title, or no author **and** no editor; entry with **no source link** (no `url` and no `doi`) | blocks (exit 1); `CITATION_INTEGRITY_ADVISORY=1` downgrades to exit 0 |
+| `DEFECT` | `[DUP]` `[META]` `[LINK]` `[REFURL]` | duplicate key; entry with no title, or no author **and** no editor; entry with **no source link** (no `url` and no `doi`); a **reference-list entry that embeds no URL** (the link in the `.bib` must also appear in the end-of-document entry) | blocks (exit 1); `CITATION_INTEGRITY_ADVISORY=1` downgrades to exit 0 |
 | `NEEDS-REVIEW` | `[CU]` `[RM]` `[PE]` `[META]` `[URL]` `[DOI]` `[STRUCT]` | in-text cite with no backing; `## References` entry absent from `.bib`; uncited entry; missing year; malformed-looking locator; missing reference list | advisory only — never changes the exit code |
 
 The detector is a **stateless stdout scanner**: it does not write `conflict-log.csv`. Its code tags
