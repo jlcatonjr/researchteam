@@ -9,9 +9,22 @@ Define review and rollback policy for automated AgentTeams synchronization runs 
 
 ## Execution Policy
 
-1. Scheduled runs are dry-run only.
-2. PR creation is allowed only for manual (`workflow_dispatch`) runs with explicit `dry_run=false` and `open_pr=true`.
-3. Auto-merge is disabled by default.
+1. **Scheduled runs are SHA-gated, not dry-run.** A scheduled run does nothing unless agentteams `main`
+   has advanced past the SHA recorded in `.github/agentteams-autosync-ref`. agentteams is a git
+   dependency whose version string does **not** move on every change (it stayed `1.0.0rc6` across 8
+   substantive commits), and `--update --merge` refreshes threat-intel/graphs/timestamps on every run —
+   so the git **SHA**, not the version and not raw file-drift, is the only sound trigger. The gate lives
+   in the managed `scripts/agentteams_autosync_gate.sh` (shared by the upstream + derived workflows).
+2. **On a real update, the scheduled run auto-opens/updates ONE evergreen PR** (`chore/agentteams-autosync`)
+   after every blocking gate passes in-job (validate + forbidden-path + detector unit tests upstream).
+   It compares against the ref on the open evergreen branch, so an already-integrated SHA never re-fires
+   while the PR waits — no weekly spam. A manual `workflow_dispatch` (optionally `force=true`) does the
+   same on demand. Machine-path files (`delivery-receipt.json`, `memory-index.json`) are scrubbed so no
+   CI-runner path is ever proposed.
+3. **Auto-merge is disabled — the evergreen PR is reviewed and merged by a human.** The autosync is
+   automatic *proposal*, not automatic merge; blocking gates run before the PR opens, and the reviewer
+   gate below is the final word. (To opt into auto-merge-on-green later, enable `gh pr merge --auto` on
+   the evergreen PR — deliberately not enabled by default.)
 4. Workflow defense-in-depth guard must fail CI if `.github/agents/.github/` exists before or after update execution.
 
 ## Automatic Integration (keep the tree always integrated)
@@ -29,8 +42,27 @@ generate, so the "latest agentteams update" is integrated without a manual step.
 2. **On-demand / manual.** `researchteam update --layer1-only` runs the same union-descriptor merge
    with **no** layer-2 file sync — safe on the upstream repo (a full `researchteam update` there would
    overwrite local managed-file edits with the older upstream versions).
-3. **CI backstop (remote, periodic).** The `agentteams-sync` workflow runs the merge on schedule and
-   on `workflow_dispatch`, opening a PR when drift exists (see Execution Policy).
+3. **CI autosync (remote, SHA-gated) — the durable, always-propagating layer.** The `agentteams-sync`
+   workflow (upstream) and the scaffold-emitted `agentteams-sync` (derived) run weekly + on
+   `workflow_dispatch`. Both are thin shells over the managed `scripts/agentteams_autosync_gate.sh`,
+   which SHA-gates on agentteams `main`, and on a real change installs that pinned SHA, runs the regen
+   (upstream `--layer1-only`; derived full), scrubs machine-path churn, runs the blocking gates, records
+   the SHA in `.github/agentteams-autosync-ref`, and lets the workflow open/update the evergreen PR (see
+   Execution Policy). Because the gate is a **managed** file, fixes to the logic propagate to every
+   derived repo via `researchteam update` — the four workflow copies (upstream, scaffold, each derived)
+   stay thin and rarely change.
+
+**Division of labor (hook vs CI — they do not fight).** The local pre-commit hook fires on *staged agent
+files* and re-integrates at whatever agentteams version is *installed locally*; the CI autosync fires on
+an *agentteams `main` SHA change* and integrates the *pinned upstream* SHA. Disjoint triggers; any overlap
+is self-healing (the `preserve` shrink policy protects enriched fences; `researchteam doctor` flags a stale
+local install). The blocking gates run **in-job before** the PR is created — a `GITHUB_TOKEN`-authored PR
+does not fire `pull_request` checks, so in-job gating (not PR-status checks) is what guarantees a bad regen
+never becomes a mergeable PR.
+
+**Follow-up ([RT]).** The SHA-gate keys on the agentteams commit only; a researchteam-managed-only change
+(no agentteams change) is not yet an independent auto-trigger in derived repos — dispatch with `force=true`
+to pull one on demand. A future enhancement co-gates on the researchteam ref.
 
 **Propagation caveat.** Git hooks are **per-clone** and are not version-controlled, so the hook does
 not travel with `git push`/`clone`. Its durable install is `agentteams --install-git-hooks`; the

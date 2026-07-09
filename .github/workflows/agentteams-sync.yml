@@ -1,184 +1,77 @@
-name: AgentTeams Sync (Dry Run First)
+name: AgentTeams Autosync (SHA-gated evergreen PR)
+
+# Automatically integrate agentteams updates. The heavy lifting — SHA-gate, pinned install, regen,
+# churn-scrub, blocking gates, PR body — lives in scripts/agentteams_autosync_gate.sh (a managed file
+# that also ships to derived repos), so this workflow is a thin shell. Auto-PR ONLY: a real agentteams
+# update opens/updates ONE evergreen PR (chore/agentteams-autosync) that a human reviews and merges.
+# Policy: docs/agentteams-update-policy.md.
 
 on:
   workflow_dispatch:
     inputs:
-      agentteams_ref:
-        description: "Optional AgentTeams ref (tag/branch/sha)"
-        required: false
-        default: ""
-      dry_run:
-        description: "Run without creating a sync PR"
-        required: false
-        type: boolean
-        default: true
-      open_pr:
-        description: "Open or update PR when diff exists"
+      force:
+        description: "Force integration even if the recorded agentteams SHA is unchanged"
         required: false
         type: boolean
         default: false
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC — SHA-gated, so a no-change week does nothing
 
 permissions:
   contents: write
   pull-requests: write
 
+concurrency:
+  group: agentteams-autosync
+  cancel-in-progress: false
+
 jobs:
-  update-agentteams:
+  autosync:
     runs-on: ubuntu-latest
-    outputs:
-      has_diff: ${{ steps.diff.outputs.has_diff }}
     steps:
-      - name: Checkout
+      - name: Checkout (full history for the SHA-gate baseline)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install AgentTeams CLI
-        env:
-          AGENTTEAMS_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.agentteams_ref || '' }}
+      - name: Install ResearchTeam CLI
         run: |
-          set -euo pipefail
           python -m pip install --upgrade pip
+          python -m pip install "git+https://github.com/jlcatonjr/researchteam.git"
+          researchteam --version
 
-          if [[ -n "$AGENTTEAMS_REF" ]]; then
-            echo "Installing AgentTeams from ref: $AGENTTEAMS_REF"
-            python -m pip install "git+https://github.com/jlcatonjr/agentteams.git@${AGENTTEAMS_REF}"
-          else
-            echo "Installing AgentTeams from default branch"
-            python -m pip install "git+https://github.com/jlcatonjr/agentteams.git"
+      - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
+        run: git fetch origin "chore/agentteams-autosync" || true
+
+      - name: Autosync gate — SHA-gate → pinned install → regen → BLOCKING gates
+        id: gate
+        env:
+          AUTOSYNC_PR_BODY_FILE: ${{ runner.temp }}/autosync-pr-body.md
+        run: |
+          FORCE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
           fi
+          bash scripts/agentteams_autosync_gate.sh --mode upstream $FORCE_FLAG
 
-          command -v agentteams
-          agentteams --help >/dev/null
-
-      - name: Resolve execution mode
-        id: mode
+      - name: Read PR body
+        if: steps.gate.outputs.changed == 'true'
+        id: prbody
         run: |
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "dry_run=true" >> "$GITHUB_OUTPUT"
-            echo "open_pr=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "dry_run=${{ inputs.dry_run }}" >> "$GITHUB_OUTPUT"
-            echo "open_pr=${{ inputs.open_pr }}" >> "$GITHUB_OUTPUT"
-          fi
+          { echo "text<<PRBODY_EOF"; cat "${{ runner.temp }}/autosync-pr-body.md"; echo "PRBODY_EOF"; } >> "$GITHUB_OUTPUT"
 
-      - name: Preflight forbidden-path guard
-        run: |
-          set -euo pipefail
-          if [[ -d ".github/agents/.github" ]]; then
-            echo "ERROR: Forbidden nested mirror path exists: .github/agents/.github"
-            exit 1
-          fi
-
-      - name: Run AgentTeams update merge
-        run: |
-          set -euo pipefail
-          echo "AgentTeams sync start" > agentteams-update.log
-          echo "event=${{ github.event_name }} dry_run=${{ steps.mode.outputs.dry_run }}" >> agentteams-update.log
-
-          if command -v agentteams >/dev/null 2>&1; then
-            agentteams --description brief.json --update --merge --yes 2>&1 | tee -a agentteams-update.log
-          elif [[ -f "build_team.py" ]]; then
-            python build_team.py --description brief.json --update --merge --yes 2>&1 | tee -a agentteams-update.log
-          else
-            echo "Neither agentteams CLI nor build_team.py was found." | tee -a agentteams-update.log
-            exit 1
-          fi
-
-      - name: Post-run forbidden-path guard
-        run: |
-          set -euo pipefail
-          if [[ -d ".github/agents/.github" ]]; then
-            echo "ERROR: Forbidden nested mirror path was reintroduced: .github/agents/.github"
-            exit 1
-          fi
-
-      - name: Validate changed paths and fences
-        run: |
-          bash scripts/validate_agentteams_update.sh
-
-      - name: Methodology-coverage detector tests
-        run: |
-          # Blocking: the detector's own unit tests must pass (bash 3.2-safe fixtures).
-          bash scripts/tests/test_methodology_coverage.sh
-
-      - name: Methodology-coverage advisory scan
-        run: |
-          # Advisory only (non-blocking): surface projects missing an interpretive map.
-          # A MISSING result is a prompt for human judgement, never an automatic gate
-          # failure — interpretation is a non-compiled, opt-in-by-intent scaffold.
-          set -uo pipefail
-          if [[ -x scripts/check_methodology_coverage.sh ]]; then
-            METHODOLOGY_COVERAGE_ADVISORY=1 bash scripts/check_methodology_coverage.sh \
-              | tee methodology-coverage.log
-          else
-            echo "detector not present; skipping advisory scan"
-          fi
-
-      - name: Citation-integrity detector tests
-        run: |
-          # Blocking (upstream only): the detector's own unit tests must pass (bash 3.2-safe).
-          bash scripts/tests/test_citation_integrity.sh
-
-      - name: Citation-integrity advisory scan
-        run: |
-          # Advisory only (non-blocking): surface citation/bibliography structural signals.
-          # The real blocking gate lives at pre-compile via the 2-fold audit protocol +
-          # orchestrator Rule 12 (docs/citation-claim-audit-protocol.md), not this infra-sync
-          # workflow, so DEFECTs are downgraded to warn-only here.
-          set -uo pipefail
-          if [[ -f scripts/check_citation_integrity.sh ]]; then
-            CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
-              | tee citation-integrity.log
-          else
-            echo "detector not present; skipping advisory scan"
-          fi
-
-      - name: Capture diff list
-        id: diff
-        run: |
-          set -euo pipefail
-          git status --porcelain > changed-files.txt
-          if [[ -s changed-files.txt ]]; then
-            echo "has_diff=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_diff=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: agentteams-sync-artifacts
-          path: |
-            agentteams-update.log
-            changed-files.txt
-            methodology-coverage.log
-            citation-integrity.log
-
-  open-pr:
-    runs-on: ubuntu-latest
-    needs: update-agentteams
-    if: ${{ needs.update-agentteams.outputs.has_diff == 'true' && github.event_name == 'workflow_dispatch' && inputs.dry_run == false && inputs.open_pr == true }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create Pull Request
+      - name: Open / update the evergreen auto-PR (never auto-merge)
+        if: steps.gate.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: chore/agentteams-sync-${{ github.run_id }}
-          title: "chore: AgentTeams sync update"
-          commit-message: "chore: apply agentteams --update --merge"
-          body: |
-            Automated AgentTeams sync.
-
-            Checklist:
-            - [ ] Changed files are within approved scope
-            - [ ] No fence-integrity violations
-            - [ ] No unresolved manual placeholders introduced
-            - [ ] Reviewer sign-off completed
+          branch: chore/agentteams-autosync
+          delete-branch: false
+          title: "chore: agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
+          commit-message: "chore: agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
+          body: ${{ steps.prbody.outputs.text }}
+          labels: agentteams-autosync

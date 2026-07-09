@@ -20,6 +20,7 @@ MANAGED_FILES = [
     "scripts/validate_agentteams_update.sh",
     "scripts/check_methodology_coverage.sh",
     "scripts/check_citation_integrity.sh",
+    "scripts/agentteams_autosync_gate.sh",
     "scripts/build_literature_library.py",
     "scripts/query_literature_library.py",
     "scripts/check_literature_library_integrity.sh",

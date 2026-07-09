@@ -42,3 +42,7 @@ bridge-*.report.md
 # it fresh. See docs/retrieval-surfaces.md and docs/code-index-integration-plan.md.
 references/code-index/
 **/references/code-index/
+
+# agentteams autosync gate — transient PR-body scratch (never committed)
+.autosync-pr-body.md
+**/.autosync-pr-body.md

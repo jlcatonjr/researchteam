@@ -1,175 +1,92 @@
-name: ResearchTeam + AgentTeams Sync
+name: ResearchTeam + AgentTeams Autosync (SHA-gated evergreen PR)
+
+# Automatically integrate agentteams (layer-1) + researchteam-managed (layer-2) updates into this
+# derived repo. The logic lives in scripts/agentteams_autosync_gate.sh — a researchteam-MANAGED file
+# that arrives via `researchteam update`, so this workflow stays a thin shell and fixes propagate
+# from upstream. Auto-PR ONLY: a real agentteams update opens/updates ONE evergreen PR
+# (chore/agentteams-autosync) that a human reviews and merges. `--mode derived` runs the full
+# `researchteam update` (layer-2 managed-file sync + layer-1 agentteams merge).
+#
+# Note: the SHA-gate keys on the agentteams commit (the stated primary trigger); an agentteams-driven
+# fire also pulls any pending layer-2 managed changes. A researchteam-managed-only change is not yet an
+# independent trigger — run this workflow with force=true to pull one on demand. See
+# docs/agentteams-update-policy.md.
 
 on:
   workflow_dispatch:
     inputs:
-      researchteam_ref:
-        description: "ResearchTeam ref (branch/tag/SHA; leave blank for default)"
-        required: false
-        default: ""
-      agentteams_ref:
-        description: "AgentTeams ref (branch/tag/SHA; leave blank for default)"
-        required: false
-        default: ""
-      dry_run:
-        description: "Run without writing changes (layer-2 dry-run only)"
-        required: false
-        type: boolean
-        default: true
-      open_pr:
-        description: "Open a PR when changes exist (manual runs only)"
+      force:
+        description: "Force integration even if the recorded agentteams SHA is unchanged"
         required: false
         type: boolean
         default: false
   schedule:
-    - cron: "0 6 * * 1"
+    - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC — SHA-gated, so a no-change week does nothing
 
 permissions:
   contents: write
   pull-requests: write
 
-jobs:
-  sync:
-    runs-on: ubuntu-latest
-    outputs:
-      has_diff: ${{ steps.diff.outputs.has_diff }}
+concurrency:
+  group: agentteams-autosync
+  cancel-in-progress: false
 
+jobs:
+  autosync:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout (full history for the SHA-gate baseline)
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # ── Layer-2: researchteam-managed files ──────────────────────────────
       - name: Install ResearchTeam CLI
-        env:
-          RT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.researchteam_ref || '' }}
         run: |
-          set -euo pipefail
-          if [[ -n "$RT_REF" ]]; then
-            pip install "git+https://github.com/jlcatonjr/researchteam.git@${RT_REF}"
-          else
-            pip install "git+https://github.com/jlcatonjr/researchteam.git"
-          fi
+          python -m pip install --upgrade pip
+          python -m pip install "git+https://github.com/jlcatonjr/researchteam.git"
           researchteam --version
 
-      - name: Resolve execution mode
-        id: mode
-        run: |
-          if [[ "${{ github.event_name }}" == "schedule" ]]; then
-            echo "dry_run=true"  >> "$GITHUB_OUTPUT"
-            echo "open_pr=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "dry_run=${{ inputs.dry_run }}"   >> "$GITHUB_OUTPUT"
-            echo "open_pr=${{ inputs.open_pr }}"   >> "$GITHUB_OUTPUT"
-          fi
+      - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
+        run: git fetch origin "chore/agentteams-autosync" || true
 
-      - name: Sync layer-2 managed files
-        run: |
-          set -euo pipefail
-          DRY_RUN_FLAG=""
-          if [[ "${{ steps.mode.outputs.dry_run }}" == "true" ]]; then
-            DRY_RUN_FLAG="--dry-run"
-          fi
-          researchteam update --layer2-only --yes $DRY_RUN_FLAG
-
-      # ── Layer-1: agentteams-managed agent files ───────────────────────────
-      - name: Preflight forbidden-path guard
-        run: |
-          if [[ -d ".github/agents/.github" ]]; then
-            echo "ERROR: Forbidden nested mirror path exists: .github/agents/.github"
-            exit 1
-          fi
-
-      - name: Install AgentTeams CLI
+      - name: Autosync gate — SHA-gate → pinned install → full update → BLOCKING gates
+        id: gate
         env:
-          AT_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.agentteams_ref || '' }}
+          AUTOSYNC_PR_BODY_FILE: ${{ runner.temp }}/autosync-pr-body.md
         run: |
-          set -euo pipefail
-          if [[ -n "$AT_REF" ]]; then
-            pip install "git+https://github.com/jlcatonjr/agentteams.git@${AT_REF}"
-          else
-            pip install "git+https://github.com/jlcatonjr/agentteams.git"
+          # If the managed gate script has not synced into this repo yet, do a one-time layer-2 sync
+          # to fetch it, then run it.
+          if [ ! -f scripts/agentteams_autosync_gate.sh ]; then
+            researchteam update --layer2-only --yes || true
           fi
-          agentteams --help >/dev/null
-
-      - name: Run AgentTeams update merge
-        run: |
-          set -euo pipefail
-          agentteams --description brief.json --update --merge --yes \
-            2>&1 | tee agentteams-update.log
-
-      - name: Post-run forbidden-path guard
-        run: |
-          if [[ -d ".github/agents/.github" ]]; then
-            echo "ERROR: Forbidden nested mirror path reintroduced: .github/agents/.github"
-            exit 1
+          if [ ! -f scripts/agentteams_autosync_gate.sh ]; then
+            echo "autosync gate script absent even after layer-2 sync — skipping (run: researchteam update)."
+            echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
-
-      - name: Validate changed paths and fences
-        run: bash scripts/validate_agentteams_update.sh
-
-      - name: Citation-integrity advisory scan
-        run: |
-          # Advisory only, and guarded. The detector is a researchteam-managed file that
-          # arrives via `researchteam update`; skip cleanly if not present yet. The blocking
-          # unit tests are intentionally UPSTREAM-ONLY (test fixtures are never synced into
-          # research repos). The enforcing gate is pre-compile — orchestrator Rule 12 + the
-          # 2-fold audit protocol (docs/citation-claim-audit-protocol.md) — not this workflow.
-          set -uo pipefail
-          if [[ -f scripts/check_citation_integrity.sh ]]; then
-            CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh \
-              | tee citation-integrity.log
-          else
-            echo "citation-integrity detector not present yet (run: researchteam update)"
+          FORCE_FLAG=""
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+            FORCE_FLAG="--force"
           fi
+          bash scripts/agentteams_autosync_gate.sh --mode derived $FORCE_FLAG
 
-      - name: Capture diff
-        id: diff
+      - name: Read PR body
+        if: steps.gate.outputs.changed == 'true'
+        id: prbody
         run: |
-          git status --porcelain > changed-files.txt
-          if [[ -s changed-files.txt ]]; then
-            echo "has_diff=true"  >> "$GITHUB_OUTPUT"
-          else
-            echo "has_diff=false" >> "$GITHUB_OUTPUT"
-          fi
+          { echo "text<<PRBODY_EOF"; cat "${{ runner.temp }}/autosync-pr-body.md"; echo "PRBODY_EOF"; } >> "$GITHUB_OUTPUT"
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: sync-artifacts
-          path: |
-            agentteams-update.log
-            changed-files.txt
-            citation-integrity.log
-
-  open-pr:
-    runs-on: ubuntu-latest
-    needs: sync
-    if: >
-      needs.sync.outputs.has_diff == 'true' &&
-      github.event_name == 'workflow_dispatch' &&
-      inputs.dry_run == false &&
-      inputs.open_pr == true
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Create Pull Request
+      - name: Open / update the evergreen auto-PR (never auto-merge)
+        if: steps.gate.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
-          branch: chore/researchteam-sync-${{ github.run_id }}
-          title: "chore: researchteam + agentteams sync update"
-          commit-message: "chore: apply researchteam layer-2 and agentteams layer-1 sync"
-          body: |
-            Automated sync from ResearchTeam upstream (layer-2) and AgentTeams (layer-1).
-
-            **Reviewer checklist:**
-            - [ ] Layer-2 changed files are documentation/scripts only (no user research content)
-            - [ ] Layer-1 changed files are within `.github/` scope
-            - [ ] No AGENTTEAMS fence mismatches
-            - [ ] No unresolved `{MANUAL:*}` placeholders introduced
-            - [ ] `brief.json` and `Projects/` are untouched
+          branch: chore/agentteams-autosync
+          delete-branch: false
+          title: "chore: researchteam + agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
+          commit-message: "chore: researchteam + agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
+          body: ${{ steps.prbody.outputs.text }}
+          labels: agentteams-autosync

@@ -240,7 +240,10 @@ def _run_agentteams(root: Path, yes: bool, dry_run: bool) -> None:
         f"\n[researchteam] Running agentteams --update --merge "
         f"(descriptor: {descriptor}) ..."
     )
-    cmd = [exe, "--description", descriptor, "--update", "--merge"]
+    # Pin --shrink-policy preserve explicitly (it is agentteams' default, but this pipeline can pull an
+    # unreviewed agentteams from main via the autosync CI, so a future default flip must never silently
+    # shrink researchteam's enriched fences into an auto-PR). See docs/agentteams-update-policy.md.
+    cmd = [exe, "--description", descriptor, "--update", "--merge", "--shrink-policy", "preserve"]
     if yes:
         cmd.append("--yes")
     if dry_run:
