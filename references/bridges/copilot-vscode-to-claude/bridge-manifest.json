@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-08T18:33:15.551660+00:00",
+  "generated_at": "2026-07-09T21:09:51.667226+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
@@ -67,7 +67,7 @@
     },
     {
       "path": "agents/navigator.agent.md",
-      "sha256": "c50676731fbb114abfe4d172ee09ba2459e36044adc61f2e63ee4b5b54928045"
+      "sha256": "779b578283327b858f6b1f49239479602007022b3e58da70b92c45bb027b5851"
     },
     {
       "path": "agents/orchestrator.agent.md",
@@ -95,7 +95,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "15d81c31dd223a1c30dc3e5fbf664ecae49f8bd347e3a91426fb2f6b06a708e3"
+      "sha256": "63793f56bf202f127247554242f65bf361aa170e5b39df88d21c3daa12369fc6"
     },
     {
       "path": "agents/team-builder.agent.md",

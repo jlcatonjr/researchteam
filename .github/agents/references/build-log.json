@@ -25,8 +25,8 @@
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "ee34760e1f596c17",
-    "universal/navigator.template.md": "a0d0ac008e49068f",
-    "universal/security.template.md": "22e1e8b5bd521eaf",
+    "universal/navigator.template.md": "003a30ed545c0523",
+    "universal/security.template.md": "eb2d9b0f5dd0daf9",
     "universal/code-hygiene.template.md": "5212068c8a00a608",
     "universal/adversarial.template.md": "54bb7645fbc898a0",
     "universal/conflict-auditor.template.md": "e25b928260b0e41f",
@@ -52,6 +52,9 @@
     "domain/unix-philosophy-mapping-reference.template.md": "b086c16596a3030b",
     "universal/security-vulnerability-watch.reference.template.md": "1680e6cfd2a72275",
     "universal/security-vulnerability-watch.json.template": "ebcec1b04ad46caa",
+    "universal/security-linux-hardening.reference.template.md": "622535f7bfa41de6",
+    "universal/security-macos-hardening.reference.template.md": "1333cb343a3e33cf",
+    "universal/security-windows-hardening.reference.template.md": "ac81a0b5b583aa6d",
     "universal/ai-bad-habits-watch.reference.template.md": "690a289b3fdbdf9e",
     "universal/framework-watch.reference.template.md": "7e895e4a5ccc6540",
     "universal/adjacent-repos.reference.template.md": "d5f6783fe18f21c6",
@@ -244,6 +247,24 @@
       "component_slug": null
     },
     {
+      "path": "references/security-linux-hardening.reference.md",
+      "template": "universal/security-linux-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-macos-hardening.reference.md",
+      "template": "universal/security-macos-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-windows-hardening.reference.md",
+      "template": "universal/security-windows-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/ai-bad-habits-watch.reference.md",
       "template": "universal/ai-bad-habits-watch.reference.template.md",
       "type": "artifact",
@@ -400,17 +421,17 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "06c909ddaca4b1b3",
+  "manifest_fingerprint": "1ff893ad143d8dfa",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "15d81c31dd223a1c",
-    "references/security-vulnerability-watch.reference.md": "1e875a90cd9c6ec6",
-    "references/security-vulnerability-watch.json": "494c25766b4373e8",
+    "security.agent.md": "5e7386743f958127",
+    "references/security-vulnerability-watch.reference.md": "f5c0c2295e9fd101",
+    "references/security-vulnerability-watch.json": "360f7aeb633d2daa",
     "references/pipeline-graph.md": "8190a1ae871b6ac6",
     "references/pipeline-graph.svg": "0f48f0bc2fc1f037",
     "references/pipeline-handoffs.svg": "32e9e19ef3a4677f",
     "orchestrator.agent.md": "7461bfc2cce19cdf",
-    "navigator.agent.md": "c50676731fbb114a",
+    "navigator.agent.md": "779b578283327b85",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
     "adversarial.agent.md": "47fb1c63b0d667fc",
     "conflict-auditor.agent.md": "1a5a04ce1639ba7e",
@@ -432,6 +453,9 @@
     "tool-doc-researcher.agent.md": "a2b4c1826300262a",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
+    "references/security-linux-hardening.reference.md": "6474844e2f64654e",
+    "references/security-macos-hardening.reference.md": "3dcc687b875ff829",
+    "references/security-windows-hardening.reference.md": "435bbdc99b9c0cae",
     "references/framework-watch.reference.md": "2fed453f6a875de8",
     "references/adjacent-repos.md": "91c35c837b6b892a",
     "topic-scoping-expert.agent.md": "f8d78987bcdc3f75",
