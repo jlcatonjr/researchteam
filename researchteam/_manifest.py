@@ -13,6 +13,7 @@ MANAGED_FILES = [
     "docs/citation-claim-audit-protocol.md",
     "docs/literature-library-protocol.md",
     "docs/retrieval-surfaces.md",
+    "docs/on-the-fly-retrieval-profile.md",
     ".claude/README.md",
     ".claude/checklists/research-task-preflight.md",
     ".claude/prompts/research-report.prompt.md",

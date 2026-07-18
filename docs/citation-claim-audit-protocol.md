@@ -99,6 +99,41 @@ own `.git/hooks/pre-commit` (it never blocks the commit):
 CITATION_INTEGRITY_ADVISORY=1 bash scripts/check_citation_integrity.sh || true
 ```
 
+## Optional — per-claim source attribution (feeds Layer 2, never replaces it)
+
+An **optional** automated pass that, for each claim, records a **candidate** supporting source — reducing
+the manual Dimension-B workload of "which source backs this claim?" without ever claiming to have *proved*
+it. It **feeds** the Layer-2 semantic audit (Dimension B); it is not a substitute for it, and it does not
+weaken the [honest ceiling](#the-honest-ceiling-read-this-first--it-is-binding): automation *detects and
+escalates candidates*, it does not *prove*.
+
+**Shape (keep survival and attribution strictly separate):**
+
+1. **Survival first (claim × whole evidence corpus).** Ask whether the retrieved evidence, taken together,
+   supports each claim. A claim whose support spans two sources still survives here. A MISSING/omitted
+   verdict is treated as *unknown* (**not survived**), **never** a hard refute — so a spurious result only
+   drops-and-retries, it cannot poison a topic.
+2. **Attribution second (survived claims only, per source).** Build a per-`(claim × source)` support matrix
+   over the survived claims, and record the **first** source that supports each as a *candidate*
+   `source_url`. This is an **isolated split**: because attribution runs only over already-survived claims
+   and writes only a `source_url`, a truncated or mis-ranked attribution can at worst **drop a URL** — it can
+   **never flip a survival verdict**.
+
+**What it is (and is not):**
+
+- The *enumeration* over `(claim × source)` pairs is deterministic; the **per-cell support decision is
+  not** — it is a model judgement that can miss or mis-rank. So this yields **candidates for review**, not
+  certified citations, and "first supporting source wins" makes it **order-dependent** (a claim backed by
+  several sources is attributed to whichever the pass checks first).
+- Output is per-claim `{text, status: survived|refuted, source_url?}` — the `source_url` is a candidate a
+  Dimension-B reviewer confirms or rejects, exactly like a `[CU]`/`[RM]` tag from Layer 1. It never emits
+  "proven genuine."
+
+**Reference (best-effort, order-dependent — not authoritative):** LingoFriend `daa3f93` — `knowledge/team.py`
+splits survival (claim vs. evidence corpus) from attribution (per-source), recording a per-claim `source_url`
+only when a real source supports it; a truncated attribution can drop a URL but never changes a survival
+verdict.
+
 ## What this protocol does NOT do
 
 - It does not prove non-fabrication (ceiling above).

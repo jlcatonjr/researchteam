@@ -14,11 +14,15 @@ Generalized from the OrthodoxLLM instance, whose guardrails "must not be softene
 - **Vector similarity is navigation, not evidence.** A query candidate is a pointer for a human to
   inspect — never a source relationship, never a link, never anchors a claim. "Absence of a candidate
   ≠ absence of a source." Candidates are query-time output; they are not stored as facts.
-- **"Vectorized" = a real, LEXICAL TF-IDF layer.** Vectors are computed by a real vectoriser
-  (`build_literature_library.py`, stdlib, deterministic) — **never authored by a model** (an
-  LLM-typed vector is fabrication). A **semantic/dense/cross-language** layer is a documented **STUB**
-  (needs a neural embedder validated for the source language); until then, never call this "semantic
-  search," and never claim "semantic search over all the <topic> literature."
+- **"Vectorized" = a real, LEXICAL TF-IDF layer** *for this base library*. Vectors are computed by a
+  real vectoriser (`build_literature_library.py`, stdlib, deterministic) — **never authored by a
+  model** (an LLM-typed vector is fabrication). The base literature library is deliberately lexical:
+  never call *it* "semantic search," and never claim "semantic search over all the <topic>
+  literature." A **semantic/dense** layer over source *body text* is no longer only a stub — it is
+  standardized as **retrieval surface #5 (source corpus)** in `docs/retrieval-surfaces.md`, an
+  **additive** dense index a corpus may adopt (real local embedder, page-anchored, `text_sha256`
+  traceability, its own honest ceiling). Adopting surface #5 does **not** make this base library
+  semantic; the two are disjoint surfaces (relevance summaries vs. source body text).
 - **No self-attestation.** The gate rejects a record claiming `verification_state: resolved/attested`
   in an autonomous run; a human sign-off (`LIBRARY_HUMAN_SIGNOFF=1`) with an out-of-band anchor is
   required to assert resolution.
@@ -89,6 +93,13 @@ into `Projects/<project>/references/library/corpus/<slug>.txt` (gitignored) + a 
 `<slug>.provenance.json` (source URL + sha256 + license), and vectorizes the text. This is documented
 for future work; it is **not** built by the base capability, and acquisition is **never** an
 audit-time agent fetch.
+
+> **A separate, opt-in profile exists for products that genuinely need answer-time grounding.** Some
+> interactive/conversational products cannot use a pre-provisioned corpus and must ground a reply *now*.
+> That case is documented as a distinct, clearly-labelled option — `docs/on-the-fly-retrieval-profile.md`
+> — which relaxes **only** the acquisition ceiling (answer-time fetch from a curated allowlist) and carries
+> its own weaker honesty label ("navigation, not a proof; not peer-reviewed truth"). It does **not** change
+> the corpus-of-record law above: the base library's acquisition remains out-of-band and human-gated.
 
 ## Relation to OrthodoxLLM
 
