@@ -152,6 +152,17 @@ worked example: it splits survival (claim vs. evidence corpus) from attribution 
 per-claim `source_url` only when a real source supports it; a truncated attribution can drop a URL but
 never changes a survival verdict.
 
+## Optional — when a claim's evidence is news-typed
+
+When the evidence backing a claim comes from a `type="news"` source, present its verdict with the
+"Reported (attributed, dated)" / "Contested (attributed)" framing in `docs/news-perspective-
+protocol.md`, not folded into the plain `survived`/`refuted` narrative this protocol's Dimension B
+otherwise uses. This is an addition to `@technical-validator`'s claim ledger, not a change to it —
+`survived`/`refuted` still means exactly what §[Layer 2](#layer-2--the-doubled-semantic-audit-agents)
+says; the news-perspective overlay adds a second, source-type-aware label alongside it for the
+specific case of a news-sourced claim, since a wire-service report and a peer-reviewed citation do
+not deserve the same evidentiary weight even when both happen to "survive."
+
 ## What this protocol does NOT do
 
 - It does not prove non-fabrication (ceiling above).

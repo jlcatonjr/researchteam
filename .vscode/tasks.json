@@ -2,6 +2,18 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "script: agentteams_autosync_gate",
+      "type": "shell",
+      "command": "bash scripts/agentteams_autosync_gate.sh",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "AGENTTEAMS"
+    },
+    {
       "label": "script: check_citation_integrity",
       "type": "shell",
       "command": "bash scripts/check_citation_integrity.sh",

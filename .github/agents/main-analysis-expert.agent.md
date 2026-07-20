@@ -130,3 +130,13 @@ The advisor supplies interpretive scaffolding; **you** still own the analysis an
 counter-argument handling. Any lineage claim you carry over keeps its `(per …)` /
 `[editors' inference — unsourced]` tag — never upgrade an inference to a stated fact — and
 `status: provisional` guide claims stay marked provisional.
+
+### News/perspective source handling
+
+When a Component Brief's source list includes a `type="news"` source, apply
+`docs/news-perspective-protocol.md`'s discipline while engaging with it: a news source is a
+contemporaneous account of perspective, not verified fact, and a plain factual report
+("Reported (attributed, dated)") is not the same evidentiary weight as an outlet's own
+characterization of something ("Contested (attributed)"). Name the outlet; carry the date
+when known; never fold a news-sourced claim into the same unqualified confidence as a
+scholarly or official citation.

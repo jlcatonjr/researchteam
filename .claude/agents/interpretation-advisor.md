@@ -2,7 +2,7 @@
 name: interpretation-advisor
 description: "Domain interpretation & methodological-genealogy expert: maps the methodological commitments, philosophy-of-science provenance, centuries-spanning lineage, and intellectual/political conflicts behind a research topic; commissions auditable interpretive maps and methodology guides."
 source: .github/agents/interpretation-advisor.agent.md
-source_sha256: cd9ca0f36372240b18d04ad90a586d6534da4b78035a5f41a48521d236ea5fff
+source_sha256: 90b3bde5ac84dddd6b0fcc1b278c7c9d81b96605938e5d0ee0da2b4a270584d5
 bridge: copilot-vscode-to-claude
 ---
 # Bridged agent (copilot-vscode → claude)
