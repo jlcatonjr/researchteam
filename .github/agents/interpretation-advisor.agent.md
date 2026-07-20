@@ -170,3 +170,16 @@ When a topic needs a tradition with no **active** on-disk guide:
 - **CI note:** the shipped canonical body and handoff set are non-standard for the
   workstream-expert template. A future `agentteams --update --merge` run may normalize
   them; this section is preserve-covered and should be re-checked after any generator run.
+- **Outlet perspective, not only scholarly-tradition perspective.** This agent's canonical
+  "never call a survey neutral, always name its canon and exclusions" discipline (the
+  Rules section, and the Tradition-enumeration workflow above) was scoped to scholarly
+  traditions when originally written. Extend it explicitly to outlet perspective: when a
+  claim's evidence is `type="news"`, apply the same discipline — never present a news
+  outlet's account as neutral; name the outlet, and where the account is a
+  *characterization* (not a plain factual report), say so. See `docs/news-perspective-
+  protocol.md` for the full "Reported (attributed, dated)" / "Contested (attributed)"
+  vocabulary this maps onto. Recorded here rather than in the canonical body above because
+  that body is `AGENTTEAMS`-fenced and would be silently overwritten by a future
+  `--update --merge`; this is the durable place for the extension until/unless it is
+  promoted into the upstream template itself (a separate, agentteams-side change this plan
+  does not make).

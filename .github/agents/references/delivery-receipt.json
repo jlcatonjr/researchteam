@@ -1,11 +1,11 @@
 {
   "artifact_type": "delivery-receipt",
   "receipt_schema_version": "1.0",
-  "delivered_at": "2026-07-09T21:10:54Z",
+  "delivered_at": "2026-07-20T17:24:12Z",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "manifest_fingerprint": "1ff893ad143d8dfa",
+  "manifest_fingerprint": "ce3496dcf34f8f44",
   "fingerprint_algo_version": 1,
-  "output_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
+  "output_dir": "/private/tmp/claude-501/-Users-jamescaton-githubrepositories-lingoFriend/6a9baa52-8ab8-401f-949c-3e2ad21b6af2/scratchpad/worktrees/researchteam-news/.github/agents",
   "agentteams_version": "1.0.0rc6"
 }
