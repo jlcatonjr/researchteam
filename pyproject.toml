@@ -22,13 +22,9 @@ dependencies = []
 update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]
 # `agentteams.research` (web search, curated-source rating, dual-lens claim verification) — the
 # real, generalized implementation the on-the-fly-retrieval-profile.md / citation-claim-audit-
-# protocol.md docs describe. TEMPORARILY branch-pinned (not `main`-pinned like `update` above):
-# the capability lands on agentteams' `feat/research-fact-verification-baseline` branch, not yet
-# merged to its `main`, as of this writing — an unpinned `agentteams @ git+...` URL would silently
-# resolve to `main` and install code with no `research/` subpackage at all. TODO once that branch
-# merges: re-pin to bare `agentteams @ git+https://github.com/jlcatonjr/agentteams` (matching
-# `update`'s own shape) and drop the branch ref.
-research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@feat/research-fact-verification-baseline"]
+# protocol.md docs describe. Re-pinned to bare `main` (matching `update`'s own shape) now that
+# agentteams' feat/research-fact-verification-baseline branch has merged to its main.
+research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"
