@@ -107,6 +107,21 @@ it. It **feeds** the Layer-2 semantic audit (Dimension B); it is not a substitut
 weaken the [honest ceiling](#the-honest-ceiling-read-this-first--it-is-binding): automation *detects and
 escalates candidates*, it does not *prove*.
 
+**Precision on what's real, as of this writing:** `agentteams.research.verify` (installed via `pip
+install agentteams[research]`, or this repo's own `research` optional-dependency group) ships the
+reusable **claim-verification primitives** this pattern is built on — `extract_claims()`,
+`audit_claims(claims, evidence_by_claim, chat_fn, lens)` (per-claim survival checking against a
+lens-selected critique, with a deterministic, non-LLM `_supported_by_evidence(correction, claim,
+evidence)` anti-fabrication backstop closely matching this section's own "candidates for review,
+not certified citations" ceiling), and `revise()`. What it does **not** ship natively is the
+specific per-`(claim × source)` support-matrix / first-source-wins attribution mechanic described
+below: `audit_claims()` checks a claim against one caller-supplied evidence string per claim, not
+a ranked matrix over several candidate sources. Building that matrix — calling the verification
+primitives once per candidate source and keeping the first support — is a composition a caller
+would still need to write on top of `agentteams.research.verify`, not something invoking it once
+already does. Treat the shape below as the target design; the primitives it would be built from
+are real, the specific attribution composition is not yet assembled anywhere in this framework.
+
 **Shape (keep survival and attribution strictly separate):**
 
 1. **Survival first (claim × whole evidence corpus).** Ask whether the retrieved evidence, taken together,
@@ -129,10 +144,13 @@ escalates candidates*, it does not *prove*.
   Dimension-B reviewer confirms or rejects, exactly like a `[CU]`/`[RM]` tag from Layer 1. It never emits
   "proven genuine."
 
-**Reference (best-effort, order-dependent — not authoritative):** LingoFriend `daa3f93` — `knowledge/team.py`
-splits survival (claim vs. evidence corpus) from attribution (per-source), recording a per-claim `source_url`
-only when a real source supports it; a truncated attribution can drop a URL but never changes a survival
-verdict.
+**Reference (best-effort, order-dependent — not authoritative):** the survival/attribution split itself is
+implemented, generalized, and real in `agentteams.research.verify` (`extract_claims`/`audit_claims`/
+`_supported_by_evidence` — see above); the full per-`(claim × source)` matrix composition is not, and
+LingoFriend `daa3f93` (`knowledge/team.py`, the pattern's historical origin) remains the closest full
+worked example: it splits survival (claim vs. evidence corpus) from attribution (per-source), recording a
+per-claim `source_url` only when a real source supports it; a truncated attribution can drop a URL but
+never changes a survival verdict.
 
 ## What this protocol does NOT do
 
