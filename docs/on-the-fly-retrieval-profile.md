@@ -86,11 +86,30 @@ the two profiles' provenance stays reconcilable.
 
 ## Reference implementation (working, but a curated allowlist ≠ a truth oracle)
 
-LingoFriend `b6579ad` — `knowledge/reputable.py` (the allowlist + tiers + topic→primary-repo steering, with
-a public `tier_of(url)` and an honest-empty `reputable_sources(...) → []`) and `knowledge/sources.py`
-(fetch → `provenance{sha256, tier, url, retrieved_at}` → paragraph-chunk → dense-embed → per-account query,
-all local, no cloud key). Caveat the reference hit and this profile must carry: `site:` search is
-best-effort per-domain, and reputability is *provenance*, not correctness.
+This profile has two halves; only the first is a real, present implementation as of this writing
+— do not read the second as also shipped.
+
+- **Allowlist + tiering (real, present):** `agentteams.research.reputable` (installed via `pip
+  install agentteams[research]`, or this repo's own `research` optional-dependency group — see
+  `pyproject.toml`) — a `ReputableSourceAllowlist` built from a data-driven `AllowlistConfig`
+  (tier/type per domain, optional path-scoping, topic-keyword routing), with a public `tier_of
+  (url)` and an honest-empty `reputable_sources(...) → []`. Generalized from the pattern originally
+  built in LingoFriend `b6579ad` (`knowledge/reputable.py`) — that commit is this pattern's
+  historical origin, not the implementation a consumer needs to port from scratch anymore. No
+  project-specific domain-allowlist data ships in `agentteams.research`; every consumer supplies
+  its own `AllowlistConfig`. A small, deliberately generic default (4 broadly-uncontroversial
+  domains — wikipedia.org, reuters.com, apnews.com, bbc.com) ships as a convenience starting
+  point, not a substitute for a consumer's own editorial judgment.
+- **Fetch → chunk → dense-embed → per-account query (still hypothetical):** this half of the
+  profile has no implementation in `agentteams.research` or anywhere else in this framework as of
+  this writing. LingoFriend `b6579ad`'s `knowledge/sources.py` (fetch →
+  `provenance{sha256, tier, url, retrieved_at}` → paragraph-chunk → dense-embed → per-account
+  query, all local, no cloud key) remains the only reference implementation to port from, exactly
+  as before. Porting it is a separate, later decision, not part of what shipped alongside the
+  allowlist half.
+
+Caveat both halves carry: `site:` search is best-effort per-domain, and reputability is
+*provenance*, not correctness.
 
 ## Acceptance for this profile
 

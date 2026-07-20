@@ -20,6 +20,11 @@ dependencies = []
 # `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
 [project.optional-dependencies]
 update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]
+# `agentteams.research` (web search, curated-source rating, dual-lens claim verification) — the
+# real, generalized implementation the on-the-fly-retrieval-profile.md / citation-claim-audit-
+# protocol.md docs describe. Re-pinned to bare `main` (matching `update`'s own shape) now that
+# agentteams' feat/research-fact-verification-baseline branch has merged to its main.
+research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"
