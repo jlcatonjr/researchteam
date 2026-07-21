@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-09T21:13:34.620535+00:00",
+  "generated_at": "2026-07-21T00:09:59.452323+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
@@ -55,7 +55,7 @@
     },
     {
       "path": "agents/interpretation-advisor.agent.md",
-      "sha256": "cd9ca0f36372240b18d04ad90a586d6534da4b78035a5f41a48521d236ea5fff"
+      "sha256": "90b3bde5ac84dddd6b0fcc1b278c7c9d81b96605938e5d0ee0da2b4a270584d5"
     },
     {
       "path": "agents/literature-review-expert.agent.md",
@@ -63,7 +63,7 @@
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
-      "sha256": "1f6c9db4d466c9c29dc562a34cb9fadff472cb191ab00c562449ea7d8b11e0e2"
+      "sha256": "ee60df15ae81751bf6379927f3a0f46f52b18aa7c015b91e9690bd98ae89056e"
     },
     {
       "path": "agents/navigator.agent.md",
@@ -95,7 +95,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "5e7386743f95812719951041f9eb2596f3afe7662693eca3bc0658a9f2f175ae"
+      "sha256": "4dbf2e933ff8c2f3a01e78313f7f988c6ec6acf63a5082eb37c83d56a4cb0cec"
     },
     {
       "path": "agents/team-builder.agent.md",

@@ -424,9 +424,11 @@
   "manifest_fingerprint": "e82a2d827ebdc2f0",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "baa392187df10c18",
-    "security.agent.md": "ea47377f74b3785a",
-    "references/security-vulnerability-watch.reference.md": "6b1d77470644cc11",
+    "security.agent.md": "ae621bd94184beaf",
+    "references/security-vulnerability-watch.json": "3eb03deb458d1534",
+    "references/pipeline-graph.md": "8190a1ae871b6ac6",
+    "references/pipeline-graph.svg": "0f48f0bc2fc1f037",
+    "references/pipeline-handoffs.svg": "32e9e19ef3a4677f",
     "orchestrator.agent.md": "7461bfc2cce19cdf",
     "navigator.agent.md": "779b578283327b85",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
@@ -450,13 +452,9 @@
     "tool-doc-researcher.agent.md": "a2b4c1826300262a",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
+    "references/security-vulnerability-watch.reference.md": "6b1d77470644cc11",
     "references/framework-watch.reference.md": "2fed453f6a875de8",
     "references/adjacent-repos.md": "91c35c837b6b892a",
-    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
-    "references/work-summary-spec.reference.md": "96232231a1f7c6be",
-    "references/work-summary-tooling.reference.md": "f3656972717153a9",
-    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
-    "references/parallelization.reference.md": "d2321bf5ac1ed2f8",
     "topic-scoping-expert.agent.md": "f8d78987bcdc3f75",
     "literature-review-expert.agent.md": "2133b295289badfa",
     "main-analysis-expert.agent.md": "ee60df15ae81751b",
@@ -465,6 +463,10 @@
     "team-builder.agent.md": "9dcf3f165ffd2bce",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "2ff237a293a35cdc",
-    "references/pipeline-graph.md": "8190a1ae871b6ac6"
+    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
+    "references/work-summary-spec.reference.md": "96232231a1f7c6be",
+    "references/work-summary-tooling.reference.md": "f3656972717153a9",
+    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "d2321bf5ac1ed2f8"
   }
 }
