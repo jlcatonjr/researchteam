@@ -21,11 +21,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/retrospective-remediation.reference.md",
-    ".github/agents/references/cli-tool-discovery.reference.md",
-    ".github/agents/references/skill-generation.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "d97901a295889110",
@@ -449,18 +445,11 @@
   "manifest_fingerprint": "7dd54641c6714703",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
-    "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
-    "references/skill-generation.reference.md": "eb14d4d80322f4bf",
-    "orchestrator.agent.md": "bdaad3e3721ca2b5",
-    "security.agent.md": "0318f5f69a07b7bb",
-    "repo-liaison.agent.md": "61b4668438d769b8",
+    "references/security-vulnerability-watch.json": "07f9c623dac51a22",
+    "security.agent.md": "8fff0ba973d9e2be",
+    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "256683603dce595d",
     "references/security-vulnerability-watch.reference.md": "6a8bc2b882e4c601",
-    "references/security-vulnerability-watch.json": "5f0aa6d5ffd6e87a",
-    "references/ai-bad-habits-watch.reference.md": "f219fe89f7c75d72",
-    "references/pipeline-graph.md": "8190a1ae871b6ac6",
-    "references/pipeline-graph.svg": "0f48f0bc2fc1f037",
-    "references/pipeline-handoffs.svg": "32e9e19ef3a4677f",
+    "orchestrator.agent.md": "bdaad3e3721ca2b5",
     "navigator.agent.md": "779b578283327b85",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
     "adversarial.agent.md": "86cab35df4972d10",
@@ -469,6 +458,7 @@
     "cleanup.agent.md": "7ea1a25823ff305f",
     "agent-updater.agent.md": "d69e5774ae01ecbf",
     "agent-refactor.agent.md": "e89ed5d7214c9ebd",
+    "repo-liaison.agent.md": "61b4668438d769b8",
     "git-operations.agent.md": "9a205a22f7c7ce28",
     "work-summarizer.agent.md": "d596ef235fcd72bc",
     "primary-producer.agent.md": "01a9c2ee57aeddf2",
@@ -484,6 +474,14 @@
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/framework-watch.reference.md": "2fed453f6a875de8",
     "references/adjacent-repos.md": "91c35c837b6b892a",
+    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
+    "references/work-summary-spec.reference.md": "96232231a1f7c6be",
+    "references/work-summary-tooling.reference.md": "f3656972717153a9",
+    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "d2321bf5ac1ed2f8",
+    "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
+    "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
+    "references/skill-generation.reference.md": "eb14d4d80322f4bf",
     "topic-scoping-expert.agent.md": "f8d78987bcdc3f75",
     "literature-review-expert.agent.md": "2133b295289badfa",
     "main-analysis-expert.agent.md": "ee60df15ae81751b",
@@ -492,10 +490,6 @@
     "team-builder.agent.md": "9dcf3f165ffd2bce",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "2ff237a293a35cdc",
-    "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
-    "references/work-summary-spec.reference.md": "96232231a1f7c6be",
-    "references/work-summary-tooling.reference.md": "f3656972717153a9",
-    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
-    "references/parallelization.reference.md": "d2321bf5ac1ed2f8"
+    "references/pipeline-graph.md": "8190a1ae871b6ac6"
   }
 }

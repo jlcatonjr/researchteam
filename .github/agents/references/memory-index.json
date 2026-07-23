@@ -2,16 +2,16 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "43b683acd175034cc45293737d4dff793971df174835fd3005d6347e60671aab",
+  "index_build_id": "afe8477e8fdb4ace9f4897c54aa062a53d4a666b3edc45a2df11d0ff40ddd1e9",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
   "vector_dim": null,
   "fallback_policy": "non-blocking-file-read-then-search",
-  "source_fingerprint": "71f81aea37794a42eeed27d3087e4d837a2a8ec7283dc0e3fda63300837cf3b2",
+  "source_fingerprint": "64478cb53ec8c67e213ad7601e3bf28d08dac07370bcdb933de240a4b9cec5dc",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-07-23T18:25:59.945253Z",
+  "built_at": "2026-07-23T18:39:57.831126Z",
   "source_count": 18,
   "documents": [
     {
@@ -44,7 +44,7 @@
       ],
       "source_hash": "9ad40b7a2fadc0426bb95e91d49eb4f5c725b3ec505a775af0e614f01a313702",
       "source_mtime": 1779327232.1620755,
-      "vector_norm_sq": 15980.960756521647
+      "vector_norm_sq": 15885.213642983175
     },
     {
       "doc_id": 1,
@@ -65,7 +65,7 @@
       ],
       "source_hash": "648b144f0b306bb41c18e96059820bd62a0621cbcff0d550ad4e78c1e467a8c8",
       "source_mtime": 1783467074.1865726,
-      "vector_norm_sq": 14290.876067135752
+      "vector_norm_sq": 14189.917132520713
     },
     {
       "doc_id": 2,
@@ -77,8 +77,8 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "a046005d56e95389c93c1294f820610c1eb6a070b0d659fe8dc177d1361ea022",
-      "source_mtime": 1784592599.453681,
-      "vector_norm_sq": 20733.25056600861
+      "source_mtime": 1784831869.0095754,
+      "vector_norm_sq": 20657.680988399276
     },
     {
       "doc_id": 3,
@@ -103,7 +103,7 @@
         "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/quickstart-snippet.md - skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/.claude/README.md - skipped (no-rendered-fence): /Users/jamescaton/githubrepositorie"
       ],
       "source_hash": "09804776d5cd22ccf1f1a8fda358555721b1e38b3abb98ef8a5d0ff87084568c",
-      "source_mtime": 1784592599.4590018,
+      "source_mtime": 1784831869.0151424,
       "vector_norm_sq": 558.6566342446457
     },
     {
@@ -118,8 +118,8 @@
         "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
       "source_hash": "aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f",
-      "source_mtime": 1784592599.4541724,
-      "vector_norm_sq": 418.08382437360393
+      "source_mtime": 1784831869.0099013,
+      "vector_norm_sq": 342.1504002049833
     },
     {
       "doc_id": 6,
@@ -135,8 +135,8 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
-      "source_mtime": 1784592599.4540794,
-      "vector_norm_sq": 176.65245915704878
+      "source_mtime": 1784831869.0098152,
+      "vector_norm_sq": 177.39822122888395
     },
     {
       "doc_id": 7,
@@ -149,21 +149,21 @@
         "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
       ],
       "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
-      "source_mtime": 1784592599.4539635,
-      "vector_norm_sq": 123.96675125233882
+      "source_mtime": 1784831869.0097275,
+      "vector_norm_sq": 125.52411695602329
     },
     {
       "doc_id": 8,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/agent-inventory.md",
       "title": "Agent Team Bridge Inventory",
-      "length": 766,
+      "length": 800,
       "snippet": "Lightweight compatibility inventory generated from source canonical files.",
       "paragraphs": [
         "Lightweight compatibility inventory generated from source canonical files."
       ],
-      "source_hash": "5327c75292cc79a70b98f505c08bb49464b58e1620ddf9123758ec06c412db74",
-      "source_mtime": 1782235116.507338,
-      "vector_norm_sq": 19502.913745904643
+      "source_hash": "a046005d56e95389c93c1294f820610c1eb6a070b0d659fe8dc177d1361ea022",
+      "source_mtime": 1784831873.8544123,
+      "vector_norm_sq": 20657.680988399276
     },
     {
       "doc_id": 9,
@@ -175,22 +175,23 @@
         "- merged: /Users/jamescaton/githubrepositories/researchteam/AGENTS.md - merged: /Users/jamescaton/githubrepositories/researchteam/.goosehints - merged: /Users/jamescaton/githubrepositories/researchteam/.goose/README.md"
       ],
       "source_hash": "88c1a0ef893a53c4fa7e2e41210d702999aac6e5af0b577f7583da445e7e6f65",
-      "source_mtime": 1782235116.5135915,
+      "source_mtime": 1784831873.8580394,
       "vector_norm_sq": 111.61350922865554
     },
     {
       "doc_id": 10,
       "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/domain-boundary.md",
-      "title": "Domain Boundary \u2014 Memory-Index Vector vs Retrieval-Integrator",
-      "length": 63,
-      "snippet": "The agentteams `memory_index` module ships a `--query-strategy vector` mode that is a **local sparse tf-idf vector-space ranking for memory-history retrieval only**. It is stdlib-only, deterministic, and scoped to durable text sources (work",
+      "title": "Domain Boundary \u2014 Three Retrieval Surfaces",
+      "length": 95,
+      "snippet": "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
       "paragraphs": [
-        "The agentteams `memory_index` module ships a `--query-strategy vector` mode that is a **local sparse tf-idf vector-space ranking for memory-history retrieval only**. It is stdlib-only, deterministic, and scoped to durable text sources (work summaries, CHANGELOG, durable plans).",
-        "It is **separate** from any project-level retrieval-integrator validation contract (e.g., relational metadata retrieval against project data tables). When a project's retrieval contract has `mode: relational-metadata`, that is independent from the memory-index's `vector_runtime_mode: sparse-tfidf-cosine` \u2014 the two retrieval surfaces address different questions and must not be conflated."
+        "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
+        "1. **Memory-index** (`memory_index`, `--query-index`) \u2014 a stdlib-only sparse tf-idf vector-space ranking over **durable prose** (work summaries, CHANGELOG, durable plans). `vector_runtime_mode: sparse-tfidf-cosine`. 2. **Code index** (`code_index`, `--query-code`) \u2014 a stdlib-only sparse tf-idf ranking over **code**: local scripts (`local-script`), the external API modules they import (`api-module`), and API documentation (`api-doc`), filterable with `--code-kind`. A **gitigno",
+        "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
-      "source_hash": "0e2aa54097cfccb3174700ebc7d0a289bf15d860c61a209c4086c0ef0db0b727",
-      "source_mtime": 1782235116.508989,
-      "vector_norm_sq": 197.12957465035026
+      "source_hash": "87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c",
+      "source_mtime": 1784831873.8548214,
+      "vector_norm_sq": 342.68820819787646
     },
     {
       "doc_id": 11,
@@ -206,8 +207,8 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "8c9e3f27acd76339e550b70871012cb7409cb95341f6735e2ad04f1b5711838a",
-      "source_mtime": 1782235116.5085993,
-      "vector_norm_sq": 177.1902671499419
+      "source_mtime": 1784831873.854732,
+      "vector_norm_sq": 177.9360292217771
     },
     {
       "doc_id": 12,
@@ -222,8 +223,8 @@
         "The bridge emits `.goose/recipes/bridge-orchestrator.yaml` \u2014 run it with `goose run --recipe .goose/recipes/bridge-orchestrator.yaml` to start the bridged team WITH the `developer` (CLI) extension by default. Pass `--target-host-features bridge:<source>-to-goose:mcp` and build the source with an MCP token first to also wire the selected (first-party, read-only, orchestrator-scoped) MCP servers into that recipe."
       ],
       "source_hash": "66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66",
-      "source_mtime": 1782235116.5082679,
-      "vector_norm_sq": 1061.1479186896158
+      "source_mtime": 1784831873.8546288,
+      "vector_norm_sq": 1062.4882629215142
     },
     {
       "doc_id": 13,
@@ -237,7 +238,7 @@
       ],
       "source_hash": "1798e17f99965864da5490d874dfc605be0c62612150c65ceb7e93736c7119dd",
       "source_mtime": 1779285118.616748,
-      "vector_norm_sq": 344.9994050149426
+      "vector_norm_sq": 346.1728150375565
     },
     {
       "doc_id": 14,
@@ -251,7 +252,7 @@
       ],
       "source_hash": "dfb9ca73bc83b6a10e39a6acaaf599c92b998d14a601d128250ee5832db7a0d4",
       "source_mtime": 1779285118.6175292,
-      "vector_norm_sq": 402.62175530242536
+      "vector_norm_sq": 401.5394000282838
     },
     {
       "doc_id": 15,
@@ -265,7 +266,7 @@
       ],
       "source_hash": "f6ca314a0d2691fe38ced7cb00be95c292e7f470bd105e7d84b0a8cff49de12d",
       "source_mtime": 1779285118.6182218,
-      "vector_norm_sq": 330.2492982742974
+      "vector_norm_sq": 330.63558205985686
     },
     {
       "doc_id": 16,
@@ -281,7 +282,7 @@
       ],
       "source_hash": "42f2a6b74aeb113c2abe80e53fcb59e3e4841103da4a99b822f0417ccc233afd",
       "source_mtime": 1779285118.6188612,
-      "vector_norm_sq": 676.5362143999446
+      "vector_norm_sq": 675.1180341993589
     },
     {
       "doc_id": 17,
@@ -295,7 +296,7 @@
       ],
       "source_hash": "5f4cd24bee302d3e521911e083471663b8d0b429cff5c9d4d5b4449147b16dbb",
       "source_mtime": 1779285118.6195295,
-      "vector_norm_sq": 368.1334154570058
+      "vector_norm_sq": 368.0049729992151
     }
   ],
   "postings": {
@@ -318,7 +319,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 82
+        "tf": 84
       },
       {
         "doc_id": 9,
@@ -364,7 +365,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 2
+        "tf": 3
       },
       {
         "doc_id": 16,
@@ -559,10 +560,6 @@
         "tf": 1
       },
       {
-        "doc_id": 10,
-        "tf": 1
-      },
-      {
         "doc_id": 17,
         "tf": 1
       }
@@ -614,7 +611,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 2
+        "tf": 3
       },
       {
         "doc_id": 11,
@@ -733,6 +730,10 @@
         "tf": 2
       },
       {
+        "doc_id": 10,
+        "tf": 1
+      },
+      {
         "doc_id": 12,
         "tf": 1
       },
@@ -796,7 +797,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 30
+        "tf": 31
       },
       {
         "doc_id": 12,
@@ -1064,7 +1065,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 31
+        "tf": 32
       },
       {
         "doc_id": 9,
@@ -1378,10 +1379,6 @@
       },
       {
         "doc_id": 1,
-        "tf": 1
-      },
-      {
-        "doc_id": 10,
         "tf": 1
       },
       {
@@ -1821,6 +1818,10 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "readme": [
@@ -1871,6 +1872,10 @@
         "tf": 1
       },
       {
+        "doc_id": 10,
+        "tf": 1
+      },
+      {
         "doc_id": 11,
         "tf": 1
       },
@@ -1894,6 +1899,10 @@
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -1920,6 +1929,10 @@
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -2350,7 +2363,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 46
+        "tf": 47
       },
       {
         "doc_id": 11,
@@ -2539,6 +2552,10 @@
       {
         "doc_id": 8,
         "tf": 7
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "installable": [
@@ -2932,7 +2949,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 1
+        "tf": 2
       },
       {
         "doc_id": 10,
@@ -3176,7 +3193,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 29
+        "tf": 30
       },
       {
         "doc_id": 9,
@@ -3733,6 +3750,10 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "mapped": [
@@ -3761,6 +3782,10 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "edges": [
@@ -3777,6 +3802,10 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "external": [
@@ -3786,6 +3815,10 @@
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -3890,10 +3923,6 @@
       },
       {
         "doc_id": 8,
-        "tf": 1
-      },
-      {
-        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -4112,6 +4141,10 @@
       },
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -4450,7 +4483,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 29
+        "tf": 30
       },
       {
         "doc_id": 9,
@@ -4468,7 +4501,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 29
+        "tf": 30
       },
       {
         "doc_id": 9,
@@ -4916,7 +4949,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 1
+        "tf": 3
       }
     ],
     "integration": [
@@ -4955,6 +4988,10 @@
       {
         "doc_id": 8,
         "tf": 2
+      },
+      {
+        "doc_id": 10,
+        "tf": 3
       },
       {
         "doc_id": 11,
@@ -5304,7 +5341,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 9
+        "tf": 10
       }
     ],
     "component": [
@@ -5434,7 +5471,7 @@
       },
       {
         "doc_id": 8,
-        "tf": 2
+        "tf": 3
       }
     ],
     "material": [
@@ -5775,11 +5812,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "methodological-genealogy": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5787,11 +5832,19 @@
       {
         "doc_id": 2,
         "tf": 2
+      },
+      {
+        "doc_id": 8,
+        "tf": 2
       }
     ],
     "methodological": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5799,11 +5852,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "philosophy-of-science": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5811,11 +5872,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "centuries-spanning": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5823,11 +5892,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "intellectual": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5835,11 +5912,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "behind": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5850,18 +5935,26 @@
       },
       {
         "doc_id": 8,
-        "tf": 2
+        "tf": 3
       }
     ],
     "commissions": [
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "auditable": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       },
       {
@@ -5873,11 +5966,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "methodology": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -5885,11 +5986,19 @@
       {
         "doc_id": 2,
         "tf": 1
+      },
+      {
+        "doc_id": 8,
+        "tf": 1
       }
     ],
     "interpretation-advisor": [
       {
         "doc_id": 2,
+        "tf": 1
+      },
+      {
+        "doc_id": 8,
         "tf": 1
       }
     ],
@@ -6237,6 +6346,10 @@
       {
         "doc_id": 8,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 2
       },
       {
         "doc_id": 11,
@@ -7043,6 +7156,10 @@
       {
         "doc_id": 8,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 2
       }
     ],
     "surfaces": [
@@ -7060,7 +7177,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "usage": [
@@ -7090,10 +7207,6 @@
       },
       {
         "doc_id": 8,
-        "tf": 1
-      },
-      {
-        "doc_id": 10,
         "tf": 1
       },
       {
@@ -7530,7 +7643,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 4
+        "tf": 2
       },
       {
         "doc_id": 11,
@@ -7544,6 +7657,10 @@
     "exposes": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7677,6 +7794,10 @@
         "tf": 1
       },
       {
+        "doc_id": 10,
+        "tf": 1
+      },
+      {
         "doc_id": 11,
         "tf": 1
       },
@@ -7692,7 +7813,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "sparse": [
@@ -7702,7 +7823,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "tf-idf": [
@@ -7712,7 +7833,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "vector-space": [
@@ -7732,12 +7853,16 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "over": [
       {
         "doc_id": 5,
+        "tf": 2
+      },
+      {
+        "doc_id": 10,
         "tf": 2
       },
       {
@@ -7827,6 +7952,10 @@
         "tf": 1
       },
       {
+        "doc_id": 10,
+        "tf": 1
+      },
+      {
         "doc_id": 11,
         "tf": 1
       }
@@ -7835,11 +7964,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "query-code": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7850,12 +7987,16 @@
       },
       {
         "doc_id": 10,
-        "tf": 1
+        "tf": 2
       }
     ],
     "local-script": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7863,11 +8004,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "api-doc": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7875,11 +8024,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "code-kind": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7887,11 +8044,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "cache": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7899,11 +8064,19 @@
       {
         "doc_id": 5,
         "tf": 2
+      },
+      {
+        "doc_id": 10,
+        "tf": 2
       }
     ],
     "committed": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -7972,7 +8145,7 @@
       },
       {
         "doc_id": 10,
-        "tf": 2
+        "tf": 1
       },
       {
         "doc_id": 11,
@@ -8003,11 +8176,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "siblings": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -8015,11 +8196,19 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "disjoint": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -8027,17 +8216,29 @@
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "participates": [
       {
         "doc_id": 5,
         "tf": 1
+      },
+      {
+        "doc_id": 10,
+        "tf": 1
       }
     ],
     "single-slot": [
       {
         "doc_id": 5,
+        "tf": 1
+      },
+      {
+        "doc_id": 10,
         "tf": 1
       }
     ],
@@ -8271,10 +8472,6 @@
         "tf": 1
       },
       {
-        "doc_id": 10,
-        "tf": 1
-      },
-      {
         "doc_id": 11,
         "tf": 1
       },
@@ -8291,10 +8488,6 @@
       {
         "doc_id": 7,
         "tf": 1
-      },
-      {
-        "doc_id": 10,
-        "tf": 2
       },
       {
         "doc_id": 11,
@@ -8441,10 +8634,6 @@
         "tf": 1
       },
       {
-        "doc_id": 10,
-        "tf": 1
-      },
-      {
         "doc_id": 12,
         "tf": 1
       }
@@ -8545,42 +8734,6 @@
       {
         "doc_id": 12,
         "tf": 7
-      }
-    ],
-    "ships": [
-      {
-        "doc_id": 10,
-        "tf": 1
-      }
-    ],
-    "memory-history": [
-      {
-        "doc_id": 10,
-        "tf": 1
-      }
-    ],
-    "deterministic": [
-      {
-        "doc_id": 10,
-        "tf": 1
-      }
-    ],
-    "scoped": [
-      {
-        "doc_id": 10,
-        "tf": 1
-      }
-    ],
-    "separate": [
-      {
-        "doc_id": 10,
-        "tf": 1
-      }
-    ],
-    "relational": [
-      {
-        "doc_id": 10,
-        "tf": 1
       }
     ],
     "scope": [
@@ -9918,6 +10071,6 @@
       }
     ]
   },
-  "avgdl": 206.77777777777777,
+  "avgdl": 210.44444444444446,
   "N": 18
 }

@@ -2,7 +2,7 @@
   "artifact_type": "eval-suite",
   "eval_suite_schema_version": "1.0",
   "project_name": "ResearchTeam",
-  "framework": "copilot-vscode",
+  "framework": "goose",
   "generated_from": "manifest",
   "scenarios": [
     {
@@ -47,20 +47,6 @@
       }
     },
     {
-      "id": "handoff-literature-review",
-      "category": "handoff",
-      "claim": "literature-review-expert receives upstream from topic-scoping-expert, main-analysis-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
-      "predicate": {
-        "kind": "handoff-chain",
-        "chain": [
-          "topic-scoping-expert",
-          "main-analysis-expert",
-          "literature-review-expert"
-        ],
-        "returns_to": "orchestrator"
-      }
-    },
-    {
       "id": "governance-literature-review-triad-and-return",
       "category": "governance",
       "claim": "literature-review-expert wires the worker-governance triad (primary-producer, adversarial, reference-manager) and includes a 'Return to Orchestrator' edge.",
@@ -76,20 +62,6 @@
       }
     },
     {
-      "id": "handoff-main-analysis",
-      "category": "handoff",
-      "claim": "main-analysis-expert receives upstream from literature-review-expert, conclusion-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
-      "predicate": {
-        "kind": "handoff-chain",
-        "chain": [
-          "literature-review-expert",
-          "conclusion-expert",
-          "main-analysis-expert"
-        ],
-        "returns_to": "orchestrator"
-      }
-    },
-    {
       "id": "governance-main-analysis-triad-and-return",
       "category": "governance",
       "claim": "main-analysis-expert wires the worker-governance triad (primary-producer, adversarial, reference-manager) and includes a 'Return to Orchestrator' edge.",
@@ -102,19 +74,6 @@
           "reference-manager"
         ],
         "body_contains": "Return to Orchestrator"
-      }
-    },
-    {
-      "id": "handoff-conclusion",
-      "category": "handoff",
-      "claim": "conclusion-expert receives upstream from main-analysis-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
-      "predicate": {
-        "kind": "handoff-chain",
-        "chain": [
-          "main-analysis-expert",
-          "conclusion-expert"
-        ],
-        "returns_to": "orchestrator"
       }
     },
     {

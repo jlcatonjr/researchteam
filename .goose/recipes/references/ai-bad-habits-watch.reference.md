@@ -23,6 +23,7 @@ deliberately not catalogued here.
 | BH-03 | Single-use helper functions adding needless indirection | — | Inline single-use helpers; abstract only on the third repetition (rule of three) |
 | BH-04 | Duplicated code blocks instead of reuse | CH-08 | Reuse existing utilities; extract a shared helper at 3 occurrences (DRY) |
 | BH-05 | Tests omitted unless explicitly requested | CH-21 | Tests mandatory (happy path + edge/error cases); enforce a coverage gate |
+| BH-10 | Wholesale file rewrites / reformatting untouched regions when a scoped edit suffices | CH-28 | Make the smallest change that satisfies the task; never reformat or restructure unrelated lines in the same edit (CH-28). Required guards/cleanups (CH-10/CH-22/CH-23/CH-24) and sanctioned refactors still apply. |
 
 ### AI-specific correctness
 
@@ -30,6 +31,7 @@ deliberately not catalogued here.
 |----|-----------|------------|--------------------|
 | BH-06 | Hallucinated or unresolvable dependencies / imports | — | Verify every import and package resolves against the real registry; pin + lockfile. (The supply-chain / slopsquatting SECURITY angle is @security's.) |
 | BH-07 | Model output forwarded without shape-validation | CH-23 | Validate/shape-check AI output and fail fast on unexpected shapes (CH-23). (The untrusted-sink injection angle is @security's.) |
+| BH-11 | A backstage/utility LLM call silently inherits a user-facing, dynamically-selectable model (or other generation parameter) choice, without accounting for that model's behavioral differences | CH-23 | Give utility calls (routing, extraction, summarization, auditing) their own default, independent of a user-facing picker — or explicitly account for the selected model's behavior (e.g. a reasoning model consuming its fixed token budget on internal thinking before any requested output). An ambiguous empty/degraded result from such a call must not be treated as a confident negative (see BH-07/CH-23). |
 
 ### Process
 

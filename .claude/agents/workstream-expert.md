@@ -4,6 +4,7 @@ description: Parametric workstream-expert subagent; takes a component slug and l
 source_dir: .github/agents
 collapsed_experts: 4
 bridge: copilot-vscode-to-claude
+allowed-tools: Read, Grep, Glob, Task
 ---
 # Workstream Expert (parametric, bridged)
 

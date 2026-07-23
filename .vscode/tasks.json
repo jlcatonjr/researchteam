@@ -369,6 +369,19 @@
       "detail": "AGENTTEAMS"
     },
     {
+      "label": "Goose: Retrieval Integrator",
+      "type": "shell",
+      "command": "zsh -c '. ~/.config/goose/goose-backend.sh && goose-or run --recipe .goose/recipes/retrieval-integrator.yaml'",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": [],
+      "detail": "AGENTTEAMS"
+    },
+    {
       "label": "Goose: Security",
       "type": "shell",
       "command": "zsh -c '. ~/.config/goose/goose-backend.sh && goose-or run --recipe .goose/recipes/security.yaml'",

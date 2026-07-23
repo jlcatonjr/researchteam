@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-21T00:09:59.452323+00:00",
+  "generated_at": "2026-07-23T18:37:49.008956+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
-  "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
+  "source_dir": ".github/agents",
   "source_hashes": [
     {
       "path": "agents/adversarial.agent.md",
-      "sha256": "47fb1c63b0d667fc3e0e128a182db50d9670e2fead489246ea79cfca3af824f4"
+      "sha256": "86cab35df4972d10a45d28b33b838629676eecc75aad2b83be8987fe4ee3ce1a"
     },
     {
       "path": "agents/agent-refactor.agent.md",
@@ -35,11 +35,11 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "1a5a04ce1639ba7ea29186d39f1f037ba94d6e8d5c3361e23afd969f769c6cec"
+      "sha256": "9389a35d2a66f7db7f58f2060d3206537c4412f94fea46961e4e24cc7dab9d54"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
-      "sha256": "b6ecb5b34a788346582d981a942cab7196353ee641beb7797cb7a658fb39a95b"
+      "sha256": "449458fd85eb9af43727d427b970f9287857dd331bc6fc6d56a7b45da49f90cb"
     },
     {
       "path": "agents/content-enricher.agent.md",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "7461bfc2cce19cdf021b976434af2c9ef79be35246a95a6562177e91677a74c0"
+      "sha256": "bdaad3e3721ca2b5e3ab5b70a0d3ce1830e7dcee7c444104ab824a4e09420841"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -83,7 +83,7 @@
     },
     {
       "path": "agents/quality-auditor.agent.md",
-      "sha256": "ff4050dbce3acbf32bf32b89f12bd0beea8fd7db8c613b6a331972ef03950e61"
+      "sha256": "f90e005720dbe78cf10b55932e547eab2da6df0cfb54918e3a9a7777f8f267fd"
     },
     {
       "path": "agents/reference-manager.agent.md",
@@ -91,11 +91,11 @@
     },
     {
       "path": "agents/repo-liaison.agent.md",
-      "sha256": "a7ca29cae5706426fbdf895c78621f95291dcdde696f07594d70fd9f357c085a"
+      "sha256": "61b4668438d769b845210a0ce437ab3484db41a864ee24898f607c240d0781a3"
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "4dbf2e933ff8c2f3a01e78313f7f988c6ec6acf63a5082eb37c83d56a4cb0cec"
+      "sha256": "fc99f6aaf877630304ab26efe65f964be4c6d29dd1b55ee9b52e054812637381"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -107,7 +107,7 @@
     },
     {
       "path": "agents/tool-doc-researcher.agent.md",
-      "sha256": "a2b4c1826300262a0cc8cb4602d3e89351f117a1cfcaf702f3c1e0b7b3bd3309"
+      "sha256": "597b5aa034348c0f1c114fb8610102ee3286cf354a26612b218d08dacba25cd6"
     },
     {
       "path": "agents/tool-pandoc.agent.md",

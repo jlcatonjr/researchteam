@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-06-23T17:18:36.504929+00:00",
+  "generated_at": "2026-07-23T18:37:53.852323+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
-  "source_dir": "/Users/jamescaton/githubrepositories/researchteam/.github/agents",
+  "source_dir": ".github/agents",
   "source_hashes": [
     {
       "path": "agents/adversarial.agent.md",
-      "sha256": "47fb1c63b0d667fc3e0e128a182db50d9670e2fead489246ea79cfca3af824f4"
+      "sha256": "86cab35df4972d10a45d28b33b838629676eecc75aad2b83be8987fe4ee3ce1a"
     },
     {
       "path": "agents/agent-refactor.agent.md",
@@ -27,7 +27,7 @@
     },
     {
       "path": "agents/cohesion-repairer.agent.md",
-      "sha256": "8f2de9fd3dd3ff2b452a332497b90fab89c431bda657e80c4a737f274ed05bed"
+      "sha256": "28cacb798ea5ea3744562d18552ef86f61aa6f1b06bdb578ae5c25afaac8a10e"
     },
     {
       "path": "agents/conclusion-expert.agent.md",
@@ -35,11 +35,11 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "eb3ba427594715a316986e8e9fb5cce8db9650a0011e438224e0606dd2d293de"
+      "sha256": "9389a35d2a66f7db7f58f2060d3206537c4412f94fea46961e4e24cc7dab9d54"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
-      "sha256": "b6ecb5b34a788346582d981a942cab7196353ee641beb7797cb7a658fb39a95b"
+      "sha256": "449458fd85eb9af43727d427b970f9287857dd331bc6fc6d56a7b45da49f90cb"
     },
     {
       "path": "agents/content-enricher.agent.md",
@@ -47,27 +47,31 @@
     },
     {
       "path": "agents/format-converter.agent.md",
-      "sha256": "f39d63dc2e32f3efbee740ed3bb8b05389579b645d03f7190b002c5c363a6808"
+      "sha256": "e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f"
     },
     {
       "path": "agents/git-operations.agent.md",
       "sha256": "9a205a22f7c7ce287349c5144d150f679020cede527b89009f2d54b171af2b5d"
     },
     {
+      "path": "agents/interpretation-advisor.agent.md",
+      "sha256": "90b3bde5ac84dddd6b0fcc1b278c7c9d81b96605938e5d0ee0da2b4a270584d5"
+    },
+    {
       "path": "agents/literature-review-expert.agent.md",
-      "sha256": "b3501822a52c521046924d9ac51890ed0a23fea08d415587ab56718db4a11b7c"
+      "sha256": "2133b295289badfafab27afc62a5d73d26a0a00a40bd6209eabc05e88866d6c0"
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
-      "sha256": "ab76123a6e66339cf64cf1d93ba8aa1687c72a208a965e144cc647688b716ced"
+      "sha256": "ee60df15ae81751bf6379927f3a0f46f52b18aa7c015b91e9690bd98ae89056e"
     },
     {
       "path": "agents/navigator.agent.md",
-      "sha256": "d97c9ce3e60a0e184fa918375d8b28253b26f98003337737917e208e321144e9"
+      "sha256": "779b578283327b858f6b1f49239479602007022b3e58da70b92c45bb027b5851"
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "5a0237e6882dcefd29fc93cfb549aa7d0dbed36d92cfa5c8e5ac3d16c623d605"
+      "sha256": "bdaad3e3721ca2b5e3ab5b70a0d3ce1830e7dcee7c444104ab824a4e09420841"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -75,23 +79,23 @@
     },
     {
       "path": "agents/primary-producer.agent.md",
-      "sha256": "55e73f1e5998e24aa3922890325e1059239b8c7a23cf1b25b62e1fd75f4f278f"
+      "sha256": "01a9c2ee57aeddf2c8b00afb4eb3e8f2eb1d73dc10a895719b48054483551e6e"
     },
     {
       "path": "agents/quality-auditor.agent.md",
-      "sha256": "ff4050dbce3acbf32bf32b89f12bd0beea8fd7db8c613b6a331972ef03950e61"
+      "sha256": "f90e005720dbe78cf10b55932e547eab2da6df0cfb54918e3a9a7777f8f267fd"
     },
     {
       "path": "agents/reference-manager.agent.md",
-      "sha256": "c78e4f7f8f47684e8af8ac55fef30a57232cf2bfa41d7e8ca59c100d7f9964c0"
+      "sha256": "6ab0e3a7ef89f611e5d2a9ca452708d3bc936618526640dcbc586e8ddfe464b6"
     },
     {
       "path": "agents/repo-liaison.agent.md",
-      "sha256": "a7ca29cae5706426fbdf895c78621f95291dcdde696f07594d70fd9f357c085a"
+      "sha256": "61b4668438d769b845210a0ce437ab3484db41a864ee24898f607c240d0781a3"
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "17f45fb232bc82d40738f942f94a8c355093f66719c72bf30cc043a0472ad894"
+      "sha256": "fc99f6aaf877630304ab26efe65f964be4c6d29dd1b55ee9b52e054812637381"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -103,7 +107,7 @@
     },
     {
       "path": "agents/tool-doc-researcher.agent.md",
-      "sha256": "a2b4c1826300262a0cc8cb4602d3e89351f117a1cfcaf702f3c1e0b7b3bd3309"
+      "sha256": "597b5aa034348c0f1c114fb8610102ee3286cf354a26612b218d08dacba25cd6"
     },
     {
       "path": "agents/tool-pandoc.agent.md",
@@ -111,7 +115,7 @@
     },
     {
       "path": "agents/topic-scoping-expert.agent.md",
-      "sha256": "f61a6834bf3317d2fd8c05c30e179e39f9516b70e1017f1f56590e191fb1e8c6"
+      "sha256": "f8d78987bcdc3f7517948e0a6831b90eb16141f5d25ec3679549b9e0df34453d"
     },
     {
       "path": "agents/visual-designer.agent.md",
@@ -123,9 +127,9 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "04dd694cba8867bf814bad5194ccf58d63ddda5b0ab77f4de51df95382e26cbb"
+      "sha256": "ca1f0ae3337abca335a3f0c6584d2ac85dacd8489ad330d1df62a60bc03bb2c1"
     }
   ],
-  "inventory_count": 29,
+  "inventory_count": 30,
   "bridge_version": "1"
 }
