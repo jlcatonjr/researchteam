@@ -158,3 +158,16 @@ Each hit's `confidence` field (`reliable` / `candidate` / `weak`) is computed by
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+<!-- AGENTTEAMS:BEGIN external_retrieval_quality_gate v=1 -->
+**Mandatory gate on the hand-off to `@agent-updater` in this file (whether that instruction
+appears above or below this note) — do not send it while any finding is still open.** Every
+`docs_url`/`api_surface`/`common_patterns` value produced by this agent rests on documentation
+looked up externally. Before `@agent-updater` receives them, hand the complete set off to
+`@adversarial` and `@conflict-auditor` per
+`references/external-retrieval-quality-gate.reference.md`. Revise (re-check the source, correct
+the tier citation, or drop the value as unresolved) and re-run the gate until it passes, or
+escalate a specific persistently-failing value per that reference's escalation valve — never let
+the hand-off to `@agent-updater` carry an unaudited value, regardless of where in this document
+that hand-off instruction appears relative to this gate.
+<!-- AGENTTEAMS:END external_retrieval_quality_gate -->

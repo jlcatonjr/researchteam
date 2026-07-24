@@ -45,7 +45,7 @@
     "domain/reference-manager.template.md": "f7538df16abbbba8",
     "domain/output-compiler.template.md": "fd90f3a13765386a",
     "domain/visual-designer.template.md": "cae39ee7b6d167f4",
-    "domain/tool-doc-researcher.template.md": "a3d89da37c6f521e",
+    "domain/tool-doc-researcher.template.md": "d1584758642c5303",
     "domain/tool-cli.doc.template.md": "c5a4440c4ad425a7",
     "domain/tool-reference.template.md": "5ce5638b7094cc86",
     "domain/code-hygiene-rules-reference.template.md": "64dd0cd05107784f",
@@ -65,11 +65,12 @@
     "universal/parallelization.reference.template.md": "2c872341050a7781",
     "universal/retrospective-remediation.reference.template.md": "b1802f5e1ab294ad",
     "universal/cli-tool-discovery.reference.template.md": "203004e771c8b2fd",
-    "universal/skill-generation.reference.template.md": "c853dc87743d465a",
+    "universal/skill-generation.reference.template.md": "47bcf76ed8f69a80",
+    "universal/external-retrieval-quality-gate.reference.template.md": "961ec24da248b289",
     "workstream-expert.template.md": "13161f3a3cdf1789",
     "copilot-instructions.template.md": "9c56d724f06a9549",
     "builder/team-builder-copilot-vscode.template.md": "5708c3fd29801a3d",
-    "domain/content-enricher.template.md": "d7e6e4a50dcef1c7"
+    "domain/content-enricher.template.md": "8176cebe85aace8f"
   },
   "output_files_map": [
     {
@@ -334,6 +335,12 @@
       "component_slug": null
     },
     {
+      "path": "references/external-retrieval-quality-gate.reference.md",
+      "template": "universal/external-retrieval-quality-gate.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "topic-scoping-expert.agent.md",
       "template": "workstream-expert.template.md",
       "type": "agent",
@@ -442,13 +449,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "7dd54641c6714703",
+  "manifest_fingerprint": "03466f49da67519d",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "07f9c623dac51a22",
-    "security.agent.md": "8fff0ba973d9e2be",
-    "/Users/jamescaton/githubrepositories/researchteam/.vscode/tasks.json": "256683603dce595d",
-    "references/security-vulnerability-watch.reference.md": "6a8bc2b882e4c601",
+    "references/security-vulnerability-watch.json": "733697b942606f5f",
+    "security.agent.md": "3c34eea54b0afe37",
+    "references/security-vulnerability-watch.reference.md": "75155e733fda574d",
     "orchestrator.agent.md": "bdaad3e3721ca2b5",
     "navigator.agent.md": "779b578283327b85",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
@@ -469,7 +475,7 @@
     "reference-manager.agent.md": "6ab0e3a7ef89f611",
     "output-compiler.agent.md": "07897818bf0566f3",
     "visual-designer.agent.md": "31198e666f8e5383",
-    "tool-doc-researcher.agent.md": "597b5aa034348c0f",
+    "tool-doc-researcher.agent.md": "2f427a7f19f4c8bf",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/framework-watch.reference.md": "2fed453f6a875de8",
@@ -481,7 +487,8 @@
     "references/parallelization.reference.md": "d2321bf5ac1ed2f8",
     "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
-    "references/skill-generation.reference.md": "eb14d4d80322f4bf",
+    "references/skill-generation.reference.md": "7fde17640c5bc1eb",
+    "references/external-retrieval-quality-gate.reference.md": "0a570ec8f9e41a85",
     "topic-scoping-expert.agent.md": "f8d78987bcdc3f75",
     "literature-review-expert.agent.md": "2133b295289badfa",
     "main-analysis-expert.agent.md": "ee60df15ae81751b",
@@ -490,6 +497,6 @@
     "team-builder.agent.md": "9dcf3f165ffd2bce",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "2ff237a293a35cdc",
-    "references/pipeline-graph.md": "8190a1ae871b6ac6"
+    "references/pipeline-graph.md": "90bf65ccc72192de"
   }
 }

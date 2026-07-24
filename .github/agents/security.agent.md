@@ -74,7 +74,7 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-07-23T18:39:19Z`
+Generated at: `2026-07-24T15:05:57Z`
 
 **Sources:**
 
@@ -89,21 +89,21 @@ Generated at: `2026-07-23T18:39:19Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-16232` | Check Point SmartConsole | Check Point SmartConsole Improper Authentication Vulnerability | added 2026-07-22 | EPSS 0.010740000, percentile 0.614550000 | CVSS 9.1 CRITICAL
-- `CVE-2026-50522` | Microsoft SharePoint | Microsoft SharePoint Deserialization of Untrusted Data Vulnerability  | added 2026-07-22 | EPSS 0.210440000, percentile 0.973190000 | CVSS 9.8 CRITICAL
-- `CVE-2026-60137` | WordPress Core | WordPress Core SQL Injection Vulnerability | added 2026-07-21 | EPSS 0.203950000, percentile 0.972200000 | CVSS 5.9 MEDIUM
-- `CVE-2026-63030` | WordPress Core | WordPress Core Interpretation Conflict Vulnerability | added 2026-07-21 | EPSS 0.385990000, percentile 0.984270000 | CVSS 9.8 CRITICAL
-- `CVE-2026-0770` | Langflow Langflow | Langflow Inclusion of Functionality from Untrusted Control Sphere Vulnerability | added 2026-07-21 | EPSS 0.545030000, percentile 0.989120000 | CVSS 9.8 CRITICAL
-- `CVE-2021-27137` | DD-WRT DD-WRT | DD-WRT Stack-Based Buffer Overflow Vulnerability | added 2026-07-21 | EPSS 0.108090000, percentile 0.953800000
-- `CVE-2026-58644` | Microsoft SharePoint | Microsoft SharePoint Deserialization of Untrusted Data Vulnerability | added 2026-07-16 | EPSS 0.014650000, percentile 0.709180000
-- `CVE-2026-25089` | Fortinet FortiSandbox | Fortinet FortiSandbox OS Command Injection Vulnerability | added 2026-07-16 | EPSS 0.361350000, percentile 0.983180000
-- `CVE-2026-39808` | Fortinet FortiSandbox | Fortinet FortiSandbox OS Command Injection Vulnerability | added 2026-07-16 | EPSS 0.841580000, percentile 0.996690000
-- `CVE-2026-46817` | Oracle E-Business Suite | Oracle E-Business Suite Improper Privilege Management Vulnerability | added 2026-07-15 | EPSS 0.010450000, percentile 0.605540000
-- `CVE-2023-4346` | KNX Association KNX Protocol Connection Authorization Option 1 | KNX Association KNX Protocol Connection Authorization Option 1 Overly Restrictive Account Lockout Mechanism Vulnerability | added 2026-07-15 | EPSS 0.008550000, percentile 0.545640000
-- `CVE-2026-56155` | Microsoft Active Directory Federation Services | Microsoft Active Directory Federation Services Insufficient Granularity of Access Control Vulnerability  | added 2026-07-14 | EPSS 0.003790000, percentile 0.304490000
-- `CVE-2026-56164` | Microsoft SharePoint Server | Microsoft SharePoint Server Missing Authentication for Critical Function Vulnerability | added 2026-07-14 | EPSS 0.056010000, percentile 0.920910000
-- `CVE-2026-15409` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances Server-Side Request Forgery Vulnerability | added 2026-07-14 | EPSS 0.162710000, percentile 0.966170000
-- `CVE-2026-15410` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances Code Injection Vulnerability | added 2026-07-14 | EPSS 0.182870000, percentile 0.969190000
+- `CVE-2026-16232` | Check Point SmartConsole | Check Point SmartConsole Improper Authentication Vulnerability | added 2026-07-22 | EPSS 0.126850000, percentile 0.958370000 | CVSS 9.1 CRITICAL
+- `CVE-2026-50522` | Microsoft SharePoint | Microsoft SharePoint Deserialization of Untrusted Data Vulnerability  | added 2026-07-22 | EPSS 0.571010000, percentile 0.989700000 | CVSS 9.8 CRITICAL
+- `CVE-2026-60137` | WordPress Core | WordPress Core SQL Injection Vulnerability | added 2026-07-21 | EPSS 0.779740000, percentile 0.995250000 | CVSS 5.9 MEDIUM
+- `CVE-2026-63030` | WordPress Core | WordPress Core Interpretation Conflict Vulnerability | added 2026-07-21 | EPSS 0.979230000, percentile 0.999040000 | CVSS 9.8 CRITICAL
+- `CVE-2026-0770` | Langflow Langflow | Langflow Inclusion of Functionality from Untrusted Control Sphere Vulnerability | added 2026-07-21 | EPSS 0.534610000, percentile 0.988780000 | CVSS 9.8 CRITICAL
+- `CVE-2021-27137` | DD-WRT DD-WRT | DD-WRT Stack-Based Buffer Overflow Vulnerability | added 2026-07-21 | EPSS 0.164880000, percentile 0.966490000
+- `CVE-2026-58644` | Microsoft SharePoint | Microsoft SharePoint Deserialization of Untrusted Data Vulnerability | added 2026-07-16 | EPSS 0.050580000, percentile 0.914100000
+- `CVE-2026-25089` | Fortinet FortiSandbox | Fortinet FortiSandbox OS Command Injection Vulnerability | added 2026-07-16 | EPSS 0.698270000, percentile 0.993000000
+- `CVE-2026-39808` | Fortinet FortiSandbox | Fortinet FortiSandbox OS Command Injection Vulnerability | added 2026-07-16 | EPSS 0.896910000, percentile 0.997740000
+- `CVE-2026-46817` | Oracle E-Business Suite | Oracle E-Business Suite Improper Privilege Management Vulnerability | added 2026-07-15 | EPSS 0.133090000, percentile 0.959860000
+- `CVE-2023-4346` | KNX Association KNX Protocol Connection Authorization Option 1 | KNX Association KNX Protocol Connection Authorization Option 1 Overly Restrictive Account Lockout Mechanism Vulnerability | added 2026-07-15 | EPSS 0.009070000, percentile 0.561410000
+- `CVE-2026-56155` | Microsoft Active Directory Federation Services | Microsoft Active Directory Federation Services Insufficient Granularity of Access Control Vulnerability  | added 2026-07-14 | EPSS 0.023330000, percentile 0.817560000
+- `CVE-2026-56164` | Microsoft SharePoint Server | Microsoft SharePoint Server Missing Authentication for Critical Function Vulnerability | added 2026-07-14 | EPSS 0.183950000, percentile 0.969240000
+- `CVE-2026-15409` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances Server-Side Request Forgery Vulnerability | added 2026-07-14 | EPSS 0.784400000, percentile 0.995380000
+- `CVE-2026-15410` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances Code Injection Vulnerability | added 2026-07-14 | EPSS 0.763470000, percentile 0.994830000
 
 **Prevention and mitigation playbook:**
 
