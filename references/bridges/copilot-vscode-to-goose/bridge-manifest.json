@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-07-23T18:37:53.852323+00:00",
+  "generated_at": "2026-07-25T11:52:00.273357+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -95,7 +95,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "fc99f6aaf877630304ab26efe65f964be4c6d29dd1b55ee9b52e054812637381"
+      "sha256": "257c82f3cd95c44390bb731eeb199d53ca0204de69eb4ca9a32d7caad0aea4d9"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -107,7 +107,7 @@
     },
     {
       "path": "agents/tool-doc-researcher.agent.md",
-      "sha256": "597b5aa034348c0f1c114fb8610102ee3286cf354a26612b218d08dacba25cd6"
+      "sha256": "2f427a7f19f4c8bfe58dd2619ff09b65605b01a979405107dd51b3fa48a99fd4"
     },
     {
       "path": "agents/tool-pandoc.agent.md",

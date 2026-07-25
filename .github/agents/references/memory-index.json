@@ -2,7 +2,7 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "8e86f4d41f2be48380a581c2bc874cc5a68f8fb65cf37133356d0e7568379e18",
+  "index_build_id": "171394e38923ebf3c5cbaa2477b155d2eeb5ad50e516d8e3faf9929eb0298165",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
@@ -11,7 +11,7 @@
   "source_fingerprint": "64478cb53ec8c67e213ad7601e3bf28d08dac07370bcdb933de240a4b9cec5dc",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-07-24T15:06:34.630901Z",
+  "built_at": "2026-07-25T13:12:48.542398Z",
   "source_count": 18,
   "documents": [
     {
@@ -77,7 +77,7 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "a046005d56e95389c93c1294f820610c1eb6a070b0d659fe8dc177d1361ea022",
-      "source_mtime": 1784831869.0095754,
+      "source_mtime": 1784980319.73755,
       "vector_norm_sq": 20657.680988399276
     },
     {
@@ -103,7 +103,7 @@
         "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/quickstart-snippet.md - skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/.claude/README.md - skipped (no-rendered-fence): /Users/jamescaton/githubrepositorie"
       ],
       "source_hash": "09804776d5cd22ccf1f1a8fda358555721b1e38b3abb98ef8a5d0ff87084568c",
-      "source_mtime": 1784831869.0151424,
+      "source_mtime": 1784980319.7465284,
       "vector_norm_sq": 558.6566342446457
     },
     {
@@ -118,7 +118,7 @@
         "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
       "source_hash": "aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f",
-      "source_mtime": 1784831869.0099013,
+      "source_mtime": 1784980319.7389355,
       "vector_norm_sq": 342.1504002049833
     },
     {
@@ -135,7 +135,7 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
-      "source_mtime": 1784831869.0098152,
+      "source_mtime": 1784980319.738502,
       "vector_norm_sq": 177.39822122888395
     },
     {
@@ -149,7 +149,7 @@
         "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
       ],
       "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
-      "source_mtime": 1784831869.0097275,
+      "source_mtime": 1784980319.7381098,
       "vector_norm_sq": 125.52411695602329
     },
     {
@@ -162,7 +162,7 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "a046005d56e95389c93c1294f820610c1eb6a070b0d659fe8dc177d1361ea022",
-      "source_mtime": 1784831873.8544123,
+      "source_mtime": 1784980320.2761657,
       "vector_norm_sq": 20657.680988399276
     },
     {
@@ -175,7 +175,7 @@
         "- merged: /Users/jamescaton/githubrepositories/researchteam/AGENTS.md - merged: /Users/jamescaton/githubrepositories/researchteam/.goosehints - merged: /Users/jamescaton/githubrepositories/researchteam/.goose/README.md"
       ],
       "source_hash": "88c1a0ef893a53c4fa7e2e41210d702999aac6e5af0b577f7583da445e7e6f65",
-      "source_mtime": 1784831873.8580394,
+      "source_mtime": 1784980320.2822678,
       "vector_norm_sq": 111.61350922865554
     },
     {
@@ -190,7 +190,7 @@
         "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
       "source_hash": "87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c",
-      "source_mtime": 1784831873.8548214,
+      "source_mtime": 1784980320.27687,
       "vector_norm_sq": 342.68820819787646
     },
     {
@@ -207,7 +207,7 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "8c9e3f27acd76339e550b70871012cb7409cb95341f6735e2ad04f1b5711838a",
-      "source_mtime": 1784831873.854732,
+      "source_mtime": 1784980320.2767248,
       "vector_norm_sq": 177.9360292217771
     },
     {
@@ -223,7 +223,7 @@
         "The bridge emits `.goose/recipes/bridge-orchestrator.yaml` \u2014 run it with `goose run --recipe .goose/recipes/bridge-orchestrator.yaml` to start the bridged team WITH the `developer` (CLI) extension by default. Pass `--target-host-features bridge:<source>-to-goose:mcp` and build the source with an MCP token first to also wire the selected (first-party, read-only, orchestrator-scoped) MCP servers into that recipe."
       ],
       "source_hash": "66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66",
-      "source_mtime": 1784831873.8546288,
+      "source_mtime": 1784980320.276577,
       "vector_norm_sq": 1062.4882629215142
     },
     {
