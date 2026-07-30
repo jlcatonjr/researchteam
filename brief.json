@@ -82,14 +82,14 @@
       "name": "CrossRef API",
       "category": "other",
       "docs_url": "https://api.crossref.org/swagger-ui/index.html",
-      "api_surface": "GET /works/{doi} — resolve a DOI and retrieve full bibliographic metadata.\nGET /works?query={title}&query.author={author} — search by title and author.\nReturns JSON with fields: DOI, title, author, published, container-title, volume, issue, page.",
+      "api_surface": "GET /works/{doi} \u2014 resolve a DOI and retrieve full bibliographic metadata.\nGET /works?query={title}&query.author={author} \u2014 search by title and author.\nReturns JSON with fields: DOI, title, author, published, container-title, volume, issue, page.",
       "common_patterns": "Always verify DOIs via CrossRef before including a citation. Use the `mailto` query parameter for polite pool access. Treat HTTP 404 as DOI not found; flag as UNVERIFIED."
     },
     {
       "name": "Semantic Scholar API",
       "category": "other",
       "docs_url": "https://api.semanticscholar.org/api-docs/",
-      "api_surface": "GET /graph/v1/paper/search?query={q}&fields=title,authors,year,externalIds,venue — keyword search.\nGET /graph/v1/paper/{paperId}?fields=title,authors,year,abstract,externalIds,citationCount — paper details.\nexternalIds includes DOI, ArXiv, PubMed identifiers.",
+      "api_surface": "GET /graph/v1/paper/search?query={q}&fields=title,authors,year,externalIds,venue \u2014 keyword search.\nGET /graph/v1/paper/{paperId}?fields=title,authors,year,abstract,externalIds,citationCount \u2014 paper details.\nexternalIds includes DOI, ArXiv, PubMed identifiers.",
       "common_patterns": "Use Semantic Scholar for cross-disciplinary discovery and citation counts. Always follow up with CrossRef or the source repository (PubMed, arXiv) to confirm metadata before adding to bibliography."
     }
   ],
@@ -133,7 +133,10 @@
         "Research gap clearly articulated",
         "Conflicting scholarly positions fairly represented"
       ],
-      "cross_refs": ["topic-scoping", "main-analysis"]
+      "cross_refs": [
+        "topic-scoping",
+        "main-analysis"
+      ]
     },
     {
       "slug": "main-analysis",
@@ -153,7 +156,10 @@
         "Reasoning is logically valid and follows from cited evidence",
         "No unsupported assertions"
       ],
-      "cross_refs": ["literature-review", "conclusion"]
+      "cross_refs": [
+        "literature-review",
+        "conclusion"
+      ]
     },
     {
       "slug": "conclusion",
@@ -168,12 +174,17 @@
         "Executive Summary (200 words)"
       ],
       "quality_criteria": [
-        "Executive summary is 150–250 words",
+        "Executive summary is 150\u2013250 words",
         "All claims traceable to the Main Analysis",
         "Limitations honestly stated",
         "No new citations introduced without prior appearance in the report"
       ],
-      "cross_refs": ["main-analysis"]
+      "cross_refs": [
+        "main-analysis"
+      ]
     }
+  ],
+  "capabilities": [
+    "research_verification"
   ]
 }
