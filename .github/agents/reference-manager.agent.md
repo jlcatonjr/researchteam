@@ -2,7 +2,7 @@
 name: Reference Manager — ResearchTeam
 description: "Manages the bibliography and reference database for ResearchTeam — strict citation verification, anti-fabrication enforcement, and fail-closed integrity gates"
 user-invokable: false
-tools: ['read', 'edit', 'search']
+tools: ['read', 'edit', 'search', 'retrieval']
 agents: ['conflict-auditor']
 model: ["auto"]
 handoffs:

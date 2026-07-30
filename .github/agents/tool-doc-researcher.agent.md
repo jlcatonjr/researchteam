@@ -2,7 +2,7 @@
 name: Tool Documentation Researcher — ResearchTeam
 description: "Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata"
 user-invokable: false
-tools: ['read', 'search']
+tools: ['read', 'search', 'retrieval']
 model: ["auto"]
 handoffs:
   - label: Update Brief and Generated Docs

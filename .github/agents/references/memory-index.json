@@ -2,21 +2,21 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "171394e38923ebf3c5cbaa2477b155d2eeb5ad50e516d8e3faf9929eb0298165",
+  "index_build_id": "74b6841a98d752ef9c98811286cf3ad99b2f01e7a5bd2a3810707e8d4534a956",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
   "vector_dim": null,
   "fallback_policy": "non-blocking-file-read-then-search",
-  "source_fingerprint": "64478cb53ec8c67e213ad7601e3bf28d08dac07370bcdb933de240a4b9cec5dc",
+  "source_fingerprint": "468cb95a25c4f45fc8b034b614617ec03804f8a7240673b0f75dfe79a6a53fd4",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-07-25T13:12:48.542398Z",
+  "built_at": "2026-07-30T19:09:19.835464Z",
   "source_count": 18,
   "documents": [
     {
       "doc_id": 0,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/README.md",
+      "path": "README.md",
       "title": "ResearchTeam",
       "length": 721,
       "snippet": "Conduct rigorous, source-grounded scholarly research with agent-based workflows and robust update safety.",
@@ -48,7 +48,7 @@
     },
     {
       "doc_id": 1,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/architecture-graph.md",
+      "path": "references/architecture-graph.md",
       "title": "researchteam \u2014 Repository Architecture Map",
       "length": 353,
       "snippet": "> **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually \u2014 changes will be overwritten.",
@@ -69,7 +69,7 @@
     },
     {
       "doc_id": 2,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/agent-inventory.md",
+      "path": "references/bridges/copilot-vscode-to-claude/agent-inventory.md",
       "title": "Agent Team Bridge Inventory",
       "length": 800,
       "snippet": "Lightweight compatibility inventory generated from source canonical files.",
@@ -77,12 +77,12 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "a046005d56e95389c93c1294f820610c1eb6a070b0d659fe8dc177d1361ea022",
-      "source_mtime": 1784980319.73755,
+      "source_mtime": 1785159756.5460665,
       "vector_norm_sq": 20657.680988399276
     },
     {
       "doc_id": 3,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/bridge-check.report.md",
+      "path": "references/bridges/copilot-vscode-to-claude/bridge-check.report.md",
       "title": "Bridge Check Report",
       "length": 11,
       "snippet": "- Bridge artifacts are fresh and consistent with source files.",
@@ -95,7 +95,7 @@
     },
     {
       "doc_id": 4,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/bridge-merge.report.md",
+      "path": "references/bridges/copilot-vscode-to-claude/bridge-merge.report.md",
       "title": "Bridge Merge Report",
       "length": 56,
       "snippet": "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubreposit",
@@ -103,12 +103,12 @@
         "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/CLAUDE.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/agent-team.md - merged: /Users/jamescaton/githubrepositories/researchteam/.claude/quickstart-snippet.md - skipped (no AGENTTEAMS-BRIDGE fence in existing file): /Users/jamescaton/githubrepositories/researchteam/.claude/README.md - skipped (no-rendered-fence): /Users/jamescaton/githubrepositorie"
       ],
       "source_hash": "09804776d5cd22ccf1f1a8fda358555721b1e38b3abb98ef8a5d0ff87084568c",
-      "source_mtime": 1784980319.7465284,
+      "source_mtime": 1785159756.5600474,
       "vector_norm_sq": 558.6566342446457
     },
     {
       "doc_id": 5,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/domain-boundary.md",
+      "path": "references/bridges/copilot-vscode-to-claude/domain-boundary.md",
       "title": "Domain Boundary \u2014 Three Retrieval Surfaces",
       "length": 95,
       "snippet": "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
@@ -118,12 +118,12 @@
         "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
       "source_hash": "aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f",
-      "source_mtime": 1784980319.7389355,
+      "source_mtime": 1785159756.548414,
       "vector_norm_sq": 342.1504002049833
     },
     {
       "doc_id": 6,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/entrypoint.md",
+      "path": "references/bridges/copilot-vscode-to-claude/entrypoint.md",
       "title": "Bridge Entrypoint: copilot-vscode -> claude",
       "length": 81,
       "snippet": "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
@@ -135,12 +135,12 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
-      "source_mtime": 1784980319.738502,
+      "source_mtime": 1785159756.5480006,
       "vector_norm_sq": 177.39822122888395
     },
     {
       "doc_id": 7,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-claude/quickstart-snippet.md",
+      "path": "references/bridges/copilot-vscode-to-claude/quickstart-snippet.md",
       "title": "Bridge Quickstart Snippet",
       "length": 59,
       "snippet": "```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
@@ -149,12 +149,12 @@
         "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
       ],
       "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
-      "source_mtime": 1784980319.7381098,
+      "source_mtime": 1785159756.547543,
       "vector_norm_sq": 125.52411695602329
     },
     {
       "doc_id": 8,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/agent-inventory.md",
+      "path": "references/bridges/copilot-vscode-to-goose/agent-inventory.md",
       "title": "Agent Team Bridge Inventory",
       "length": 800,
       "snippet": "Lightweight compatibility inventory generated from source canonical files.",
@@ -167,7 +167,7 @@
     },
     {
       "doc_id": 9,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/bridge-merge.report.md",
+      "path": "references/bridges/copilot-vscode-to-goose/bridge-merge.report.md",
       "title": "Bridge Merge Report",
       "length": 22,
       "snippet": "- merged: /Users/jamescaton/githubrepositories/researchteam/AGENTS.md - merged: /Users/jamescaton/githubrepositories/researchteam/.goosehints - merged: /Users/jamescaton/githubrepositories/researchteam/.goose/README.md",
@@ -180,7 +180,7 @@
     },
     {
       "doc_id": 10,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/domain-boundary.md",
+      "path": "references/bridges/copilot-vscode-to-goose/domain-boundary.md",
       "title": "Domain Boundary \u2014 Three Retrieval Surfaces",
       "length": 95,
       "snippet": "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
@@ -195,7 +195,7 @@
     },
     {
       "doc_id": 11,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/entrypoint.md",
+      "path": "references/bridges/copilot-vscode-to-goose/entrypoint.md",
       "title": "Bridge Entrypoint: copilot-vscode -> goose",
       "length": 81,
       "snippet": "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
@@ -212,7 +212,7 @@
     },
     {
       "doc_id": 12,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/bridges/copilot-vscode-to-goose/quickstart-snippet.md",
+      "path": "references/bridges/copilot-vscode-to-goose/quickstart-snippet.md",
       "title": "Bridge Quickstart Snippet",
       "length": 160,
       "snippet": "```text Use the copilot-vscode agent infrastructure through this goose bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
@@ -228,7 +228,7 @@
     },
     {
       "doc_id": 13,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/adversarial-conflict-audit-labor-matching.plan.md",
+      "path": "references/plans/adversarial-conflict-audit-labor-matching.plan.md",
       "title": "Plan Summary: Adversarial and Conflict Audit for Labor Matching Project",
       "length": 90,
       "snippet": "- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project,",
@@ -242,7 +242,7 @@
     },
     {
       "doc_id": 14,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/apply-audit-standards-egyptian-cosmopolitanism.plan.md",
+      "path": "references/plans/apply-audit-standards-egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Apply Audit Standards to Egyptian Cosmopolitan Project",
       "length": 95,
       "snippet": "- Trigger: User requested application of new fail-closed audit standards to the Egyptian cosmopolitan project. - Goal: Bring EgyptianDevelopment deliverables into compliance with strict fact and citation verification requirements. - Agent s",
@@ -256,7 +256,7 @@
     },
     {
       "doc_id": 15,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/audit-rigour-tightening.plan.md",
+      "path": "references/plans/audit-rigour-tightening.plan.md",
       "title": "Plan: Audit Rigour Tightening",
       "length": 77,
       "snippet": "- Trigger: User requested greater auditing rigour with near-zero error tolerance. - Goal: Enforce fail-closed fact and citation verification across orchestration and audit agents. - Agent sequence: @security -> @orchestrator -> @technical-v",
@@ -270,7 +270,7 @@
     },
     {
       "doc_id": 16,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/egyptian-cosmopolitanism.plan.md",
+      "path": "references/plans/egyptian-cosmopolitanism.plan.md",
       "title": "Plan: Egyptian Cosmopolitanism and Religious Transformation",
       "length": 107,
       "snippet": "**Plan name:** egyptian-cosmopolitanism **Trigger:** User request \u2014 April 18, 2026 **Goal:** Produce a scholarly research report examining Egyptian cosmopolitan life before mass Jewish emigration (pre-1948), the impact on religious toleranc",
@@ -286,7 +286,7 @@
     },
     {
       "doc_id": 17,
-      "path": "/Users/jamescaton/githubrepositories/researchteam/references/plans/labor-matching-macro-history.plan.md",
+      "path": "references/plans/labor-matching-macro-history.plan.md",
       "title": "Plan Summary: Labor Matching Macro History Project",
       "length": 85,
       "snippet": "- Plan slug: labor-matching-macro-history - Trigger: Build a new project in Matching summarizing early history and influence of labor matching models in macroeconomics - Goal: Produce a representative, accurate four-part research deliverabl",
