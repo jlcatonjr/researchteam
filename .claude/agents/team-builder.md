@@ -4,8 +4,9 @@ description: Interactively constructs a complete agent team for a new or existin
 source: .github/agents/team-builder.agent.md
 source_sha256: 9dcf3f165ffd2bcebcdb47ee49151f82c740f6fef21b3dc15ea1fdb5a0a6f2c9
 bridge: copilot-vscode-to-claude
-allowed-tools: Read, Edit, Write, Grep, Glob, Bash, TodoWrite
+tools: Read, Edit, Write, Grep, Glob, Bash, TodoWrite
 ---
+<!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)
 
 This is a Claude subagent stub. The canonical agent definition lives at:
@@ -17,3 +18,8 @@ This is a Claude subagent stub. The canonical agent definition lives at:
 - Source role: Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline
 
 Runtime context note: you are invoked via the copilot-vscode → claude bridge from a Claude runtime. Where the source body refers to chat-mode invocations or Copilot-specific UI affordances, translate to the equivalent Claude tool surface (Read/Edit/Bash/Agent) while preserving the intent.
+<!-- AGENTTEAMS:END content -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

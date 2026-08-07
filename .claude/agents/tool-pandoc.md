@@ -4,7 +4,7 @@ description: Manages Pandoc () in ResearchTeam — configuration, execution, out
 source: .github/agents/tool-pandoc.agent.md
 source_sha256: b555c1b28b5d2f7e1965bb459099462e3a98cf643c7aa81b86bb53eed8470c9b
 bridge: copilot-vscode-to-claude
-allowed-tools: Read, Edit, Write, Bash, Grep, Glob
+tools: Read, Edit, Write, Bash, Grep, Glob
 ---
 # Bridged agent (copilot-vscode → claude)
 

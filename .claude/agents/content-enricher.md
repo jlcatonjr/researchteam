@@ -4,8 +4,9 @@ description: Fills in default template placeholders and underdeveloped sections 
 source: .github/agents/content-enricher.agent.md
 source_sha256: 2ff237a293a35cdc7430393cbefcd0af2e3d7b5ffc87aef0206f1e7f697fe7c3
 bridge: copilot-vscode-to-claude
-allowed-tools: Read, Edit, Write, Grep, Glob
+tools: Read, Edit, Write, Grep, Glob
 ---
+<!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)
 
 This is a Claude subagent stub. The canonical agent definition lives at:
@@ -17,3 +18,8 @@ This is a Claude subagent stub. The canonical agent definition lives at:
 - Source role: Fills in default template placeholders and underdeveloped sections in generated agent files for ResearchTeam using the project's source materials
 
 Runtime context note: you are invoked via the copilot-vscode → claude bridge from a Claude runtime. Where the source body refers to chat-mode invocations or Copilot-specific UI affordances, translate to the equivalent Claude tool surface (Read/Edit/Bash/Agent) while preserving the intent.
+<!-- AGENTTEAMS:END content -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

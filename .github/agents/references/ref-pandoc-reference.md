@@ -17,9 +17,23 @@ Verify CLI flags, configuration options, and rule/plugin behavior against this d
 
 ## Key API Surface
 
+<!-- AGENTTEAMS:BEGIN key_api_surface v=1 -->
+## Key API Surface
+<!-- AGENTTEAMS:END key_api_surface -->
+
 <!-- AGENTTEAMS:BEGIN tool_api_surface v=1 -->
 {MANUAL:TOOL_API_SURFACE}
 <!-- AGENTTEAMS:END tool_api_surface -->
+
+<!-- AGENTTEAMS:BEGIN output_interpretation v=1 -->
+## Output Interpretation
+
+After every execution:
+- Categorise findings by severity (error, warning, info)
+- Identify auto-fixable issues vs those requiring manual intervention
+- For auto-fixable issues, apply the fix and re-run to verify
+- Report remaining issues with file paths and line numbers
+<!-- AGENTTEAMS:END output_interpretation -->
 
 <!-- Document the primary CLI commands, configuration file format, rule/plugin system, and output formats for Pandoc. -->
 
