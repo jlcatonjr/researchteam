@@ -123,6 +123,33 @@ cross-repo propagation. Until then, add the block per clone (it is present in th
 in each derived repo updated by a maintainer). The CI backstop (layer 3) is the version-controlled,
 always-propagating guarantee.
 
+## Managed-File Overwrite Hazard (read before adding any local ignore pattern)
+
+Layer-2 sync **overwrites every file in `MANAGED_FILES` wholesale from upstream**. There is
+no merge, no fence, and no three-way comparison — `researchteam update --yes` replaces the
+local file and reports it as `Updated`. Any content that exists only in a derived repo is
+therefore deleted on the next sync, silently.
+
+`.gitignore` is on that list, which makes it the dangerous case: the failure mode is not a
+lost edit but *lost protection*, and nothing announces it.
+
+**This is not hypothetical.** On 2026-08-07 a sync of SocialScienceHumanities dropped that
+repo's source-corpus and LaTeX ignore patterns, exposing **1041 corpus files (198 MB)** that
+had been correctly ignored moments earlier — one `git add -A` away from entering history.
+Nothing was committed, and the patterns were restored, but the exposure was created by a
+routine update with `--yes`.
+
+**Rules that follow from it:**
+
+1. **A generic ignore pattern belongs upstream, in this repo's `.gitignore`.** That is the
+   only place a sync propagates rather than deletes. The corpus and LaTeX patterns now live
+   here for exactly this reason.
+2. **A genuinely project-specific exclusion goes in the derived clone's `.git/info/exclude`.**
+   It is never synced, never committed, and no managed-file overwrite can reach it. Mirror it
+   into `.gitignore` for visibility if you like, but treat that copy as expendable.
+3. **After any layer-2 sync, re-check the exclusions you rely on** before staging anything.
+   `git status --porcelain --untracked-files=all | wc -l` jumping is the tell.
+
 ## Reviewer Gate
 
 Before merging a sync PR, reviewers must confirm:
