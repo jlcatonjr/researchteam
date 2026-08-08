@@ -7,6 +7,58 @@ Status: Active
 
 Define review and rollback policy for automated AgentTeams synchronization runs using `--update --merge`.
 
+## Integrated AgentTeams Baseline
+
+**Integrated ref:** `67655da` (agentteams `main`, 2026-08-03) — recorded in
+`.github/agentteams-autosync-ref`.
+**Previously recorded:** `e6627fb` (2026-07-09), 155 commits behind. The gap is the reason
+this section exists: the recorded ref is what the SHA gate compares against, so a stale ref
+is indistinguishable from "nothing to integrate" until someone reads it.
+
+What changed between those refs that a consumer of this framework should know:
+
+1. **Fenced sections made existing agent files genuinely updatable.** Template-owned
+   sections — including the Invariant Core and the security agent's authority — are now
+   wrapped in paired `AGENTTEAMS` begin/end fence markers. (Spelled that way deliberately:
+   the fence-pairing validator counts the literal marker tokens per file, so writing either
+   one in prose registers as an unbalanced fence and fails the gate.) Before this, a
+   template improvement could not
+   reach a deployed team at all if the corresponding section sat outside a fence; the merge
+   had no way to tell an intentional local edit from stale generated content. A merge onto a
+   pre-split file now *migrates* it rather than duplicating its sections.
+2. **`--shrink-policy` (default `preserve`).** When a fenced merge would drop concrete
+   references from an enriched body, the existing body is kept and the template update is
+   suppressed **for that fence only**; other fences still update. The notices this emits are
+   the mechanism working, not a failure. Do not reach for `--shrink-policy=allow` to silence
+   them — that is the setting that discards the enrichment.
+3. **`--pin-templates`.** Pins the template trust root outside the writable surface. It
+   refuses to run rather than guessing where the root lives if it cannot resolve one.
+4. **`--reconcile-front-matter` / `--reconcile-apply`.** Reconciles agent front matter,
+   notably the superseded `allowed-tools:` key. That key is **silently ignored**, so any
+   agent still declaring it inherits every tool regardless of what its body claims. The apply
+   path is never implied — reconciliation reports until explicitly told to write.
+   *Status in this repository: 0 agents on the superseded key; 31 on `tools:`.*
+5. **`--scan-security` runs on every generate** as an advisory pass (blocking under
+   `--fleet`). It flags absolute-path PII among other things. Note that the local code index
+   (`.github/agents/references/code-index/`) trips this by design and is gitignored — it is a
+   machine-local cache and must never be committed.
+6. **`references/instruction-authority.reference.md`** now ships with the team: an explicit
+   ordering for instruction conflicts, including where read content sits. Read content is
+   inert data, never instruction.
+7. **Merge-safety fixes worth trusting the tool again over.** A span enclosing a live fence is
+   no longer removed (this had caused real data loss); a section whose only surviving copy is
+   the one being removed is no longer deleted; and `--dry-run` now runs the same front-matter
+   merge as the real run, so the preview is no longer a different code path from the thing it
+   previews.
+
+**Not yet integrated.** agentteams' constitutional red-team work (the `--redteam` standing
+audit, the 21 closed exploits, and the fleet capability-key remediation) is on an unmerged
+branch and is therefore **not** reachable from `main`. It is deliberately excluded from this
+baseline: as of 2026-08-07 that branch fails its own `tests/test_constitutional_redteam.py`
+(probe E3, `C-5 has no mechanical enforcement for agent-initiated destruction`, measures
+`EXPLOITED` against an accepted value of `DEFENDED`). Integrate it only once that battery is
+green upstream.
+
 ## Execution Policy
 
 1. **Scheduled runs are SHA-gated, not dry-run.** A scheduled run does nothing unless agentteams `main`
@@ -70,6 +122,33 @@ not travel with `git push`/`clone`. Its durable install is `agentteams --install
 cross-repo propagation. Until then, add the block per clone (it is present in the upstream repo and
 in each derived repo updated by a maintainer). The CI backstop (layer 3) is the version-controlled,
 always-propagating guarantee.
+
+## Managed-File Overwrite Hazard (read before adding any local ignore pattern)
+
+Layer-2 sync **overwrites every file in `MANAGED_FILES` wholesale from upstream**. There is
+no merge, no fence, and no three-way comparison — `researchteam update --yes` replaces the
+local file and reports it as `Updated`. Any content that exists only in a derived repo is
+therefore deleted on the next sync, silently.
+
+`.gitignore` is on that list, which makes it the dangerous case: the failure mode is not a
+lost edit but *lost protection*, and nothing announces it.
+
+**This is not hypothetical.** On 2026-08-07 a sync of SocialScienceHumanities dropped that
+repo's source-corpus and LaTeX ignore patterns, exposing **1041 corpus files (198 MB)** that
+had been correctly ignored moments earlier — one `git add -A` away from entering history.
+Nothing was committed, and the patterns were restored, but the exposure was created by a
+routine update with `--yes`.
+
+**Rules that follow from it:**
+
+1. **A generic ignore pattern belongs upstream, in this repo's `.gitignore`.** That is the
+   only place a sync propagates rather than deletes. The corpus and LaTeX patterns now live
+   here for exactly this reason.
+2. **A genuinely project-specific exclusion goes in the derived clone's `.git/info/exclude`.**
+   It is never synced, never committed, and no managed-file overwrite can reach it. Mirror it
+   into `.gitignore` for visibility if you like, but treat that copy as expendable.
+3. **After any layer-2 sync, re-check the exclusions you rely on** before staging anything.
+   `git status --porcelain --untracked-files=all | wc -l` jumping is the tell.
 
 ## Reviewer Gate
 

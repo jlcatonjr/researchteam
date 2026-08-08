@@ -4,8 +4,9 @@ description: Repairs within-section cohesion failures in ResearchTeam deliverabl
 source: .github/agents/cohesion-repairer.agent.md
 source_sha256: 28cacb798ea5ea3744562d18552ef86f61aa6f1b06bdb578ae5c25afaac8a10e
 bridge: copilot-vscode-to-claude
-allowed-tools: Read, Edit, Write
+tools: Read, Edit, Write
 ---
+<!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)
 
 This is a Claude subagent stub. The canonical agent definition lives at:
@@ -17,3 +18,8 @@ This is a Claude subagent stub. The canonical agent definition lives at:
 - Source role: Repairs within-section cohesion failures in ResearchTeam deliverables — disjointedness, broken transitions, and missing argumentative spine; does not reorganize across sections
 
 Runtime context note: you are invoked via the copilot-vscode → claude bridge from a Claude runtime. Where the source body refers to chat-mode invocations or Copilot-specific UI affordances, translate to the equivalent Claude tool surface (Read/Edit/Bash/Agent) while preserving the intent.
+<!-- AGENTTEAMS:END content -->
+
+## Project-Specific Notes
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.

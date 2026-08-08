@@ -46,3 +46,28 @@ references/code-index/
 # agentteams autosync gate — transient PR-body scratch (never committed)
 .autosync-pr-body.md
 **/.autosync-pr-body.md
+
+# Full-text source corpus (retrieval surface #5) — the extracted text, per-chunk/per-page rows and
+# the vector store are large, high-churn, machine-local and regenerable from sources/ +
+# scripts/build_source_corpus.py. The COMMITTED durable layer is the compact manifests
+# (sources-manifest.jsonl, corpus-extract-manifest.json, corpus-vector-manifest.json,
+# quality-manifest.json) plus the dedup/triage report and the bibliography.
+#
+# These live UPSTREAM deliberately. .gitignore is a layer-2 MANAGED file: `researchteam update`
+# overwrites it wholesale from upstream with no merge, so a pattern that exists only in a derived
+# repo is silently deleted on the next sync. On 2026-08-07 that is exactly what happened in
+# SocialScienceHumanities — the sync dropped these lines and exposed 1041 corpus files (198 MB)
+# that had been correctly ignored moments before. A derived-only ignore pattern is not durable;
+# it has to be here.
+**/references/corpus/text/
+**/references/corpus/vectors/
+**/references/corpus/chunk-texts.jsonl
+**/references/corpus/chunks.jsonl
+**/references/corpus/quality.jsonl
+
+# LaTeX build droppings under Projects/ — regenerable compiler output, never source of truth. The
+# .tex source and the built .pdf/.html are the deliverables and stay tracked; these do not.
+Projects/**/*.aux
+Projects/**/*.log
+Projects/**/*.toc
+Projects/**/*.synctex.gz

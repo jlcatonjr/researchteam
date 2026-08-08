@@ -4,7 +4,7 @@ description: Domain interpretation & methodological-genealogy expert: maps the m
 source: .github/agents/interpretation-advisor.agent.md
 source_sha256: 90b3bde5ac84dddd6b0fcc1b278c7c9d81b96605938e5d0ee0da2b4a270584d5
 bridge: copilot-vscode-to-claude
-allowed-tools: Read, Grep, Glob, Task
+tools: Read, Grep, Glob, Task
 ---
 # Bridged agent (copilot-vscode → claude)
 
