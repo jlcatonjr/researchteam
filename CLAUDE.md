@@ -71,10 +71,47 @@ researchteam update --dry-run  # preview only
 
 `researchteam update` syncs `docs/`, `scripts/`, `.claude/`, `CLAUDE.md`, and `README.md` from the upstream template, then runs `agentteams --update --merge` for agent infrastructure. It never touches `brief.json`, `Projects/`, or `references/`.
 
-To install the CLI:
+### Installing the toolchain (agents: verify this before relying on either tool)
+
+`researchteam` is the entry point. `agentteams` is **installed through it as an extra**, never on
+its own — it is not published to PyPI, so the base install deliberately declares
+`dependencies = []` and a bare `pip install researchteam` leaves layer-1 agent regeneration
+unavailable.
+
 ```bash
-pip install git+https://github.com/jlcatonjr/researchteam.git
+# base CLI only — layer-2 file sync, no agent regeneration
+pip install "git+https://github.com/jlcatonjr/researchteam.git"
+
+# recommended — pulls agentteams in, enabling `researchteam update`'s layer-1 pass
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git"
+
+# adds agentteams' research extra (web search, curated-source rating, claim verification)
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git"
 ```
+
+Agents must not assume the toolchain is present, and must not assume that an `agentteams` found on
+`PATH` belongs to the interpreter they are running under. Check both:
+
+```bash
+python -m pip show researchteam agentteams   # both must resolve in the ACTIVE interpreter
+which researchteam agentteams                # both should sit in that same environment
+python -c "import sys; print(sys.prefix)"    # the environment those two must belong to
+```
+
+Act on the result as follows:
+
+- **`researchteam` missing** — ask the user to install it with a command above. Do not hand-edit
+  generated agent infrastructure as a workaround.
+- **`researchteam` present, `agentteams` missing** — ask the user to install the `update` extra.
+  Do **not** `pip install agentteams` standalone; routing it through the extra is what keeps the
+  two pinned to a compatible pair in one environment.
+- **`agentteams` resolves from a different environment than `sys.prefix`** — treat the toolchain
+  as unavailable and say so. This is the failure mode worth naming explicitly: `researchteam
+  update` shells out to whatever `agentteams` `PATH` resolves, so a binary belonging to an
+  unrelated interpreter will happily regenerate agent files at the wrong version, and nothing in
+  the output announces the mismatch.
+- **Neither available** — report the drift and stop. Editing `.github/agents/**` by hand is not a
+  substitute; those files are generated and the next sync discards the edit.
 
 ## Notes for Claude Users
 
