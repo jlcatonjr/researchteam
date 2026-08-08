@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-03T13:48:35.335555+00:00",
+  "generated_at": "2026-08-08T00:26:45.554266+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": ".github/agents",
@@ -35,11 +35,11 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "c0b371bd6a89dd9857e6e42d2639c3425aadd25a58073291c4a1dccaa24125b9"
+      "sha256": "91b3e588a42a574108ff09658449d524db2fd873d01e1dcb461ea56bec624180"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
-      "sha256": "3a19eee87a2b31e20103ac4e2b09e9e99808206c545965ccfb3691aafef5907b"
+      "sha256": "cf332c03578ab73633f0c2d9f8499d35e65fddda1d9bff3f058892ac7ced10c4"
     },
     {
       "path": "agents/content-enricher.agent.md",
@@ -47,7 +47,7 @@
     },
     {
       "path": "agents/format-converter.agent.md",
-      "sha256": "e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f"
+      "sha256": "ba84be48da2018aeb08f9e859f6faf1ecf980f2bf509f4376846de353844fac1"
     },
     {
       "path": "agents/git-operations.agent.md",
@@ -67,7 +67,7 @@
     },
     {
       "path": "agents/navigator.agent.md",
-      "sha256": "a83e04440fc25b83a5e67837e37e9c6254415de36f24de7fc719fcfb74df824f"
+      "sha256": "537f0b02852554b9c607f8954a9fc21b92049f9f5a74da6e63476dbc4d1847f1"
     },
     {
       "path": "agents/orchestrator.agent.md",
@@ -79,7 +79,7 @@
     },
     {
       "path": "agents/primary-producer.agent.md",
-      "sha256": "01a9c2ee57aeddf2c8b00afb4eb3e8f2eb1d73dc10a895719b48054483551e6e"
+      "sha256": "12ed402161f2f3be3e82521bd6d075663984a6069fa4c59bafa08668f99906ae"
     },
     {
       "path": "agents/quality-auditor.agent.md",
@@ -95,11 +95,11 @@
     },
     {
       "path": "agents/research-analyst.agent.md",
-      "sha256": "906ccb2f84a42b431a3d3a4a243684393f18497f12eb2edbdb00f4ee96017533"
+      "sha256": "4690e353d6a34022dfd0e121d772dcdd5f910967b2092db6c047b1da60b485d7"
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "2bb11197e967ffb576ca6dc67dafacce19a2513435dec427c96ae6564800afca"
+      "sha256": "2eeebba64e6e4e0c4f7d248bdbfb8a1e726c98a6bcb2cac9bdfe5153e0d23b27"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -111,7 +111,7 @@
     },
     {
       "path": "agents/tool-doc-researcher.agent.md",
-      "sha256": "ab8389a38fdf4399349d54ce42145f9db51ba10b54c09f4b2696108bea1581eb"
+      "sha256": "78782c6f7d0973cc4443be94f812bd587526c819d48c0aa26f79b456007a66ea"
     },
     {
       "path": "agents/tool-pandoc.agent.md",

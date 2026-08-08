@@ -549,53 +549,47 @@
       ]
     },
     {
-      "agent": "retrieval-integrator",
+      "agent": "output-compiler",
       "handoffs": [
         {
-          "label": "Technical Validation",
+          "label": "Convert Missing Components",
+          "agent": "format-converter",
+          "prompt": "Component needs conversion before assembly. Convert first.",
+          "send": false
+        },
+        {
+          "label": "Validate Technical Accuracy",
           "agent": "technical-validator",
-          "prompt": "Validate retrieval claims and source-of-truth evidence for this integration.",
-          "send": false
-        },
-        {
-          "label": "Adversarial Review",
-          "agent": "adversarial",
-          "prompt": "Challenge assumptions in retrieval mode, trigger wiring, and staleness checks.",
-          "send": false
-        },
-        {
-          "label": "Conflict Audit",
-          "agent": "conflict-auditor",
-          "prompt": "Confirm retrieval contract statements are consistent with authority files.",
+          "prompt": "Validate technical accuracy before final assembly.",
           "send": false
         },
         {
           "label": "Return to Orchestrator",
           "agent": "orchestrator",
-          "prompt": "Retrieval integration validation complete.",
+          "prompt": "Final output assembly complete.",
           "send": false
         }
       ]
     },
     {
-      "agent": "research-analyst",
+      "agent": "visual-designer",
       "handoffs": [
         {
-          "label": "Technical Validation",
-          "agent": "technical-validator",
-          "prompt": "Verify factual claims this research produced against the cited evidence.",
+          "label": "Convert Figure Format",
+          "agent": "format-converter",
+          "prompt": "Diagram is ready for format conversion.",
           "send": false
         },
         {
-          "label": "Adversarial Review",
-          "agent": "adversarial",
-          "prompt": "Challenge the assumptions behind a research finding or a 'survived' verdict.",
+          "label": "Quality Check Figure",
+          "agent": "quality-auditor",
+          "prompt": "New or revised figure ready for quality check.",
           "send": false
         },
         {
           "label": "Return to Orchestrator",
           "agent": "orchestrator",
-          "prompt": "Research task complete.",
+          "prompt": "Visual design work complete.",
           "send": false
         }
       ]

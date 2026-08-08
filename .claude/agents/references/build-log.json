@@ -10,8 +10,9 @@
     "technical-validator",
     "format-converter",
     "reference-manager",
-    "retrieval-integrator",
-    "research-analyst",
+    "output-compiler",
+    "visual-designer",
+    "interpretation-advisor",
     "tool-doc-researcher"
   ],
   "components": [
@@ -21,36 +22,37 @@
     "conclusion"
   ],
   "files_written": [
-    ".claude/agents/research-analyst.md"
+    ".claude/skills/tool-pandoc/SKILL.md",
+    ".claude/agents/references/redteam-methodology.reference.md"
   ],
-  "manual_required": 8,
+  "manual_required": 21,
   "template_hashes": {
-    "universal/orchestrator.template.md": "86260a63063e5c6a",
-    "universal/navigator.template.md": "44761c1fbeac7fab",
-    "universal/security.template.md": "c24f0288ba86c1d3",
+    "universal/orchestrator.template.md": "a2e46ef24984366c",
+    "universal/navigator.template.md": "be2f562228ea5e1f",
+    "universal/security.template.md": "f0903dbb0ec12bbb",
     "universal/code-hygiene.template.md": "7b1eae41ef75358d",
-    "universal/adversarial.template.md": "ea4659f376567351",
-    "universal/conflict-auditor.template.md": "8646f491cdc44d02",
-    "universal/conflict-resolution.template.md": "fc8a741d01b40572",
+    "universal/adversarial.template.md": "3923a13f4fb1ae6a",
+    "universal/conflict-auditor.template.md": "371d5304d8a0f5fe",
+    "universal/conflict-resolution.template.md": "ff21ac7e7e1fc63c",
     "universal/cleanup.template.md": "bf795b64968349f6",
     "universal/agent-updater.template.md": "c9636a2efa322a6d",
     "universal/agent-refactor.template.md": "a9717cc56c35f4ac",
     "universal/repo-liaison.template.md": "a41269c1204528f3",
     "universal/git-operations.template.md": "82546b5e807d9c98",
     "domain/work-summarizer.template.md": "893bc7338f0336a6",
-    "domain/primary-producer.template.md": "c128e8f2fb52885f",
-    "domain/quality-auditor.template.md": "9f8489d342199598",
+    "domain/primary-producer.template.md": "35bf874350a29a94",
+    "domain/quality-auditor.template.md": "bc44c5742a92d831",
     "domain/cohesion-repairer.template.md": "a2c3b4844110b04a",
-    "domain/technical-validator.template.md": "b5605b7aba24259f",
+    "domain/technical-validator.template.md": "8cc603acf4b577e6",
     "domain/format-converter.template.md": "ecf8c801f1d66dab",
     "domain/reference-manager.template.md": "e5541ea9e2cb7560",
-    "domain/retrieval-integrator.template.md": "12107a3c992ba124",
-    "domain/research-analyst.template.md": "ccb215324b184a11",
-    "domain/tool-doc-researcher.template.md": "8a6872d2dba18f54",
+    "domain/output-compiler.template.md": "fd90f3a13765386a",
+    "domain/visual-designer.template.md": "cae39ee7b6d167f4",
+    "domain/tool-doc-researcher.template.md": "53b648621a25a71e",
     "domain/tool-cli.doc.template.md": "5de8d88bee6138bb",
     "domain/tool-reference.template.md": "5ce5638b7094cc86",
-    "domain/code-hygiene-rules-reference.template.md": "5ada4506462eef31",
-    "domain/unix-philosophy-mapping-reference.template.md": "abd9e9e89f925b48",
+    "domain/code-hygiene-rules-reference.template.md": "cf49b61dc45e4ca4",
+    "domain/unix-philosophy-mapping-reference.template.md": "702af6b4e9e2b952",
     "universal/security-vulnerability-watch.reference.template.md": "269cdacb3d94fdfa",
     "universal/security-vulnerability-watch.json.template": "ebcec1b04ad46caa",
     "universal/security-linux-hardening.reference.template.md": "4845cf83b84615f4",
@@ -65,12 +67,11 @@
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "universal/parallelization.reference.template.md": "2c872341050a7781",
     "universal/instruction-authority.reference.template.md": "72149ab5244f9be3",
+    "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "2ee97598dca23e68",
     "universal/cli-tool-discovery.reference.template.md": "203004e771c8b2fd",
     "universal/skill-generation.reference.template.md": "47bcf76ed8f69a80",
     "universal/external-retrieval-quality-gate.reference.template.md": "3922b0a2e99e75a3",
-    "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
-    "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "95f33fe5d05d80e7",
     "copilot-instructions.template.md": "a7835a86e5366798",
     "builder/team-builder-claude.template.md": "d6158978f4955fc1",
@@ -192,14 +193,20 @@
       "component_slug": null
     },
     {
-      "path": "retrieval-integrator.agent.md",
-      "template": "domain/retrieval-integrator.template.md",
+      "path": "output-compiler.agent.md",
+      "template": "domain/output-compiler.template.md",
       "type": "agent",
       "component_slug": null
     },
     {
-      "path": "research-analyst.agent.md",
-      "template": "domain/research-analyst.template.md",
+      "path": "visual-designer.agent.md",
+      "template": "domain/visual-designer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "interpretation-advisor.agent.md",
+      "template": "domain/interpretation-advisor.template.md",
       "type": "agent",
       "component_slug": null
     },
@@ -210,7 +217,7 @@
       "component_slug": null
     },
     {
-      "path": "../skills/tool-pandoc.md",
+      "path": "../skills/tool-pandoc/SKILL.md",
       "template": "domain/tool-cli.doc.template.md",
       "fallback_template": "domain/tool-specific.doc.template.md",
       "type": "skill",
@@ -321,6 +328,12 @@
       "component_slug": null
     },
     {
+      "path": "references/redteam-methodology.reference.md",
+      "template": "universal/redteam-methodology.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/retrospective-remediation.reference.md",
       "template": "universal/retrospective-remediation.reference.template.md",
       "type": "reference",
@@ -341,18 +354,6 @@
     {
       "path": "references/external-retrieval-quality-gate.reference.md",
       "template": "universal/external-retrieval-quality-gate.reference.template.md",
-      "type": "reference",
-      "component_slug": null
-    },
-    {
-      "path": "references/retrieval-integration.reference.md",
-      "template": "universal/retrieval-integration.reference.template.md",
-      "type": "reference",
-      "component_slug": null
-    },
-    {
-      "path": "references/retrieval-trigger-contract.reference.md",
-      "template": "universal/retrieval-trigger-contract.reference.template.md",
       "type": "reference",
       "component_slug": null
     },
@@ -443,8 +444,9 @@
     "technical-validator",
     "format-converter",
     "reference-manager",
-    "retrieval-integrator",
-    "research-analyst",
+    "output-compiler",
+    "visual-designer",
+    "interpretation-advisor",
     "tool-doc-researcher",
     "topic-scoping-expert",
     "literature-review-expert",
@@ -464,31 +466,27 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "ba4ea3ea38c2ae5b",
+  "manifest_fingerprint": "4890b58412cd2de9",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "research-analyst.md": "a813d23227e434a9",
-    "references/security-vulnerability-watch.json": "49c81f9531a8b840",
-    "references/framework-watch.reference.md": "394c73ab0319c1f6",
+    "../skills/tool-pandoc/SKILL.md": "334f1249b8bc816d",
+    "references/redteam-methodology.reference.md": "e96861492854cda3",
+    "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
+    "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
+    "references/security-vulnerability-watch.reference.md": "af1776d7902054b4",
+    "references/security-vulnerability-watch.json": "93ba552719bf2fb7",
+    "references/framework-watch.reference.md": "bed999dd906cb084",
+    "references/runtime-handoffs.json": "51e2e8d0a4979088",
+    "navigator.md": "6dc7292dcd345c62",
+    "security.md": "0d0a82efd82162bf",
+    "conflict-auditor.md": "f3b20e61deae744f",
+    "conflict-resolution.md": "150a916c9579b08e",
+    "tool-doc-researcher.md": "46021a907baad7fd",
     "../CLAUDE.md": "77ac63ac3ec1c7c1",
-    "references/runtime-handoffs.json": "b566e48e8ceff885",
-    "orchestrator.md": "baa6e5d9eab2bbd1",
-    "security.md": "c83805ffc9800cfc",
-    "conflict-auditor.md": "aa47d0ae03ef7685",
-    "technical-validator.md": "44f871174ee62209",
-    "topic-scoping-expert.md": "4cfd5cb3a0036484",
-    "literature-review-expert.md": "63d41d8e5510dfde",
-    "main-analysis-expert.md": "59f7afbd50460532",
-    "conclusion-expert.md": "da468961a1e77c6a",
-    "references/code-hygiene-rules.reference.md": "e11ff04783b67b59",
-    "references/unix-philosophy-mapping.reference.md": "004aec20c9e34e4c",
-    "references/security-vulnerability-watch.reference.md": "3b5333421aa15635",
-    "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "SETUP-REQUIRED.md": "ec5cc6c80bcbe2ea",
-    "navigator.md": "959e28ae46f32da3",
+    "orchestrator.md": "baa6e5d9eab2bbd1",
     "code-hygiene.md": "a68e2d09066eb158",
     "adversarial.md": "f776459b9a0df2b0",
-    "conflict-resolution.md": "9e46ed6dbc5c4760",
     "cleanup.md": "2951e558c9eff9d8",
     "agent-updater.md": "204a91c77a70374e",
     "agent-refactor.md": "34d2e83a96b9c343",
@@ -498,11 +496,13 @@
     "primary-producer.md": "73f30e956688fe45",
     "quality-auditor.md": "0b4f7971d2b11530",
     "cohesion-repairer.md": "ed9fd173360f0451",
+    "technical-validator.md": "44f871174ee62209",
     "format-converter.md": "34853e19e02ad4ac",
     "reference-manager.md": "df2c57ef48f2d951",
-    "retrieval-integrator.md": "d02b91a920dc5974",
-    "tool-doc-researcher.md": "d05643c98a473716",
+    "output-compiler.md": "b93eae7fb0e09abb",
+    "visual-designer.md": "91bbb1e7f15d8b5a",
     "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
+    "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
@@ -512,22 +512,23 @@
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/skill-generation.reference.md": "7fde17640c5bc1eb",
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
-    "references/retrieval-integration.reference.md": "d0745efa4df1daaa",
-    "references/retrieval-trigger-contract.reference.md": "9edf36db35219e03",
+    "topic-scoping-expert.md": "4cfd5cb3a0036484",
+    "literature-review-expert.md": "63d41d8e5510dfde",
+    "main-analysis-expert.md": "59f7afbd50460532",
+    "conclusion-expert.md": "da468961a1e77c6a",
     "team-builder.md": "8a2d497a3743d77c",
     "content-enricher.md": "726ca63431fbea48",
     "references/pipeline-graph.md": "8ceca1ec14af245a"
   },
   "front_matter_baseline": {
-    "research-analyst.md": {
-      "name": "Research Analyst \u2014 ResearchTeam",
-      "description": "\"Orchestrates the optional agentteams[research] runtime library in ResearchTeam \u2014 web search, reputable-source rating, and dual-lens claim verification\"",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash"
+    "/Users/jamescaton/githubrepositories/researchteam/.claude/skills/tool-pandoc/SKILL.md": {
+      "name": "tool-pandoc",
+      "description": "\"Pandoc operational reference in ResearchTeam \u2014 configuration, API surface, invocation, and verification. Consult when working with Pandoc.\""
     },
-    "orchestrator.md": {
-      "name": "Orchestrator \u2014 ResearchTeam",
-      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task"
+    "navigator.md": {
+      "name": "Navigator \u2014 ResearchTeam",
+      "description": "\"Repository structure navigation, project map maintenance, file location lookups, and dependency queries for ResearchTeam\"",
+      "tools": "Read, Grep, Glob, Bash"
     },
     "security.md": {
       "name": "Security \u2014 ResearchTeam",
@@ -539,35 +540,20 @@
       "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
       "tools": "Read, Grep, Glob"
     },
-    "technical-validator.md": {
-      "name": "Technical Validator \u2014 ResearchTeam",
-      "description": "\"Read-only audit agent that verifies technical accuracy in ResearchTeam \u2014 code examples, file excerpts, API references, and tool invocations match what exists on disk\"",
-      "tools": "Read, Grep, Glob"
+    "conflict-resolution.md": {
+      "name": "Conflict Resolution \u2014 ResearchTeam",
+      "description": "\"Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam\"",
+      "tools": "Edit, Write, Grep, Glob, Read"
     },
-    "topic-scoping-expert.md": {
-      "name": "Topic Scoping and Research Plan Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Topic Scoping and Research Plan in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
+    "tool-doc-researcher.md": {
+      "name": "Tool Documentation Researcher \u2014 ResearchTeam",
+      "description": "\"Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata\"",
+      "tools": "Read, Grep, Glob, Bash(python -m agentteams.research:*)"
     },
-    "literature-review-expert.md": {
-      "name": "Literature Review Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Literature Review in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
-    },
-    "main-analysis-expert.md": {
-      "name": "Main Analysis Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Main Analysis in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
-    },
-    "conclusion-expert.md": {
-      "name": "Conclusion and Executive Summary Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Conclusion and Executive Summary in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
-    },
-    "navigator.md": {
-      "name": "Navigator \u2014 ResearchTeam",
-      "description": "\"Repository structure navigation, project map maintenance, file location lookups, and dependency queries for ResearchTeam\"",
-      "tools": "Read, Grep, Glob, Bash"
+    "orchestrator.md": {
+      "name": "Orchestrator \u2014 ResearchTeam",
+      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
+      "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task"
     },
     "code-hygiene.md": {
       "name": "code-hygiene",
@@ -584,11 +570,6 @@
       "source_sha256": "86cab35df4972d10a45d28b33b838629676eecc75aad2b83be8987fe4ee3ce1a",
       "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Grep, Glob"
-    },
-    "conflict-resolution.md": {
-      "name": "Conflict Resolution \u2014 ResearchTeam",
-      "description": "\"Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam\"",
-      "tools": "Edit, Write, Grep, Glob, Read"
     },
     "cleanup.md": {
       "name": "cleanup",
@@ -656,6 +637,11 @@
       "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write"
     },
+    "technical-validator.md": {
+      "name": "Technical Validator \u2014 ResearchTeam",
+      "description": "\"Read-only audit agent that verifies technical accuracy in ResearchTeam \u2014 code examples, file excerpts, API references, and tool invocations match what exists on disk\"",
+      "tools": "Read, Grep, Glob"
+    },
     "format-converter.md": {
       "name": "format-converter",
       "description": "Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam",
@@ -672,15 +658,41 @@
       "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Grep, Glob"
     },
-    "retrieval-integrator.md": {
-      "name": "Retrieval Integrator \u2014 ResearchTeam",
-      "description": "\"Validates retrieval integration contracts in ResearchTeam \u2014 query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations\"",
-      "tools": "Read, Grep, Glob, Bash"
+    "output-compiler.md": {
+      "name": "output-compiler",
+      "description": "Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest",
+      "source": ".github/agents/output-compiler.agent.md",
+      "source_sha256": "07897818bf0566f3fd551cd2ac70b81de798701fb6538226c566b3e2ec190cb2",
+      "bridge": "copilot-vscode-to-claude",
+      "tools": "Read, Edit, Write, Bash"
     },
-    "tool-doc-researcher.md": {
-      "name": "Tool Documentation Researcher \u2014 ResearchTeam",
-      "description": "\"Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata\"",
-      "tools": "Read, Grep, Glob, Bash(python -m agentteams.research:*)"
+    "visual-designer.md": {
+      "name": "visual-designer",
+      "description": "Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain",
+      "source": ".github/agents/visual-designer.agent.md",
+      "source_sha256": "31198e666f8e5383c91e00f5f60904322bda54517d45ec44fc43bec27ffa74eb",
+      "bridge": "copilot-vscode-to-claude",
+      "tools": "Read, Edit, Write, Bash, Grep, Glob"
+    },
+    "topic-scoping-expert.md": {
+      "name": "Topic Scoping and Research Plan Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Topic Scoping and Research Plan in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
+    },
+    "literature-review-expert.md": {
+      "name": "Literature Review Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Literature Review in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
+    },
+    "main-analysis-expert.md": {
+      "name": "Main Analysis Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Main Analysis in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
+    },
+    "conclusion-expert.md": {
+      "name": "Conclusion and Executive Summary Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Conclusion and Executive Summary in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
     },
     "team-builder.md": {
       "name": "team-builder",
