@@ -25,19 +25,19 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "a2e46ef24984366c",
+    "universal/orchestrator.template.md": "5b5e4723e4a12c48",
     "universal/navigator.template.md": "be2f562228ea5e1f",
     "universal/security.template.md": "f0903dbb0ec12bbb",
     "universal/code-hygiene.template.md": "7b1eae41ef75358d",
     "universal/adversarial.template.md": "3923a13f4fb1ae6a",
-    "universal/conflict-auditor.template.md": "371d5304d8a0f5fe",
+    "universal/conflict-auditor.template.md": "435941d404f59376",
     "universal/conflict-resolution.template.md": "ff21ac7e7e1fc63c",
     "universal/cleanup.template.md": "bf795b64968349f6",
     "universal/agent-updater.template.md": "c9636a2efa322a6d",
     "universal/agent-refactor.template.md": "a9717cc56c35f4ac",
     "universal/repo-liaison.template.md": "a41269c1204528f3",
     "universal/git-operations.template.md": "82546b5e807d9c98",
-    "domain/work-summarizer.template.md": "893bc7338f0336a6",
+    "domain/work-summarizer.template.md": "4293a9039ee030a5",
     "domain/primary-producer.template.md": "35bf874350a29a94",
     "domain/quality-auditor.template.md": "bc44c5742a92d831",
     "domain/cohesion-repairer.template.md": "a2c3b4844110b04a",
@@ -72,7 +72,7 @@
     "universal/skill-generation.reference.template.md": "47bcf76ed8f69a80",
     "universal/external-retrieval-quality-gate.reference.template.md": "3922b0a2e99e75a3",
     "workstream-expert.template.md": "95f33fe5d05d80e7",
-    "copilot-instructions.template.md": "a7835a86e5366798",
+    "copilot-instructions.template.md": "bc94e8e32a6b2cff",
     "builder/team-builder-copilot-vscode.template.md": "5708c3fd29801a3d",
     "domain/content-enricher.template.md": "8176cebe85aace8f"
   },
@@ -472,15 +472,17 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "0df65b4a4c7c2e7f",
+  "manifest_fingerprint": "29da588ad0ea9302",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "c1bc408fb50f6cf0",
-    "references/security-vulnerability-watch.json": "838dc6a6588251eb",
+    "orchestrator.agent.md": "c2fb1a9347f09dd1",
+    "security.agent.md": "6bd07f2976acaa5c",
+    "work-summarizer.agent.md": "02d3443f48e8370c",
+    "references/security-vulnerability-watch.reference.md": "e9ef911f5e5f1a8b",
+    "references/security-vulnerability-watch.json": "99dd0bda7e0c506a",
     "references/pipeline-graph.md": "f125233fcc0b8c8a",
     "references/pipeline-graph.svg": "8f0062f2c266067d",
     "references/pipeline-handoffs.svg": "f027c1582332dab7",
-    "orchestrator.agent.md": "ec6541fcc32a0e05",
     "navigator.agent.md": "537f0b02852554b9",
     "code-hygiene.agent.md": "7bdaca03a2b49900",
     "adversarial.agent.md": "86cab35df4972d10",
@@ -491,7 +493,6 @@
     "agent-refactor.agent.md": "e89ed5d7214c9ebd",
     "repo-liaison.agent.md": "cbe160b699201663",
     "git-operations.agent.md": "9a205a22f7c7ce28",
-    "work-summarizer.agent.md": "464f281e387fd6d3",
     "primary-producer.agent.md": "12ed402161f2f3be",
     "quality-auditor.agent.md": "448218dc7a8925df",
     "cohesion-repairer.agent.md": "28cacb798ea5ea37",
@@ -506,7 +507,6 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "906634a8b382652b",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -533,6 +533,15 @@
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
   },
   "front_matter_baseline": {
+    "orchestrator.agent.md": {
+      "name": "Orchestrator \u2014 ResearchTeam",
+      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
+      "user-invokable": "true",
+      "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
+      "agents": "",
+      "model": "[\"auto\"]",
+      "handoffs": ""
+    },
     "security.agent.md": {
       "name": "Security \u2014 ResearchTeam",
       "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
@@ -541,12 +550,12 @@
       "model": "[\"auto\"]",
       "handoffs": ""
     },
-    "orchestrator.agent.md": {
-      "name": "Orchestrator \u2014 ResearchTeam",
-      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
+    "work-summarizer.agent.md": {
+      "name": "Work Summarizer \u2014 ResearchTeam",
+      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
       "user-invokable": "true",
-      "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
-      "agents": "",
+      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
+      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
       "model": "[\"auto\"]",
       "handoffs": ""
     },
@@ -630,15 +639,6 @@
       "description": "\"Executes and governs Git and GitHub operations in ResearchTeam, including commit/push, pull/merge/rebase, conflict handling, and recovery workflows.\"",
       "user-invokable": "true",
       "tools": "['read', 'execute', 'search']",
-      "model": "[\"auto\"]",
-      "handoffs": ""
-    },
-    "work-summarizer.agent.md": {
-      "name": "Work Summarizer \u2014 ResearchTeam",
-      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
-      "user-invokable": "true",
-      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
-      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
       "model": "[\"auto\"]",
       "handoffs": ""
     },

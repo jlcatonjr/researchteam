@@ -120,6 +120,7 @@ Boundary rules:
 - Plan artifacts are authoritative for intended sequence and declared statuses.
 - If they disagree, record the mismatch in a **Discrepancies** section.
 - Never fabricate plan slugs, commit hashes, file paths, or step numbers.
+- Before writing or trusting any claim that a plan is complete, read that plan's own steps CSV and confirm every row shows `done`, and confirm any deliverable file the completion claim would cite actually exists on disk — write the claim only once both checks pass, not from a plan's stated exit criteria or from another document's prose alone.
 - Treat `tmp/by-week/YYYY-Www/` as canonical when present; use legacy `tmp/` only as fallback or for undated carry-over plans.
 - Exclude `.github/agents/.agentteams-backups/` from git-activity collection and discrepancy summaries unless the request is explicitly forensic.
 
@@ -134,6 +135,14 @@ Each summary type must include these machine-parseable fields:
   - `Commits Count`
   - `Plans Touched Count`
   - `Files Changed Count`
+
+**`Commits Count` evidence rule:** the count must be read from `git log --oneline
+--since=midnight` output you actually ran in this session, not restated from a
+prompt, an earlier block, or memory; quote at least the latest short hash alongside
+the count so the claim is checkable (precedent: 2026-08-12, ~20 blocks asserted "0
+commits, confirmed via git log" while 5 commits existed — the count had been
+inherited from a stale prompt, and no block could prove otherwise).
+
 2. Weekly:
   - `ISO Week`
   - `Daily Summaries Consumed`
