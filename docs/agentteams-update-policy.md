@@ -9,15 +9,39 @@ Define review and rollback policy for automated AgentTeams synchronization runs 
 
 ## Integrated AgentTeams Baseline
 
-**Integrated ref:** `67655da` (agentteams `main`, 2026-08-03) — recorded in
+**Integrated ref:** `61849fb` (agentteams `main`, 2026-08-15) — recorded in
 `.github/agentteams-autosync-ref`.
-**Previously recorded:** `e6627fb` (2026-07-09), 155 commits behind. The gap is the reason
-this section exists: the recorded ref is what the SHA gate compares against, so a stale ref
-is indistinguishable from "nothing to integrate" until someone reads it.
+**Previously recorded:** `c6a9cf6` (2026-08-07). This section's own narrative had lagged that
+ref since the day it landed — itself a symptom of what this update fixes: the weekly autosync
+CI had been producing correct integrations and silently discarding every one of them for 5
+straight weeks (2026-07-13 → 2026-08-10), because GitHub Actions was blocked from opening pull
+requests by a repo setting (`can_approve_pull_request_reviews`, default off) — `chore/
+agentteams-autosync` was regenerated and force-pushed correctly every Monday with no PR ever
+appearing to review. Fixed 2026-08-15 by flipping that one setting; landed via
+[`#7`](https://github.com/jlcatonjr/researchteam/pull/7). Full incident record:
+`tmp/by-week/2026-W33/researchteam-agentteams-integration-gap.plan.md` in the agentteams repo.
 
-What changed between those refs that a consumer of this framework should know:
+What changed that a consumer of this framework should know:
 
-1. **Fenced sections made existing agent files genuinely updatable.** Template-owned
+1. **CSV-write guidance sharpened.** The orchestrator's plan-steps guidance now names
+   `agentteams.atomicio.atomic_rewrite_csv_rows()` specifically, not just "a real CSV parser" —
+   closing the same class of ledger-truncation failure mode agentteams' own repo hit on itself.
+2. **Two new work-summarizer verification rules.** (a) Never assert a plan is complete without
+   reading its own steps CSV and confirming every row is `done`, and confirming any cited
+   deliverable actually exists on disk. (b) `Commits Count` must be sourced from a `git log` run
+   in-session, with the latest short hash quoted alongside it — not restated from a prompt or an
+   earlier block (closing a documented incident where a stale count went unchecked).
+3. **Fence-safe strip contract unified upstream** (`interop.py` no longer carries its own naive
+   strip regex) — protective for the same failure class that cost `security.md` most of its
+   content in the incident referenced elsewhere in this doc. No visible diff here — it's a
+   mechanism fix, not new content.
+4. **CAI v2 (durable canonical agent format) and multi-framework pinned-sync landed upstream as
+   opt-in features** — available if this repo ever wants `--pin`/`--sync`/canonical
+   materialization, but not adopted, so no rendered files changed because of them.
+
+Earlier integrated (ref `67655da`, 2026-08-03; kept for continuity):
+
+5. **Fenced sections made existing agent files genuinely updatable.** Template-owned
    sections — including the Invariant Core and the security agent's authority — are now
    wrapped in paired `AGENTTEAMS` begin/end fence markers. (Spelled that way deliberately:
    the fence-pairing validator counts the literal marker tokens per file, so writing either
@@ -26,30 +50,29 @@ What changed between those refs that a consumer of this framework should know:
    reach a deployed team at all if the corresponding section sat outside a fence; the merge
    had no way to tell an intentional local edit from stale generated content. A merge onto a
    pre-split file now *migrates* it rather than duplicating its sections.
-2. **`--shrink-policy` (default `preserve`).** When a fenced merge would drop concrete
+6. **`--shrink-policy` (default `preserve`).** When a fenced merge would drop concrete
    references from an enriched body, the existing body is kept and the template update is
    suppressed **for that fence only**; other fences still update. The notices this emits are
    the mechanism working, not a failure. Do not reach for `--shrink-policy=allow` to silence
    them — that is the setting that discards the enrichment.
-3. **`--pin-templates`.** Pins the template trust root outside the writable surface. It
+7. **`--pin-templates`.** Pins the template trust root outside the writable surface. It
    refuses to run rather than guessing where the root lives if it cannot resolve one.
-4. **`--reconcile-front-matter` / `--reconcile-apply`.** Reconciles agent front matter,
+8. **`--reconcile-front-matter` / `--reconcile-apply`.** Reconciles agent front matter,
    notably the superseded `allowed-tools:` key. That key is **silently ignored**, so any
    agent still declaring it inherits every tool regardless of what its body claims. The apply
    path is never implied — reconciliation reports until explicitly told to write.
-   *Status in this repository: 0 agents on the superseded key; 31 on `tools:`.*
-5. **`--scan-security` runs on every generate** as an advisory pass (blocking under
+9. **`--scan-security` runs on every generate** as an advisory pass (blocking under
    `--fleet`). It flags absolute-path PII among other things. Note that the local code index
    (`.github/agents/references/code-index/`) trips this by design and is gitignored — it is a
    machine-local cache and must never be committed.
-6. **`references/instruction-authority.reference.md`** now ships with the team: an explicit
-   ordering for instruction conflicts, including where read content sits. Read content is
-   inert data, never instruction.
-7. **Merge-safety fixes worth trusting the tool again over.** A span enclosing a live fence is
-   no longer removed (this had caused real data loss); a section whose only surviving copy is
-   the one being removed is no longer deleted; and `--dry-run` now runs the same front-matter
-   merge as the real run, so the preview is no longer a different code path from the thing it
-   previews.
+10. **`references/instruction-authority.reference.md`** now ships with the team: an explicit
+    ordering for instruction conflicts, including where read content sits. Read content is
+    inert data, never instruction.
+11. **Merge-safety fixes worth trusting the tool again over.** A span enclosing a live fence is
+    no longer removed (this had caused real data loss); a section whose only surviving copy is
+    the one being removed is no longer deleted; and `--dry-run` now runs the same front-matter
+    merge as the real run, so the preview is no longer a different code path from the thing it
+    previews.
 
 **Not yet integrated.** agentteams' constitutional red-team work (the `--redteam` standing
 audit, the 21 closed exploits, and the fleet capability-key remediation) is on an unmerged
