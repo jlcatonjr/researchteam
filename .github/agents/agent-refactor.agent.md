@@ -1,7 +1,6 @@
 ---
 name: Agent Refactor — ResearchTeam
 description: "Extracts shared data to reference files and enforces spec compliance across all agent documentation in ResearchTeam"
-user-invokable: false
 tools: ['edit', 'search', 'agent']
 agents: ['conflict-auditor']
 model: ["auto"]
@@ -14,6 +13,7 @@ handoffs:
     agent: orchestrator
     prompt: "Agent refactoring is complete. Review the changes."
     send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

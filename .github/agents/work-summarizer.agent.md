@@ -1,7 +1,6 @@
 ---
 name: Work Summarizer — ResearchTeam
 description: "Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits"
-user-invokable: true
 tools: ['read', 'search', 'execute', 'edit', 'agent']
 agents: ['technical-validator', 'adversarial', 'conflict-auditor']
 model: ["auto"]
@@ -22,6 +21,7 @@ handoffs:
     agent: orchestrator
     prompt: "Work summary reporting complete. See workSummaries/."
     send: false
+user-invocable: true
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

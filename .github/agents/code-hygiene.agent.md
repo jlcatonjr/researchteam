@@ -1,7 +1,6 @@
 ---
 name: Code Hygiene — ResearchTeam
 description: "Read-only auditor that enforces modular architecture, file hygiene, script lifecycle, anti-sprawl rules, and agent documentation quality. Delegates removals to @cleanup; delegates structural extraction to @agent-refactor."
-user-invokable: false
 tools: ['read', 'search']
 model: ["auto"]
 handoffs:
@@ -25,6 +24,7 @@ handoffs:
     agent: orchestrator
     prompt: "Code hygiene review is complete. Returning findings to the orchestrator."
     send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

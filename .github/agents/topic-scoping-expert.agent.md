@@ -1,7 +1,6 @@
 ---
 name: "Topic Scoping and Research Plan Expert — ResearchTeam"
 description: "Component expert for Topic Scoping and Research Plan in ResearchTeam — prepares Component Briefs, reviews drafts against brief checklist, approves deliverables"
-user-invokable: false
 tools: ['read', 'search', 'agent']
 agents: ['primary-producer', 'adversarial', 'reference-manager']
 model: ["auto"]
@@ -22,6 +21,7 @@ handoffs:
     agent: orchestrator
     prompt: "Topic Scoping and Research Plan has been reviewed and accepted."
     send: false
+user-invocable: false
 ---
 
 <!--

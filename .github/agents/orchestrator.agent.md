@@ -1,35 +1,8 @@
 ---
 name: Orchestrator — ResearchTeam
 description: "Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check."
-user-invokable: true
 tools: ['read', 'edit', 'search', 'execute', 'todo', 'agent']
-agents:
-  - orchestrator
-  - navigator
-  - security
-  - code-hygiene
-  - adversarial
-  - conflict-auditor
-  - conflict-resolution
-  - cleanup
-  - agent-updater
-  - agent-refactor
-  - repo-liaison
-  - primary-producer
-  - quality-auditor
-  - cohesion-repairer
-  - technical-validator
-  - format-converter
-  - reference-manager
-  - output-compiler
-  - visual-designer
-  - tool-doc-researcher
-  - tool-pandoc
-  - topic-scoping-expert
-  - literature-review-expert
-  - main-analysis-expert
-  - conclusion-expert
-  - interpretation-advisor
+agents: 
 model: ["auto"]
 handoffs:
   - label: Produce / Revise Deliverable
@@ -104,6 +77,16 @@ handoffs:
     agent: repo-liaison
     prompt: "Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos."
     send: false
+  - label: Summarize Work Period
+    agent: work-summarizer
+    prompt: "Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period."
+    send: false
+  - label: Git Operations
+    agent: git-operations
+    prompt: "Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed."
+    send: false
+
+user-invocable: true
 ---
 <!--
 SECTION MANIFEST — orchestrator.template.md

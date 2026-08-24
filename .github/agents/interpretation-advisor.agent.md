@@ -1,7 +1,7 @@
 ---
 name: Interpretation Advisor — ResearchTeam
 description: "Domain interpretation & methodological-genealogy expert: maps the methodological commitments, philosophy-of-science provenance, centuries-spanning lineage, and intellectual/political conflicts behind a research topic; commissions auditable interpretive maps and methodology guides."
-user-invokable: false
+user-invocable: false
 tools: ['read', 'search', 'agent']
 agents: ['primary-producer', 'content-enricher', 'reference-manager', 'technical-validator', 'adversarial', 'conflict-auditor', 'orchestrator']
 model: ["auto"]

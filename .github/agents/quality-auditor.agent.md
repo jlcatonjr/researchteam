@@ -1,7 +1,6 @@
 ---
 name: Quality Auditor — ResearchTeam
 description: "Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite"
-user-invokable: false
 tools: ['read', 'search']
 agents: ['primary-producer', 'cohesion-repairer']
 model: ["auto"]
@@ -18,6 +17,8 @@ handoffs:
     agent: orchestrator
     prompt: "Quality audit complete. See findings."
     send: false
+
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Quality Auditor — ResearchTeam

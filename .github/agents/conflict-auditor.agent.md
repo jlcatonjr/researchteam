@@ -1,11 +1,27 @@
 ---
 name: Conflict Auditor — ResearchTeam
 description: "Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam"
-user-invokable: false
 tools: ['read', 'search']
 agents: ['conflict-resolution', 'agent-updater', 'technical-validator']
 model: ["auto"]
-handoffs: 
+handoffs:
+  - label: Return to Orchestrator
+    agent: orchestrator
+    prompt: "Conflict audit is complete. Review the findings."
+    send: false
+  - label: Update Agent Docs
+    agent: agent-updater
+    prompt: "Conflicts detected that require documentation updates."
+    send: false
+  - label: Resolve Conflicts
+    agent: conflict-resolution
+    prompt: "Conflicts have been identified and logged. Make ACCEPT/REJECT/REVISE decisions."
+    send: false
+  - label: Verify Source Drift
+    agent: technical-validator
+    prompt: "SOURCE_DRIFT conflict detected. Verify deliverable description against current source file on disk."
+    send: false
+user-invocable: false
 ---
 
 <!--

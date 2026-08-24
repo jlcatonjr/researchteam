@@ -1,7 +1,6 @@
 ---
 name: Cohesion Repairer — ResearchTeam
 description: "Repairs within-section cohesion failures in ResearchTeam deliverables — disjointedness, broken transitions, and missing argumentative spine; does not reorganize across sections"
-user-invokable: false
 tools: ['read', 'edit']
 agents: ['quality-auditor']
 model: ["auto"]
@@ -14,6 +13,8 @@ handoffs:
     agent: orchestrator
     prompt: "Cohesion repairs complete."
     send: false
+
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

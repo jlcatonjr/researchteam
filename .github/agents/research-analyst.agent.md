@@ -1,7 +1,6 @@
 ---
 name: Research Analyst — ResearchTeam
 description: "Orchestrates the optional agentteams[research] runtime library in ResearchTeam — web search, reputable-source rating, and dual-lens claim verification"
-user-invokable: true
 tools: ['read', 'edit', 'search', 'execute']
 agents: ['technical-validator', 'adversarial', 'conflict-auditor']
 model: ["Claude Sonnet 4.6 (copilot)"]
@@ -18,6 +17,7 @@ handoffs:
     agent: orchestrator
     prompt: "Research task complete."
     send: false
+user-invocable: true
 ---
 
 <!--

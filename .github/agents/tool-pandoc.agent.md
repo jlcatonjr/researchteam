@@ -1,7 +1,7 @@
 ---
 name: CLI Tool Specialist — Pandoc — ResearchTeam
 description: "Manages Pandoc () in ResearchTeam — configuration, execution, output interpretation, and CI integration"
-user-invokable: false
+user-invocable: false
 tools: ['read', 'edit', 'execute', 'search']
 agents: ['technical-validator', 'security']
 model: ["auto"]
