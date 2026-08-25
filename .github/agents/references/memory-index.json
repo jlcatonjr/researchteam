@@ -2,7 +2,7 @@
   "artifact_type": "memory-index",
   "memory_index_schema_version": "1.3",
   "index_format_version": "json-bm25-postings-v2",
-  "index_build_id": "58b166b3a72ee08cd45a9c6088c73820b9a8cf59c55155c55e0b040925507416",
+  "index_build_id": "f4aef34cb90a46336d8aae990b2cc58f77a28be7f3b31ead6ef7a5ed1723d841",
   "index_write_owner": "agentteams.build_team",
   "vector_runtime_mode": "sparse-tfidf-cosine",
   "vector_model_id": null,
@@ -11,7 +11,7 @@
   "source_fingerprint": "8d1b3a018d81f3cddc0f392e20d755e9ab24cc6ad62b451eebe28f74c9ce28c5",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "built_at": "2026-08-24T13:47:14.569629Z",
+  "built_at": "2026-08-25T22:46:19.711769Z",
   "source_count": 19,
   "documents": [
     {
@@ -95,7 +95,7 @@
         "Lightweight compatibility inventory generated from source canonical files."
       ],
       "source_hash": "abd597151d9d15550ea27a3d109f4a1e799633fa9df78bb56d2cdf3ba86efd27",
-      "source_mtime": 1786974621.361498,
+      "source_mtime": 1787579288.6433868,
       "vector_norm_sq": 12392.796479673056
     },
     {
@@ -121,7 +121,7 @@
         "- skipped (no AGENTTEAMS-BRIDGE fence in existing file): CLAUDE.md - merged: .claude/agent-team.md - merged: .claude/quickstart-snippet.md - skipped (no AGENTTEAMS-BRIDGE fence in existing file): .claude/README.md - skipped (no-rendered-fence): .claude/skills/recall/SKILL.md - skipped (no-rendered-fence): .claude/skills/code-recall/SKILL.md"
       ],
       "source_hash": "d047120942819d44c29b0d8e1fea5fc20425e1f83c99b775565b3c05f66a4dbf",
-      "source_mtime": 1786974621.376281,
+      "source_mtime": 1787579288.6590405,
       "vector_norm_sq": 334.3735196170044
     },
     {
@@ -136,7 +136,7 @@
         "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
       ],
       "source_hash": "aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f",
-      "source_mtime": 1786974621.3623579,
+      "source_mtime": 1787579288.6453137,
       "vector_norm_sq": 354.2124976656055
     },
     {
@@ -153,7 +153,7 @@
         "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
       ],
       "source_hash": "3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b",
-      "source_mtime": 1786974621.3621356,
+      "source_mtime": 1787579288.6449754,
       "vector_norm_sq": 183.92858029224226
     },
     {
@@ -167,7 +167,7 @@
         "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
       ],
       "source_hash": "3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f",
-      "source_mtime": 1786974621.361896,
+      "source_mtime": 1787579288.6441872,
       "vector_norm_sq": 130.62319763899714
     },
     {

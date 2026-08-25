@@ -22,9 +22,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/security-infrastructure-layers.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "7cb6cc382bcde9ca",
@@ -481,13 +479,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "153ce1d2221095c4",
+  "manifest_fingerprint": "6bd2390d33a8c3fd",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-infrastructure-layers.reference.md": "65741329af80142b",
+    "security.agent.md": "a8f349d748e7ceb9",
+    "references/security-vulnerability-watch.reference.md": "82228ec09d1f9009",
+    "references/security-vulnerability-watch.json": "e2a8896fc0f5f639",
+    "references/pipeline-graph.md": "f125233fcc0b8c8a",
+    "references/pipeline-graph.svg": "8f0062f2c266067d",
     "orchestrator.agent.md": "d8e511bc9abe95d4",
     "navigator.agent.md": "bf4639e8c17672a6",
-    "security.agent.md": "2e618c2c6db33f86",
     "code-hygiene.agent.md": "31f91dd0cd0af5b6",
     "adversarial.agent.md": "abb1a0c3532cf456",
     "conflict-auditor.agent.md": "489d2313af245b2e",
@@ -504,21 +505,10 @@
     "technical-validator.agent.md": "a8886efbd5238555",
     "format-converter.agent.md": "d207c65fe468dcbc",
     "reference-manager.agent.md": "13e119ce1f6a073f",
-    "research-analyst.agent.md": "2b48554bdc784678",
-    "tool-doc-researcher.agent.md": "47137a4d5178e2a1",
-    "references/security-vulnerability-watch.reference.md": "41d4d296c6358710",
-    "references/security-vulnerability-watch.json": "44ad34ee4bc28d64",
-    "references/adjacent-repos.md": "78d20a4fde516de3",
-    "topic-scoping-expert.agent.md": "58055cf835e7cbd4",
-    "literature-review-expert.agent.md": "5316d5047f213ecd",
-    "main-analysis-expert.agent.md": "aaeccf53e41f8b41",
-    "conclusion-expert.agent.md": "6ef22988fc674a06",
-    "content-enricher.agent.md": "6574a79bc3912546",
-    "references/pipeline-graph.md": "f125233fcc0b8c8a",
-    "references/pipeline-graph.svg": "8f0062f2c266067d",
-    "references/pipeline-handoffs.svg": "f027c1582332dab7",
     "output-compiler.agent.md": "2fa4f0796f13dbfd",
     "visual-designer.agent.md": "d673edd9111b93ca",
+    "research-analyst.agent.md": "2b48554bdc784678",
+    "tool-doc-researcher.agent.md": "47137a4d5178e2a1",
     "references/ref-pandoc-reference.md": "cd01d6fd696343f4",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -528,9 +518,15 @@
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
     "references/ai-bad-habits-watch.reference.md": "f219fe89f7c75d72",
     "references/framework-watch.reference.md": "81ef84e7012638ee",
+    "references/adjacent-repos.md": "78d20a4fde516de3",
+    "topic-scoping-expert.agent.md": "58055cf835e7cbd4",
+    "literature-review-expert.agent.md": "5316d5047f213ecd",
+    "main-analysis-expert.agent.md": "aaeccf53e41f8b41",
+    "conclusion-expert.agent.md": "6ef22988fc674a06",
     "../copilot-instructions.md": "13e7d3db713731a1",
     "team-builder.agent.md": "9a669a657b7afbd9",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
+    "content-enricher.agent.md": "6574a79bc3912546",
     "references/github-workflows-merge.reference.md": "4c408ee61de1873c",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
@@ -543,6 +539,14 @@
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
   },
   "front_matter_baseline": {
+    "security.agent.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "['read', 'search']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "user-invocable": "false"
+    },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
@@ -558,14 +562,6 @@
       "tools": "['read', 'search', 'execute']",
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Navigation query is complete. Here are the structural findings.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "security.agent.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "['read', 'search']",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
       "user-invocable": "false"
     },
     "code-hygiene.agent.md": {
@@ -706,6 +702,24 @@
       "handoffs": "\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Reference database updated. Check for cross-reference consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Reference database operation complete.\"\n    send: false",
       "user-invocable": "false"
     },
+    "output-compiler.agent.md": {
+      "name": "Output Compiler \u2014 ResearchTeam",
+      "description": "\"Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest\"",
+      "user-invocable": "false",
+      "tools": "['read', 'edit', 'execute']",
+      "agents": "['format-converter', 'technical-validator']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Convert Missing Components\n    agent: format-converter\n    prompt: \"Component needs conversion before assembly. Convert first.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Validate technical accuracy before final assembly.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Final output assembly complete.\"\n    send: false"
+    },
+    "visual-designer.agent.md": {
+      "name": "Visual Designer \u2014 ResearchTeam",
+      "description": "\"Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain\"",
+      "user-invocable": "false",
+      "tools": "['read', 'edit', 'execute', 'search']",
+      "agents": "['format-converter', 'quality-auditor']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Convert Figure Format\n    agent: format-converter\n    prompt: \"Diagram is ready for format conversion.\"\n    send: false\n  - label: Quality Check Figure\n    agent: quality-auditor\n    prompt: \"New or revised figure ready for quality check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Visual design work complete.\"\n    send: false"
+    },
     "research-analyst.agent.md": {
       "name": "Research Analyst \u2014 ResearchTeam",
       "description": "\"Orchestrates the optional agentteams[research] runtime library in ResearchTeam \u2014 web search, reputable-source rating, and dual-lens claim verification\"",
@@ -759,6 +773,13 @@
       "handoffs": "\n  - label: Vet Brief Before Drafting\n    agent: adversarial\n    prompt: \"Component Brief prepared. Review for hidden presuppositions before drafting begins.\"\n    send: false\n  - label: Send to Primary Producer\n    agent: primary-producer\n    prompt: \"Component Brief accepted. Ready for drafting.\"\n    send: false\n  - label: Verify Citations\n    agent: reference-manager\n    prompt: \"Verify citation keys in Component Brief before drafting begins.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conclusion and Executive Summary has been reviewed and accepted.\"\n    send: false",
       "user-invocable": "false"
     },
+    "team-builder.agent.md": {
+      "name": "Team Builder \u2014 Agent Teams Module",
+      "description": "\"Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline\"",
+      "tools": "['read', 'edit', 'search', 'execute', 'todo']",
+      "model": "[\"auto\"]",
+      "user-invocable": "true"
+    },
     "content-enricher.agent.md": {
       "name": "Content Enricher \u2014 ResearchTeam",
       "description": "\"Fills in default template placeholders and underdeveloped sections in generated agent files for ResearchTeam using the project's source materials\"",
@@ -766,31 +787,6 @@
       "agents": "['primary-producer', 'technical-validator']",
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Validate Enriched Content\n    agent: technical-validator\n    prompt: \"Content enrichment complete. Verify that filled-in values are technically accurate against project source files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Content enrichment complete. All auto-fillable placeholders have been resolved.\"\n    send: false",
-      "user-invocable": "true"
-    },
-    "output-compiler.agent.md": {
-      "name": "Output Compiler \u2014 ResearchTeam",
-      "description": "\"Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest\"",
-      "user-invocable": "false",
-      "tools": "['read', 'edit', 'execute']",
-      "agents": "['format-converter', 'technical-validator']",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Convert Missing Components\n    agent: format-converter\n    prompt: \"Component needs conversion before assembly. Convert first.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Validate technical accuracy before final assembly.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Final output assembly complete.\"\n    send: false"
-    },
-    "visual-designer.agent.md": {
-      "name": "Visual Designer \u2014 ResearchTeam",
-      "description": "\"Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain\"",
-      "user-invocable": "false",
-      "tools": "['read', 'edit', 'execute', 'search']",
-      "agents": "['format-converter', 'quality-auditor']",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Convert Figure Format\n    agent: format-converter\n    prompt: \"Diagram is ready for format conversion.\"\n    send: false\n  - label: Quality Check Figure\n    agent: quality-auditor\n    prompt: \"New or revised figure ready for quality check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Visual design work complete.\"\n    send: false"
-    },
-    "team-builder.agent.md": {
-      "name": "Team Builder \u2014 Agent Teams Module",
-      "description": "\"Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline\"",
-      "tools": "['read', 'edit', 'search', 'execute', 'todo']",
-      "model": "[\"auto\"]",
       "user-invocable": "true"
     }
   }
