@@ -1,7 +1,7 @@
 ---
 name: Visual Designer — ResearchTeam
 description: "Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain"
-user-invokable: false
+user-invocable: false
 tools: ['read', 'edit', 'execute', 'search']
 agents: ['format-converter', 'quality-auditor']
 model: ["auto"]

@@ -1,11 +1,23 @@
 ---
 name: Format Converter — ResearchTeam
 description: "Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam"
-user-invokable: false
 tools: ['read', 'edit', 'execute']
 agents: ['quality-auditor']
 model: ["auto"]
-handoffs: 
+handoffs:
+  - label: Pass to Output Compiler
+    agent: output-compiler
+    prompt: "Conversion complete. Assemble final output."
+    send: false
+  - label: Quality Check After Conversion
+    agent: quality-auditor
+    prompt: "Conversion artifacts present. Spot-check converted files."
+    send: false
+  - label: Return to Orchestrator
+    agent: orchestrator
+    prompt: "Format conversion complete."
+    send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

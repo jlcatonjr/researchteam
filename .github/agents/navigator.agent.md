@@ -1,7 +1,6 @@
 ---
 name: Navigator — ResearchTeam
 description: "Repository structure navigation, project map maintenance, file location lookups, and dependency queries for ResearchTeam"
-user-invokable: false
 tools: ['read', 'search', 'execute']
 model: ["auto"]
 handoffs:
@@ -9,6 +8,7 @@ handoffs:
     agent: orchestrator
     prompt: "Navigation query is complete. Here are the structural findings."
     send: false
+user-invocable: false
 ---
 
 <!--

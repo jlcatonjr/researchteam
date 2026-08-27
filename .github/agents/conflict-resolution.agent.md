@@ -1,7 +1,6 @@
 ---
 name: Conflict Resolution — ResearchTeam
 description: "Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam"
-user-invokable: false
 tools: ['edit', 'search', 'read']
 model: ["auto"]
 handoffs:
@@ -13,6 +12,7 @@ handoffs:
     agent: agent-updater
     prompt: "Conflict resolutions may require agent documentation updates."
     send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

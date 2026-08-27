@@ -1,7 +1,6 @@
 ---
 name: Cleanup — ResearchTeam
 description: "Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks"
-user-invokable: false
 tools: ['edit', 'search', 'execute']
 model: ["auto"]
 handoffs:
@@ -9,6 +8,7 @@ handoffs:
     agent: orchestrator
     prompt: "Cleanup is complete. Review the removal report."
     send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

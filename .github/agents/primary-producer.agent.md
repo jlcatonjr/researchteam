@@ -1,7 +1,6 @@
 ---
 name: Primary Producer — ResearchTeam
 description: "Drafts and revises deliverables in ResearchTeam from Component Briefs provided by workstream expert agents"
-user-invokable: false
 tools: ['read', 'edit', 'search']
 agents: ['cohesion-repairer', 'quality-auditor', 'conflict-auditor']
 model: ["auto"]
@@ -22,6 +21,8 @@ handoffs:
     agent: orchestrator
     prompt: "Deliverable production is complete."
     send: false
+
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

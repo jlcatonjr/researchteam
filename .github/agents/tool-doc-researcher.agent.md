@@ -1,7 +1,6 @@
 ---
 name: Tool Documentation Researcher — ResearchTeam
 description: "Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata"
-user-invokable: false
 tools: ['read', 'search', 'retrieval']
 model: ["auto"]
 handoffs:
@@ -13,6 +12,7 @@ handoffs:
     agent: orchestrator
     prompt: "Tool documentation research complete."
     send: false
+user-invocable: false
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

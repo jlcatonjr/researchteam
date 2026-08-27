@@ -69,24 +69,24 @@ The handoff-only control-flow backbone (agents-list edges omitted):
 
 | Agent | Receives from | Hands off to |
 | --- | --- | --- |
-| `adversarial` | `conclusion-expert`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `orchestrator`, `research-analyst`, `topic-scoping-expert`, `work-summarizer` | `conflict-auditor`, `orchestrator` |
+| `adversarial` | `agent-updater`, `conclusion-expert`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `orchestrator`, `research-analyst`, `topic-scoping-expert`, `work-summarizer` | `conflict-auditor`, `orchestrator` |
 | `agent-refactor` | `agent-updater`, `code-hygiene`, `orchestrator` | `conflict-auditor`, `orchestrator` |
-| `agent-updater` | `conflict-auditor`, `conflict-resolution`, `git-operations`, `orchestrator`, `tool-doc-researcher` | `agent-refactor`, `conflict-auditor`, `orchestrator` |
+| `agent-updater` | `conflict-auditor`, `conflict-resolution`, `git-operations`, `orchestrator`, `tool-doc-researcher` | `adversarial`, `agent-refactor`, `conflict-auditor`, `orchestrator` |
 | `cleanup` | `code-hygiene`, `orchestrator` | `orchestrator` |
 | `code-hygiene` | `orchestrator` | `agent-refactor`, `cleanup`, `conflict-auditor`, `orchestrator`, `security` |
 | `cohesion-repairer` | `orchestrator`, `primary-producer`, `quality-auditor` | `orchestrator`, `quality-auditor` |
-| `conclusion-expert` | `orchestrator` | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
-| `conflict-auditor` | `adversarial`, `agent-refactor`, `agent-updater`, `code-hygiene`, `interpretation-advisor`, `orchestrator`, `primary-producer`, `reference-manager`, `repo-liaison`, `research-analyst`, `technical-validator`, `work-summarizer` | `agent-updater`, `conflict-resolution`, `technical-validator` |
+| `conclusion-expert` | — | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
+| `conflict-auditor` | `adversarial`, `agent-refactor`, `agent-updater`, `code-hygiene`, `interpretation-advisor`, `orchestrator`, `primary-producer`, `reference-manager`, `repo-liaison`, `research-analyst`, `technical-validator`, `work-summarizer` | `agent-updater`, `conflict-resolution`, `orchestrator`, `technical-validator` |
 | `conflict-resolution` | `conflict-auditor`, `git-operations`, `orchestrator` | `agent-updater`, `orchestrator` |
 | `content-enricher` | `interpretation-advisor` | `orchestrator`, `primary-producer`, `technical-validator` |
-| `format-converter` | `orchestrator`, `output-compiler`, `visual-designer` | `quality-auditor` |
-| `git-operations` | — | `agent-updater`, `conflict-resolution`, `orchestrator`, `security` |
-| `interpretation-advisor` | `orchestrator` | `adversarial`, `conflict-auditor`, `content-enricher`, `orchestrator`, `primary-producer`, `reference-manager`, `technical-validator` |
-| `literature-review-expert` | `orchestrator` | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
-| `main-analysis-expert` | `orchestrator` | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
+| `format-converter` | `orchestrator`, `output-compiler`, `visual-designer` | `orchestrator`, `output-compiler`, `quality-auditor` |
+| `git-operations` | `orchestrator` | `agent-updater`, `conflict-resolution`, `orchestrator`, `security` |
+| `interpretation-advisor` | — | `adversarial`, `conflict-auditor`, `content-enricher`, `orchestrator`, `primary-producer`, `reference-manager`, `technical-validator` |
+| `literature-review-expert` | — | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
+| `main-analysis-expert` | — | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
 | `navigator` | `orchestrator` | `orchestrator` |
-| `orchestrator` | `adversarial`, `agent-refactor`, `agent-updater`, `cleanup`, `code-hygiene`, `cohesion-repairer`, `conclusion-expert`, `conflict-resolution`, `content-enricher`, `git-operations`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `navigator`, `output-compiler`, `primary-producer`, `quality-auditor`, `reference-manager`, `repo-liaison`, `research-analyst`, `security`, `technical-validator`, `tool-doc-researcher`, `tool-pandoc`, `topic-scoping-expert`, `visual-designer`, `work-summarizer` | `adversarial`, `agent-refactor`, `agent-updater`, `cleanup`, `code-hygiene`, `cohesion-repairer`, `conclusion-expert`, `conflict-auditor`, `conflict-resolution`, `format-converter`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `navigator`, `output-compiler`, `primary-producer`, `quality-auditor`, `reference-manager`, `repo-liaison`, `security`, `technical-validator`, `tool-doc-researcher`, `tool-pandoc`, `topic-scoping-expert`, `visual-designer` |
-| `output-compiler` | `orchestrator` | `format-converter`, `orchestrator`, `technical-validator` |
+| `orchestrator` | `adversarial`, `agent-refactor`, `agent-updater`, `cleanup`, `code-hygiene`, `cohesion-repairer`, `conclusion-expert`, `conflict-auditor`, `conflict-resolution`, `content-enricher`, `format-converter`, `git-operations`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `navigator`, `output-compiler`, `primary-producer`, `quality-auditor`, `reference-manager`, `repo-liaison`, `research-analyst`, `security`, `technical-validator`, `tool-doc-researcher`, `tool-pandoc`, `topic-scoping-expert`, `visual-designer`, `work-summarizer` | `adversarial`, `agent-refactor`, `agent-updater`, `cleanup`, `code-hygiene`, `cohesion-repairer`, `conflict-auditor`, `conflict-resolution`, `format-converter`, `git-operations`, `navigator`, `output-compiler`, `primary-producer`, `quality-auditor`, `reference-manager`, `repo-liaison`, `security`, `technical-validator`, `visual-designer`, `work-summarizer` |
+| `output-compiler` | `format-converter`, `orchestrator` | `format-converter`, `orchestrator`, `technical-validator` |
 | `primary-producer` | `conclusion-expert`, `content-enricher`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `orchestrator`, `quality-auditor`, `technical-validator`, `topic-scoping-expert` | `cohesion-repairer`, `conflict-auditor`, `orchestrator`, `quality-auditor` |
 | `quality-auditor` | `cohesion-repairer`, `format-converter`, `orchestrator`, `primary-producer`, `visual-designer` | `cohesion-repairer`, `orchestrator`, `primary-producer` |
 | `reference-manager` | `conclusion-expert`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `orchestrator`, `technical-validator`, `topic-scoping-expert` | `conflict-auditor`, `orchestrator` |
@@ -95,11 +95,11 @@ The handoff-only control-flow backbone (agents-list edges omitted):
 | `security` | `code-hygiene`, `git-operations`, `orchestrator`, `repo-liaison`, `tool-pandoc` | `orchestrator` |
 | `team-builder` | — | — |
 | `technical-validator` | `conflict-auditor`, `content-enricher`, `interpretation-advisor`, `orchestrator`, `output-compiler`, `research-analyst`, `tool-pandoc`, `work-summarizer` | `conflict-auditor`, `orchestrator`, `primary-producer`, `reference-manager` |
-| `tool-doc-researcher` | `orchestrator` | `agent-updater`, `orchestrator` |
-| `tool-pandoc` | `orchestrator` | `orchestrator`, `security`, `technical-validator` |
-| `topic-scoping-expert` | `orchestrator` | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
+| `tool-doc-researcher` | — | `agent-updater`, `orchestrator` |
+| `tool-pandoc` | — | `orchestrator`, `security`, `technical-validator` |
+| `topic-scoping-expert` | — | `adversarial`, `orchestrator`, `primary-producer`, `reference-manager` |
 | `visual-designer` | `orchestrator` | `format-converter`, `orchestrator`, `quality-auditor` |
-| `work-summarizer` | — | `adversarial`, `conflict-auditor`, `orchestrator`, `technical-validator` |
+| `work-summarizer` | `orchestrator` | `adversarial`, `conflict-auditor`, `orchestrator`, `technical-validator` |
 
 ---
 
@@ -182,6 +182,7 @@ flowchart LR
     agent_refactor -->|"Run Conflict Audit"| conflict_auditor
     agent_refactor -->|"Return to Orchestrator"| orchestrator
     agent_refactor -.-> conflict_auditor
+    agent_updater -->|"Run Adversarial Review"| adversarial
     agent_updater -->|"Refactor Agent Docs"| agent_refactor
     agent_updater -->|"Run Conflict Audit"| conflict_auditor
     agent_updater -->|"Return to Orchestrator"| orchestrator
@@ -203,6 +204,10 @@ flowchart LR
     conclusion_expert -.-> adversarial
     conclusion_expert -.-> primary_producer
     conclusion_expert -.-> reference_manager
+    conflict_auditor -->|"Update Agent Docs"| agent_updater
+    conflict_auditor -->|"Resolve Conflicts"| conflict_resolution
+    conflict_auditor -->|"Return to Orchestrator"| orchestrator
+    conflict_auditor -->|"Verify Source Drift"| technical_validator
     conflict_auditor -.-> agent_updater
     conflict_auditor -.-> conflict_resolution
     conflict_auditor -.-> technical_validator
@@ -212,6 +217,9 @@ flowchart LR
     content_enricher -->|"Validate Enriched Content"| technical_validator
     content_enricher -.-> primary_producer
     content_enricher -.-> technical_validator
+    format_converter -->|"Return to Orchestrator"| orchestrator
+    format_converter -->|"Pass to Output Compiler"| output_compiler
+    format_converter -->|"Quality Check After Conversion"| quality_auditor
     format_converter -.-> quality_auditor
     git_operations -->|"Update Agent Docs"| agent_updater
     git_operations -->|"Conflict Resolution"| conflict_resolution
@@ -255,6 +263,7 @@ flowchart LR
     orchestrator -->|"Conflict Audit"| conflict_auditor
     orchestrator -->|"Resolve Conflicts"| conflict_resolution
     orchestrator -->|"Convert / Transform Output"| format_converter
+    orchestrator -->|"Git Operations"| git_operations
     orchestrator -->|"Navigate Project"| navigator
     orchestrator -->|"Compile Final Output"| output_compiler
     orchestrator -->|"Produce / Revise Deliverable"| primary_producer
@@ -264,31 +273,7 @@ flowchart LR
     orchestrator -->|"Security Review"| security
     orchestrator -->|"Validate Technical Accuracy"| technical_validator
     orchestrator -->|"Generate / Revise Diagram"| visual_designer
-    orchestrator -.-> adversarial
-    orchestrator -.-> agent_refactor
-    orchestrator -.-> agent_updater
-    orchestrator -.-> cleanup
-    orchestrator -.-> code_hygiene
-    orchestrator -.-> cohesion_repairer
-    orchestrator -.-> conclusion_expert
-    orchestrator -.-> conflict_auditor
-    orchestrator -.-> conflict_resolution
-    orchestrator -.-> format_converter
-    orchestrator -.-> interpretation_advisor
-    orchestrator -.-> literature_review_expert
-    orchestrator -.-> main_analysis_expert
-    orchestrator -.-> navigator
-    orchestrator -.-> output_compiler
-    orchestrator -.-> primary_producer
-    orchestrator -.-> quality_auditor
-    orchestrator -.-> reference_manager
-    orchestrator -.-> repo_liaison
-    orchestrator -.-> security
-    orchestrator -.-> technical_validator
-    orchestrator -.-> tool_doc_researcher
-    orchestrator -.-> tool_pandoc
-    orchestrator -.-> topic_scoping_expert
-    orchestrator -.-> visual_designer
+    orchestrator -->|"Summarize Work Period"| work_summarizer
     output_compiler -->|"Convert Missing Components"| format_converter
     output_compiler -->|"Return to Orchestrator"| orchestrator
     output_compiler -->|"Validate Technical Accuracy"| technical_validator
@@ -394,6 +379,7 @@ digraph "ResearchTeam Agent Team" {
     "adversarial" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
     "agent-refactor" -> "conflict-auditor" [style=solid, label="Run Conflict Audit"];
     "agent-refactor" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
+    "agent-updater" -> "adversarial" [style=solid, label="Run Adversarial Review"];
     "agent-updater" -> "agent-refactor" [style=solid, label="Refactor Agent Docs"];
     "agent-updater" -> "conflict-auditor" [style=solid, label="Run Conflict Audit"];
     "agent-updater" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
@@ -409,15 +395,18 @@ digraph "ResearchTeam Agent Team" {
     "conclusion-expert" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
     "conclusion-expert" -> "primary-producer" [style=solid, label="Send to Primary Producer"];
     "conclusion-expert" -> "reference-manager" [style=solid, label="Verify Citations"];
-    "conflict-auditor" -> "agent-updater" [style=dashed];
-    "conflict-auditor" -> "conflict-resolution" [style=dashed];
-    "conflict-auditor" -> "technical-validator" [style=dashed];
+    "conflict-auditor" -> "agent-updater" [style=solid, label="Update Agent Docs"];
+    "conflict-auditor" -> "conflict-resolution" [style=solid, label="Resolve Conflicts"];
+    "conflict-auditor" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
+    "conflict-auditor" -> "technical-validator" [style=solid, label="Verify Source Drift"];
     "conflict-resolution" -> "agent-updater" [style=solid, label="Update Agent Docs"];
     "conflict-resolution" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
     "content-enricher" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
     "content-enricher" -> "technical-validator" [style=solid, label="Validate Enriched Content"];
     "content-enricher" -> "primary-producer" [style=dashed];
-    "format-converter" -> "quality-auditor" [style=dashed];
+    "format-converter" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
+    "format-converter" -> "output-compiler" [style=solid, label="Pass to Output Compiler"];
+    "format-converter" -> "quality-auditor" [style=solid, label="Quality Check After Conversion"];
     "git-operations" -> "agent-updater" [style=solid, label="Update Agent Docs"];
     "git-operations" -> "conflict-resolution" [style=solid, label="Conflict Resolution"];
     "git-operations" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
@@ -447,6 +436,7 @@ digraph "ResearchTeam Agent Team" {
     "orchestrator" -> "conflict-auditor" [style=solid, label="Conflict Audit"];
     "orchestrator" -> "conflict-resolution" [style=solid, label="Resolve Conflicts"];
     "orchestrator" -> "format-converter" [style=solid, label="Convert / Transform Output"];
+    "orchestrator" -> "git-operations" [style=solid, label="Git Operations"];
     "orchestrator" -> "navigator" [style=solid, label="Navigate Project"];
     "orchestrator" -> "output-compiler" [style=solid, label="Compile Final Output"];
     "orchestrator" -> "primary-producer" [style=solid, label="Produce / Revise Deliverable"];
@@ -456,13 +446,7 @@ digraph "ResearchTeam Agent Team" {
     "orchestrator" -> "security" [style=solid, label="Security Review"];
     "orchestrator" -> "technical-validator" [style=solid, label="Validate Technical Accuracy"];
     "orchestrator" -> "visual-designer" [style=solid, label="Generate / Revise Diagram"];
-    "orchestrator" -> "conclusion-expert" [style=dashed];
-    "orchestrator" -> "interpretation-advisor" [style=dashed];
-    "orchestrator" -> "literature-review-expert" [style=dashed];
-    "orchestrator" -> "main-analysis-expert" [style=dashed];
-    "orchestrator" -> "tool-doc-researcher" [style=dashed];
-    "orchestrator" -> "tool-pandoc" [style=dashed];
-    "orchestrator" -> "topic-scoping-expert" [style=dashed];
+    "orchestrator" -> "work-summarizer" [style=solid, label="Summarize Work Period"];
     "output-compiler" -> "format-converter" [style=solid, label="Convert Missing Components"];
     "output-compiler" -> "orchestrator" [style=solid, label="Return to Orchestrator"];
     "output-compiler" -> "technical-validator" [style=solid, label="Validate Technical Accuracy"];
@@ -867,6 +851,12 @@ digraph "ResearchTeam Agent Team" {
     },
     {
       "source": "agent-updater",
+      "target": "adversarial",
+      "edge_type": "handoff",
+      "label": "Run Adversarial Review"
+    },
+    {
+      "source": "agent-updater",
       "target": "agent-refactor",
       "edge_type": "handoff",
       "label": "Refactor Agent Docs"
@@ -994,6 +984,30 @@ digraph "ResearchTeam Agent Team" {
     {
       "source": "conflict-auditor",
       "target": "agent-updater",
+      "edge_type": "handoff",
+      "label": "Update Agent Docs"
+    },
+    {
+      "source": "conflict-auditor",
+      "target": "conflict-resolution",
+      "edge_type": "handoff",
+      "label": "Resolve Conflicts"
+    },
+    {
+      "source": "conflict-auditor",
+      "target": "orchestrator",
+      "edge_type": "handoff",
+      "label": "Return to Orchestrator"
+    },
+    {
+      "source": "conflict-auditor",
+      "target": "technical-validator",
+      "edge_type": "handoff",
+      "label": "Verify Source Drift"
+    },
+    {
+      "source": "conflict-auditor",
+      "target": "agent-updater",
       "edge_type": "agents-list",
       "label": null
     },
@@ -1044,6 +1058,24 @@ digraph "ResearchTeam Agent Team" {
       "target": "technical-validator",
       "edge_type": "agents-list",
       "label": null
+    },
+    {
+      "source": "format-converter",
+      "target": "orchestrator",
+      "edge_type": "handoff",
+      "label": "Return to Orchestrator"
+    },
+    {
+      "source": "format-converter",
+      "target": "output-compiler",
+      "edge_type": "handoff",
+      "label": "Pass to Output Compiler"
+    },
+    {
+      "source": "format-converter",
+      "target": "quality-auditor",
+      "edge_type": "handoff",
+      "label": "Quality Check After Conversion"
     },
     {
       "source": "format-converter",
@@ -1305,6 +1337,12 @@ digraph "ResearchTeam Agent Team" {
     },
     {
       "source": "orchestrator",
+      "target": "git-operations",
+      "edge_type": "handoff",
+      "label": "Git Operations"
+    },
+    {
+      "source": "orchestrator",
       "target": "navigator",
       "edge_type": "handoff",
       "label": "Navigate Project"
@@ -1359,153 +1397,9 @@ digraph "ResearchTeam Agent Team" {
     },
     {
       "source": "orchestrator",
-      "target": "adversarial",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "agent-refactor",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "agent-updater",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "cleanup",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "code-hygiene",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "cohesion-repairer",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "conclusion-expert",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "conflict-auditor",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "conflict-resolution",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "format-converter",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "interpretation-advisor",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "literature-review-expert",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "main-analysis-expert",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "navigator",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "output-compiler",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "primary-producer",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "quality-auditor",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "reference-manager",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "repo-liaison",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "security",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "technical-validator",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "tool-doc-researcher",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "tool-pandoc",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "topic-scoping-expert",
-      "edge_type": "agents-list",
-      "label": null
-    },
-    {
-      "source": "orchestrator",
-      "target": "visual-designer",
-      "edge_type": "agents-list",
-      "label": null
+      "target": "work-summarizer",
+      "edge_type": "handoff",
+      "label": "Summarize Work Period"
     },
     {
       "source": "output-compiler",
@@ -1896,6 +1790,7 @@ digraph "ResearchTeam Agent Team" {
       "orchestrator"
     ],
     "agent-updater": [
+      "adversarial",
       "agent-refactor",
       "conflict-auditor",
       "orchestrator"
@@ -1923,6 +1818,7 @@ digraph "ResearchTeam Agent Team" {
     "conflict-auditor": [
       "agent-updater",
       "conflict-resolution",
+      "orchestrator",
       "technical-validator"
     ],
     "conflict-resolution": [
@@ -1935,6 +1831,8 @@ digraph "ResearchTeam Agent Team" {
       "technical-validator"
     ],
     "format-converter": [
+      "orchestrator",
+      "output-compiler",
       "quality-auditor"
     ],
     "git-operations": [
@@ -1974,13 +1872,10 @@ digraph "ResearchTeam Agent Team" {
       "cleanup",
       "code-hygiene",
       "cohesion-repairer",
-      "conclusion-expert",
       "conflict-auditor",
       "conflict-resolution",
       "format-converter",
-      "interpretation-advisor",
-      "literature-review-expert",
-      "main-analysis-expert",
+      "git-operations",
       "navigator",
       "output-compiler",
       "primary-producer",
@@ -1989,10 +1884,8 @@ digraph "ResearchTeam Agent Team" {
       "repo-liaison",
       "security",
       "technical-validator",
-      "tool-doc-researcher",
-      "tool-pandoc",
-      "topic-scoping-expert",
-      "visual-designer"
+      "visual-designer",
+      "work-summarizer"
     ],
     "output-compiler": [
       "format-converter",

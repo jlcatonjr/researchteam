@@ -1,7 +1,6 @@
 ---
 name: Technical Validator — ResearchTeam
 description: "Read-only audit agent that verifies technical and factual accuracy in ResearchTeam — every claim must map to verifiable evidence from authority sources or on-disk artifacts"
-user-invokable: false
 tools: ['read', 'search']
 agents: ['primary-producer', 'reference-manager', 'conflict-auditor']
 model: ["auto"]
@@ -22,6 +21,7 @@ handoffs:
     agent: orchestrator
     prompt: "Technical validation complete. See findings."
     send: false
+user-invocable: false
 ---
 
 <!--
