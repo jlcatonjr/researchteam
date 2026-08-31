@@ -28,6 +28,22 @@ MANAGED_FILES = [
     "scripts/check_literature_library_integrity.sh",
 ]
 
+# How each managed file is reconciled on update.
+# Default (any file NOT listed here) = "overwrite": wholesale replacement from upstream — the
+# historical behavior, unchanged for every doc, script, and CLAUDE.md (which agentteams fences
+# separately). "fenced-preserve": only the upstream-owned block delimited by FENCE_BEGIN/FENCE_END
+# is replaced; every line OUTSIDE that fence is a derived-repo addition and survives the sync.
+# See docs/gitignore-preservation-handoff.md and docs/agentteams-update-policy.md.
+MERGE_STRATEGIES = {
+    ".gitignore": "fenced-preserve",
+}
+
+# Sentinel comment lines delimiting the upstream-owned region of a fenced-preserve file. Matched
+# on the stripped line, so surrounding whitespace is tolerated. Mirrors the AGENTTEAMS begin/end
+# fence idiom the framework already uses for agent files.
+FENCE_BEGIN = "# >>> researchteam:managed"
+FENCE_END = "# <<< researchteam:managed"
+
 # Path prefixes (and exact paths) excluded when scaffolding a new derived repo.
 # The workflow file is handled separately via bundled scaffold template.
 INIT_SKIP_PREFIXES = [
