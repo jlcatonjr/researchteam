@@ -9,8 +9,117 @@ import sys
 import tempfile
 from pathlib import Path
 
-from ._manifest import MANAGED_FILES, UPSTREAM_REPO
+from ._manifest import (
+    FENCE_BEGIN,
+    FENCE_END,
+    MANAGED_FILES,
+    MERGE_STRATEGIES,
+    UPSTREAM_REPO,
+)
 from ._fetch import fetch_raw
+
+
+def _split_fence(text: str) -> tuple[str, str, str] | None:
+    """Split ``text`` around the researchteam:managed fence.
+
+    Returns ``(pre, managed, post)`` where ``managed`` INCLUDES both marker lines, or ``None``
+    when a well-formed fence (BEGIN then END, in order) is absent. A marker line is recognized by
+    its sentinel PREFIX, so the self-documenting trailing prose the upstream markers carry
+    (``# >>> researchteam:managed — do not edit …``) still matches.
+    """
+    lines = text.splitlines(keepends=True)
+    begin_idx = end_idx = None
+    for i, ln in enumerate(lines):
+        stripped = ln.strip()
+        if begin_idx is None and stripped.startswith(FENCE_BEGIN):
+            begin_idx = i
+        elif begin_idx is not None and stripped.startswith(FENCE_END):
+            end_idx = i
+            break
+    if begin_idx is None or end_idx is None:
+        return None
+    pre = "".join(lines[:begin_idx])
+    managed = "".join(lines[begin_idx : end_idx + 1])
+    post = "".join(lines[end_idx + 1 :])
+    return pre, managed, post
+
+
+def _fence_body(managed_block: str) -> str:
+    """Return the managed block with its two marker lines removed (the payload only)."""
+    lines = managed_block.splitlines(keepends=True)
+    return "".join(lines[1:-1])
+
+
+def _reconcile_fenced(
+    rel_path: str, local_content: str, remote_content: str, yes: bool
+) -> tuple[str | None, list[str], str]:
+    """Reconcile a ``fenced-preserve`` file without deleting derived-only lines.
+
+    Returns ``(write_content, preview_diff, warn)``:
+      * ``write_content is None`` — nothing to write (already current, or a safe no-op skip).
+      * ``preview_diff`` — the unified diff to show interactively; for the fenced case it covers
+        ONLY the managed block, so derived lines never render as spurious deletions.
+      * ``warn`` — a human-readable note printed regardless of mode (empty string if none).
+    """
+    remote_split = _split_fence(remote_content)
+    if remote_split is None:
+        # Upstream copy is not fenced yet. A preserve strategy must never fall back to a wholesale
+        # overwrite — that is the exact silent-deletion this fix removes. Keep local, warn.
+        return None, [], (
+            "upstream copy has no researchteam:managed fence; kept local unchanged "
+            "(fenced-preserve refuses to wholesale-overwrite)."
+        )
+    _, remote_managed, _ = remote_split
+
+    local_split = _split_fence(local_content)
+    if local_split is not None:
+        local_pre, local_managed, local_post = local_split
+        if local_managed == remote_managed:
+            return None, [], ""  # managed region already current — idempotent no-op
+        new_content = local_pre + remote_managed + local_post
+        diff = list(
+            difflib.unified_diff(
+                local_managed.splitlines(keepends=True),
+                remote_managed.splitlines(keepends=True),
+                fromfile=f"local/{rel_path} (managed block)",
+                tofile=f"upstream/{rel_path} (managed block)",
+            )
+        )
+        return new_content, diff, ""
+
+    # Local has no fence — migration path.
+    if local_content.strip() == _fence_body(remote_managed).strip():
+        # Local is byte-equal (modulo trailing whitespace) to the upstream body: this is a
+        # first-time wrap with no derived additions, so adopting the fenced upstream loses nothing.
+        diff = list(
+            difflib.unified_diff(
+                local_content.splitlines(keepends=True),
+                remote_content.splitlines(keepends=True),
+                fromfile=f"local/{rel_path}",
+                tofile=f"upstream/{rel_path} (fenced)",
+            )
+        )
+        return remote_content, diff, ""
+
+    # Local is unfenced AND diverges from upstream — it may carry derived-only lines. Never wipe
+    # it under the blind path; require an explicit interactive approval that shows the full diff.
+    if yes:
+        return None, [], (
+            "local copy is unfenced and diverges from upstream; kept as-is so derived lines are "
+            "not deleted. Add the researchteam:managed fence markers to opt this file into sync."
+        )
+    diff = list(
+        difflib.unified_diff(
+            local_content.splitlines(keepends=True),
+            remote_content.splitlines(keepends=True),
+            fromfile=f"local/{rel_path}",
+            tofile=f"upstream/{rel_path} (fenced)",
+        )
+    )
+    return remote_content, diff, (
+        "local copy is unfenced and diverges from upstream — approving REPLACES it wholesale "
+        "(any derived lines shown as deletions below will be lost)."
+    )
 
 
 def run_update(
@@ -49,17 +158,31 @@ def run_update(
 
         if local_path.exists():
             local_content = local_path.read_text(encoding="utf-8")
-            if local_content == remote_content:
-                continue  # identical — nothing to do
+            strategy = MERGE_STRATEGIES.get(rel_path, "overwrite")
 
-            diff_lines = list(
-                difflib.unified_diff(
-                    local_content.splitlines(keepends=True),
-                    remote_content.splitlines(keepends=True),
-                    fromfile=f"local/{rel_path}",
-                    tofile=f"upstream/{rel_path}",
+            if strategy == "fenced-preserve":
+                write_content, diff_lines, warn = _reconcile_fenced(
+                    rel_path, local_content, remote_content, yes
                 )
-            )
+                if warn:
+                    print(f"  [fenced-preserve] {rel_path}: {warn}")
+                if write_content is None:
+                    # Already current, or a safe no-op skip (degrade/migration keeps local).
+                    if warn:
+                        skipped.append(rel_path)
+                    continue
+            else:
+                if local_content == remote_content:
+                    continue  # identical — nothing to do
+                write_content = remote_content
+                diff_lines = list(
+                    difflib.unified_diff(
+                        local_content.splitlines(keepends=True),
+                        remote_content.splitlines(keepends=True),
+                        fromfile=f"local/{rel_path}",
+                        tofile=f"upstream/{rel_path}",
+                    )
+                )
 
             if dry_run:
                 print(f"  [dry-run] Would update: {rel_path}")
@@ -79,7 +202,7 @@ def run_update(
                     continue
 
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            local_path.write_text(remote_content, encoding="utf-8")
+            local_path.write_text(write_content, encoding="utf-8")
             if rel_path.endswith(".sh"):  # preserve executability of managed shell scripts
                 local_path.chmod(local_path.stat().st_mode | 0o111)
             updated.append(rel_path)

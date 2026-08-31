@@ -148,13 +148,25 @@ always-propagating guarantee.
 
 ## Managed-File Overwrite Hazard (read before adding any local ignore pattern)
 
-Layer-2 sync **overwrites every file in `MANAGED_FILES` wholesale from upstream**. There is
-no merge, no fence, and no three-way comparison — `researchteam update --yes` replaces the
-local file and reports it as `Updated`. Any content that exists only in a derived repo is
-therefore deleted on the next sync, silently.
+Layer-2 sync **overwrites most files in `MANAGED_FILES` wholesale from upstream** (the default
+`overwrite` strategy in `researchteam/_manifest.py`). For those files there is no merge and no
+three-way comparison — `researchteam update --yes` replaces the local file and reports it as
+`Updated`. Any content that exists only in a derived repo is therefore deleted on the next sync,
+silently.
 
-`.gitignore` is on that list, which makes it the dangerous case: the failure mode is not a
-lost edit but *lost protection*, and nothing announces it.
+> **Update (2026-W36): `.gitignore` is now `fenced-preserve`, not wholesale-overwritten.** It
+> carries a `# >>> researchteam:managed … # <<< researchteam:managed` fence; sync replaces only the
+> region *inside* the fence and preserves every derived-repo line *below* it. For an already-fenced
+> file the diff preview is computed against the fenced region only, so derived lines never render as
+> spurious deletions; and a pre-fence derived `.gitignore` is never silently wiped — under `--yes`
+> it is kept-and-warned, and interactively it is surfaced as a full diff (which *does* show the
+> would-be losses) requiring explicit approval before any replacement. See `docs/gitignore-preservation-handoff.md` and
+> `researchteam/_update_cmd.py` (`_reconcile_fenced`). The hazard below still applies to every
+> *other* managed file, and the discipline rules remain the durable belt.
+
+`.gitignore` was historically the dangerous case: the failure mode is not a lost edit but *lost
+protection*, and nothing announced it. The fence closes that class in code; the rules below stay in
+force for the rest of `MANAGED_FILES` and as defense-in-depth.
 
 **This is not hypothetical.** On 2026-08-07 a sync of SocialScienceHumanities dropped that
 repo's source-corpus and LaTeX ignore patterns, exposing **1041 corpus files (198 MB)** that
@@ -172,6 +184,9 @@ routine update with `--yes`.
    into `.gitignore` for visibility if you like, but treat that copy as expendable.
 3. **After any layer-2 sync, re-check the exclusions you rely on** before staging anything.
    `git status --porcelain --untracked-files=all | wc -l` jumping is the tell.
+4. **Derived-only `.gitignore` patterns go BELOW the `# <<< researchteam:managed` marker.** That
+   region is preserved across every sync. Patterns of general use still belong upstream, inside the
+   fence, so they propagate to all derived repos.
 
 ## Reviewer Gate
 
@@ -181,6 +196,7 @@ Before merging a sync PR, reviewers must confirm:
 2. AGENTTEAMS fence pairing remains valid in all changed markdown/agent files.
 3. No new `{MANUAL:*}` placeholders were introduced.
 4. No user-authored content outside fenced regions was removed.
+5. Derived-owned `.gitignore` region (below `# <<< researchteam:managed`) is preserved intact.
 
 ## Rollback Protocol
 
