@@ -156,10 +156,11 @@ silently.
 
 > **Update (2026-W36): `.gitignore` is now `fenced-preserve`, not wholesale-overwritten.** It
 > carries a `# >>> researchteam:managed … # <<< researchteam:managed` fence; sync replaces only the
-> region *inside* the fence and preserves every derived-repo line *below* it. Diff previews are
-> computed against the fenced region only, so derived lines never render as deletions, and a
-> pre-fence derived `.gitignore` is never silently wiped (it is kept-and-warned under `--yes`,
-> surfaced interactively). See `docs/gitignore-preservation-handoff.md` and
+> region *inside* the fence and preserves every derived-repo line *below* it. For an already-fenced
+> file the diff preview is computed against the fenced region only, so derived lines never render as
+> spurious deletions; and a pre-fence derived `.gitignore` is never silently wiped — under `--yes`
+> it is kept-and-warned, and interactively it is surfaced as a full diff (which *does* show the
+> would-be losses) requiring explicit approval before any replacement. See `docs/gitignore-preservation-handoff.md` and
 > `researchteam/_update_cmd.py` (`_reconcile_fenced`). The hazard below still applies to every
 > *other* managed file, and the discipline rules remain the durable belt.
 
