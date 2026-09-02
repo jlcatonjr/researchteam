@@ -22,10 +22,12 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".github/agents/references/orchestrator-spawn-authority.reference.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "181ce39e3406f1cd",
+    "universal/orchestrator.template.md": "e05fd769215ac1d3",
     "universal/navigator.template.md": "5a0d707a9f3f5cec",
     "universal/security.template.md": "e79fe61c5c31297e",
     "universal/code-hygiene.template.md": "72e2a1f9ec316852",
@@ -35,7 +37,7 @@
     "universal/cleanup.template.md": "dd3c78f2548c4686",
     "universal/agent-updater.template.md": "c647c19909dff2fa",
     "universal/agent-refactor.template.md": "fb1956da5b1140a2",
-    "universal/repo-liaison.template.md": "57b1c8654c320d59",
+    "universal/repo-liaison.template.md": "3b41e84de7c321e4",
     "universal/git-operations.template.md": "c000c51feb44ad64",
     "domain/work-summarizer.template.md": "90b19b91ff48a953",
     "domain/primary-producer.template.md": "e02c72f74753e2a3",
@@ -67,6 +69,7 @@
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "universal/parallelization.reference.template.md": "e31593ccbba4a7ff",
     "universal/instruction-authority.reference.template.md": "72149ab5244f9be3",
+    "universal/orchestrator-spawn-authority.reference.template.md": "9fc96f8d6b1ee2ad",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
     "universal/cli-tool-discovery.reference.template.md": "203004e771c8b2fd",
@@ -340,6 +343,12 @@
       "component_slug": null
     },
     {
+      "path": "references/orchestrator-spawn-authority.reference.md",
+      "template": "universal/orchestrator-spawn-authority.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/redteam-methodology.reference.md",
       "template": "universal/redteam-methodology.reference.template.md",
       "type": "reference",
@@ -479,15 +488,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "7db33f8a4266193d",
+  "manifest_fingerprint": "f3bead9363e0c29b",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "5997a39cde2c6cec",
-    "references/security-vulnerability-watch.reference.md": "8512c8fff94ce9b6",
-    "references/security-vulnerability-watch.json": "24f753dd7481c098",
+    "references/orchestrator-spawn-authority.reference.md": "21974456287f7fb4",
+    "orchestrator.agent.md": "a676b264cefa8f96",
+    "security.agent.md": "f6ee67e67bdb8b98",
+    "references/security-vulnerability-watch.reference.md": "4df8781b067e7ceb",
+    "references/security-vulnerability-watch.json": "678d0c82e46deb16",
     "references/pipeline-graph.md": "f125233fcc0b8c8a",
     "references/pipeline-graph.svg": "8f0062f2c266067d",
-    "orchestrator.agent.md": "20e16698ed421bfe",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "31f91dd0cd0af5b6",
     "adversarial.agent.md": "abb1a0c3532cf456",
@@ -539,14 +549,6 @@
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
   },
   "front_matter_baseline": {
-    "security.agent.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "['read', 'search']",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
-      "user-invocable": "false"
-    },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
@@ -555,6 +557,14 @@
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Produce / Revise Deliverable\n    agent: primary-producer\n    prompt: \"A workstream is ready to produce or revise its deliverable. Provide the workstream name and any specific instructions.\"\n    send: false\n  - label: Audit Quality\n    agent: quality-auditor\n    prompt: \"A deliverable is ready for quality audit. Provide the file path.\"\n    send: false\n  - label: Repair Cohesion\n    agent: cohesion-repairer\n    prompt: \"A deliverable section has structural cohesion failures. Provide the file and section.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Audit technical accuracy of claims, code, or specifications in a deliverable. Provide the file path.\"\n    send: false\n  - label: Convert / Transform Output\n    agent: format-converter\n    prompt: \"Convert a primary deliverable to its secondary format. Provide the source file.\"\n    send: false\n  - label: Manage References / Dependencies\n    agent: reference-manager\n    prompt: \"Perform a reference operation: add, verify, deduplicate, or retire. Describe the operation.\"\n    send: false\n  - label: Compile Final Output\n    agent: output-compiler\n    prompt: \"Assemble and compile the final deliverable from all sources.\"\n    send: false\n  - label: Generate / Revise Diagram\n    agent: visual-designer\n    prompt: \"Generate or revise a diagram. Describe what is needed.\"\n    send: false\n  - label: Navigate Project\n    agent: navigator\n    prompt: \"Locate files, answer structural questions, or regenerate the project map.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"Review the planned action for credentials, destructive operations, or sensitive content.\"\n    send: false\n  - label: Code Hygiene Audit\n    agent: code-hygiene\n    prompt: \"Run a code hygiene audit. Provide scope or 'full' for all rules.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge the presuppositions underlying this plan before execution.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Detect contradictions across project files. Provide scope if targeted.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Make ACCEPT/REJECT/REVISE decisions on flagged conflicts.\"\n    send: false\n  - label: Clean Up Artifacts\n    agent: cleanup\n    prompt: \"Remove stale build artifacts, orphaned files, or abandoned drafts.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Project structure or conventions have changed. Sync all affected agent files.\"\n    send: false\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Check agent docs for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Cross-Repository Liaison\n    agent: repo-liaison\n    prompt: \"Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos.\"\n    send: false\n  - label: Summarize Work Period\n    agent: work-summarizer\n    prompt: \"Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period.\"\n    send: false\n  - label: Git Operations\n    agent: git-operations\n    prompt: \"Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed.\"\n    send: false\n",
       "user-invocable": "true"
+    },
+    "security.agent.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "['read', 'search']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "user-invocable": "false"
     },
     "navigator.agent.md": {
       "name": "Navigator \u2014 ResearchTeam",
