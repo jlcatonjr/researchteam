@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-08-31T18:27:47Z`
+Generated at: `2026-09-02T02:22:00Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.08.31, items 1687) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.09.01, items 1687) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -91,21 +91,21 @@ Generated at: `2026-08-31T18:27:47Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-82078` | PaperCut NG/MF | PaperCut NG/MF Unsafe Reflection Vulnerability | added 2026-08-31 | EPSS 0.004620000, percentile 0.382550000 | CVSS 9.4 CRITICAL
-- `CVE-2026-81578` | PaperCut NG/MF | PaperCut NG/MF Missing Authentication for Critical Function Vulnerability | added 2026-08-31 | EPSS 0.003930000, percentile 0.323970000 | CVSS 8.8 HIGH
+- `CVE-2026-82078` | PaperCut NG/MF | PaperCut NG/MF Unsafe Reflection Vulnerability | added 2026-08-31 | EPSS 0.009260000, percentile 0.580220000 | CVSS 9.1 CRITICAL
+- `CVE-2026-81578` | PaperCut NG/MF | PaperCut NG/MF Missing Authentication for Critical Function Vulnerability | added 2026-08-31 | EPSS 0.007710000, percentile 0.531340000 | CVSS 9.8 CRITICAL
 - `CVE-2023-49105` | ownCloud ownCloud | ownCloud Improper Authentication Vulnerability | added 2026-08-27 | EPSS 0.432050000, percentile 0.986280000 | CVSS 9.8 CRITICAL
-- `CVE-2026-53362` | Linux Kernel | Linux Kernel Unspecified Vulnerability | added 2026-08-27 | EPSS 0.005100000, percentile 0.414710000 | CVSS 7.8 HIGH
-- `CVE-2026-66384` | JFrog Artifactory | JFrog Artifactory Improper Limitation of a Pathname to a Restricted Directory Vulnerability | added 2026-08-27 | EPSS 0.005790000, percentile 0.453260000 | CVSS 5.3 MEDIUM
-- `CVE-2021-23758` | Ajax.NET Professional Ajax.NET Professional | Ajax.NET Professional Deserialization of Untrusted Data Vulnerability | added 2026-08-26 | EPSS 0.836330000, percentile 0.996660000
-- `CVE-2015-3246` | Red Hat Libuser | Red Hat Libuser Race Condition Vulnerability | added 2026-08-26 | EPSS 0.087990000, percentile 0.948010000
-- `CVE-2015-5287` | Red Hat Automatic Bug Reporting Tool | Red Hat Automatic Bug Reporting Tool Privilege Escalation Vulnerability | added 2026-08-26 | EPSS 0.049620000, percentile 0.915690000
-- `CVE-2022-0995` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-08-26 | EPSS 0.095180000, percentile 0.950910000
-- `CVE-2026-8452` | Citrix NetScaler ADC and NetScaler Gateway | Citrix NetScaler ADC and NetScaler Gateway Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-08-26 | EPSS 0.016060000, percentile 0.741480000
-- `CVE-2019-1068` | Microsoft SQL Server | Microsoft SQL Server Remote Code Execution Vulnerability | added 2026-08-26 | EPSS 0.528450000, percentile 0.988930000
-- `CVE-2026-60004` | Gitea Gitea | Gitea Code Injection Vulnerability | added 2026-08-25 | EPSS 0.845540000, percentile 0.996850000
+- `CVE-2026-53362` | Linux Kernel | Linux Kernel Unspecified Vulnerability | added 2026-08-27 | EPSS 0.005100000, percentile 0.415020000 | CVSS 7.8 HIGH
+- `CVE-2026-66384` | JFrog Artifactory | JFrog Artifactory Improper Limitation of a Pathname to a Restricted Directory Vulnerability | added 2026-08-27 | EPSS 0.005790000, percentile 0.453570000 | CVSS 5.3 MEDIUM
+- `CVE-2021-23758` | Ajax.NET Professional Ajax.NET Professional | Ajax.NET Professional Deserialization of Untrusted Data Vulnerability | added 2026-08-26 | EPSS 0.836330000, percentile 0.996670000
+- `CVE-2015-3246` | Red Hat Libuser | Red Hat Libuser Race Condition Vulnerability | added 2026-08-26 | EPSS 0.087990000, percentile 0.948050000
+- `CVE-2015-5287` | Red Hat Automatic Bug Reporting Tool | Red Hat Automatic Bug Reporting Tool Privilege Escalation Vulnerability | added 2026-08-26 | EPSS 0.049620000, percentile 0.915750000
+- `CVE-2022-0995` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-08-26 | EPSS 0.095180000, percentile 0.950950000
+- `CVE-2026-8452` | Citrix NetScaler ADC and NetScaler Gateway | Citrix NetScaler ADC and NetScaler Gateway Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-08-26 | EPSS 0.016060000, percentile 0.741650000
+- `CVE-2019-1068` | Microsoft SQL Server | Microsoft SQL Server Remote Code Execution Vulnerability | added 2026-08-26 | EPSS 0.528450000, percentile 0.988940000
+- `CVE-2026-60004` | Gitea Gitea | Gitea Code Injection Vulnerability | added 2026-08-25 | EPSS 0.867770000, percentile 0.997290000
 - `CVE-2026-21962` | Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in | Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in Improper Access Control Vulnerability | added 2026-08-24 | EPSS 0.420200000, percentile 0.985920000
-- `CVE-2026-73570` | Synacor Zimbra Collaboration Suite (ZCS) | Zimbra Collaboration Suite (ZCS) OS Command Injection Vulnerability | added 2026-08-21 | EPSS 0.205280000, percentile 0.973300000
-- `CVE-2026-72530` | TrueConf Server | TrueConf Server Code Injection Vulnerability | added 2026-08-20 | EPSS 0.018270000, percentile 0.773010000
+- `CVE-2026-73570` | Synacor Zimbra Collaboration Suite (ZCS) | Zimbra Collaboration Suite (ZCS) OS Command Injection Vulnerability | added 2026-08-21 | EPSS 0.205280000, percentile 0.973330000
+- `CVE-2026-72530` | TrueConf Server | TrueConf Server Code Injection Vulnerability | added 2026-08-20 | EPSS 0.018270000, percentile 0.773160000
 
 **Prevention and mitigation playbook:**
 
