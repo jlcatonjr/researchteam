@@ -62,6 +62,10 @@ markdown_files="$(printf '%s\n' "$changed_files" | grep -E '\.(md|agent\.md|refe
 if [[ -n "$markdown_files" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
+    # Exempt generated bridge report/inventory artifacts: they DISPLAY marker syntax as
+    # table data (agent-inventory.md lists each agent's real BEGIN marker), which a balance
+    # check miscounts as unpaired fences (e.g. 8 BEGIN / 0 END) — a false positive.
+    case "$file" in references/bridges/*|*/references/bridges/*) continue;; esac
     # Count only REAL HTML-comment fence markers, not prose mentions of the marker
     # syntax. A reference may legitimately quote `AGENTTEAMS:BEGIN` in backticks while
     # carrying no fence (e.g. instruction-authority.reference.md) — a bare-substring grep
