@@ -62,8 +62,12 @@ markdown_files="$(printf '%s\n' "$changed_files" | grep -E '\.(md|agent\.md|refe
 if [[ -n "$markdown_files" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
-    begin_count=$(grep -c 'AGENTTEAMS:BEGIN' "$file" || true)
-    end_count=$(grep -c 'AGENTTEAMS:END' "$file" || true)
+    # Count only REAL HTML-comment fence markers, not prose mentions of the marker
+    # syntax. A reference may legitimately quote `AGENTTEAMS:BEGIN` in backticks while
+    # carrying no fence (e.g. instruction-authority.reference.md) — a bare-substring grep
+    # miscounts that as an extra BEGIN and reports a phantom mismatch.
+    begin_count=$(grep -cE '<!--[[:space:]]*AGENTTEAMS:BEGIN[[:space:]]' "$file" || true)
+    end_count=$(grep -cE '<!--[[:space:]]*AGENTTEAMS:END[[:space:]]' "$file" || true)
     if [[ "$begin_count" -ne "$end_count" ]]; then
       echo "ERROR: Fence mismatch in $file (BEGIN=$begin_count END=$end_count)"
       exit 1
