@@ -4,11 +4,12 @@ set -euo pipefail
 # Validate scope and fence integrity for agentteams and researchteam update runs.
 #
 # Allowed paths cover two update layers:
-#   Layer-1 (agentteams-managed): .github/
+#   Layer-1 (agentteams-managed): .github/, .vscode/tasks.json (agentteams meta-tasks,
+#                                 sentinel-merged so user tasks are preserved)
 #   Layer-2 (researchteam-managed): docs/, scripts/, .claude/, CLAUDE.md,
 #                                   README.md, .gitignore, .researchteam
 
-allowed_paths_regex='^(\.github/|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
+allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'
 forbidden_nested_mirror_regex='^\.github/agents/\.github(/|$)'
 
