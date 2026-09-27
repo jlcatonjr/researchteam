@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-25T22:46:58.653713+00:00",
+  "generated_at": "2026-09-08T14:29:32.444659+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": ".github/agents",
   "source_hashes": [
     {
       "path": "agents/adversarial.agent.md",
-      "sha256": "abb1a0c3532cf456bf924e7cde5b76a761c7dd5d7eff8eb824ce9ca59c2e353d"
+      "sha256": "7bf64baa4b68509c498a8f1389b71dc7febc912f33fdab2d141d064b86dcee3e"
     },
     {
       "path": "agents/agent-refactor.agent.md",
@@ -15,7 +15,7 @@
     },
     {
       "path": "agents/agent-updater.agent.md",
-      "sha256": "3c91caaa928597192c5ba56d6c5f3a613441edebfc5f13d623792ca903ffd5e9"
+      "sha256": "edef717dfbc977090382dd3a8ca644ebebacd0bbcb1c178b892c82521bc48bd8"
     },
     {
       "path": "agents/cleanup.agent.md",
@@ -23,7 +23,7 @@
     },
     {
       "path": "agents/code-hygiene.agent.md",
-      "sha256": "31f91dd0cd0af5b6e31b706af3970f8af06a37e9fc0323508e2e1924b1c30972"
+      "sha256": "13ba39f51f2df5865569d1e621eb7f4e24fc1f7f4245df6575bee7adc64627f2"
     },
     {
       "path": "agents/cohesion-repairer.agent.md",
@@ -43,7 +43,7 @@
     },
     {
       "path": "agents/content-enricher.agent.md",
-      "sha256": "6574a79bc3912546249ede8b622c2041f1f12e7e9caebf234b868f5bf784cd05"
+      "sha256": "f41b56525416201d0f04b5e8b5032a0c52d5dbe6ac4d1a81dbb6a5f38d47da5d"
     },
     {
       "path": "agents/format-converter.agent.md",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "d8e511bc9abe95d413213cc7cc1bf9b4b0cbabaf4512829aff2075e56d211524"
+      "sha256": "6a1f56a637671ea0a34dea6b7cb1e2051a0dd70f452a97972394a29f21ceafc4"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -99,7 +99,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "43876c2eee59424dd92b63acc5b9b4bc5938dd8628a7d80cb5946303298e20ff"
+      "sha256": "8a21456b291789d8ca2d01b4df266035ff0495d9e977f1ee520c1bbd45f5d784"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -127,11 +127,11 @@
     },
     {
       "path": "agents/work-summarizer.agent.md",
-      "sha256": "1b649daaa18b8db05f7ce1fdc40d04ea480cc130c69f601becbf26614272b06e"
+      "sha256": "14b152510cf033682e673fdf9865d1387c5311eeee950e379f9008918871ee16"
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "13e7d3db713731a17f0d1f044dd13422374acfd23c6f57ed5fb167efa57a30c3"
+      "sha256": "e3bd3a0d730d834ae189d660dd9b8e39cbbeeb419806bce69aea11ee6eb74b3b"
     }
   ],
   "inventory_count": 31,

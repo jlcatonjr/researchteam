@@ -5,14 +5,15 @@ set -euo pipefail
 #
 # Allowed paths cover the update layers plus the generated/user-owned identity files that
 # init/personalize/materialize legitimately write:
-#   Layer-1 (agentteams-managed): .github/
+#   Layer-1 (agentteams-managed): .github/, .vscode/tasks.json (agentteams meta-tasks,
+#                                 sentinel-merged so user tasks are preserved)
 #   Layer-2 (researchteam-synced): docs/, scripts/, .claude/, .gitignore, and CLAUDE.md's
 #                                  fenced-preserve managed block
 #   Generated / user-owned (permitted to change, NOT wholesale-synced): README.md and CLAUDE.md's
 #                                  project header (generated from brief.json by personalize),
 #                                  brief.json, .researchteam
 
-allowed_paths_regex='^(\.github/|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
+allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'
 forbidden_nested_mirror_regex='^\.github/agents/\.github(/|$)'
 
@@ -65,8 +66,16 @@ markdown_files="$(printf '%s\n' "$changed_files" | grep -E '\.(md|agent\.md|refe
 if [[ -n "$markdown_files" ]]; then
   while IFS= read -r file; do
     [[ -z "$file" ]] && continue
-    begin_count=$(grep -c 'AGENTTEAMS:BEGIN' "$file" || true)
-    end_count=$(grep -c 'AGENTTEAMS:END' "$file" || true)
+    # Exempt generated bridge report/inventory artifacts: they DISPLAY marker syntax as
+    # table data (agent-inventory.md lists each agent's real BEGIN marker), which a balance
+    # check miscounts as unpaired fences (e.g. 8 BEGIN / 0 END) — a false positive.
+    case "$file" in references/bridges/*|*/references/bridges/*) continue;; esac
+    # Count only REAL HTML-comment fence markers, not prose mentions of the marker
+    # syntax. A reference may legitimately quote `AGENTTEAMS:BEGIN` in backticks while
+    # carrying no fence (e.g. instruction-authority.reference.md) — a bare-substring grep
+    # miscounts that as an extra BEGIN and reports a phantom mismatch.
+    begin_count=$(grep -cE '<!--[[:space:]]*AGENTTEAMS:BEGIN[[:space:]]' "$file" || true)
+    end_count=$(grep -cE '<!--[[:space:]]*AGENTTEAMS:END[[:space:]]' "$file" || true)
     if [[ "$begin_count" -ne "$end_count" ]]; then
       echo "ERROR: Fence mismatch in $file (BEGIN=$begin_count END=$end_count)"
       exit 1
