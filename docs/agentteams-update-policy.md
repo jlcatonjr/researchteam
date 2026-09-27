@@ -154,15 +154,24 @@ three-way comparison — `researchteam update --yes` replaces the local file and
 `Updated`. Any content that exists only in a derived repo is therefore deleted on the next sync,
 silently.
 
-> **Update (2026-W36): `.gitignore` is now `fenced-preserve`, not wholesale-overwritten.** It
+> **Update (2026-W36): `.gitignore` is `fenced-preserve`, not wholesale-overwritten.** It
 > carries a `# >>> researchteam:managed … # <<< researchteam:managed` fence; sync replaces only the
 > region *inside* the fence and preserves every derived-repo line *below* it. For an already-fenced
 > file the diff preview is computed against the fenced region only, so derived lines never render as
 > spurious deletions; and a pre-fence derived `.gitignore` is never silently wiped — under `--yes`
 > it is kept-and-warned, and interactively it is surfaced as a full diff (which *does* show the
 > would-be losses) requiring explicit approval before any replacement. See `docs/gitignore-preservation-handoff.md` and
-> `researchteam/_update_cmd.py` (`_reconcile_fenced`). The hazard below still applies to every
-> *other* managed file, and the discipline rules remain the durable belt.
+> `researchteam/_update_cmd.py` (`_reconcile_fenced`).
+>
+> **Update (2026-W39): `CLAUDE.md` is also `fenced-preserve`, and `README.md` is no longer a
+> managed file.** `CLAUDE.md` carries the same fence, now in HTML-comment form
+> (`<!-- >>> researchteam:managed … --> … <!-- <<< researchteam:managed -->`); sync replaces only
+> the framework governance block inside it and preserves the project-owned title + *Project
+> Purpose* header above it. `README.md` has been removed from `MANAGED_FILES` entirely — it is
+> generated per-project from `researchteam/scaffold/README.template.md` (as is `CLAUDE.md`'s header)
+> by `researchteam personalize` and is never synced from upstream. The wholesale-overwrite hazard
+> below therefore applies only to the remaining `overwrite`-strategy files in `MANAGED_FILES`
+> (docs, scripts, prompts); the discipline rules remain the durable belt for those.
 
 `.gitignore` was historically the dangerous case: the failure mode is not a lost edit but *lost
 protection*, and nothing announced it. The fence closes that class in code; the rules below stay in

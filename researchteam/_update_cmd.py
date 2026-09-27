@@ -10,11 +10,12 @@ import tempfile
 from pathlib import Path
 
 from ._manifest import (
-    FENCE_BEGIN,
-    FENCE_END,
-    MANAGED_FILES,
+    BRIEF_PLACEHOLDER,
+    FENCE_CORE_BEGIN,
+    FENCE_CORE_END,
     MERGE_STRATEGIES,
     UPSTREAM_REPO,
+    managed_files_for,
 )
 from ._fetch import fetch_raw
 
@@ -24,16 +25,18 @@ def _split_fence(text: str) -> tuple[str, str, str] | None:
 
     Returns ``(pre, managed, post)`` where ``managed`` INCLUDES both marker lines, or ``None``
     when a well-formed fence (BEGIN then END, in order) is absent. A marker line is recognized by
-    its sentinel PREFIX, so the self-documenting trailing prose the upstream markers carry
-    (``# >>> researchteam:managed — do not edit …``) still matches.
+    the presence of its sentinel CORE anywhere in the stripped line, so BOTH the shell-comment
+    idiom (``# >>> researchteam:managed …``) used by ``.gitignore`` and the HTML-comment idiom
+    (``<!-- >>> researchteam:managed … -->``) used by markdown files match, along with any
+    self-documenting trailing prose. ``>>>`` vs ``<<<`` keep BEGIN and END unambiguous.
     """
     lines = text.splitlines(keepends=True)
     begin_idx = end_idx = None
     for i, ln in enumerate(lines):
         stripped = ln.strip()
-        if begin_idx is None and stripped.startswith(FENCE_BEGIN):
+        if begin_idx is None and FENCE_CORE_BEGIN in stripped:
             begin_idx = i
-        elif begin_idx is not None and stripped.startswith(FENCE_END):
+        elif begin_idx is not None and FENCE_CORE_END in stripped:
             end_idx = i
             break
     if begin_idx is None or end_idx is None:
@@ -122,6 +125,39 @@ def _reconcile_fenced(
     )
 
 
+def _read_brief_profile(root: Path) -> str | None:
+    """Return the brief's ``layer2_profile`` (``"scholarly"`` | ``"generic"``) or ``None``.
+
+    A missing brief, unreadable JSON, or an absent field all return ``None`` so the caller falls
+    back to the scholarly default (``managed_files_for(None)``).
+    """
+    brief = root / "brief.json"
+    if not brief.exists():
+        return None
+    try:
+        data = json.loads(brief.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    value = data.get("layer2_profile")
+    return value if isinstance(value, str) else None
+
+
+def _brief_has_placeholder(root: Path) -> bool:
+    """True when brief.json still carries the scaffold placeholder identity.
+
+    Running the layer-1 agentteams pass in that state would bake ``<YOUR PROJECT NAME>`` into every
+    generated agent/persona file, so ``update`` and ``materialize`` refuse until the brief is
+    edited.
+    """
+    brief = root / "brief.json"
+    if not brief.exists():
+        return False
+    try:
+        return BRIEF_PLACEHOLDER in brief.read_text(encoding="utf-8")
+    except OSError:
+        return False
+
+
 def run_update(
     root: Path,
     ref: str,
@@ -142,13 +178,18 @@ def run_update(
         _run_agentteams(root, yes=yes, dry_run=dry_run)
         return
 
-    print(f"[researchteam] Syncing layer-2 files from {UPSTREAM_REPO}@{ref} ...")
+    profile = _read_brief_profile(root)
+    managed = managed_files_for(profile)
+    print(
+        f"[researchteam] Syncing layer-2 files from {UPSTREAM_REPO}@{ref} "
+        f"(layer2_profile={profile or 'scholarly'}, {len(managed)} managed files) ..."
+    )
 
     updated: list[str] = []
     skipped: list[str] = []
     errors: list[str] = []
 
-    for rel_path in MANAGED_FILES:
+    for rel_path in managed:
         local_path = root / rel_path
         try:
             remote_content = fetch_raw(UPSTREAM_REPO, ref, rel_path)
@@ -355,18 +396,84 @@ def _resolve_descriptor(root: Path) -> tuple[str, Path | None]:
     return tmp.name, tmp
 
 
-def _run_agentteams(root: Path, yes: bool, dry_run: bool) -> None:
+def _reconcile_manifest_back(root: Path) -> None:
+    """Persist brief.json's content fields into ``.github/agents/_build-description.json`` (RT-5).
+
+    ``_resolve_descriptor`` reconciles the two descriptors only into a throwaway temp file for the
+    agentteams run, so the on-disk manifest stays stale and the ``[WARN] Dual descriptor detected``
+    notice fires on every subsequent generation. This writes the reconciliation back: brief.json is
+    the content-of-record, so every brief key EXCEPT the roster fields the manifest owns
+    (``selected_archetypes`` / ``governance_agents``) is overlaid onto the manifest. Idempotent and
+    silent when nothing changes or a descriptor is missing/unreadable.
+    """
+    brief_path = root / "brief.json"
+    manifest_path = root / ".github" / "agents" / "_build-description.json"
+    if not brief_path.exists() or not manifest_path.exists():
+        return
+    try:
+        brief = json.loads(brief_path.read_text(encoding="utf-8"))
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+
+    roster_owned = {"selected_archetypes", "governance_agents"}
+    changed = False
+    for key, value in brief.items():
+        if key in roster_owned:
+            continue
+        if manifest.get(key) != value:
+            manifest[key] = value
+            changed = True
+    if not changed:
+        return
+    try:
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+        print(
+            "[researchteam] Reconciled _build-description.json content fields from brief.json "
+            "(RT-5: dual-descriptor divergence resolved)."
+        )
+    except OSError as exc:
+        print(f"[researchteam] Could not persist descriptor reconciliation: {exc}", file=sys.stderr)
+
+
+def _run_agentteams(root: Path, yes: bool, dry_run: bool, overwrite: bool = False) -> None:
+    if _brief_has_placeholder(root):
+        msg = (
+            f"[researchteam] brief.json still contains the scaffold placeholder "
+            f"'{BRIEF_PLACEHOLDER}'.\n"
+            "  Edit brief.json (project_name, project_goal, deliverables, authority_sources) to\n"
+            "  describe YOUR project before generating the agent team — otherwise the placeholder\n"
+            "  identity is baked into every generated agent file.\n"
+            "  Then re-run:  researchteam update   (or  researchteam materialize  to re-render)."
+        )
+        if dry_run:
+            print(msg + "\n[researchteam] (dry-run) skipping layer-1 agentteams pass.")
+            return
+        sys.exit(msg)
+
     exe = _preflight_agentteams()
     descriptor, tmp = _resolve_descriptor(root)
 
-    print(
-        f"\n[researchteam] Running agentteams --update --merge "
-        f"(descriptor: {descriptor}) ..."
-    )
-    # Pin --shrink-policy preserve explicitly (it is agentteams' default, but this pipeline can pull an
-    # unreviewed agentteams from main via the autosync CI, so a future default flip must never silently
-    # shrink researchteam's enriched fences into an auto-PR). See docs/agentteams-update-policy.md.
-    cmd = [exe, "--description", descriptor, "--update", "--merge", "--shrink-policy", "preserve"]
+    if overwrite:
+        # RT-1/RT-2 re-render path (`researchteam materialize`): --overwrite REPLACES enriched
+        # bodies so a brief/domain change actually re-brands the instance. This is the cleared
+        # path the `--merge --shrink-policy preserve` default deliberately refuses; agentteams'
+        # destructive-overwrite security gate must be satisfied out of band (the scaffold brief
+        # ships enforce_decision_signing:false; see docs/researchteam-framework.md).
+        print(
+            f"\n[researchteam] Running agentteams --update --overwrite "
+            f"(descriptor: {descriptor}) — re-rendering agent bodies from the brief ..."
+        )
+        cmd = [exe, "--description", descriptor, "--update", "--overwrite"]
+    else:
+        print(
+            f"\n[researchteam] Running agentteams --update --merge "
+            f"(descriptor: {descriptor}) ..."
+        )
+        # Pin --shrink-policy preserve explicitly (it is agentteams' default, but this pipeline can pull an
+        # unreviewed agentteams from main via the autosync CI, so a future default flip must never silently
+        # shrink researchteam's enriched fences into an auto-PR). See docs/agentteams-update-policy.md.
+        cmd = [exe, "--description", descriptor, "--update", "--merge", "--shrink-policy", "preserve"]
     if yes:
         cmd.append("--yes")
     if dry_run:
@@ -384,3 +491,52 @@ def _run_agentteams(root: Path, yes: bool, dry_run: bool) -> None:
     if result.returncode != 0:
         print("[researchteam] agentteams update exited non-zero.", file=sys.stderr)
         sys.exit(result.returncode)
+
+    # RT-5: persist the descriptor reconciliation so the dual-descriptor warning does not recur.
+    if not dry_run:
+        _reconcile_manifest_back(root)
+
+
+def run_materialize(root: Path, yes: bool, dry_run: bool) -> None:
+    """Re-render a derived instance from its (edited) brief.json — RT-1/RT-2 cleared re-render.
+
+    ``update`` intentionally cannot re-brand an instance whose domain/identity changed, because it
+    runs ``agentteams --merge --shrink-policy preserve`` (enriched bodies are protected). This is
+    the distinct, explicit path that DOES replace them: it runs the destructive ``--overwrite``
+    agentteams pass, then re-personalizes the layer-2 identity files (README.md / CLAUDE.md) from
+    the current brief. Use it after materially changing brief.json (e.g. a new project domain).
+    """
+    from ._personalize import is_upstream, run_personalize
+
+    if is_upstream(root):
+        sys.exit(
+            "[researchteam] Refusing to materialize the UPSTREAM repository "
+            "(.researchteam has is_upstream = true). Run this in a derived instance."
+        )
+    if _brief_has_placeholder(root):
+        # _run_agentteams would also refuse, but fail early with the same actionable message.
+        sys.exit(
+            f"[researchteam] brief.json still contains the placeholder '{BRIEF_PLACEHOLDER}'. "
+            "Edit it to describe your project before materializing."
+        )
+
+    print(
+        "[researchteam] materialize: this REPLACES generated agent bodies with a fresh render "
+        "from brief.json (destructive to enriched fenced content)."
+    )
+    if not dry_run and not yes:
+        answer = input("Proceed with the overwrite re-render? [y/N] ").strip().lower()
+        if answer != "y":
+            print("[researchteam] Aborted; nothing changed.")
+            return
+
+    # Layer-1: overwrite re-render (+ RT-5 write-back happens inside _run_agentteams on success).
+    _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True)
+
+    # Layer-2 identity: re-render README/CLAUDE from the now-current brief. Files generated at init
+    # and untouched since are refreshed in place; a hand-diverged file is left alone (see
+    # run_personalize's content-hash guard) unless the operator passes force.
+    if not dry_run:
+        run_personalize(root, force=False, quiet=False)
+    else:
+        print("[researchteam] (dry-run) would re-personalize README.md / CLAUDE.md from brief.json.")

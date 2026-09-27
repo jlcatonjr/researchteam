@@ -14,10 +14,15 @@ from ._manifest import (
 )
 from ._fetch import fetch_tarball
 
+# is_upstream = false is written EXPLICITLY (never omitted): the personalize / materialize guards
+# refuse only on a literal `is_upstream = true`, and a derived repo must always be personalizable.
+# The upstream repository is the only place that carries `is_upstream = true`; it is never produced
+# by `init`. See test_init_personalization for the invariant that this template never emits `true`.
 _MARKER_TEMPLATE = """\
 [researchteam]
 upstream = https://github.com/{repo}
 ref = {ref}
+is_upstream = false
 """
 
 
@@ -50,9 +55,25 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     # Replace selected files with bundled scaffold versions.
     _apply_scaffold_replacements(target)
 
-    # Write marker.
+    # Seed a neutral placeholder brief.json (the framework's own brief.json is skipped on extract).
+    _seed_brief(target)
+
+    # Write marker BEFORE personalize: the is_upstream guard reads it, and a marker written after a
+    # personalize failure would leave a half-initialized repo. is_upstream = false ⇒ personalizable.
     marker = target / ".researchteam"
     marker.write_text(_MARKER_TEMPLATE.format(repo=UPSTREAM_REPO, ref=ref))
+
+    # Render project-specific README.md and CLAUDE.md from the placeholder brief. A failure here is
+    # fatal: init must not commit a repo missing its two identity files.
+    from ._personalize import run_personalize
+
+    try:
+        run_personalize(target, force=True, quiet=False)
+    except SystemExit:
+        raise
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"[researchteam] init failed while personalizing: {exc}", file=sys.stderr)
+        sys.exit(1)
 
     # Initialise git repo.
     subprocess.run(["git", "init"], cwd=str(target), check=True, capture_output=True)
@@ -75,10 +96,16 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     print(f"\n[researchteam] Done. Project initialized at {target}")
     if name:
         print(f"\nNext steps:\n  cd {name}")
-    print("  Edit brief.json with your project name and goal")
+    print("  1. Edit brief.json — set project_name, project_goal, deliverables, authority_sources.")
+    print("       (Set layer2_profile to \"generic\" for a non-scholarly project.)")
+    print("  2. researchteam personalize   # regenerate README.md / CLAUDE.md header from brief.json")
+    print("  3. researchteam materialize   # render the agent team from your edited brief.json")
     print("  bash scripts/claude_researchteam_bridge.sh help")
-    print("  bash scripts/claude_researchteam_bridge.sh citation-audit  # 2-fold citation & claim audit")
-    print("  researchteam update  # keep layer-2 files current")
+    print(
+        "\nNote: the agent team is generated with agentteams' decision-signing gate DISABLED "
+        "(enforce_decision_signing:false in brief.json), so 'materialize' can re-render freely. "
+        "Set it to true in brief.json to require signed clearances for destructive regeneration."
+    )
 
 
 def _extract(tarball: bytes, target: Path) -> None:
@@ -113,6 +140,17 @@ def _should_skip(rel_path: str) -> bool:
         if rel_path == clean or rel_path.startswith(clean + "/"):
             return True
     return False
+
+
+def _seed_brief(target: Path) -> None:
+    """Write a neutral placeholder brief.json from the bundled scaffold template.
+
+    The framework's own brief.json is excluded on extract (INIT_SKIP_PREFIXES), so a derived repo
+    never inherits the ResearchTeam identity. The user edits this before generating the team.
+    """
+    pkg = importlib.resources.files("researchteam") / "scaffold"
+    dest = target / "brief.json"
+    dest.write_bytes((pkg / "brief.template.json").read_bytes())
 
 
 def _apply_scaffold_replacements(target: Path) -> None:

@@ -1,13 +1,13 @@
-# Claude Interface Bridge for ResearchTeam
+# Claude Interface Bridge for {{PROJECT_NAME}}
 
 This file is the operating bridge for Claude users working in this repository.
 
 ## Project Purpose
 
-ResearchTeam produces structured, source-grounded research deliverables in markdown with Chicago-style citations.
+{{PROJECT_GOAL}}
 
 Primary outputs:
-- Deliverables in `reports/` and/or `Projects/`
+- Deliverables in `{{PRIMARY_OUTPUT_DIR}}` and/or `Projects/`
 - Reference/bibliography data under `references/`
 - Governance and execution plans in `tmp/by-week/`
 

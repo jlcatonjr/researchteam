@@ -78,6 +78,34 @@ def main() -> None:
         help="Upstream git ref to fetch from (overrides .researchteam marker; default: main)",
     )
 
+    # ---- personalize ---------------------------------------------------------
+    personalize_p = sub.add_parser(
+        "personalize",
+        help="Regenerate project-specific README.md and CLAUDE.md's header from brief.json",
+    )
+    personalize_p.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite generated regions even if they were hand-edited since generation",
+    )
+
+    # ---- materialize ---------------------------------------------------------
+    materialize_p = sub.add_parser(
+        "materialize",
+        help="Re-render the agent team from brief.json (cleared --overwrite pass) after a "
+        "domain/identity change, then re-personalize README.md / CLAUDE.md",
+    )
+    materialize_p.add_argument(
+        "--yes", "-y",
+        action="store_true",
+        help="Skip the destructive-overwrite confirmation prompt",
+    )
+    materialize_p.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would change without writing any files",
+    )
+
     # ---- status --------------------------------------------------------------
     sub.add_parser("status", help="Show marker info and CLI version")
 
@@ -105,6 +133,16 @@ def main() -> None:
             layer2_only=args.layer2_only,
             layer1_only=args.layer1_only,
         )
+
+    elif args.command == "personalize":
+        root = _find_repo_root(require_marker=True)
+        from ._personalize import run_personalize
+        run_personalize(root, force=args.force, quiet=False)
+
+    elif args.command == "materialize":
+        root = _find_repo_root(require_marker=True)
+        from ._update_cmd import run_materialize
+        run_materialize(root, yes=args.yes, dry_run=args.dry_run)
 
     elif args.command == "status":
         _cmd_status()

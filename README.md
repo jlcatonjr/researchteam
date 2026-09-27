@@ -21,7 +21,11 @@ researchteam init my-research-project
 cd my-research-project
 ```
 
-`init` scaffolds a complete project directory, runs `git init`, and makes an initial commit. Edit `brief.json` to describe your project before running any agents.
+`init` scaffolds a complete project directory, seeds a neutral placeholder `brief.json`, generates a project-specific `README.md` / `CLAUDE.md`, runs `git init`, and makes an initial commit. Then:
+
+1. Edit `brief.json` to describe your project (name, goal, `layer2_profile`, etc.).
+2. Run `researchteam personalize` to regenerate `README.md` and `CLAUDE.md`'s header from the updated `brief.json`.
+3. Run `researchteam materialize` to re-render the agent team so agent bodies reflect your project's domain and identity.
 
 ### Existing clone
 
@@ -36,7 +40,9 @@ Then follow the onboarding steps in `CLAUDE.md` or `.github/copilot-instructions
 
 | Command | Description |
 |---|---|
-| `researchteam init [name]` | Scaffold a new project from the upstream template |
+| `researchteam init [name]` | Scaffold a new project: extract the template, seed a neutral placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md` |
+| `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`; `--force` overwrites even hand-edited generated regions |
+| `researchteam materialize [--yes] [--dry-run]` | Re-render the agent team from `brief.json` via a cleared agentteams `--overwrite` pass (plain `update` uses `--merge --shrink-policy preserve` and will not re-brand enriched agent bodies), then re-personalize `README.md` / `CLAUDE.md` |
 | `researchteam update` | Sync layer-2 files from upstream, then run agentteams update |
 | `researchteam update --layer2-only` | Sync layer-2 files only; skip agentteams |
 | `researchteam update --dry-run` | Preview changes without writing files |
@@ -72,11 +78,14 @@ ResearchTeam infrastructure is split into two independently updatable layers:
 | Layer | What it covers | Update mechanism |
 |---|---|---|
 | **Layer-1** (agentteams-managed) | `.github/agents/`, `copilot-instructions.md` | `agentteams --update --merge` |
-| **Layer-2** (researchteam-managed) | `CLAUDE.md`, `docs/`, `scripts/`, `.claude/`, `README.md` | `researchteam update --layer2-only` |
+| **Layer-2** (researchteam-managed) | `docs/`, `scripts/`, `.claude/`, and the fenced-preserve **managed block** of `CLAUDE.md` (framework governance) | `researchteam update --layer2-only` |
+| **Project identity** (generated, not synced) | `README.md` and `CLAUDE.md`'s title + *Project Purpose* header | `researchteam personalize` (from `brief.json`) |
 
-**User-owned files** (`brief.json`, `Projects/`, `references/`) are never touched by either update layer.
+**User-owned files** (`brief.json`, `Projects/`, `references/`) are never touched by any update layer.
 
-`researchteam update` (without `--layer2-only`) runs both layers in sequence.
+`README.md` and `CLAUDE.md`'s header are **generated per-project** from `brief.json`, not synced from upstream — `researchteam update` never re-imposes the framework's own identity on them. Regenerate them with `researchteam personalize`. `CLAUDE.md` is dual-managed: its title and *Project Purpose* header are project-owned/generated, while the fenced-preserve `researchteam:managed` block carries synced framework governance.
+
+`researchteam update` (without `--layer2-only`) runs both update layers in sequence. See `docs/researchteam-framework.md` for the full model.
 
 ### Derived-repo CI
 
@@ -122,7 +131,7 @@ Fenced regions are blocks managed by agents. **Do not edit inside fenced regions
 
 1. **Install:** `pip install git+https://github.com/jlcatonjr/researchteam.git`
 2. **Initialize:** `researchteam init my-project` (or clone directly)
-3. **Edit `brief.json`** with your project name and goal.
+3. **Edit `brief.json`** with your project name and goal, then run `researchteam personalize` (regenerate `README.md` / `CLAUDE.md` header) and `researchteam materialize` (re-render the agent team from the brief).
 4. **Choose your workflow:** Claude (`CLAUDE.md`) or Copilot/agentteams (`.github/copilot-instructions.md`).
 5. **Run validation:** `bash scripts/validate_agentteams_update.sh` before and after infrastructure updates.
 6. **Keep infrastructure current:** run `researchteam update` periodically or let the CI workflow handle it.
@@ -150,6 +159,7 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 - `.claude/README.md` — Claude templates/checklists
 - `.github/copilot-instructions.md` — Copilot/agent governance
 - `.github/agents/references/pipeline-graph.md` — Agent team topology (auto-generated)
+- `docs/researchteam-framework.md` — Full framework & update model (layers, personalize/materialize, `brief.json` fields)
 - `docs/agentteams-update-policy.md` — Update/merge policy
 - `docs/agent-infrastructure-authority.md` — Path authority map
 
@@ -158,7 +168,9 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 - **Is this a pip package?**
   - Yes. `pip install git+https://github.com/jlcatonjr/researchteam.git` gives you the `researchteam` CLI for `init` and `update`.
 - **Will `researchteam update` overwrite my research?**
-  - No. `brief.json`, `Projects/`, and `references/` are user-owned and never touched. Only layer-2 infrastructure files (docs, scripts, `.claude/`) are synced.
+  - No. `brief.json`, `Projects/`, and `references/` are user-owned and never touched. Only layer-2 infrastructure files (`docs/`, `scripts/`, `.claude/`, and the fenced-preserve managed block of `CLAUDE.md`) are synced. `README.md` and `CLAUDE.md`'s project header are generated per-project from `brief.json` — `update` never overwrites them; use `researchteam personalize` to regenerate them.
+- **What is the `layer2_profile` field in `brief.json`?**
+  - It selects which layer-2 files an instance receives: `scholarly` (the default) syncs the full scholarly tooling (citation-claim audit protocol, literature-library scripts, integrity checks); `generic` receives only the framework-neutral files and skips that tooling. See `docs/researchteam-framework.md` for details.
 - **What are fenced regions?**
   - Agent-managed blocks delimited by `AGENTTEAMS:BEGIN/END` comments. Do not edit inside them.
 - **Where do I start?**

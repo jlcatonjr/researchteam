@@ -3,10 +3,14 @@ set -euo pipefail
 
 # Validate scope and fence integrity for agentteams and researchteam update runs.
 #
-# Allowed paths cover two update layers:
+# Allowed paths cover the update layers plus the generated/user-owned identity files that
+# init/personalize/materialize legitimately write:
 #   Layer-1 (agentteams-managed): .github/
-#   Layer-2 (researchteam-managed): docs/, scripts/, .claude/, CLAUDE.md,
-#                                   README.md, .gitignore, .researchteam
+#   Layer-2 (researchteam-synced): docs/, scripts/, .claude/, .gitignore, and CLAUDE.md's
+#                                  fenced-preserve managed block
+#   Generated / user-owned (permitted to change, NOT wholesale-synced): README.md and CLAUDE.md's
+#                                  project header (generated from brief.json by personalize),
+#                                  brief.json, .researchteam
 
 allowed_paths_regex='^(\.github/|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'

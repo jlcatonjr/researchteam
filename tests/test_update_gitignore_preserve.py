@@ -115,9 +115,10 @@ def test_unfenced_local_equal_to_upstream_body_is_wrapped():
 
 # --- acceptance criterion 6: strategy is opt-in (defaults to overwrite) -------------------------
 
-def test_only_gitignore_opts_into_preserve():
+def test_fenced_preserve_is_opt_in():
+    # .gitignore and CLAUDE.md opt into fenced-preserve; a plain script keeps the overwrite default.
     assert MERGE_STRATEGIES.get(".gitignore") == "fenced-preserve"
-    assert MERGE_STRATEGIES.get("CLAUDE.md", "overwrite") == "overwrite"
+    assert MERGE_STRATEGIES.get("CLAUDE.md") == "fenced-preserve"
     assert MERGE_STRATEGIES.get("scripts/claude_researchteam_bridge.sh", "overwrite") == "overwrite"
 
 

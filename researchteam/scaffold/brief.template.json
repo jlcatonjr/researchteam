@@ -1,0 +1,128 @@
+{
+  "project_name": "<YOUR PROJECT NAME>",
+  "project_goal": "<Describe this project's goal: what this team will research or produce, for whom, and to what standard. Replace this placeholder before generating the agent team.>",
+  "layer2_profile": "scholarly",
+  "enforce_decision_signing": false,
+  "deliverables": [
+    "Markdown research reports",
+    "BibTeX bibliography",
+    "Executive summary"
+  ],
+  "output_format": "Markdown with Chicago citations",
+  "primary_output_dir": "reports/",
+  "build_output_dir": "output/",
+  "figures_dir": "figures/",
+  "reference_db_path": "references/bibliography.bib",
+  "reference_key_convention": "AuthorYear",
+  "authority_sources": [
+    {
+      "name": "JSTOR",
+      "path": "https://www.jstor.org",
+      "scope": "humanities and social science peer-reviewed articles",
+      "rank": 1
+    },
+    {
+      "name": "PubMed / MEDLINE",
+      "path": "https://pubmed.ncbi.nlm.nih.gov",
+      "scope": "biomedical and life-science literature",
+      "rank": 1
+    },
+    {
+      "name": "arXiv",
+      "path": "https://arxiv.org",
+      "scope": "preprints in STEM fields",
+      "rank": 2
+    },
+    {
+      "name": "Semantic Scholar",
+      "path": "https://www.semanticscholar.org",
+      "scope": "cross-disciplinary scholarly literature discovery and metadata",
+      "rank": 2
+    },
+    {
+      "name": "CrossRef",
+      "path": "https://www.crossref.org",
+      "scope": "DOI resolution and bibliographic metadata verification",
+      "rank": 3
+    }
+  ],
+  "style_rules": [
+    "Replace these scholarly defaults with the conventions your project actually follows.",
+    "Keep every claim traceable to an explicit, verifiable source.",
+    "Never fabricate or hallucinate sources or references."
+  ],
+  "tools": [
+    {
+      "name": "Pandoc",
+      "category": "cli"
+    }
+  ],
+  "conversion_pipeline": "pandoc --from markdown --to html -o output/{slug}.html",
+  "components": [
+    {
+      "slug": "topic-scoping",
+      "name": "Topic Scoping and Research Plan",
+      "number": 1,
+      "output_file": "00-research-plan.md",
+      "description": "Defines the question, scope boundaries, methodology, and a prioritised list of sources. Produced before any drafting begins.",
+      "sections": [
+        "Research Question",
+        "Scope and Exclusions",
+        "Methodology",
+        "Source Strategy",
+        "Anticipated Structure"
+      ],
+      "quality_criteria": [
+        "Question is specific and answerable",
+        "Candidate sources identified with URLs or identifiers",
+        "Scope explicitly states what is excluded"
+      ]
+    },
+    {
+      "slug": "main-analysis",
+      "name": "Main Analysis",
+      "number": 2,
+      "output_file": "01-analysis.md",
+      "description": "The core analytical work: engages primary sources, applies the chosen methodology, and builds the argument.",
+      "sections": [
+        "Introduction to Analysis",
+        "Evidence and Argument",
+        "Counter-Arguments and Responses",
+        "Conclusion of Analysis"
+      ],
+      "quality_criteria": [
+        "Every factual claim supported by a verifiable citation",
+        "Counter-arguments acknowledged and addressed",
+        "No unsupported assertions"
+      ],
+      "cross_refs": [
+        "topic-scoping",
+        "conclusion"
+      ]
+    },
+    {
+      "slug": "conclusion",
+      "name": "Conclusion and Executive Summary",
+      "number": 3,
+      "output_file": "02-conclusion.md",
+      "description": "Summarises findings, states the contribution, and provides a concise executive summary for a non-specialist audience.",
+      "sections": [
+        "Summary of Findings",
+        "Contribution and Significance",
+        "Limitations and Future Work",
+        "Executive Summary"
+      ],
+      "quality_criteria": [
+        "Executive summary is concise",
+        "All claims traceable to the analysis",
+        "Limitations honestly stated"
+      ],
+      "cross_refs": [
+        "main-analysis"
+      ]
+    }
+  ],
+  "capabilities": [
+    "research_verification"
+  ]
+}
