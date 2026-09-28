@@ -79,3 +79,7 @@ Projects/**/*.synctex.gz
 # Anything BELOW this line is derived-repo-owned and preserved across `researchteam update`.
 # Add machine-local or project-specific ignore patterns here (e.g. a hidden local-only Project
 # directory, a local output dir). This region is never overwritten by an upstream sync.
+
+# Local-only project scratch — removed from tracking; kept out of the repo going forward.
+# (Prior contents remain recoverable in git history.)
+.projects/**
