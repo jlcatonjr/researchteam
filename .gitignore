@@ -83,3 +83,8 @@ Projects/**/*.synctex.gz
 # Local-only project scratch — removed from tracking; kept out of the repo going forward.
 # (Prior contents remain recoverable in git history.)
 .projects/**
+
+# Operator-owned Claude Code config — machine-local sandbox/hook wiring, never committed
+# (agentteams convention gitignores .claude/settings.json; added 2026-W40 sandbox launch).
+.claude/settings.json
+.claude/settings.local.json
