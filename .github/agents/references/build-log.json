@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc7",
-  "generated_at": "2026-09-28T03:18:56.669455+00:00",
+  "generated_at": "2026-09-28T06:36:31.012312+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -488,11 +488,13 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "ac32719388cd9e93",
+  "manifest_fingerprint": "0858dc89e8e315cb",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "443f37162274685d",
-    "references/security-vulnerability-watch.json": "ca33af41f0b5b47c",
+    "security.agent.md": "6b72935adac475ac",
+    "references/security-vulnerability-watch.json": "9eea998cfb2d6163",
+    "references/pipeline-graph.md": "f125233fcc0b8c8a",
+    "references/pipeline-graph.svg": "8f0062f2c266067d",
     "orchestrator.agent.md": "6a1f56a637671ea0",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "31f91dd0cd0af5b6",
@@ -543,8 +545,7 @@
     "references/instruction-authority.reference.md": "0fe0a39bbfad2882",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/skill-generation.reference.md": "7fde17640c5bc1eb",
-    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
-    "references/pipeline-graph.md": "f125233fcc0b8c8a"
+    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
   },
   "front_matter_baseline": {
     "security.agent.md": {
