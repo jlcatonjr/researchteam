@@ -1,5 +1,7 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.5",
+  "agentteams_version": "1.0.0rc7",
+  "generated_at": "2026-09-28T03:18:56.669455+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -74,7 +76,7 @@
     "universal/skill-generation.reference.template.md": "47bcf76ed8f69a80",
     "universal/external-retrieval-quality-gate.reference.template.md": "3922b0a2e99e75a3",
     "workstream-expert.template.md": "19e099ff5eaf447b",
-    "copilot-instructions.template.md": "f4245fbac12ae89a",
+    "copilot-instructions.template.md": "2bf0a18258bdf1ce",
     "builder/team-builder-copilot-vscode.template.md": "49cf6f735fc90e06",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
@@ -486,19 +488,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "6d1c435949e023df",
+  "manifest_fingerprint": "ac32719388cd9e93",
   "fingerprint_algo_version": 1,
   "file_hashes": {
+    "security.agent.md": "443f37162274685d",
+    "references/security-vulnerability-watch.json": "ca33af41f0b5b47c",
     "orchestrator.agent.md": "6a1f56a637671ea0",
-    "security.agent.md": "e83e210359dd184b",
-    "work-summarizer.agent.md": "14b152510cf03368",
-    "references/security-vulnerability-watch.reference.md": "5ec5975f7a02cd29",
-    "references/security-vulnerability-watch.json": "2f8e743c08fa466b",
-    "references/instruction-authority.reference.md": "0fe0a39bbfad2882",
-    "references/orchestrator-spawn-authority.reference.md": "ad406217a9c3c1ae",
-    "../copilot-instructions.md": "e3bd3a0d730d834a",
-    "references/pipeline-graph.md": "f125233fcc0b8c8a",
-    "references/pipeline-graph.svg": "8f0062f2c266067d",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "31f91dd0cd0af5b6",
     "adversarial.agent.md": "abb1a0c3532cf456",
@@ -509,6 +504,7 @@
     "agent-refactor.agent.md": "f4890cbc86443f9e",
     "repo-liaison.agent.md": "8f93d6d1aee0c51c",
     "git-operations.agent.md": "8db662664c32f254",
+    "work-summarizer.agent.md": "14b152510cf03368",
     "primary-producer.agent.md": "f4f8b5c95244f5ec",
     "quality-auditor.agent.md": "6d04a3aba0963a81",
     "cohesion-repairer.agent.md": "bbf6262644ffa069",
@@ -523,6 +519,7 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "87d76505000b8ea0",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -534,6 +531,7 @@
     "literature-review-expert.agent.md": "5316d5047f213ecd",
     "main-analysis-expert.agent.md": "aaeccf53e41f8b41",
     "conclusion-expert.agent.md": "6ef22988fc674a06",
+    "../copilot-instructions.md": "e3bd3a0d730d834a",
     "team-builder.agent.md": "9a669a657b7afbd9",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "6574a79bc3912546",
@@ -542,20 +540,13 @@
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
     "references/parallelization.reference.md": "e25040ccfbdae337",
+    "references/instruction-authority.reference.md": "0fe0a39bbfad2882",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/skill-generation.reference.md": "7fde17640c5bc1eb",
-    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
+    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
+    "references/pipeline-graph.md": "f125233fcc0b8c8a"
   },
   "front_matter_baseline": {
-    "orchestrator.agent.md": {
-      "name": "Orchestrator \u2014 ResearchTeam",
-      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
-      "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
-      "agents": "",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Produce / Revise Deliverable\n    agent: primary-producer\n    prompt: \"A workstream is ready to produce or revise its deliverable. Provide the workstream name and any specific instructions.\"\n    send: false\n  - label: Audit Quality\n    agent: quality-auditor\n    prompt: \"A deliverable is ready for quality audit. Provide the file path.\"\n    send: false\n  - label: Repair Cohesion\n    agent: cohesion-repairer\n    prompt: \"A deliverable section has structural cohesion failures. Provide the file and section.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Audit technical accuracy of claims, code, or specifications in a deliverable. Provide the file path.\"\n    send: false\n  - label: Convert / Transform Output\n    agent: format-converter\n    prompt: \"Convert a primary deliverable to its secondary format. Provide the source file.\"\n    send: false\n  - label: Manage References / Dependencies\n    agent: reference-manager\n    prompt: \"Perform a reference operation: add, verify, deduplicate, or retire. Describe the operation.\"\n    send: false\n  - label: Compile Final Output\n    agent: output-compiler\n    prompt: \"Assemble and compile the final deliverable from all sources.\"\n    send: false\n  - label: Generate / Revise Diagram\n    agent: visual-designer\n    prompt: \"Generate or revise a diagram. Describe what is needed.\"\n    send: false\n  - label: Navigate Project\n    agent: navigator\n    prompt: \"Locate files, answer structural questions, or regenerate the project map.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"Review the planned action for credentials, destructive operations, or sensitive content.\"\n    send: false\n  - label: Code Hygiene Audit\n    agent: code-hygiene\n    prompt: \"Run a code hygiene audit. Provide scope or 'full' for all rules.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge the presuppositions underlying this plan before execution.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Detect contradictions across project files. Provide scope if targeted.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Make ACCEPT/REJECT/REVISE decisions on flagged conflicts.\"\n    send: false\n  - label: Clean Up Artifacts\n    agent: cleanup\n    prompt: \"Remove stale build artifacts, orphaned files, or abandoned drafts.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Project structure or conventions have changed. Sync all affected agent files.\"\n    send: false\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Check agent docs for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Cross-Repository Liaison\n    agent: repo-liaison\n    prompt: \"Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos.\"\n    send: false\n  - label: Summarize Work Period\n    agent: work-summarizer\n    prompt: \"Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period.\"\n    send: false\n  - label: Git Operations\n    agent: git-operations\n    prompt: \"Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed.\"\n    send: false\n",
-      "user-invocable": "true"
-    },
     "security.agent.md": {
       "name": "Security \u2014 ResearchTeam",
       "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
@@ -564,13 +555,13 @@
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
       "user-invocable": "false"
     },
-    "work-summarizer.agent.md": {
-      "name": "Work Summarizer \u2014 ResearchTeam",
-      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
-      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
-      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
+    "orchestrator.agent.md": {
+      "name": "Orchestrator \u2014 ResearchTeam",
+      "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
+      "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
+      "agents": "",
       "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Verify Summary Accuracy\n    agent: technical-validator\n    prompt: \"Work summary drafted. Verify factual claims (paths, hashes, counts) against on-disk state and git history.\"\n    send: false\n  - label: Run Adversarial Audit\n    agent: adversarial\n    prompt: \"Work summary drafted. Run a presupposition and cascade-risk audit before finalization.\"\n    send: false\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Work summary drafted. Run a consistency audit against authority sources.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Work summary reporting complete. See workSummaries/.\"\n    send: false",
+      "handoffs": "\n  - label: Produce / Revise Deliverable\n    agent: primary-producer\n    prompt: \"A workstream is ready to produce or revise its deliverable. Provide the workstream name and any specific instructions.\"\n    send: false\n  - label: Audit Quality\n    agent: quality-auditor\n    prompt: \"A deliverable is ready for quality audit. Provide the file path.\"\n    send: false\n  - label: Repair Cohesion\n    agent: cohesion-repairer\n    prompt: \"A deliverable section has structural cohesion failures. Provide the file and section.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Audit technical accuracy of claims, code, or specifications in a deliverable. Provide the file path.\"\n    send: false\n  - label: Convert / Transform Output\n    agent: format-converter\n    prompt: \"Convert a primary deliverable to its secondary format. Provide the source file.\"\n    send: false\n  - label: Manage References / Dependencies\n    agent: reference-manager\n    prompt: \"Perform a reference operation: add, verify, deduplicate, or retire. Describe the operation.\"\n    send: false\n  - label: Compile Final Output\n    agent: output-compiler\n    prompt: \"Assemble and compile the final deliverable from all sources.\"\n    send: false\n  - label: Generate / Revise Diagram\n    agent: visual-designer\n    prompt: \"Generate or revise a diagram. Describe what is needed.\"\n    send: false\n  - label: Navigate Project\n    agent: navigator\n    prompt: \"Locate files, answer structural questions, or regenerate the project map.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"Review the planned action for credentials, destructive operations, or sensitive content.\"\n    send: false\n  - label: Code Hygiene Audit\n    agent: code-hygiene\n    prompt: \"Run a code hygiene audit. Provide scope or 'full' for all rules.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge the presuppositions underlying this plan before execution.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Detect contradictions across project files. Provide scope if targeted.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Make ACCEPT/REJECT/REVISE decisions on flagged conflicts.\"\n    send: false\n  - label: Clean Up Artifacts\n    agent: cleanup\n    prompt: \"Remove stale build artifacts, orphaned files, or abandoned drafts.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Project structure or conventions have changed. Sync all affected agent files.\"\n    send: false\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Check agent docs for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Cross-Repository Liaison\n    agent: repo-liaison\n    prompt: \"Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos.\"\n    send: false\n  - label: Summarize Work Period\n    agent: work-summarizer\n    prompt: \"Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period.\"\n    send: false\n  - label: Git Operations\n    agent: git-operations\n    prompt: \"Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed.\"\n    send: false\n",
       "user-invocable": "true"
     },
     "navigator.agent.md": {
@@ -654,6 +645,15 @@
       "tools": "['read', 'execute', 'search']",
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Git operation is complete. Return to orchestrator with outcome summary.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"A git operation includes force-push, destructive history rewrite, or sensitive content exposure risk. Review before proceeding.\"\n    send: false\n  - label: Conflict Resolution\n    agent: conflict-resolution\n    prompt: \"A merge or rebase conflict requires ACCEPT/REJECT/REVISE decisions beyond simple line merges.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Tracked repository content changed. Run repository change census and docs/API impact evaluation before closeout.\"\n    send: false",
+      "user-invocable": "true"
+    },
+    "work-summarizer.agent.md": {
+      "name": "Work Summarizer \u2014 ResearchTeam",
+      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
+      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
+      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Verify Summary Accuracy\n    agent: technical-validator\n    prompt: \"Work summary drafted. Verify factual claims (paths, hashes, counts) against on-disk state and git history.\"\n    send: false\n  - label: Run Adversarial Audit\n    agent: adversarial\n    prompt: \"Work summary drafted. Run a presupposition and cascade-risk audit before finalization.\"\n    send: false\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Work summary drafted. Run a consistency audit against authority sources.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Work summary reporting complete. See workSummaries/.\"\n    send: false",
       "user-invocable": "true"
     },
     "primary-producer.agent.md": {

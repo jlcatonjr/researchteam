@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-09-08T20:29:38Z`
+Generated at: `2026-09-28T03:18:19Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.09.08, items 1699) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.09.27, items 1728) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 13) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -91,21 +91,21 @@ Generated at: `2026-09-08T20:29:38Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-75650` | Adobe Commerce and Magento | Adobe Commerce and Magento Improper Neutralization of Special Elements Used in a Template Engine Vulnerability | added 2026-09-08 | EPSS 0.006760000, percentile 0.499730000 | CVSS 10.0 CRITICAL
-- `CVE-2026-81963` | Microsoft Windows | Microsoft Windows Link Following Vulnerability | added 2026-09-08 | CVSS 7.8 HIGH
-- `CVE-2026-86218` | N-able N-central | N-able N-central Static Code Injection Vulnerability | added 2026-09-08 | EPSS 0.004110000, percentile 0.343330000 | CVSS 9.8 CRITICAL
-- `CVE-2026-85880` | Microsoft Windows | Microsoft Windows Heap-Based Buffer Overflow Vulnerability | added 2026-09-08 | CVSS 7.8 HIGH
-- `CVE-2026-85046` | Google Chromium V8 | Google Chromium V8 Type Confusion Vulnerability | added 2026-09-04 | EPSS 0.011620000, percentile 0.651680000 | CVSS 8.8 HIGH
-- `CVE-2026-59822` | BerriAI LiteLLM | BerriAI LiteLLM Improper Authentication Vulnerability | added 2026-09-02 | EPSS 0.008700000, percentile 0.564800000
-- `CVE-2026-48710` | Kludex Starlette | Kludex Starlette HTTP Request/Response Smuggling Vulnerability | added 2026-09-02 | EPSS 0.362570000, percentile 0.983760000
-- `CVE-2026-49869` | Kestra Kestra OSS | Kestra OSS OS Command Injection Vulnerability | added 2026-09-02 | EPSS 0.019170000, percentile 0.785260000
-- `CVE-2026-82329` | JFrog Artifactory | JFrog Artifactory Improper Authentication Vulnerability | added 2026-09-02 | EPSS 0.076660000, percentile 0.941910000
-- `CVE-2026-9586` | Sangoma Switchvox | Sangoma Switchvox SQL Injection Vulnerability | added 2026-09-02 | EPSS 0.118450000, percentile 0.958150000
-- `CVE-2026-83548` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances Server-Side Request Forgery Vulnerability | added 2026-09-02 | EPSS 0.007100000, percentile 0.512400000
-- `CVE-2026-83549` | SonicWall SMA1000 Appliances | SonicWall SMA1000 Appliances OS Command Injection Vulnerability | added 2026-09-02 | EPSS 0.016250000, percentile 0.745820000
-- `CVE-2026-82078` | PaperCut NG/MF | PaperCut NG/MF Unsafe Reflection Vulnerability | added 2026-08-31 | EPSS 0.016910000, percentile 0.755810000
-- `CVE-2026-81578` | PaperCut NG/MF | PaperCut NG/MF Missing Authentication for Critical Function Vulnerability | added 2026-08-31 | EPSS 0.016170000, percentile 0.744510000
-- `CVE-2023-49105` | ownCloud ownCloud | ownCloud Improper Authentication Vulnerability | added 2026-08-27 | EPSS 0.432050000, percentile 0.986350000
+- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | CVSS 9.5 CRITICAL
+- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | CVSS 9.5 CRITICAL
+- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.621940000 | CVSS 6.5 MEDIUM
+- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.809690000 | CVSS 8.8 HIGH
+- `CVE-2026-87902` | WordPress Core | WordPress Core Remote File Inclusion Vulnerability | added 2026-09-25 | EPSS 0.181660000, percentile 0.971120000 | CVSS 8.1 HIGH
+- `CVE-2026-5430` | WSO2 Multiple Products | WSO2 Multiple Products Path Traversal Vulnerability | added 2026-09-24 | EPSS 0.005880000, percentile 0.459810000
+- `CVE-2026-71362` | Adobe Commerce and Magento | Adobe Commerce and Magento Incorrect Authorization Vulnerability | added 2026-09-24 | EPSS 0.875070000, percentile 0.997540000
+- `CVE-2026-93952` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator Improper Input Validation Vulnerability | added 2026-09-22 | EPSS 0.010620000, percentile 0.632140000
+- `CVE-2026-94127` | F5 BIG-IP APM | F5 BIG-IP APM Heap-based Buffer Overflow Vulnerability | added 2026-09-22 | EPSS 0.022260000, percentile 0.820350000
+- `CVE-2026-93616` | Check Point Multiple Products | Check Point Multiple Products Path Traversal Vulnerability | added 2026-09-22 | EPSS 0.196540000, percentile 0.973090000
+- `CVE-2026-85102` | Check Point Multiple Products | Check Point Multiple Products Improper Certificate Validation Vulnerability | added 2026-09-22 | EPSS 0.009880000, percentile 0.609820000
+- `CVE-2026-7273` | Zyxel GS1900 Series Switches | Zyxel GS1900 Series Switches Stack-Based Buffer Overflow Vulnerability | added 2026-09-21 | EPSS 0.025010000, percentile 0.840810000
+- `CVE-2025-39964` | Linux Kernel | Linux Kernel Race Condition Vulnerability | added 2026-09-18 | EPSS 0.009960000, percentile 0.611970000
+- `CVE-2026-53266` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-09-18 | EPSS 0.006450000, percentile 0.488740000
+- `CVE-2025-39682` | Linux Kernel | Linux Kernel Improper Check for Unusual or Exceptional Conditions Vulnerability | added 2026-09-18 | EPSS 0.028800000, percentile 0.863160000
 
 **Prevention and mitigation playbook:**
 
