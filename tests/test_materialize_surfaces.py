@@ -69,7 +69,7 @@ def test_copilot_only_keeps_single_surface(tmp_path, calls):
 
 
 def _renders(calls):
-    return [c for c in calls if "--overwrite" in c]
+    return [c for c in calls if "--overwrite" in c and "--interop-from" not in c]
 
 
 def test_adopt_orphans_reaches_every_surface(tmp_path, calls):
@@ -87,6 +87,7 @@ def test_codex_agents_and_skills_refreshed_when_present(tmp_path, calls):
     assert [c[c.index("--interop-from") + 1] for c in interop] == [".github/agents", ".claude/agents"]
     assert all(c[c.index("--framework") + 1] == "codex" for c in interop)
     assert "--interop-skills-only" in interop[1]
+    assert all("--overwrite" in c for c in interop)   # otherwise existing projections are skipped
     assert calls.index(interop[0]) > max(calls.index(c) for c in _renders(calls))   # after renders
 
 

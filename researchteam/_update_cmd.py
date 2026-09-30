@@ -539,10 +539,14 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
     if not (root / ".codex" / "agents").is_dir():
         return
     exe = _preflight_agentteams()
-    runs = [[exe, "--interop-from", ".github/agents", "--framework", "codex", "--output", ".", "--yes"]]
+    # --overwrite is required: without it interop SKIPS existing files, so an already-projected
+    # agent or skill would never pick up later canonical changes. Codex files are pure generated
+    # projections (never hand-edited), so full replacement is correct.
+    runs = [[exe, "--interop-from", ".github/agents", "--framework", "codex", "--output", ".",
+             "--overwrite", "--yes"]]
     if (root / ".claude" / "skills").is_dir():
         runs.append([exe, "--interop-from", ".claude/agents", "--interop-source-framework", "claude",
-                     "--framework", "codex", "--interop-skills-only", "--output", ".", "--yes"])
+                     "--framework", "codex", "--interop-skills-only", "--output", ".", "--overwrite", "--yes"])
     for cmd in runs:
         if dry_run:
             cmd.append("--dry-run")
