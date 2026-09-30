@@ -102,6 +102,17 @@ def main() -> None:
         help="Re-render only the copilot-vscode surface (.github/agents); skip native surfaces",
     )
     materialize_p.add_argument(
+        "--adopt-orphans",
+        action="store_true",
+        help="Keep bespoke agents (no agentteams template) in every surface's roster "
+        "(passes agentteams --adopt-orphans to each render)",
+    )
+    materialize_p.add_argument(
+        "--no-codex",
+        action="store_true",
+        help="Skip re-projecting the Codex surface (.codex/agents, .agents/skills) after rendering",
+    )
+    materialize_p.add_argument(
         "--yes", "-y",
         action="store_true",
         help="Skip the destructive-overwrite confirmation prompt",
@@ -148,7 +159,8 @@ def main() -> None:
     elif args.command == "materialize":
         root = _find_repo_root(require_marker=True)
         from ._update_cmd import run_materialize
-        run_materialize(root, yes=args.yes, dry_run=args.dry_run, copilot_only=args.copilot_only)
+        run_materialize(root, yes=args.yes, dry_run=args.dry_run, copilot_only=args.copilot_only,
+                        adopt_orphans=args.adopt_orphans, codex=not args.no_codex)
 
     elif args.command == "status":
         _cmd_status()

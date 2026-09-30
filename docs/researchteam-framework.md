@@ -35,7 +35,7 @@ verify both resolve in the active interpreter.
 |---|---|
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
-| `researchteam materialize [--yes] [--dry-run] [--copilot-only]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
+| `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
 | `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure. |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor` | Diagnose the researchteam ↔ agentteams toolchain. |
@@ -119,7 +119,11 @@ destructive `--overwrite` pass on the copilot-vscode team and on every native su
 a rendered team (`.claude/agents`, `.goose/recipes`, detected by their `references/build-log.json`).
 All surfaces are rendered from the same reconciled descriptor, so they share one roster. Each
 surface's gate reads that surface's own decisions log, so each needs its own clearance.
-`--copilot-only` restores the single-surface render. While `enforce_decision_signing` is `true`, each
+`--copilot-only` restores the single-surface render. `--adopt-orphans` keeps bespoke agents (files with no agentteams template) in every
+surface's roster. agentteams does not persist adoption, so pass it on every render. When the
+instance has a Codex surface (`.codex/agents`), `materialize` then re-projects the Codex agents
+(from `.github/agents`) and the Codex skills (`.claude/skills` -> `.agents/skills`); `--no-codex`
+skips this. While `enforce_decision_signing` is `true`, each
 surface's overwrite pass needs a signed clearance (see *Decision signing* above).
 
 ## Derived-repo CI
