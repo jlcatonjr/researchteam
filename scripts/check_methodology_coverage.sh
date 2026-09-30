@@ -28,9 +28,33 @@ set -euo pipefail
 # Environment:
 #   RT_ROOT=<path>                     override repo root (used by the test harness)
 #   METHODOLOGY_COVERAGE_ADVISORY=1    warn-only: report gaps but always exit 0
+#   METHODOLOGY_UNITS_DIR=<rel>        override the unit directory (default: brief or Projects)
+#   METHODOLOGY_MAP_PATH=<rel>         override the per-unit map path (default: brief or
+#                                      interpretation/interpretive-map.md)
+#
+# Configuration (optional, researchteam-only key in brief.json; env overrides win):
+#   "methodology_coverage": {"units_dir": "reports/dossiers", "map_path": "interpretation.md"}
+# With a non-default units_dir every subdirectory is a unit (the scholarly "is this a research
+# project?" heuristic applies only to the default Projects/ layout).
 
 ROOT_DIR="${RT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
-PROJECTS_DIR="$ROOT_DIR/Projects"
+
+# Read optional brief.json configuration (empty when absent or unparseable).
+brief_cfg() {
+  [[ -f "$ROOT_DIR/brief.json" ]] || return 0
+  python3 - "$ROOT_DIR/brief.json" "$1" 2>/dev/null <<'PY' || true
+import json, sys
+cfg = (json.load(open(sys.argv[1])).get("methodology_coverage") or {})
+print(cfg.get(sys.argv[2], "") if isinstance(cfg, dict) else "")
+PY
+}
+UNITS_REL="${METHODOLOGY_UNITS_DIR:-$(brief_cfg units_dir)}"
+MAP_REL="${METHODOLOGY_MAP_PATH:-$(brief_cfg map_path)}"
+DEFAULT_LAYOUT=1
+[[ -n "$UNITS_REL" && "${UNITS_REL%/}" != "Projects" ]] && DEFAULT_LAYOUT=0
+UNITS_REL="${UNITS_REL:-Projects}"; UNITS_REL="${UNITS_REL%/}"
+MAP_REL="${MAP_REL:-interpretation/interpretive-map.md}"
+PROJECTS_DIR="$ROOT_DIR/$UNITS_REL"
 GUIDE_DIR="$ROOT_DIR/.github/agents/references/methodology"
 ADVISORY="${METHODOLOGY_COVERAGE_ADVISORY:-0}"
 
@@ -39,6 +63,7 @@ target="${1:-}"
 # Is this directory a research project worth gating? (named target is always checked)
 is_research_project() {
   local d="$1"
+  [[ "$DEFAULT_LAYOUT" == "0" ]] && return 0   # configured layout: every subdirectory is a unit
   [[ -f "$d/00-research-plan.md" ]] && return 0
   [[ -d "$d/references" ]] && return 0
   # any numbered deliverable, e.g. 01-literature-review.md
@@ -63,10 +88,10 @@ guide_status() {
 check_project() {
   local name="$1"
   local dir="$PROJECTS_DIR/$name"
-  local map="$dir/interpretation/interpretive-map.md"
+  local map="$dir/$MAP_REL"
 
   if [[ ! -f "$map" ]]; then
-    printf 'MISSING-MAP    %-32s no interpretation/interpretive-map.md\n' "$name"
+    printf 'MISSING-MAP    %-32s no %s\n' "$name" "$MAP_REL"
     return 1
   fi
 
@@ -99,14 +124,14 @@ check_project() {
 
 main() {
   if [[ ! -d "$PROJECTS_DIR" ]]; then
-    echo "No Projects/ directory under $ROOT_DIR; nothing to check."
+    echo "No $UNITS_REL/ directory under $ROOT_DIR; nothing to check."
     return 0
   fi
 
   local names=()
   if [[ -n "$target" ]]; then
     if [[ ! -d "$PROJECTS_DIR/$target" ]]; then
-      echo "ERROR: project not found: Projects/$target" >&2
+      echo "ERROR: project not found: $UNITS_REL/$target" >&2
       return 2
     fi
     names=("$target")

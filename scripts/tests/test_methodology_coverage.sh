@@ -121,6 +121,17 @@ run "$R";       assert "empty root exit 0"         0 "nothing to check" "$CODE" 
 R="$TMP_ROOT/s11"; make_project "$R" proj
 run_advisory "$R" proj; assert "advisory downgrade exit 0" 0 "ADVISORY" "$CODE" "$OUT"
 
+# 12-15. configured layout via brief.json "methodology_coverage" (units = every subdirectory)
+R="$TMP_ROOT/s12"; mkdir -p "$R/reports/dossiers/p1" "$R/reports/dossiers/p2" "$R/.github/agents/references/methodology"
+printf '{"methodology_coverage": {"units_dir": "reports/dossiers", "map_path": "interpretation.md"}}' > "$R/brief.json"
+printf 'status: active\n' > "$R/.github/agents/references/methodology/logic.methodology.guide.md"
+echo "uses logic.methodology.guide.md" > "$R/reports/dossiers/p1/interpretation.md"
+run "$R" p1;    assert "configured: covered unit"      0 "COVERED" "$CODE" "$OUT"
+run "$R";       assert "configured: bare subdir is a unit" 1 "MISSING-MAP" "$CODE" "$OUT"
+run "$R";       assert "configured: map path reported" 1 "no interpretation.md" "$CODE" "$OUT"
+OUT="$(RT_ROOT="$R" METHODOLOGY_UNITS_DIR=elsewhere bash "$DETECTOR" 2>&1)"; CODE=$?
+assert "env override wins over brief" 0 "No elsewhere/ directory" "$CODE" "$OUT"
+
 echo "---"
 echo "Passed: $pass  Failed: $fail"
 [[ "$fail" -eq 0 ]]
