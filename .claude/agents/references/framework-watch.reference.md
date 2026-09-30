@@ -51,3 +51,7 @@ Local Claude adapter constants:
    re-render request when adapter constants are out of date.
 <!-- AGENTTEAMS:END operational_integration_process -->
 
+<!-- AGENTTEAMS:BEGIN conformance_standard_check v=1 -->
+
+<!-- AGENTTEAMS:END conformance_standard_check -->
+

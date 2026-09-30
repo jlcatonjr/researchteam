@@ -16,19 +16,46 @@
     "Trigger (sudo, pipe-to-shell, recursive delete, persistence, package install, forced push).",
     "To remove it: delete the `hooks` key.",
     "",
-    "Invoked through `python3` rather than as a bare path: the generation pipeline writes files with the umask default (0644) and never sets an executable bit, so a bare-path command would land a hook that LOOKS installed and silently fails with 'permission denied'. Found by rehearsing a fleet update against an isolated copy. Interpreter invocation also survives clone, copy and archive extraction, which an exec bit does not."
+    "Invoked through `python3` rather than as a bare path: the generation pipeline writes files with the umask default (0644) and never sets an executable bit, so a bare-path command would land a hook that LOOKS installed and silently fails with 'permission denied'. Found by rehearsing a fleet update against an isolated copy. Interpreter invocation also survives clone, copy and archive extraction, which an exec bit does not.",
+    "",
+    "Workspace write-confinement (claude:sandbox) \u2014 the `sandbox` block below is part",
+    "of this example and, like the hooks block, is INERT until you merge it into your",
+    "own .claude/settings.json. Once merged, Claude Code's OS-level sandbox (per its",
+    "docs: macOS Seatbelt / Linux + WSL2 bubblewrap) confines file writes to the",
+    "allowWrite roots. Writes to the project root via Bash and child processes were",
+    "verified denied outside the root under macOS Seatbelt; other platforms/versions",
+    "follow Claude Code's own behavior, which this project does not control. Per those",
+    "docs, `.claude/` is protected from agent edits even inside allowWrite, and you \u2014",
+    "editing outside an agent session \u2014 are unaffected. `allowUnsandboxedCommands: false`",
+    "closes the escape hatch. allowWrite defaults to [\".\"] \u2014 the whole project tree is",
+    "the workspace, so this confines writes to WITHIN the project (it does not restrict",
+    "writes between project subdirectories). Native Windows has no OS enforcement; there",
+    "this block is advisory only. To remove it: delete the `sandbox` key."
   ],
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "Write|Edit|NotebookEdit|MultiEdit|Bash",
         "hooks": [
           {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/constitutional-gate.py\""
+            "command": "python3 \"${CLAUDE_PROJECT_DIR}/.claude/hooks/constitutional-gate.py\"",
+            "type": "command"
           }
-        ]
+        ],
+        "matcher": "Write|Edit|NotebookEdit|MultiEdit|Bash"
       }
     ]
+  },
+  "sandbox": {
+    "allowUnsandboxedCommands": false,
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        "."
+      ],
+      "denyWrite": [
+        ".claude/agents/references/agent-privilege.json",
+        ".claude/hooks/constitutional-gate.py"
+      ]
+    }
   }
 }

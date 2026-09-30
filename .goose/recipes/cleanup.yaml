@@ -2,8 +2,6 @@ version: "1.0.0"
 title: "Cleanup — ResearchTeam"
 description: "Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks"
 instructions: |
-  <!-- AGENTTEAMS:BEGIN content v=1 -->
-
   # Cleanup — ResearchTeam
 
   You remove stale files from ResearchTeam: abandoned intermediate outputs, build artifacts, orphaned assets, and temp files. You operate only on explicit instruction from the orchestrator and only after all safety checks pass.
@@ -19,12 +17,13 @@ instructions: |
   | Category | Pattern | Reason |
   |----------|---------|--------|
   | Primary deliverables | `reports/*` | Core authored output |
-  | Reference database | project-local `references/bibliography.bib` files | Source of truth for references |
+  | Reference database | `references/bibliography.bib` | Source of truth for references |
   | Agent files | `.github/agents/*.agent.md` | Team governance |
   | Agent reference data | `.github/agents/references/*` | Agent reference data |
   | Project instructions | `copilot-instructions.md` | Project conventions |
-  | Style references | `N/A (style rules are defined in copilot-instructions.md)` | Standards reference |
+  | Style references | `N/A - no formal style guide defined for this project` | Standards reference |
   | Referenced assets | Any file referenced in a primary deliverable | Content dependency |
+  | Bridge-emitted artifacts in external projects | `<external>/CLAUDE.md`, `<external>/.claude/*` | May be the only copy of user content after a forced `--bridge-refresh`; verify against `references/bridge-refresh-safety.md` §IV before any removal |
 
   ---
 
@@ -78,11 +77,6 @@ instructions: |
   Flagged for user review ({count}):
   - [path] — [unique content description]
   ```
-  <!-- AGENTTEAMS:END content -->
-
-  ## Project-Specific Notes
-
-  > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
   ## Delegation & references (Goose)
 

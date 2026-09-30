@@ -41,12 +41,36 @@ These are **not** enabled unless your own recipe's `extensions:` block lists the
   non-network tools for sandboxed HTML apps, skill discovery, task tracking, code
   structure analysis, durable memory, and data visualization respectively.
 
-None of the builtin extensions include a general web-search tool (query text in,
-ranked results out). `computercontroller`'s `web_scrape` requires a known URL. If a
-task genuinely needs search rather than fetch, that requires a separate MCP
-extension (e.g. a Brave/Tavily/DuckDuckGo search server) added via
-`recipe_extensions`/`goose:mcp` in this team's brief — check whether one is
-configured before assuming search is unavailable outright.
+Web *search* is covered in the next section. One Goose-specific route not mentioned
+there: a search MCP extension (e.g. a Brave/Tavily/DuckDuckGo server) can be added via
+`recipe_extensions`/`goose:mcp` in this team's brief — check whether one is configured
+before assuming search is unavailable outright.
+
+## Capability that isn't a Goose extension at all
+
+Not part of the `recipe_extensions` opt-in list above — reached through `developer`'s
+ordinary shell instead, the same way any other installed CLI tool would be, no MCP
+wiring needed:
+
+- **Search before you fetch.** No builtin Goose extension does web *search*
+  (query in, ranked results out) — `web_scrape` needs a URL you already know, so
+  guessing one lands you on a homepage and floods context with navigation HTML.
+  This project may ship `agentteams.research`, which does search, text-extracted
+  fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
+  shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
+  `python -m agentteams.research --help` (if absent, install from the project's git
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.0.0-rc.7"` —
+  never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
+  `python -m agentteams.research search "<query>"` and
+  `python -m agentteams.research fetch "<url>"`.
+
+Separately: none of the builtin extensions execute JavaScript or drive a real
+browser — `computercontroller`'s `web_scrape` is a plain fetch, not a renderer. A page
+that needs JavaScript to show its real content is a job for
+`python -m agentteams.research browser "<url>"` (that module's separate `[browser]`
+extra, if installed), not an extension. See
+`references/skill-generation.reference.md`'s worked example ("a page `fetch` can't
+render") for the full tiered approach and its security-review gate.
 
 ## General CLI competency (not Goose-specific)
 

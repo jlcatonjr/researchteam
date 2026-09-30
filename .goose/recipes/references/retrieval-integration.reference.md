@@ -10,17 +10,19 @@ Project: ResearchTeam
 
 ## Query Entrypoints
 
-No retrieval query entrypoints declared.
+- scripts/query_literature_library.py
+- bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"
 
 ## Maintenance Entrypoints
 
-- scripts/agentteams_autosync_gate.sh
-- scripts/claude_researchteam_bridge.sh
-- scripts/tests/test_literature_library.sh
+- scripts/build_literature_library.py
+- scripts/check_literature_library_integrity.sh
 
 ## Source of Truth
 
-No retrieval source-of-truth declared.
+- Projects/<project>/references/bibliography.bib
+- Projects/<project>/references/library/literature.jsonl
+- Projects/<project>/references/library/library-manifest.json
 
 ## Freshness
 

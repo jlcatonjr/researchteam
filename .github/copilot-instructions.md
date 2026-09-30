@@ -86,6 +86,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 - `@output-compiler` — assembles components into the final deliverable package
 - `@visual-designer` — creates and revises diagrams and figures
 - `@interpretation-advisor` — specialized domain agent
+- `@retrieval-integrator` — validates retrieval query, maintenance, and trigger contracts
 - `@research-analyst` — specialized domain agent
 - `@tool-doc-researcher` — specialized domain agent
 

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc7",
-  "generated_at": "2026-09-28T03:18:56.669455+00:00",
+  "generated_at": "2026-09-30T13:30:45.277234+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -15,6 +15,7 @@
     "output-compiler",
     "visual-designer",
     "interpretation-advisor",
+    "retrieval-integrator",
     "research-analyst",
     "tool-doc-researcher"
   ],
@@ -24,7 +25,11 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".github/agents/retrieval-integrator.agent.md",
+    ".github/agents/references/retrieval-integration.reference.md",
+    ".github/agents/references/retrieval-trigger-contract.reference.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "196627c365aaa637",
@@ -48,7 +53,8 @@
     "domain/reference-manager.template.md": "299f437acd33eff9",
     "domain/output-compiler.template.md": "7ec6b1533cae4aaf",
     "domain/visual-designer.template.md": "c639dcf21cfabf63",
-    "domain/research-analyst.template.md": "3ba77092723ab23f",
+    "domain/retrieval-integrator.template.md": "0cfb9cd3138cfd1d",
+    "domain/research-analyst.template.md": "a6565b6bbe8fcfcd",
     "domain/tool-doc-researcher.template.md": "15f20cf961998666",
     "domain/tool-cli.doc.template.md": "5de8d88bee6138bb",
     "domain/tool-reference.template.md": "5ce5638b7094cc86",
@@ -61,7 +67,7 @@
     "universal/security-windows-hardening.reference.template.md": "5885668f48e4c295",
     "universal/security-infrastructure-layers.reference.template.md": "5c4c67f28d67149b",
     "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
-    "universal/framework-watch.reference.template.md": "5232925f7a649199",
+    "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
     "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
     "universal/github-workflows-merge.reference.template.md": "4b5d6066a338ae74",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
@@ -73,8 +79,10 @@
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
     "universal/cli-tool-discovery.reference.template.md": "203004e771c8b2fd",
-    "universal/skill-generation.reference.template.md": "47bcf76ed8f69a80",
+    "universal/skill-generation.reference.template.md": "5293714b0f5ada9c",
     "universal/external-retrieval-quality-gate.reference.template.md": "3922b0a2e99e75a3",
+    "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
+    "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
     "copilot-instructions.template.md": "2bf0a18258bdf1ce",
     "builder/team-builder-copilot-vscode.template.md": "49cf6f735fc90e06",
@@ -210,6 +218,12 @@
     {
       "path": "interpretation-advisor.agent.md",
       "template": "domain/interpretation-advisor.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "retrieval-integrator.agent.md",
+      "template": "domain/retrieval-integrator.template.md",
       "type": "agent",
       "component_slug": null
     },
@@ -379,6 +393,18 @@
       "component_slug": null
     },
     {
+      "path": "references/retrieval-integration.reference.md",
+      "template": "universal/retrieval-integration.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/retrieval-trigger-contract.reference.md",
+      "template": "universal/retrieval-trigger-contract.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "topic-scoping-expert.agent.md",
       "template": "workstream-expert.template.md",
       "type": "agent",
@@ -468,6 +494,7 @@
     "output-compiler",
     "visual-designer",
     "interpretation-advisor",
+    "retrieval-integrator",
     "research-analyst",
     "tool-doc-researcher",
     "topic-scoping-expert",
@@ -488,11 +515,20 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "ac32719388cd9e93",
+  "manifest_fingerprint": "3f8be2ac0bfecf97",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "443f37162274685d",
-    "references/security-vulnerability-watch.json": "ca33af41f0b5b47c",
+    "retrieval-integrator.agent.md": "6fffb054e4e9c122",
+    "references/retrieval-integration.reference.md": "64287ba420232229",
+    "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
+    "security.agent.md": "617d8d67fde180de",
+    "references/security-vulnerability-watch.reference.md": "31c92ce31de47a79",
+    "references/security-vulnerability-watch.json": "a7cd7ea258aee1a1",
+    "references/framework-watch.reference.md": "83c216aefd1970cd",
+    "../copilot-instructions.md": "adf2c9c9a2118e04",
+    "references/pipeline-graph.md": "9f302f20e70161b5",
+    "references/pipeline-graph.svg": "7a5a3e866cdc99a2",
+    "references/pipeline-handoffs.svg": "0ff3e1e4f11bc202",
     "orchestrator.agent.md": "6a1f56a637671ea0",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "31f91dd0cd0af5b6",
@@ -519,19 +555,17 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "87d76505000b8ea0",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
     "references/ai-bad-habits-watch.reference.md": "f219fe89f7c75d72",
-    "references/framework-watch.reference.md": "81ef84e7012638ee",
     "references/adjacent-repos.md": "78d20a4fde516de3",
     "references/retrospective-remediation.reference.md": "07d6a995c46b2ccd",
+    "references/skill-generation.reference.md": "7fde17640c5bc1eb",
     "topic-scoping-expert.agent.md": "58055cf835e7cbd4",
     "literature-review-expert.agent.md": "5316d5047f213ecd",
     "main-analysis-expert.agent.md": "aaeccf53e41f8b41",
     "conclusion-expert.agent.md": "6ef22988fc674a06",
-    "../copilot-instructions.md": "e3bd3a0d730d834a",
     "team-builder.agent.md": "9a669a657b7afbd9",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "6574a79bc3912546",
@@ -542,11 +576,18 @@
     "references/parallelization.reference.md": "e25040ccfbdae337",
     "references/instruction-authority.reference.md": "0fe0a39bbfad2882",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
-    "references/skill-generation.reference.md": "7fde17640c5bc1eb",
-    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
-    "references/pipeline-graph.md": "f125233fcc0b8c8a"
+    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3"
   },
   "front_matter_baseline": {
+    "retrieval-integrator.agent.md": {
+      "name": "Retrieval Integrator \u2014 ResearchTeam",
+      "description": "\"Validates retrieval integration contracts in ResearchTeam \u2014 query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations\"",
+      "user-invocable": "false",
+      "tools": "['read', 'search', 'execute']",
+      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
+      "model": "[\"Claude Opus 4.8 (copilot)\"]",
+      "handoffs": "\n  - label: Technical Validation\n    agent: technical-validator\n    prompt: \"Validate retrieval claims and source-of-truth evidence for this integration.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge assumptions in retrieval mode, trigger wiring, and staleness checks.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Confirm retrieval contract statements are consistent with authority files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Retrieval integration validation complete.\"\n    send: false"
+    },
     "security.agent.md": {
       "name": "Security \u2014 ResearchTeam",
       "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",

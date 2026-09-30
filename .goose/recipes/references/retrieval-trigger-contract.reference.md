@@ -7,9 +7,9 @@ Version: v1
 
 ## Allowed Trigger Sources
 
-- env
+- cli
 - script
-- workflow
+- manual
 
 ## Requirements
 
@@ -21,11 +21,11 @@ Version: v1
 
 ### Query
 
-No retrieval query entrypoints declared.
+- scripts/query_literature_library.py
+- bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"
 
 ### Maintenance
 
-- scripts/agentteams_autosync_gate.sh
-- scripts/claude_researchteam_bridge.sh
-- scripts/tests/test_literature_library.sh
+- scripts/build_literature_library.py
+- scripts/check_literature_library_integrity.sh
 <!-- AGENTTEAMS:END content -->

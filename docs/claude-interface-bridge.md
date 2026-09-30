@@ -78,6 +78,7 @@ Returns the current `tmp/by-week/YYYY-Www/` path.
 ## Notes
 
 - Active source-of-truth agent files are in `.github/agents/`.
+- `.codex/agents/*.toml` (OpenAI Codex) and `.goose/recipes/` (Goose) are generated projections of that team; regenerate rather than edit. See `.codex/README.md`.
 - Backup snapshots in `.github/agents/.agentteams-backups/` are archival.
 - Do not manually edit AGENTTEAMS fenced sections in agent docs; use orchestrated update workflows.
 - Back up research and agent files before update or merge operations.

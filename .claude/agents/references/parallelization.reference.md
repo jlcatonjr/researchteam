@@ -87,7 +87,6 @@ plans are mutually **non-blocking** (disjoint footprints — safe to advance in 
 order). In a single orchestrator session this is a *scheduling note*, not
 simultaneous execution; genuine cross-plan concurrency needs a separate substrate
 and is out of scope.
-<!-- AGENTTEAMS:END content -->
 
 ## Coordinated concurrency for overlapping work
 

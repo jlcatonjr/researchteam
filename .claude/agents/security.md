@@ -38,12 +38,15 @@ Runtime enforcement also consumes machine-readable freshness metadata from the s
 > ⛔ **Do not modify or omit.** All triggers, rules, the HALT directive, and the AI-authored-code screening guidance carried in this file's fenced sections are the immutable contract for this agent. Sections are referenced by name, never by position: the merge engine places a fenced region relative to whichever fences already exist on disk, so a deployed file may carry them in a different order than this template.
 <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN security_rules_invariant v=4 -->
+<!-- AGENTTEAMS:BEGIN security_rules_invariant v=9 -->
 ### Mandatory Review Triggers
 
 | Trigger | Risk Category |
 |---------|--------------|
 | Any file deletion in the project | Irreversible file loss |
+| Any command that deletes a repository or remote resource (`gh repo delete`, `gh api -X DELETE`) | Irreversible remote/repo loss — C-5 authorization required BEFORE execution |
+| Any command that deletes a git ref or worktree (`git push --delete`/`--mirror`/`--prune`, `git push … :ref`, `git branch`/`tag -d`/`-D`, `git update-ref -d`, `git worktree remove`) | Irreversible ref/history loss |
+| Any destructive filesystem or infrastructure delete (`rm -rf`, `rmdir`, `shred`, `truncate`, `find … -delete`, `dd of=`, `kubectl delete`, `terraform destroy`, `docker rm`/`rmi`/`system prune`, cloud `… delete`, SQL `DROP`/`TRUNCATE`) | Irreversible data/resource loss |
 | Any modification to `.github/agents/*.agent.md` | Scope creep, privilege escalation |
 | Any operation that writes to an external repository | Cross-repo contamination |
 | Any deliverable content that includes server IPs, API keys, or credentials | Credential exposure |
@@ -54,7 +57,7 @@ Runtime enforcement also consumes machine-readable freshness metadata from the s
 | Any execution of `batch_update.py` or `build_team.py --self --update` | Infrastructure scope — bulk cross-repo write |
 | Any invocation of `agentteams … --bridge-refresh` against an external project | Destructive at target — see `references/bridge-refresh-safety.md` Pre-Flight; clear only when Pre-Flight §II all-pass |
 | Any committed file containing absolute filesystem paths with home directory (`/Users/`, `/home/`) | OPSEC — PII exposure in artifacts |
-| Any software installation via a package manager (`brew`, `apt`, `dnf`, `pip install`, `npm i`, …) | Supply chain — unreviewed third-party code on the host |
+| Any software installation via a package manager (`brew`, `apt`, `dnf`, `pip install`, `npm i`, …) | Supply chain — unreviewed third-party code on the host; release must clear Rule S-10 vetting (known-vulnerability search + release cooldown) |
 | Any command run with elevated privilege (`sudo`, `doas`, an Administrator shell) | Privilege escalation — effects outside the project tree |
 | Any committed or tracked file containing a local machine hostname, OS username, MAC address, local network IP (192.168.x.x, 10.x.x.x, 172.16-31.x.x), or machine-local absolute path outside `~/` notation | OPSEC — machine-specific information exposure |
 | Any agent with `edit` or `execute` tools acting outside its declared workstream | Excessive agency (LLM06) |
@@ -62,6 +65,8 @@ Runtime enforcement also consumes machine-readable freshness metadata from the s
 | Any modification to a vector store, embeddings index, or RAG data source | Vector/embedding attack surface (LLM08) |
 | Any agent loop or external API call without a declared rate limit or termination condition | Unbounded consumption (LLM10) |
 | Any AI-authored change to native or unsafe-memory code (C/C++/Objective-C, Rust `unsafe`, Zig, cgo, ctypes/cffi/PyO3/N-API/JNI, inline assembly, manual allocation, or raw pointer arithmetic) | Memory-safety exploit surface (low-level) |
+
+> **Delete-authorization gate — scope and limits.** The runtime `constitutional-gate.py` PreToolUse hook routes the Bash delete idioms above (repo/ref/worktree/filesystem/infrastructure/database deletion) to the operator for explicit authorization (`ask`) BEFORE they run. This is a **best-effort, cooperative speed-bump, not a boundary.** It does NOT gate: content deletion via `Write`/`Edit` (shrinking a file), deletion via MCP or other non-Bash tools, interpreter-mediated deletion it does not pattern-match, alias/quote/variable obfuscation, or consumers/harnesses that do not honour PreToolUse (or that auto-approve under headless mode). A passing delete-gate test suite means "these spellings are gated", never "deletion is prevented" — the operator stays responsible for reviewing destructive actions on the uncovered surfaces.
 | A capability pathway (command sequence, install/build step, URL/API fetch pattern, or generated script) matching any Rule S-9 risk criterion, about to be used to produce output or recorded into a reference/skill file for future automated reuse | Unverified-pathway execution risk (injection / supply chain / credential exposure) |
 
 ### Security Rules
@@ -190,8 +195,53 @@ none of them is out of scope for this rule entirely, regardless of how novel it 
   CONDITIONAL PASS
 - ❌ Never let a pathway that hasn't cleared this rule become something a future session reads
   and executes unattended
+- ✅ For install pathways, the artifact itself must also clear Rule S-10 (known-vulnerability
+  search + release cooldown) — S-9 verifies the pathway and identity, S-10 vets the release
 
 These patterns are not reducible to a deterministic scanner the way Rules S-1/S-8 partly are — evaluating source trust and blast radius is a judgment call, so this stays procedural like Rule S-4.
+
+**Rule S-10: Dependency Vetting Before Install**
+
+Applies to any module, package, or program about to be installed, in any ecosystem (npm,
+PyPI, crates.io, Homebrew, …). Rule S-9 governs the *pathway* — source trust and artifact
+identity; this rule governs the *artifact*: whether the specific release being adopted is
+known-vulnerable or too new to trust.
+
+- ✅ Before install, search reliable vulnerability sources for known vulnerabilities in the
+  exact package name and version being adopted — OSV.dev, the Snyk Vulnerability Database
+  (https://security.snyk.io/), NVD, GitHub Advisories, and the ecosystem's own audit tool
+  (`npm audit` — see
+  https://docs.npmjs.com/auditing-package-dependencies-for-security-vulnerabilities —
+  `pip-audit`, `cargo audit`). A release with an unresolved known vulnerability routes to
+  `@security` before install
+- ✅ **Package-release cooldown — default 14 days, configurable per project, all
+  ecosystems:** if a release is less than 14 days old, wait before installing it. This
+  governs every update and installation through any package manager or installer (npm,
+  PyPI, crates.io, Homebrew, RubyGems, Go modules, container base images, …) — npm is the
+  motivating precedent, not the scope: the 2025–2026 wave of registry supply-chain
+  compromises (maintainer-account takeovers, worm-style credential stealers) showed that
+  malicious releases are typically detected and unpublished within days, so the cooldown
+  lets registry scanners catch them before installation. Check release age before adopting
+  (`npm view <pkg> time`, the PyPI JSON API's `upload_time_iso_8601`, the registry's
+  release page); make the window mechanical where tooling allows
+  (`npm install --before=<date>`, pnpm `minimumReleaseAge`, uv `--exclude-newer <date>`,
+  Renovate/Dependabot cooldown settings). Upgrading an already-installed package through
+  its distribution's own curated security channel (apt/dnf/apk with a DSA/USN/RHSA-backed
+  update) is remediation, not adoption — the cooldown and its per-release review do not
+  apply there (third-party repositories, PPAs, and vendor-added apt/dnf sources are not
+  that channel); the cooldown governs artifacts new to the system
+- ✅ Pin exact versions with a lockfile so both checks are enforceable and reproducible
+- ✅ **Exception:** a release that itself fixes a vulnerability affecting this project may be
+  adopted inside the cooldown window only when the fix maps to an independently published
+  advisory (a CVE/GHSA/OSV id) that predates the release or originates from the ecosystem's
+  advisory database rather than solely from the package maintainer — vendor release notes
+  alone do not qualify, since attackers routinely label malicious releases as security
+  patches — and only after `@security` review
+  recorded in `references/security-decisions.log.csv`
+- ✅ The cooldown never delays remediating an already-installed vulnerable version —
+  patch-urgency guidance (KEV prioritization, patch windows) takes precedence; the cooldown
+  only governs *which* new release is moved to
+- ❌ Never install a release that fails either check without a recorded `@security` clearance
 
 ---
 
@@ -212,6 +262,7 @@ Use this table to determine the verdict. **Criteria are deterministic** — mode
 | Pathway matching Rule S-9 criterion 4 specifically via privilege escalation or a persistence mechanism (`sudoers` edit, `cron`/`launchd`/service-manager entry, disabling an OS security control) | **HALT** — outlives the current session; a one-off destructive-op confirmation is not sufficient |
 | Pathway matching Rule S-9 criterion 1 via an unverified package/artifact identity (slopsquatting/typosquatting risk) on an otherwise-official registry | **HALT** — resolve and verify the real intended artifact first; an official registry does not itself establish identity |
 | Repeat CONDITIONAL PASS request for a pathway signature already logged as CONDITIONAL PASS in `references/security-decisions.log.csv` | **HALT** — escalate to a clean PASS or a full HALT, "one-time use" does not renew on request |
+| Package install whose exact name@version has not been checked against known-vulnerability sources, or whose release is younger than the Rule S-10 cooldown, with no other red flag | **CONDITIONAL PASS** — mitigation: complete the S-10 vetting (vulnerability search + release-age check) or record an advisory-backed exception before install |
 | Bulk operation with backup verified and diff analysis clean | **CONDITIONAL PASS** |
 | Pathway matching Rule S-9 criterion 1 or 5 only (untrusted source, or a privileged/stateful external interaction) with no other red flag | **CONDITIONAL PASS** — mitigation: prefer an official source where one exists; one-time use permitted under stated conditions, persistence blocked until `conditions_verified` |
 | Infrastructure batch write satisfying all four Exception Pathway conditions (Rule S-2) | **CONDITIONAL PASS** |
@@ -233,7 +284,7 @@ The Credential and Machine-specific-information rows above are exactly `scan.py`
 - **SQL injection (CWE-89)** — string-built queries. Fix: parameterized queries / ORM only; never concatenate untrusted input.
 - **Cross-site request forgery (CWE-352)** — state-changing routes without anti-CSRF. Fix: framework CSRF tokens; SameSite cookies.
 - **Broken access control / missing authorization (CWE-862)** — internal services/data reached without an authz check. Fix: centralized, deny-by-default authorization at every entry point.
-- **Supply-chain / slopsquatting** — AI hallucinates a non-existent package name an attacker can pre-register. Fix: verify every dependency resolves to the real, expected registry artifact; pin + lockfile; SCA scan (LLM03).
+- **Supply-chain / slopsquatting** — AI hallucinates a non-existent package name an attacker can pre-register. Fix: verify every dependency resolves to the real, expected registry artifact; pin + lockfile; SCA scan (LLM03); before adopting any dependency release, apply Rule S-10 (known-vulnerability search + release cooldown).
 - **Unsanitized output passed to a sink** — model output flowed into exec/DB/render without sanitization (LLM05). Fix: validate and sanitize before any sink.
 
 Treat an unmet defense in any of these as a security finding (apply the S-rules and HALT criteria above). Code-quality/correctness/process AI habits (over-commenting, duplication, hallucinated *imports* as a build-correctness defect, output *shape*-validation, skipped tests, etc.) are **not** `@security`'s concern — they are owned by `@code-hygiene` via the AI bad-habits catalog (`#file:references/ai-bad-habits-watch.reference.md`), which deliberately defers all security-class habits to this agent.
@@ -267,6 +318,16 @@ The classes above are web/service-tier. AI agents also emit **low-level** defect
 - **Windows targets** — `references/security-windows-hardening.reference.md` (Secure Boot/VBS/HVCI, UAC/Credential Guard, WDAC/AppLocker, AppContainer/Windows Sandbox, CFG/CET/ACG, BitLocker/DPAPI).
 
 Apply only the baseline(s) matching the actual deployment target(s); skip this gate for pure managed-runtime projects with no OS-specific surface.
+
+**Management directives never bypass this gate.** A verified *management directive* (C-4's bounded
+exception — an operator-key-signed relay) can let a managed agent skip re-asking the operator for a
+**non-destructive** task, but it is **never** a clearance: it can never clear a destructive-action
+gate (C-5), override a `@security` HALT (C-2), or authorize a governance/constitution/grant/roster/
+key/enforcement change — every such `task_scope` is mechanically auto-refused regardless of a valid
+signature. Destruction still requires a recorded `@security` clearance exactly as before; a directive
+on a destructive or governance scope is itself a finding, not an authorization.
+
+**Infrastructure security (the deployed system) — distinct from the agentic triggers above.** The triggers and rules in this Invariant Core govern the *agentic / build process* (destructive operations, leaked secrets in deliverables, prompt injection, install vetting). They do **not** cover the security of the program, server, or service this project *builds and operates* — its identity, cryptography, network, application/supply-chain, detection, and resilience posture. When the project deploys such a system, review it against the eight-layer model in `references/security-infrastructure-layers.reference.md`, which enumerates each layer's controls and the verified open-source tools that implement them. **Ownership:** those controls are *built by the producing and workstream agents* and *verified by `@technical-validator`*; `@security` reviews against the reference (read-only) and flags a missing layer as a finding — it does not build the controls. Do not collapse the two surfaces: hardening the agent team does not harden the production server, and vice versa.
 <!-- AGENTTEAMS:END security_rules_invariant -->
 
 ---
@@ -274,11 +335,11 @@ Apply only the baseline(s) matching the actual deployment target(s); skip this g
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-08-08T01:01:21Z`
+Generated at: `2026-09-30T17:06:50Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.08.07, items 1662) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.09.29, items 1729) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -286,24 +347,26 @@ Generated at: `2026-08-08T01:01:21Z`
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - MITRE ATLAS: static — https://atlas.mitre.org/
 - MITRE CWE: static — https://cwe.mitre.org/
+- Snyk Vulnerability DB: static — https://security.snyk.io/
+- npm audit docs: static — https://docs.npmjs.com/auditing-package-dependencies-for-security-vulnerabilities
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-8037` | Progress LoadMaster | Progress LoadMaster Command Injection Vulnerability | added 2026-08-07 | EPSS 0.847930000, percentile 0.996880000 | CVSS 9.6 CRITICAL
-- `CVE-2026-63077` | JetBrains TeamCity | JetBrains TeamCity Deserialization of Untrusted Data Vulnerability | added 2026-08-05 | EPSS 0.010100000, percentile 0.598270000 | CVSS 9.8 CRITICAL
-- `CVE-2026-18556` | N-able N-central | N-able N-central Authentication Bypass Using an Alternate Path or Channel Vulnerability | added 2026-08-04 | EPSS 0.004920000, percentile 0.396970000 | CVSS 7.4 HIGH
-- `CVE-2026-34486` | Apache Tomcat | Apache Tomcat Missing Encryption of Sensitive Data Vulnerability | added 2026-08-04 | EPSS 0.811600000, percentile 0.995980000 | CVSS 7.5 HIGH
-- `CVE-2026-9198` | IBM Langflow | IBM Langflow Code Injection Vulnerability | added 2026-08-04 | EPSS 0.170530000, percentile 0.967770000 | CVSS 9.8 CRITICAL
-- `CVE-2026-18577` | N-able N-central | N-able N-central Authentication Bypass Using an Alternate Path or Channel Vulnerability | added 2026-08-03 | EPSS 0.041030000, percentile 0.897810000
-- `CVE-2026-20316` | Cisco Secure Firewall Management Center (FMC) | Cisco Secure Firewall Management Center Use of Hard-coded Password Vulnerability | added 2026-07-29 | EPSS 0.007880000, percentile 0.527860000
-- `CVE-2025-68686` | Fortinet FortiOS | Fortinet FortiOS Exposure of Sensitive Information to an Unauthorized Actor Vulnerability | added 2026-07-27 | EPSS 0.012640000, percentile 0.669120000
-- `CVE-2026-16812` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator On-Prem OS Command Injection Vulnerability | added 2026-07-27 | EPSS 0.008840000, percentile 0.558180000
-- `CVE-2026-16232` | Check Point SmartConsole | Check Point SmartConsole Improper Authentication Vulnerability | added 2026-07-22 | EPSS 0.713910000, percentile 0.993550000
-- `CVE-2026-50522` | Microsoft SharePoint | Microsoft SharePoint Deserialization of Untrusted Data Vulnerability | added 2026-07-22 | EPSS 0.757600000, percentile 0.994760000
-- `CVE-2026-60137` | WordPress Core | WordPress Core SQL Injection Vulnerability | added 2026-07-21 | EPSS 0.790290000, percentile 0.995600000
-- `CVE-2026-63030` | WordPress Core | WordPress Core Interpretation Conflict Vulnerability | added 2026-07-21 | EPSS 0.984170000, percentile 0.999150000
-- `CVE-2026-0770` | Langflow Langflow | Langflow Inclusion of Functionality from Untrusted Control Sphere Vulnerability | added 2026-07-21 | EPSS 0.562670000, percentile 0.989560000
-- `CVE-2021-27137` | DD-WRT DD-WRT | DD-WRT Stack-Based Buffer Overflow Vulnerability | added 2026-07-21 | EPSS 0.164880000, percentile 0.966800000
+- `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.008120000, percentile 0.552950000 | CVSS 8.8 HIGH
+- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.693300000 | CVSS 8.1 HIGH
+- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010630000, percentile 0.632920000 | CVSS 9.8 CRITICAL
+- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.622120000 | CVSS 6.5 MEDIUM
+- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.809790000 | CVSS 8.8 HIGH
+- `CVE-2026-87902` | WordPress Core | WordPress Core Remote File Inclusion Vulnerability | added 2026-09-25 | EPSS 0.197560000, percentile 0.973240000
+- `CVE-2026-5430` | WSO2 Multiple Products | WSO2 Multiple Products Path Traversal Vulnerability | added 2026-09-24 | EPSS 0.005880000, percentile 0.460060000
+- `CVE-2026-71362` | Adobe Commerce and Magento | Adobe Commerce and Magento Incorrect Authorization Vulnerability | added 2026-09-24 | EPSS 0.875070000, percentile 0.997540000
+- `CVE-2026-93952` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator Improper Input Validation Vulnerability | added 2026-09-22 | EPSS 0.010620000, percentile 0.632410000
+- `CVE-2026-94127` | F5 BIG-IP APM | F5 BIG-IP APM Heap-based Buffer Overflow Vulnerability | added 2026-09-22 | EPSS 0.022260000, percentile 0.820450000
+- `CVE-2026-93616` | Check Point Multiple Products | Check Point Multiple Products Path Traversal Vulnerability | added 2026-09-22 | EPSS 0.196540000, percentile 0.973120000
+- `CVE-2026-85102` | Check Point Multiple Products | Check Point Multiple Products Improper Certificate Validation Vulnerability | added 2026-09-22 | EPSS 0.075460000, percentile 0.943140000
+- `CVE-2026-7273` | Zyxel GS1900 Series Switches | Zyxel GS1900 Series Switches Stack-Based Buffer Overflow Vulnerability | added 2026-09-21 | EPSS 0.025010000, percentile 0.840930000
+- `CVE-2025-39964` | Linux Kernel | Linux Kernel Race Condition Vulnerability | added 2026-09-18 | EPSS 0.009960000, percentile 0.612180000
+- `CVE-2026-53266` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-09-18 | EPSS 0.006450000, percentile 0.489020000
 
 **Prevention and mitigation playbook:**
 
@@ -312,6 +375,8 @@ Generated at: `2026-08-08T01:01:21Z`
 - Enforce patch windows with owner, SLA, and verification evidence for each critical CVE.
 - When patching is blocked, define compensating controls (WAF rules, ACL tightening, feature disablement).
 - Add detections for exploitation attempts and verify telemetry coverage for affected assets.
+- Before any package/module install, search reliable sources (OSV.dev, Snyk Vulnerability DB, NVD, GitHub Advisories, `npm audit`/`pip-audit`) for known vulnerabilities in the exact name and version being adopted.
+- Apply a package-release cooldown (default 14 days) before adopting a newly published release — every ecosystem and installer, not only npm — so registry scanners can catch malicious releases first; the cooldown never delays remediating an already-installed vulnerable version, and a security fix backed by a published CVE/GHSA/OSV advisory may bypass it after review.
 - Vendor/CISA required actions:
   - Apply mitigations in accordance with vendor instructions, ensuring compliance with CISA’s BOD 26-04 Prioritizing Security Updates Based on Risk (see URL in Notes) guidance and CISA’s “Forensics Triage Requirements” (see URL in Notes). Follow applicable BOD 26-04 guidance for cloud services or discontinue use of the product if mitigations are unavailable. Stakeholders are responsible for evaluatin…
 
