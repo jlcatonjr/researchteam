@@ -5,12 +5,19 @@ canonical team in `.github/agents/`. Do not hand-edit them — edit the canonica
 regenerate:
 
 ```bash
-agentteams --interop-from .github/agents --framework codex --output . --yes
+agentteams --interop-from .github/agents --framework codex --output . --overwrite --yes
+# Codex skills (.agents/skills/<name>/SKILL.md), imported from the Claude skills:
+agentteams --interop-from .claude/agents --interop-source-framework claude --framework codex \
+  --interop-skills-only --output . --overwrite --yes
 ```
+
+`--overwrite` is required. Without it, interop **skips files that already exist**, so an
+already-projected agent or skill never picks up later changes to the canonical team.
 
 - Codex loads only `.codex/agents/**/*.toml`; the `name` key inside each file is authoritative.
 - `sandbox_mode = "read-only"` (auditor roles) is a default, not a ceiling: subagents inherit the
   parent session's sandbox. Declared tool lists are self-imposed limits Codex does not enforce.
 - The repo-root `AGENTS.md` is shared with the Goose bridge; the Codex adapter never overwrites it.
-- `researchteam update` does not refresh this directory; rerun the command above after an
-  agentteams update.
+- `researchteam update` does not refresh this directory; rerun the commands above after an
+  agentteams update. In a derived instance, `researchteam materialize` re-projects Codex agents
+  and skills automatically.
