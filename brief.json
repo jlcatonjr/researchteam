@@ -186,5 +186,27 @@
   ],
   "capabilities": [
     "research_verification"
-  ]
+  ],
+  "retrieval_integration": {
+    "mode": "sparse-vector",
+    "query_entrypoints": [
+      "scripts/query_literature_library.py",
+      "bash scripts/claude_researchteam_bridge.sh library-query <project> \"<terms>\""
+    ],
+    "maintenance_entrypoints": [
+      "scripts/build_literature_library.py",
+      "scripts/check_literature_library_integrity.sh"
+    ],
+    "trigger_sources": [
+      "cli",
+      "script",
+      "manual"
+    ],
+    "source_of_truth": [
+      "Projects/<project>/references/bibliography.bib",
+      "Projects/<project>/references/library/literature.jsonl",
+      "Projects/<project>/references/library/library-manifest.json"
+    ],
+    "trigger_contract_version": "v1"
+  }
 }

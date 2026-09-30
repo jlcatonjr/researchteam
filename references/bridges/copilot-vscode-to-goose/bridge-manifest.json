@@ -1,13 +1,13 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-08T14:29:33.523579+00:00",
+  "generated_at": "2026-09-30T13:48:02.908548+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
   "source_hashes": [
     {
       "path": "agents/adversarial.agent.md",
-      "sha256": "7bf64baa4b68509c498a8f1389b71dc7febc912f33fdab2d141d064b86dcee3e"
+      "sha256": "abb1a0c3532cf456bf924e7cde5b76a761c7dd5d7eff8eb824ce9ca59c2e353d"
     },
     {
       "path": "agents/agent-refactor.agent.md",
@@ -15,7 +15,7 @@
     },
     {
       "path": "agents/agent-updater.agent.md",
-      "sha256": "edef717dfbc977090382dd3a8ca644ebebacd0bbcb1c178b892c82521bc48bd8"
+      "sha256": "3c91caaa928597192c5ba56d6c5f3a613441edebfc5f13d623792ca903ffd5e9"
     },
     {
       "path": "agents/cleanup.agent.md",
@@ -23,7 +23,7 @@
     },
     {
       "path": "agents/code-hygiene.agent.md",
-      "sha256": "13ba39f51f2df5865569d1e621eb7f4e24fc1f7f4245df6575bee7adc64627f2"
+      "sha256": "31f91dd0cd0af5b6e31b706af3970f8af06a37e9fc0323508e2e1924b1c30972"
     },
     {
       "path": "agents/cohesion-repairer.agent.md",
@@ -43,7 +43,7 @@
     },
     {
       "path": "agents/content-enricher.agent.md",
-      "sha256": "f41b56525416201d0f04b5e8b5032a0c52d5dbe6ac4d1a81dbb6a5f38d47da5d"
+      "sha256": "6574a79bc3912546249ede8b622c2041f1f12e7e9caebf234b868f5bf784cd05"
     },
     {
       "path": "agents/format-converter.agent.md",
@@ -98,8 +98,12 @@
       "sha256": "2b48554bdc784678192a1d0ebac5a87e9360b56e27195b365f3e93e8184f5ece"
     },
     {
+      "path": "agents/retrieval-integrator.agent.md",
+      "sha256": "6fffb054e4e9c1228451d469fd360e004045c3f1e7963a799ef5136f5e4263bb"
+    },
+    {
       "path": "agents/security.agent.md",
-      "sha256": "8a21456b291789d8ca2d01b4df266035ff0495d9e977f1ee520c1bbd45f5d784"
+      "sha256": "617d8d67fde180de006e5ad91a4b244e14e756c35e925c56a47d26015d1c8007"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -131,9 +135,9 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "e3bd3a0d730d834ae189d660dd9b8e39cbbeeb419806bce69aea11ee6eb74b3b"
+      "sha256": "adf2c9c9a2118e04c5480fb65a5e93a3265e30c4ce472893a0bba15badcaff28"
     }
   ],
-  "inventory_count": 31,
+  "inventory_count": 32,
   "bridge_version": "1"
 }
