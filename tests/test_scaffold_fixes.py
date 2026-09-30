@@ -92,3 +92,15 @@ def test_no_operator_home_paths_in_shipped_docs():
     offenders = [str(p.relative_to(ROOT)) for p in (ROOT / "docs").rglob("*.md")
                  if home_path.search(p.read_text(encoding="utf-8"))]
     assert offenders == []
+
+
+def test_no_flat_skill_files():
+    """Claude Code loads only .claude/skills/<name>/SKILL.md; a flat <name>.md is never loaded."""
+    flat = sorted(p.name for p in (ROOT / ".claude" / "skills").glob("*.md"))
+    assert flat == [], f"flat skill files are never loaded by Claude Code: {flat}"
+
+
+def test_every_skill_dir_has_front_matter():
+    for p in (ROOT / ".claude" / "skills").glob("*/SKILL.md"):
+        head = p.read_text(encoding="utf-8").split("---")
+        assert len(head) >= 3 and "name:" in head[1] and "description:" in head[1], p
