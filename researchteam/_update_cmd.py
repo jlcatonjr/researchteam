@@ -176,6 +176,8 @@ def run_update(
         # the older upstream versions). Used by the auto-integration git hook.
         print("[researchteam] Layer-1 only: integrating current agent state (no file sync) ...")
         _run_agentteams(root, yes=yes, dry_run=dry_run)
+        # The merge may change canonical agents; keep the Codex projection in step.
+        _refresh_codex(root, dry_run=dry_run)
         return
 
     profile = _read_brief_profile(root)
@@ -278,6 +280,8 @@ def run_update(
 
     # Layer-1: delegate to agentteams
     _run_agentteams(root, yes=yes, dry_run=dry_run)
+    # The merge may change canonical agents; keep the Codex projection in step.
+    _refresh_codex(root, dry_run=dry_run)
 
 
 def _preflight_agentteams() -> str:

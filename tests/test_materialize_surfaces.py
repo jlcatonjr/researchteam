@@ -109,3 +109,13 @@ def test_stale_generated_codex_agents_pruned_but_hand_authored_kept(tmp_path, ca
     (agents / "bespoke.toml").write_text("# hand-authored\nname = 'b'\n")
     _update_cmd.run_materialize(root, yes=True, dry_run=False)
     assert sorted(p.name for p in agents.glob("*.toml")) == ["bespoke.toml", "kept.toml"]
+
+
+def test_update_layer1_refreshes_codex(tmp_path, calls, monkeypatch):
+    root = _instance(tmp_path, ())
+    (root / ".codex" / "agents").mkdir(parents=True)
+    _update_cmd.run_update(root, ref="main", yes=True, dry_run=False, layer2_only=False, layer1_only=True)
+    interop = [c for c in calls if "--interop-from" in c]
+    assert interop and all("--overwrite" in c for c in interop)
+    merge = [c for c in calls if "--merge" in c]
+    assert merge and calls.index(interop[0]) > calls.index(merge[0])
