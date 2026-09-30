@@ -1,1 +1,2 @@
 timestamp,requesting_agent,action_reviewed,verdict,conditions,conditions_verified
+2026-09-30,cleanup,"git rm .goose/recipes/AGENTS.md (stale e3c2333 leftover; one tracked file, reversible from git history)",CLEAR_WITH_CONDITIONS,only that path on a non-main branch from a clean tree; reference sweep re-run first; clearance logged before delete; follow-up: confirm goose sessions reach Constitutional Rules via the bridge,verified: branch chore/remove-stale-goose-recipes-agents-md from clean origin/main; sweep re-run with no live reference; this row written before the delete
