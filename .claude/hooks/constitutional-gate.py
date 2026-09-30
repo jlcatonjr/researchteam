@@ -19,15 +19,21 @@ past it (probe E4).
   Whether ``sudo`` or a pipe-to-shell is appropriate is a judgment call the constitution routes
   to a human, and a hook that denied them outright would be wrong often enough to get removed.
 
-**Known limitation, stated rather than discovered later.** This hook fails OPEN on internal
-error — an attacker who can make it crash gets an allow. That gap is real and is accepted,
-because a hook that can brick an operator's session gets deleted, and a deleted hook enforces
-nothing. The mitigation is `agentteams.integrity`, which pins this file and the scanner it calls.
+**Fail-open vs fail-closed on internal error (CC-2).** By default this hook fails OPEN on an
+internal error — an attacker who can make it crash gets an allow. That is accepted for a
+COOPERATIVE workspace, because a hook that can brick an operator's session gets deleted, and a
+deleted hook enforces nothing. The mitigation is `agentteams.integrity`, which pins the scanner
+it calls (this file itself is not in the manifest — a gap recorded 2026-08-16 in the remediation
+log). For a CONFINED/EXCLUSIVE `privilege_profile`, agentteams emits this hook with
+`_FAIL_CLOSED_ON_ERROR = True` (see the entry point), so a crash instead emits a `deny` rather
+than a silent allow — the operator opted into a boundary, so a gate crash must not drop it.
+`--allow-fallback-fail-open` restores the fail-open default even for those profiles.
 
-The fail-open is supplied by the HARNESS, not by a catch-all here: a PreToolUse hook exiting
-with any code other than 0 or 2 is a non-blocking error and the action proceeds. So this file
-carries no blanket `except` (CH-24) and still cannot brick a session. Only exit code 2 blocks,
-and nothing here uses it — a verdict is expressed as JSON on stdout with exit 0.
+The default fail-open is supplied by the HARNESS, not by a catch-all: a PreToolUse hook exiting
+with any code other than 0 or 2 is a non-blocking error and the action proceeds. The single
+`except` in `_entrypoint` is a process-boundary handler that ACTS (emits a deny) and reports —
+not a swallow (CH-24) — and runs only under the fail-closed policy. A verdict is expressed as
+JSON on stdout with exit 0; the fail-closed belt additionally uses exit code 2.
 
 Input:  a JSON tool-call payload on stdin (``tool_name``, ``tool_input``).
 Output: exit 0, plus a ``hookSpecificOutput`` JSON decision on stdout when acting.
@@ -48,13 +54,44 @@ _BASH_REVIEW_TRIGGERS: tuple[tuple[str, str], ...] = (
     (r"\bsudo\b|\bdoas\b", "elevated privilege — effects outside the project tree"),
     (r"curl[^|]*\|\s*(?:ba)?sh|wget[^|]*\|\s*(?:ba)?sh|iwr[^|]*\|\s*iex",
      "remote content piped straight into a shell with no inspectable step (Rule S-9 criterion 2)"),
-    (r"\brm\s+-[a-zA-Z]*[rf]", "recursive/forced delete — irreversible file loss"),
     (r"\b(?:crontab|launchctl)\b|/etc/sudoers|LaunchAgents",
      "persistence mechanism — outlives the current session (Rule S-9 criterion 4)"),
     (r"\b(?:brew|apt|apt-get|dnf|yum)\s+install\b|\bpip\s+install\b|\bnpm\s+i(?:nstall)?\b",
      "package installation — unreviewed third-party code on the host"),
-    (r"\bgit\s+push\b.*--force|\bgit\s+reset\s+--hard\b",
+    (r"\bgit\b[^\n]*\bpush\b[^\n]*--force|\bgit\b[^\n]*\breset\s+--hard\b",
      "history-destructive git operation"),
+    # ── Delete-authorization gate (operator-directed; C-5: clearance precedes destruction) ──────────
+    # BEST-EFFORT, COOPERATIVE speed bump — NOT a boundary. It routes a NAMED SUBSET of Bash delete
+    # idioms to the operator ("ask") when the harness honors PreToolUse AND a human answers. It does
+    # NOT cover: Write/Edit content-shrink, MCP / non-Bash tool deletes, interpreter-mediated deletion
+    # not matched below, shell aliases or variable/quote obfuscation, or non-Claude consumers that do
+    # not implement PreToolUse. Under headless / auto-approve it may be bypassed. Its own patterns can
+    # be stripped by editing this file — an edit that agentteams.integrity.verify() detects (the hook
+    # is pinned in ENFORCEMENT_MODULES), not this hook self-checking. A green delete-gate test suite
+    # means "these spellings are gated", never "deletion is prevented". Authoritative limits:
+    # security.template.md.
+    (r"\bgh\b[^\n]*\s\w+\s+delete\b|\bgh\s+api\b[^\n]*(?:-X\s*DELETE|--method\s+DELETE)",
+     "GitHub resource deletion via gh (repo/release/etc.) — irreversible"),
+    (r"\bgit\b[^\n]*\bpush\b[^\n]*(?:--delete|--mirror|--prune)|\bgit\b[^\n]*\bpush\b[^\n]*\s:\S",
+     "remote branch/tag deletion or mirror/prune push — irreversible remote loss"),
+    (r"\bgit\b[^\n]*\b(?:branch|tag)\s+(?:-[a-zA-Z]*[dD]\b|--delete\b)|"
+     r"\bgit\b[^\n]*\bupdate-ref\s+-d\b|\bgit\b[^\n]*\bworktree\s+remove\b",
+     "git branch/tag/ref/worktree deletion (any -C/--git-dir prefix)"),
+    (r"\brm\s+\S|\b(?:unlink|srm|wipe|rmdir|shred|truncate)\b|\bfind\b[^\n]*\s-delete\b|"
+     r"\bdd\b[^\n]*\bof=|>\|\s*\S|(?:^|[;&|])\s*:\s*>\s*\S|\bmv\b[^\n]*\s/dev/null\b|\bcp\s+/dev/null\b",
+     "irreversible filesystem deletion or truncation/overwrite"),
+    (r"\bkubectl\b[^\n]*\bdelete\b|\bhelm\s+uninstall\b|\bterraform\s+(?:destroy|state\s+rm)\b|"
+     r"\bterraform\s+apply\b[^\n]*-destroy|"
+     r"\bdocker\s+(?:container\s+rm|image\s+rm|rm|rmi|volume\s+(?:rm|prune)|system\s+prune)\b|"
+     r"\bdocker\s+compose\s+down\b[^\n]*(?:-v|--volumes)|"
+     r"\baws\s+\S+\s+delete-|\baws\s+s3\s+r[bm]\b|\bgcloud\b[^\n]*\sdelete\b|\baz\b[^\n]*\sdelete\b|"
+     r"\bdropdb\b",
+     "infrastructure resource deletion"),
+    (r"\b(?:psql|mysql|mariadb|sqlite3?|mongo|redis-cli|clickhouse[-a-z]*)\b[^\n]*"
+     r"(?:\bDROP\s+(?:TABLE|DATABASE|SCHEMA)\b|\bTRUNCATE\b|\bDELETE\s+FROM\b)",
+     "database deletion via a client invocation"),
+    (r"\b(?:shutil\.rmtree|os\.(?:remove|unlink|rmdir)|rimraf)\b|\.unlink\(|\bfs\.rm(?:Sync|dirSync)?\(",
+     "interpreter-mediated deletion (python/node/etc.)"),
 )
 
 _WRITE_TOOLS = frozenset({"Write", "Edit", "NotebookEdit", "MultiEdit"})
@@ -124,7 +161,16 @@ def main() -> int:
         #
         # This does NOT escape E4. An attacker who can edit scan.py can edit the manifest and
         # this file. It raises the cost from one edit to three and makes each visible in git.
-        from agentteams import integrity
+        try:
+            from agentteams import integrity
+        except ModuleNotFoundError:
+            # The interpreter puts this script's own directory on sys.path, not the repo
+            # root, so on a checkout where agentteams isn't pip-installed these imports
+            # crash — and a crash is a silent allow (any exit other than 0/2 is a
+            # non-blocking error), disabling the gate exactly where it matters. Derive
+            # the repo root from this file's location rather than trusting cwd.
+            sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+            from agentteams import integrity
 
         tampered = [f for f in integrity.verify(Path.cwd()) if f.rel_path.endswith("scan.py")]
         if tampered:
@@ -150,5 +196,45 @@ def main() -> int:
     return 0
 
 
+#: CC-2: agentteams flips this to True at emit time for a confined/exclusive
+#: privilege_profile (unless --allow-fallback-fail-open was passed at generation). When
+#: True, an UNEXPECTED crash in the gate blocks the tool call instead of letting the harness
+#: fail open (a crash = silent allow, which disables the gate exactly where it matters). The
+#: entry-point handler below is a process-BOUNDARY reporting handler — it acts (emits a
+#: deny) and reports; it is not a swallow (CH-24), and it is the only broad catch here.
+_FAIL_CLOSED_ON_ERROR = False
+
+
+def _entrypoint() -> int:
+    """Run the gate, applying the fail-open/fail-closed policy on an unexpected crash.
+
+    Default (``_FAIL_CLOSED_ON_ERROR`` False): an unexpected error propagates and the
+    harness treats the non-zero exit as an allow — the historical fail-open behavior a
+    PreToolUse hook is designed around, so a buggy gate never bricks a session.
+
+    Confined/exclusive (``_FAIL_CLOSED_ON_ERROR`` True): an unexpected error instead emits a
+    ``deny`` decision, so a gate crash cannot become a silent allow in a workspace that
+    explicitly opted into a boundary.
+
+    Returns:
+        The exit code from :func:`main` on the normal path.
+    """
+    try:
+        return main()
+    except SystemExit:
+        raise
+    except Exception as exc:  # process-boundary handler: acts (deny) + reports, never swallows
+        if not _FAIL_CLOSED_ON_ERROR:
+            raise
+        _decide(
+            "deny",
+            f"the constitutional gate crashed ({type(exc).__name__}: {exc}); failing closed "
+            "because this workspace uses a confined/exclusive privilege_profile — a gate "
+            "crash must not become a silent allow. Fix the gate, or regenerate with "
+            "--allow-fallback-fail-open to restore the harness fail-open default.",
+        )
+        raise SystemExit(2)  # belt: if _decide's exit-0 deny contract ever changes, still block
+
+
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(_entrypoint())

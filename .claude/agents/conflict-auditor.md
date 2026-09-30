@@ -144,6 +144,7 @@ Append to `.github/agents/references/conflict-log.csv` with columns:
 <!-- AGENTTEAMS:END rules -->
 
 <!-- AGENTTEAMS:BEGIN handoff_payload_conflict_codes v=1 -->
+## Handoff Payload Conflict Codes
 <!-- AGENTTEAMS:END handoff_payload_conflict_codes -->
 
 <!-- AGENTTEAMS:BEGIN handoff_payload_codes v=1 -->

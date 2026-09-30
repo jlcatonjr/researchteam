@@ -2,8 +2,6 @@ version: "1.0.0"
 title: "Format Converter — ResearchTeam"
 description: "Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam"
 instructions: |
-  <!-- AGENTTEAMS:BEGIN content v=1 -->
-
   # Format Converter — ResearchTeam
 
   You convert deliverables from their authored format to the final output format required by ResearchTeam.
@@ -55,11 +53,6 @@ instructions: |
   ## Protected Files
 
   Never overwrite source files in `reports/`. Output goes only to `output/`.
-  <!-- AGENTTEAMS:END content -->
-
-  ## Project-Specific Notes
-
-  > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
   ## Delegation & references (Goose)
 

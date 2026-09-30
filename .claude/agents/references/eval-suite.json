@@ -47,6 +47,20 @@
       }
     },
     {
+      "id": "handoff-literature-review",
+      "category": "handoff",
+      "claim": "literature-review-expert receives upstream from topic-scoping-expert, main-analysis-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
+      "predicate": {
+        "kind": "handoff-chain",
+        "chain": [
+          "topic-scoping-expert",
+          "main-analysis-expert",
+          "literature-review-expert"
+        ],
+        "returns_to": "orchestrator"
+      }
+    },
+    {
       "id": "governance-literature-review-triad-and-return",
       "category": "governance",
       "claim": "literature-review-expert wires the worker-governance triad (primary-producer, adversarial, reference-manager) and includes a 'Return to Orchestrator' edge.",
@@ -59,6 +73,20 @@
           "reference-manager"
         ],
         "body_contains": "Return to Orchestrator"
+      }
+    },
+    {
+      "id": "handoff-main-analysis",
+      "category": "handoff",
+      "claim": "main-analysis-expert receives upstream from literature-review-expert, conclusion-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
+      "predicate": {
+        "kind": "handoff-chain",
+        "chain": [
+          "literature-review-expert",
+          "conclusion-expert",
+          "main-analysis-expert"
+        ],
+        "returns_to": "orchestrator"
       }
     },
     {
@@ -77,6 +105,19 @@
       }
     },
     {
+      "id": "handoff-conclusion",
+      "category": "handoff",
+      "claim": "conclusion-expert receives upstream from main-analysis-expert and returns to the orchestrator (coordination is orchestrator-mediated, not peer-to-peer).",
+      "predicate": {
+        "kind": "handoff-chain",
+        "chain": [
+          "main-analysis-expert",
+          "conclusion-expert"
+        ],
+        "returns_to": "orchestrator"
+      }
+    },
+    {
       "id": "governance-conclusion-triad-and-return",
       "category": "governance",
       "claim": "conclusion-expert wires the worker-governance triad (primary-producer, adversarial, reference-manager) and includes a 'Return to Orchestrator' edge.",
@@ -89,6 +130,17 @@
           "reference-manager"
         ],
         "body_contains": "Return to Orchestrator"
+      }
+    },
+    {
+      "id": "escalation-delegate-query-funnels-to-prime",
+      "category": "escalation",
+      "claim": "A delegated (spawned) orchestrator routes user-facing questions up to its prime via the Spawn-Authority Query Funnel; it does not prompt the user directly.",
+      "predicate": {
+        "kind": "frontmatter-and-body",
+        "file": "orchestrator.agent.md",
+        "agents_contains_all": [],
+        "body_contains": "Spawn-Authority Query Funnel"
       }
     }
   ]

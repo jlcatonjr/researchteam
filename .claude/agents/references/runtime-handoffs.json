@@ -595,6 +595,58 @@
       ]
     },
     {
+      "agent": "retrieval-integrator",
+      "handoffs": [
+        {
+          "label": "Technical Validation",
+          "agent": "technical-validator",
+          "prompt": "Validate retrieval claims and source-of-truth evidence for this integration.",
+          "send": false
+        },
+        {
+          "label": "Adversarial Review",
+          "agent": "adversarial",
+          "prompt": "Challenge assumptions in retrieval mode, trigger wiring, and staleness checks.",
+          "send": false
+        },
+        {
+          "label": "Conflict Audit",
+          "agent": "conflict-auditor",
+          "prompt": "Confirm retrieval contract statements are consistent with authority files.",
+          "send": false
+        },
+        {
+          "label": "Return to Orchestrator",
+          "agent": "orchestrator",
+          "prompt": "Retrieval integration validation complete.",
+          "send": false
+        }
+      ]
+    },
+    {
+      "agent": "research-analyst",
+      "handoffs": [
+        {
+          "label": "Technical Validation",
+          "agent": "technical-validator",
+          "prompt": "Verify factual claims this research produced against the cited evidence.",
+          "send": false
+        },
+        {
+          "label": "Adversarial Review",
+          "agent": "adversarial",
+          "prompt": "Challenge the assumptions behind a research finding or a 'survived' verdict.",
+          "send": false
+        },
+        {
+          "label": "Return to Orchestrator",
+          "agent": "orchestrator",
+          "prompt": "Research task complete.",
+          "send": false
+        }
+      ]
+    },
+    {
       "agent": "tool-doc-researcher",
       "handoffs": [
         {
