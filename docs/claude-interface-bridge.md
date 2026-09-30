@@ -84,3 +84,10 @@ Returns the current `tmp/by-week/YYYY-Www/` path.
 - Back up research and agent files before update or merge operations.
 - Project-specific reader and summary HTML files are located inside each project directory under `Projects/`.
 - Keep `CLAUDE.md` as the top-level entry point and `.claude/` as structured support content.
+- Root `CLAUDE.md` and `.claude/README.md` are researchteam-owned: researchteam writes them, and
+  `researchteam update` syncs `.claude/README.md` to derived repos. They carry no
+  `AGENTTEAMS-BRIDGE` fence on purpose, so `--bridge-merge` reports them as "skipped (no fence)".
+  That skip is the documented `--bridge-merge` contract, not drift. The bridge pointers live in the
+  fenced `.claude/agent-team.md` and `.claude/quickstart-snippet.md`. Never run `--bridge-refresh`
+  to "fix" the skip: it overwrites both files wholesale (see agentteams
+  `references/bridge-refresh-safety.md`).
