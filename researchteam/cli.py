@@ -92,8 +92,14 @@ def main() -> None:
     # ---- materialize ---------------------------------------------------------
     materialize_p = sub.add_parser(
         "materialize",
-        help="Re-render the agent team from brief.json (cleared --overwrite pass) after a "
+        help="Re-render the agent team from brief.json (cleared --overwrite pass) on every "
+        "agent surface (copilot-vscode plus any native claude/goose teams) after a "
         "domain/identity change, then re-personalize README.md / CLAUDE.md",
+    )
+    materialize_p.add_argument(
+        "--copilot-only",
+        action="store_true",
+        help="Re-render only the copilot-vscode surface (.github/agents); skip native surfaces",
     )
     materialize_p.add_argument(
         "--yes", "-y",
@@ -142,7 +148,7 @@ def main() -> None:
     elif args.command == "materialize":
         root = _find_repo_root(require_marker=True)
         from ._update_cmd import run_materialize
-        run_materialize(root, yes=args.yes, dry_run=args.dry_run)
+        run_materialize(root, yes=args.yes, dry_run=args.dry_run, copilot_only=args.copilot_only)
 
     elif args.command == "status":
         _cmd_status()

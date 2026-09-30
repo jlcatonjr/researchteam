@@ -436,7 +436,23 @@ def _reconcile_manifest_back(root: Path) -> None:
         print(f"[researchteam] Could not persist descriptor reconciliation: {exc}", file=sys.stderr)
 
 
-def _run_agentteams(root: Path, yes: bool, dry_run: bool, overwrite: bool = False) -> None:
+#: Native agent surfaces besides the default copilot-vscode team (``.github/agents``) that a
+#: scaffold may ship. Each is a separate agentteams render target with its own decisions log.
+NATIVE_SURFACES: tuple[tuple[str, str], ...] = (("claude", ".claude/agents"), ("goose", ".goose/recipes"))
+
+
+def _native_surfaces(root: Path) -> list[tuple[str, str]]:
+    """Return the ``(framework, dir)`` native surfaces present in *root*.
+
+    A surface counts as present when its directory holds an agentteams build-log, i.e. a native
+    team was rendered there before. A bare bridge directory is left alone.
+    """
+    return [(fw, d) for fw, d in NATIVE_SURFACES if (root / d / "references" / "build-log.json").exists()]
+
+
+def _run_agentteams(
+    root: Path, yes: bool, dry_run: bool, overwrite: bool = False, framework: str | None = None
+) -> None:
     if _brief_has_placeholder(root):
         msg = (
             f"[researchteam] brief.json still contains the scaffold placeholder "
@@ -458,14 +474,18 @@ def _run_agentteams(root: Path, yes: bool, dry_run: bool, overwrite: bool = Fals
         # RT-1/RT-2 re-render path (`researchteam materialize`): --overwrite REPLACES enriched
         # bodies so a brief/domain change actually re-brands the instance. This is the cleared
         # path the `--merge --shrink-policy preserve` default deliberately refuses; agentteams'
-        # destructive-overwrite security gate must be satisfied out of band by an operator-signed
-        # clearance (the scaffold ships enforce_decision_signing:true; see
-        # scripts/sign_security_decision.py and docs/researchteam-framework.md).
+        # destructive-overwrite security gate must be satisfied by a clearance in the target
+        # surface's own decisions log (see docs/researchteam-framework.md, Decision signing).
+        target = f"{framework} surface" if framework else "copilot-vscode surface"
         print(
-            f"\n[researchteam] Running agentteams --update --overwrite "
+            f"\n[researchteam] Running agentteams --update --overwrite on the {target} "
             f"(descriptor: {descriptor}) — re-rendering agent bodies from the brief ..."
         )
         cmd = [exe, "--description", descriptor, "--update", "--overwrite"]
+        if framework:
+            # Native (non-copilot) surfaces sit behind a bridge marker; agentteams fails closed on
+            # --update against a bridge unless the native re-render is requested explicitly.
+            cmd += ["--framework", framework, "--project", ".", "--materialize-native"]
     else:
         print(
             f"\n[researchteam] Running agentteams --update --merge "
@@ -494,11 +514,11 @@ def _run_agentteams(root: Path, yes: bool, dry_run: bool, overwrite: bool = Fals
         sys.exit(result.returncode)
 
     # RT-5: persist the descriptor reconciliation so the dual-descriptor warning does not recur.
-    if not dry_run:
+    if not dry_run and framework is None:
         _reconcile_manifest_back(root)
 
 
-def run_materialize(root: Path, yes: bool, dry_run: bool) -> None:
+def run_materialize(root: Path, yes: bool, dry_run: bool, copilot_only: bool = False) -> None:
     """Re-render a derived instance from its (edited) brief.json — RT-1/RT-2 cleared re-render.
 
     ``update`` intentionally cannot re-brand an instance whose domain/identity changed, because it
@@ -506,6 +526,11 @@ def run_materialize(root: Path, yes: bool, dry_run: bool) -> None:
     the distinct, explicit path that DOES replace them: it runs the destructive ``--overwrite``
     agentteams pass, then re-personalizes the layer-2 identity files (README.md / CLAUDE.md) from
     the current brief. Use it after materially changing brief.json (e.g. a new project domain).
+
+    Every native surface the instance carries (``.claude/agents``, ``.goose/recipes``) is
+    re-rendered too, from the SAME reconciled descriptor, so all surfaces share one roster.
+    Rendering only copilot-vscode left the other surfaces on the scaffold's identity and let
+    their rosters drift. ``copilot_only`` restores the old single-surface behaviour.
     """
     from ._personalize import is_upstream, run_personalize
 
@@ -533,6 +558,26 @@ def run_materialize(root: Path, yes: bool, dry_run: bool) -> None:
 
     # Layer-1: overwrite re-render (+ RT-5 write-back happens inside _run_agentteams on success).
     _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True)
+    if not copilot_only:
+        surfaces = _native_surfaces(root)
+        done = [".github/agents (copilot-vscode)"]
+        for i, (framework, directory) in enumerate(surfaces):
+            print(f"[researchteam] materialize: native surface {directory} ({framework})")
+            try:
+                _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, framework=framework)
+            except SystemExit:
+                pending = [f"{d} ({fw})" for fw, d in surfaces[i + 1:]]
+                print(
+                    f"[researchteam] materialize: FAILED on {directory} ({framework}).\n"
+                    f"  already re-rendered: {', '.join(done)}\n"
+                    f"  not attempted: {', '.join(pending) or 'none'}; README/CLAUDE not re-personalized.\n"
+                    "  Fix the cause (usually a missing clearance in that surface's decisions log) and re-run.",
+                    file=sys.stderr,
+                )
+                raise
+            done.append(f"{directory} ({framework})")
+        if not surfaces:
+            print("[researchteam] materialize: no native claude/goose surfaces present.")
 
     # Layer-2 identity: re-render README/CLAUDE from the now-current brief. Files generated at init
     # and untouched since are refreshed in place; a hand-diverged file is left alone (see
