@@ -38,7 +38,10 @@ Shows branch, short HEAD hash, and concise working-tree status.
 bash scripts/claude_researchteam_bridge.sh validate
 ```
 
-Runs `scripts/validate_agentteams_update.sh`.
+Runs `scripts/validate_agentteams_update.sh` for ordinary edits, with `VALIDATION_SKIP_SCOPE=1`:
+fence and placeholder checks run, but the update-run scope allowlist is skipped, because derived
+repos legitimately change files outside it. After an update run, call
+`bash scripts/validate_agentteams_update.sh` directly so that the scope allowlist is enforced.
 
 ### Reader and Summary Paths
 

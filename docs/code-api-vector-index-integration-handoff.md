@@ -76,7 +76,7 @@ against a union descriptor. So:
 
 **A1 — Refresh the agentteams dependency (the whole integration at the module level).**
 - Editable local checkout (preferred for dev):
-  `pip install -e /Users/jamescaton/githubrepositories/agentteams --no-build-isolation`
+  `pip install -e <agentteams-checkout> --no-build-isolation`
   (the checkout is already on `main` with F-CODEIDX).
 - Or the git extra: `pip install -U 'agentteams @ git+https://github.com/jlcatonjr/agentteams'`.
 - Verify: `agentteams --version` runnable; `researchteam doctor` green (its preflight liveness-checks the

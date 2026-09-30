@@ -458,8 +458,9 @@ def _run_agentteams(root: Path, yes: bool, dry_run: bool, overwrite: bool = Fals
         # RT-1/RT-2 re-render path (`researchteam materialize`): --overwrite REPLACES enriched
         # bodies so a brief/domain change actually re-brands the instance. This is the cleared
         # path the `--merge --shrink-policy preserve` default deliberately refuses; agentteams'
-        # destructive-overwrite security gate must be satisfied out of band (the scaffold brief
-        # ships enforce_decision_signing:false; see docs/researchteam-framework.md).
+        # destructive-overwrite security gate must be satisfied out of band by an operator-signed
+        # clearance (the scaffold ships enforce_decision_signing:true; see
+        # scripts/sign_security_decision.py and docs/researchteam-framework.md).
         print(
             f"\n[researchteam] Running agentteams --update --overwrite "
             f"(descriptor: {descriptor}) — re-rendering agent bodies from the brief ..."

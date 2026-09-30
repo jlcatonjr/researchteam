@@ -34,6 +34,7 @@ FRAMEWORK_MANAGED_FILES = [
     "scripts/claude_researchteam_bridge.sh",
     "scripts/validate_agentteams_update.sh",
     "scripts/agentteams_autosync_gate.sh",
+    "scripts/sign_security_decision.py",           # operator-only signed clearance (H-1)
 ]
 
 # Scholarly-domain tooling — synced only when the brief's layer2_profile is "scholarly".

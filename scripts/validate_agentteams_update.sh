@@ -53,7 +53,10 @@ while IFS= read -r file; do
     continue
   fi
 
-  if [[ ! "$file" =~ $allowed_paths_regex ]]; then
+  # The scope allowlist describes what an agentteams/researchteam UPDATE may touch. For ordinary
+  # project edits (derived repos have their own content outside these paths) the bridge's
+  # `validate` sets VALIDATION_SKIP_SCOPE=1; fence and placeholder checks still run.
+  if [[ "${VALIDATION_SKIP_SCOPE:-0}" != "1" && ! "$file" =~ $allowed_paths_regex ]]; then
     echo "ERROR: Out-of-scope file changed: $file"
     exit 1
   fi

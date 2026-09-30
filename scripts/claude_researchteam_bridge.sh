@@ -61,7 +61,9 @@ command_status() {
 command_validate() {
   if [[ -x "scripts/validate_agentteams_update.sh" ]]; then
     echo "Running scripts/validate_agentteams_update.sh ..."
-    bash scripts/validate_agentteams_update.sh
+    # General edits: skip the update-run scope allowlist (derived repos legitimately change files
+    # outside it). After an update run, call scripts/validate_agentteams_update.sh directly.
+    VALIDATION_SKIP_SCOPE=1 bash scripts/validate_agentteams_update.sh
     echo "Validation completed."
   else
     echo "Validator not found at scripts/validate_agentteams_update.sh"

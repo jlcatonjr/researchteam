@@ -73,7 +73,7 @@ def test_init_marker_never_declares_upstream_true():
 def test_brief_template_is_neutral_placeholder():
     data = json.loads(_load_template("brief.template.json"))
     assert data["project_name"] == BRIEF_PLACEHOLDER
-    assert data["enforce_decision_signing"] is False
+    assert data["enforce_decision_signing"] is True
     assert data["layer2_profile"] == "scholarly"
     assert "ResearchTeam" not in data["project_name"]
 

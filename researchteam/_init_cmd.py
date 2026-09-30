@@ -29,10 +29,10 @@ is_upstream = false
 def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     if name:
         target = Path(name).resolve()
-        if target.exists():
-            print(f"Error: '{name}' already exists.", file=sys.stderr)
+        if target.exists() and (not target.is_dir() or any(target.iterdir())):
+            print(f"Error: '{name}' already exists and is not an empty directory.", file=sys.stderr)
             sys.exit(1)
-        target.mkdir(parents=True)
+        target.mkdir(parents=True, exist_ok=True)
         print(f"[researchteam] Initializing new project at {target} ...")
     else:
         target = Path.cwd().resolve()
@@ -44,7 +44,7 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
                 file=sys.stderr,
             )
             sys.exit(1)
-        print(f"[researchteam] Initializing project in current directory ...")
+        print("[researchteam] Initializing project in current directory ...")
 
     print(f"[researchteam] Downloading template from {UPSTREAM_REPO}@{ref} ...")
     tarball = fetch_tarball(UPSTREAM_REPO, ref)
@@ -102,9 +102,13 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     print("  3. researchteam materialize   # render the agent team from your edited brief.json")
     print("  bash scripts/claude_researchteam_bridge.sh help")
     print(
-        "\nNote: the agent team is generated with agentteams' decision-signing gate DISABLED "
-        "(enforce_decision_signing:false in brief.json), so 'materialize' can re-render freely. "
-        "Set it to true in brief.json to require signed clearances for destructive regeneration."
+        "\nNote: strict decision signing is ON (enforce_decision_signing:true, agentteams' secure "
+        "default), so an agent can never clear its own destructive action. 'materialize' therefore "
+        "needs one operator-signed clearance first:\n"
+        "  export AGENTTEAMS_DECISION_SIGNING_KEY=...   # operator-held secret, never in the repo\n"
+        "  python scripts/sign_security_decision.py --action overwrite --conditions \"first render\"\n"
+        "  researchteam materialize --yes\n"
+        "See docs/researchteam-framework.md (Decision signing)."
     )
 
 

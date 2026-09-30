@@ -2,7 +2,7 @@
   "project_name": "<YOUR PROJECT NAME>",
   "project_goal": "<Describe this project's goal: what this team will research or produce, for whom, and to what standard. Replace this placeholder before generating the agent team.>",
   "layer2_profile": "scholarly",
-  "enforce_decision_signing": false,
+  "enforce_decision_signing": true,
   "deliverables": [
     "Markdown research reports",
     "BibTeX bibliography",

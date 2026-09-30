@@ -32,7 +32,7 @@ pointed at an **ephemeral path that no longer exists** — a temporary git workt
 worktree was cleaned up, `build_team` became unimportable and every `agentteams` invocation —
 including the one `researchteam update` depends on — began failing with a raw traceback.
 
-The real source (`/Users/jamescaton/githubrepositories/agentteams/build_team.py`) was intact the whole
+The real source (`<agentteams-checkout>/build_team.py`) was intact the whole
 time; only the install pointer was stale.
 
 ## 3. Immediate fix applied (verified)
@@ -41,11 +41,11 @@ Reinstalled the editable package from the **stable** repository path under the i
 the console script:
 
 ```bash
-/opt/anaconda3/bin/python -m pip install -e /Users/jamescaton/githubrepositories/agentteams --no-build-isolation
+<interpreter-owning-the-console-script> -m pip install -e <agentteams-checkout> --no-build-isolation
 ```
 
 Verified this session: `agentteams --version` → `1.0.0rc6`; the finder now maps
-`build_team`/`agentteams` to `/Users/jamescaton/githubrepositories/agentteams`; `researchteam update
+`build_team`/`agentteams` to the stable `<agentteams-checkout>`; `researchteam update
 --dry-run` completes. §1–§3 are accurate as written.
 
 ## 4. Structural fragilities in the `researchteam` module (the real remediation)

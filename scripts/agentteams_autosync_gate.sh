@@ -104,7 +104,8 @@ for p in "${SCRUB_PATHS[@]}"; do git checkout -- "$p" 2>/dev/null || true; done
 # --- 3. BLOCKING gates (a failure means NO PR) ---------------------------------------------------
 if [ -d ".github/agents/.github" ]; then log "GATE FAIL: forbidden nested mirror .github/agents/.github"; exit 1; fi
 if [ -f scripts/validate_agentteams_update.sh ]; then
-  bash scripts/validate_agentteams_update.sh || { log "GATE FAIL: validate_agentteams_update"; exit 1; }
+  # Update runs always enforce the scope allowlist, even if the caller exported the skip switch.
+  VALIDATION_SKIP_SCOPE=0 bash scripts/validate_agentteams_update.sh || { log "GATE FAIL: validate_agentteams_update"; exit 1; }
 fi
 # Detector unit tests are UPSTREAM-ONLY (fixtures are never synced into research repos).
 if [ "$MODE" = "upstream" ]; then
