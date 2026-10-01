@@ -119,3 +119,18 @@ def test_update_layer1_refreshes_codex(tmp_path, calls, monkeypatch):
     assert interop and all("--overwrite" in c for c in interop)
     merge = [c for c in calls if "--merge" in c]
     assert merge and calls.index(interop[0]) > calls.index(merge[0])
+
+
+def test_codex_marker_missing_warns(tmp_path, calls, capsys):
+    root = _instance(tmp_path, ())
+    (root / ".codex" / "agents").mkdir(parents=True)
+    _update_cmd._refresh_codex(root, dry_run=False)
+    assert "wrote no team marker" in capsys.readouterr().err
+
+
+def test_codex_marker_present_is_quiet(tmp_path, calls, capsys):
+    root = _instance(tmp_path, ())
+    refs = root / ".codex" / "agents" / "references"; refs.mkdir(parents=True)
+    (refs / "build-log.json").write_text(json.dumps({"origin": "interop"}))
+    _update_cmd._refresh_codex(root, dry_run=False)
+    assert "team marker" not in capsys.readouterr().err
