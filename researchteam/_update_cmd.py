@@ -561,6 +561,29 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
                   "current, .codex is not. Fix the cause and re-run.", file=sys.stderr)
             sys.exit(result.returncode)
     _prune_stale_codex_agents(root, dry_run=dry_run)
+    if not dry_run:
+        _check_codex_team_marker(root)
+
+
+def _check_codex_team_marker(root: Path) -> None:
+    """Warn when the Codex projection left no team marker.
+
+    Since agentteams ``d31d4a0`` an interop projection writes ``references/build-log.json`` (with
+    ``"origin": "interop"``), so agentteams recognises ``.codex/agents`` as a team: verify-key store
+    sentinel, roster stubs, launcher protection, fleet/--update discovery. An older agentteams writes
+    none, and the Codex team stays unrecognised. This is a warning, not a failure: the projected
+    agents themselves are still current.
+    """
+    marker = root / ".codex" / "agents" / "references" / "build-log.json"
+    try:
+        data = json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        data = None
+    if not isinstance(data, dict):
+        print("[researchteam] materialize: WARNING: the Codex projection wrote no team marker "
+              "(.codex/agents/references/build-log.json). The installed agentteams predates the "
+              "interop team-marker fix (agentteams d31d4a0); upgrade it so agentteams recognises the "
+              "Codex team.", file=sys.stderr)
 
 
 #: First line agentteams writes into every projected Codex agent. Only files carrying it are ever
