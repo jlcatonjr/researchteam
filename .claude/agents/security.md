@@ -335,13 +335,13 @@ on a destructive or governance scope is itself a finding, not an authorization.
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-09-30T17:06:50Z`
+Generated at: `2026-10-01T03:06:50Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.09.29, items 1729) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.09.30, items 1730) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
-- FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
+- FIRST EPSS: ok (items 14) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
 - OSV.dev: skipped — https://api.osv.dev/v1/querybatch
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
@@ -352,11 +352,12 @@ Generated at: `2026-09-30T17:06:50Z`
 
 **Current major vulnerabilities:**
 
+- `CVE-2026-76504` | Cisco Catalyst SD-WAN Manager | Cisco Catalyst SD-WAN Manager Hex Encoding Vulnerability | added 2026-09-30 | CVSS 9.8 CRITICAL
 - `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.008120000, percentile 0.552950000 | CVSS 8.8 HIGH
 - `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.693300000 | CVSS 8.1 HIGH
 - `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010630000, percentile 0.632920000 | CVSS 9.8 CRITICAL
 - `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.622120000 | CVSS 6.5 MEDIUM
-- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.809790000 | CVSS 8.8 HIGH
+- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.809790000
 - `CVE-2026-87902` | WordPress Core | WordPress Core Remote File Inclusion Vulnerability | added 2026-09-25 | EPSS 0.197560000, percentile 0.973240000
 - `CVE-2026-5430` | WSO2 Multiple Products | WSO2 Multiple Products Path Traversal Vulnerability | added 2026-09-24 | EPSS 0.005880000, percentile 0.460060000
 - `CVE-2026-71362` | Adobe Commerce and Magento | Adobe Commerce and Magento Incorrect Authorization Vulnerability | added 2026-09-24 | EPSS 0.875070000, percentile 0.997540000
@@ -366,7 +367,6 @@ Generated at: `2026-09-30T17:06:50Z`
 - `CVE-2026-85102` | Check Point Multiple Products | Check Point Multiple Products Improper Certificate Validation Vulnerability | added 2026-09-22 | EPSS 0.075460000, percentile 0.943140000
 - `CVE-2026-7273` | Zyxel GS1900 Series Switches | Zyxel GS1900 Series Switches Stack-Based Buffer Overflow Vulnerability | added 2026-09-21 | EPSS 0.025010000, percentile 0.840930000
 - `CVE-2025-39964` | Linux Kernel | Linux Kernel Race Condition Vulnerability | added 2026-09-18 | EPSS 0.009960000, percentile 0.612180000
-- `CVE-2026-53266` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-09-18 | EPSS 0.006450000, percentile 0.489020000
 
 **Prevention and mitigation playbook:**
 

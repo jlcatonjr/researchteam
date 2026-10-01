@@ -23,7 +23,9 @@
 # through a UTF-8 re-encode.
 #
 # Policy (POLA / fail-closed): read-only root; ONLY --scratch writable; /tmp scratch; credential dirs
-# (~/.ssh ~/.aws ~/.gnupg ~/.kube ~/.config/gcloud ~/.azure) + --exclude paths read-excluded; egress
+# (~/.ssh ~/.aws ~/.gnupg ~/.kube ~/.config/gcloud ~/.azure), the operator decision-signing private-key
+# dir ~/.config/agentteams/keys, any legacy ~/.config/agentteams/*.pem key file, and --exclude paths
+# (directories or files) read-excluded; egress
 # deny(default)/proxy(root+netns, OOB)/host(fs-confined only). --writable adds a rw path; --setenv
 # passes VAR=VAL into the guest. The guest environment is DEFAULT-DENY: it inherits none of the
 # launcher's env; only a benign built-in allowlist (plus --env-allow NAMEs and explicit --setenv
@@ -32,7 +34,7 @@
 #
 # Usage:
 #   sandbox/confine-run.sh --scratch DIR [--egress deny|proxy|host] [--proxy ADDR:PORT]
-#          [--netns NAME] [--exclude PATH]... [--writable PATH]... [--coord-root PATH]...
+#          [--netns NAME] [--exclude PATH]... [--writable PATH]... [--coord-root PATH]... [--protect PATH]...
 #          [--setenv VAR=VAL]... [--env-allow VAR]... [--cpu-max SEC] [--nproc-max N] [--mem-max MiB] [--check]
 #          -- CMD [ARGS...]
 #
@@ -41,6 +43,27 @@
 #   that does not exist is a FAIL-CLOSED error (a missing sibling repo is a misconfiguration,
 #   not something to auto-create). Existence is verified in the OS-independent block BEFORE OS
 #   dispatch, so a missing target is a clean exit-2, never a bwrap sandbox-init crash (D-3).
+#
+# CONTROL PLANE (F-4, 2026-09-30; Linux/bwrap branch only): inside every writable root (--scratch,
+#   --writable, --coord-root) each EXISTING agentteams control-plane path (CONTROL_PLANE_REL below:
+#   the enforce_decision_signing switch, the gate hook, the verify-key store, the approver/manager
+#   rosters and management config (PR-D), the goose profile, and each team's build-log marker) is
+#   --ro-bind'ed, and each of its ancestor dirs below the root gets a read-write SELF-bind so it
+#   becomes a mount point: renaming it away (`mv .claude .claude.old`, then plant a tree) fails
+#   EBUSY, while writes inside it still work. Order: rw roots, ancestor self-binds, ro-binds, masks.
+#   Every protected path is realpath'd and a SYMLINK anywhere on it is refused (die). A framework's
+#   entries are REQUIRED only when that framework holds an agentteams team, marked by
+#   <agents dir>/references/build-log.json (TEAM_MARKER_REL); a hand-written .claude/agents without
+#   it is skipped. Each present marker is itself ro-bound, so it cannot be deleted from inside to
+#   disable the check. The approver/manager rosters are required only when that team's switch is
+#   present. A required entry that is absent is a DIE (a writable parent would let the process create
+#   it); anything else absent is skipped. The project-root references/security-approvers.txt (the
+#   grant roster) is protect-if-present only. Four team dirs are covered (TEAM_DIRS_REL): .claude/agents,
+#   .goose/recipes, .github/agents (copilot) and .codex/agents (codex); .codex/config.toml is
+#   protect-if-present. Only .github/agents/* maps to a team: .github/workflows is never protected,
+#   and its self-bound ancestor .github stays writable. --protect PATH (repeatable) ro-binds an extra path,
+#   e.g. a whole `.claude`; a missing --protect path is a die, never mkdir.
+#   Status: mechanism-verified (raw bwrap probes), product-unverified. The macOS branch is unchanged.
 #
 # macOS AUGMENTATION (2026-W36) - added ONLY to the macOS (Darwin) branch. TWO DISTINCT mechanisms;
 # do NOT conflate them (only group (i) is an actual Seatbelt/sandbox-exec feature):
@@ -81,7 +104,28 @@
 set -uo pipefail
 
 SCRATCH=""; EGRESS="deny"; PROXY_ADDR="127.0.0.1"; PROXY_PORT="8443"; NETNS="agentteams-egress"
-CHECK=0; EXCLUDES=(); WRITABLES=(); SETENVS=(); ENV_ALLOW=(); CMD=(); COORD_ROOTS=()
+CHECK=0; EXCLUDES=(); WRITABLES=(); SETENVS=(); ENV_ALLOW=(); CMD=(); COORD_ROOTS=(); PROTECTS=()
+# Project-relative control-plane paths (locked by a test to agentteams' _sandbox_emit
+# protected_write_paths + governed_roster_paths + GRANT_ROSTER_PROJECT_REL, plus the goose profile).
+# Protected wherever they exist under a writable root; see cp_required for when absence is a die.
+CONTROL_PLANE_REL=( .claude/agents/references/agent-privilege.json .claude/hooks/constitutional-gate.py
+                    .claude/agents/references/authorized-verify-keys
+                    .claude/agents/references/security-approvers.txt .claude/agents/references/authorized-managers.txt
+                    .claude/agents/references/management-authority.json
+                    .goose/recipes/references/agent-privilege.json .goose/recipes/references/authorized-verify-keys
+                    .goose/recipes/references/security-approvers.txt .goose/recipes/references/authorized-managers.txt
+                    .goose/recipes/references/management-authority.json
+                    .github/agents/references/agent-privilege.json .github/agents/references/authorized-verify-keys
+                    .github/agents/references/security-approvers.txt .github/agents/references/authorized-managers.txt
+                    .github/agents/references/management-authority.json
+                    .codex/agents/references/agent-privilege.json .codex/agents/references/authorized-verify-keys
+                    .codex/agents/references/security-approvers.txt .codex/agents/references/authorized-managers.txt
+                    .codex/agents/references/management-authority.json .codex/config.toml
+                    .goose/sandbox.sb references/security-approvers.txt )
+# The agentteams team marker, relative to an agents dir (locked to _sandbox_emit.TEAM_MARKER_REL).
+TEAM_MARKER_REL=references/build-log.json
+TEAM_DIRS_REL=( .claude/agents .goose/recipes .github/agents .codex/agents )
+CP_ANC=(); CP_RO=()
 # DEFAULT-DENY ENV ALLOWLIST (the private-key non-leak residual). The guest inherits NONE of the
 # launcher's environment by default: only these benign vars (when set) plus any --env-allow name and
 # any explicit --setenv VAR=VAL are passed. Everything else - crucially an operator signing-key path
@@ -102,6 +146,7 @@ while [ $# -gt 0 ]; do
     --exclude) EXCLUDES+=("${2:-}"); shift 2 ;;
     --writable) WRITABLES+=("${2:-}"); shift 2 ;;
     --coord-root) COORD_ROOTS+=("${2:-}"); shift 2 ;;  # cross-repo coordination bind: FAIL-CLOSED if missing (never mkdir)
+    --protect) PROTECTS+=("${2:-}"); shift 2 ;;  # extra read-only control-plane path: FAIL-CLOSED if missing (never mkdir)
     --setenv)  SETENVS+=("${2:-}"); shift 2 ;;
     --env-allow) ENV_ALLOW+=("${2:-}"); shift 2 ;;  # add a var NAME to the default-deny allowlist
     --cpu-max)  CPU_MAX="${2:-}";  shift 2 ;;   # macOS: RLIMIT_CPU (SEC cpu-seconds); no-op on Linux
@@ -144,7 +189,11 @@ for c in ${COORD_ROOTS[@]+"${COORD_ROOTS[@]}"}; do
 done
 
 # credential + caller read-excludes: only EXISTING paths (masking a missing path fails fail-shut: D-3).
+# F-1: the operator signing-key dir is masked in every run; legacy key files (pre-keys/ layout) are
+# masked one by one, as exact paths, until the operator migrates them (provision script --migrate).
 MASK=( "$HOME/.ssh" "$HOME/.aws" "$HOME/.gnupg" "$HOME/.kube" "$HOME/.config/gcloud" "$HOME/.azure" )
+MASK+=( "$HOME/.config/agentteams/keys" )
+for p in "$HOME"/.config/agentteams/*.pem; do [ -f "$p" ] && MASK+=( "$p" ); done
 MASK+=( ${EXCLUDES[@]+"${EXCLUDES[@]}"} )
 MASKED=()
 for p in "${MASK[@]}"; do [ -n "$p" ] && [ -e "$p" ] && MASKED+=( "$p" ); done
@@ -161,6 +210,79 @@ for n in "${ENV_ALLOW_ALL[@]}"; do
 done
 
 OS="$(uname -s)"
+
+# ============================================================================================
+# F-4 control plane -> CP_ANC[] (ancestor self-binds) + CP_RO[] (read-only binds), appended to BW[].
+cp_real(){   # realpath of an existing path; die (in the $(...) subshell - callers then exit 2) when it
+  # is missing, or is (or passes through) a symlink. Never creates anything.
+  local r; r="$(realpath -e -- "$1" 2>/dev/null)" || die "control-plane path '$1' does not exist or does not resolve (fail-closed; never created)"
+  [ "$r" = "$(realpath -s -m -- "$1")" ] || die "control-plane path '$1' is or passes through a symlink (resolves to '$r'); refusing (fail-closed)"
+  case "$r" in *$'\n'*) die "control-plane path contains a newline: $1" ;; esac
+  printf '%s\n' "$r"
+}
+cp_present(){ [ -e "$1" ] || [ -L "$1" ]; }
+cp_required(){   # root rel -> prints the owning agentteams team dir when rel MUST exist, else nothing
+  local r="$1" rel="$2" team
+  case "$rel" in
+    .goose/sandbox.sb) return 0 ;;   # macOS-only artifact
+    .codex/config.toml) return 0 ;;  # Codex's own config: protect-if-present (never stubbed)
+    .claude/*) team="$r/.claude/agents" ;;
+    .goose/*) team="$r/.goose/recipes" ;;
+    .github/agents/*) team="$r/.github/agents" ;;   # never .github/* (workflows stay unprotected)
+    .codex/agents/*) team="$r/.codex/agents" ;;
+    *) return 0 ;;                   # project-root grant roster: protect-if-present
+  esac
+  cp_present "$team/$TEAM_MARKER_REL" || return 0   # not an agentteams team (e.g. hand-written)
+  case "$rel" in
+    */security-approvers.txt|*/authorized-managers.txt|*/management-authority.json)
+      cp_present "$team/references/agent-privilege.json" || return 0 ;;   # rosters follow the switch
+  esac
+  printf '%s\n' "$team"
+}
+control_plane_binds() {
+  local roots=() prot=() anc=() r rel p a under t team
+  for r in "$SCRATCH" ${WRITABLES[@]+"${WRITABLES[@]}"} ${COORD_RESOLVED[@]+"${COORD_RESOLVED[@]}"}; do
+    [ -n "$r" ] && roots+=( "$(realpath -e -- "$r")" )
+  done
+  for r in "${roots[@]}"; do
+    for t in "${TEAM_DIRS_REL[@]}"; do   # the marker itself: deleting it must not disable the check
+      cp_present "$r/$t/$TEAM_MARKER_REL" || continue
+      p="$(cp_real "$r/$t/$TEAM_MARKER_REL")" || exit 2
+      prot+=( "$p" )
+    done
+    for rel in "${CONTROL_PLANE_REL[@]}"; do
+      if ! cp_present "$r/$rel"; then
+        # Absent. A hole when the entry is REQUIRED (cp_required): its parent is rename-locked yet
+        # WRITABLE, so a confined process could create a `false` switch, a verify-key store with a
+        # planted .pub.pem, a gate hook or a roster naming itself. Refuse (never create).
+        team="$(cp_required "$r" "$rel")"
+        [ -n "$team" ] || continue
+        die "control-plane path '$r/$rel' is missing although the agentteams team '$team' exists: a confined process could create it (fail-closed; never created). Regenerate the team with its sandbox enabled (agentteams --update) so it is emitted, then retry."
+      fi
+      p="$(cp_real "$r/$rel")" || exit 2
+      prot+=( "$p" )
+    done
+  done
+  for p in ${PROTECTS[@]+"${PROTECTS[@]}"}; do
+    [ -n "$p" ] || continue
+    a="$(cp_real "$p")" || exit 2   # a missing --protect path is a die, never a mkdir
+    prot+=( "$a" )
+  done
+  [ "${#prot[@]}" -gt 0 ] || return 0
+  for p in "${prot[@]}"; do   # every ancestor strictly below a writable root
+    a="$(dirname -- "$p")"
+    while :; do
+      under=0; for r in "${roots[@]}"; do case "$a" in "$r"/*) under=1 ;; esac; done
+      [ "$under" -eq 1 ] || break
+      anc+=( "$a" ); a="$(dirname -- "$a")"
+    done
+  done
+  # a parent sorts before its children (a prefix sorts first), so the self-binds go top-down
+  [ "${#anc[@]}" -gt 0 ] && mapfile -t CP_ANC < <(printf '%s\n' "${anc[@]}" | LC_ALL=C sort -u)
+  mapfile -t CP_RO < <(printf '%s\n' "${prot[@]}" | LC_ALL=C sort -u)
+  for a in ${CP_ANC[@]+"${CP_ANC[@]}"}; do BW+=( --bind "$a" "$a" ); done
+  for p in "${CP_RO[@]}"; do BW+=( --ro-bind "$p" "$p" ); done
+}
 
 # ============================================================================================
 build_linux() {   # -> RUN[] using bwrap
@@ -180,10 +302,15 @@ build_linux() {   # -> RUN[] using bwrap
                    --unshare-user --unshare-ipc --unshare-pid --unshare-uts --unshare-cgroup )
   local w; for w in ${WRITABLES[@]+"${WRITABLES[@]}"}; do [ -n "$w" ] && BW+=( --bind "$w" "$w" ); done
   local c; for c in ${COORD_RESOLVED[@]+"${COORD_RESOLVED[@]}"}; do BW+=( --bind "$c" "$c" ); done  # cross-repo coordination (existence pre-verified -> no bwrap init crash)
+  control_plane_binds   # F-4: AFTER the rw roots, BEFORE the masks (see CONTROL PLANE above)
   # allowlist passthrough first (default-deny env), then explicit --setenv so an explicit value wins.
   local n; for n in "${ENV_ALLOW_ALL[@]}"; do [ -n "${!n+x}" ] && BW+=( --setenv "$n" "${!n}" ); done
   local kv; for kv in ${SETENVS[@]+"${SETENVS[@]}"}; do [ -n "$kv" ] && { case "$kv" in *=*) BW+=( --setenv "${kv%%=*}" "${kv#*=}" ) ;; *) die "--setenv expects VAR=VAL (got '$kv')" ;; esac; }; done
-  local m; for m in ${MASKED[@]+"${MASKED[@]}"}; do BW+=( --tmpfs "$m" ); done
+  # a directory is hidden under an empty tmpfs; a FILE cannot take a tmpfs mount (bwrap aborts), so
+  # it is shadowed by a read-only bind of /dev/null instead.
+  local m; for m in ${MASKED[@]+"${MASKED[@]}"}; do
+    if [ -d "$m" ]; then BW+=( --tmpfs "$m" ); else BW+=( --ro-bind /dev/null "$m" ); fi
+  done
   case "$EGRESS" in
     deny) BW+=( --unshare-net ); RUN=( "${BW[@]}" -- "${CMD[@]}" ) ;;
     host) echo "confine-run: WARNING --egress host - network SHARED with host; egress NOT confined (fs/read/NNP still apply)." >&2
@@ -333,6 +460,7 @@ if [ "$CHECK" -eq 1 ]; then
     echo "  egress mode       : $EGRESS"
   fi
   echo "  read-excluded     : ${MASKED[*]:-<none present>}"
+  echo "  control-plane (ro): ${CP_RO[*]:-<none>}$( [ "${#CP_ANC[@]}" -gt 0 ] && echo " (rename-locked ancestors: ${CP_ANC[*]})" )"
   echo "  coord-roots       : ${COORD_RESOLVED[*]:-<none>}$( [ "${#COORD_RESOLVED[@]}" -gt 0 ] && echo " (cross-repo binds; existence pre-verified, fail-closed if missing)" )"
   echo "  env allowlist     : ${ENV_ALLOW_ALL[*]} (default-deny; all other env vars dropped)"
   echo "  cpu-max (RLIMIT)  : ${CPU_MAX:-<none>}$( [ -n "$CPU_MAX" ] && echo " cpu-sec (POSIX RLIMIT_CPU, per-process, kernel-enforced, DoS-bound)" )"

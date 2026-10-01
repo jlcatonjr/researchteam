@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc7",
-  "generated_at": "2026-09-30T17:07:27.862557+00:00",
+  "generated_at": "2026-10-01T03:07:26.967918+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -25,7 +25,9 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".claude/agents/references/authorized-verify-keys/README.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "196627c365aaa637",
@@ -511,16 +513,18 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "1b5be85604aac29d",
+  "manifest_fingerprint": "9850f7ef022a9bf8",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "b0c6fe43b6084196",
-    "security.md": "5b4ebb49ef133dc7",
-    "../settings.hooks.example.json": "a67ee6533080d0fa",
-    "../../.vscode/tasks.json": "e6c25df04402ff59",
+    "references/authorized-verify-keys/README.md": "badf32b421079acf",
+    "references/security-vulnerability-watch.reference.md": "7fd76c1ac666e185",
+    "references/security-vulnerability-watch.json": "0f159c4b6c70e746",
+    "security.md": "7ca8dfc53e22cee6",
+    "../../sandbox/confine-run.sh": "93f07c914cc1a388",
+    "../hooks/constitutional-gate.py": "54e3b5f46286e5d2",
+    "../settings.hooks.example.json": "0c849af205c82074",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
-    "references/security-vulnerability-watch.reference.md": "3e15d79d271f8713",
     "references/framework-watch.reference.md": "21a796552c902998",
     "references/adjacent-repos.md": "9b88cb119c4a99e6",
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
