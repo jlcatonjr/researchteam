@@ -360,7 +360,10 @@ EOF
 }
 
 main() {
-  if [ ! -d "$ROOT_DIR/Projects" ] && [ ! -d "$ROOT_DIR/.projects" ]; then
+  # Only the scan-all mode may short-circuit on a missing Projects/ tree. An explicitly named
+  # target (e.g. a project directory outside Projects/) must always be checked: returning 0
+  # here would silently PASS an unchecked deliverable (fail-open).
+  if [ -z "$target" ] && [ ! -d "$ROOT_DIR/Projects" ] && [ ! -d "$ROOT_DIR/.projects" ]; then
     echo "No Projects/ or .projects/ under $ROOT_DIR; nothing to check."
     return 0
   fi

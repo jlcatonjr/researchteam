@@ -370,6 +370,13 @@ else
   printf '  FAIL  %s\n' "determinism guard (output differed between runs)" >&2; fail=$((fail + 1))
 fi
 
+# Explicit target outside Projects/ (no Projects/ tree at all) must be CHECKED, not skipped.
+R="$TMP_ROOT/outside"; mkdir -p "$R/reports"
+printf '# Doc\n\nA claim (Smith 2020).\n' > "$R/reports/01-doc.md"
+run "$R" "$R/reports"
+assert "explicit target outside Projects/ is checked" 0 "Projects checked: 1" "$CODE" "$OUT"
+assert_absent "explicit target not skipped" "nothing to check" "$OUT"
+
 echo "---"
 echo "Passed: $pass  Failed: $fail"
 [[ "$fail" -eq 0 ]]
