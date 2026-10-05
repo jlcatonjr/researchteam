@@ -35,8 +35,8 @@
 # Usage:
 #   sandbox/confine-run.sh --scratch DIR [--egress deny|proxy|host] [--proxy ADDR:PORT]
 #          [--netns NAME] [--exclude PATH]... [--writable PATH]... [--coord-root PATH]... [--protect PATH]...
-#          [--setenv VAR=VAL]... [--env-allow VAR]... [--cpu-max SEC] [--nproc-max N] [--mem-max MiB] [--check]
-#          -- CMD [ARGS...]
+#          [--setenv VAR=VAL]... [--env-allow VAR]... [--cpu-max SEC] [--nproc-max N] [--mem-max MiB]
+#          [--protect-prompt-roots] [--check] -- CMD [ARGS...]
 #
 # --coord-root PATH (repeatable): bind a sibling/adjacent-repo write root for cross-repo
 #   coordination. UNLIKE --writable (which mkdir -p's a missing path), a coordination target
@@ -64,6 +64,14 @@
 #   and its self-bound ancestor .github stays writable. --protect PATH (repeatable) ro-binds an extra path,
 #   e.g. a whole `.claude`; a missing --protect path is a die, never mkdir.
 #   Status: mechanism-verified (raw bwrap probes), product-unverified. The macOS branch is unchanged.
+#
+# --protect-prompt-roots (OPT-IN, follow-up #8 phase 2, 2026-10-01; Linux/bwrap branch only): also
+#   ro-bind each EXISTING prompt root (PROMPT_ROOTS_REL below: the files other harnesses read as
+#   instructions) under every writable root, with the same ancestor self-binds and symlink refusal
+#   (cp_real). Protect-if-present: an absent root is skipped, never required, never a die. A
+#   symlinked root (e.g. CLAUDE.md -> AGENTS.md) is a die: move it or drop the flag. Off by default
+#   because it blocks confined agents from authoring Copilot/Codex/goose agents and instructions.
+#   .github/workflows is never protected. On macOS it is NOT enforced (a warning; deferred).
 #
 # macOS AUGMENTATION (2026-W36) - added ONLY to the macOS (Darwin) branch. TWO DISTINCT mechanisms;
 # do NOT conflate them (only group (i) is an actual Seatbelt/sandbox-exec feature):
@@ -121,7 +129,18 @@ CONTROL_PLANE_REL=( .claude/agents/references/agent-privilege.json .claude/hooks
                     .codex/agents/references/agent-privilege.json .codex/agents/references/authorized-verify-keys
                     .codex/agents/references/security-approvers.txt .codex/agents/references/authorized-managers.txt
                     .codex/agents/references/management-authority.json .codex/config.toml
-                    .goose/sandbox.sb references/security-approvers.txt )
+                    .goose/sandbox.sb references/security-approvers.txt .goose/confined-run.example.sh )
+# Whole directories read-only wherever they exist under a writable root (follow-up #2, 2026-09-30):
+# .claude holds the live settings.json whose allowWrite is the operator-accepted write baseline and
+# the settings/hooks the next Claude session trusts. Mirrors Claude's own `.claude` denyWrite, so a
+# confined goose/copilot/codex agent cannot rewrite them either. A mount point cannot be renamed.
+CONTROL_PLANE_DIRS_REL=( .claude )
+# Prompt roots (follow-up #8 phase 2), read-only only with --protect-prompt-roots, protect-if-present.
+# Locked by a test to agentteams' _prompt_root_protect PROMPT_ROOT_FILES + PROMPT_ROOT_DIRS +
+# PROMPT_ROOT_PRESENT_ONLY_DIRS. Never .github/workflows.
+PROMPT_ROOTS_REL=( .github/copilot-instructions.md AGENTS.md .goosehints CLAUDE.md CLAUDE.local.md .mcp.json
+                   .github/instructions .github/prompts .github/agents .codex .goose/recipes .agentteams )
+PROTECT_PROMPT_ROOTS=0; PR_RO=()
 # The agentteams team marker, relative to an agents dir (locked to _sandbox_emit.TEAM_MARKER_REL).
 TEAM_MARKER_REL=references/build-log.json
 TEAM_DIRS_REL=( .claude/agents .goose/recipes .github/agents .codex/agents )
@@ -152,6 +171,7 @@ while [ $# -gt 0 ]; do
     --cpu-max)  CPU_MAX="${2:-}";  shift 2 ;;   # macOS: RLIMIT_CPU (SEC cpu-seconds); no-op on Linux
     --nproc-max) NPROC_MAX="${2:-}"; shift 2 ;; # macOS: RLIMIT_NPROC (dedicated-uid only); no-op on Linux
     --mem-max)  MEM_MAX="${2:-}";  shift 2 ;;   # macOS: interface-only, UNCAPPED; no-op on Linux
+    --protect-prompt-roots) PROTECT_PROMPT_ROOTS=1; shift ;;  # opt-in: ro-bind the present prompt roots (Linux)
     --check)   CHECK=1; shift ;;
     -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     --) shift; CMD=("$@"); break ;;
@@ -226,6 +246,7 @@ cp_required(){   # root rel -> prints the owning agentteams team dir when rel MU
   case "$rel" in
     .goose/sandbox.sb) return 0 ;;   # macOS-only artifact
     .codex/config.toml) return 0 ;;  # Codex's own config: protect-if-present (never stubbed)
+    .goose/confined-run.example.sh) return 0 ;;  # operator-run example: protect-if-present
     .claude/*) team="$r/.claude/agents" ;;
     .goose/*) team="$r/.goose/recipes" ;;
     .github/agents/*) team="$r/.github/agents" ;;   # never .github/* (workflows stay unprotected)
@@ -239,6 +260,55 @@ cp_required(){   # root rel -> prints the owning agentteams team dir when rel MU
   esac
   printf '%s\n' "$team"
 }
+# DIAGNOSIS ONLY (message choice; the launcher refuses either way): an attacker who also plants one
+# dummy agent file steers this to the generic "regenerate" hint. Nothing is granted.
+team_looks_planted(){   # team dir -> true when it holds no agent file of its framework and no switch
+  local t="$1" glob f
+  case "$t" in
+    */.claude/agents) glob="*.md" ;;
+    */.goose/recipes) glob="*.yaml" ;;
+    */.github/agents) glob="*.agent.md" ;;
+    */.codex/agents) glob="*.toml" ;;
+    *) return 1 ;;
+  esac
+  cp_present "$t/references/agent-privilege.json" && return 1
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    case "${f##*/}" in SETUP-REQUIRED.md) continue ;; esac
+    return 1
+  done < <(compgen -G "$t/$glob" || true)
+  return 0
+}
+regen_hint(){   # team dir -> how to regenerate it (MESSAGE ONLY; nothing is read or granted)
+  case "$1" in
+    */.codex/agents) printf '%s' "agentteams --update for a native Codex team; a Codex team written by an interop projection (origin: interop in $TEAM_MARKER_REL) is refreshed by re-running that projection OUTSIDE any agent sandbox: agentteams --interop-from <source> --framework codex --output . --overwrite" ;;
+    *) printf '%s' "agentteams --update" ;;
+  esac
+}
+# #11 (2026-09-30): `.codex/config.toml` is protect-if-present, so a file a confined process created
+# is locked in from the next launch, and Codex run OUTSIDE this launcher would honour it. Warn on the
+# security-relevant keys every run (key-based, never a digest an agent could re-record). Never a die.
+# BEST-EFFORT: plain `key =` lines and `[table]` headers only; quoted keys, dotted keys
+# (`mcp_servers.x.command =`), inline tables and `model_providers` base_url are not detected.
+codex_config_warn(){
+  local r f line keys=()
+  for r in "$SCRATCH" ${WRITABLES[@]+"${WRITABLES[@]}"}; do
+    f="$r/.codex/config.toml"
+    if [ -L "$f" ]; then   # Codex outside the launcher follows the link: say so, never read it
+      echo "confine-run: WARNING $(printf %q "$f") is a symlink; Codex run OUTSIDE this launcher reads its target. Review the target, and confirm you (not a confined process) created it." >&2
+      continue
+    fi
+    [ -f "$f" ] || continue
+    keys=()
+    while IFS= read -r line || [ -n "$line" ]; do
+      if [[ "$line" =~ ^[[:space:]]*(approval_policy|sandbox_mode|notify)[[:space:]]*= ]]; then keys+=( "${BASH_REMATCH[1]}" )
+      elif [[ "$line" =~ ^[[:space:]]*\[(sandbox_workspace_write|mcp_servers)[].] ]]; then keys+=( "[${BASH_REMATCH[1]}]" )
+      fi
+    done < "$f"
+    [ "${#keys[@]}" -gt 0 ] || continue
+    echo "confine-run: WARNING $(printf %q "$f") sets security-relevant Codex keys (${keys[*]}). It is read-only in this sandbox, but Codex run OUTSIDE this launcher honours it: review it, and confirm you (not a confined process) wrote it." >&2
+  done
+}
 control_plane_binds() {
   local roots=() prot=() anc=() r rel p a under t team
   for r in "$SCRATCH" ${WRITABLES[@]+"${WRITABLES[@]}"} ${COORD_RESOLVED[@]+"${COORD_RESOLVED[@]}"}; do
@@ -250,6 +320,18 @@ control_plane_binds() {
       p="$(cp_real "$r/$t/$TEAM_MARKER_REL")" || exit 2
       prot+=( "$p" )
     done
+    for rel in "${CONTROL_PLANE_DIRS_REL[@]}"; do   # protect-if-present, whole dir
+      cp_present "$r/$rel" || continue
+      p="$(cp_real "$r/$rel")" || exit 2
+      prot+=( "$p" )
+    done
+    if [ "$PROTECT_PROMPT_ROOTS" -eq 1 ]; then   # opt-in, protect-if-present (never required)
+      for rel in "${PROMPT_ROOTS_REL[@]}"; do
+        cp_present "$r/$rel" || continue
+        p="$(cp_real "$r/$rel")" || exit 2
+        prot+=( "$p" ); PR_RO+=( "$p" )
+      done
+    fi
     for rel in "${CONTROL_PLANE_REL[@]}"; do
       if ! cp_present "$r/$rel"; then
         # Absent. A hole when the entry is REQUIRED (cp_required): its parent is rename-locked yet
@@ -257,7 +339,10 @@ control_plane_binds() {
         # planted .pub.pem, a gate hook or a roster naming itself. Refuse (never create).
         team="$(cp_required "$r" "$rel")"
         [ -n "$team" ] || continue
-        die "control-plane path '$r/$rel' is missing although the agentteams team '$team' exists: a confined process could create it (fail-closed; never created). Regenerate the team with its sandbox enabled (agentteams --update) so it is emitted, then retry."
+        if team_looks_planted "$team"; then
+          die "control-plane path $(printf %q "$r/$rel") is missing although the agentteams team $(printf %q "$team") exists, but it holds only an agentteams marker ($TEAM_MARKER_REL) and no agent files: it may have been PLANTED by a confined process. If you did not generate an agentteams team there, inspect and remove $(printf %q "$team/$TEAM_MARKER_REL") from OUTSIDE the sandbox, then retry. Otherwise regenerate the team ($(regen_hint "$team")). Nothing was changed (fail-closed)."
+        fi
+        die "control-plane path $(printf %q "$r/$rel") is missing although the agentteams team $(printf %q "$team") exists: a confined process could create it (fail-closed; never created). Regenerate the team with current agentteams ($(regen_hint "$team")) so it is emitted (agentteams before 2026-09-30 did not emit it for every framework and platform), then retry."
       fi
       p="$(cp_real "$r/$rel")" || exit 2
       prot+=( "$p" )
@@ -438,6 +523,7 @@ socat forward) OR use the OOB dedicated-uid + PF-per-tenant path. FAIL CLOSED." 
     echo "confine-run:    A hard memory cap requires a VM / container / Linux host (Layer B). Proceeding UNCAPPED." >&2
   fi
   [ "$EGRESS" = host ] && echo "confine-run: WARNING --egress host - network NOT confined (fs/read still apply)." >&2
+  [ "$PROTECT_PROMPT_ROOTS" -eq 1 ] && echo "confine-run: WARNING --protect-prompt-roots is Linux-only; prompt roots are NOT protected on macOS (deferred)." >&2
   echo "confine-run: WARNING macOS Seatbelt path is ENFORCEMENT-UNVERIFIED until an on-mac deny test passes." >&2
 }
 
@@ -447,6 +533,7 @@ case "$OS" in
   *) die "unsupported OS '$OS' - confinement is Linux (bwrap) or macOS (sandbox-exec) only. FAIL CLOSED." ;;
 esac
 
+codex_config_warn
 if [ "$CHECK" -eq 1 ]; then
   echo "== confine-run --check (inert; nothing runs) =="
   echo "  os                : $OS"
@@ -461,6 +548,7 @@ if [ "$CHECK" -eq 1 ]; then
   fi
   echo "  read-excluded     : ${MASKED[*]:-<none present>}"
   echo "  control-plane (ro): ${CP_RO[*]:-<none>}$( [ "${#CP_ANC[@]}" -gt 0 ] && echo " (rename-locked ancestors: ${CP_ANC[*]})" )"
+  [ "$PROTECT_PROMPT_ROOTS" -eq 1 ] && echo "  prompt-roots (ro) : ${PR_RO[*]:-<none present>}"
   echo "  coord-roots       : ${COORD_RESOLVED[*]:-<none>}$( [ "${#COORD_RESOLVED[@]}" -gt 0 ] && echo " (cross-repo binds; existence pre-verified, fail-closed if missing)" )"
   echo "  env allowlist     : ${ENV_ALLOW_ALL[*]} (default-deny; all other env vars dropped)"
   echo "  cpu-max (RLIMIT)  : ${CPU_MAX:-<none>}$( [ -n "$CPU_MAX" ] && echo " cpu-sec (POSIX RLIMIT_CPU, per-process, kernel-enforced, DoS-bound)" )"

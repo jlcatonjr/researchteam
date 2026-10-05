@@ -1,0 +1,4 @@
+{
+  "enforce_decision_signing": true,
+  "note": "Projected by agentteams interop from the source team's switch (absent there = false, the same as no switch; a signing-governed team is always true). Read by the security gate."
+}
