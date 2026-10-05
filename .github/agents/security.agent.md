@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-09-30T13:30:08Z`
+Generated at: `2026-10-05T03:38:07Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.09.29, items 1729) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.10.04, items 1734) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -91,21 +91,21 @@ Generated at: `2026-09-30T13:30:08Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.008120000, percentile 0.552950000 | CVSS 8.8 HIGH
-- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.693300000 | CVSS 8.1 HIGH
-- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010630000, percentile 0.632920000 | CVSS 9.8 CRITICAL
-- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.622120000 | CVSS 6.5 MEDIUM
-- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.809790000 | CVSS 8.8 HIGH
-- `CVE-2026-87902` | WordPress Core | WordPress Core Remote File Inclusion Vulnerability | added 2026-09-25 | EPSS 0.197560000, percentile 0.973240000
-- `CVE-2026-5430` | WSO2 Multiple Products | WSO2 Multiple Products Path Traversal Vulnerability | added 2026-09-24 | EPSS 0.005880000, percentile 0.460060000
-- `CVE-2026-71362` | Adobe Commerce and Magento | Adobe Commerce and Magento Incorrect Authorization Vulnerability | added 2026-09-24 | EPSS 0.875070000, percentile 0.997540000
-- `CVE-2026-93952` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator Improper Input Validation Vulnerability | added 2026-09-22 | EPSS 0.010620000, percentile 0.632410000
-- `CVE-2026-94127` | F5 BIG-IP APM | F5 BIG-IP APM Heap-based Buffer Overflow Vulnerability | added 2026-09-22 | EPSS 0.022260000, percentile 0.820450000
-- `CVE-2026-93616` | Check Point Multiple Products | Check Point Multiple Products Path Traversal Vulnerability | added 2026-09-22 | EPSS 0.196540000, percentile 0.973120000
-- `CVE-2026-85102` | Check Point Multiple Products | Check Point Multiple Products Improper Certificate Validation Vulnerability | added 2026-09-22 | EPSS 0.075460000, percentile 0.943140000
-- `CVE-2026-7273` | Zyxel GS1900 Series Switches | Zyxel GS1900 Series Switches Stack-Based Buffer Overflow Vulnerability | added 2026-09-21 | EPSS 0.025010000, percentile 0.840930000
-- `CVE-2025-39964` | Linux Kernel | Linux Kernel Race Condition Vulnerability | added 2026-09-18 | EPSS 0.009960000, percentile 0.612180000
-- `CVE-2026-53266` | Linux Kernel | Linux Kernel Out-of-Bounds Write Vulnerability | added 2026-09-18 | EPSS 0.006450000, percentile 0.489020000
+- `CVE-2026-88779` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-10-04 | EPSS 0.002760000, percentile 0.182030000 | CVSS 8.7 HIGH
+- `CVE-2026-102490` | Zammad GmbH Zammad | Zammad GmbH Zammad Improper Privilege Management Vulnerability | added 2026-10-02 | EPSS 0.006290000, percentile 0.483330000 | CVSS 9.8 CRITICAL
+- `CVE-2026-102489` | Zammad GmbH Zammad | Zammad GmbH Zammad Session Fixation Vulnerability | added 2026-10-02 | EPSS 0.013960000, percentile 0.714650000 | CVSS 9.8 CRITICAL
+- `CVE-2026-104286` | Fortinet FortiMail | Fortinet FortiMail Path Traversal Vulnerability | added 2026-10-01 | EPSS 0.022010000, percentile 0.819120000 | CVSS 9.8 CRITICAL
+- `CVE-2026-76504` | Cisco Catalyst SD-WAN Manager | Cisco Catalyst SD-WAN Manager Hex Encoding Vulnerability | added 2026-09-30 | EPSS 0.015750000, percentile 0.745930000 | CVSS 9.8 CRITICAL
+- `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.012420000, percentile 0.681530000
+- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.694690000
+- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010630000, percentile 0.634540000
+- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.623850000
+- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.810610000
+- `CVE-2026-87902` | WordPress Core | WordPress Core Remote File Inclusion Vulnerability | added 2026-09-25 | EPSS 0.455010000, percentile 0.987570000
+- `CVE-2026-5430` | WSO2 Multiple Products | WSO2 Multiple Products Path Traversal Vulnerability | added 2026-09-24 | EPSS 0.005880000, percentile 0.462500000
+- `CVE-2026-71362` | Adobe Commerce and Magento | Adobe Commerce and Magento Incorrect Authorization Vulnerability | added 2026-09-24 | EPSS 0.875070000, percentile 0.997550000
+- `CVE-2026-93952` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator Improper Input Validation Vulnerability | added 2026-09-22 | EPSS 0.010620000, percentile 0.634020000
+- `CVE-2026-94127` | F5 BIG-IP APM | F5 BIG-IP APM Heap-based Buffer Overflow Vulnerability | added 2026-09-22 | EPSS 0.022260000, percentile 0.821230000
 
 **Prevention and mitigation playbook:**
 
@@ -233,6 +233,7 @@ Runtime enforcement also consumes machine-readable freshness metadata from the s
 | Any file deletion in the project | Irreversible file loss |
 | Any command that deletes a repository or remote resource (`gh repo delete`, `gh api -X DELETE`) | Irreversible remote/repo loss — C-5 authorization required BEFORE execution |
 | Any command that deletes a git ref or worktree (`git push --delete`/`--mirror`/`--prune`, `git push … :ref`, `git branch`/`tag -d`/`-D`, `git update-ref -d`, `git worktree remove`) | Irreversible ref/history loss |
+| Any `agentteams --branch-cleanup … --apply` (needs your PASS on `branch-cleanup:<plan sha256>`, recorded before execution) or `--branch-post-merge … --apply` (runs under an operator Ed25519 `branch-delete` grant — verify it is the second-parent branch of the merge just pushed). A HALT on `branch-delete` stops both. Procedure: `references/branch-lifecycle.reference.md` §4 | Branch/ref loss — bulk and remote deletion |
 | Any destructive filesystem or infrastructure delete (`rm -rf`, `rmdir`, `shred`, `truncate`, `find … -delete`, `dd of=`, `kubectl delete`, `terraform destroy`, `docker rm`/`rmi`/`system prune`, cloud `… delete`, SQL `DROP`/`TRUNCATE`) | Irreversible data/resource loss |
 | Any modification to `.github/agents/*.agent.md` | Scope creep, privilege escalation |
 | Any operation that writes to an external repository | Cross-repo contamination |

@@ -114,8 +114,7 @@ git-tracked, the same as this project's other agent governance logs.
 
 **Self-referential exception — when this project *is* the AgentTeamsModule repository itself:**
 append to the repository's **top-level** `references/agentteams-remediation-log.csv` instead
-(alongside its other hand-maintained meta-docs, e.g. `systematic-update-lessons.md`,
-`adjacent-repos.md`) — **not** the generic `<output_dir>/references/` path. Reason: AgentTeamsModule
+(alongside its other hand-maintained meta-docs, e.g. `adjacent-repos.md`) — **not** the generic `<output_dir>/references/` path. Reason: AgentTeamsModule
 has **two** dogfood output trees, and both are **locally-regenerable build artifacts** rather than
 authored deliverables. `.github/agents/` is additionally gitignored; `.claude/agents/` *is*
 git-tracked, but only because Claude Code needs it resolvable on disk — tracking it does not make

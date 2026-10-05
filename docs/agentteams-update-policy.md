@@ -9,9 +9,34 @@ Define review and rollback policy for automated AgentTeams synchronization runs 
 
 ## Integrated AgentTeams Baseline
 
-**Integrated ref:** `61849fb` (agentteams `main`, 2026-08-15) — recorded in
-`.github/agentteams-autosync-ref`.
-**Previously recorded:** `c6a9cf6` (2026-08-07). This section's own narrative had lagged that
+**Integrated ref:** `7fd4de4` (agentteams `main`, 2026-10-04), recorded in
+`.github/agentteams-autosync-ref`. The previously recorded ref was `f3a8b8c`; the narrative below
+had stayed at `61849fb`. What changed, for a consumer of this framework:
+
+1. **The branch lifecycle** (agentteams #101/#102). There is a new emitted
+   `references/branch-lifecycle.reference.md`. `@git-operations` gains Invariant rule 8, a
+   post-merge branch step, and the Output Contract fields `Branch disposition` and
+   `Branch inventory`. `@cleanup` gains a weekly branch/stash/worktree sweep. The CLI gains
+   `agentteams --branch-inventory | --branch-cleanup | --branch-post-merge`.
+2. **The stale `references/git-procedures.md` citation is gone.** `--shrink-policy preserve` had
+   pinned 20 sections here, because the guard treated references the template itself retired
+   as enrichment. agentteams #103 adds reviewed, content-bound per-section overrides
+   (`AGENTTEAMS_SHRINK_ALLOW`, with an `AGENTTEAMS_SHRINK_REPORT` review). This integration
+   released 13 sections whose removed lines were all template-owned (two by operator decision)
+   and kept 7 that hold researchteam enrichment:
+   - `reference-manager`
+   - `references/ref-bibtex-reference.md`
+   - `references/code-hygiene-rules.reference.md`
+   - `framework-watch` data
+   - `team-builder`
+   - `SETUP-REQUIRED.md`
+   - `content-enricher`
+
+   Each released section's old body is in a `.lost` sidecar under `.agentteams-backups/`.
+3. **Codex.** Natively rendered Codex agent bodies are now fenced, so merges refresh them. This
+   repository's Codex surface is an interop projection from `.github` and is unaffected.
+
+**Previously recorded:** `61849fb` (2026-08-15); before that, `c6a9cf6` (2026-08-07). This section's own narrative had lagged that
 ref since the day it landed — itself a symptom of what this update fixes: the weekly autosync
 CI had been producing correct integrations and silently discarding every one of them for 5
 straight weeks (2026-07-13 → 2026-08-10), because GitHub Actions was blocked from opening pull
