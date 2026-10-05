@@ -22,7 +22,7 @@ had stayed at `61849fb`. What changed, for a consumer of this framework:
    pinned 20 sections here, because the guard treated references the template itself retired
    as enrichment. agentteams #103 adds reviewed, content-bound per-section overrides
    (`AGENTTEAMS_SHRINK_ALLOW`, with an `AGENTTEAMS_SHRINK_REPORT` review). This integration
-   released 13 sections whose removed lines were all template-owned (two by operator decision)
+   released 13 sections. In 11, every removed line was template-owned. In the other two (`cleanup` and `agent-updater`), the only non-template loss was the hand-enriched wording of one reference-database row ("project-local `references/bibliography.bib` files"), released by operator decision; the brief's value applies
    and kept 7 that hold researchteam enrichment:
    - `reference-manager`
    - `references/ref-bibtex-reference.md`
