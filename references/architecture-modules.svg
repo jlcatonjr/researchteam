@@ -1,35 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 632 262" width="632" height="262" font-family="monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 712 262" width="712" height="262" font-family="monospace">
   <title>researchteam — Module Dependencies</title>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <polygon points="0,0 10,5 0,10" fill="#8a8a8a"/>
     </marker>
   </defs>
-  <path d="M244,183 L256,183 C292,183 292,197 328,197 L352,197" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M244,183 L256,183 C292,183 292,83 328,83 L448,83 C484,83 484,131 520,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M244,183 L256,183 C292,183 292,149 328,149" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M448,149 C484,149 484,131 520,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,231 L256,231 C292,231 292,197 328,197 L352,197" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,231 L256,231 C292,231 292,111 328,111 L448,111 C484,111 484,131 520,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,231 L256,231 C292,231 292,149 328,149" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,183 L256,183 C292,183 292,173 328,173 L392,173" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,183 L256,183 C292,183 292,59 328,59 L528,59 C564,59 564,131 600,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,183 L256,183 C292,183 292,125 328,125 L368,125" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M488,125 L528,125 C564,125 564,131 600,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,231 L256,231 C292,231 292,221 328,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,231 L256,231 C292,231 292,173 328,173 L392,173" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,231 L256,231 C292,231 292,87 328,87 L528,87 C564,87 564,131 600,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,231 L256,231 C292,231 292,125 328,125 L368,125" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
   <path d="M64,131 C100,131 100,31 136,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
   <path d="M64,131 C100,131 100,79 136,79 L140,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
   <path d="M64,131 C100,131 100,183 136,183 L148,183" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,131 C100,131 100,117 136,117 L256,117 C292,117 292,55 328,55 L448,55 C484,55 484,131 520,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,131 C100,131 100,145 136,145 L256,145 C292,145 292,149 328,149" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,131 C100,131 100,117 136,117 L256,117 C292,117 292,31 328,31 L528,31 C564,31 564,131 600,131" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,131 C100,131 100,145 136,145 L256,145 C292,145 292,125 328,125 L368,125" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
   <path d="M64,131 C100,131 100,231 136,231 L140,231" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
   <rect x="136" y="16" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
   <text x="196" y="36" font-size="13" text-anchor="middle" fill="#000000">researchteam</text>
+  <rect x="328" y="206" width="200" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="428" y="226" font-size="13" text-anchor="middle" fill="#000000">_agentteams_provenance</text>
   <rect x="140" y="64" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
   <text x="196" y="84" font-size="13" text-anchor="middle" fill="#000000">_doctor_cmd</text>
-  <rect x="352" y="182" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="388" y="202" font-size="13" text-anchor="middle" fill="#000000">_fetch</text>
+  <rect x="392" y="158" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="428" y="178" font-size="13" text-anchor="middle" fill="#000000">_fetch</text>
   <rect x="148" y="168" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
   <text x="196" y="188" font-size="13" text-anchor="middle" fill="#000000">_init_cmd</text>
-  <rect x="520" y="116" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="568" y="136" font-size="13" text-anchor="middle" fill="#000000">_manifest</text>
-  <rect x="328" y="134" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="388" y="154" font-size="13" text-anchor="middle" fill="#000000">_personalize</text>
+  <rect x="600" y="116" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="648" y="136" font-size="13" text-anchor="middle" fill="#000000">_manifest</text>
+  <rect x="368" y="110" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="428" y="130" font-size="13" text-anchor="middle" fill="#000000">_personalize</text>
   <rect x="140" y="216" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
   <text x="196" y="236" font-size="13" text-anchor="middle" fill="#000000">_update_cmd</text>
   <rect x="16" y="116" width="48" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>

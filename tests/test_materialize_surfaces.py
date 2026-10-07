@@ -26,6 +26,7 @@ def calls(monkeypatch):
         returncode = 0
 
     monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    monkeypatch.setattr(_update_cmd, "_require_p5a", lambda exe: None)
     def fake_run(cmd, cwd=None):
         if "--description" in cmd:
             desc = Path(cwd) / cmd[cmd.index("--description") + 1]
@@ -77,6 +78,26 @@ def test_adopt_orphans_reaches_every_surface(tmp_path, calls):
     _update_cmd.run_materialize(root, yes=True, dry_run=False, adopt_orphans=True)
     assert len(_renders(calls)) == 3 and all("--adopt-orphans" in c for c in _renders(calls))
 
+
+
+def test_user_regions_carried_by_default_discarded_on_request(tmp_path, calls):
+    root = _instance(tmp_path, (".claude/agents", ".goose/recipes"))
+    _update_cmd.run_materialize(root, yes=True, dry_run=False)
+    assert not any("--discard-user-regions" in c for c in calls)            # P5a carries them by default
+    calls.clear()
+    _update_cmd.run_materialize(root, yes=True, dry_run=False, discard_user_regions=True)
+    assert len(_renders(calls)) == 3 and all("--discard-user-regions" in c for c in _renders(calls))
+    assert not any("--discard-user-regions" in c for c in calls if "--interop-from" in c)
+
+
+def test_pre_p5a_agentteams_stops_materialize_before_any_render(tmp_path, calls, monkeypatch):
+    root = _instance(tmp_path, (".claude/agents",))
+    def refuse(exe):
+        raise SystemExit("predates agentteams P5a")
+    monkeypatch.setattr(_update_cmd, "_require_p5a", refuse)
+    with pytest.raises(SystemExit, match="P5a"):
+        _update_cmd.run_materialize(root, yes=True, dry_run=False)
+    assert calls == []
 
 def test_codex_agents_and_skills_refreshed_when_present(tmp_path, calls):
     root = _instance(tmp_path, (".claude/agents",))

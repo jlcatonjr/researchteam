@@ -35,7 +35,7 @@ verify both resolve in the active interpreter.
 |---|---|
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
-| `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
+| `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
 | `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure. |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor` | Diagnose the researchteam ↔ agentteams toolchain. |
@@ -131,6 +131,16 @@ instance has a Codex surface (`.codex/agents`), `materialize` then re-projects t
 (from `.github/agents`) and the Codex skills (`.claude/skills` -> `.agents/skills`); `--no-codex`
 skips this. While `enforce_decision_signing` is `true`, each
 surface's overwrite pass needs a signed clearance (see *Decision signing* above).
+
+The overwrite carries every user-editable `## Project-Specific Notes` (agents) and
+`## Project-Specific Rules` (instruction files) region into the re-rendered files (agentteams P5a,
+f113f5d); `--discard-user-regions` drops them instead. Before the confirmation prompt, `materialize`
+refuses an agentteams that predates P5a. Every layer-1 run (`update` and `materialize`) also checks
+the provenance of the `agentteams` that will execute (the first one on `PATH`) and prints its source
+and commit: an editable checkout must be on `origin/main` with no uncommitted sources, and a checkout
+that shadows the installed copy is refused. A VCS install pinned to a merged commit (the `update`
+extra) always passes; a local-folder snapshot passes with a warning. `researchteam doctor` does not
+run this check.
 
 ## Derived-repo CI
 
