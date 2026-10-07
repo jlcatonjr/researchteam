@@ -37,3 +37,44 @@ On both runs the two files were restored to HEAD with `git checkout --`, which `
 
 Wanted: `researchteam update` leaves a committed file alone when its upstream source is missing,
 and never writes an absolute local path into a synced file.
+
+---
+
+## Status (2026-10-07, researchteam)
+
+Added by researchteam's own session when it took over this note from baseAgent. The handoff body
+above is unchanged.
+
+**Item 1: the diagnosis above is outdated.** The latest evidence (agentteams-a9, mathagents-04)
+suggests the renders that dropped the rows ran the shared editable agentteams checkout while it
+was on another session's WIP branch (`fix/write-policy-capability-keys` at `ea36a3c`, with
+uncommitted edits). On agentteams `main`, the rows survive with the same argv. This is not
+confirmed: if the refresh resolved `agentteams` to a non-editable snapshot of `main`, the cause is
+elsewhere. Install facts checked by researchteam-4c on 2026-10-06 against each install's
+`direct_url.json`:
+
+- `/opt/anaconda3`: agentteams is **editable**, pointing at `~/githubrepositories/agentteams`. It
+  is the only one of the three installs that exposes a render to another session's branch state.
+  That day the checkout was on `chore/repin-github-gate-hook` (`3e7e209`), not on `origin/main`,
+  and had local edits.
+- `researchteam/.venv`: agentteams `1.0.0rc8` is a **non-editable** local snapshot, frozen at
+  install time.
+- `agentteams/.venv-ci`: a VCS install pinned to `c7c846f`, which is on `origin/main`.
+
+`researchteam materialize` runs `agentteams --update --overwrite` (`researchteam/_update_cmd.py:493`)
+on whichever `agentteams` `shutil.which` finds first (`_preflight_agentteams`, `:304`). So whether
+a render is exposed depends on PATH order. A guard has landed in mathAgents: PR #24 (`f6205a7`),
+`scripts/lib/agentteams_provenance.py`, which refuses an editable agentteams that is off
+`origin/main` or dirty. A matching pre-flight in researchteam is proposed but not yet approved. The
+adopted-row fence restored by hand in mathAgents is still fragile until the render source is pinned.
+
+**Item 2 stands and is researchteam's to fix.** `researchteam update` should leave a committed file
+alone when its upstream source is missing, and should never write an absolute local path into a
+synced file. This is open.
+
+**Related: the render descriptor cannot be recovered.** `_resolve_descriptor`
+(`_update_cmd.py:330`) writes the merged `brief.json` + `_build-description.json` descriptor to a
+`tempfile.mkstemp` file (`:392`) and deletes it after the run (`:522`). So the descriptor a past
+render used cannot be reconstructed. Proposed: record that descriptor, or its SHA-256, together
+with the resolved `agentteams` path, version and editable/commit state, in the build log for each
+render. This is open.
