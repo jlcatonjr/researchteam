@@ -130,10 +130,19 @@ def test_a_vcs_install_passes_and_names_its_commit(tmp_path, provenance):
     assert code == 0 and "VCS install" in out and "cccccccccccc" in out, out + err
 
 
-def test_a_local_snapshot_passes_with_a_warning(tmp_path, provenance):
+def test_a_local_snapshot_is_refused_by_default(tmp_path, provenance, monkeypatch):
+    """CA-033/034: a stale, unrecorded snapshot is what dropped mathAgents' adopted routing rows."""
+    monkeypatch.delenv(_agentteams_provenance.ALLOW_SNAPSHOT_ENV, raising=False)
     *_, launcher, env = fake_agentteams(tmp_path, install="snapshot", git_repo=False)
     code, out, err = provenance(launcher, env)
-    assert code == 0 and "snapshot" in out and "WARNING" in err, out + err
+    assert code == 1 and "snapshot" in out and "REFUSED" in err and "ALLOW_AGENTTEAMS_SNAPSHOT" in err, out + err
+
+
+@pytest.mark.parametrize("value, expected", [("1", 0), ("0", 1), ("yes", 1)])
+def test_a_local_snapshot_runs_only_with_the_explicit_override(tmp_path, provenance, value, expected):
+    *_, launcher, env = fake_agentteams(tmp_path, install="snapshot", git_repo=False)
+    code, _, err = provenance(launcher, {**env, _agentteams_provenance.ALLOW_SNAPSHOT_ENV: value})
+    assert code == expected and ("WARNING" in err if expected == 0 else "REFUSED" in err), err
 
 
 def test_an_install_inside_another_repo_is_not_judged_by_that_repo(tmp_path, provenance):

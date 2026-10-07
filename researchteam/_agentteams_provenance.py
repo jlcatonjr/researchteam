@@ -9,7 +9,9 @@ an unrecorded local snapshot taken before the fix. The check classifies the inst
                     directory has no uncommitted or untracked sources (bytecode caches excepted). The
                     shared checkout is switched between branches by other sessions.
   vcs / released    passes, naming the source and commit or version.
-  local snapshot    passes with a WARNING (a frozen copy of a folder; its commit cannot be verified).
+  local snapshot    refused (a frozen copy of a folder; its commit cannot be verified, and a stale one is
+                    what caused CA-033/034), unless RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1, which runs
+                    it with a WARNING. Matches mathAgents PR #25 (MATHAGENTS_ALLOW_AGENTTEAMS_SNAPSHOT).
 
 "The code" is both modules the launcher runs: its entry module ``build_team`` (a top-level py-module
 beside the package) and the ``agentteams`` package. A non-editable install whose modules Python does not
@@ -35,6 +37,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlparse
 
 TAG = "[researchteam] agentteams provenance"
+ALLOW_SNAPSHOT_ENV = "RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT"
 # What the `agentteams` launcher runs: its console-script entry point is build_team:main.
 ENTRY_MODULES = ("build_team", "agentteams")
 
@@ -108,8 +111,12 @@ def inner(exe: str) -> int:
         print(f"{TAG}: {exe} is a VCS install of {url} @ {str(vcs_info['commit_id'])[:12]}")
     elif url.startswith("file:"):
         print(f"{TAG}: {exe} is a non-editable snapshot of {unquote(urlparse(url).path)}")
-        print(f"{TAG}: WARNING: a local-folder snapshot may have been taken from an unmerged branch; prefer a "
-              "VCS install pinned to a commit on main", file=sys.stderr)
+        if os.environ.get(ALLOW_SNAPSHOT_ENV) != "1":
+            return _refuse("a local-folder snapshot records no commit and may be stale or from an unmerged branch; "
+                           "install a VCS commit on main (pip install \"agentteams @ git+https://github.com/"
+                           f"jlcatonjr/agentteams@<sha>\"), or set {ALLOW_SNAPSHOT_ENV}=1 to run it anyway")
+        print(f"{TAG}: WARNING: running a local-folder snapshot ({ALLOW_SNAPSHOT_ENV}=1); its commit cannot be "
+              "verified", file=sys.stderr)
     else:
         print(f"{TAG}: {exe} is a released package, version {dist.version}")
     return 0

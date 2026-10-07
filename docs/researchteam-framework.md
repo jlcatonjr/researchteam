@@ -139,7 +139,8 @@ refuses an agentteams that predates P5a. Every layer-1 run (`update` and `materi
 the provenance of the `agentteams` that will execute (the first one on `PATH`) and prints its source
 and commit: an editable checkout must be on `origin/main` with no uncommitted sources, and a checkout
 that shadows the installed copy is refused. A VCS install pinned to a merged commit (the `update`
-extra) always passes; a local-folder snapshot passes with a warning. `researchteam doctor` does not
+extra) always passes; a local-folder snapshot (no commit recorded) is refused unless
+`RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. `researchteam doctor` does not
 run this check.
 
 ## Derived-repo CI
