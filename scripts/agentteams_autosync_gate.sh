@@ -109,7 +109,7 @@ if [ -f scripts/validate_agentteams_update.sh ]; then
 fi
 # Detector unit tests are UPSTREAM-ONLY (fixtures are never synced into research repos).
 if [ "$MODE" = "upstream" ]; then
-  for t in test_methodology_coverage test_citation_integrity test_literature_library; do
+  for t in test_methodology_coverage test_historical_context test_citation_integrity test_literature_library; do
     [ -f "scripts/tests/${t}.sh" ] && { bash "scripts/tests/${t}.sh" || { log "GATE FAIL: ${t}"; exit 1; }; }
   done
 fi

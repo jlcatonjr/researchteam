@@ -222,3 +222,22 @@ def test_descriptor_write_back_overlays_content_preserves_roster(tmp_path):
     assert result["deliverables"] == ["X"]
     assert result["selected_archetypes"] == ["a", "b"]  # roster preserved
     assert result["governance_agents"] == ["security"]
+
+
+# --------------------------------------------------------------------------- historical context
+def test_historical_context_protocol_is_scholarly_managed():
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    for f in ("docs/historical-context-protocol.md", "scripts/check_historical_context.sh"):
+        assert f in SCHOLARLY_MANAGED_FILES
+        assert f not in FRAMEWORK_MANAGED_FILES
+        assert (root / f).is_file(), f
+    # The CLAUDE.md managed block that every derived repo receives points at the protocol, and
+    # the scaffold template's block is identical to the upstream root copy.
+    def block(p):
+        t = (root / p).read_text(encoding="utf-8")
+        return t[t.index(">>> researchteam:managed"): t.index("<<< researchteam:managed")]
+
+    assert "docs/historical-context-protocol.md" in block("CLAUDE.md")
+    assert block("CLAUDE.md") == block("researchteam/scaffold/CLAUDE.template.md")

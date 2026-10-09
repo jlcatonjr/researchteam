@@ -164,3 +164,10 @@ For *source* discovery use `library-query` (surface #4, above). For *code / API*
 collector does this", "which API does that script call") use `/code-recall` ·
 `bash scripts/claude_researchteam_bridge.sh code-query "<terms>"` (surface #2). They cover **disjoint**
 corpora and both are **navigation, not evidence**. Canonical map: `docs/retrieval-surfaces.md`.
+
+### Historical setting (`docs/historical-context-protocol.md`)
+
+Present each school or debate **in its period**: when a position was held, by whom, and in
+which text. Do not flatten a tradition into one view across its history. Where the interpretive
+map's `## Historical setting` register gives a row a `[editors' inference — unsourced]` basis,
+mark it as such wherever you use it.

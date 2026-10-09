@@ -74,6 +74,7 @@ Conducts the core analytical work of the report, engaging directly with primary 
 - Counter-arguments acknowledged and addressed
 - Reasoning is logically valid and follows from cited evidence
 - No unsupported assertions
+- Claims that depend on period, place or text version say which; no anachronism (docs/historical-context-protocol.md)
 
 ## Cross-References
 
@@ -156,3 +157,10 @@ contemporaneous account of perspective, not verified fact, and a plain factual r
 characterization of something ("Contested (attributed)"). Name the outlet; carry the date
 when known; never fold a news-sourced claim into the same unqualified confidence as a
 scholarly or official citation.
+
+### Historical setting (`docs/historical-context-protocol.md`)
+
+When a claim's truth depends on period, place or text version, the deliverable says which.
+Every comparison names which text, rite or period of each side is meant, and who first drew
+the comparison, when and in what setting. Guard against anachronism in all four directions
+(forward, backward, flattening, text version); `@quality-auditor` flags misses as `Q-CTX`.
