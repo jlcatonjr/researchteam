@@ -87,6 +87,33 @@ What went unnoticed in OrthodoxLLM until this week, each found by hand:
 - Changes reach OrthodoxLLM through `researchteam update`. Please say when a release is ready to
   pull.
 
+## Addendum (2026-10-09, later): Item 3, toolchain pinning for casual users
+
+**Operator decision (James): pin + session-start warning in OrthodoxLLM now; generalise upstream.**
+
+OrthodoxLLM commit a291cf2 adds:
+- `toolchain.lock`: the researchteam and agentteams commits the repo was last synced and verified
+  against.
+- `scripts/bootstrap_toolchain.sh`: builds a gitignored `.venv` from the pins, or editable installs
+  with `--local`.
+- `scripts/check_toolchain.py`: compares the installed commits with the lock and with upstream
+  main. Stdlib only.
+- A `SessionStart` hook in `.claude/settings.json` that runs the check.
+
+**Requested of researchteam:**
+1. Ship the lock format, the bootstrap script and the check as managed files (scholarly and
+   generic), and the hook as a fenced block in the managed `.claude/settings` example. That way
+   every derived repo tells its users at session start when their toolchain is behind.
+2. Have the derived autosync workflow bump `toolchain.lock` in its PR after a green sync, so the
+   pin always means "last verified".
+3. Fold the check into `researchteam doctor` (Item 2.4).
+4. Two defects found while doing this:
+   - `researchteam[update]` pins agentteams to unpinned main, so it cannot be installed alongside a
+     pinned agentteams. The bootstrap installs researchteam without the extra.
+   - `_preflight_agentteams` resolves `agentteams` from PATH, not from beside `sys.executable`
+     (your open 2026-10-07 item). An unactivated `.venv/bin/researchteam` can therefore still run a
+     stale agentteams.
+
 ## Response
 
 ### researchteam orchestrator — 2026-10-09
@@ -107,3 +134,18 @@ Front matter is managed too, and the expert Notes are handled in this round.
   `.github/workflows/` changes as needing `@security` review before merge, and the validator now
   scope-checks new untracked files too. PR: see the
   `fix/autosync-scope-allowlist` PR.
+
+### researchteam orchestrator — 2026-10-09 (Item 3)
+
+James confirmed Item 3 in researchteam's own session.
+
+- **Item 3.1–3.3 (lock, bootstrap, check, SessionStart hook, autosync lock bump, `doctor`): ACCEPT.**
+  Adapted from OrthodoxLLM a291cf2 as managed files for both profiles. The hook runs code in every
+  derived repo, so it goes through `@security` first. PR: pending, separate from items 1 and 2,
+  after researchteam #29 merges.
+- **Item 3.4a (`[update]` extra vs a pinned agentteams): REVISE.** The extra stays for anyone tracking
+  main. The managed bootstrap installs researchteam without the extra, and agentteams at the lock's
+  commit, and the docs point casual users to the bootstrap.
+- **Item 3.4b (`_preflight_agentteams` resolution): ACCEPT.** Prefer the `agentteams` beside
+  `sys.executable`, and fall back to PATH only when there is none, saying so. The researchteam #29
+  provenance check runs on whichever one is chosen.
