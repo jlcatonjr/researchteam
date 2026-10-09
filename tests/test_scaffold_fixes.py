@@ -77,14 +77,50 @@ def test_init_accepts_existing_empty_dir_and_refuses_nonempty(tmp_path, monkeypa
         _init_cmd.run_init("empty", "main", None)
 
 
-def test_validate_scope_skip_is_opt_in(tmp_path):
+def _scope(cwd, files: str | None, skip: str = "0") -> subprocess.CompletedProcess:
     script = ROOT / "scripts" / "validate_agentteams_update.sh"
-    env = dict(os.environ, VALIDATION_CHANGED_FILES="environment.yml")
-    strict = subprocess.run(["bash", str(script)], cwd=tmp_path, env=env, capture_output=True, text=True)
+    env = dict(os.environ, VALIDATION_SKIP_SCOPE=skip)
+    env.pop("VALIDATION_CHANGED_FILES", None)
+    if files is not None:
+        env["VALIDATION_CHANGED_FILES"] = files
+    return subprocess.run(["bash", str(script)], cwd=cwd, env=env, capture_output=True, text=True)
+
+
+def test_validate_scope_skip_is_opt_in(tmp_path):
+    strict = _scope(tmp_path, "environment.yml")
     assert strict.returncode != 0 and "Out-of-scope" in strict.stdout
-    env["VALIDATION_SKIP_SCOPE"] = "1"
-    relaxed = subprocess.run(["bash", str(script)], cwd=tmp_path, env=env, capture_output=True, text=True)
+    relaxed = _scope(tmp_path, "environment.yml", skip="1")
     assert relaxed.returncode == 0, relaxed.stdout + relaxed.stderr
+
+
+def test_scope_allows_every_surface_a_layer1_run_writes(tmp_path):
+    """Autosync run 37273449115 failed on .codex/agents/references/build-log.json (2026-10-05)."""
+    written = "\n".join([
+        ".codex/agents/references/build-log.json", ".codex/agents/orchestrator.toml",
+        ".agents/skills/recall/SKILL.md", ".goose/recipes/orchestrator.yaml", "AGENTS.md",
+        "references/bridges/claude.bridge.json", "sandbox/confine-run.sh",
+    ])
+    r = _scope(tmp_path, written)
+    assert r.returncode == 0, r.stdout + r.stderr
+
+
+def test_scope_still_refuses_user_owned_paths(tmp_path):
+    for path in ("references/bibliography.bib", "Projects/x/report.md", "src/AGENTS.md", "environment.yml",
+                 "AGENTS.md.bak", ".vscode/settings.json"):
+        r = _scope(tmp_path, path)
+        assert r.returncode != 0 and "Out-of-scope" in r.stdout, path
+
+
+def test_scope_checks_new_untracked_files(tmp_path):
+    """A brand-new out-of-scope file must not slip past because git diff lists only tracked files."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "x"],
+                   cwd=tmp_path, check=True)
+    (tmp_path / "AGENTS.md").write_text("x\n")
+    assert _scope(tmp_path, None).returncode == 0
+    (tmp_path / "environment.yml").write_text("x\n")
+    r = _scope(tmp_path, None)
+    assert r.returncode != 0 and "environment.yml" in r.stdout, r.stdout
 
 
 def test_no_operator_home_paths_in_shipped_docs():

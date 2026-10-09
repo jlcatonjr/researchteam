@@ -119,9 +119,18 @@ printf '%s\n' "$new_sha" > "$REF_FILE"
 
 git add -A >/dev/null 2>&1 || true
 substantive="$(git diff --cached --name-only 2>/dev/null | grep -Ev "$NOISE_REGEX" | grep -v '\.agentteams-backups/' || true)"
+# Security-boundary paths (confinement scripts, CI workflows) are in scope but must never merge on a
+# routine review: they are called out first, whatever the churn filter says.
+sensitive="$(git diff --cached --name-only 2>/dev/null | grep -E '^(sandbox/|\.github/workflows/)' || true)"
 {
   echo "## Automatic agentteams integration"
   echo
+  if [ -n "$sensitive" ]; then
+    echo "> [!WARNING]"
+    echo "> **Security-boundary paths changed — \`@security\` review required before merge:**"
+    printf '%s\n' "$sensitive" | sed 's/^/> - `/; s/$/`/'
+    echo
+  fi
   echo "agentteams \`main\` advanced — integrating the pinned SHA."
   echo
   echo "- **agentteams:** \`${old_sha:-<none>}\` → \`${new_sha}\`"
