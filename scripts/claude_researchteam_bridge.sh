@@ -25,6 +25,11 @@ Commands:
                 Run the interpretation-advisor methodology-coverage detector
                 (advisory: surfaces projects missing an interpretive map / guide).
                 No arg scans all research projects; a name checks one.
+  history-check [project]
+                Run the historical-context detector: every interpretive map needs a
+                "## Historical setting" register whose rows give a date and a basis.
+                Structural only (WELL-FORMED, not verified). See
+                docs/historical-context-protocol.md.
   citation-audit [project]
                 Run the 2-fold citation & claim integrity detector: bibliography /
                 URL structural integrity + an in-text citation-backing signal.
@@ -95,6 +100,15 @@ command_methodology_check() {
     bash scripts/check_methodology_coverage.sh "$@"
   else
     echo "Methodology-coverage detector not found at scripts/check_methodology_coverage.sh" >&2
+    exit 1
+  fi
+}
+
+command_history_check() {
+  if [[ -f "scripts/check_historical_context.sh" ]]; then
+    bash scripts/check_historical_context.sh "$@"
+  else
+    echo "Historical-context detector not found at scripts/check_historical_context.sh" >&2
     exit 1
   fi
 }
@@ -185,6 +199,10 @@ case "$cmd" in
   methodology-check)
     shift
     command_methodology_check "$@"
+    ;;
+  history-check)
+    shift
+    command_history_check "$@"
     ;;
   citation-audit)
     shift

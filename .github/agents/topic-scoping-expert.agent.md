@@ -75,6 +75,7 @@ Defines the research question, scope boundaries, methodology, and a prioritised 
 - At least 5 candidate sources identified with repository URLs or DOIs
 - Scope explicitly states what is excluded
 - Methodology describes how evidence will be gathered and synthesised
+- Each core source's date, place and text version recorded, or marked unknown (docs/historical-context-protocol.md)
 
 ## Cross-References
 
@@ -144,3 +145,10 @@ conflict provenance** to frame *which* methodology the report adopts and why —
 choice of the report's methodology and source strategy remains **yours**; the advisor
 supplies provenance, not the decision. Where a methodology guide it cites is
 `status: provisional`, mark any claim drawn from it as provisional in the brief.
+
+### Historical setting (`docs/historical-context-protocol.md`)
+
+In the **Source Strategy**, record for each core source its date, place and the text version
+you will read (edition, recension, translation), or mark it `unknown`. These seed the
+interpretive map's `## Historical setting` register. Scope statements name the period(s) the
+question covers, so a later category is not read back into an earlier period.

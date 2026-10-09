@@ -29,6 +29,21 @@
       "detail": "AGENTTEAMS"
     },
     {
+      "label": "script: check_historical_context",
+      "type": "shell",
+      "command": "bash scripts/check_historical_context.sh",
+      "group": {
+        "kind": "test",
+        "isDefault": false
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "AGENTTEAMS"
+    },
+    {
       "label": "script: check_literature_library_integrity",
       "type": "shell",
       "command": "bash scripts/check_literature_library_integrity.sh",

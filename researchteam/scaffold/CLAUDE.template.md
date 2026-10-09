@@ -27,6 +27,9 @@ Primary outputs:
    (mechanical layer), then the doubled semantic audit in
    `docs/citation-claim-audit-protocol.md`. Unresolved citation/claim findings block compilation
    (fail-closed). A clean run means WELL-FORMED, not proof of non-fabrication.
+7. Place every load-bearing source in its own time: date, place, audience and text version, with
+   anachronism guarded in both directions. Follow `docs/historical-context-protocol.md`, and run
+   `bash scripts/claude_researchteam_bridge.sh history-check <project>` before compiling.
 
 ## Quick Start
 

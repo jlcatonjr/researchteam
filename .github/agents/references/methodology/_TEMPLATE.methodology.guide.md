@@ -39,11 +39,22 @@ survey's canon and blind spots. No survey is described as "neutral.")_
 - {A → B (per …)}
 - {… back toward foundational figures / Aristotle}
 
+## Historical setting (periods, chronology, text versions)
+
+> Per `docs/historical-context-protocol.md`. Name the periods this domain's sources fall into,
+> the categories each period may NOT be read through (later labels, later settlements), and the
+> text-version issues (recensions, interpolations, disputed authorship) a reader must know.
+> Every date or period boundary is `(per …)` or `[editors' inference — unsourced]`.
+
+| Period | Dates (basis) | Categories not to read back into it | Text-version cautions |
+|--------|---------------|-------------------------------------|-----------------------|
+| {…} | {… (per …)} | {…} | {…} |
+
 ## Interpretive nuances (contested terms; evidence bars)
 
-| Term | School X reads it as | School Y reads it as |
-|------|----------------------|----------------------|
-| {…} | {…} | {…} |
+| Term | School X reads it as | School Y reads it as | Shift across periods |
+|------|----------------------|----------------------|----------------------|
+| {…} | {…} | {…} | {…} |
 
 ## Conflicts register
 
@@ -54,6 +65,7 @@ survey's canon and blind spots. No survey is described as "neutral.")_
 ## Interpretive directives (how the team should read this domain's sources)
 
 1. {directive}
+2. Anachronism guard: {which of forward / backward / flattening / text-version applies here, and how}
 
 ## Verification ledger
 
