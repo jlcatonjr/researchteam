@@ -42,7 +42,7 @@ def calls(monkeypatch):
     monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
     monkeypatch.setattr(_update_cmd, "_brief_has_placeholder", lambda root: False)
 
-    def fake_run(cmd, cwd=None):
+    def fake_run(cmd, cwd=None, **kwargs):
         seen.append(list(cmd))
         fw = cmd[cmd.index("--framework") + 1] if "--framework" in cmd else "copilot-vscode"
         return Result(1 if fw in fail_on and "--interop-from" not in cmd else 0)
