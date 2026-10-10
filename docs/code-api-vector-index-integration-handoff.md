@@ -77,10 +77,11 @@ against a union descriptor. So:
 **A1 — Refresh the agentteams dependency (the whole integration at the module level).**
 - Editable local checkout (preferred for dev):
   `pip install -e <agentteams-checkout> --no-build-isolation`
-  (the checkout is already on `main` with F-CODEIDX).
+  (the checkout is already on `main` with F-CODEIDX). `researchteam update`/`materialize` refuse an
+  editable checkout that is off `origin/main` or has uncommitted sources, so keep it on clean `main`.
 - Or the git extra: `pip install -U 'agentteams @ git+https://github.com/jlcatonjr/agentteams'`.
 - Verify: `agentteams --version` runnable; `researchteam doctor` green (its preflight liveness-checks the
-  `agentteams` console script).
+  `agentteams` console script). `doctor` does not run the provenance check, so a render can still refuse.
 
 **A2 — What becomes available immediately** (no researchteam code changes required):
 `agentteams --refresh-code-index`, `--query-code`, `--code-kind`, and `/code-recall` emission. Because

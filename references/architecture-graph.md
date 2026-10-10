@@ -3,9 +3,9 @@
 
 > **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually — changes will be overwritten.
 
-- Modules mapped: **8**
+- Modules mapped: **9**
 - Packages: **1**
-- Internal import edges: **13**
+- Internal import edges: **14**
 - Distinct external dependencies: **0**
 
 ---
@@ -22,7 +22,7 @@ Inter-package import dependencies (module-level detail in the tables below).
 
 | Package | Modules | Depends on |
 | --- | --- | --- |
-| `researchteam` | 8 | — |
+| `researchteam` | 9 | — |
 
 ---
 
@@ -39,12 +39,13 @@ Every module, coloured by package (full adjacency in the table below).
 | Module | Imports (internal) | Imported by |
 | --- | --- | --- |
 | `researchteam` | — | `researchteam.cli` |
+| `researchteam._agentteams_provenance` | — | `researchteam._update_cmd` |
 | `researchteam._doctor_cmd` | — | `researchteam.cli` |
 | `researchteam._fetch` | — | `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._personalize` | `researchteam._manifest` | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
-| `researchteam._update_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
+| `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._update_cmd` | — |
 
 ---
@@ -93,6 +94,14 @@ digraph "researchteam architecture" {
       "package": "researchteam",
       "path": "researchteam/__init__.py",
       "is_package": true,
+      "imports_internal": [],
+      "external": [],
+      "repo_local": []
+    },
+    "researchteam._agentteams_provenance": {
+      "package": "researchteam",
+      "path": "researchteam/_agentteams_provenance.py",
+      "is_package": false,
       "imports_internal": [],
       "external": [],
       "repo_local": []
@@ -148,6 +157,7 @@ digraph "researchteam architecture" {
       "path": "researchteam/_update_cmd.py",
       "is_package": false,
       "imports_internal": [
+        "researchteam._agentteams_provenance",
         "researchteam._fetch",
         "researchteam._manifest",
         "researchteam._personalize"
@@ -188,6 +198,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam._personalize",
       "target": "researchteam._manifest"
+    },
+    {
+      "source": "researchteam._update_cmd",
+      "target": "researchteam._agentteams_provenance"
     },
     {
       "source": "researchteam._update_cmd",

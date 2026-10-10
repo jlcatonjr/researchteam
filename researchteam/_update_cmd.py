@@ -284,14 +284,22 @@ def run_update(
     _refresh_codex(root, dry_run=dry_run)
 
 
+# Launchers that already passed _preflight_agentteams in this process; a materialize renders several
+# surfaces and must not re-probe (and re-print provenance for) the same launcher each time.
+_VERIFIED_LAUNCHERS: set[str] = set()
+
+
 def _preflight_agentteams() -> str:
     """Resolve and liveness-check the `agentteams` console script before shelling out.
 
-    Converts the two opaque failure modes of this integration into one-line, actionable
-    errors instead of a raw ``ModuleNotFoundError`` traceback:
+    Converts the opaque failure modes of this integration into one-line, actionable
+    errors instead of a raw ``ModuleNotFoundError`` traceback or a silently wrong render:
       1. `agentteams` absent from PATH.
       2. `agentteams` present but not runnable — the signature of a stale *editable*
          install whose finder points at a deleted path (e.g. a temporary git worktree).
+      3. `agentteams` runnable but not reviewed code: an editable checkout off origin/main or
+         with uncommitted sources, or a checkout shadowing the install
+         (see ``_agentteams_provenance``; CA-033).
 
     The ``--version`` probe is a genuine import assertion: the console-script entry point
     is ``build_team:main``, so ``--version`` must import ``build_team`` before argparse
@@ -302,13 +310,16 @@ def _preflight_agentteams() -> str:
     Returns the resolved absolute path to the console script.
     """
     exe = shutil.which("agentteams")
+    if exe is not None and exe in _VERIFIED_LAUNCHERS:
+        return exe
     if exe is None:
         sys.exit(
             "[researchteam] Layer-1 update needs 'agentteams', which is not on PATH.\n"
-            "  Install it into an environment on your PATH (from the canonical checkout):\n"
-            "    pip install -e /path/to/agentteams --no-build-isolation\n"
-            "  Do NOT run 'pip install -e' from a temporary git worktree — the install\n"
-            "  pointer goes stale when the worktree is removed (this repo's original outage).\n"
+            "  Install it into an environment on your PATH (agentteams pinned to a merged commit):\n"
+            '    pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git"\n'
+            "  An editable checkout (pip install -e) is accepted only while it is on origin/main and\n"
+            "  clean; never install one from a temporary git worktree — the install pointer goes\n"
+            "  stale when the worktree is removed (this repo's original outage).\n"
             "  To skip Layer-1 entirely:  researchteam update --layer2-only"
         )
     probe = subprocess.run([exe, "--version"], capture_output=True, text=True)
@@ -324,7 +335,34 @@ def _preflight_agentteams() -> str:
             "  Run 'researchteam doctor' for a full diagnosis.\n"
             f"  Detail: {tail[:300]}"
         )
+    # Check the launcher that will actually be executed (the PATH winner, which need not belong to the
+    # interpreter running researchteam), so a render never runs an unmerged or dirty agentteams (CA-033).
+    from ._agentteams_provenance import check as _check_provenance
+    if _check_provenance(exe) != 0:
+        sys.exit(
+            f"[researchteam] Refusing to run unreviewed agentteams code ({exe}); see the reason above.\n"
+            "  Run researchteam from an environment whose agentteams is pinned to a merged commit, e.g.\n"
+            '    pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git"\n'
+            "  and put that environment first on PATH."
+        )
+    _VERIFIED_LAUNCHERS.add(exe)
     return exe
+
+
+# P5a (agentteams f113f5d): --overwrite carries the user-editable '## Project-Specific Notes/Rules'
+# regions into the new render. Its opt-out flag doubles as the capability marker.
+_P5A_FLAG = "--discard-user-regions"
+
+
+def _require_p5a(exe: str) -> None:
+    """Refuse an overwrite render with an agentteams that would silently drop user-editable regions."""
+    probe = subprocess.run([exe, "--help"], capture_output=True, text=True)
+    if _P5A_FLAG not in probe.stdout:
+        sys.exit(
+            f"[researchteam] {exe} predates agentteams P5a (no {_P5A_FLAG}): its --overwrite would drop\n"
+            "  every '## Project-Specific Notes' / '## Project-Specific Rules' region. Upgrade agentteams\n"
+            "  to a commit on main at or after f113f5d before running materialize."
+        )
 
 
 def _resolve_descriptor(root: Path) -> tuple[str, Path | None]:
@@ -461,6 +499,7 @@ def _run_agentteams(
     overwrite: bool = False,
     framework: str | None = None,
     adopt_orphans: bool = False,
+    discard_user_regions: bool = False,
 ) -> None:
     if _brief_has_placeholder(root):
         msg = (
@@ -500,6 +539,9 @@ def _run_agentteams(
             # without generating or overwriting them. agentteams does not persist adoption, so it
             # must be requested on every render.
             cmd.append("--adopt-orphans")
+        if discard_user_regions:
+            # Opt out of P5a's carry: drop the user-editable Project-Specific Notes/Rules regions.
+            cmd.append(_P5A_FLAG)
     else:
         print(
             f"\n[researchteam] Running agentteams --update --merge "
@@ -621,6 +663,7 @@ def run_materialize(
     copilot_only: bool = False,
     adopt_orphans: bool = False,
     codex: bool = True,
+    discard_user_regions: bool = False,
 ) -> None:
     """Re-render a derived instance from its (edited) brief.json — RT-1/RT-2 cleared re-render.
 
@@ -639,6 +682,10 @@ def run_materialize(
     (files with no agentteams template) stay in the orchestrator roster. When the instance
     carries a Codex surface (``.codex/agents``), its agents and skills are re-projected after the
     renders unless ``codex`` is False.
+
+    The overwrite carries every user-editable ``## Project-Specific Notes`` / ``## Project-Specific
+    Rules`` region into the new files (agentteams P5a), so an agentteams without P5a is refused before
+    anything runs. ``discard_user_regions`` passes ``--discard-user-regions`` to drop them instead.
     """
     from ._personalize import is_upstream, run_personalize
 
@@ -654,6 +701,10 @@ def run_materialize(
             "Edit it to describe your project before materializing."
         )
 
+    # Fail before the prompt: the agentteams that will run must be reviewed code (provenance) and must
+    # carry user-editable regions across --overwrite (P5a).
+    _require_p5a(_preflight_agentteams())
+
     print(
         "[researchteam] materialize: this REPLACES generated agent bodies with a fresh render "
         "from brief.json (destructive to enriched fenced content)."
@@ -665,7 +716,8 @@ def run_materialize(
             return
 
     # Layer-1: overwrite re-render (+ RT-5 write-back happens inside _run_agentteams on success).
-    _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, adopt_orphans=adopt_orphans)
+    _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, adopt_orphans=adopt_orphans,
+                    discard_user_regions=discard_user_regions)
     if not copilot_only:
         surfaces = _native_surfaces(root)
         done = [".github/agents (copilot-vscode)"]
@@ -673,7 +725,7 @@ def run_materialize(
             print(f"[researchteam] materialize: native surface {directory} ({framework})")
             try:
                 _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, framework=framework,
-                                adopt_orphans=adopt_orphans)
+                                adopt_orphans=adopt_orphans, discard_user_regions=discard_user_regions)
             except SystemExit:
                 pending = [f"{d} ({fw})" for fw, d in surfaces[i + 1:]]
                 print(

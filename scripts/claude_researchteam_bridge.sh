@@ -158,9 +158,10 @@ command_code_query() {
   # researchteam/_update_cmd.py::_preflight_agentteams.
   if ! command -v agentteams >/dev/null 2>&1; then
     echo "[code-query] needs 'agentteams' (the optional 'update' extra), which is not on PATH." >&2
-    echo "  Install from the canonical checkout, into an env on your PATH:" >&2
-    echo "    pip install -e /path/to/agentteams --no-build-isolation" >&2
-    echo "  (do NOT 'pip install -e' from a temporary git worktree). Then: researchteam doctor" >&2
+    echo "  Install the update extra (agentteams pinned to a merged commit) into an env on your PATH:" >&2
+    echo "    pip install \"researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git\"" >&2
+    echo "  An editable checkout also works for update/materialize only while it is on origin/main" >&2
+    echo "  and clean (do NOT 'pip install -e' from a temporary git worktree). Then: researchteam doctor" >&2
     exit 1
   fi
   if [[ $# -lt 1 ]]; then

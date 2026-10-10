@@ -108,6 +108,12 @@ def main() -> None:
         "(passes agentteams --adopt-orphans to each render)",
     )
     materialize_p.add_argument(
+        "--discard-user-regions",
+        action="store_true",
+        help="Drop the user-editable '## Project-Specific Notes' / '## Project-Specific Rules' regions "
+        "instead of carrying them into the re-rendered files (passes agentteams --discard-user-regions)",
+    )
+    materialize_p.add_argument(
         "--no-codex",
         action="store_true",
         help="Skip re-projecting the Codex surface (.codex/agents, .agents/skills) after rendering",
@@ -160,7 +166,8 @@ def main() -> None:
         root = _find_repo_root(require_marker=True)
         from ._update_cmd import run_materialize
         run_materialize(root, yes=args.yes, dry_run=args.dry_run, copilot_only=args.copilot_only,
-                        adopt_orphans=args.adopt_orphans, codex=not args.no_codex)
+                        adopt_orphans=args.adopt_orphans, codex=not args.no_codex,
+                        discard_user_regions=args.discard_user_regions)
 
     elif args.command == "status":
         _cmd_status()
