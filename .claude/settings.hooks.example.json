@@ -92,8 +92,9 @@
     "(Linux); older builds are untested.",
     "The list also carries Edit(...) rules for the SIBLING teams' trust-root files (.github/agents,",
     ".codex/agents and .goose/recipes: switch, verify-key store, rosters, build-log.json; plus",
-    ".goose/sandbox.sb and .codex/config.toml), emitted whether or not those teams exist. They do",
-    "NOT cover copilot/codex agent files or .github/copilot-instructions.md (Edit-tool writable)."
+    ".goose/sandbox.sb and .codex/config.toml), emitted whether or not those teams exist. Unless the",
+    "brief sets protect_prompt_roots: true, they do NOT cover copilot/codex agent files or",
+    ".github/copilot-instructions.md (Edit-tool writable)."
   ],
   "hooks": {
     "PreToolUse": [
@@ -112,6 +113,13 @@
     "deny": [
       "Read(~/.config/agentteams/keys/**)",
       "Read(~/.config/agentteams/*.pem)",
+      "Edit(~/.config/agentteams/keys/**)",
+      "Edit(~/.config/agentteams/confined)",
+      "Edit(~/.config/agentteams/confined/**)",
+      "Edit(~/.config/agentteams/mcp-grants)",
+      "Edit(~/.config/agentteams/verify-keys)",
+      "Edit(~/.config/agentteams/mcp-grants/**)",
+      "Edit(~/.config/agentteams/verify-keys/**)",
       "Edit(/.claude/agents/references/agent-privilege.json)",
       "Edit(/.claude/agents/references/authorized-verify-keys/**)",
       "Edit(/.claude/agents/references/security-approvers.txt)",
@@ -120,6 +128,9 @@
       "Edit(/references/security-approvers.txt)",
       "Edit(/.claude/settings.json)",
       "Edit(/.claude/settings.local.json)",
+      "Edit(/.claude/settings.hooks.example.json)",
+      "Edit(/.goose/confined-run.example.sh)",
+      "Edit(/.codex/confined-run.example.sh)",
       "Edit(/.claude/hooks/**)",
       "Edit(/.github/agents/references/agent-privilege.json)",
       "Edit(/.github/agents/references/authorized-verify-keys/**)",
@@ -159,6 +170,7 @@
         ".claude/hooks/constitutional-gate.py",
         ".claude/agents/references/authorized-verify-keys",
         ".claude",
+        ".codex",
         ".github/agents",
         ".goose"
       ]

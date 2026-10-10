@@ -72,11 +72,28 @@ _BASH_REVIEW_TRIGGERS: tuple[tuple[str, str], ...] = (
     # security.template.md.
     (r"\bgh\b[^\n]*\s\w+\s+delete\b|\bgh\s+api\b[^\n]*(?:-X\s*DELETE|--method\s+DELETE)",
      "GitHub resource deletion via gh (repo/release/etc.) — irreversible"),
+    # A merge is outside every PR agent's remit and outside the github-write MCP allowlist; the same token
+    # through gh would otherwise get around both (MCP catalogue, @security implementation review cond. 6).
+    # `gh [flags] pr [flags] merge` only (flags may sit on either side of `pr`: `gh pr -R o/r merge`), so a
+    # "merge" in a PR body or a later `git merge` doesn't prompt. The REST merge endpoint and the GraphQL
+    # merge mutations prompt whatever sends them (gh api, curl, wget, an interpreter), not only gh: matching
+    # the client let `curl -X PUT …/pulls/N/merge` through (mathAgents @technical-validator, 2026-10-08).
+    (r"\bgh(?:\s+(?:-R|--repo)\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+pr"
+     r"(?:\s+(?:-R|--repo)\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+merge\b|"
+     r"\bpulls/[^\s/]+/merge\b|"
+     r"\b(?:mergePullRequest|enablePullRequestAutoMerge)\b",
+     "pull-request merge — human review decides; merges go through @git-operations' reviewed path"),
     (r"\bgit\b[^\n]*\bpush\b[^\n]*(?:--delete|--mirror|--prune)|\bgit\b[^\n]*\bpush\b[^\n]*\s:\S",
      "remote branch/tag deletion or mirror/prune push — irreversible remote loss"),
     (r"\bgit\b[^\n]*\b(?:branch|tag)\s+(?:-[a-zA-Z]*[dD]\b|--delete\b)|"
      r"\bgit\b[^\n]*\bupdate-ref\s+-d\b|\bgit\b[^\n]*\bworktree\s+remove\b",
      "git branch/tag/ref/worktree deletion (any -C/--git-dir prefix)"),
+    # argparse accepts unique prefixes (`--branch-c`, `--appl`), and the CLI is reachable as
+    # `agentteams`, `python -m agentteams.cli.app` or `build_team.py`; the Python API too.
+    (r"\b(?:agentteams|build_team)\b[^\n]*--branch-[cp][\w-]*[^\n]*--appl[\w-]*|"
+     r"\b(?:agentteams|build_team)\b[^\n]*--appl[\w-]*[^\n]*--branch-[cp][\w-]*|"
+     r"\bbranch_cleanup\b[^\n]*\b(?:run_cleanup|run_post_merge|execute_items)\b",
+     "branch deletion through agentteams (its git deletes run inside the tool, unseen here)"),
     (r"\brm\s+\S|\b(?:unlink|srm|wipe|rmdir|shred|truncate)\b|\bfind\b[^\n]*\s-delete\b|"
      r"\bdd\b[^\n]*\bof=|>\|\s*\S|(?:^|[;&|])\s*:\s*>\s*\S|\bmv\b[^\n]*\s/dev/null\b|\bcp\s+/dev/null\b",
      "irreversible filesystem deletion or truncation/overwrite"),
@@ -138,7 +155,8 @@ def main() -> int:
         return 0
 
     if tool_name == "Bash":
-        command = str(tool_input.get("command", ""))
+        # A backslash-newline is a line continuation to the shell; join it so no pattern is split by one.
+        command = re.sub(r"\\\r?\n", " ", str(tool_input.get("command", "")))
         for pattern, why in _BASH_REVIEW_TRIGGERS:
             if re.search(pattern, command, re.IGNORECASE):
                 _decide(
