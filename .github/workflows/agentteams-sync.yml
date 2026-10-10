@@ -74,4 +74,6 @@ jobs:
           title: "chore: agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
           commit-message: "chore: agentteams autosync → ${{ steps.gate.outputs.new_sha }}"
           body: ${{ steps.prbody.outputs.text }}
-          labels: agentteams-autosync
+          # security-review-required: the gate found a security-boundary path (sandbox/, hooks, CI,
+          # scripts, agent capability files, ...) in this update. Do not merge without @security.
+          labels: agentteams-autosync${{ steps.gate.outputs.sensitive == 'true' && ',security-review-required' || '' }}

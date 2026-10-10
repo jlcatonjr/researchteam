@@ -43,6 +43,11 @@ fence and placeholder checks run, but the update-run scope allowlist is skipped,
 repos legitimately change files outside it. After an update run, call
 `bash scripts/validate_agentteams_update.sh` directly so that the scope allowlist is enforced.
 
+The checks cover tracked changes (staged or not) and new untracked files that `.gitignore` doesn't
+exclude. So `validate` also runs the fence and placeholder checks on a new, uncommitted markdown file.
+The validator is a drift check: it catches an update that writes outside its scope. It is not a
+control against a compromised upstream.
+
 ### Reader and Summary Paths
 
 ```bash

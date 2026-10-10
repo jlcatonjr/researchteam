@@ -6,14 +6,31 @@ set -euo pipefail
 # Allowed paths cover the update layers plus the generated/user-owned identity files that
 # init/personalize/materialize legitimately write:
 #   Layer-1 (agentteams-managed): .github/, .vscode/tasks.json (agentteams meta-tasks,
-#                                 sentinel-merged so user tasks are preserved)
+#                                 sentinel-merged so user tasks are preserved), the native and
+#                                 interop agent surfaces (.claude/, .goose/, .codex/, .agents/,
+#                                 AGENTS.md), bridge records (references/bridges/ only; the rest
+#                                 of references/ is user-owned), and sandbox/ confinement scripts
+#                                 (a security boundary: an update PR that touches it needs
+#                                 @security review before merge)
 #   Layer-2 (researchteam-synced): docs/, scripts/, .claude/, .gitignore, and CLAUDE.md's
 #                                  fenced-preserve managed block
+#   Layer-1 root artifacts (exact paths only; the rest of references/ stays user-owned):
+#                                 references/architecture-{graph.md,graph.svg,modules.svg}
+#                                 (architecture-map refresh on --update), .goosehints,
+#                                 SETUP-REQUIRED.md, and .agentteams/bin/ (Codex role gate and
+#                                 runner server under an orchestrator-only write_policy; a security
+#                                 boundary like sandbox/)
 #   Generated / user-owned (permitted to change, NOT wholesale-synced): README.md and CLAUDE.md's
 #                                  project header (generated from brief.json by personalize),
 #                                  brief.json, .researchteam
+#
+# This is a DRIFT check, not a control against a compromised upstream: in the autosync job,
+# agentteams code has already run (with the job's write token) before this script runs, so a
+# malicious upstream could alter this script or the tree first. Its job is to catch an update that
+# writes somewhere it should not. A stronger control would regenerate in a job that holds no write
+# token and hand the diff to a separate, privileged job.
 
-allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/)'
+allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'
 forbidden_nested_mirror_regex='^\.github/agents/\.github(/|$)'
 
@@ -26,7 +43,12 @@ fi
 if [[ -n "${VALIDATION_CHANGED_FILES:-}" ]]; then
   changed_files="$VALIDATION_CHANGED_FILES"
 elif git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  changed_files="$(git diff --name-only)"
+  # Tracked changes (staged or not) PLUS new untracked files: a brand-new file written outside the
+  # allowlist must not skip the scope check just because it was never added.
+  # core.quotePath=false: a non-ASCII name must reach the allowlist as itself, not "\303\251"-quoted.
+  tracked="$(git -c core.quotePath=false diff --name-only HEAD 2>/dev/null || git -c core.quotePath=false diff --name-only)"
+  untracked="$(git -c core.quotePath=false ls-files --others --exclude-standard)"
+  changed_files="$(printf '%s\n%s\n' "$tracked" "$untracked" | sed '/^$/d' | sort -u)"
 else
   if [[ "${VALIDATION_ALLOW_NO_GIT:-0}" == "1" ]]; then
     echo "WARNING: No git worktree detected and VALIDATION_CHANGED_FILES not set; skipping diff-based validation due to VALIDATION_ALLOW_NO_GIT=1."
