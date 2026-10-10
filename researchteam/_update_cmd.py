@@ -251,6 +251,13 @@ def run_update(
     if layer1_only and layer2_only:
         sys.exit("[researchteam] --layer1-only and --layer2-only are mutually exclusive.")
 
+    layer1 = layer1_enabled(root)
+    if layer1_only and not layer1:
+        print("[researchteam] .researchteam declares layer1 = off: nothing to do for --layer1-only.")
+        return
+    if not layer1:
+        print("[researchteam] .researchteam declares layer1 = off: syncing layer 2 only "
+              "(no agentteams pass for this repository).")
     if layer1_only:
         # Integrate the current agent state only — the union-descriptor agentteams merge with
         # NO layer-2 file sync. This is the safe way to keep agent infrastructure integrated on
@@ -396,7 +403,7 @@ def run_update(
     if note:
         print(note)
 
-    if layer2_only:
+    if layer2_only or not layer1:
         return
 
     # Layer-1: delegate to agentteams
@@ -506,6 +513,21 @@ def _toolchain_hook_note(root: Path) -> str:
         f"  start of each Claude session when researchteam/agentteams drift from toolchain.lock, merge\n"
         f"  the SessionStart entry from {TOOLCHAIN_HOOK_EXAMPLE} into .claude/settings.json."
     )
+
+
+_LAYER1_OFF = {"off", "false", "no", "0"}
+
+
+def layer1_enabled(root: Path) -> bool:
+    """False when ``.researchteam`` declares ``layer1 = off``: a repo with no agentteams descriptor
+    (brief.json / _build-description.json) whose agent files are maintained by hand, so `update`
+    syncs layer 2 only instead of failing at layer 1."""
+    try:
+        text = (root / ".researchteam").read_text(encoding="utf-8")
+    except OSError:
+        return True
+    m = re.search(r"^layer1\s*=\s*(\S+)", text, re.M)
+    return not (m and m.group(1).strip("\"'").lower() in _LAYER1_OFF)
 
 
 def _resolve_agentteams() -> tuple[str | None, str]:
@@ -639,8 +661,11 @@ def _resolve_descriptor(root: Path) -> tuple[str, Path | None]:
         if manifest.exists():
             return str(manifest.relative_to(root)), None
         sys.exit(
-            "[researchteam] Neither brief.json nor .github/agents/_build-description.json "
-            "found; cannot run the Layer-1 agentteams update."
+            "[researchteam] Neither brief.json nor .github/agents/_build-description.json found, so the\n"
+            "  layer-1 agentteams pass cannot run here. Either describe the project in brief.json\n"
+            "  (then `researchteam update` maintains its agent team), or, if this repository's agent\n"
+            "  files are maintained by hand, add `layer1 = off` to .researchteam so `update` syncs\n"
+            "  layer 2 only. To sync layer 2 just this once: researchteam update --layer2-only"
         )
     if not manifest.exists():
         return "brief.json", None
@@ -990,6 +1015,9 @@ def run_materialize(
     """
     from ._personalize import is_upstream, run_personalize
 
+    if not layer1_enabled(root):
+        sys.exit("[researchteam] materialize re-renders the agent team, but .researchteam declares "
+                 "layer1 = off for this repository. Remove that line first if you mean it.")
     if is_upstream(root):
         sys.exit(
             "[researchteam] Refusing to materialize the UPSTREAM repository "
