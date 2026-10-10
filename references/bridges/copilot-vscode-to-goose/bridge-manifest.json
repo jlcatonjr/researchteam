@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-09T19:13:07.131476+00:00",
+  "generated_at": "2026-10-10T18:23:08.896803+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -55,15 +55,15 @@
     },
     {
       "path": "agents/interpretation-advisor.agent.md",
-      "sha256": "f066f2fcdaf1239ee2da0ee684ea5c9979febf692d648e4a73a7747202424825"
+      "sha256": "5d366661629100f0ec7c0818200061896225c14399cc6ccd5e82ed61d21e238a"
     },
     {
       "path": "agents/literature-review-expert.agent.md",
-      "sha256": "0f48aab6ac03126f8f7f09f09a19b7dd5f9c715d90c59868482385e86e65f416"
+      "sha256": "3c951101b21c54731d50d9f5954ebe9c57a9834bc75ab1befc0c7db68ad898e0"
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
-      "sha256": "12df9a59c598c03d8c605e8f186e72d6c75c85ee60c1b0d693ddbfaa31210e6f"
+      "sha256": "30aceecf29549e604cce368ae197085843bd7daa63f44c7b34197fb12f6c35e0"
     },
     {
       "path": "agents/navigator.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "d3a28661cb587f8675a055555b29bd9f0d41ec223f3ba7e1aeb33bc2b7ecb3ae"
+      "sha256": "e2ec5ecd856ee4f2848fc722f862872c05144fd13881902c944491672cfe8f9a"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -123,7 +123,7 @@
     },
     {
       "path": "agents/topic-scoping-expert.agent.md",
-      "sha256": "9a53350d1a2596e0df36e7e8a14189d4ea4df134edce4dd83ac1ba6dfc12d247"
+      "sha256": "0ae6465a66dde69e5ac4ee964f16a8863fbbecccfd482889ca50defab7122cf0"
     },
     {
       "path": "agents/visual-designer.agent.md",
