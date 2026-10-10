@@ -245,3 +245,38 @@ def test_seeded_check_with_no_seeded_files(tmp_path, monkeypatch):
     oks, warns = [], []
     _doctor_cmd._check_seeded_files(tmp_path, oks.append, warns.append)
     assert not warns and "none" in oks[0]
+
+
+def test_update_merges_every_recorded_bridge_after_layer1(tmp_path, monkeypatch, capsys):
+    for fw in ("claude", "goose"):
+        (tmp_path / _drift.BRIDGES_DIR / f"copilot-vscode-to-{fw}").mkdir(parents=True)
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    seen = []
+
+    class R:
+        def __init__(self, code):
+            self.returncode, self.stdout, self.stderr = code, "", "boom"
+
+    def fake_run(cmd, cwd=None, **_):
+        seen.append(cmd)
+        return R(0 if "claude" in cmd else 1)
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", fake_run)
+    _update_cmd._merge_bridges(tmp_path, dry_run=False)
+    assert [c[c.index("--framework") + 1] for c in seen] == ["claude", "goose"]
+    assert all("--bridge-merge" in c and "--bridge-check" not in c for c in seen)
+    out = capsys.readouterr()
+    assert "copilot-vscode→claude: merged" in out.out and "goose: --bridge-merge failed (boom)" in out.err
+    seen.clear()
+    _update_cmd._merge_bridges(tmp_path, dry_run=True)
+    assert seen == []
+
+
+def test_update_calls_bridge_merge_before_the_frozen_summary(tmp_path, monkeypatch):
+    order = []
+    for name in ("_run_agentteams", "_render_native_surfaces", "_refresh_codex"):
+        monkeypatch.setattr(_update_cmd, name, lambda *a, _n=name, **k: order.append(_n))
+    monkeypatch.setattr(_update_cmd, "_merge_bridges", lambda *a, **k: order.append("bridges"))
+    monkeypatch.setattr(_update_cmd, "_print_frozen_summary", lambda *a, **k: order.append("summary"))
+    _update_cmd.run_update(tmp_path, ref="main", yes=True, dry_run=False, layer2_only=False, layer1_only=True)
+    assert order[-2:] == ["bridges", "summary"] and order[0] == "_run_agentteams"
