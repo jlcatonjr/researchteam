@@ -25,6 +25,47 @@ def test_prepare_report_removes_the_previous_runs_report(tmp_path):
     _report(tmp_path, [ITEM])
     path = _drift.prepare_report(tmp_path)
     assert path == _drift.report_path(tmp_path) and not path.exists() and not path.with_suffix(".md").exists()
+    assert _drift.load_frozen(tmp_path) == []  # the kept copy is invisible while the run is going
+
+
+def test_a_failed_run_restores_the_previous_report(tmp_path):
+    _report(tmp_path, [ITEM])
+    _drift.prepare_report(tmp_path)
+    _drift.report_path(tmp_path).write_text("[]")  # a partial new report from the failed run
+    _drift.finish_report(tmp_path, None, succeeded=False)
+    assert [i["section"] for i in _drift.load_frozen(tmp_path)] == ["references/ref-bibtex-reference.md:content"]
+    assert not list((tmp_path / "tmp").glob(".*.prev"))
+
+
+def test_a_successful_run_drops_the_previous_report(tmp_path):
+    _report(tmp_path, [ITEM])
+    _drift.prepare_report(tmp_path)
+    _drift.finish_report(tmp_path, None, succeeded=True)  # froze nothing: no new report
+    assert _drift.load_frozen(tmp_path) == [] and not list((tmp_path / "tmp").glob(".*.prev"))
+
+
+def test_doctor_does_not_offer_a_grant_agentteams_would_refuse(tmp_path):
+    _report(tmp_path, [dict(ITEM, file="../copilot-instructions.md", fence="directory_structure",
+                            entry="../copilot-instructions.md:directory_structure@8c00f755ecbe")])
+    oks, warns = [], []
+    _doctor_cmd._check_frozen_fences(tmp_path, oks.append, warns.append)
+    line = next(w for w in warns if "copilot-instructions" in w)
+    assert "Not releasable by grant yet" in line and "AGENTTEAMS_SHRINK_ALLOW=" not in line
+
+
+def test_run_agentteams_restores_the_report_when_agentteams_fails(tmp_path, monkeypatch):
+    (tmp_path / "brief.json").write_text('{"project_name": "demo"}')
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    monkeypatch.setattr(_update_cmd, "_brief_has_placeholder", lambda root: False)
+
+    class Failed:
+        returncode = 2
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", lambda *a, **k: Failed())
+    _report(tmp_path, [ITEM])
+    with pytest.raises(SystemExit):
+        _update_cmd._run_agentteams(tmp_path, yes=True, dry_run=False)
+    assert len(_drift.load_frozen(tmp_path)) == 1
 
 
 def test_reports_from_every_surface_are_read(tmp_path):
@@ -284,3 +325,18 @@ def test_update_calls_bridge_merge_before_the_frozen_summary(tmp_path, monkeypat
     _update_cmd.run_update(tmp_path, ref="main", yes=True, dry_run=False, layer2_only=False, layer1_only=True)
     # upstream: bridges, then the Notes blocks (written last), then the summary
     assert order[-3:] == ["bridges", "notes", "summary"] and order[0] == "_run_agentteams"
+
+
+def test_run_agentteams_restores_the_report_when_the_subprocess_raises(tmp_path, monkeypatch):
+    (tmp_path / "brief.json").write_text('{"project_name": "demo"}')
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    monkeypatch.setattr(_update_cmd, "_brief_has_placeholder", lambda root: False)
+
+    def boom(*a, **k):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", boom)
+    _report(tmp_path, [ITEM])
+    with pytest.raises(KeyboardInterrupt):
+        _update_cmd._run_agentteams(tmp_path, yes=True, dry_run=False)
+    assert len(_drift.load_frozen(tmp_path)) == 1 and not list((tmp_path / "tmp").glob(".*.prev"))
