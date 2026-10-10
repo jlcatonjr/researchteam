@@ -240,3 +240,35 @@ def test_doctor_reports_the_toolchain_section(tmp_path, capsys):
     _check_toolchain(tmp_path, lambda m: seen.append(("ok", m)), lambda m: seen.append(("warn", m)))
     text = " | ".join(m for _, m in seen)
     assert "no toolchain.lock yet" in text and "not wired to SessionStart" in text
+
+
+def _fake_venv_repo(tmp_path: Path, check_exit: int) -> tuple[Path, Path]:
+    """A repo whose .venv/bin/python only logs its arguments (and fails the toolchain check on demand)."""
+    repo = tmp_path / "isolated" / "deep" / "repo"
+    (repo / "scripts").mkdir(parents=True)
+    shutil.copy(ROOT / "scripts" / "bootstrap_toolchain.sh", repo / "scripts")
+    (repo / "toolchain.lock").write_text(f"researchteam=jlcatonjr/researchteam@{A}\nagentteams=jlcatonjr/agentteams@{B}\n")
+    log = tmp_path / "calls.log"
+    py = repo / ".venv" / "bin" / "python"
+    py.parent.mkdir(parents=True)
+    py.write_text(f"#!/bin/sh\necho \"$*\" >> {log}\n"
+                  f"case \"$*\" in *check_toolchain.py*) exit {check_exit};; esac\nexit 0\n")
+    py.chmod(0o755)
+    return repo, log
+
+
+def test_bootstrap_force_reinstalls_each_pin_and_verifies_the_lock(tmp_path):
+    repo, log = _fake_venv_repo(tmp_path, check_exit=0)
+    r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    calls = log.read_text().splitlines()
+    for name, sha in (("agentteams", B), ("researchteam", A)):
+        url = f"{name} @ git+https://github.com/jlcatonjr/{name}@{sha}"
+        assert any(c.endswith(f"--force-reinstall --no-deps {url}") for c in calls), (name, calls)
+    assert any("check_toolchain.py" in c and "--strict" in c for c in calls)
+
+
+def test_bootstrap_fails_when_the_install_does_not_match_the_lock(tmp_path):
+    repo, _ = _fake_venv_repo(tmp_path, check_exit=1)
+    r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)
+    assert r.returncode == 1 and "does not match toolchain.lock" in r.stderr

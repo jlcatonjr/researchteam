@@ -58,11 +58,23 @@ if [[ "${1:-}" == "--local" ]]; then
   "$VENV/bin/python" -m pip install -q -e "$AT_SRC" -e "$RT_SRC"
   echo "[bootstrap] note: --local follows your checkouts, not toolchain.lock; check_toolchain.py reports any difference."
 else
-  echo "[bootstrap] agentteams @ ${AT#*@}"
-  "$VENV/bin/python" -m pip install -q "agentteams @ git+https://github.com/${AT%@*}@${AT#*@}"
-  echo "[bootstrap] researchteam @ ${RT#*@}"
-  "$VENV/bin/python" -m pip install -q "researchteam @ git+https://github.com/${RT%@*}@${RT#*@}"
+  for spec in "agentteams|$AT" "researchteam|$RT"; do
+    name="${spec%%|*}"; pin="${spec#*|}"
+    url="$name @ git+https://github.com/${pin%@*}@${pin#*@}"
+    echo "[bootstrap] $name @ ${pin#*@}"
+    # 1) dependencies (a no-op once present); 2) the pinned commit itself. pip treats a same-version
+    # package as already satisfied, so without --force-reinstall a lock bump within one version
+    # (researchteam stays 0.2.0 across commits) would silently keep the old commit.
+    "$VENV/bin/python" -m pip install -q "$url"
+    "$VENV/bin/python" -m pip install -q --force-reinstall --no-deps "$url"
+  done
 fi
 
-"$VENV/bin/python" "$ROOT/scripts/check_toolchain.py" --python "$VENV/bin/python" --no-remote
+if [[ "${1:-}" == "--local" ]]; then
+  "$VENV/bin/python" "$ROOT/scripts/check_toolchain.py" --python "$VENV/bin/python" --no-remote
+else
+  # The pinned install must now match toolchain.lock exactly; fail loudly if it does not.
+  "$VENV/bin/python" "$ROOT/scripts/check_toolchain.py" --python "$VENV/bin/python" --no-remote --strict \
+    || { echo "bootstrap: the installed toolchain does not match toolchain.lock (see above)" >&2; exit 1; }
+fi
 echo "[bootstrap] done. Activate with: source .venv/bin/activate"
