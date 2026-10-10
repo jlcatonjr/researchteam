@@ -99,6 +99,13 @@ historical-context, literature-library and news-perspective protocols and the in
 directives. They live in a block at the top of the Notes section:
 
 ```markdown
+
+**Layer-2-only repositories.** A repository whose agent files are maintained by hand has no
+agentteams descriptor (`brief.json` / `.github/agents/_build-description.json`). It can declare
+`layer1 = off` in `.researchteam`. `update` (including the derived autosync) then syncs layer 2
+only, `materialize` refuses, and `doctor` says so. Without that line, a missing descriptor is an
+error that names both ways out: describe the project in `brief.json`, or add `layer1 = off`.
+
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — ...

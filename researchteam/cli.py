@@ -9,6 +9,13 @@ from ._manifest import UPSTREAM_BRANCH
 
 
 def main() -> None:
+    # Line-buffer stdout so progress and errors (stderr) appear in order in CI logs; with a pipe,
+    # stdout is otherwise block-buffered and a failure message can print before the lines leading up
+    # to it (Batallion run 38081664174 looked silent for that reason).
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except (AttributeError, ValueError):
+        pass
     parser = argparse.ArgumentParser(
         prog="researchteam",
         description="ResearchTeam — agent-based research workflow framework",

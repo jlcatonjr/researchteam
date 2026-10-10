@@ -32,63 +32,68 @@ def run_doctor(root: Path, drift: bool = False) -> None:
 
     print("[researchteam] doctor — checking researchteam ↔ agentteams toolchain\n")
 
-    # --- 1. agentteams resolves (beside this researchteam first, else PATH) -------------
-    from ._update_cmd import _resolve_agentteams
+    from ._update_cmd import _resolve_agentteams, layer1_enabled
 
-    exe, where = _resolve_agentteams()
-    if exe is None:
-        fail(
-            "agentteams found neither beside this researchteam nor on PATH — Layer-1 "
-            "`researchteam update` will fail.\n"
-            "         In a derived repo: bash scripts/bootstrap_toolchain.sh"
-        )
+    layer1 = layer1_enabled(root)
+    if not layer1:
+        ok(".researchteam declares layer1 = off: `update` syncs layer 2 only; agentteams checks skipped.")
     else:
-        ok(f"agentteams: {exe} ({where})")
+        # --- 1. agentteams resolves (beside this researchteam first, else PATH) -------------
 
-        # --- 2. agentteams is runnable (import assertion via --version) ----------------
-        probe = subprocess.run([exe, "--version"], capture_output=True, text=True)
-        if probe.returncode != 0:
-            tail = ((probe.stderr or probe.stdout).strip().splitlines() or ["(no output)"])[-1]
+        exe, where = _resolve_agentteams()
+        if exe is None:
             fail(
-                "agentteams is installed but not runnable — likely a stale editable install "
-                "pointing at a deleted path.\n"
-                f"         Reinstall: <that-python> -m pip install -e <path-to-agentteams>\n"
-                f"         Detail: {tail[:200]}"
+                "agentteams found neither beside this researchteam nor on PATH — Layer-1 "
+                "`researchteam update` will fail.\n"
+                "         In a derived repo: bash scripts/bootstrap_toolchain.sh"
             )
         else:
-            ok(f"agentteams runnable: {(probe.stdout or probe.stderr).strip()}")
+            ok(f"agentteams: {exe} ({where})")
 
-            # --- 3. ephemeral-install smell -------------------------------------------
-            interp = _script_interpreter(exe)
-            src = _agentteams_source(interp)
-            if src is None:
-                warn("could not resolve agentteams source path for the ephemeral-install check")
-            elif any(marker in src for marker in _EPHEMERAL_MARKERS):
+            # --- 2. agentteams is runnable (import assertion via --version) ----------------
+            probe = subprocess.run([exe, "--version"], capture_output=True, text=True)
+            if probe.returncode != 0:
+                tail = ((probe.stderr or probe.stdout).strip().splitlines() or ["(no output)"])[-1]
                 fail(
-                    f"agentteams is installed from an EPHEMERAL path:\n         {src}\n"
-                    "         This will break the moment that path is cleaned up. Reinstall "
-                    "from a stable checkout:\n"
-                    f"         {interp} -m pip install -e <stable-agentteams-checkout>"
+                    "agentteams is installed but not runnable — likely a stale editable install "
+                    "pointing at a deleted path.\n"
+                    f"         Reinstall: <that-python> -m pip install -e <path-to-agentteams>\n"
+                    f"         Detail: {tail[:200]}"
                 )
             else:
-                ok(f"agentteams source is stable: {src}")
+                ok(f"agentteams runnable: {(probe.stdout or probe.stderr).strip()}")
 
-            # --- 3b. F-CODEIDX capability probe (advisory) ----------------------------
-            # The code & API index (retrieval surface #2) rides in on the agentteams
-            # `update` extra. If the resolved agentteams predates it, `--query-code` /
-            # `/code-recall` / the bridge `code-query` command are unavailable. Advisory,
-            # not fatal (the base workflow does not require it).
-            help_probe = subprocess.run([exe, "--help"], capture_output=True, text=True)
-            help_text = (help_probe.stdout or "") + (help_probe.stderr or "")
-            if "--query-code" in help_text:
-                ok("agentteams exposes the code & API index (--query-code); surface #2 available.")
-            else:
-                warn(
-                    "agentteams does not expose --query-code — the code & API index (F-CODEIDX) is "
-                    "unavailable.\n"
-                    "         Refresh the extra: pip install -U 'agentteams @ "
-                    "git+https://github.com/jlcatonjr/agentteams'. See docs/retrieval-surfaces.md."
-                )
+                # --- 3. ephemeral-install smell -------------------------------------------
+                interp = _script_interpreter(exe)
+                src = _agentteams_source(interp)
+                if src is None:
+                    warn("could not resolve agentteams source path for the ephemeral-install check")
+                elif any(marker in src for marker in _EPHEMERAL_MARKERS):
+                    fail(
+                        f"agentteams is installed from an EPHEMERAL path:\n         {src}\n"
+                        "         This will break the moment that path is cleaned up. Reinstall "
+                        "from a stable checkout:\n"
+                        f"         {interp} -m pip install -e <stable-agentteams-checkout>"
+                    )
+                else:
+                    ok(f"agentteams source is stable: {src}")
+
+                # --- 3b. F-CODEIDX capability probe (advisory) ----------------------------
+                # The code & API index (retrieval surface #2) rides in on the agentteams
+                # `update` extra. If the resolved agentteams predates it, `--query-code` /
+                # `/code-recall` / the bridge `code-query` command are unavailable. Advisory,
+                # not fatal (the base workflow does not require it).
+                help_probe = subprocess.run([exe, "--help"], capture_output=True, text=True)
+                help_text = (help_probe.stdout or "") + (help_probe.stderr or "")
+                if "--query-code" in help_text:
+                    ok("agentteams exposes the code & API index (--query-code); surface #2 available.")
+                else:
+                    warn(
+                        "agentteams does not expose --query-code — the code & API index (F-CODEIDX) is "
+                        "unavailable.\n"
+                        "         Refresh the extra: pip install -U 'agentteams @ "
+                        "git+https://github.com/jlcatonjr/agentteams'. See docs/retrieval-surfaces.md."
+                    )
 
     # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
     _check_toolchain(root, ok, warn)
