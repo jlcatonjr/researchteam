@@ -20,6 +20,7 @@ set -euo pipefail
 #                                 SETUP-REQUIRED.md, and .agentteams/bin/ (Codex role gate and
 #                                 runner server under an orchestrator-only write_policy; a security
 #                                 boundary like sandbox/)
+#   toolchain.lock: rewritten by the autosync gate after a green sync (check_toolchain.py --write-lock)
 #   Generated / user-owned (permitted to change, NOT wholesale-synced): README.md and CLAUDE.md's
 #                                  project header (generated from brief.json by personalize),
 #                                  brief.json, .researchteam
@@ -30,7 +31,7 @@ set -euo pipefail
 # writes somewhere it should not. A stronger control would regenerate in a job that holds no write
 # token and hand the diff to a separate, privileged job.
 
-allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/)'
+allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/|toolchain\.lock$)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'
 forbidden_nested_mirror_regex='^\.github/agents/\.github(/|$)'
 

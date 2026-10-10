@@ -275,6 +275,10 @@ def run_update(
         f"{len(updated)} {verb}, {len(skipped)} skipped, {len(errors)} errors."
     )
 
+    note = _toolchain_hook_note(root)
+    if note:
+        print(note)
+
     if layer2_only:
         return
 
@@ -287,6 +291,57 @@ def run_update(
 # Launchers that already passed _preflight_agentteams in this process; a materialize renders several
 # surfaces and must not re-probe (and re-print provenance for) the same launcher each time.
 _VERIFIED_LAUNCHERS: set[str] = set()
+
+
+TOOLCHAIN_HOOK_SCRIPT = "scripts/check_toolchain.py"
+TOOLCHAIN_HOOK_EXAMPLE = ".claude/settings.toolchain.example.json"
+
+
+def _toolchain_hook_installed(root: Path) -> bool:
+    """Whether .claude/settings(.local).json runs the toolchain check at SessionStart."""
+    for name in ("settings.json", "settings.local.json"):
+        try:
+            data = json.loads((root / ".claude" / name).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        hooks = data.get("hooks") if isinstance(data, dict) else None
+        entries = hooks.get("SessionStart") if isinstance(hooks, dict) else None
+        for entry in entries if isinstance(entries, list) else []:
+            inner = entry.get("hooks") if isinstance(entry, dict) else None
+            for hook in inner if isinstance(inner, list) else []:
+                if isinstance(hook, dict) and TOOLCHAIN_HOOK_SCRIPT in str(hook.get("command", "")):
+                    return True
+    return False
+
+
+def _toolchain_hook_note(root: Path) -> str:
+    """A nudge (printed on every update) while the toolchain check is present but not wired to SessionStart.
+
+    researchteam never edits ``.claude/settings.json`` (hooks run code; merging them is an operator
+    step, the same rule agentteams follows), so it only says what to merge.
+    """
+    if not (root / TOOLCHAIN_HOOK_SCRIPT).exists() or _toolchain_hook_installed(root):
+        return ""
+    return (
+        "[researchteam] note: the toolchain check is not wired to SessionStart. To be warned at the\n"
+        f"  start of each Claude session when researchteam/agentteams drift from toolchain.lock, merge\n"
+        f"  the SessionStart entry from {TOOLCHAIN_HOOK_EXAMPLE} into .claude/settings.json."
+    )
+
+
+def _resolve_agentteams() -> tuple[str | None, str]:
+    """``(launcher, where)``: the ``agentteams`` beside this interpreter first, else the PATH one.
+
+    researchteam runs the agentteams installed in its OWN environment when there is one, so an
+    unactivated ``.venv/bin/researchteam`` (e.g. from ``scripts/bootstrap_toolchain.sh``) runs the
+    pinned agentteams, not whichever one happens to come first on PATH. ``sys.executable`` is not
+    resolved: a venv's python is a symlink, and its ``bin/`` is the environment's.
+    """
+    sibling = Path(sys.executable).parent / "agentteams"
+    if sibling.is_file() and os.access(sibling, os.X_OK):
+        return str(sibling), "beside this researchteam"
+    exe = shutil.which("agentteams")
+    return exe, "from PATH (none installed beside this researchteam)"
 
 
 def _preflight_agentteams() -> str:
@@ -307,14 +362,20 @@ def _preflight_agentteams() -> str:
     which is exactly the invariant a bare ``sys.executable`` invocation would violate here
     (researchteam's venv does not have ``build_team`` installed).
 
+    Resolution: the agentteams beside ``sys.executable`` first, else PATH (``_resolve_agentteams``).
+
     Returns the resolved absolute path to the console script.
     """
-    exe = shutil.which("agentteams")
+    exe, where = _resolve_agentteams()
     if exe is not None and exe in _VERIFIED_LAUNCHERS:
         return exe
+    if exe is not None:
+        print(f"[researchteam] agentteams: {exe} ({where})")
     if exe is None:
         sys.exit(
-            "[researchteam] Layer-1 update needs 'agentteams', which is not on PATH.\n"
+            "[researchteam] Layer-1 update needs 'agentteams', found neither beside this researchteam\n"
+            f"  ({Path(sys.executable).parent}) nor on PATH. In a derived repo:\n"
+            "    bash scripts/bootstrap_toolchain.sh   (installs the pinned toolchain into .venv)\n"
             "  Install it into an environment on your PATH (agentteams pinned to a merged commit):\n"
             '    pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git"\n'
             "  An editable checkout (pip install -e) is accepted only while it is on origin/main and\n"
@@ -327,7 +388,7 @@ def _preflight_agentteams() -> str:
         detail = (probe.stderr or probe.stdout).strip().splitlines()
         tail = detail[-1] if detail else "(no output)"
         sys.exit(
-            f"[researchteam] 'agentteams' is on PATH ({exe}) but is not runnable.\n"
+            f"[researchteam] 'agentteams' resolved {where} ({exe}) but is not runnable.\n"
             "  This is almost always a stale editable install whose finder points at a\n"
             "  deleted path (e.g. a temporary git worktree). Reinstall from the canonical\n"
             "  checkout, using the interpreter that owns the console script:\n"
@@ -335,8 +396,8 @@ def _preflight_agentteams() -> str:
             "  Run 'researchteam doctor' for a full diagnosis.\n"
             f"  Detail: {tail[:300]}"
         )
-    # Check the launcher that will actually be executed (the PATH winner, which need not belong to the
-    # interpreter running researchteam), so a render never runs an unmerged or dirty agentteams (CA-033).
+    # Check the launcher that will actually be executed (beside this interpreter, else the PATH one),
+    # so a render never runs an unmerged or dirty agentteams (CA-033).
     from ._agentteams_provenance import check as _check_provenance
     if _check_provenance(exe) != 0:
         sys.exit(

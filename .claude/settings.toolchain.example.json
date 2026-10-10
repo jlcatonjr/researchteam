@@ -1,0 +1,16 @@
+{
+  "_comment": "Managed by researchteam. Merge the SessionStart entry below into .claude/settings.json (operator step; researchteam never edits settings.json). At the start of each Claude session it reports whether the installed researchteam/agentteams match toolchain.lock. `researchteam doctor` says whether it is installed.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/check_toolchain.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
