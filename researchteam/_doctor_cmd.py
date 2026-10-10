@@ -238,6 +238,12 @@ def _check_frozen_fences(root: Path, ok, warn) -> None:
             ok(f"  {where} — intentional: {clean(intentional[i['section']]) or '(no reason given)'}; {age}")
         else:
             hint = " — every lost token is retired upstream; safe to release" if i["all_retired"] else ""
+            if clean(i["entry"]).startswith("../"):
+                # agentteams' --shrink-allow refuses paths outside the agents dir (filed upstream), and
+                # a refused grant fails the whole run, so do not offer one it cannot apply.
+                warn(f"  {where} — {age}{hint}. Not releasable by grant yet: agentteams rejects "
+                     "'../' paths in AGENTTEAMS_SHRINK_ALLOW; leave it frozen or edit it by review.")
+                continue
             release = shlex.quote(f"AGENTTEAMS_SHRINK_ALLOW={clean(i['entry'])}")
             warn(f"  {where} — {age}{hint}. Release after review: {release}")
 

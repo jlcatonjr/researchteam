@@ -45,17 +45,42 @@ def report_path(root: Path, framework: str | None = None) -> Path:
     return root / "tmp" / f"{REPORT_STEM}{suffix}.json"
 
 
+def _kept(path: Path) -> Path:
+    """Where the previous report waits during a run (hidden, so ``load_frozen`` never reads it)."""
+    return path.with_name(f".{path.name}.prev")
+
+
 def prepare_report(root: Path, framework: str | None = None) -> Path:
-    """Remove the previous run's report for this surface and return the path for the next one.
+    """Move this surface's previous report aside and return the path for the next one.
 
     agentteams writes the report only when it froze something, so a stale report from an earlier
-    run would otherwise survive a run that froze nothing.
+    run would otherwise survive a run that froze nothing. The previous report is kept aside (not
+    deleted) until ``finish_report`` knows whether the run succeeded.
     """
     path = report_path(root, framework)
-    for stale in (path, path.with_suffix(".md")):
-        stale.unlink(missing_ok=True)
     path.parent.mkdir(parents=True, exist_ok=True)
+    for current in (path, path.with_suffix(".md")):
+        if current.exists():
+            current.replace(_kept(current))
+        else:
+            _kept(current).unlink(missing_ok=True)
     return path
+
+
+def finish_report(root: Path, framework: str | None, succeeded: bool) -> None:
+    """Drop the kept report after a successful run; restore it after a failed one.
+
+    A failed run (e.g. agentteams refusing a shrink grant) must not erase the last good report.
+    """
+    path = report_path(root, framework)
+    for current in (path, path.with_suffix(".md")):
+        kept = _kept(current)
+        if succeeded:
+            kept.unlink(missing_ok=True)
+        elif kept.exists():
+            kept.replace(current)
+        else:
+            current.unlink(missing_ok=True)  # no earlier report: keep none rather than a partial one
 
 
 def load_frozen(root: Path) -> list[dict]:

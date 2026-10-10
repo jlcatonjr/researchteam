@@ -922,6 +922,9 @@ def _run_agentteams(
             except OSError:
                 pass
 
+    if not dry_run:
+        from ._drift import finish_report
+        finish_report(root, framework, succeeded=result.returncode == 0)
     if result.returncode != 0:
         print("[researchteam] agentteams update exited non-zero.", file=sys.stderr)
         sys.exit(result.returncode)
