@@ -76,6 +76,11 @@ PR_BODY_FILE="${AUTOSYNC_PR_BODY_FILE:-.autosync-pr-body.md}"
 SCRUB_PATHS=(
   ".github/agents/references/delivery-receipt.json"
   ".github/agents/references/memory-index.json"
+  # Native surfaces re-rendered by `researchteam update` write the same machine-path-bearing files (S-8).
+  ".claude/agents/references/delivery-receipt.json"
+  ".claude/agents/references/memory-index.json"
+  ".goose/recipes/references/delivery-receipt.json"
+  ".goose/recipes/references/memory-index.json"
 )
 # Known-noise the PR BODY omits so the reviewer sees signal, not regen churn (the commit still carries
 # it — a full regen produces it — but the body highlights only substantive paths).
