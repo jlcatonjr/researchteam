@@ -53,7 +53,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
-| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure. |
+| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then the Codex projection. |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
@@ -179,7 +179,7 @@ precede the signature.
 
 ## Why `update` cannot re-brand an instance (use `materialize`)
 
-`researchteam update` runs `agentteams --update --merge --shrink-policy preserve`. `--merge` is
+`researchteam update` runs `agentteams --update --merge --shrink-policy preserve` on the copilot-vscode team and on every native surface that already has a native agentteams build-log (`.claude/agents`, `.goose/recipes`; a bare bridge or an interop projection marker is skipped), adding `--framework <fw> --project . --materialize-native` for the native ones. A failure on any surface stops the run (non-zero exit, so an autosync opens no PR) and names the surfaces done and not attempted. `--merge` is
 content-preserving and `preserve` is pinned on purpose, so an already-enriched agent body is never
 silently replaced. That protects your research content — but it also means a plain `update` will
 **not** re-brand agent bodies after you change the project's domain or identity in `brief.json`.
