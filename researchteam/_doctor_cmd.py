@@ -7,7 +7,8 @@ a deleted temporary path.
 """
 
 import json
-import shutil
+import re
+import shlex
 import subprocess
 import sys
 from pathlib import Path
@@ -15,7 +16,7 @@ from pathlib import Path
 _EPHEMERAL_MARKERS = ("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")
 
 
-def run_doctor(root: Path) -> None:
+def run_doctor(root: Path, drift: bool = False) -> None:
     problems = 0
 
     def ok(msg: str) -> None:
@@ -91,6 +92,14 @@ def run_doctor(root: Path) -> None:
 
     # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
     _check_toolchain(root, ok, warn)
+
+    # --- 3d. frozen fences (offline; from the last update's shrink review report) -------
+    _check_frozen_fences(root, ok, warn)
+
+    # --- 3e. seeded files + bridges (opt-in: network / agentteams) ---------------------
+    if drift:
+        _check_seeded_files(root, ok, warn)
+        _check_bridges(root, ok, warn)
 
     # --- 4. descriptor health (content vs roster reconciliation) -----------------------
     brief = root / "brief.json"
@@ -202,3 +211,108 @@ def _check_toolchain(root: Path, ok, warn) -> None:
         warn(f"toolchain check is not wired to SessionStart — merge {TOOLCHAIN_HOOK_EXAMPLE} "
              "into .claude/settings.json (operator step).")
 
+
+def _check_frozen_fences(root: Path, ok, warn) -> None:
+    """List the sections the shrink guard kept frozen at the last update, with age and intent."""
+    from ._drift import age_days, clean, first_seen, load_frozen, load_intentional
+
+    items = load_frozen(root)
+    if not items:
+        ok("frozen fences: none recorded at the last `researchteam update` (or none run yet here).")
+        return
+    intentional, seen = load_intentional(root), first_seen(root)
+    review = [i for i in items if i["section"] not in intentional]
+    (warn if review else ok)(f"frozen fences: {len(items)} kept by the shrink guard "
+                             f"({len(items) - len(review)} intentional, {len(review)} to review).")
+    for i in items:
+        since = seen.get(f"{i['surface']}|{i['section']}")
+        days = age_days(since) if since else None
+        age = f"frozen {days}d (since {clean(since)})" if days is not None else "age unknown"
+        where = clean(f"{i['surface']}: {i['section']}")
+        if i["section"] in intentional:
+            ok(f"  {where} — intentional: {clean(intentional[i['section']]) or '(no reason given)'}; {age}")
+        else:
+            hint = " — every lost token is retired upstream; safe to release" if i["all_retired"] else ""
+            release = shlex.quote(f"AGENTTEAMS_SHRINK_ALLOW={clean(i['entry'])}")
+            warn(f"  {where} — {age}{hint}. Release after review: {release}")
+
+
+def _check_seeded_files(root: Path, ok, warn) -> None:
+    """Seeded-but-unsynced files whose upstream-owned part differs from upstream at the pinned commit."""
+    from ._drift import SAFE_REF, clean, comparable_body
+    from ._fetch import fetch_raw
+    from ._manifest import SEEDED_FILES, UPSTREAM_REPO
+
+    ref, how = _upstream_ref(root)
+    if not SAFE_REF.match(ref):
+        warn(f"seeded files: not checked; the upstream ref {clean(ref)!r} ({how}) is not a plain commit or name")
+        return
+    behind = failed = 0
+    for rel in SEEDED_FILES:
+        local = root / rel
+        try:
+            upstream = fetch_raw(UPSTREAM_REPO, ref, rel)
+        except RuntimeError as exc:
+            warn(f"seeded {rel}: could not fetch upstream @{ref[:12]} ({clean(exc)})")
+            failed += 1
+            continue
+        if not local.exists():
+            warn(f"seeded {rel}: missing locally (upstream @{ref[:12]} has it)")
+            behind += 1
+        elif comparable_body(local.read_text(encoding="utf-8")) != comparable_body(upstream):
+            warn(f"seeded {rel}: differs from upstream @{ref[:12]} ({how}) outside Project-Specific Notes")
+            behind += 1
+    if not behind and not failed:
+        ok(f"seeded files match upstream @{ref[:12]} ({how}) outside Project-Specific Notes.")
+
+
+def _upstream_ref(root: Path) -> tuple[str, str]:
+    """The researchteam commit to compare against: toolchain.lock's pin, else the marker ref, else main."""
+    lock = root / "toolchain.lock"
+    if lock.exists():
+        for line in lock.read_text(encoding="utf-8").splitlines():
+            if line.startswith("researchteam=") and "@" in line:
+                return line.rsplit("@", 1)[1].strip(), "toolchain.lock pin"
+    marker = None
+    try:
+        m = re.search(r"^ref\s*=\s*(\S+)", (root / ".researchteam").read_text(encoding="utf-8"), re.M)
+        marker = m.group(1).strip("\"'") if m else None
+    except OSError:
+        pass
+    return (marker or "main"), ("marker ref" if marker else "main")
+
+
+def _check_bridges(root: Path, ok, warn) -> None:
+    """Run agentteams --bridge-check for every recorded copilot-vscode bridge."""
+    from ._drift import BRIDGES_DIR, bridge_frameworks, clean, parse_bridge_report
+    from ._update_cmd import _preflight_agentteams
+
+    frameworks = bridge_frameworks(root)
+    if not frameworks:
+        ok("bridges: none recorded under references/bridges/.")
+        return
+    try:
+        exe = _preflight_agentteams()  # the same resolution + provenance check a render gets
+    except SystemExit as exc:
+        warn(f"bridges: not checked; agentteams did not pass the pre-flight ({clean(exc)})")
+        return
+    for fw in frameworks:
+        report = root / BRIDGES_DIR / f"copilot-vscode-to-{fw}" / "bridge-check.report.md"
+        report.unlink(missing_ok=True)  # never show an earlier run's verdict as this one's
+        try:
+            r = subprocess.run([exe, "--bridge-from", ".github/agents", "--framework", fw, "--output", ".",
+                                "--bridge-check"], cwd=str(root), capture_output=True, text=True, timeout=300)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            warn(f"bridge copilot-vscode→{clean(fw)}: --bridge-check could not run ({clean(exc)})")
+            continue
+        result, changed = parse_bridge_report(report.read_text(encoding="utf-8")) if report.exists() else ("UNKNOWN", [])
+        if r.returncode == 0 and result == "PASS":
+            ok(f"bridge copilot-vscode→{clean(fw)}: PASS")
+            continue
+        detail = f"; changed since last merge: {clean(', '.join(changed[:5]))}" if changed else ""
+        if result == "UNKNOWN":
+            tail = ((r.stderr or r.stdout).strip().splitlines() or ["(no output)"])[-1]
+            detail += f"; agentteams said: {clean(tail[:200])}"
+        refresh = shlex.join(["agentteams", "--bridge-from", ".github/agents", "--framework", fw,
+                              "--output", ".", "--bridge-merge"])
+        warn(f"bridge copilot-vscode→{clean(fw)}: {clean(result)}{detail}. Refresh: {clean(refresh)}")

@@ -178,6 +178,7 @@ def run_update(
         _run_agentteams(root, yes=yes, dry_run=dry_run)
         # The merge may change canonical agents; keep the Codex projection in step.
         _refresh_codex(root, dry_run=dry_run)
+        _print_frozen_summary(root, dry_run)
         return
 
     profile = _read_brief_profile(root)
@@ -286,6 +287,15 @@ def run_update(
     _run_agentteams(root, yes=yes, dry_run=dry_run)
     # The merge may change canonical agents; keep the Codex projection in step.
     _refresh_codex(root, dry_run=dry_run)
+    _print_frozen_summary(root, dry_run)
+
+
+def _print_frozen_summary(root: Path, dry_run: bool) -> None:
+    """Report the sections agentteams' shrink guard keeps frozen, per the latest report of every surface."""
+    if dry_run:
+        return
+    from ._drift import frozen_summary
+    print(frozen_summary(root))
 
 
 # Launchers that already passed _preflight_agentteams in this process; a materialize renders several
@@ -612,13 +622,22 @@ def _run_agentteams(
         # unreviewed agentteams from main via the autosync CI, so a future default flip must never silently
         # shrink researchteam's enriched fences into an auto-PR). See docs/agentteams-update-policy.md.
         cmd = [exe, "--description", descriptor, "--update", "--merge", "--shrink-policy", "preserve"]
+    env = None
+    if not dry_run:
+        from ._drift import prepare_report
+        report = prepare_report(root, framework)  # drop this surface's previous report either way
+        if not overwrite:
+            # Ask agentteams for the shrink review report (gitignored tmp/), so a section the guard keeps
+            # frozen is counted every run instead of drifting silently (see _drift.py). An overwrite
+            # render freezes nothing, so its surface simply has no report afterwards.
+            env = dict(os.environ, AGENTTEAMS_SHRINK_REPORT=str(report))
     if yes:
         cmd.append("--yes")
     if dry_run:
         cmd.append("--dry-run")
 
     try:
-        result = subprocess.run(cmd, cwd=str(root))
+        result = subprocess.run(cmd, cwd=str(root), env=env)
     finally:
         if tmp is not None:
             try:

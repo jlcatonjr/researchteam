@@ -27,7 +27,7 @@ def calls(monkeypatch):
 
     monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
     monkeypatch.setattr(_update_cmd, "_require_p5a", lambda exe: None)
-    def fake_run(cmd, cwd=None):
+    def fake_run(cmd, cwd=None, **_):
         if "--description" in cmd:
             desc = Path(cwd) / cmd[cmd.index("--description") + 1]
             cmd = cmd + ["#content", desc.read_text()]         # capture before the temp file is removed

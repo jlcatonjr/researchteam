@@ -132,10 +132,16 @@ def main() -> None:
     # ---- status --------------------------------------------------------------
     sub.add_parser("status", help="Show marker info and CLI version")
 
-    sub.add_parser(
+    doctor_p = sub.add_parser(
         "doctor",
         help="Diagnose researchteam↔agentteams toolchain health (agentteams resolvable, "
-        "runnable, non-ephemeral install; descriptor reconciliation)",
+        "runnable, non-ephemeral install; toolchain pin; frozen fences; descriptor reconciliation)",
+    )
+    doctor_p.add_argument(
+        "--drift",
+        action="store_true",
+        help="Also check drift that needs the network or agentteams: seeded files vs upstream at the "
+        "pinned commit, and --bridge-check per bridge (rewrites the gitignored bridge-check reports)",
     )
 
     args = parser.parse_args()
@@ -175,7 +181,7 @@ def main() -> None:
     elif args.command == "doctor":
         root = _find_repo_root(require_marker=False)
         from ._doctor_cmd import run_doctor
-        run_doctor(root)
+        run_doctor(root, drift=args.drift)
 
 
 # ---------------------------------------------------------------------------

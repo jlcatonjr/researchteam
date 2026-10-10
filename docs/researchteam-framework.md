@@ -55,7 +55,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
 | `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure. |
 | `researchteam status` | Show marker info and CLI version. |
-| `researchteam doctor` | Diagnose the researchteam ↔ agentteams toolchain. |
+| `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
 ## The two-layer update model
 
@@ -161,6 +161,38 @@ that shadows the installed copy is refused. A VCS install pinned to a merged com
 extra) always passes; a local-folder snapshot (no commit recorded) is refused unless
 `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. `researchteam doctor` does not
 run this check.
+
+## Drift report
+
+Some drift used to go unnoticed until someone found it by hand. `update` and `doctor` now report
+it:
+
+- **Frozen fences.** `update` pins `--shrink-policy preserve`. When a template rewords a section,
+  the shrink guard can keep the old body indefinitely. Every layer-1 run therefore asks agentteams
+  for its shrink review report (`tmp/agentteams-shrink-report*.json`/`.md`, gitignored). `update`
+  prints how many sections were kept, and `doctor` lists each one with how long it has been frozen
+  (first-seen dates are kept in `tmp/frozen-fences.state.json`). For each section, `doctor` also
+  prints the exact `AGENTTEAMS_SHRINK_ALLOW` entry that releases it after review. To keep a section
+  frozen on purpose, list it in `.github/agents/references/intentional-pins.json`. That file is
+  repo-owned and never synced:
+
+  ```json
+  {"pins": [{"section": "references/ref-bibtex-reference.md:content",
+             "reason": "holds filled tool docs the template would reset to placeholders"}]}
+  ```
+
+  `section` is `<file>:<fence>`, exactly as the report prints it.
+  The file turns warnings into OKs, so review changes to it as you would a security change.
+- **Toolchain pin.** `doctor` runs `scripts/check_toolchain.py` for its own interpreter (see
+  *Pinned toolchain*).
+- **`doctor --drift`** (opt-in, because it needs the network and agentteams):
+  - It compares each file that `init` seeds but `update` never syncs with upstream at the pinned
+    researchteam commit (`toolchain.lock`, else the marker ref). `## Project-Specific Notes` is
+    ignored in that comparison.
+  - It runs `agentteams --bridge-check` for each bridge recorded under `references/bridges/`. That
+    rewrites the gitignored `bridge-check.report.md` files.
+
+All drift findings are warnings. They never fail `doctor`.
 
 ## Derived-repo CI
 
