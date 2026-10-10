@@ -56,6 +56,15 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/check_literature_library_integrity.sh",
 ]
 
+# Files `init` seeds that `update` never syncs (not managed, not agentteams-rendered, not project
+# content). `doctor --drift` compares their upstream-owned part (everything before
+# `## Project-Specific Notes`) with upstream at the pinned researchteam commit. A file leaves this list
+# when it becomes managed (OrthodoxLLM Item 1 plans that for both of these).
+SEEDED_FILES = [
+    ".github/agents/interpretation-advisor.agent.md",
+    ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
+]
+
 # Backwards-compatible flat list (scholarly default). Existing callers/tests that import
 # MANAGED_FILES keep seeing the full scholarly set.
 MANAGED_FILES = FRAMEWORK_MANAGED_FILES + SCHOLARLY_MANAGED_FILES
