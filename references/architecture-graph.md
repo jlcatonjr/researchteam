@@ -3,9 +3,9 @@
 
 > **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually — changes will be overwritten.
 
-- Modules mapped: **10**
+- Modules mapped: **11**
 - Packages: **1**
-- Internal import edges: **19**
+- Internal import edges: **20**
 - Distinct external dependencies: **0**
 
 ---
@@ -22,7 +22,7 @@ Inter-package import dependencies (module-level detail in the tables below).
 
 | Package | Modules | Depends on |
 | --- | --- | --- |
-| `researchteam` | 10 | — |
+| `researchteam` | 11 | — |
 
 ---
 
@@ -45,8 +45,9 @@ Every module, coloured by package (full adjacency in the table below).
 | `researchteam._fetch` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
+| `researchteam._notes` | — | `researchteam._update_cmd` |
 | `researchteam._personalize` | `researchteam._manifest` | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
-| `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
+| `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._notes`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
 | `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._update_cmd` | — |
 
 ---
@@ -156,6 +157,14 @@ digraph "researchteam architecture" {
       "external": [],
       "repo_local": []
     },
+    "researchteam._notes": {
+      "package": "researchteam",
+      "path": "researchteam/_notes.py",
+      "is_package": false,
+      "imports_internal": [],
+      "external": [],
+      "repo_local": []
+    },
     "researchteam._personalize": {
       "package": "researchteam",
       "path": "researchteam/_personalize.py",
@@ -175,6 +184,7 @@ digraph "researchteam architecture" {
         "researchteam._drift",
         "researchteam._fetch",
         "researchteam._manifest",
+        "researchteam._notes",
         "researchteam._personalize"
       ],
       "external": [],
@@ -245,6 +255,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam._update_cmd",
       "target": "researchteam._manifest"
+    },
+    {
+      "source": "researchteam._update_cmd",
+      "target": "researchteam._notes"
     },
     {
       "source": "researchteam._update_cmd",

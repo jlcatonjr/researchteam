@@ -149,3 +149,35 @@ James confirmed Item 3 in researchteam's own session.
 - **Item 3.4b (`_preflight_agentteams` resolution): ACCEPT.** Prefer the `agentteams` beside
   `sys.executable`, and fall back to PATH only when there is none, saying so. The researchteam #29
   provenance check runs on whichever one is chosen.
+
+### researchteam orchestrator — 2026-10-10 (status, with PR links)
+
+James confirmed every decision below in researchteam's own session.
+
+- **Item 1:** ACCEPT, extended. PR: `feat/managed-advisor-notes`, opened with this update.
+  - The advisor uses the `above-notes` strategy: upstream owns front matter and body, and the repo
+    owns Notes.
+  - Each run backs up the previous file and prints the diff.
+  - An unattended run refuses if upstream front matter widens `tools:`, `agents:` or a handoff
+    (C-3).
+  - The methodology template is replaced wholesale.
+  - Upstream-written Notes reach the advisor and the three experts as a `researchteam:notes` block on
+    every surface whose copy has a Notes section: `.github`, `.claude` and `.goose` for the experts,
+    and `.github` for the advisor, whose `.claude` copy is a bridge stub without one.
+  - On first adoption, hand-copied duplicates are folded, and repo subsections are left alone.
+  - In a dry run against OrthodoxLLM's current files, all hand copies folded with no duplicates, and
+    OrthodoxLLM's advisor gains only the outlet-perspective bullet it was missing.
+- **Item 2.1–2.3 (drift report):** ACCEPT, merged in researchteam#36.
+  - `update` prints the frozen-fence count.
+  - `doctor` lists frozen fences with their age and release entry, and honours
+    `.github/agents/references/intentional-pins.json`. OrthodoxLLM can list
+    `references/ref-bibtex-reference.md:content` there.
+  - `doctor --drift` checks seeded files and bridges.
+- **Item 2.4 / Item 3 (toolchain):** ACCEPT, merged in researchteam#29 (provenance) and #35
+  (toolchain.lock, bootstrap, check, SessionStart example, agentteams-beside-researchteam).
+- **Item 2.5 (scope allowlist):** ACCEPT, merged in researchteam#31. The gate's self-copy fix is
+  #33; bootstrap PRs merged in all 8 Phase D repos.
+- **CODEOWNERS / ruleset for security-boundary paths:** decided against for now (James,
+  2026-10-10). Every PR comes from the operator's own account, so a required code-owner review
+  could not be satisfied. The `security-review-required` label and the PR-body warning cover it.
+  Existing derived workflows don't yet apply the label. That fix is deferred to the next fleet pass.

@@ -136,6 +136,7 @@ Revision instructions (if REVISE): <specific corrections>
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+<!-- >>> researchteam:notes — upstream-authored; synced by `researchteam update`. Edit upstream. -->
 ### Interpretive directives input (from `@interpretation-advisor`)
 
 When an Interpretive Map exists for the project
@@ -152,3 +153,4 @@ In the **Source Strategy**, record for each core source its date, place and the 
 you will read (edition, recension, translation), or mark it `unknown`. These seed the
 interpretive map's `## Historical setting` register. Scope statements name the period(s) the
 question covers, so a later category is not read back into an earlier period.
+<!-- <<< researchteam:notes -->

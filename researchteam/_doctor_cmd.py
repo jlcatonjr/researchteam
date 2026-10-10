@@ -243,6 +243,9 @@ def _check_seeded_files(root: Path, ok, warn) -> None:
     from ._fetch import fetch_raw
     from ._manifest import SEEDED_FILES, UPSTREAM_REPO
 
+    if not SEEDED_FILES:
+        ok("seeded files: none (every file init seeds is now managed or project-owned).")
+        return
     ref, how = _upstream_ref(root)
     if not SAFE_REF.match(ref):
         warn(f"seeded files: not checked; the upstream ref {clean(ref)!r} ({how}) is not a plain commit or name")

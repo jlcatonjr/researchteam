@@ -74,7 +74,7 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-10-10T12:07:16Z`
+Generated at: `2026-10-10T18:02:14Z`
 
 **Sources:**
 
@@ -91,21 +91,21 @@ Generated at: `2026-10-10T12:07:16Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2015-5477` | ISC BIND | ISC BIND Data Processing Errors Vulnerability | added 2026-10-08 | EPSS 0.918070000, percentile 0.998160000 | CVSS 7.5 HIGH
-- `CVE-2016-3081` | Apache Struts | Apache Struts Command Injection Vulnerability | added 2026-10-08 | EPSS 0.945060000, percentile 0.998530000 | CVSS 8.1 HIGH
-- `CVE-2023-22894` | Strapi Strapi | Strapi Cleartext Storage of Sensitive Information Vulnerability | added 2026-10-08 | EPSS 0.034320000, percentile 0.886290000 | CVSS 4.9 MEDIUM
-- `CVE-2021-3199` | ONLYOFFICE Docs | ONLYOFFICE Docs Server Path Traversal Vulnerability | added 2026-10-08 | EPSS 0.145480000, percentile 0.965690000 | CVSS 9.8 CRITICAL
-- `CVE-2015-3306` | ProFTPD ProFTPD | ProFTPD Improper Access Control Vulnerability | added 2026-10-08 | EPSS 0.980330000, percentile 0.999100000 | CVSS 10.0 CRITICAL
-- `CVE-2026-88779` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-10-04 | EPSS 0.005920000, percentile 0.466730000
-- `CVE-2026-102490` | Zammad GmbH Zammad | Zammad GmbH Zammad Improper Privilege Management Vulnerability | added 2026-10-02 | EPSS 0.005500000, percentile 0.443110000
-- `CVE-2026-102489` | Zammad GmbH Zammad | Zammad GmbH Zammad Session Fixation Vulnerability | added 2026-10-02 | EPSS 0.012550000, percentile 0.686390000
-- `CVE-2026-104286` | Fortinet FortiMail | Fortinet FortiMail Path Traversal Vulnerability | added 2026-10-01 | EPSS 0.022010000, percentile 0.819950000
-- `CVE-2026-76504` | Cisco Catalyst SD-WAN Manager | Cisco Catalyst SD-WAN Manager Hex Encoding Vulnerability | added 2026-09-30 | EPSS 0.018190000, percentile 0.781090000
-- `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.012420000, percentile 0.683170000
-- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.696230000
-- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010830000, percentile 0.642100000
-- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.625650000
-- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.811630000
+- `CVE-2015-5477` | ISC BIND | ISC BIND Data Processing Errors Vulnerability | added 2026-10-08 | EPSS 0.994090000, percentile 0.999410000 | CVSS 7.5 HIGH
+- `CVE-2016-3081` | Apache Struts | Apache Struts Command Injection Vulnerability | added 2026-10-08 | EPSS 0.960520000, percentile 0.998770000 | CVSS 8.1 HIGH
+- `CVE-2023-22894` | Strapi Strapi | Strapi Cleartext Storage of Sensitive Information Vulnerability | added 2026-10-08 | EPSS 0.036090000, percentile 0.891980000 | CVSS 4.9 MEDIUM
+- `CVE-2021-3199` | ONLYOFFICE Docs | ONLYOFFICE Docs Server Path Traversal Vulnerability | added 2026-10-08 | EPSS 0.193520000, percentile 0.972950000 | CVSS 9.8 CRITICAL
+- `CVE-2015-3306` | ProFTPD ProFTPD | ProFTPD Improper Access Control Vulnerability | added 2026-10-08 | EPSS 0.994970000, percentile 0.999450000 | CVSS 10.0 CRITICAL
+- `CVE-2026-88779` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-10-04 | EPSS 0.005920000, percentile 0.467100000
+- `CVE-2026-102490` | Zammad GmbH Zammad | Zammad GmbH Zammad Improper Privilege Management Vulnerability | added 2026-10-02 | EPSS 0.005500000, percentile 0.443510000
+- `CVE-2026-102489` | Zammad GmbH Zammad | Zammad GmbH Zammad Session Fixation Vulnerability | added 2026-10-02 | EPSS 0.012550000, percentile 0.686650000
+- `CVE-2026-104286` | Fortinet FortiMail | Fortinet FortiMail Path Traversal Vulnerability | added 2026-10-01 | EPSS 0.022010000, percentile 0.820110000
+- `CVE-2026-76504` | Cisco Catalyst SD-WAN Manager | Cisco Catalyst SD-WAN Manager Hex Encoding Vulnerability | added 2026-09-30 | EPSS 0.018190000, percentile 0.781300000
+- `CVE-2026-86950` | Apple Multiple Products | Apple Multiple Products Out-of-Bounds Write Vulnerability | added 2026-09-29 | EPSS 0.012420000, percentile 0.683440000
+- `CVE-2026-88772` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-09-27 | EPSS 0.013010000, percentile 0.696470000
+- `CVE-2026-88771` | Citrix NetScaler | Citrix NetScaler Improper Input Validation Vulnerability | added 2026-09-27 | EPSS 0.010830000, percentile 0.642410000
+- `CVE-2026-67279` | MikroTik RouterOS | Mikrotik RouterOS Improper Enforcement of Behavioral Workflow Vulnerability | added 2026-09-25 | EPSS 0.010270000, percentile 0.625950000
+- `CVE-2026-65660` | Microsoft SharePoint | Microsoft SharePoint Code Injection Vulnerability | added 2026-09-25 | EPSS 0.021010000, percentile 0.811800000
 
 **Prevention and mitigation playbook:**
 

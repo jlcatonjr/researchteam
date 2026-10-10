@@ -136,6 +136,7 @@ Revision instructions (if REVISE): <specific corrections>
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+<!-- >>> researchteam:notes — upstream-authored; synced by `researchteam update`. Edit upstream. -->
 ### Interpretive directives input (from `@interpretation-advisor`)
 
 When an Interpretive Map exists for the project
@@ -164,3 +165,4 @@ When a claim's truth depends on period, place or text version, the deliverable s
 Every comparison names which text, rite or period of each side is meant, and who first drew
 the comparison, when and in what setting. Guard against anachronism in all four directions
 (forward, backward, flattening, text version); `@quality-auditor` flags misses as `Q-CTX`.
+<!-- <<< researchteam:notes -->

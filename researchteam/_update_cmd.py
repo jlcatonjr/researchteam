@@ -1,8 +1,10 @@
 """Implementation of `researchteam update`."""
 
+import datetime
 import difflib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -51,6 +53,84 @@ def _fence_body(managed_block: str) -> str:
     """Return the managed block with its two marker lines removed (the payload only)."""
     lines = managed_block.splitlines(keepends=True)
     return "".join(lines[1:-1])
+
+
+_NOTES_HEADING_RE = re.compile(r"^## Project-Specific Notes[ \t]*$", re.M)
+
+
+def _split_above_notes(text: str) -> tuple[str, str] | None:
+    """``(upstream-owned head, repo-owned tail)`` split at the Notes heading, or None without one."""
+    m = _NOTES_HEADING_RE.search(text)
+    return (text[:m.start()], text[m.start():]) if m else None
+
+
+def _reconcile_above_notes(rel_path: str, local: str, remote: str) -> tuple[str | None, list[str]]:
+    """Reconcile an ``above-notes`` file: upstream's head + the repo's own Notes section and tail.
+
+    Returns ``(content or None, diff of the upstream-owned part)``. ``None`` with a non-empty diff
+    list means the upstream copy has no Notes heading, so the local file is kept (a warning line is
+    returned as the "diff"); ``None`` with an empty list means nothing to do.
+    """
+    r = _split_above_notes(remote)
+    if r is None:
+        msg = f"  [above-notes] {rel_path}: upstream copy has no Notes heading; kept local unchanged.\n"
+        print(msg, end="")
+        return None, [msg]
+    l = _split_above_notes(local)
+    l_head, l_tail = l if l is not None else (local, r[1])  # no local Notes yet: adopt upstream's
+    new = r[0] + l_tail
+    if new == local:
+        return None, []
+    diff = list(difflib.unified_diff(l_head.splitlines(keepends=True), r[0].splitlines(keepends=True),
+                                     fromfile=f"local/{rel_path} (above Notes)",
+                                     tofile=f"upstream/{rel_path} (above Notes)"))
+    return new, diff
+
+
+def _new_backup_stamp() -> str:
+    """A per-run backup folder name (UTC, microseconds, so two runs never share one)."""
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
+
+
+_BACKUP_STAMP = _new_backup_stamp()  # reset at the start of every run_update
+
+
+def _backup(root: Path, rel_path: str, content: str) -> Path:
+    """Save ``content`` under the gitignored ``tmp/researchteam-backups/<run stamp>/<rel_path>``."""
+    dest = root / "tmp" / "researchteam-backups" / _BACKUP_STAMP / rel_path
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    dest.write_text(content, encoding="utf-8")
+    return dest
+
+
+_GRANT_KEYS = ("tools", "agents")
+
+
+def _front_matter_grants(text: str) -> dict[str, set[str]]:
+    """``{"tools"|"agents"|"handoffs": names}`` declared in a markdown agent's front matter.
+
+    A small reader for the shapes agentteams emits (``key: ['a', 'b']`` and ``agent: x`` under
+    ``handoffs:``); stdlib only. Anything it cannot read counts as no grant, so an unreadable upstream
+    front matter never looks like a narrowing.
+    """
+    m = re.match(r"---\n(.*?)\n---\n", text, re.S)
+    out: dict[str, set[str]] = {k: set() for k in (*_GRANT_KEYS, "handoffs")}
+    if not m:
+        return out
+    for line in m.group(1).splitlines():
+        km = re.match(r"^(tools|agents):\s*\[(.*)\]\s*$", line)
+        if km:
+            out[km.group(1)] |= {x.strip().strip("'\"") for x in km.group(2).split(",") if x.strip()}
+        hm = re.match(r"^\s+agent:\s*(\S+)\s*$", line)
+        if hm:
+            out["handoffs"].add(hm.group(1).strip("'\""))
+    return out
+
+
+def _grant_widening(local: str, remote: str) -> list[str]:
+    """Capability grants upstream's front matter adds over the local one (C-3: widening needs review)."""
+    old, new = _front_matter_grants(local), _front_matter_grants(remote)
+    return [f"{k}: +{', '.join(sorted(new[k] - old[k]))}" for k in new if new[k] - old[k]]
 
 
 def _reconcile_fenced(
@@ -166,6 +246,8 @@ def run_update(
     layer2_only: bool,
     layer1_only: bool = False,
 ) -> None:
+    global _BACKUP_STAMP
+    _BACKUP_STAMP = _new_backup_stamp()  # one backup folder per run
     if layer1_only and layer2_only:
         sys.exit("[researchteam] --layer1-only and --layer2-only are mutually exclusive.")
 
@@ -178,6 +260,11 @@ def run_update(
         _run_agentteams(root, yes=yes, dry_run=dry_run)
         # The merge may change canonical agents; keep the Codex projection in step.
         _refresh_codex(root, dry_run=dry_run)
+        from ._personalize import is_upstream
+        if is_upstream(root):
+            # Upstream is the source of the researchteam:notes blocks: carry its .github copies into
+            # its own .claude/.goose surfaces (derived repos get them in the layer-2 sync).
+            _sync_notes(root, None, yes=True, dry_run=dry_run)
         _print_frozen_summary(root, dry_run)
         return
 
@@ -204,7 +291,23 @@ def run_update(
             local_content = local_path.read_text(encoding="utf-8")
             strategy = MERGE_STRATEGIES.get(rel_path, "overwrite")
 
-            if strategy == "fenced-preserve":
+            if strategy == "above-notes":
+                write_content, diff_lines = _reconcile_above_notes(rel_path, local_content, remote_content)
+                if write_content is None:
+                    if diff_lines:  # upstream copy has no Notes heading: kept local, warned
+                        skipped.append(rel_path)
+                    continue
+                widening = _grant_widening(local_content, remote_content)
+                if widening:
+                    # Constitutional C-3: widening a declared grant is a privileged change. Never apply
+                    # it unattended; interactively the operator sees it in the prompt below.
+                    print(f"  [above-notes] {rel_path}: upstream WIDENS capability grants ({'; '.join(widening)})")
+                    if yes and not dry_run:
+                        print("    kept local unchanged; re-run `researchteam update` interactively "
+                              "(without --yes) to review and accept it.")
+                        skipped.append(rel_path)
+                        continue
+            elif strategy == "fenced-preserve":
                 write_content, diff_lines, warn = _reconcile_fenced(
                     rel_path, local_content, remote_content, yes
                 )
@@ -245,6 +348,14 @@ def run_update(
                     print(f"  Skipped {rel_path}")
                     continue
 
+            if strategy == "above-notes":
+                # The upstream-owned part is replaced, never merged: keep the old file and show what
+                # changed, even unattended (repo rules belong in Notes, which stay as they are).
+                saved = _backup(root, rel_path, local_content)
+                print(f"  [above-notes] {rel_path}: upstream part replaced; previous file saved to "
+                      f"{saved.relative_to(root)}")
+                if yes:
+                    print("".join(diff_lines[:50]), end="")
             local_path.parent.mkdir(parents=True, exist_ok=True)
             local_path.write_text(write_content, encoding="utf-8")
             if rel_path.endswith(".sh"):  # preserve executability of managed shell scripts
@@ -263,6 +374,9 @@ def run_update(
                 local_path.chmod(local_path.stat().st_mode | 0o111)
             updated.append(rel_path)
             print(f"  Created {rel_path}")
+
+    if (profile or "scholarly").strip().lower() != "generic":
+        _sync_notes(root, ref, yes=yes, dry_run=dry_run)
 
     # Summary
     if errors:
@@ -288,6 +402,57 @@ def run_update(
     # The merge may change canonical agents; keep the Codex projection in step.
     _refresh_codex(root, dry_run=dry_run)
     _print_frozen_summary(root, dry_run)
+
+
+def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
+    """Write each NOTES_AGENTS agent's upstream researchteam:notes block into every surface it has.
+
+    ``ref`` names the upstream researchteam ref to read the blocks from; ``None`` reads this repo's
+    own ``.github`` copies (the upstream repository itself). Repo-owned Notes outside the block are
+    never touched; hand-copied duplicates are folded on first adoption (see ``_notes``).
+    """
+    from ._notes import NOTES_AGENTS, NotesError, apply_block, extract_block, source_path, surfaces
+
+    changed = 0
+    for agent in NOTES_AGENTS:
+        rel = source_path(agent)
+        try:
+            source = (root / rel).read_text(encoding="utf-8") if ref is None else fetch_raw(UPSTREAM_REPO, ref, rel)
+            inner = extract_block(source)
+        except (OSError, RuntimeError, NotesError) as exc:
+            print(f"  [notes] {agent}: upstream block unavailable ({exc}); surfaces left as they are")
+            continue
+        if inner is None:
+            continue  # upstream carries no block for this agent (yet)
+        for path, indent in surfaces(root, agent):
+            shown = path.relative_to(root)
+            text = path.read_text(encoding="utf-8")
+            try:
+                new, folded = apply_block(text, inner, indent)
+            except NotesError as exc:
+                print(f"  [notes] {shown}: {exc}; left as it is")
+                continue
+            if new == text:
+                continue
+            if dry_run:
+                print(f"  [dry-run] Would sync upstream Notes into {shown}")
+                changed += 1
+                continue
+            if not yes:
+                diff = list(difflib.unified_diff(text.splitlines(keepends=True), new.splitlines(keepends=True),
+                                                 fromfile=f"local/{shown}", tofile=f"synced/{shown}"))
+                print(f"\n--- {shown} (upstream Notes block) ---")
+                print("".join(diff[:50]), end="")
+                if input("Apply? [y/N] ").strip().lower() != "y":
+                    print(f"  Skipped {shown}")
+                    continue
+            saved = _backup(root, str(shown), text)
+            path.write_text(new, encoding="utf-8")  # surfaces() only lists paths inside root
+            changed += 1
+            fold = f"; folded hand-copied: {', '.join(f[:60] for f in folded)}" if folded else ""
+            print(f"  [notes] synced upstream Notes into {shown} (previous: {saved.relative_to(root)}){fold}")
+    if changed:
+        print(f"[researchteam] Upstream Notes blocks: {changed} file(s) {'would change' if dry_run else 'synced'}.")
 
 
 def _print_frozen_summary(root: Path, dry_run: bool) -> None:

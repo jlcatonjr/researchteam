@@ -2,12 +2,12 @@
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc9",
   "agentteams_source": {
-    "kind": "vcs-pin",
-    "commit": "6d559cf06430b9b9e00f323c27d13f7316a34c27",
-    "branch": null,
-    "dirty": false
+    "kind": "checkout",
+    "commit": "66c13a6c56fa7eb63329b66aa6fb3a39b1157e9d",
+    "branch": "feat/managed-advisor-notes",
+    "dirty": true
   },
-  "generated_at": "2026-10-10T12:07:52.275419+00:00",
+  "generated_at": "2026-10-10T18:02:52.538485+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -524,15 +524,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "26b9d4af92fb3f5e",
+  "manifest_fingerprint": "f5d498ed3c1618f8",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "d3a40e8790d45581",
-    "quality-auditor.agent.md": "9280831b5b47584b",
-    "references/security-vulnerability-watch.json": "c3d3ef6e6822c095",
+    "security.agent.md": "e2ec5ecd856ee4f2",
+    "references/security-vulnerability-watch.reference.md": "4d9d4724f56d1b42",
+    "references/security-vulnerability-watch.json": "7c350de294b8aaa5",
     "references/pipeline-graph.md": "9f302f20e70161b5",
     "references/pipeline-graph.svg": "7a5a3e866cdc99a2",
-    "../../sandbox/confine-run.sh": "6779fa05d24b3bef",
+    "../../sandbox/mac-escape-tests.sh": "71d00a1d1d4b83f8",
+    "../../.vscode/tasks.json": "b8abad07972d2acd",
     "orchestrator.agent.md": "3f757820f6b98264",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "654d28d9fb509933",
@@ -546,6 +547,7 @@
     "git-operations.agent.md": "ecd5721355928d8b",
     "work-summarizer.agent.md": "14b152510cf03368",
     "primary-producer.agent.md": "f4f8b5c95244f5ec",
+    "quality-auditor.agent.md": "9280831b5b47584b",
     "cohesion-repairer.agent.md": "bbf6262644ffa069",
     "technical-validator.agent.md": "d3ede24a8f96d68c",
     "format-converter.agent.md": "d207c65fe468dcbc",
@@ -558,16 +560,15 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "3d23bb498d7cc2c7",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
     "references/ai-bad-habits-watch.reference.md": "f219fe89f7c75d72",
     "references/framework-watch.reference.md": "a989bfe037c80ea3",
     "references/adjacent-repos.md": "78d20a4fde516de3",
-    "topic-scoping-expert.agent.md": "9a53350d1a2596e0",
-    "literature-review-expert.agent.md": "0f48aab6ac03126f",
-    "main-analysis-expert.agent.md": "12df9a59c598c03d",
+    "topic-scoping-expert.agent.md": "0ae6465a66dde69e",
+    "literature-review-expert.agent.md": "3c951101b21c5473",
+    "main-analysis-expert.agent.md": "30aceecf29549e60",
     "conclusion-expert.agent.md": "6ef22988fc674a06",
     "../copilot-instructions.md": "adf2c9c9a2118e04",
     "team-builder.agent.md": "9a669a657b7afbd9",
@@ -595,15 +596,6 @@
       "tools": "['read', 'search']",
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "quality-auditor.agent.md": {
-      "name": "Quality Auditor \u2014 ResearchTeam",
-      "description": "\"Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite\"",
-      "tools": "['read', 'search']",
-      "agents": "['primary-producer', 'cohesion-repairer']",
-      "model": "[\"auto\"]",
-      "handoffs": "\n  - label: Route Corrections to Primary Producer\n    agent: primary-producer\n    prompt: \"Audit findings attached. Please correct flagged passages.\"\n    send: false\n  - label: Route Cohesion Failures\n    agent: cohesion-repairer\n    prompt: \"Cohesion failures flagged in audit. Please repair.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Quality audit complete. See findings.\"\n    send: false\n",
       "user-invocable": "false"
     },
     "orchestrator.agent.md": {
@@ -714,6 +706,15 @@
       "agents": "['cohesion-repairer', 'quality-auditor', 'conflict-auditor']",
       "model": "[\"auto\"]",
       "handoffs": "\n  - label: Cohesion Audit\n    agent: cohesion-repairer\n    prompt: \"Draft is ready for cohesion audit.\"\n    send: false\n  - label: Quality Audit\n    agent: quality-auditor\n    prompt: \"Revised draft is ready for quality audit.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"New deliverable added. Run consistency check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Deliverable production is complete.\"\n    send: false\n",
+      "user-invocable": "false"
+    },
+    "quality-auditor.agent.md": {
+      "name": "Quality Auditor \u2014 ResearchTeam",
+      "description": "\"Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite\"",
+      "tools": "['read', 'search']",
+      "agents": "['primary-producer', 'cohesion-repairer']",
+      "model": "[\"auto\"]",
+      "handoffs": "\n  - label: Route Corrections to Primary Producer\n    agent: primary-producer\n    prompt: \"Audit findings attached. Please correct flagged passages.\"\n    send: false\n  - label: Route Cohesion Failures\n    agent: cohesion-repairer\n    prompt: \"Cohesion failures flagged in audit. Please repair.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Quality audit complete. See findings.\"\n    send: false\n",
       "user-invocable": "false"
     },
     "cohesion-repairer.agent.md": {
@@ -966,7 +967,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "737d0e299648bf2db1fd5c8a519563fdaa33a7fc459efd52d41472ed97bd2f4a",
+      "threat_intelligence": "72e4f8e7becefd26c9f0831b8055c24f75a119a374a3304145d7f8076af5d5dd",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",

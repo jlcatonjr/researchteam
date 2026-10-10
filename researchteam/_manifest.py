@@ -54,16 +54,16 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/build_literature_library.py",
     "scripts/query_literature_library.py",
     "scripts/check_literature_library_integrity.sh",
+    # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
+    ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
+    ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
 ]
 
 # Files `init` seeds that `update` never syncs (not managed, not agentteams-rendered, not project
 # content). `doctor --drift` compares their upstream-owned part (everything before
 # `## Project-Specific Notes`) with upstream at the pinned researchteam commit. A file leaves this list
-# when it becomes managed (OrthodoxLLM Item 1 plans that for both of these).
-SEEDED_FILES = [
-    ".github/agents/interpretation-advisor.agent.md",
-    ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
-]
+# when it becomes managed; the interpretation-advisor and the methodology template did in Item 1.
+SEEDED_FILES: list[str] = []  # both former entries are managed since OrthodoxLLM Item 1
 
 # Backwards-compatible flat list (scholarly default). Existing callers/tests that import
 # MANAGED_FILES keep seeing the full scholarly set.
@@ -92,6 +92,10 @@ def managed_files_for(profile: str | None) -> list[str]:
 MERGE_STRATEGIES = {
     ".gitignore": "fenced-preserve",
     "CLAUDE.md": "fenced-preserve",
+    # "above-notes": upstream owns the file from line 1 (front matter included) down to its
+    # `## Project-Specific Notes` heading; that heading and everything after it stay the repo's.
+    # Upstream-authored Notes reach the repo through the researchteam:notes block (_notes.py).
+    ".github/agents/interpretation-advisor.agent.md": "above-notes",
 }
 
 # Sentinel comment lines delimiting the upstream-owned region of a fenced-preserve file. Matched

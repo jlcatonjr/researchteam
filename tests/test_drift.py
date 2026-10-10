@@ -192,6 +192,7 @@ def test_seeded_check_reports_no_match_when_every_fetch_failed(tmp_path, monkeyp
 
 
 def test_seeded_check_refuses_an_odd_ref(tmp_path, monkeypatch):
+    monkeypatch.setattr("researchteam._manifest.SEEDED_FILES", ["a.md"])
     (tmp_path / ".researchteam").write_text("ref = ../../evil?x=1\n")
     monkeypatch.setattr("researchteam._fetch.fetch_raw", lambda *a: pytest.fail("must not fetch"))
     oks, warns = [], []
@@ -237,3 +238,10 @@ def test_bridges_skip_when_the_preflight_refuses(tmp_path, monkeypatch):
     oks, warns = [], []
     _doctor_cmd._check_bridges(tmp_path, oks.append, warns.append)
     assert any("did not pass the pre-flight" in w for w in warns)
+
+
+def test_seeded_check_with_no_seeded_files(tmp_path, monkeypatch):
+    monkeypatch.setattr("researchteam._manifest.SEEDED_FILES", [])
+    oks, warns = [], []
+    _doctor_cmd._check_seeded_files(tmp_path, oks.append, warns.append)
+    assert not warns and "none" in oks[0]
