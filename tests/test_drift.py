@@ -325,3 +325,18 @@ def test_update_calls_bridge_merge_before_the_frozen_summary(tmp_path, monkeypat
     _update_cmd.run_update(tmp_path, ref="main", yes=True, dry_run=False, layer2_only=False, layer1_only=True)
     # upstream: bridges, then the Notes blocks (written last), then the summary
     assert order[-3:] == ["bridges", "notes", "summary"] and order[0] == "_run_agentteams"
+
+
+def test_run_agentteams_restores_the_report_when_the_subprocess_raises(tmp_path, monkeypatch):
+    (tmp_path / "brief.json").write_text('{"project_name": "demo"}')
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    monkeypatch.setattr(_update_cmd, "_brief_has_placeholder", lambda root: False)
+
+    def boom(*a, **k):
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", boom)
+    _report(tmp_path, [ITEM])
+    with pytest.raises(KeyboardInterrupt):
+        _update_cmd._run_agentteams(tmp_path, yes=True, dry_run=False)
+    assert len(_drift.load_frozen(tmp_path)) == 1 and not list((tmp_path / "tmp").glob(".*.prev"))

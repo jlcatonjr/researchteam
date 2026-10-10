@@ -915,6 +915,11 @@ def _run_agentteams(
 
     try:
         result = subprocess.run(cmd, cwd=str(root), env=env)
+    except BaseException:
+        if not dry_run:  # e.g. a missing executable or Ctrl-C: never strand the kept report
+            from ._drift import finish_report
+            finish_report(root, framework, succeeded=False)
+        raise
     finally:
         if tmp is not None:
             try:
