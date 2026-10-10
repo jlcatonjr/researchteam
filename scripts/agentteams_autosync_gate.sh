@@ -161,12 +161,32 @@ fi
 
 # --- 4. Record the integrated SHA + emit the substantive-change summary --------------------------
 printf '%s\n' "$new_sha" > "$REF_FILE"
+# Pin the toolchain this green sync was verified with (researchteam + agentteams commits of the
+# interpreter that just ran it), so bootstrap_toolchain.sh and the SessionStart check follow it.
+# Advisory: a lock that cannot be written (no recorded commit) never fails the sync.
+lock_note=""
+if [ -f scripts/check_toolchain.py ]; then
+  # No --python: pin the interpreter behind `researchteam`, the one that just ran the sync.
+  if lock_out="$(python scripts/check_toolchain.py --write-lock 2>&1)"; then
+    log "$lock_out"
+  else
+    log "toolchain.lock not written: $lock_out"; lock_note="$lock_out"
+  fi
+fi
 
 git add -A >/dev/null 2>&1 || true
 staged="$(git -c core.quotePath=false diff --cached --name-only 2>/dev/null)"
 substantive="$(printf '%s\n' "$staged" | grep -Ev "$NOISE_REGEX" | grep -v '\.agentteams-backups/' | sed '/^$/d' || true)"
 # Security-boundary paths are called out first, whatever the churn filter says.
 sensitive="$(printf '%s\n' "$staged" | sensitive_paths)"
+# toolchain.lock decides what code bootstrap installs. Its commit moves every sync (routine), but a
+# change of the pinned REPOSITORY is security-relevant (check_toolchain/bootstrap refuse it anyway).
+if printf '%s\n' "$staged" | grep -qx 'toolchain.lock'; then
+  lock_repos() { grep -E '^(researchteam|agentteams)=' | sed 's/@.*//' | sort; }
+  if [ "$(git show HEAD:toolchain.lock 2>/dev/null | lock_repos)" != "$(lock_repos < toolchain.lock)" ]; then
+    sensitive="$(printf '%s\n%s\n' "$sensitive" "toolchain.lock (pinned repository changed)" | sed '/^$/d')"
+  fi
+fi
 if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false"; fi
 {
   echo "## Automatic agentteams integration"
@@ -181,6 +201,10 @@ if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false";
   echo
   echo "- **agentteams:** \`${old_sha:-<none>}\` → \`${new_sha}\`"
   echo "- **mode:** ${MODE}"
+  if [ -f toolchain.lock ]; then
+    echo "- **toolchain.lock:** $(grep -E '^(researchteam|agentteams)=' toolchain.lock | sed 's/=.*@\(.\{7\}\).*/ \1/' | paste -sd, - | sed 's/,/, /g')"
+  fi
+  [ -n "$lock_note" ] && echo "- **toolchain.lock not updated:** ${lock_note}"
   echo
   if [ -n "$substantive" ]; then
     echo "**Substantive changed paths** (regen state-churn — graphs / threat-intel / build-log /"

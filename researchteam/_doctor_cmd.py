@@ -31,15 +31,18 @@ def run_doctor(root: Path) -> None:
 
     print("[researchteam] doctor — checking researchteam ↔ agentteams toolchain\n")
 
-    # --- 1. agentteams resolves on PATH ------------------------------------------------
-    exe = shutil.which("agentteams")
+    # --- 1. agentteams resolves (beside this researchteam first, else PATH) -------------
+    from ._update_cmd import _resolve_agentteams
+
+    exe, where = _resolve_agentteams()
     if exe is None:
         fail(
-            "agentteams not found on PATH — Layer-1 `researchteam update` will fail.\n"
-            "         Install from the canonical checkout: pip install -e <path-to-agentteams>"
+            "agentteams found neither beside this researchteam nor on PATH — Layer-1 "
+            "`researchteam update` will fail.\n"
+            "         In a derived repo: bash scripts/bootstrap_toolchain.sh"
         )
     else:
-        ok(f"agentteams on PATH: {exe}")
+        ok(f"agentteams: {exe} ({where})")
 
         # --- 2. agentteams is runnable (import assertion via --version) ----------------
         probe = subprocess.run([exe, "--version"], capture_output=True, text=True)
@@ -85,6 +88,9 @@ def run_doctor(root: Path) -> None:
                     "         Refresh the extra: pip install -U 'agentteams @ "
                     "git+https://github.com/jlcatonjr/agentteams'. See docs/retrieval-surfaces.md."
                 )
+
+    # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
+    _check_toolchain(root, ok, warn)
 
     # --- 4. descriptor health (content vs roster reconciliation) -----------------------
     brief = root / "brief.json"
@@ -169,3 +175,30 @@ def _agentteams_source(interp: str) -> str | None:
     except OSError:
         pass
     return None
+
+
+def _check_toolchain(root: Path, ok, warn) -> None:
+    """Report the repo's toolchain.lock check for THIS interpreter, and whether it runs at SessionStart.
+
+    Advisory only: a missing or stale pin never fails doctor (the autosync PR moves the pin).
+    """
+    from ._update_cmd import TOOLCHAIN_HOOK_EXAMPLE, TOOLCHAIN_HOOK_SCRIPT, _toolchain_hook_installed
+
+    script = root / TOOLCHAIN_HOOK_SCRIPT
+    if not script.exists():
+        warn(f"{TOOLCHAIN_HOOK_SCRIPT} not present — run `researchteam update` to receive the toolchain check.")
+        return
+    try:
+        r = subprocess.run([sys.executable, str(script), "--python", sys.executable],
+                           capture_output=True, text=True, timeout=60)
+        lines = [ln for ln in (r.stdout or "").splitlines() if ln.strip()]
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        lines = [f"[toolchain] check could not run: {exc}"]
+    for line in lines or ["[toolchain] (no output)"]:
+        (ok if line.startswith("[toolchain] OK") else warn)(line.removeprefix("[toolchain] "))
+    if _toolchain_hook_installed(root):
+        ok("toolchain check runs at SessionStart (.claude/settings.json).")
+    else:
+        warn(f"toolchain check is not wired to SessionStart — merge {TOOLCHAIN_HOOK_EXAMPLE} "
+             "into .claude/settings.json (operator step).")
+

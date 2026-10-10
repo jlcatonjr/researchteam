@@ -5,7 +5,7 @@
 
 - Modules mapped: **9**
 - Packages: **1**
-- Internal import edges: **14**
+- Internal import edges: **15**
 - Distinct external dependencies: **0**
 
 ---
@@ -40,12 +40,12 @@ Every module, coloured by package (full adjacency in the table below).
 | --- | --- | --- |
 | `researchteam` | — | `researchteam.cli` |
 | `researchteam._agentteams_provenance` | — | `researchteam._update_cmd` |
-| `researchteam._doctor_cmd` | — | `researchteam.cli` |
+| `researchteam._doctor_cmd` | `researchteam._update_cmd` | `researchteam.cli` |
 | `researchteam._fetch` | — | `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._personalize` | `researchteam._manifest` | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
-| `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
+| `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
 | `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._update_cmd` | — |
 
 ---
@@ -110,7 +110,9 @@ digraph "researchteam architecture" {
       "package": "researchteam",
       "path": "researchteam/_doctor_cmd.py",
       "is_package": false,
-      "imports_internal": [],
+      "imports_internal": [
+        "researchteam._update_cmd"
+      ],
       "external": [],
       "repo_local": []
     },
@@ -183,6 +185,10 @@ digraph "researchteam architecture" {
   },
   "package_edges": [],
   "module_edges": [
+    {
+      "source": "researchteam._doctor_cmd",
+      "target": "researchteam._update_cmd"
+    },
     {
       "source": "researchteam._init_cmd",
       "target": "researchteam._fetch"

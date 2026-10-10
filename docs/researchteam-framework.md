@@ -29,6 +29,23 @@ pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researcht
 extra keeps the two pinned to a compatible pair in one environment. Run `researchteam doctor` to
 verify both resolve in the active interpreter.
 
+**Pinned toolchain (derived repos).** `toolchain.lock` records the researchteam and agentteams
+commits the repo was last synced and verified with; the AgentTeams Autosync rewrites it after each
+green sync. To run exactly that pair:
+
+```bash
+bash scripts/bootstrap_toolchain.sh          # .venv with the pinned commits (gitignored)
+bash scripts/bootstrap_toolchain.sh --local  # editable installs from your own checkouts
+python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main
+```
+
+The bootstrap installs researchteam *without* the `[update]` extra, because that extra pulls
+agentteams from unpinned `main`. researchteam runs the `agentteams` installed beside it, so
+`.venv/bin/researchteam` works without activating the venv; it falls back to `PATH` only when none
+is installed beside it, and says so. To be warned at the start of each Claude session, merge
+`.claude/settings.toolchain.example.json` into `.claude/settings.json` (an operator step;
+researchteam never edits `settings.json`). `researchteam doctor` reports both.
+
 ## CLI reference
 
 | Command | Description |

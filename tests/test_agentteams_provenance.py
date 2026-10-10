@@ -231,10 +231,12 @@ def test_an_unparseable_launcher_is_refused(tmp_path, provenance):
 # --- wiring into _update_cmd -----------------------------------------------------------------------------------
 
 def test_preflight_checks_the_launcher_it_will_execute(tmp_path, monkeypatch):
-    """The PATH winner is checked (not researchteam's own interpreter), and a refusal stops the render."""
+    """The launcher that will run is checked (here the PATH one, since none sits beside this
+    interpreter), and a refusal stops the render."""
     *_, launcher, env = fake_agentteams(tmp_path, install="vcs", git_repo=False)
     for key, value in env.items():
         monkeypatch.setenv(key, value)
+    monkeypatch.setattr(sys, "executable", str(tmp_path / "no-venv" / "bin" / "python"))
     checked: list[str] = []
     monkeypatch.setattr(_update_cmd, "_VERIFIED_LAUNCHERS", set())
     monkeypatch.setattr(_agentteams_provenance, "check", lambda exe: checked.append(exe) or 0)

@@ -1,0 +1,6 @@
+# Toolchain pin: the researchteam / agentteams commits this repository was last synced and verified
+# against (researchteam update + validate + gates). Written by the AgentTeams Autosync after a green
+# sync (scripts/check_toolchain.py --write-lock); read by scripts/bootstrap_toolchain.sh (builds .venv)
+# and scripts/check_toolchain.py (SessionStart hook, researchteam doctor). Bump only after a green sync.
+researchteam=jlcatonjr/researchteam@4a2dcc9676ae83cff129fc2c72acc61ed935effd
+agentteams=jlcatonjr/agentteams@6d559cf06430b9b9e00f323c27d13f7316a34c27

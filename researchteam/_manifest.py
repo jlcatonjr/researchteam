@@ -35,6 +35,11 @@ FRAMEWORK_MANAGED_FILES = [
     "scripts/validate_agentteams_update.sh",
     "scripts/agentteams_autosync_gate.sh",
     "scripts/sign_security_decision.py",           # operator-only signed clearance (H-1)
+    # Toolchain pinning (OrthodoxLLM Item 3): toolchain.lock itself is repo-owned (written by the
+    # autosync gate after a green sync), so it is NOT managed; these read and maintain it.
+    "scripts/check_toolchain.py",
+    "scripts/bootstrap_toolchain.sh",
+    ".claude/settings.toolchain.example.json",    # SessionStart hook to merge by hand
 ]
 
 # Scholarly-domain tooling — synced only when the brief's layer2_profile is "scholarly".
