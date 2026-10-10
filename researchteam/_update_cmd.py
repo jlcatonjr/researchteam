@@ -769,7 +769,8 @@ def _render_native_surfaces(root: Path, *, yes: bool, dry_run: bool, overwrite: 
             print(
                 f"[researchteam] {label}: FAILED on {directory} ({framework}).\n"
                 f"  already rendered: {', '.join(done)}\n"
-                f"  not attempted: {', '.join(pending) or 'none'}.\n"
+                f"  not attempted: {', '.join(pending) or 'none'}"
+                f"{'; README/CLAUDE not re-personalized' if label == 'materialize' else ''}.\n"
                 "  Fix the cause (usually a missing clearance in that surface's decisions log) and re-run.",
                 file=sys.stderr,
             )
