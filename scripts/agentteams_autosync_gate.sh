@@ -29,6 +29,40 @@
 
 set -uo pipefail
 
+# >>> self-copy
+# Run from a private copy. bash reads a script incrementally from its file, and in derived mode the
+# layer-2 sync below REPLACES this very file; bash would then continue from the old byte offset in
+# the new content and die mid-line (mathAgents run 38064339274). The copy is removed on exit.
+# AUTOSYNC_GATE_REEXEC is trusted only when it names this run's own private copy; any other value is
+# ignored (and never deleted). AUTOSYNC_GATE_DEPTH caps the re-exec at one hop, so a copy path that
+# somehow fails the match (e.g. path normalisation) cannot loop and leak a copy per hop. Both are
+# unset at once so child processes (researchteam, agentteams, a nested gate) never inherit them.
+_gate_self="${AUTOSYNC_GATE_REEXEC:-}"
+_gate_depth="${AUTOSYNC_GATE_DEPTH:-0}"
+unset AUTOSYNC_GATE_REEXEC AUTOSYNC_GATE_DEPTH
+case "$_gate_self" in
+  "${TMPDIR:-/tmp}"/agentteams_autosync_gate.??????) [ "$_gate_self" = "$0" ] || _gate_self="" ;;
+  *) _gate_self="" ;;
+esac
+if [ -z "$_gate_self" ]; then
+  if [ "$_gate_depth" != "0" ]; then
+    # Refuse only. $0 is never deleted here: the depth variable may be planted, and $0 the real gate.
+    echo "autosync-gate: refusing a second re-exec (private copy $0 not recognised)" >&2
+    exit 1
+  fi
+  _gate_copy="$(mktemp "${TMPDIR:-/tmp}/agentteams_autosync_gate.XXXXXX")" \
+    || { echo "autosync-gate: cannot create a private copy of the gate" >&2; exit 1; }
+  cp "$0" "$_gate_copy" \
+    || { rm -f "$_gate_copy"; echo "autosync-gate: cannot copy the gate to $_gate_copy" >&2; exit 1; }
+  shopt -s execfail  # a failed exec returns here (instead of exiting) so the copy can be removed
+  AUTOSYNC_GATE_REEXEC="$_gate_copy" AUTOSYNC_GATE_DEPTH=1 exec bash "$_gate_copy" "$@"
+  rm -f "$_gate_copy"
+  echo "autosync-gate: cannot run the private copy $_gate_copy" >&2
+  exit 1
+fi
+trap 'rm -f "$_gate_self"' EXIT
+# <<< self-copy
+
 MODE="upstream"
 CHECK_ONLY=0
 FORCE=0

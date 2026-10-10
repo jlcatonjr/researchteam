@@ -161,6 +161,53 @@ def test_gate_flags_security_boundary_paths():
     assert _sensitive(sensitive + routine) == sensitive
 
 
+def test_gate_survives_replacing_itself_mid_run(tmp_path):
+    """mathAgents run 38064339274: the derived layer-2 sync replaced the running gate, and bash read
+    the new file from the old offset. The gate's self-copy prologue must make that harmless."""
+    gate = (ROOT / "scripts" / "agentteams_autosync_gate.sh").read_text()
+    prologue = gate[gate.index("# >>> self-copy"):gate.index("# <<< self-copy")]
+    script = tmp_path / "gate.sh"
+    body = (
+        "#!/usr/bin/env bash\nset -uo pipefail\n" + prologue +
+        # replace this very file mid-run with longer, different content (as `researchteam update` does)
+        'python3 -c "import sys; open(sys.argv[1], \'w\').write(\'#\' * 4000 + chr(10) + \'echo WRONG; exit 7\' + chr(10))" '
+        '"' + str(script) + '"\n'
+        + "echo step-two-ran\n" * 50 + "echo done\n"
+    )
+    script.write_text(body)
+    env = {k: v for k, v in os.environ.items() if k != "AUTOSYNC_GATE_REEXEC"}
+    env["TMPDIR"] = str(tmp_path)
+    r = subprocess.run(["bash", str(script)], env=env, capture_output=True, text=True)
+    assert r.returncode == 0 and r.stdout.strip().endswith("done") and "WRONG" not in r.stdout, r.stdout + r.stderr
+    assert not list(tmp_path.glob("agentteams_autosync_gate.*")), "the private copy must be removed on exit"
+
+
+def test_gate_ignores_a_foreign_reexec_variable(tmp_path):
+    """A planted AUTOSYNC_GATE_REEXEC must neither skip the copy nor get its target deleted."""
+    victim = tmp_path / "keep.txt"
+    victim.write_text("x")
+    gate = ROOT / "scripts" / "agentteams_autosync_gate.sh"
+    env = dict(os.environ, AUTOSYNC_GATE_REEXEC=str(victim), TMPDIR=str(tmp_path))
+    r = subprocess.run(["bash", str(gate), "--classify-sensitive"], input="sandbox/x\n", env=env,
+                       capture_output=True, text=True)
+    assert r.returncode == 0 and r.stdout.split() == ["sandbox/x"], r.stdout + r.stderr
+    assert victim.exists()
+    assert not list(tmp_path.glob("agentteams_autosync_gate.*"))
+
+
+def test_gate_refuses_a_second_reexec_and_keeps_itself(tmp_path):
+    """The depth cap stops a re-exec loop; a planted depth must not delete the real gate either."""
+    gate = ROOT / "scripts" / "agentteams_autosync_gate.sh"
+    env = dict(os.environ, AUTOSYNC_GATE_DEPTH="1", TMPDIR=str(tmp_path))
+    env.pop("AUTOSYNC_GATE_REEXEC", None)
+    r = subprocess.run(["bash", str(gate), "--classify-sensitive"], input="sandbox/x\n", env=env,
+                       capture_output=True, text=True)
+    assert r.returncode == 1 and "second re-exec" in r.stderr, r.stdout + r.stderr
+    assert gate.exists() and not list(tmp_path.glob("agentteams_autosync_gate.*"))
+
+def test_gate_still_classifies_after_self_copy():
+    assert _sensitive(["sandbox/x.sh", "docs/x.md"]) == ["sandbox/x.sh"]
+
 def test_no_operator_home_paths_in_shipped_docs():
     home_path = re.compile(r"/(?:Users|home)/[^/\s`<>]+/")
     offenders = [str(p.relative_to(ROOT)) for p in (ROOT / "docs").rglob("*.md")
