@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc8",
-  "generated_at": "2026-10-09T19:12:24.905010+00:00",
+  "agentteams_version": "1.0.0rc9",
+  "generated_at": "2026-10-10T12:07:53.930852+00:00",
   "project_name": "ResearchTeam",
   "agent_slug_list": [
     "orchestrator",
@@ -94,7 +94,7 @@
     "repo-liaison.toml": "78c102cad961935b",
     "research-analyst.toml": "955a40ca9d744fc4",
     "retrieval-integrator.toml": "b0f410be8f8da090",
-    "security.toml": "16ca511785422f14",
+    "security.toml": "97a3c8245adc762d",
     "team-builder.toml": "f0ee8e1d50bc72c9",
     "technical-validator.toml": "e9de62a695788a34",
     "tool-doc-researcher.toml": "f362fb9d7a741061",
@@ -107,5 +107,5 @@
   "origin": "interop",
   "source_dir": ".github/agents",
   "source_framework": "copilot-vscode",
-  "source_build_log_sha256": "4e7013e4930caa53305397ad2f2693b269b674b84eb301601b4fd23e2402a1c7"
+  "source_build_log_sha256": "fb57936f5f1b54626cd693adec76c6c6f85843f39fb8a0f18be77ee472aefa5d"
 }

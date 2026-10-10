@@ -1,7 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc8",
-  "generated_at": "2026-10-09T19:14:29.298754+00:00",
+  "agentteams_version": "1.0.0rc9",
+  "agentteams_source": {
+    "kind": "vcs-pin",
+    "commit": "6d559cf06430b9b9e00f323c27d13f7316a34c27",
+    "branch": null,
+    "dirty": false
+  },
+  "generated_at": "2026-10-10T12:07:52.275419+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -28,23 +34,23 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "c460f72b420872a0",
+    "universal/orchestrator.template.md": "8eede8f076d2a7f1",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "a7f6c099cd53d722",
-    "universal/code-hygiene.template.md": "8949eaf0d601b5b4",
-    "universal/adversarial.template.md": "bb4d58e790e492ba",
-    "universal/conflict-auditor.template.md": "3e5d9fdacf9e378b",
+    "universal/security.template.md": "59429a1480354b77",
+    "universal/code-hygiene.template.md": "8c53882027a0aa40",
+    "universal/adversarial.template.md": "0c7b7cb909b089a0",
+    "universal/conflict-auditor.template.md": "a6199323e4d1add3",
     "universal/conflict-resolution.template.md": "4542fdba8f977079",
     "universal/cleanup.template.md": "6a404be5ad0bfbe9",
     "universal/agent-updater.template.md": "9c141092104f6e5b",
     "universal/agent-refactor.template.md": "b1417e2f09b84022",
     "universal/repo-liaison.template.md": "70331bea47521df8",
-    "universal/git-operations.template.md": "a3fb0d915d57e0c4",
+    "universal/git-operations.template.md": "ceba0af4e139c43c",
     "domain/work-summarizer.template.md": "4124536ef03c333d",
     "domain/primary-producer.template.md": "278ed220891ba707",
-    "domain/quality-auditor.template.md": "c8df2f8b36126534",
+    "domain/quality-auditor.template.md": "3dd911ae905e8b28",
     "domain/cohesion-repairer.template.md": "30f6320e49652bcf",
-    "domain/technical-validator.template.md": "8622b3ab16751f42",
+    "domain/technical-validator.template.md": "0c8c489fb67c5891",
     "domain/format-converter.template.md": "c63fb3473e7c3fb0",
     "domain/reference-manager.template.md": "299f437acd33eff9",
     "domain/output-compiler.template.md": "7ec6b1533cae4aaf",
@@ -81,7 +87,7 @@
     "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
-    "copilot-instructions.template.md": "2bf0a18258bdf1ce",
+    "copilot-instructions.template.md": "df942993bbc3bf2c",
     "builder/team-builder-copilot-vscode.template.md": "49cf6f735fc90e06",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
@@ -518,14 +524,15 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "ec07ce6aa1373d25",
+  "manifest_fingerprint": "26b9d4af92fb3f5e",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "611401f98e5281ce",
-    "quality-auditor.agent.md": "b5d902f1aa86ecb8",
-    "references/security-vulnerability-watch.json": "7471bc60d975e9fa",
-    "../../sandbox/confine-run.sh": "064d47060768ecfe",
-    "../../sandbox/mac-escape-tests.sh": "c485df0b39dd0847",
+    "security.agent.md": "d3a40e8790d45581",
+    "quality-auditor.agent.md": "9280831b5b47584b",
+    "references/security-vulnerability-watch.json": "c3d3ef6e6822c095",
+    "references/pipeline-graph.md": "9f302f20e70161b5",
+    "references/pipeline-graph.svg": "7a5a3e866cdc99a2",
+    "../../sandbox/confine-run.sh": "6779fa05d24b3bef",
     "orchestrator.agent.md": "3f757820f6b98264",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "654d28d9fb509933",
@@ -579,8 +586,7 @@
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
     "references/retrieval-integration.reference.md": "64287ba420232229",
     "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
-    "references/authorized-verify-keys/README.md": "badf32b421079acf",
-    "references/pipeline-graph.md": "9f302f20e70161b5"
+    "references/authorized-verify-keys/README.md": "badf32b421079acf"
   },
   "front_matter_baseline": {
     "security.agent.md": {
@@ -927,9 +933,9 @@
     ".github/agents/quality-auditor.agent.md": {
       "content": "0fa66d6ac2a046947c712ebec0ce8d9639cec4eaba7b34c0301c44933bf5a439",
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
-      "defect_taxonomy": "2571b87c4cac96ccc979bf1603e9df1c9580b6d457d61c2c874af93991ea734f",
+      "defect_taxonomy": "e9468640170cbdc1e966b0c589f2d1e4926c1fde9ca792f49923fae80e903b79",
       "memory_index_consultation": "f9040d9f95fdeec1cddaf21ba6a5764730ea3cf3590ab7d90d3aafe48bc84043",
-      "audit_protocol": "fa7d34b8334947793847913ee5657eb57f422a9f88d965123321c4da4f40f943",
+      "audit_protocol": "6f7dd04ad5bc4fdc90898a08269ca14eca4e0bd5826af0444d66debf313e1498",
       "output_format": "4d2983fcb4a1bb09df289219928ea3844d56fed192f91098c702e458b5eb0e6e",
       "boundary_rules": "91444ed2e3202780cdc752d5e4cefb5aea17e9d58c0d6dd6b009dcbf51e7f64c"
     },
@@ -960,11 +966,11 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "823cbda819369bdf13483475607c426a71032a7130d9cfcd01317358419ecd53",
+      "threat_intelligence": "737d0e299648bf2db1fd5c8a519563fdaa33a7fc459efd52d41472ed97bd2f4a",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
-      "security_authority": "82550a8ef8afaada00c26186e900801311a282cbc3eef2a6603990c2b46a6608",
+      "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "e20adb382e7c576a9d6518e82abcfd8bad8a1c4bff07fb5f65b051777fd33f5e"
+      "security_rules_invariant": "ba5e07be8fbe57acb3dee535007839326e78652746937c7e043859976111e2a9"
     },
     ".github/agents/team-builder.agent.md": {
       "content": "5d58ecc218568f2a5c8d7a988a4707e25ab09e77ac348ffcd371412dae15b1e9"
