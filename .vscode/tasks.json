@@ -14,6 +14,18 @@
       "detail": "AGENTTEAMS"
     },
     {
+      "label": "script: bootstrap_toolchain",
+      "type": "shell",
+      "command": "bash scripts/bootstrap_toolchain.sh",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": [],
+      "detail": "AGENTTEAMS"
+    },
+    {
       "label": "script: check_citation_integrity",
       "type": "shell",
       "command": "bash scripts/check_citation_integrity.sh",

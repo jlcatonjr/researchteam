@@ -135,6 +135,7 @@ Revision instructions (if REVISE): <specific corrections>
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+<!-- >>> researchteam:notes — upstream-authored; synced by `researchteam update`. Edit upstream. -->
 ### Interpretive directives input (from `@interpretation-advisor`)
 
 When an Interpretive Map exists for the project
@@ -171,3 +172,4 @@ Present each school or debate **in its period**: when a position was held, by wh
 which text. Do not flatten a tradition into one view across its history. Where the interpretive
 map's `## Historical setting` register gives a row a `[editors' inference — unsourced]` basis,
 mark it as such wherever you use it.
+<!-- <<< researchteam:notes -->

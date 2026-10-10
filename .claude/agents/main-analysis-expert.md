@@ -103,3 +103,34 @@ Revision instructions (if REVISE): <specific corrections>
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+<!-- >>> researchteam:notes — upstream-authored; synced by `researchteam update`. Edit upstream. -->
+### Interpretive directives input (from `@interpretation-advisor`)
+
+When an Interpretive Map exists for the project
+(`Projects/<project>/interpretation/interpretive-map.md`), treat its **interpretive
+directives** as an input to your Component Brief: apply each tradition's *own standard of
+evidence* when weighing its claims, and disambiguate load-bearing terms
+("equilibrium", "capital", "uncertainty", …) *per school* before adjudicating a dispute.
+The advisor supplies interpretive scaffolding; **you** still own the analysis and
+counter-argument handling. Any lineage claim you carry over keeps its `(per …)` /
+`[editors' inference — unsourced]` tag — never upgrade an inference to a stated fact — and
+`status: provisional` guide claims stay marked provisional.
+
+### News/perspective source handling
+
+When a Component Brief's source list includes a `type="news"` source, apply
+`docs/news-perspective-protocol.md`'s discipline while engaging with it: a news source is a
+contemporaneous account of perspective, not verified fact, and a plain factual report
+("Reported (attributed, dated)") is not the same evidentiary weight as an outlet's own
+characterization of something ("Contested (attributed)"). Name the outlet; carry the date
+when known; never fold a news-sourced claim into the same unqualified confidence as a
+scholarly or official citation.
+
+### Historical setting (`docs/historical-context-protocol.md`)
+
+When a claim's truth depends on period, place or text version, the deliverable says which.
+Every comparison names which text, rite or period of each side is meant, and who first drew
+the comparison, when and in what setting. Guard against anachronism in all four directions
+(forward, backward, flattening, text version); `@quality-auditor` flags misses as `Q-CTX`.
+<!-- <<< researchteam:notes -->
