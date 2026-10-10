@@ -62,7 +62,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | Layer | Covers | Mechanism |
 |---|---|---|
 | **Layer-1** (agentteams-managed) | `.github/agents/`, `.github/copilot-instructions.md`, `AGENTS.md` | `agentteams --update --merge` |
-| **Layer-2** (researchteam-managed) | framework `docs/`, `scripts/`, `.claude/`, the managed block of `CLAUDE.md`, `.gitignore` | `researchteam update --layer2-only` |
+| **Layer-2** (researchteam-managed) | framework `docs/`, `scripts/`, `.claude/`, the managed block of `CLAUDE.md`, `.gitignore`; for scholarly instances also the interpretation-advisor above its Notes (`above-notes`), the methodology-guide template, and the `researchteam:notes` blocks inside the Notes of four agents on `.github`/`.claude`/`.goose` (agentteams preserves Notes, so the two layers never write the same region) | `researchteam update --layer2-only` |
 
 **User-owned, never overwritten:** `brief.json`, `Projects/`, `references/`.
 
@@ -112,7 +112,8 @@ directives. They live in a block at the top of the Notes section:
 ```
 
 The block covers the interpretation-advisor and the topic-scoping, literature-review and
-main-analysis experts.
+main-analysis experts. A surface gets the block only if its copy of the agent has a Notes section.
+For example, a bridge-generated `.claude` advisor stub has none, so it is skipped with a message.
 
 - **Where it is written.** `update` writes the block into each of these agents on every surface
   the repo carries: `.github/agents`, `.claude/agents`, and `.goose/recipes`, where it is indented
@@ -231,7 +232,8 @@ it:
 - **`doctor --drift`** (opt-in, because it needs the network and agentteams):
   - It compares each file that `init` seeds but `update` never syncs with upstream at the pinned
     researchteam commit (`toolchain.lock`, else the marker ref). `## Project-Specific Notes` is
-    ignored in that comparison.
+    ignored in that comparison. There are currently no such files: the interpretation-advisor and
+    the methodology template are now managed (see above).
   - It runs `agentteams --bridge-check` for each bridge recorded under `references/bridges/`. That
     rewrites the gitignored `bridge-check.report.md` files.
 

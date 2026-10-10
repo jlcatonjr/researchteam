@@ -197,6 +197,21 @@ silently.
 > by `researchteam personalize` and is never synced from upstream. The wholesale-overwrite hazard
 > below therefore applies only to the remaining `overwrite`-strategy files in `MANAGED_FILES`
 > (docs, scripts, prompts); the discipline rules remain the durable belt for those.
+>
+> **Update (2026-W41): the `above-notes` strategy and `researchteam:notes` blocks (OrthodoxLLM
+> Item 1).**
+>
+> - **The advisor.** `.github/agents/interpretation-advisor.agent.md` is managed for scholarly
+>   instances with `above-notes`: upstream owns everything above `## Project-Specific Notes`, front
+>   matter included. The repo owns that heading and everything after it. The previous file is
+>   saved to the gitignored `tmp/researchteam-backups/<run>/`, and the diff is printed even under
+>   `--yes`. Under `--yes`, an upstream change that **widens** the front matter's `tools:`,
+>   `agents:` or handoff targets is refused (Constitutional C-3); review it interactively instead.
+> - **Notes blocks.** Rules that researchteam writes for the advisor and the topic-scoping,
+>   literature-review and main-analysis experts live in a `researchteam:notes` block at the top of
+>   each agent's Notes. `update` syncs the block on `.github`, `.claude` and `.goose`, backs up each
+>   file it changes, and never touches Notes text outside the block. agentteams preserves Notes
+>   verbatim, so layer 1 and layer 2 never write the same region. See `researchteam/_notes.py`.
 
 `.gitignore` was historically the dangerous case: the failure mode is not a lost edit but *lost
 protection*, and nothing announced it. The fence closes that class in code; the rules below stay in

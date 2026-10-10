@@ -162,7 +162,8 @@ James confirmed every decision below in researchteam's own session.
     (C-3).
   - The methodology template is replaced wholesale.
   - Upstream-written Notes reach the advisor and the three experts as a `researchteam:notes` block on
-    `.github`, `.claude` and `.goose`.
+    every surface whose copy has a Notes section: `.github`, `.claude` and `.goose` for the experts,
+    and `.github` for the advisor, whose `.claude` copy is a bridge stub without one.
   - On first adoption, hand-copied duplicates are folded, and repo subsections are left alone.
   - In a dry run against OrthodoxLLM's current files, all hand copies folded with no duplicates, and
     OrthodoxLLM's advisor gains only the outlet-perspective bullet it was missing.

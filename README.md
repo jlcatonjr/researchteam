@@ -45,9 +45,11 @@ Then follow the onboarding steps in `CLAUDE.md` or `.github/copilot-instructions
 | `researchteam materialize [--yes] [--dry-run]` | Re-render the agent team from `brief.json` via a cleared agentteams `--overwrite` pass (plain `update` uses `--merge --shrink-policy preserve` and will not re-brand enriched agent bodies), then re-personalize `README.md` / `CLAUDE.md` |
 | `researchteam update` | Sync layer-2 files from upstream, then run agentteams update |
 | `researchteam update --layer2-only` | Sync layer-2 files only; skip agentteams |
+| `researchteam update --layer1-only` | Run only the agentteams pass (no file sync); used by the upstream autosync |
 | `researchteam update --dry-run` | Preview changes without writing files |
 | `researchteam update --yes` | Apply all changes without interactive prompts (for CI) |
 | `researchteam status` | Show marker info and CLI version |
+| `researchteam doctor [--drift]` | Check the toolchain (agentteams resolution, provenance, `toolchain.lock`) and frozen fences; `--drift` also checks seeded files and bridges |
 | `researchteam --version` | Print CLI version |
 
 ### `init` options
@@ -63,7 +65,7 @@ researchteam init [name] [--ref REF] [--remote URL]
 ### `update` options
 
 ```
-researchteam update [--yes] [--dry-run] [--layer2-only] [--ref REF]
+researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref REF]
 ```
 
 - `--yes / -y` — skip interactive confirmation; required in CI
