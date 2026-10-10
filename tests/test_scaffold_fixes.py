@@ -99,6 +99,10 @@ def test_scope_allows_every_surface_a_layer1_run_writes(tmp_path):
         ".codex/agents/references/build-log.json", ".codex/agents/orchestrator.toml",
         ".agents/skills/recall/SKILL.md", ".goose/recipes/orchestrator.yaml", "AGENTS.md",
         "references/bridges/claude.bridge.json", "sandbox/confine-run.sh",
+        # exact layer-1 root artifacts (eaae749, 9fe245d, 3e3dc71) and the Codex role gate (agentteams b96e7e3)
+        "references/architecture-graph.md", "references/architecture-graph.svg",
+        "references/architecture-modules.svg", ".goosehints", "SETUP-REQUIRED.md",
+        ".agentteams/bin/codex-role-gate.py",
     ])
     r = _scope(tmp_path, written)
     assert r.returncode == 0, r.stdout + r.stderr
@@ -106,7 +110,8 @@ def test_scope_allows_every_surface_a_layer1_run_writes(tmp_path):
 
 def test_scope_still_refuses_user_owned_paths(tmp_path):
     for path in ("references/bibliography.bib", "Projects/x/report.md", "src/AGENTS.md", "environment.yml",
-                 "AGENTS.md.bak", ".vscode/settings.json"):
+                 "AGENTS.md.bak", ".vscode/settings.json", "references/architecture-graph.md.bak",
+                 "references/plans/x.md", ".agentteams/config.json", "Projects/SETUP-REQUIRED.md"):
         r = _scope(tmp_path, path)
         assert r.returncode != 0 and "Out-of-scope" in r.stdout, path
 
@@ -121,6 +126,39 @@ def test_scope_checks_new_untracked_files(tmp_path):
     (tmp_path / "environment.yml").write_text("x\n")
     r = _scope(tmp_path, None)
     assert r.returncode != 0 and "environment.yml" in r.stdout, r.stdout
+
+
+def test_scope_reads_non_ascii_paths_unquoted(tmp_path):
+    """git quotes non-ASCII names by default ("docs/\\303\\251.md"), which would fail the allowlist."""
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "x"],
+                   cwd=tmp_path, check=True)
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "docs" / "théologie.md").write_text("x\n")
+    r = _scope(tmp_path, None)
+    assert r.returncode == 0, r.stdout + r.stderr
+    (tmp_path / "données.txt").write_text("x\n")
+    r = _scope(tmp_path, None)
+    assert r.returncode != 0 and "données.txt" in r.stdout, r.stdout
+
+
+def _sensitive(paths: list[str]) -> list[str]:
+    gate = ROOT / "scripts" / "agentteams_autosync_gate.sh"
+    r = subprocess.run(["bash", str(gate), "--classify-sensitive"], input="\n".join(paths) + "\n",
+                       capture_output=True, text=True, check=True)
+    return r.stdout.split()
+
+
+def test_gate_flags_security_boundary_paths():
+    sensitive = ["sandbox/confine-run.sh", ".agentteams/bin/codex-role-gate.py", ".github/workflows/x.yml",
+                 ".github/actions/a/action.yml", ".github/agents/orchestrator.agent.md", "CODEOWNERS",
+                 ".github/CODEOWNERS", ".claude/settings.json", ".claude/settings.local.json",
+                 ".codex/config.toml", ".codex/hooks.json", ".goose/recipes/orchestrator.yaml",
+                 ".vscode/tasks.json", "scripts/validate_agentteams_update.sh"]
+    routine = [".github/agents/references/build-log.json", ".codex/agents/orchestrator.toml", "docs/x.md",
+               "AGENTS.md", ".claude/agents/x.md", "references/bridges/claude.bridge.json",
+               ".github/agents/sub/x.agent.md"]
+    assert _sensitive(sensitive + routine) == sensitive
 
 
 def test_no_operator_home_paths_in_shipped_docs():

@@ -47,8 +47,19 @@ SCRUB_PATHS=(
 # it — a full regen produces it — but the body highlights only substantive paths).
 NOISE_REGEX='(^|/)(build-log\.json|delivery-receipt\.json|memory-index\.json|security-vulnerability-watch\.(json|reference\.md)|pipeline-graph\.(md|svg)|pipeline-handoffs\.svg|architecture-graph\.(md|svg)|architecture-modules\.svg|bridge-manifest\.json)$'
 
+# Security-boundary paths: in scope for an update, but a change to any of them must not merge on a
+# routine review. They are listed first in the PR body and the job emits `sensitive=true`, which the
+# workflow turns into a `security-review-required` label. Hooks, confinement, CI, executable scripts,
+# agent capability declarations and ownership rules.
+SENSITIVE_REGEX='^(sandbox/|\.agentteams/bin/|\.github/workflows/|\.github/actions/|\.github/agents/[^/]+\.agent\.md$|(\.github/|docs/)?CODEOWNERS$|\.claude/settings[^/]*\.json$|\.codex/(config\.toml|hooks\.json)$|\.goose/recipes/|\.vscode/tasks\.json$|scripts/)'
+
+# Print the security-boundary paths among the newline-separated paths on stdin.
+sensitive_paths() { grep -E "$SENSITIVE_REGEX" || true; }
+
 while [ $# -gt 0 ]; do
   case "$1" in
+    # Test hook: classify paths from stdin with the gate's own rule, then exit (no git, no writes).
+    --classify-sensitive) sensitive_paths; exit 0 ;;
     --mode) MODE="${2:-upstream}"; shift 2 ;;
     --check-only) CHECK_ONLY=1; shift ;;
     --force) FORCE=1; shift ;;
@@ -118,10 +129,11 @@ fi
 printf '%s\n' "$new_sha" > "$REF_FILE"
 
 git add -A >/dev/null 2>&1 || true
-substantive="$(git diff --cached --name-only 2>/dev/null | grep -Ev "$NOISE_REGEX" | grep -v '\.agentteams-backups/' || true)"
-# Security-boundary paths (confinement scripts, CI workflows) are in scope but must never merge on a
-# routine review: they are called out first, whatever the churn filter says.
-sensitive="$(git diff --cached --name-only 2>/dev/null | grep -E '^(sandbox/|\.github/workflows/)' || true)"
+staged="$(git -c core.quotePath=false diff --cached --name-only 2>/dev/null)"
+substantive="$(printf '%s\n' "$staged" | grep -Ev "$NOISE_REGEX" | grep -v '\.agentteams-backups/' | sed '/^$/d' || true)"
+# Security-boundary paths are called out first, whatever the churn filter says.
+sensitive="$(printf '%s\n' "$staged" | sensitive_paths)"
+if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false"; fi
 {
   echo "## Automatic agentteams integration"
   echo
