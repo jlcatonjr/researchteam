@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc9",
-  "generated_at": "2026-10-10T12:07:53.930852+00:00",
+  "generated_at": "2026-10-10T21:22:11.889060+00:00",
   "project_name": "ResearchTeam",
   "agent_slug_list": [
     "orchestrator",
@@ -82,9 +82,9 @@
     "content-enricher.toml": "f13932ab4bfdbe6c",
     "format-converter.toml": "4a83eccd839fcf02",
     "git-operations.toml": "1a1e09afba8c4616",
-    "interpretation-advisor.toml": "81c344bf0ac61c56",
-    "literature-review-expert.toml": "9b2a342a82caf8e3",
-    "main-analysis-expert.toml": "f2d4f7ac85c096ff",
+    "interpretation-advisor.toml": "9000cb9a7ec02f6f",
+    "literature-review-expert.toml": "e83b9ac246767702",
+    "main-analysis-expert.toml": "79302cf796141b11",
     "navigator.toml": "9ac5c2522ca1c4f6",
     "orchestrator.toml": "ee651649857d8df6",
     "output-compiler.toml": "b76385e5417f5a07",
@@ -94,12 +94,12 @@
     "repo-liaison.toml": "78c102cad961935b",
     "research-analyst.toml": "955a40ca9d744fc4",
     "retrieval-integrator.toml": "b0f410be8f8da090",
-    "security.toml": "97a3c8245adc762d",
+    "security.toml": "673e872d390655a3",
     "team-builder.toml": "f0ee8e1d50bc72c9",
     "technical-validator.toml": "e9de62a695788a34",
     "tool-doc-researcher.toml": "f362fb9d7a741061",
     "tool-pandoc.toml": "7b070485a2d7c53a",
-    "topic-scoping-expert.toml": "4355f9549e0361ad",
+    "topic-scoping-expert.toml": "a4d0bf68ea15234c",
     "visual-designer.toml": "afa04e9917bb08fe",
     "work-summarizer.toml": "17c2eb676bfb4877"
   },
@@ -107,5 +107,5 @@
   "origin": "interop",
   "source_dir": ".github/agents",
   "source_framework": "copilot-vscode",
-  "source_build_log_sha256": "fb57936f5f1b54626cd693adec76c6c6f85843f39fb8a0f18be77ee472aefa5d"
+  "source_build_log_sha256": "bfefb02293bd43765f5dd77435321739fa1a53c7e62e664c9b851ee007a1d9c2"
 }

@@ -52,6 +52,7 @@ Defines the research question, scope boundaries, methodology, and a prioritised 
 - At least 5 candidate sources identified with repository URLs or DOIs
 - Scope explicitly states what is excluded
 - Methodology describes how evidence will be gathered and synthesised
+- Each core source's date, place and text version recorded, or marked unknown (docs/historical-context-protocol.md)
 
 ## Cross-References
 

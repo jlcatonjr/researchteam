@@ -167,6 +167,7 @@ When a topic needs a tradition with no **active** on-disk guide:
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+<!-- >>> researchteam:notes — upstream-authored; synced by `researchteam update`. Edit upstream. -->
 - **Classification:** advisory archetype (registered in `_build-description.json`
   `selected_archetypes`), **not** a `components[]` entry — so it never enters the
   `@output-compiler` compile graph — and **not** a `governance_agents` entry.
@@ -186,6 +187,7 @@ When a topic needs a tradition with no **active** on-disk guide:
   `--update --merge`; this is the durable place for the extension until/unless it is
   promoted into the upstream template itself (a separate, agentteams-side change this plan
   does not make).
+<!-- <<< researchteam:notes -->
 
 <!-- AGENTTEAMS:BEGIN codex_translation v=1 -->
 ## Codex Runtime Notes

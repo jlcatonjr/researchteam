@@ -66,7 +66,7 @@ instructions: |
   > ⛔ **Do not modify or omit.**
   <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN memory_index_consultation v=3 -->
+  <!-- AGENTTEAMS:BEGIN memory_index_consultation v=3 -->
   ### Memory-index consultation *(applies when `references/memory-index.json` is present)*
 
   Before deciding, check whether a structurally similar conflict has been resolved before — a prior `ACCEPT`/`REJECT`/`REVISE` outcome is binding precedent unless the authority hierarchy has changed. Lexical-first because conflict claims usually carry precise terminology or identifiers:

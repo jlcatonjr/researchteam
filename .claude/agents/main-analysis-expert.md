@@ -51,6 +51,7 @@ Conducts the core analytical work of the report, engaging directly with primary 
 - Counter-arguments acknowledged and addressed
 - Reasoning is logically valid and follows from cited evidence
 - No unsupported assertions
+- Claims that depend on period, place or text version say which; no anachronism (docs/historical-context-protocol.md)
 
 ## Cross-References
 

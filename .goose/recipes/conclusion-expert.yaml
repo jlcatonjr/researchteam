@@ -32,7 +32,7 @@ instructions: |
   > ⛔ **Do not modify or omit.**
   <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN component_spec v=1 -->
+  <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
   ## Component Specification
 
   Summarises the findings, states the contribution to the field, and provides a concise executive summary suitable for a non-specialist audience.

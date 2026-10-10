@@ -137,7 +137,7 @@ instructions: |
   > ⛔ **Do not modify or omit.** The research constraints, documentation quality tiers, output format, and hand-off procedure below are the immutable contract for this agent.
   <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN memory_index_consultation v=2 -->
+  <!-- AGENTTEAMS:BEGIN memory_index_consultation v=2 -->
   ## Memory-index consultation *(applies when `references/memory-index.json` is present)*
 
   Before opening external documentation tiers, check whether the team has already researched this tool — prior handoffs, work summaries, or tool reference files may already carry the `docs_url`, `api_surface`, or version-pinned `common_patterns` for the version listed in the project brief:

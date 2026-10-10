@@ -32,7 +32,7 @@ instructions: |
   > ⛔ **Do not modify or omit.**
   <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN component_spec v=1 -->
+  <!-- AGENTTEAMS:BEGIN component_spec v=1 -->
   ## Component Specification
 
   Conducts the core analytical work of the report, engaging directly with primary sources, applying the chosen methodology, and building the argument from the literature.
@@ -54,6 +54,7 @@ instructions: |
   - Counter-arguments acknowledged and addressed
   - Reasoning is logically valid and follows from cited evidence
   - No unsupported assertions
+  - Claims that depend on period, place or text version say which; no anachronism (docs/historical-context-protocol.md)
 
   ## Cross-References
 

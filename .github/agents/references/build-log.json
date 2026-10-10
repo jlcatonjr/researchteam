@@ -2,12 +2,12 @@
   "schema_version": "1.5",
   "agentteams_version": "1.0.0rc9",
   "agentteams_source": {
-    "kind": "checkout",
-    "commit": "66c13a6c56fa7eb63329b66aa6fb3a39b1157e9d",
-    "branch": "feat/managed-advisor-notes",
-    "dirty": true
+    "kind": "vcs-pin",
+    "commit": "b821b3d1af8b6b354690aa05f98d33f3baf3de4a",
+    "branch": null,
+    "dirty": false
   },
-  "generated_at": "2026-10-10T18:02:52.538485+00:00",
+  "generated_at": "2026-10-10T21:20:56.390839+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -524,16 +524,13 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "f5d498ed3c1618f8",
+  "manifest_fingerprint": "ac3f0916a2e2cdfe",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "e2ec5ecd856ee4f2",
-    "references/security-vulnerability-watch.reference.md": "4d9d4724f56d1b42",
-    "references/security-vulnerability-watch.json": "7c350de294b8aaa5",
+    "security.agent.md": "fd3331fb1a3b3048",
+    "references/security-vulnerability-watch.json": "2681faf89b97a9ae",
     "references/pipeline-graph.md": "9f302f20e70161b5",
     "references/pipeline-graph.svg": "7a5a3e866cdc99a2",
-    "../../sandbox/mac-escape-tests.sh": "71d00a1d1d4b83f8",
-    "../../.vscode/tasks.json": "b8abad07972d2acd",
     "orchestrator.agent.md": "3f757820f6b98264",
     "navigator.agent.md": "bf4639e8c17672a6",
     "code-hygiene.agent.md": "654d28d9fb509933",
@@ -560,6 +557,7 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "4d9d4724f56d1b42",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -967,7 +965,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "72e4f8e7becefd26c9f0831b8055c24f75a119a374a3304145d7f8076af5d5dd",
+      "threat_intelligence": "1a576bc542ba89e644e7e6904bf666892b42632d96d9348c74a043db235e2b77",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
