@@ -258,6 +258,8 @@ def run_update(
         # the older upstream versions). Used by the auto-integration git hook.
         print("[researchteam] Layer-1 only: integrating current agent state (no file sync) ...")
         _run_agentteams(root, yes=yes, dry_run=dry_run)
+        # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
+        _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
         # The merge may change canonical agents; keep the Codex projection in step.
         _refresh_codex(root, dry_run=dry_run)
         from ._personalize import is_upstream
@@ -399,6 +401,8 @@ def run_update(
 
     # Layer-1: delegate to agentteams
     _run_agentteams(root, yes=yes, dry_run=dry_run)
+    # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
+    _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
     # The merge may change canonical agents; keep the Codex projection in step.
     _refresh_codex(root, dry_run=dry_run)
     _print_frozen_summary(root, dry_run)
@@ -722,10 +726,58 @@ NATIVE_SURFACES: tuple[tuple[str, str], ...] = (("claude", ".claude/agents"), ("
 def _native_surfaces(root: Path) -> list[tuple[str, str]]:
     """Return the ``(framework, dir)`` native surfaces present in *root*.
 
-    A surface counts as present when its directory holds an agentteams build-log, i.e. a native
-    team was rendered there before. A bare bridge directory is left alone.
+    A surface counts as present when its directory holds a NATIVE agentteams build-log, i.e. a native
+    team was rendered there before. A bare bridge directory is left alone, and so is a directory whose
+    build-log is an interop projection marker (``origin: "interop"``) or unreadable: agentteams treats
+    such a log as "no prior build", so ``--materialize-native`` would write a whole native team over
+    the bridge (@security, 2026-10-10).
     """
-    return [(fw, d) for fw, d in NATIVE_SURFACES if (root / d / "references" / "build-log.json").exists()]
+    found = []
+    for fw, d in NATIVE_SURFACES:
+        log = root / d / "references" / "build-log.json"
+        if not log.is_file():
+            continue
+        try:
+            data = json.loads(log.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            print(f"[researchteam] skipping {d}: its build-log is unreadable", file=sys.stderr)
+            continue
+        if not isinstance(data, dict) or data.get("origin") == "interop":
+            continue
+        found.append((fw, d))
+    return found
+
+
+def _render_native_surfaces(root: Path, *, yes: bool, dry_run: bool, overwrite: bool,
+                            adopt_orphans: bool = False, discard_user_regions: bool = False,
+                            label: str = "update") -> None:
+    """Render every native surface (see :func:`_native_surfaces`) after the copilot-vscode render.
+
+    ``overwrite`` False is the merge path (``researchteam update``); True is ``materialize``. On a
+    failure it reports which surfaces were rendered and which were not attempted, then re-raises the
+    non-zero exit so an autosync opens no PR.
+    """
+    surfaces = _native_surfaces(root)
+    done = [".github/agents (copilot-vscode)"]
+    for i, (framework, directory) in enumerate(surfaces):
+        print(f"[researchteam] {label}: native surface {directory} ({framework})")
+        try:
+            _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=overwrite, framework=framework,
+                            adopt_orphans=adopt_orphans, discard_user_regions=discard_user_regions)
+        except SystemExit:
+            pending = [f"{d} ({fw})" for fw, d in surfaces[i + 1:]]
+            print(
+                f"[researchteam] {label}: FAILED on {directory} ({framework}).\n"
+                f"  already rendered: {', '.join(done)}\n"
+                f"  not attempted: {', '.join(pending) or 'none'}"
+                f"{'; README/CLAUDE not re-personalized' if label == 'materialize' else ''}.\n"
+                "  Fix the cause (usually a missing clearance in that surface's decisions log) and re-run.",
+                file=sys.stderr,
+            )
+            raise
+        done.append(f"{directory} ({framework})")
+    if not surfaces:
+        print(f"[researchteam] {label}: no native claude/goose surfaces present.")
 
 
 def _run_agentteams(
@@ -787,6 +839,10 @@ def _run_agentteams(
         # unreviewed agentteams from main via the autosync CI, so a future default flip must never silently
         # shrink researchteam's enriched fences into an auto-PR). See docs/agentteams-update-policy.md.
         cmd = [exe, "--description", descriptor, "--update", "--merge", "--shrink-policy", "preserve"]
+        if framework:
+            # A native surface sits behind a bridge marker: agentteams fails closed on --update there unless
+            # the native render is requested. Merge mode keeps enriched fenced content (never overwrite).
+            cmd += ["--framework", framework, "--project", ".", "--materialize-native"]
     env = None
     if not dry_run:
         from ._drift import prepare_report
@@ -964,26 +1020,9 @@ def run_materialize(
     _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, adopt_orphans=adopt_orphans,
                     discard_user_regions=discard_user_regions)
     if not copilot_only:
-        surfaces = _native_surfaces(root)
-        done = [".github/agents (copilot-vscode)"]
-        for i, (framework, directory) in enumerate(surfaces):
-            print(f"[researchteam] materialize: native surface {directory} ({framework})")
-            try:
-                _run_agentteams(root, yes=yes, dry_run=dry_run, overwrite=True, framework=framework,
-                                adopt_orphans=adopt_orphans, discard_user_regions=discard_user_regions)
-            except SystemExit:
-                pending = [f"{d} ({fw})" for fw, d in surfaces[i + 1:]]
-                print(
-                    f"[researchteam] materialize: FAILED on {directory} ({framework}).\n"
-                    f"  already re-rendered: {', '.join(done)}\n"
-                    f"  not attempted: {', '.join(pending) or 'none'}; README/CLAUDE not re-personalized.\n"
-                    "  Fix the cause (usually a missing clearance in that surface's decisions log) and re-run.",
-                    file=sys.stderr,
-                )
-                raise
-            done.append(f"{directory} ({framework})")
-        if not surfaces:
-            print("[researchteam] materialize: no native claude/goose surfaces present.")
+        _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=True,
+                                adopt_orphans=adopt_orphans, discard_user_regions=discard_user_regions,
+                                label="materialize")
     if codex:
         _refresh_codex(root, dry_run=dry_run)
 
