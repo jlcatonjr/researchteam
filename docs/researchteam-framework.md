@@ -243,6 +243,10 @@ it:
     the methodology template are now managed (see above).
   - It runs `agentteams --bridge-check` for each bridge recorded under `references/bridges/`. That
     rewrites the gitignored `bridge-check.report.md` files.
+- **Bridges are refreshed by `update`.** Layer 1 rewrites canonical agents on every run; for
+  example, the live vulnerability-watch section of `security.agent.md` changes each time. So after
+  layer 1, `update` runs the non-destructive `agentteams --bridge-merge` for each recorded bridge.
+  A failed merge is reported, and that bridge is left as it was.
 
 All drift findings are warnings. They never fail `doctor`.
 

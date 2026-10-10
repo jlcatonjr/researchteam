@@ -269,6 +269,8 @@ def run_update(
         _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
         # The merge may change canonical agents; keep the Codex projection in step.
         _refresh_codex(root, dry_run=dry_run)
+        # Bridges before the upstream Notes sync, so the Notes blocks are always written last.
+        _merge_bridges(root, dry_run)
         from ._personalize import is_upstream
         if is_upstream(root):
             # Upstream is the source of the researchteam:notes blocks: carry its .github copies into
@@ -412,7 +414,36 @@ def run_update(
     _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
     # The merge may change canonical agents; keep the Codex projection in step.
     _refresh_codex(root, dry_run=dry_run)
+    _merge_bridges(root, dry_run)
     _print_frozen_summary(root, dry_run)
+
+
+def _merge_bridges(root: Path, dry_run: bool) -> None:
+    """Refresh every recorded copilot-vscode bridge after layer 1 (non-destructive ``--bridge-merge``).
+
+    Layer 1 rewrites canonical agents on every run (e.g. the live vulnerability-watch section of
+    ``security.agent.md``), which left each bridge stale until someone merged it by hand and made
+    ``doctor --drift`` warn every time. A failed merge is reported, never fatal: the bridge just stays
+    as it was, and ``doctor --drift`` still shows it.
+    """
+    from ._drift import bridge_frameworks
+
+    frameworks = bridge_frameworks(root)
+    if not frameworks:
+        return
+    if dry_run:
+        print(f"[researchteam] [dry-run] Would refresh bridges: {', '.join(frameworks)}")
+        return
+    exe = _preflight_agentteams()
+    for fw in frameworks:
+        r = subprocess.run([exe, "--bridge-from", ".github/agents", "--framework", fw, "--output", ".",
+                            "--bridge-merge"], cwd=str(root), capture_output=True, text=True)
+        if r.returncode == 0:
+            print(f"[researchteam] bridge copilot-vscode→{fw}: merged")
+        else:
+            tail = ((r.stderr or r.stdout).strip().splitlines() or ["(no output)"])[-1]
+            print(f"[researchteam] bridge copilot-vscode→{fw}: --bridge-merge failed ({tail[:200]}); "
+                  "left as it was", file=sys.stderr)
 
 
 def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
