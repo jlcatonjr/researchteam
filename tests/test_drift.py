@@ -278,5 +278,9 @@ def test_update_calls_bridge_merge_before_the_frozen_summary(tmp_path, monkeypat
         monkeypatch.setattr(_update_cmd, name, lambda *a, _n=name, **k: order.append(_n))
     monkeypatch.setattr(_update_cmd, "_merge_bridges", lambda *a, **k: order.append("bridges"))
     monkeypatch.setattr(_update_cmd, "_print_frozen_summary", lambda *a, **k: order.append("summary"))
+    monkeypatch.setattr(_update_cmd, "_sync_notes", lambda *a, **k: order.append("notes"))
+    import researchteam._personalize as p
+    monkeypatch.setattr(p, "is_upstream", lambda root: True)
     _update_cmd.run_update(tmp_path, ref="main", yes=True, dry_run=False, layer2_only=False, layer1_only=True)
-    assert order[-2:] == ["bridges", "summary"] and order[0] == "_run_agentteams"
+    # upstream: bridges, then the Notes blocks (written last), then the summary
+    assert order[-3:] == ["bridges", "notes", "summary"] and order[0] == "_run_agentteams"

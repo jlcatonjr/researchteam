@@ -269,12 +269,13 @@ def run_update(
         _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
         # The merge may change canonical agents; keep the Codex projection in step.
         _refresh_codex(root, dry_run=dry_run)
+        # Bridges before the upstream Notes sync, so the Notes blocks are always written last.
+        _merge_bridges(root, dry_run)
         from ._personalize import is_upstream
         if is_upstream(root):
             # Upstream is the source of the researchteam:notes blocks: carry its .github copies into
             # its own .claude/.goose surfaces (derived repos get them in the layer-2 sync).
             _sync_notes(root, None, yes=True, dry_run=dry_run)
-        _merge_bridges(root, dry_run)
         _print_frozen_summary(root, dry_run)
         return
 
