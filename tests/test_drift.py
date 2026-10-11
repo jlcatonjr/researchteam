@@ -421,9 +421,59 @@ def test_bridge_outputs_list_agents_only(tmp_path):
     assert _drift.bridge_outputs(tmp_path, "goose") == [".goose/recipes/bridge-orchestrator.yaml"]
 
 
-def test_codex_projection_is_skipped_when_codex_is_covered(tmp_path, monkeypatch, capsys):
+def test_codex_is_rendered_natively_when_covered(tmp_path, monkeypatch, capsys):
     _pilot(tmp_path)  # frameworks unset: claude, goose and codex are covered
     (tmp_path / ".codex" / "agents").mkdir(parents=True)
-    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: pytest.fail("no projection should run"))
+    renders = []
+    monkeypatch.setattr(_update_cmd, "_run_agentteams", lambda root, **k: renders.append(k))
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    seen = []
+
+    class R:
+        returncode = 0
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", lambda cmd, **k: seen.append(cmd) or R())
     _update_cmd._refresh_codex(tmp_path, dry_run=False)
-    assert "Codex projection skipped" in capsys.readouterr().out
+    assert renders == [{"yes": True, "dry_run": False, "overwrite": False, "framework": "codex"}]
+    assert not any("--interop-from" in c and ".github/agents" in c for c in seen)  # no canonical projection
+    assert "rendering it natively" in capsys.readouterr().out
+
+
+def test_codex_skills_still_projected_under_the_switch(tmp_path, monkeypatch):
+    _pilot(tmp_path)
+    (tmp_path / ".codex" / "agents").mkdir(parents=True)
+    (tmp_path / ".claude" / "skills").mkdir(parents=True)
+    monkeypatch.setattr(_update_cmd, "_run_agentteams", lambda root, **k: None)
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    seen = []
+
+    class R:
+        returncode = 0
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", lambda cmd, **k: seen.append(cmd) or R())
+    _update_cmd._refresh_codex(tmp_path, dry_run=False)
+    assert len(seen) == 1 and "--interop-skills-only" in seen[0]
+
+
+def test_covered_framework_without_native_team_is_flagged(tmp_path, monkeypatch, capsys):
+    _pilot(tmp_path, ["claude", "goose"])  # no native build-logs in this fixture
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    _update_cmd._merge_bridges(tmp_path, dry_run=False)
+    err = capsys.readouterr().err
+    assert "covers claude, but this repository has no native claude team" in err and "materialize" in err
+    assert "covers goose" in err
+
+
+def test_no_warning_when_the_covered_framework_has_a_native_team(tmp_path, monkeypatch, capsys):
+    _pilot(tmp_path, ["claude"])
+    log = tmp_path / ".claude" / "agents" / "references" / "build-log.json"
+    log.parent.mkdir(parents=True)
+    log.write_text(json.dumps({"framework": "claude"}))
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+
+    class R:
+        returncode, stdout, stderr = 0, "", ""
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", lambda cmd, **k: R())
+    _update_cmd._merge_bridges(tmp_path, dry_run=False)
+    assert "no native claude team" not in capsys.readouterr().err
