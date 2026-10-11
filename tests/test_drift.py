@@ -44,13 +44,14 @@ def test_a_successful_run_drops_the_previous_report(tmp_path):
     assert _drift.load_frozen(tmp_path) == [] and not list((tmp_path / "tmp").glob(".*.prev"))
 
 
-def test_doctor_does_not_offer_a_grant_agentteams_would_refuse(tmp_path):
+def test_doctor_offers_parent_dir_grants_with_a_version_note(tmp_path):
     _report(tmp_path, [dict(ITEM, file="../copilot-instructions.md", fence="directory_structure",
                             entry="../copilot-instructions.md:directory_structure@8c00f755ecbe")])
     oks, warns = [], []
     _doctor_cmd._check_frozen_fences(tmp_path, oks.append, warns.append)
     line = next(w for w in warns if "copilot-instructions" in w)
-    assert "Not releasable by grant yet" in line and "AGENTTEAMS_SHRINK_ALLOW=" not in line
+    assert "AGENTTEAMS_SHRINK_ALLOW=../copilot-instructions.md:directory_structure@8c00f755ecbe" in line
+    assert "needs agentteams 5f8503e or later" in line
 
 
 def test_run_agentteams_restores_the_report_when_agentteams_fails(tmp_path, monkeypatch):
