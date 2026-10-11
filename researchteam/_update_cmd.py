@@ -430,6 +430,12 @@ def _merge_bridges(root: Path, dry_run: bool) -> None:
 
     frameworks = bridge_frameworks(root)
     covered = write_policy_frameworks(root)
+    native = {fw for fw, _ in _native_surfaces(root)}
+    for fw in sorted(covered - native - {"codex"}):
+        # Covered, but no native team: with the bridge skipped, nothing would update this surface.
+        print(f"[researchteam] WARNING: write_policy: orchestrator-only covers {fw}, but this repository has "
+              f"no native {fw} team, so agent changes no longer reach it. Create one with "
+              f"`researchteam materialize` (it renders every native surface from the brief).", file=sys.stderr)
     for fw in [f for f in frameworks if f in covered]:
         # orchestrator-only writes: the native surface is authoritative; a bridge would re-create
         # dispatching agents and undo the narrowing. Report its outputs; never delete them here.
@@ -961,9 +967,13 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
         return
     from ._drift import write_policy_frameworks
     if "codex" in write_policy_frameworks(root):
-        # The projection copies the canonical (dispatching) team into .codex/agents; under the
-        # orchestrator-only switch Codex must come from its own narrowed render instead.
-        print("[researchteam] Codex projection skipped: write_policy: orchestrator-only covers codex.")
+        # The projection would copy the canonical (dispatching) team into .codex/agents. Under the
+        # orchestrator-only switch Codex is rendered natively from the brief instead, so agentteams
+        # applies the narrowing (read-only agents, proposals, role gate) and changes keep flowing.
+        print("[researchteam] Codex: write_policy: orchestrator-only covers codex; rendering it natively "
+              "from the brief instead of projecting the canonical team.")
+        _run_agentteams(root, yes=True, dry_run=dry_run, overwrite=False, framework="codex")
+        _project_codex_skills(root, dry_run)
         return
     exe = _preflight_agentteams()
     # --overwrite is required: without it interop SKIPS existing files, so an already-projected
@@ -986,6 +996,17 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
     _prune_stale_codex_agents(root, dry_run=dry_run)
     if not dry_run:
         _check_codex_team_marker(root)
+
+
+def _project_codex_skills(root: Path, dry_run: bool) -> None:
+    """Project Claude skills into Codex (``.agents/skills``); skills carry no dispatch or write grant."""
+    if not (root / ".claude" / "skills").is_dir():
+        return
+    exe = _preflight_agentteams()
+    cmd = [exe, "--interop-from", ".claude/agents", "--interop-source-framework", "claude", "--framework", "codex",
+           "--interop-skills-only", "--output", ".", "--overwrite", "--yes"] + (["--dry-run"] if dry_run else [])
+    if subprocess.run(cmd, cwd=str(root)).returncode != 0:
+        print("[researchteam] Codex skills projection FAILED; .agents/skills is not current.", file=sys.stderr)
 
 
 def _check_codex_team_marker(root: Path) -> None:
