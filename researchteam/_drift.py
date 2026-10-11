@@ -182,3 +182,45 @@ def parse_bridge_report(text: str) -> tuple[str, list[str]]:
     if section:
         changed = [ln[2:].strip() for ln in section.group(1).splitlines() if ln.startswith("- ")]
     return (m.group(1) if m else "UNKNOWN"), changed
+
+
+# Frameworks agentteams can render under the orchestrator-only-writes switch. When the brief does not
+# list `write_policy_frameworks`, agentteams applies the switch to whichever framework it generates.
+_WRITE_POLICY_TARGETS = ("claude", "goose", "codex")
+
+
+def write_policy_frameworks(root: Path) -> set[str]:
+    """Frameworks under ``write_policy: orchestrator-only`` per brief.json (empty when the switch is off).
+
+    A copilot-vscode bridge into one of these would re-create agents that keep dispatch/write tools,
+    undoing the narrowing on every update (biographies pilot), so bridges must not be refreshed there.
+    """
+    try:
+        brief = json.loads((root / "brief.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set()
+    if not isinstance(brief, dict) or brief.get("write_policy") != "orchestrator-only":
+        return set()
+    listed = brief.get("write_policy_frameworks")
+    if isinstance(listed, list) and listed:
+        return {str(f) for f in listed}
+    return set(_WRITE_POLICY_TARGETS)
+
+
+def bridge_outputs(root: Path, framework: str) -> list[str]:
+    """Files a copilot-vscode→``framework`` bridge wrote (they carry its marker), outside references/."""
+    base = root / f".{framework}"
+    marker = f"copilot-vscode-to-{framework}"
+    if not base.is_dir():
+        return []
+    found = []
+    for path in sorted(base.rglob("*")):
+        if not path.is_file() or "references" in path.relative_to(base).parts:
+            continue
+        try:
+            if marker in path.read_text(encoding="utf-8", errors="replace"):
+                found.append(str(path.relative_to(root)))
+        except OSError:
+            continue
+    return found
+

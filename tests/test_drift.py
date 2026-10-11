@@ -341,3 +341,61 @@ def test_run_agentteams_restores_the_report_when_the_subprocess_raises(tmp_path,
     with pytest.raises(KeyboardInterrupt):
         _update_cmd._run_agentteams(tmp_path, yes=True, dry_run=False)
     assert len(_drift.load_frozen(tmp_path)) == 1 and not list((tmp_path / "tmp").glob(".*.prev"))
+
+
+
+def _pilot(tmp_path, frameworks=None):
+    brief = {"project_name": "bio", "write_policy": "orchestrator-only"}
+    if frameworks is not None:
+        brief["write_policy_frameworks"] = frameworks
+    (tmp_path / "brief.json").write_text(json.dumps(brief))
+    for fw in ("claude", "goose"):
+        (tmp_path / _drift.BRIDGES_DIR / f"copilot-vscode-to-{fw}").mkdir(parents=True)
+    agents = tmp_path / ".claude" / "agents"
+    agents.mkdir(parents=True)
+    (agents / "workstream-expert.md").write_text("---\nname: w\nbridge: copilot-vscode-to-claude\ntools: Task\n---\n")
+    (agents / "orchestrator.md").write_text("---\nname: o\n---\nnative\n")
+
+
+@pytest.mark.parametrize("brief, expect", [
+    ({"write_policy": "default"}, set()),
+    ({"write_policy": "orchestrator-only", "write_policy_frameworks": ["claude"]}, {"claude"}),
+    ({"write_policy": "orchestrator-only"}, {"claude", "goose", "codex"}),
+    (None, set()),
+])
+def test_write_policy_frameworks(tmp_path, brief, expect):
+    if brief is not None:
+        (tmp_path / "brief.json").write_text(json.dumps(brief))
+    assert _drift.write_policy_frameworks(tmp_path) == expect
+
+
+def test_update_skips_bridges_under_orchestrator_only_and_reports_outputs(tmp_path, monkeypatch, capsys):
+    _pilot(tmp_path, ["claude"])
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
+    seen = []
+
+    class R:
+        returncode, stdout, stderr = 0, "", ""
+
+    monkeypatch.setattr(_update_cmd.subprocess, "run", lambda cmd, **k: seen.append(cmd) or R())
+    _update_cmd._merge_bridges(tmp_path, dry_run=False)
+    assert [c[c.index("--framework") + 1] for c in seen] == ["goose"]  # claude is covered: no merge
+    out = capsys.readouterr().out
+    assert "copilot-vscode→claude: skipped (write_policy: orchestrator-only covers claude)" in out
+    assert ".claude/agents/workstream-expert.md" in out and "orchestrator.md" not in out
+    assert (tmp_path / ".claude" / "agents" / "workstream-expert.md").exists()  # reported, never deleted
+
+
+def test_update_skips_every_bridge_when_frameworks_unset(tmp_path, monkeypatch):
+    _pilot(tmp_path)
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: pytest.fail("no bridge should run"))
+    _update_cmd._merge_bridges(tmp_path, dry_run=False)
+
+
+def test_doctor_drift_reports_stale_bridge_outputs_instead_of_checking(tmp_path, monkeypatch):
+    _pilot(tmp_path)
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: pytest.fail("no bridge-check should run"))
+    oks, warns = [], []
+    _doctor_cmd._check_bridges(tmp_path, oks.append, warns.append)
+    assert any("→claude" in w and "workstream-expert.md" in w for w in warns)
+    assert any("→goose" in o and "no outputs left" in o for o in oks)

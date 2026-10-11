@@ -295,12 +295,25 @@ def _upstream_ref(root: Path) -> tuple[str, str]:
 
 def _check_bridges(root: Path, ok, warn) -> None:
     """Run agentteams --bridge-check for every recorded copilot-vscode bridge."""
-    from ._drift import BRIDGES_DIR, bridge_frameworks, clean, parse_bridge_report
+    from ._drift import (BRIDGES_DIR, bridge_frameworks, bridge_outputs, clean, parse_bridge_report,
+                         write_policy_frameworks)
     from ._update_cmd import _preflight_agentteams
 
     frameworks = bridge_frameworks(root)
     if not frameworks:
         ok("bridges: none recorded under references/bridges/.")
+        return
+    covered = write_policy_frameworks(root)
+    for fw in [f for f in frameworks if f in covered]:
+        stale = bridge_outputs(root, fw)
+        if stale:
+            warn(f"bridge copilot-vscode→{clean(fw)}: not used under write_policy: orchestrator-only; "
+                 f"stale bridge outputs to remove: {clean(', '.join(stale[:8]))}"
+                 + (f" (+{len(stale) - 8} more)" if len(stale) > 8 else ""))
+        else:
+            ok(f"bridge copilot-vscode→{clean(fw)}: not used under write_policy: orchestrator-only; no outputs left.")
+    frameworks = [f for f in frameworks if f not in covered]
+    if not frameworks:
         return
     try:
         exe = _preflight_agentteams()  # the same resolution + provenance check a render gets

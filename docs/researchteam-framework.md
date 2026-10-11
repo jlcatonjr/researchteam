@@ -246,7 +246,12 @@ it:
 - **Bridges are refreshed by `update`.** Layer 1 rewrites canonical agents on every run; for
   example, the live vulnerability-watch section of `security.agent.md` changes each time. So after
   layer 1, `update` runs the non-destructive `agentteams --bridge-merge` for each recorded bridge.
-  A failed merge is reported, and that bridge is left as it was.
+  A failed merge is reported, and that bridge is left as it was. Under `write_policy: orchestrator-only`
+  (the orchestrator-only-writes pilot), bridges are **not** refreshed into the frameworks the switch
+  covers: `write_policy_frameworks`, or claude, goose and codex when that field is unset. The
+  native surface is authoritative there, and a bridge would re-create agents that keep dispatch and
+  write tools. `update` and `doctor --drift` list any existing bridge outputs in those frameworks
+  for you to remove; neither deletes them.
 
 All drift findings are warnings. They never fail `doctor`.
 
