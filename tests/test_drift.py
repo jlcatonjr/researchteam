@@ -355,6 +355,8 @@ def _pilot(tmp_path, frameworks=None):
     agents.mkdir(parents=True)
     (agents / "workstream-expert.md").write_text("---\nname: w\nbridge: copilot-vscode-to-claude\ntools: Task\n---\n")
     (agents / "orchestrator.md").write_text("---\nname: o\n---\nnative\n")
+    # shared bridge infrastructure mentions the marker but is not a bridge agent
+    (tmp_path / ".claude" / "agent-team.md").write_text("see references/bridges/copilot-vscode-to-claude/\n")
 
 
 @pytest.mark.parametrize("brief, expect", [
@@ -395,7 +397,33 @@ def test_update_skips_every_bridge_when_frameworks_unset(tmp_path, monkeypatch):
 def test_doctor_drift_reports_stale_bridge_outputs_instead_of_checking(tmp_path, monkeypatch):
     _pilot(tmp_path)
     monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: pytest.fail("no bridge-check should run"))
-    oks, warns = [], []
-    _doctor_cmd._check_bridges(tmp_path, oks.append, warns.append)
-    assert any("→claude" in w and "workstream-expert.md" in w for w in warns)
+    oks, warns, fails = [], [], []
+    _doctor_cmd._check_bridges(tmp_path, oks.append, warns.append, fails.append)
+    assert any("→claude" in f and "workstream-expert.md" in f and "@cleanup" in f for f in fails)
     assert any("→goose" in o and "no outputs left" in o for o in oks)
+
+
+
+def test_manifest_only_instance_still_carries_the_switch(tmp_path):
+    (tmp_path / ".github" / "agents").mkdir(parents=True)
+    (tmp_path / ".github" / "agents" / "_build-description.json").write_text(
+        json.dumps({"write_policy": "Orchestrator-Only", "write_policy_frameworks": ["Claude"]}))
+    assert _drift.write_policy_frameworks(tmp_path) == {"claude"}
+
+
+def test_bridge_outputs_list_agents_only(tmp_path):
+    _pilot(tmp_path)
+    assert _drift.bridge_outputs(tmp_path, "claude") == [".claude/agents/workstream-expert.md"]
+    recipes = tmp_path / ".goose" / "recipes"
+    recipes.mkdir(parents=True)
+    (recipes / "bridge-orchestrator.yaml").write_text("title: x\n")
+    (recipes / "orchestrator.yaml").write_text("instructions: see copilot-vscode-to-goose docs\n")
+    assert _drift.bridge_outputs(tmp_path, "goose") == [".goose/recipes/bridge-orchestrator.yaml"]
+
+
+def test_codex_projection_is_skipped_when_codex_is_covered(tmp_path, monkeypatch, capsys):
+    _pilot(tmp_path)  # frameworks unset: claude, goose and codex are covered
+    (tmp_path / ".codex" / "agents").mkdir(parents=True)
+    monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: pytest.fail("no projection should run"))
+    _update_cmd._refresh_codex(tmp_path, dry_run=False)
+    assert "Codex projection skipped" in capsys.readouterr().out

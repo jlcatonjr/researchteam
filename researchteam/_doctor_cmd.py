@@ -104,7 +104,7 @@ def run_doctor(root: Path, drift: bool = False) -> None:
     # --- 3e. seeded files + bridges (opt-in: network / agentteams) ---------------------
     if drift:
         _check_seeded_files(root, ok, warn)
-        _check_bridges(root, ok, warn)
+        _check_bridges(root, ok, warn, fail)
 
     # --- 4. descriptor health (content vs roster reconciliation) -----------------------
     brief = root / "brief.json"
@@ -293,7 +293,7 @@ def _upstream_ref(root: Path) -> tuple[str, str]:
     return (marker or "main"), ("marker ref" if marker else "main")
 
 
-def _check_bridges(root: Path, ok, warn) -> None:
+def _check_bridges(root: Path, ok, warn, fail=None) -> None:
     """Run agentteams --bridge-check for every recorded copilot-vscode bridge."""
     from ._drift import (BRIDGES_DIR, bridge_frameworks, bridge_outputs, clean, parse_bridge_report,
                          write_policy_frameworks)
@@ -307,9 +307,11 @@ def _check_bridges(root: Path, ok, warn) -> None:
     for fw in [f for f in frameworks if f in covered]:
         stale = bridge_outputs(root, fw)
         if stale:
-            warn(f"bridge copilot-vscode→{clean(fw)}: not used under write_policy: orchestrator-only; "
-                 f"stale bridge outputs to remove: {clean(', '.join(stale[:8]))}"
-                 + (f" (+{len(stale) - 8} more)" if len(stale) > 8 else ""))
+            # The pilot's guarantee does not hold while these exist: a failure, not a drift warning.
+            (fail or warn)(f"bridge copilot-vscode→{clean(fw)}: write_policy: orchestrator-only covers {clean(fw)}, "
+                           f"but bridge agents that keep dispatch are still present: {clean(', '.join(stale[:8]))}"
+                           + (f" (+{len(stale) - 8} more)" if len(stale) > 8 else "")
+                           + ". Review, then remove them via @cleanup with a recorded clearance.")
         else:
             ok(f"bridge copilot-vscode→{clean(fw)}: not used under write_policy: orchestrator-only; no outputs left.")
     frameworks = [f for f in frameworks if f not in covered]

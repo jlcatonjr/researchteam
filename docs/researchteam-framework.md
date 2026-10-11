@@ -250,8 +250,12 @@ it:
   (the orchestrator-only-writes pilot), bridges are **not** refreshed into the frameworks the switch
   covers: `write_policy_frameworks`, or claude, goose and codex when that field is unset. The
   native surface is authoritative there, and a bridge would re-create agents that keep dispatch and
-  write tools. `update` and `doctor --drift` list any existing bridge outputs in those frameworks
-  for you to remove; neither deletes them.
+  write tools. For the same reason, the Codex projection from `.github/agents` is skipped when the
+  switch covers codex. The switch is read from `brief.json`, falling back to
+  `_build-description.json`. `update` lists the bridge agents still present in covered frameworks.
+  `doctor --drift` **fails** on them, because the pilot's guarantee doesn't hold until they are
+  gone. Neither command deletes them: review them, then remove them through `@cleanup` with a
+  recorded clearance.
 
 All drift findings are warnings. They never fail `doctor`.
 
