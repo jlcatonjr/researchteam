@@ -426,9 +426,19 @@ def _merge_bridges(root: Path, dry_run: bool) -> None:
     ``doctor --drift`` warn every time. A failed merge is reported, never fatal: the bridge just stays
     as it was, and ``doctor --drift`` still shows it.
     """
-    from ._drift import bridge_frameworks
+    from ._drift import bridge_frameworks, bridge_outputs, write_policy_frameworks
 
     frameworks = bridge_frameworks(root)
+    covered = write_policy_frameworks(root)
+    for fw in [f for f in frameworks if f in covered]:
+        # orchestrator-only writes: the native surface is authoritative; a bridge would re-create
+        # dispatching agents and undo the narrowing. Report its outputs; never delete them here.
+        stale = bridge_outputs(root, fw)
+        listed = (": " + ", ".join(stale[:8]) + (f" (+{len(stale) - 8} more)" if len(stale) > 8 else "")) if stale else ""
+        print(f"[researchteam] bridge copilot-vscode→{fw}: skipped (write_policy: orchestrator-only covers {fw}). "
+              f"Bridge agent{'s' if len(stale) != 1 else ''} still present, which keep dispatch until removed "
+              f"(review, then remove via @cleanup){listed or ': none'}")
+    frameworks = [f for f in frameworks if f not in covered]
     if not frameworks:
         return
     if dry_run:
@@ -948,6 +958,12 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
     Without this step a render leaves ``.codex`` on the previous roster.
     """
     if not (root / ".codex" / "agents").is_dir():
+        return
+    from ._drift import write_policy_frameworks
+    if "codex" in write_policy_frameworks(root):
+        # The projection copies the canonical (dispatching) team into .codex/agents; under the
+        # orchestrator-only switch Codex must come from its own narrowed render instead.
+        print("[researchteam] Codex projection skipped: write_policy: orchestrator-only covers codex.")
         return
     exe = _preflight_agentteams()
     # --overwrite is required: without it interop SKIPS existing files, so an already-projected

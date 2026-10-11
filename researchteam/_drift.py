@@ -182,3 +182,54 @@ def parse_bridge_report(text: str) -> tuple[str, list[str]]:
     if section:
         changed = [ln[2:].strip() for ln in section.group(1).splitlines() if ln.startswith("- ")]
     return (m.group(1) if m else "UNKNOWN"), changed
+
+
+# Frameworks agentteams can render under the orchestrator-only-writes switch. When the brief does not
+# list `write_policy_frameworks`, agentteams applies the switch to whichever framework it generates.
+_WRITE_POLICY_TARGETS = ("claude", "goose", "codex")
+
+
+def write_policy_frameworks(root: Path) -> set[str]:
+    """Frameworks under ``write_policy: orchestrator-only`` (empty when the switch is off).
+
+    Read from brief.json, falling back to ``.github/agents/_build-description.json`` for an instance
+    whose brief is missing or does not carry the switch. A copilot-vscode bridge or Codex projection
+    into one of these would re-create agents that keep dispatch/write tools, undoing the narrowing on
+    every update (biographies pilot), so neither may run there.
+    """
+    for rel in ("brief.json", ".github/agents/_build-description.json"):
+        try:
+            desc = json.loads((root / rel).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(desc, dict) or "write_policy" not in desc:
+            continue
+        if str(desc.get("write_policy")).strip().lower() != "orchestrator-only":
+            return set()
+        listed = desc.get("write_policy_frameworks")
+        if isinstance(listed, list) and listed:
+            return {str(f).strip().lower() for f in listed}
+        return set(_WRITE_POLICY_TARGETS)
+    return set()
+
+
+def bridge_outputs(root: Path, framework: str) -> list[str]:
+    """The agents a copilot-vscode→``framework`` bridge wrote: Claude agents whose front matter says
+    ``bridge: copilot-vscode-to-claude``; Goose ``bridge-*`` recipes or recipes carrying that line.
+    Shared bridge infrastructure (team docs, settings examples, references/) is never listed."""
+    marker = re.compile(rf"^\s*bridge:\s*copilot-vscode-to-{re.escape(framework)}\s*$", re.M)
+    if framework == "claude":
+        candidates = sorted((root / ".claude" / "agents").glob("*.md"))
+    elif framework == "goose":
+        candidates = sorted((root / ".goose" / "recipes").glob("*.yaml"))
+    else:
+        return []
+    found = []
+    for path in candidates:
+        try:
+            text = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        if marker.search(text) or (framework == "goose" and path.name.startswith("bridge-")):
+            found.append(str(path.relative_to(root)))
+    return found
