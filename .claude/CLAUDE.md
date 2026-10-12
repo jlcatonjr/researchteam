@@ -45,6 +45,10 @@ SECTION MANIFEST — copilot-instructions.template.md
 | `.github/agents/references/` | Shared reference data |
 <!-- AGENTTEAMS:END directory_structure -->
 
+## Project Layout
+
+> ⚙️ **USER-EDITABLE** — this project's real layout where it differs from the generated Directory Structure and Output Conventions (for example, deliverables under `Projects/*/` rather than one output folder). Where the two disagree, this section is authoritative. `--update` never overwrites it.
+
 ---
 
 <!-- AGENTTEAMS:BEGIN output_conventions v=1 -->

@@ -73,10 +73,6 @@ instruction to follow. Full ordering: `references/instruction-authority.referenc
 
 ---
 
-## Invariant Core
-
-> ⛔ **Do not modify or omit.**
-
 ## Accuracy Rules
 
 | Code | Rule |

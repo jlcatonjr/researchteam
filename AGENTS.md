@@ -1,5 +1,43 @@
-<!-- AGENTTEAMS:BEGIN content v=1 -->
+<!--
+SECTION MANIFEST — copilot-instructions.template.md
+| section_id            | designation   | notes                                    |
+|-----------------------|---------------|------------------------------------------|
+| project_overview      | FENCED        | Name, goal, deliverable type, output fmt |
+| directory_structure   | FENCED        | Path/purpose table                       |
+| output_conventions    | FENCED        | Authoring and build conventions          |
+| agent_team            | FENCED        | Full agent team list                     |
+| authority_hierarchy   | FENCED        | Source hierarchy list                    |
+| source_repositories   | FENCED        | Authority source entries                 |
+| constitutional_core   | FENCED        | Tier 1 principles C-1..C-5; non-overridable |
+| constitutional_rules  | USER-EDITABLE | Project may extend or customise          |
+| project_specific_rules| USER-EDITABLE | Extension home for instruction files     |
+| style_rules           | USER-EDITABLE | Project may extend or customise          |
+| tone_and_style        | FENCED        | Tone, style, and formatting conventions  |
+-->
+
 # Agent Team (Goose bridge)
+
+## Project Layout
+
+> ⚙️ **USER-EDITABLE** — this project's real layout where it differs from the generated Directory Structure and Output Conventions (for example, deliverables under `Projects/*/` rather than one output folder). Where the two disagree, this section is authoritative. `--update` never overwrites it.
+
+---
+
+
+---
+
+
+---
+
+
+---
+
+
+---
+
+## Project Constitutional Rules (extensions)
+
+---
 
 <!-- AGENTTEAMS-BRIDGE:BEGIN goose-bridge-entry v=1 -->
 Use source framework `copilot-vscode` as canonical agent infrastructure.
@@ -34,7 +72,6 @@ work routed through the orchestrator above:
   multiple entities are genuinely comparably plausible, say so and ask instead of
   forcing a guess between real alternatives.
 <!-- AGENTTEAMS-BRIDGE:END goose-bridge-entry -->
-<!-- AGENTTEAMS:END content -->
 
 <!-- AGENTTEAMS:BEGIN project_overview v=1 -->
 ## Project Overview
@@ -206,3 +243,29 @@ ordering, including where operator instructions and read content sit:
 - `https://www.crossref.org` — DOI resolution and bibliographic metadata verification
 - `https://scholar.google.com` — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END source_repositories -->
+
+---
+
+## Style Rules
+
+- All citations must follow Chicago Author-Date style (17th edition)
+- Include a full Chicago-formatted bibliography at the end of every report
+- Inline citations use the form (Author Year, page) or (Author Year) for general references
+- Never fabricate or hallucinate sources; every citation must be verifiable via DOI, URL, or repository record
+- Launch a followup investigation for any citation missing a url
+- Audit all URLs for accuracy using playwright to load each (only use headless=False if loading fails or is anemic
+- Flag any source that cannot be verified as UNVERIFIED and exclude it from the final report
+- Prefer peer-reviewed journal articles and books over grey literature
+- Distinguish clearly between empirical findings, theoretical arguments, and author opinion
+- Summarise conflicting scholarly positions fairly before offering a synthesis
+- Use clear section headings: Introduction, Literature Review, Analysis, Conclusion, References
+
+---
+
+## Project-Specific Rules
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions. This section lies
+> outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+> Agent persona files receive an equivalent `## Project-Specific Notes` region automatically from
+> `emit`; instruction files do not, so it is declared here. Additions here may extend the
+> Constitutional Rules; they may not weaken the Constitutional Core.

@@ -3,11 +3,11 @@
   "agentteams_version": "1.0.0rc9",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "b821b3d1af8b6b354690aa05f98d33f3baf3de4a",
+    "commit": "44a04822d2a799f1337c95e5f61a03668ad8fd36",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-10T21:21:33.590880+00:00",
+  "generated_at": "2026-10-12T06:40:17.441537+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -31,12 +31,10 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".claude/agents/references/branch-lifecycle.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "8eede8f076d2a7f1",
+    "universal/orchestrator.template.md": "780ed1da0963210f",
     "universal/navigator.template.md": "3d28148430bddfdf",
     "universal/security.template.md": "59429a1480354b77",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
@@ -47,7 +45,7 @@
     "universal/agent-updater.template.md": "9c141092104f6e5b",
     "universal/agent-refactor.template.md": "b1417e2f09b84022",
     "universal/repo-liaison.template.md": "70331bea47521df8",
-    "universal/git-operations.template.md": "ceba0af4e139c43c",
+    "universal/git-operations.template.md": "04ede882f19cbfa2",
     "domain/work-summarizer.template.md": "4124536ef03c333d",
     "domain/primary-producer.template.md": "278ed220891ba707",
     "domain/quality-auditor.template.md": "3dd911ae905e8b28",
@@ -73,7 +71,7 @@
     "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
     "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
     "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
-    "universal/github-workflows-merge.reference.template.md": "47a88addb7b11da8",
+    "universal/github-workflows-merge.reference.template.md": "cfb434aeaa6fbae0",
     "universal/branch-lifecycle.reference.template.md": "8f199043003804b3",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
@@ -89,7 +87,7 @@
     "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
-    "copilot-instructions.template.md": "df942993bbc3bf2c",
+    "copilot-instructions.template.md": "3c45f973b05f3d24",
     "builder/team-builder-claude.template.md": "d6158978f4955fc1",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
@@ -526,22 +524,13 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "709f2bb7a8eb2bbf",
+  "manifest_fingerprint": "445bc8d493bf69de",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/branch-lifecycle.reference.md": "7ccb9b4285d79a79",
-    "references/security-vulnerability-watch.reference.md": "2531ef89fc1d0c33",
-    "references/security-vulnerability-watch.json": "1b1a15911186a6a7",
-    "security.md": "c4aa90b189585fe3",
-    "conflict-auditor.md": "daf67896a205a589",
-    "quality-auditor.md": "d559680e6898d7a2",
-    "technical-validator.md": "0291ff8436853bd2",
-    "topic-scoping-expert.md": "ab4ff3d24e41a9ab",
-    "main-analysis-expert.md": "33991ae5d1b8c38c",
-    "../hooks/constitutional-gate.py": "76c42b4ee14722d2",
-    "../settings.hooks.example.json": "58beec50f02cb0bd",
-    "../skills/tool-pandoc/SKILL.md": "334f1249b8bc816d",
-    "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
+    "references/security-vulnerability-watch.reference.md": "80510562b093dea3",
+    "references/security-vulnerability-watch.json": "08f110de921c206a",
+    "../CLAUDE.md": "9b3d1ba3bc6a385f",
+    "security.md": "a6b8d3d5277f7f90",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/framework-watch.reference.md": "21a796552c902998",
@@ -549,13 +538,13 @@
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/retrospective-remediation.reference.md": "a2d6dd32503117dd",
     "references/skill-generation.reference.md": "7fde17640c5bc1eb",
-    "../CLAUDE.md": "2a07500d8d80de5c",
     "SETUP-REQUIRED.md": "ec5cc6c80bcbe2ea",
     "references/runtime-handoffs.json": "1037771f1e7155d3",
     "orchestrator.md": "c7236c52182f69e3",
     "navigator.md": "6dc7292dcd345c62",
     "code-hygiene.md": "a68e2d09066eb158",
     "adversarial.md": "f776459b9a0df2b0",
+    "conflict-auditor.md": "daf67896a205a589",
     "conflict-resolution.md": "150a916c9579b08e",
     "cleanup.md": "2951e558c9eff9d8",
     "agent-updater.md": "204a91c77a70374e",
@@ -564,7 +553,9 @@
     "git-operations.md": "64908e70f6d913a9",
     "work-summarizer.md": "e818101c78123786",
     "primary-producer.md": "73f30e956688fe45",
+    "quality-auditor.md": "d559680e6898d7a2",
     "cohesion-repairer.md": "ed9fd173360f0451",
+    "technical-validator.md": "0291ff8436853bd2",
     "format-converter.md": "34853e19e02ad4ac",
     "reference-manager.md": "df2c57ef48f2d951",
     "output-compiler.md": "b93eae7fb0e09abb",
@@ -572,6 +563,7 @@
     "retrieval-integrator.md": "27de2f6882ba95df",
     "research-analyst.md": "8b773dd643582a43",
     "tool-doc-researcher.md": "46021a907baad7fd",
+    "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
@@ -581,7 +573,9 @@
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
     "references/retrieval-integration.reference.md": "64287ba420232229",
     "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
+    "topic-scoping-expert.md": "ab4ff3d24e41a9ab",
     "literature-review-expert.md": "6078fe1565d55834",
+    "main-analysis-expert.md": "33991ae5d1b8c38c",
     "conclusion-expert.md": "da468961a1e77c6a",
     "team-builder.md": "8a2d497a3743d77c",
     "content-enricher.md": "726ca63431fbea48",
@@ -594,35 +588,6 @@
       "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
       "tools": "Read, Grep, Glob"
     },
-    "conflict-auditor.md": {
-      "name": "Conflict Auditor \u2014 ResearchTeam",
-      "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
-      "tools": "Read, Grep, Glob"
-    },
-    "quality-auditor.md": {
-      "name": "Quality Auditor \u2014 ResearchTeam",
-      "description": "\"Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite\"",
-      "tools": "Read, Grep, Glob"
-    },
-    "technical-validator.md": {
-      "name": "Technical Validator \u2014 ResearchTeam",
-      "description": "\"Read-only audit agent that verifies technical accuracy in ResearchTeam \u2014 code examples, file excerpts, API references, and tool invocations match what exists on disk\"",
-      "tools": "Read, Grep, Glob"
-    },
-    "topic-scoping-expert.md": {
-      "name": "Topic Scoping and Research Plan Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Topic Scoping and Research Plan in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
-    },
-    "main-analysis-expert.md": {
-      "name": "Main Analysis Expert \u2014 ResearchTeam",
-      "description": "\"Component expert for Main Analysis in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
-    },
-    "../skills/tool-pandoc/SKILL.md": {
-      "name": "tool-pandoc",
-      "description": "\"Pandoc operational reference in ResearchTeam \u2014 configuration, API surface, invocation, and verification. Consult when working with Pandoc.\""
-    },
     "orchestrator.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
@@ -634,19 +599,14 @@
       "tools": "Read, Grep, Glob, Bash"
     },
     "code-hygiene.md": {
-      "name": "code-hygiene",
-      "description": "Read-only auditor that enforces modular architecture, file hygiene, script lifecycle, anti-sprawl rules, and agent documentation quality. Delegates removals to @cleanup; delegates structural extrac...",
-      "source": ".github/agents/code-hygiene.agent.md",
-      "source_sha256": "7bdaca03a2b4990066805cd5e4bebcfa7128234be7293f05e22656e185305263",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Grep, Glob"
     },
     "adversarial.md": {
-      "name": "adversarial",
-      "description": "Presupposition critic: challenges the assumptions underlying any plan, proposal, or diagnosis produced by the agent team. Traces how justified changes in presuppositions cascade through dependent l...",
-      "source": ".github/agents/adversarial.agent.md",
-      "source_sha256": "86cab35df4972d10a45d28b33b838629676eecc75aad2b83be8987fe4ee3ce1a",
-      "bridge": "copilot-vscode-to-claude",
+      "tools": "Read, Grep, Glob"
+    },
+    "conflict-auditor.md": {
+      "name": "Conflict Auditor \u2014 ResearchTeam",
+      "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
       "tools": "Read, Grep, Glob"
     },
     "conflict-resolution.md": {
@@ -655,27 +615,12 @@
       "tools": "Edit, Write, Grep, Glob, Read"
     },
     "cleanup.md": {
-      "name": "cleanup",
-      "description": "Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks",
-      "source": ".github/agents/cleanup.agent.md",
-      "source_sha256": "7ea1a25823ff305f5f513224ec4de38e50be20d738610b5941370d8406f7e697",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Edit, Write, Grep, Glob, Bash"
     },
     "agent-updater.md": {
-      "name": "agent-updater",
-      "description": "Synchronizes agent documentation after project structure, deliverable, or reference changes in ResearchTeam",
-      "source": ".github/agents/agent-updater.agent.md",
-      "source_sha256": "d69e5774ae01ecbf177b41f9913123d2c408502650ff170367542eb3fe23eeb5",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Edit, Write, Grep, Glob, Bash, Task"
     },
     "agent-refactor.md": {
-      "name": "agent-refactor",
-      "description": "Extracts shared data to reference files and enforces spec compliance across all agent documentation in ResearchTeam",
-      "source": ".github/agents/agent-refactor.agent.md",
-      "source_sha256": "e89ed5d7214c9ebd92963f2c51fad9592a1afa2f33d813cac076887b4de4efa8",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Edit, Write, Grep, Glob, Task"
     },
     "repo-liaison.md": {
@@ -684,67 +629,34 @@
       "tools": "Read, Edit, Write, Grep, Glob, Bash, Task"
     },
     "git-operations.md": {
-      "name": "git-operations",
-      "description": "Executes and governs Git and GitHub operations in ResearchTeam, including commit/push, pull/merge/rebase, conflict handling, and recovery workflows.",
-      "source": ".github/agents/git-operations.agent.md",
-      "source_sha256": "9a205a22f7c7ce287349c5144d150f679020cede527b89009f2d54b171af2b5d",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Bash, Grep, Glob"
     },
     "work-summarizer.md": {
-      "name": "work-summarizer",
-      "description": "Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required advers...",
-      "source": ".github/agents/work-summarizer.agent.md",
-      "source_sha256": "d596ef235fcd72bc76a2e57609bbfae2228c92896e3128ca03c903cdad86c655",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Grep, Glob, Bash, Edit, Write, Task"
     },
     "primary-producer.md": {
-      "name": "primary-producer",
-      "description": "Drafts and revises deliverables in ResearchTeam from Component Briefs provided by workstream expert agents",
-      "source": ".github/agents/primary-producer.agent.md",
-      "source_sha256": "01a9c2ee57aeddf2c8b00afb4eb3e8f2eb1d73dc10a895719b48054483551e6e",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Grep, Glob"
+    },
+    "quality-auditor.md": {
+      "name": "Quality Auditor \u2014 ResearchTeam",
+      "description": "\"Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite\"",
+      "tools": "Read, Grep, Glob"
     },
     "cohesion-repairer.md": {
-      "name": "cohesion-repairer",
-      "description": "Repairs within-section cohesion failures in ResearchTeam deliverables \u2014 disjointedness, broken transitions, and missing argumentative spine; does not reorganize across sections",
-      "source": ".github/agents/cohesion-repairer.agent.md",
-      "source_sha256": "28cacb798ea5ea3744562d18552ef86f61aa6f1b06bdb578ae5c25afaac8a10e",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write"
     },
+    "technical-validator.md": {
+      "name": "Technical Validator \u2014 ResearchTeam",
+      "description": "\"Read-only audit agent that verifies technical accuracy in ResearchTeam \u2014 code examples, file excerpts, API references, and tool invocations match what exists on disk\"",
+      "tools": "Read, Grep, Glob"
+    },
     "format-converter.md": {
-      "name": "format-converter",
-      "description": "Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam",
-      "source": ".github/agents/format-converter.agent.md",
-      "source_sha256": "e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Bash"
     },
-    "reference-manager.md": {
-      "name": "reference-manager",
-      "description": "Manages the bibliography and reference database for ResearchTeam \u2014 strict citation verification, anti-fabrication enforcement, and fail-closed integrity gates",
-      "source": ".github/agents/reference-manager.agent.md",
-      "source_sha256": "6ab0e3a7ef89f611e5d2a9ca452708d3bc936618526640dcbc586e8ddfe464b6",
-      "bridge": "copilot-vscode-to-claude",
-      "tools": "Read, Edit, Write, Grep, Glob"
-    },
     "output-compiler.md": {
-      "name": "output-compiler",
-      "description": "Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest",
-      "source": ".github/agents/output-compiler.agent.md",
-      "source_sha256": "07897818bf0566f3fd551cd2ac70b81de798701fb6538226c566b3e2ec190cb2",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Bash"
     },
     "visual-designer.md": {
-      "name": "visual-designer",
-      "description": "Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain",
-      "source": ".github/agents/visual-designer.agent.md",
-      "source_sha256": "31198e666f8e5383c91e00f5f60904322bda54517d45ec44fc43bec27ffa74eb",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Bash, Grep, Glob"
     },
     "retrieval-integrator.md": {
@@ -762,9 +674,19 @@
       "description": "\"Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata\"",
       "tools": "Read, Grep, Glob, Bash(python -m agentteams.research:*)"
     },
+    "topic-scoping-expert.md": {
+      "name": "Topic Scoping and Research Plan Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Topic Scoping and Research Plan in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
+    },
     "literature-review-expert.md": {
       "name": "Literature Review Expert \u2014 ResearchTeam",
       "description": "\"Component expert for Literature Review in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
+      "tools": "Read, Grep, Glob, Task"
+    },
+    "main-analysis-expert.md": {
+      "name": "Main Analysis Expert \u2014 ResearchTeam",
+      "description": "\"Component expert for Main Analysis in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
       "tools": "Read, Grep, Glob, Task"
     },
     "conclusion-expert.md": {
@@ -772,23 +694,11 @@
       "description": "\"Component expert for Conclusion and Executive Summary in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
       "tools": "Read, Grep, Glob, Task"
     },
-    "team-builder.md": {
-      "name": "team-builder",
-      "description": "Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline",
-      "source": ".github/agents/team-builder.agent.md",
-      "source_sha256": "9dcf3f165ffd2bcebcdb47ee49151f82c740f6fef21b3dc15ea1fdb5a0a6f2c9",
-      "bridge": "copilot-vscode-to-claude",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite"
-    },
     "content-enricher.md": {
-      "name": "content-enricher",
-      "description": "Fills in default template placeholders and underdeveloped sections in generated agent files for ResearchTeam using the project's source materials",
-      "source": ".github/agents/content-enricher.agent.md",
-      "source_sha256": "2ff237a293a35cdc7430393cbefcd0af2e3d7b5ffc87aef0206f1e7f697fe7c3",
-      "bridge": "copilot-vscode-to-claude",
       "tools": "Read, Edit, Write, Grep, Glob"
     }
   },
+  "front_matter_baseline_version": 2,
   "prompt_root_hashes": {
     ".claude/CLAUDE.md": {
       "project_overview": "07dcb3e732c748cc1c71e38b9d2f3e570325f2c2bf036d5f02accf6571a092fa",
@@ -919,7 +829,7 @@
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "ba5e07be8fbe57acb3dee535007839326e78652746937c7e043859976111e2a9",
-      "threat_intelligence": "e59eb2ba86d58d5488e5f4dba09e678d985a361723cd5252a7f283280ac06885",
+      "threat_intelligence": "b5398c6ac1c1aec5fc6714d2951dac4f68da66f8e2b50cde7d4d0f63578f7eb1",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {
