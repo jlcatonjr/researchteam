@@ -210,5 +210,6 @@
       "Projects/<project>/references/library/library-manifest.json"
     ],
     "trigger_contract_version": "v1"
-  }
+  },
+  "enforce_decision_signing": false
 }
