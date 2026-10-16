@@ -272,3 +272,29 @@ def test_bootstrap_fails_when_the_install_does_not_match_the_lock(tmp_path):
     repo, _ = _fake_venv_repo(tmp_path, check_exit=1)
     r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)
     assert r.returncode == 1 and "does not match toolchain.lock" in r.stderr
+
+
+def test_extras_ref_must_match_the_agentteams_pin(tmp_path):
+    pins = {"agentteams": ("jlcatonjr/agentteams", B)}
+    py = tmp_path / "pyproject.toml"
+    py.write_text(f'update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@{B}"]\n'
+                  f'research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@{B}"]\n')
+    assert ct.extras_problems(pins, str(py)) == []
+    py.write_text('update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]\n'
+                  f'research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@{A}"]\n')
+    problems = ct.extras_problems(pins, str(py))
+    assert len(problems) == 2 and "(no ref: main)" in problems[0]
+
+
+def test_extras_mismatch_fails_strict(tmp_path, monkeypatch, capsys):
+    lock = tmp_path / "toolchain.lock"
+    ct.write_lock({"researchteam": ("jlcatonjr/researchteam", A), "agentteams": ("jlcatonjr/agentteams", B)}, str(lock))
+    (tmp_path / "pyproject.toml").write_text('update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]\n')
+    monkeypatch.setattr(ct, "LOCK", str(lock))
+    monkeypatch.setattr(ct, "installed", lambda py: {"researchteam": _vcs(A), "agentteams": _vcs(B)})
+    assert ct.main(["--python", "py", "--strict", "--no-remote"]) == 1
+    assert "MISMATCH: pyproject.toml installs agentteams" in capsys.readouterr().out
+
+
+def test_repo_extras_match_repo_lock():
+    assert ct.extras_problems(ct.read_lock(str(ROOT / "toolchain.lock")), str(ROOT / "pyproject.toml")) == []

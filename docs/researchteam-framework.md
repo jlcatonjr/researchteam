@@ -39,8 +39,8 @@ bash scripts/bootstrap_toolchain.sh --local  # editable installs from your own c
 python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main
 ```
 
-The bootstrap installs researchteam *without* the `[update]` extra, because that extra pulls
-agentteams from unpinned `main`. researchteam runs the `agentteams` installed beside it, so
+The bootstrap installs researchteam *without* the `[update]` extra, because that extra pins the
+agentteams commit researchteam was released with, which can differ from this repo's lock. researchteam runs the `agentteams` installed beside it, so
 `.venv/bin/researchteam` works without activating the venv; it falls back to `PATH` only when none
 is installed beside it, and says so. To be warned at the start of each Claude session, merge
 `.claude/settings.toolchain.example.json` into `.claude/settings.json` (an operator step;

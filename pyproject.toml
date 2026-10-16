@@ -19,14 +19,15 @@ dependencies = []
 # Layer-1 (`researchteam update`'s agent-team regeneration) needs `agentteams`. It is an
 # OPTIONAL extra installed from git, never a PyPI floor. Prefer an editable install from a
 # stable local checkout for development:  pip install -e /path/to/agentteams
+# Both extras pin the peeled commit of a verified signed agentteams tag (release policy §3), the same
+# commit as toolchain.lock; scripts/check_toolchain.py reports any disagreement. Now: v1.0.0-rc.12.
 # `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
 [project.optional-dependencies]
-update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]
+update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@69fe9447ae80bed6652586323d81672a1a8a8757"]
 # `agentteams.research` (web search, curated-source rating, dual-lens claim verification) — the
 # real, generalized implementation the on-the-fly-retrieval-profile.md / citation-claim-audit-
-# protocol.md docs describe. Re-pinned to bare `main` (matching `update`'s own shape) now that
-# agentteams' feat/research-fact-verification-baseline branch has merged to its main.
-research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams"]
+# protocol.md docs describe. Pinned exactly like `update`.
+research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@69fe9447ae80bed6652586323d81672a1a8a8757"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"

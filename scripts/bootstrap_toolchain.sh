@@ -10,8 +10,8 @@
 #
 # Afterwards: `source .venv/bin/activate`, or call .venv/bin/researchteam directly; researchteam
 # runs the agentteams installed beside it, so the pinned one is used either way.
-# researchteam is installed WITHOUT its [update] extra: that extra pulls agentteams from an unpinned
-# main, which would conflict with the pinned agentteams installed here.
+# researchteam is installed WITHOUT its [update] extra: that extra pins the agentteams commit researchteam
+# was released with, which can differ from (and would conflict with) the agentteams this lock pins.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
