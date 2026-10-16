@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$AGENTTEAMS_PYTHON\" -I -S \"$AGENTTEAMS_ROOT/.agentteams/bin/codex-role-gate.py\" || exit 2",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}

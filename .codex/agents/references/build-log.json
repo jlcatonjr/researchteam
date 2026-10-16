@@ -1,8 +1,485 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc9",
-  "generated_at": "2026-10-10T21:22:11.889060+00:00",
+  "agentteams_version": "1.0.0rc12",
+  "agentteams_source": {
+    "kind": "vcs-pin",
+    "commit": "69fe9447ae80bed6652586323d81672a1a8a8757",
+    "branch": null,
+    "dirty": false
+  },
+  "generated_at": "2026-10-16T23:27:11.261691+00:00",
   "project_name": "ResearchTeam",
+  "framework": "codex",
+  "project_type": "research",
+  "archetypes": [
+    "primary-producer",
+    "quality-auditor",
+    "cohesion-repairer",
+    "technical-validator",
+    "format-converter",
+    "reference-manager",
+    "output-compiler",
+    "visual-designer",
+    "interpretation-advisor",
+    "retrieval-integrator",
+    "research-analyst",
+    "tool-doc-researcher"
+  ],
+  "components": [
+    "topic-scoping",
+    "literature-review",
+    "main-analysis",
+    "conclusion"
+  ],
+  "files_written": [],
+  "manual_required": 8,
+  "template_hashes": {
+    "universal/orchestrator.template.md": "171d8c2a2a8ec0ad",
+    "universal/navigator.template.md": "3d28148430bddfdf",
+    "universal/security.template.md": "3b9958a26d342746",
+    "universal/code-hygiene.template.md": "8c53882027a0aa40",
+    "universal/adversarial.template.md": "0c7b7cb909b089a0",
+    "universal/conflict-auditor.template.md": "a6199323e4d1add3",
+    "universal/conflict-resolution.template.md": "4542fdba8f977079",
+    "universal/cleanup.template.md": "6a404be5ad0bfbe9",
+    "universal/agent-updater.template.md": "fceaeaa65379ff06",
+    "universal/agent-refactor.template.md": "b1417e2f09b84022",
+    "universal/repo-liaison.template.md": "70331bea47521df8",
+    "universal/git-operations.template.md": "04ede882f19cbfa2",
+    "domain/work-summarizer.template.md": "4124536ef03c333d",
+    "domain/primary-producer.template.md": "278ed220891ba707",
+    "domain/quality-auditor.template.md": "3dd911ae905e8b28",
+    "domain/cohesion-repairer.template.md": "30f6320e49652bcf",
+    "domain/technical-validator.template.md": "0c8c489fb67c5891",
+    "domain/format-converter.template.md": "c63fb3473e7c3fb0",
+    "domain/reference-manager.template.md": "299f437acd33eff9",
+    "domain/output-compiler.template.md": "7ec6b1533cae4aaf",
+    "domain/visual-designer.template.md": "c639dcf21cfabf63",
+    "domain/retrieval-integrator.template.md": "0cfb9cd3138cfd1d",
+    "domain/research-analyst.template.md": "a6565b6bbe8fcfcd",
+    "domain/tool-doc-researcher.template.md": "15f20cf961998666",
+    "domain/tool-cli.doc.template.md": "060ea142104f20e0",
+    "domain/tool-reference.template.md": "82ac08315bbb33b2",
+    "domain/code-hygiene-rules-reference.template.md": "891dd19f0d09cea0",
+    "domain/unix-philosophy-mapping-reference.template.md": "702af6b4e9e2b952",
+    "universal/security-vulnerability-watch.reference.template.md": "269cdacb3d94fdfa",
+    "universal/security-vulnerability-watch.json.template": "ebcec1b04ad46caa",
+    "universal/security-linux-hardening.reference.template.md": "4845cf83b84615f4",
+    "universal/security-macos-hardening.reference.template.md": "78fd2835ec2d8869",
+    "universal/security-windows-hardening.reference.template.md": "5885668f48e4c295",
+    "universal/security-infrastructure-layers.reference.template.md": "5c4c67f28d67149b",
+    "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
+    "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
+    "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
+    "universal/github-workflows-merge.reference.template.md": "cfb434aeaa6fbae0",
+    "universal/branch-lifecycle.reference.template.md": "8f199043003804b3",
+    "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
+    "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
+    "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
+    "universal/parallelization.reference.template.md": "e31593ccbba4a7ff",
+    "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
+    "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
+    "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
+    "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
+    "universal/cli-tool-discovery.reference.template.md": "203004e771c8b2fd",
+    "universal/skill-generation.reference.template.md": "df8ffe189f09e491",
+    "universal/external-retrieval-quality-gate.reference.template.md": "3922b0a2e99e75a3",
+    "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
+    "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
+    "workstream-expert.template.md": "19e099ff5eaf447b",
+    "copilot-instructions.template.md": "d3fcc564166c5285",
+    "builder/team-builder-copilot-vscode.template.md": "49cf6f735fc90e06",
+    "domain/content-enricher.template.md": "25b7c467ae7a8978"
+  },
+  "output_files_map": [
+    {
+      "path": "orchestrator.agent.md",
+      "template": "universal/orchestrator.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "navigator.agent.md",
+      "template": "universal/navigator.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "security.agent.md",
+      "template": "universal/security.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "code-hygiene.agent.md",
+      "template": "universal/code-hygiene.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "adversarial.agent.md",
+      "template": "universal/adversarial.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "conflict-auditor.agent.md",
+      "template": "universal/conflict-auditor.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "conflict-resolution.agent.md",
+      "template": "universal/conflict-resolution.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "cleanup.agent.md",
+      "template": "universal/cleanup.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "agent-updater.agent.md",
+      "template": "universal/agent-updater.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "agent-refactor.agent.md",
+      "template": "universal/agent-refactor.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "repo-liaison.agent.md",
+      "template": "universal/repo-liaison.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "git-operations.agent.md",
+      "template": "universal/git-operations.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "work-summarizer.agent.md",
+      "template": "domain/work-summarizer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "primary-producer.agent.md",
+      "template": "domain/primary-producer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "quality-auditor.agent.md",
+      "template": "domain/quality-auditor.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "cohesion-repairer.agent.md",
+      "template": "domain/cohesion-repairer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "technical-validator.agent.md",
+      "template": "domain/technical-validator.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "format-converter.agent.md",
+      "template": "domain/format-converter.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "reference-manager.agent.md",
+      "template": "domain/reference-manager.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "output-compiler.agent.md",
+      "template": "domain/output-compiler.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "visual-designer.agent.md",
+      "template": "domain/visual-designer.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "interpretation-advisor.agent.md",
+      "template": "domain/interpretation-advisor.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "retrieval-integrator.agent.md",
+      "template": "domain/retrieval-integrator.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "research-analyst.agent.md",
+      "template": "domain/research-analyst.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "tool-doc-researcher.agent.md",
+      "template": "domain/tool-doc-researcher.template.md",
+      "type": "agent",
+      "component_slug": null
+    },
+    {
+      "path": "../../.agents/skills/tool-pandoc/SKILL.md",
+      "template": "domain/tool-cli.doc.template.md",
+      "fallback_template": "domain/tool-specific.doc.template.md",
+      "type": "skill",
+      "component_slug": null,
+      "tool_slug": "tool-pandoc"
+    },
+    {
+      "path": "references/ref-bibtex-reference.md",
+      "template": "domain/tool-reference.template.md",
+      "type": "reference",
+      "component_slug": null,
+      "tool_slug": "ref-bibtex"
+    },
+    {
+      "path": "references/code-hygiene-rules.reference.md",
+      "template": "domain/code-hygiene-rules-reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/unix-philosophy-mapping.reference.md",
+      "template": "domain/unix-philosophy-mapping-reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-vulnerability-watch.reference.md",
+      "template": "universal/security-vulnerability-watch.reference.template.md",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-vulnerability-watch.json",
+      "template": "universal/security-vulnerability-watch.json.template",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-linux-hardening.reference.md",
+      "template": "universal/security-linux-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-macos-hardening.reference.md",
+      "template": "universal/security-macos-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-windows-hardening.reference.md",
+      "template": "universal/security-windows-hardening.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/security-infrastructure-layers.reference.md",
+      "template": "universal/security-infrastructure-layers.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/ai-bad-habits-watch.reference.md",
+      "template": "universal/ai-bad-habits-watch.reference.template.md",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/framework-watch.reference.md",
+      "template": "universal/framework-watch.reference.template.md",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/adjacent-repos.md",
+      "template": "universal/adjacent-repos.reference.template.md",
+      "type": "artifact",
+      "component_slug": null
+    },
+    {
+      "path": "references/github-workflows-merge.reference.md",
+      "template": "universal/github-workflows-merge.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/branch-lifecycle.reference.md",
+      "template": "universal/branch-lifecycle.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/work-summary-spec.reference.md",
+      "template": "universal/work-summary-spec.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/work-summary-tooling.reference.md",
+      "template": "universal/work-summary-tooling.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/work-summary-backfill.reference.md",
+      "template": "universal/work-summary-backfill.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/parallelization.reference.md",
+      "template": "universal/parallelization.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/instruction-authority.reference.md",
+      "template": "universal/instruction-authority.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/orchestrator-spawn-authority.reference.md",
+      "template": "universal/orchestrator-spawn-authority.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/redteam-methodology.reference.md",
+      "template": "universal/redteam-methodology.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/retrospective-remediation.reference.md",
+      "template": "universal/retrospective-remediation.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/cli-tool-discovery.reference.md",
+      "template": "universal/cli-tool-discovery.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/skill-generation.reference.md",
+      "template": "universal/skill-generation.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/external-retrieval-quality-gate.reference.md",
+      "template": "universal/external-retrieval-quality-gate.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/retrieval-integration.reference.md",
+      "template": "universal/retrieval-integration.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/retrieval-trigger-contract.reference.md",
+      "template": "universal/retrieval-trigger-contract.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "topic-scoping-expert.agent.md",
+      "template": "workstream-expert.template.md",
+      "type": "agent",
+      "component_slug": "topic-scoping"
+    },
+    {
+      "path": "literature-review-expert.agent.md",
+      "template": "workstream-expert.template.md",
+      "type": "agent",
+      "component_slug": "literature-review"
+    },
+    {
+      "path": "main-analysis-expert.agent.md",
+      "template": "workstream-expert.template.md",
+      "type": "agent",
+      "component_slug": "main-analysis"
+    },
+    {
+      "path": "conclusion-expert.agent.md",
+      "template": "workstream-expert.template.md",
+      "type": "agent",
+      "component_slug": "conclusion"
+    },
+    {
+      "path": "../copilot-instructions.md",
+      "template": "copilot-instructions.template.md",
+      "type": "instructions",
+      "component_slug": null
+    },
+    {
+      "path": "team-builder.agent.md",
+      "template": "builder/team-builder-copilot-vscode.template.md",
+      "type": "builder",
+      "component_slug": null
+    },
+    {
+      "path": "SETUP-REQUIRED.md",
+      "template": "",
+      "type": "setup-required",
+      "component_slug": null
+    },
+    {
+      "path": "references/pipeline-graph.md",
+      "template": "",
+      "type": "graph",
+      "component_slug": null
+    },
+    {
+      "path": "references/pipeline-graph.svg",
+      "template": "",
+      "type": "graph-svg",
+      "component_slug": null
+    },
+    {
+      "path": "references/pipeline-handoffs.svg",
+      "template": "",
+      "type": "graph-svg",
+      "component_slug": null
+    },
+    {
+      "path": "content-enricher.agent.md",
+      "template": "domain/content-enricher.template.md",
+      "type": "agent",
+      "component_slug": null
+    }
+  ],
   "agent_slug_list": [
     "orchestrator",
     "navigator",
@@ -34,78 +511,285 @@
     "main-analysis-expert",
     "conclusion-expert"
   ],
-  "framework": "codex",
-  "files_written": [
-    ".codex/agents/adversarial.toml",
-    ".codex/agents/agent-refactor.toml",
-    ".codex/agents/agent-updater.toml",
-    ".codex/agents/cleanup.toml",
-    ".codex/agents/code-hygiene.toml",
-    ".codex/agents/cohesion-repairer.toml",
-    ".codex/agents/conclusion-expert.toml",
-    ".codex/agents/conflict-auditor.toml",
-    ".codex/agents/conflict-resolution.toml",
-    ".codex/agents/content-enricher.toml",
-    ".codex/agents/format-converter.toml",
-    ".codex/agents/git-operations.toml",
-    ".codex/agents/interpretation-advisor.toml",
-    ".codex/agents/literature-review-expert.toml",
-    ".codex/agents/main-analysis-expert.toml",
-    ".codex/agents/navigator.toml",
-    ".codex/agents/orchestrator.toml",
-    ".codex/agents/output-compiler.toml",
-    ".codex/agents/primary-producer.toml",
-    ".codex/agents/quality-auditor.toml",
-    ".codex/agents/reference-manager.toml",
-    ".codex/agents/repo-liaison.toml",
-    ".codex/agents/research-analyst.toml",
-    ".codex/agents/retrieval-integrator.toml",
-    ".codex/agents/security.toml",
-    ".codex/agents/team-builder.toml",
-    ".codex/agents/technical-validator.toml",
-    ".codex/agents/tool-doc-researcher.toml",
-    ".codex/agents/tool-pandoc.toml",
-    ".codex/agents/topic-scoping-expert.toml",
-    ".codex/agents/visual-designer.toml",
-    ".codex/agents/work-summarizer.toml"
+  "governance_agents": [
+    "navigator",
+    "security",
+    "code-hygiene",
+    "adversarial",
+    "conflict-auditor",
+    "conflict-resolution",
+    "cleanup",
+    "agent-updater",
+    "agent-refactor",
+    "repo-liaison",
+    "git-operations"
   ],
+  "manifest_fingerprint": "b7a8bfcdf7bbd08a",
+  "fingerprint_algo_version": 1,
   "file_hashes": {
-    "adversarial.toml": "0c2857d35c36050f",
-    "agent-refactor.toml": "09c7ebd6b646efd5",
-    "agent-updater.toml": "886bf09266f2733b",
-    "cleanup.toml": "6878617aff1625bd",
-    "code-hygiene.toml": "849ca7cdc7d5d21a",
-    "cohesion-repairer.toml": "c26b563653dbb8a8",
-    "conclusion-expert.toml": "dde8a3856bb4896b",
-    "conflict-auditor.toml": "a074cfd4f5e334ae",
-    "conflict-resolution.toml": "be30d943f6ffaa37",
-    "content-enricher.toml": "f13932ab4bfdbe6c",
-    "format-converter.toml": "4a83eccd839fcf02",
-    "git-operations.toml": "1a1e09afba8c4616",
-    "interpretation-advisor.toml": "9000cb9a7ec02f6f",
-    "literature-review-expert.toml": "e83b9ac246767702",
-    "main-analysis-expert.toml": "79302cf796141b11",
-    "navigator.toml": "9ac5c2522ca1c4f6",
-    "orchestrator.toml": "ee651649857d8df6",
-    "output-compiler.toml": "b76385e5417f5a07",
-    "primary-producer.toml": "1072d0d410fb3020",
-    "quality-auditor.toml": "d9da5ea778d31023",
-    "reference-manager.toml": "fedef825a839f318",
-    "repo-liaison.toml": "78c102cad961935b",
-    "research-analyst.toml": "955a40ca9d744fc4",
-    "retrieval-integrator.toml": "b0f410be8f8da090",
-    "security.toml": "673e872d390655a3",
-    "team-builder.toml": "f0ee8e1d50bc72c9",
-    "technical-validator.toml": "e9de62a695788a34",
-    "tool-doc-researcher.toml": "f362fb9d7a741061",
-    "tool-pandoc.toml": "7b070485a2d7c53a",
-    "topic-scoping-expert.toml": "a4d0bf68ea15234c",
-    "visual-designer.toml": "afa04e9917bb08fe",
-    "work-summarizer.toml": "17c2eb676bfb4877"
+    "references/security-vulnerability-watch.json": "45df05b23669bb9e",
+    "security.toml": "0b499c2d6c3f9721",
+    "references/security-vulnerability-watch.reference.md": "df8a2b349c0c8327",
+    "orchestrator.toml": "4663213799503326",
+    "navigator.toml": "3519e944e8f26d47",
+    "code-hygiene.toml": "c91429ad94b4b7d3",
+    "conflict-auditor.toml": "4c67411f94889d12",
+    "conflict-resolution.toml": "7d86b8168dc476e1",
+    "cleanup.toml": "59663c60f6181fe9",
+    "agent-updater.toml": "84822ac84b34f745",
+    "agent-refactor.toml": "65a92dedcd63dbe1",
+    "repo-liaison.toml": "f48f3c75fbf4ece1",
+    "git-operations.toml": "b363253802d2a1f3",
+    "work-summarizer.toml": "058b1a1232b534c1",
+    "primary-producer.toml": "9ad90f64d0dff81f",
+    "quality-auditor.toml": "98935673a2d4c7ae",
+    "cohesion-repairer.toml": "d8629fb7aadc2fe6",
+    "technical-validator.toml": "0c8a7a35af7c04eb",
+    "format-converter.toml": "08bcd199344178b7",
+    "reference-manager.toml": "f98191fd73c14f43",
+    "output-compiler.toml": "b297a4b8b1589a03",
+    "visual-designer.toml": "6f956c01196f4973",
+    "retrieval-integrator.toml": "f8dc43092c140d00",
+    "research-analyst.toml": "0050028872590814",
+    "tool-doc-researcher.toml": "76f71018cdbb7382",
+    "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
+    "references/code-hygiene-rules.reference.md": "bb27601e343fd1d2",
+    "references/github-workflows-merge.reference.md": "fa94cc23056acb0e",
+    "references/work-summary-spec.reference.md": "96232231a1f7c6be",
+    "references/work-summary-tooling.reference.md": "f3656972717153a9",
+    "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "e25040ccfbdae337",
+    "references/instruction-authority.reference.md": "685d5590c135102b",
+    "references/retrospective-remediation.reference.md": "a0945ac134972385",
+    "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
+    "references/skill-generation.reference.md": "f844fd262e0967e3",
+    "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
+    "references/retrieval-integration.reference.md": "64287ba420232229",
+    "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
+    "topic-scoping-expert.toml": "89936917f3575812",
+    "literature-review-expert.toml": "5ce6d4d63a172aa2",
+    "main-analysis-expert.toml": "14e5a21bee2afa59",
+    "conclusion-expert.toml": "5394a33bce59d72c",
+    "../../AGENTS.md": "529d8ea46afbbd01",
+    "team-builder.toml": "63c7b9ae34cede90",
+    "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
+    "content-enricher.toml": "2af827c39ea5540a",
+    "references/write-policy.reference.md": "d5d003ec5740b609",
+    "references/mcp-need.reference.md": "15c753f1a114601e",
+    "references/pipeline-graph.md": "8ceca1ec14af245a"
   },
-  "template_hashes": {},
-  "origin": "interop",
-  "source_dir": ".github/agents",
-  "source_framework": "copilot-vscode",
-  "source_build_log_sha256": "bfefb02293bd43765f5dd77435321739fa1a53c7e62e664c9b851ee007a1d9c2"
+  "front_matter_baseline": {},
+  "front_matter_baseline_version": 2,
+  "write_policy": "orchestrator-only",
+  "prompt_root_hashes": {
+    ".codex/agents/adversarial.toml": {
+      "content": "5c2d372d4a29bb5f1fe260dede7c57268befafb7a2dfaedffe044f2db53ed080",
+      "codex_translation": "55fff8e1400d191d3cd7b40218fa8106666606970d6d0e90825701c21450d9e4"
+    },
+    ".codex/agents/agent-refactor.toml": {
+      "content": "cbe2b3a725b226706c60501a2c98497238d1f1525bc7a9869745b84df0355a56",
+      "codex_translation": "60a98f1a9d59a48e84394377717b62191bab2b2ef11dcc8c5f616b4853fb9f5e"
+    },
+    ".codex/agents/agent-updater.toml": {
+      "content": "86ae38a2f31ee78a20eab91ba9b25d744a8a3a540afa76b5ab2fe78ddc2fdd5a",
+      "codex_translation": "d9aa5bed3d6dfa5cbc13dddcdcec0aef6a9cae8221d1373776775d1d548018ab"
+    },
+    ".codex/agents/cleanup.toml": {
+      "content": "7f07a2ddd7ff949313785571e9b408c8e85be29a73dd18a3e076120c29e94957",
+      "codex_translation": "7e0776fe01285f7008b7a2d8488007e706759fa321b1fc7347c95f4415a54695"
+    },
+    ".codex/agents/code-hygiene.toml": {
+      "content": "f1a8f853ab2438690e8436f7361b6960365ff48d1c514dad402085c87d9e193b",
+      "codex_translation": "68585c2b7ec35f638dc2e3a5e1994ccd71076fd3cd9042e81cd9fd1170694d2b"
+    },
+    ".codex/agents/cohesion-repairer.toml": {
+      "content": "e5c27cceecd316dcd4ed7a654a30d5877ce29b7767c6094cce9dc59c73ef6122",
+      "codex_translation": "a75db879f5f668e1b62e5940c6697246f1d807061f743570e962caa5c0d4af17"
+    },
+    ".codex/agents/conclusion-expert.toml": {
+      "component_spec": "0e8cb3f5f9e024049680f83f06c2bf93e075feab1a961e73ce8bd93072d1b566",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "b0ce6e7274abf3d091295f975a70ddf56cd8edaa257f3e87ad673b86a1d1d426"
+    },
+    ".codex/agents/conflict-auditor.toml": {
+      "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
+      "rules": "9667b10268dd7a058c0dbeb757bbaf7937550a95bc459e2bdefcb4989b79b9a2",
+      "handoff_payload_conflict_codes": "506c97de1dfef1269beed438b6055154cd3a439047084983f9ac0a80353b7b51",
+      "typed_handoff_audit": "fc72a6ded9e4248c0c174d24b21d57fe6ddd2bc09cf71feba6f5ddeac4802f67",
+      "behavioral_spec_cross_check": "d33518a32d59fa60e97f94e60df6934397e5e937e4716aea6a8e28f6fefbe597",
+      "handoff_payload_codes": "38a1bcd36aa352b02b6d96b38af008454e46d34b558188c323241ef43c3f3e1a",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "memory_index_consultation": "e70c549b93edbeb0da5d518a4833aac8d524d8d1477b0fd5e40d7852c23f68ad",
+      "invariant_core": "dcc9b6ddb950462cecc9763fca14cc5784ca440b968fc02c7887c7cc0aa2788c",
+      "codex_translation": "c20222872c88aeb5baf7c7de8fe7ea20c75a8c26e122bd4a78650c461b1414f5"
+    },
+    ".codex/agents/conflict-resolution.toml": {
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "memory_index_consultation": "67275b5cfbd2fbcc58c3874d4ff725c5f5e65b5b5a7fb97739f1aa907ac8ff6c",
+      "rules": "5a133df68a1d37204898e3310a3756bb9bf7dbd1ede35e31e2b5800dcef55e65",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "3d39b844486760781d90b3c1446b00f91b85c0f38cfc049563b571138ce5d3ab"
+    },
+    ".codex/agents/content-enricher.toml": {
+      "content": "b0de49d1b2fec5e964aced67c61e32f8492d7e4d816805c033fcbf71e9bad0ae",
+      "codex_translation": "dc4bc41259c0d018646c0bf4e2785c6b75063143b7348fd976fe3bedb8c8bcd1"
+    },
+    ".codex/agents/format-converter.toml": {
+      "content": "fac27b61ecbc50da591ed6e1d5a5e55e48a1f2c9b32fc9e0b8914544d4e3cc8b",
+      "codex_translation": "d29f267d929d7e9c181d756aa740e73c6e866bdbc705e57cdff65ea446c38ac2"
+    },
+    ".codex/agents/git-operations.toml": {
+      "content": "7546e72ec88a1561beb3c3b9b4288bd082d9d79df9939e5c2d413496aa9260f6",
+      "codex_translation": "7cf8aaf5325db76c4ae12190f40f6cce331a3612fcc2451ff17257fdc9e25dec"
+    },
+    ".codex/agents/interpretation-advisor.toml": {
+      "content": "29cd4c7bc5221bf23e963d0e11409b29998b7b88eb9c76c510638b8961a89478",
+      "codex_translation": "879125fedacb2f2b694dc1d97a146e6d61710398e4ce461196014ad34dc75af8"
+    },
+    ".codex/agents/literature-review-expert.toml": {
+      "component_spec": "ba768851892512055813cd4d61100454902485625091496f1cba3a3cd424258f",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "c5ef1d55fefab694f745fc7f7b817b6ff416c10481d6900e5971e4f8644d9ef0"
+    },
+    ".codex/agents/main-analysis-expert.toml": {
+      "component_spec": "08ea551d2f8030717f0c52dd8d7da2f1fede535d6580a45b4aa78069176834a9",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "e65f8459191d205110c0f53a8ff252e370e48275f0bd7e9d50b74916a416c192"
+    },
+    ".codex/agents/navigator.toml": {
+      "workstream_source_map": "552a7f33f6ea6ce73160e238fa18016bb11c4cc93dca53f57121f874f1ee0132",
+      "invariant_rules": "9f02cd5b924adde05a397c1b80f155200b00f523ebc2e4ddce10fc55dffb80bd",
+      "code_index_consultation": "146bd87f3f58669bdc6e9c9ec847eddd67362c13c4ca86d7acecd4bdf256a6bb",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "35f4a5b7094571fbdbc576f6e9900904b263e3b11992138bfd07365206c4b933",
+      "codex_translation": "cdfb08133fc1a6ad09c4ce71f9e99b1c7278928ca2f240e923008e56874ce447"
+    },
+    ".codex/agents/orchestrator.toml": {
+      "constitutional_core": "f05ead693f33d316cc83453eb195d232f5ac76cd36d8cce45b3605e14747def4",
+      "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
+      "routing_table_rows": "b87a841af0a9df1806a26e911847f90e0f1891649cc6e7f1839ed93833f18053",
+      "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
+      "available_workflows": "bbc4993e6e885a619f72b5aa45ddb196d85278a9b0d383f2567ad254f7ddb94e",
+      "write_policy": "4209c85f8de9588e949279570922e7d0d2b36256f86ae1699d7f6d8dbc6df6ab",
+      "codex_translation": "d609f110f9d4912cc32b260c5d823889f6f03d825707e2d9e55a78bcf2900b57"
+    },
+    ".codex/agents/output-compiler.toml": {
+      "content": "9219b884487abd26a7dabc998ed87346d99950aa97dfee8680be077a2e25345a",
+      "codex_translation": "725f53f8eae929d7f983b68cd49a5737d83f29cd69765a45f817973b233a2144"
+    },
+    ".codex/agents/primary-producer.toml": {
+      "content": "40fe79bb6cb43eba3d4eff70aef01194c835f23be464c3c25a1f6d60de77fb02",
+      "codex_translation": "fffc83cbea56f9c5a3857764fbf314c6b6a75f29391064e1b0e7e42ecc0d6869"
+    },
+    ".codex/agents/quality-auditor.toml": {
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "defect_taxonomy": "e9468640170cbdc1e966b0c589f2d1e4926c1fde9ca792f49923fae80e903b79",
+      "memory_index_consultation": "a241caacd58e1962c23f54095c2e1b003b3beb3d601506ae5afef229c72eecd9",
+      "audit_protocol": "6f7dd04ad5bc4fdc90898a08269ca14eca4e0bd5826af0444d66debf313e1498",
+      "output_format": "4d2983fcb4a1bb09df289219928ea3844d56fed192f91098c702e458b5eb0e6e",
+      "boundary_rules": "91444ed2e3202780cdc752d5e4cefb5aea17e9d58c0d6dd6b009dcbf51e7f64c",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "4bf02ad7e14fadde347fa9fb23c806185211e54b37a8cbe4393926ab96f29d4e"
+    },
+    ".codex/agents/reference-manager.toml": {
+      "content": "0989fdc31d288b122b7b202fbf462cc069ea7ae44ac6ca6445a3166ff39b8674",
+      "codex_translation": "3c702b858b1acee3f087456248d090efd818501a5ba9821c3da9b2b59eb36db0"
+    },
+    ".codex/agents/repo-liaison.toml": {
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "purpose": "ec87a91e7a040f445db9af2a85b4f43fded764957b9f49a7d75145677732ffab",
+      "protocols": "ebd4a9509ff2d57077334dd4978e5eb0a151d88782fde4690036bf539438b1b2",
+      "output_format": "92a7ecbd969c55a1ba9b02c7d56b9e23c4a65d486eeb6a0ae775690d3fbd6a46",
+      "invariant_core": "11ee3a421de34d2567653140682221671470b77bf96cecc7835dbe6264849745",
+      "codex_translation": "9509f639fe49eba877f0cf785a98ff56cfa5bacf96a946985656365eb98298ca"
+    },
+    ".codex/agents/research-analyst.toml": {
+      "a_note_on_what_you_orchestrate": "a29ed82747ee6ab724f33e69855718c16dd9fa0289da6ab61fd62b68989e2029",
+      "memory_index_consultation": "ee3edb475f2788bc9e9e896cd358825ce99af1ae4e02acc8b61600a27ee697f2",
+      "procedure": "f5fdd70bde5a761b09aae5d78717c47d193350b093efae076a137096be65554a",
+      "external_retrieval_quality_gate": "77f54ec03535c1bc9ce99cc3090889913fa3441c6261c7df3d9562288aed1ef6",
+      "output_format": "f751fcb4fa4f36501bc3ec3bba179f2483438521a4bb529a6e3ef7a1e73fe218",
+      "external_retrieval_quality_gate_output": "5b130293ed8b3531d99ad4e53bf2ec6d9cddcba11cc28df28e962a185e16c04a",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "335ad3c0f668cb985c409ad570c0d734c1f7434470deb18959bc2e4e8480f674",
+      "codex_translation": "738b0edebcd42592d9df536fcb265bf10a51bcadee59963f71665829bf44cce5"
+    },
+    ".codex/agents/retrieval-integrator.toml": {
+      "memory_index_consultation": "40e1aab5f4f2c1895702c7d47d8a05a6cb8a532e379d0b6a618cabf22309c609",
+      "code_index_consultation": "5a5a2dcec60986bf6281979d3aa9b4a606ad38cd840e1cd6fb2216f650e088cd",
+      "validation_procedure": "c374434c6ac0802c268d92c106adfa99ea03a91d245b5c377133a1f26c19bb99",
+      "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "c6e2ebd81a8bf4709f2e941bc865ef0e063a86a8c87d85e9eee3ae26db803205",
+      "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
+    },
+    ".codex/agents/security.toml": {
+      "threat_intelligence": "7bef647c810ad437f179650315d84144beb81785c3addd284a21a9fb316a5ab3",
+      "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
+      "security_rules_invariant": "098fad8bfce5b9a1a2fe388e58855bbaa32064c967e15adaa8fd446219c46e18",
+      "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
+      "codex_translation": "fdc79aa0df18d788e75a8356d98df31622e0f4eb5788b9d0e3507e5611d8c413"
+    },
+    ".codex/agents/team-builder.toml": {
+      "content": "5d58ecc218568f2a5c8d7a988a4707e25ab09e77ac348ffcd371412dae15b1e9",
+      "codex_translation": "af8a8d3360dea77e678ef3dc6d8197dd534fddc69304797eb0f90ab14e20c110"
+    },
+    ".codex/agents/technical-validator.toml": {
+      "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
+      "accuracy_rules": "cf7b9555eed3b39638fa1c1016f84caa590691686fdf6b47aeabc8ea8b2b0417",
+      "memory_index_consultation": "848d090e0d52da196652ea08ae111bc2999801cf48caccf5f17e28ac03486610",
+      "cross_reference_rules": "a98aee0f1402dd069e280347dd6eb751d7de27c4f05884aa43aebb4b484cd92e",
+      "output_format": "7bf8d1da76afa8db69ae4e2382d560767ef4c7a7831cc4d60f4917edc553272c",
+      "boundary_rules": "633e41e63ba35fde70c573320cc6ddbe6983a5b5644ad52a08dfd6a330768cda",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "7adfc511ccfd9b2a91c93a9a441afdc6b9650de80c17bfa4751125e09075621f",
+      "codex_translation": "74977f6fa3d810ded1a2fbe768cd31a048e257fbc10a2c0b96c784b5016136a5"
+    },
+    ".codex/agents/tool-doc-researcher.toml": {
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "memory_index_consultation": "fbd107e1d25f03146e5e76a35daeb07c4b75badd61ef88601561a2106b0ae86d",
+      "documentation_discovery_strategies": "fbf469b5f86a24b9f66c3f8f87eca9aadf8669ad889a3f87caf133c4262f347f",
+      "what_to_research_per_tool": "41740352b84e48194ff41b84964ba9dd823e190864d4664e2c7826fe555bb14e",
+      "quality_constraints": "9fc5e1d33a34845b9af7f7dad60258c421ae7cc0721778e6bfec696a5c5405f6",
+      "output_format": "26feb1e9773fc461668c089a1538711f3be813573798cf809ac13b87eba9c204",
+      "external_retrieval_quality_gate": "86ea12930fbd72607c3f26ded370da4ff1ec1b164c379d948f7d64025adf6cdd",
+      "invariant_core": "57148e053e2c27129b9d1550b06c854d3aed1ba20bdef4ed5d4f88ec07df9e87",
+      "codex_translation": "095195e2aa1302d58b3637eab5961bd09eca4d8ca009d7aea0124e53caccabe1"
+    },
+    ".codex/agents/topic-scoping-expert.toml": {
+      "component_spec": "6d7969c81a89d9eeb07adaa1d9f944d9f60ad9d2d6fe374e69bfd2e50e227245",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf",
+      "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "codex_translation": "c37bc81378001a7b9cf518b5b0dfd40116c82491cb5f7998c00d73fc5d99ce01"
+    },
+    ".codex/agents/visual-designer.toml": {
+      "content": "0a6ebd39e2bd219499500b7b14b6f9a724e2c3fb91faf827744e3052e5e2d697",
+      "codex_translation": "2f10723db0fc21347a7baa90aace8ef6b0797a841c1493ab7354f7ef0ed7856d"
+    },
+    ".codex/agents/work-summarizer.toml": {
+      "content": "7c74bc5da06bb56cd3a2decb51fd55dda3438ecee4d341783726ddec6a70a15b",
+      "codex_translation": "e40d2a75a8f865de8e3a1bbae3adbf8292452d9313e436a64105cc72759b093a"
+    },
+    "AGENTS.md": {
+      "project_overview": "07dcb3e732c748cc1c71e38b9d2f3e570325f2c2bf036d5f02accf6571a092fa",
+      "directory_structure": "1fdfd854b5b022c76ea359cbdfc1d760a6dc555bee409867e17a37278bc4f0ab",
+      "output_conventions": "54836b18716f25479c932e33d9549523173d2f879ef0c422d7b6d013c12cf69e",
+      "agent_team": "43386e55455ed47cf2f2dbc37bcd20bfbd8b57759d2165ed94885c3120301293",
+      "tone_and_style": "d0b42a0c3d2c045dbbe4e980eb42023b1b31915d93e219545a8f78de1dcece24",
+      "authority_hierarchy": "5ca16ab8402b9373f111ec96d2e4eb4324ea82c36aa4b5fafeb806921ed3aa01",
+      "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
+      "constitutional_rules_baseline": "e67ecd5fe0dbf22020a2031cc1c7f036db3f627ab62da331f239641f5048a341",
+      "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
+      "codex_write_policy": "00568bf5d2a2a5d1b4c8bb9b138e932973636bee52401054c6dd10c3b8528966"
+    }
+  }
 }

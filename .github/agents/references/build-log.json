@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc9",
+  "agentteams_version": "1.0.0rc12",
   "agentteams_source": {
-    "kind": "checkout",
-    "commit": "43b5be52f21a54064cf5d2e4a44a9211896ec1c3",
-    "branch": "release-prep/pin-agentteams-rc10",
-    "dirty": true
+    "kind": "vcs-pin",
+    "commit": "69fe9447ae80bed6652586323d81672a1a8a8757",
+    "branch": null,
+    "dirty": false
   },
-  "generated_at": "2026-10-16T12:48:58.639243+00:00",
+  "generated_at": "2026-10-16T23:25:19.160693+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -77,7 +77,7 @@
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "universal/parallelization.reference.template.md": "e31593ccbba4a7ff",
-    "universal/instruction-authority.reference.template.md": "46dc19974105249a",
+    "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
     "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
@@ -524,50 +524,38 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "9eb53bc850465863",
+  "manifest_fingerprint": "5bf9568cf1673f39",
   "fingerprint_algo_version": 1,
   "file_hashes": {
+    "security.agent.md": "33c93b145e2ee050",
+    "references/security-vulnerability-watch.json": "7df5e9b2f1dc446b",
     "orchestrator.agent.md": "e198ae24755611f1",
     "navigator.agent.md": "ec41b004d2b282b9",
-    "security.agent.md": "24aedd2299bf4880",
-    "conflict-resolution.agent.md": "e57a57e79bd87285",
-    "agent-updater.agent.md": "58b5a0d3fdf1e4af",
-    "repo-liaison.agent.md": "329ad2c55bab75bf",
-    "quality-auditor.agent.md": "e1e408e5c22b012b",
-    "technical-validator.agent.md": "cd6940d511a12048",
-    "research-analyst.agent.md": "bcfe0889b33644ab",
-    "tool-doc-researcher.agent.md": "3839b9063e6ba09c",
-    "references/ref-pandoc-reference.md": "441afe924858a440",
-    "references/security-vulnerability-watch.reference.md": "d9d70c29282e6a6f",
-    "references/security-vulnerability-watch.json": "3dca750260ee5cc5",
-    "references/instruction-authority.reference.md": "02b35ba836240953",
-    "references/orchestrator-spawn-authority.reference.md": "d548ccbea1a23063",
-    "references/skill-generation.reference.md": "3078fc869d2f8790",
-    "topic-scoping-expert.agent.md": "eaeb80e7233d05b9",
-    "literature-review-expert.agent.md": "71ca0e10c7675e1c",
-    "main-analysis-expert.agent.md": "accdba4997ff89b4",
-    "conclusion-expert.agent.md": "dcc12e07659f143c",
-    "../copilot-instructions.md": "3a6216f1b5f995c2",
-    "references/pipeline-graph.md": "9f302f20e70161b5",
-    "references/pipeline-graph.svg": "7a5a3e866cdc99a2",
-    "../../sandbox/confine-run.sh": "37e852098a5e6b92",
-    "../../.vscode/tasks.json": "d7a7cc8db13640b3",
     "code-hygiene.agent.md": "654d28d9fb509933",
     "adversarial.agent.md": "099d1135eceb514d",
     "conflict-auditor.agent.md": "491f3d9e975ac1b4",
+    "conflict-resolution.agent.md": "e57a57e79bd87285",
     "cleanup.agent.md": "8041407705af7968",
+    "agent-updater.agent.md": "58b5a0d3fdf1e4af",
     "agent-refactor.agent.md": "b728b08238014ae7",
+    "repo-liaison.agent.md": "329ad2c55bab75bf",
     "git-operations.agent.md": "ecd5721355928d8b",
     "work-summarizer.agent.md": "14b152510cf03368",
     "primary-producer.agent.md": "f4f8b5c95244f5ec",
+    "quality-auditor.agent.md": "e1e408e5c22b012b",
     "cohesion-repairer.agent.md": "bbf6262644ffa069",
+    "technical-validator.agent.md": "cd6940d511a12048",
     "format-converter.agent.md": "d207c65fe468dcbc",
     "reference-manager.agent.md": "13e119ce1f6a073f",
     "output-compiler.agent.md": "2fa4f0796f13dbfd",
     "visual-designer.agent.md": "d673edd9111b93ca",
+    "research-analyst.agent.md": "bcfe0889b33644ab",
+    "tool-doc-researcher.agent.md": "3839b9063e6ba09c",
+    "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "24ad64b819b338f0",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -575,6 +563,11 @@
     "references/framework-watch.reference.md": "a989bfe037c80ea3",
     "references/adjacent-repos.md": "78d20a4fde516de3",
     "references/github-workflows-merge.reference.md": "d17a1c652ba84bbd",
+    "topic-scoping-expert.agent.md": "eaeb80e7233d05b9",
+    "literature-review-expert.agent.md": "71ca0e10c7675e1c",
+    "main-analysis-expert.agent.md": "accdba4997ff89b4",
+    "conclusion-expert.agent.md": "dcc12e07659f143c",
+    "../copilot-instructions.md": "3a6216f1b5f995c2",
     "team-builder.agent.md": "9a669a657b7afbd9",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "6574a79bc3912546",
@@ -583,14 +576,24 @@
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
     "references/parallelization.reference.md": "e25040ccfbdae337",
+    "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/retrospective-remediation.reference.md": "a0945ac134972385",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
+    "references/skill-generation.reference.md": "3078fc869d2f8790",
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
     "references/retrieval-integration.reference.md": "64287ba420232229",
     "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
-    "references/authorized-verify-keys/README.md": "badf32b421079acf"
+    "references/authorized-verify-keys/README.md": "badf32b421079acf",
+    "references/pipeline-graph.md": "9f302f20e70161b5"
   },
   "front_matter_baseline": {
+    "security.agent.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "['read', 'search']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "user-invocable": "false"
+    },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
@@ -605,11 +608,26 @@
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Navigation query is complete. Here are the structural findings.\"\n    send: false",
       "user-invocable": "false"
     },
-    "security.agent.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+    "code-hygiene.agent.md": {
+      "name": "Code Hygiene \u2014 ResearchTeam",
+      "description": "\"Read-only auditor that enforces modular architecture, file hygiene, script lifecycle, anti-sprawl rules, and agent documentation quality. Delegates removals to @cleanup; delegates structural extraction to @agent-refactor.\"",
       "tools": "['read', 'search']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "handoffs": "\n  - label: Security Clearance (for Deletions)\n    agent: security\n    prompt: \"Code hygiene review identified files for deletion. Requesting security clearance before delegating to cleanup.\"\n    send: false\n  - label: Cleanup Agent\n    agent: cleanup\n    prompt: \"Code hygiene audit complete. Delegate removal of identified files (after @security clearance).\"\n    send: false\n  - label: Agent Refactor (Structural Violations)\n    agent: agent-refactor\n    prompt: \"Code hygiene audit found inline reference data in agent files (CH-08/CH-14) or agent doc contradictions (CH-20) that may benefit from structural extraction. Requesting @agent-refactor to evaluate and apply reference extraction.\"\n    send: false\n  - label: Log Conflict\n    agent: conflict-auditor\n    prompt: \"Code hygiene audit found agent documentation contradictions (CH-20). Logging as conflict.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Code hygiene review is complete. Returning findings to the orchestrator.\"\n    send: false",
+      "user-invocable": "false"
+    },
+    "adversarial.agent.md": {
+      "name": "Adversarial \u2014 ResearchTeam",
+      "description": "\"Presupposition critic: challenges the assumptions underlying any plan, proposal, or diagnosis produced by the agent team. Traces how justified changes in presuppositions cascade through dependent logic.\"",
+      "tools": "['read', 'search']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Adversarial review is complete. Return findings \u2014 validated presuppositions, challenged presuppositions, and cascade analysis \u2014 to the orchestrator for plan revision.\"\n    send: false\n  - label: Audit for Conflicts\n    agent: conflict-auditor\n    prompt: \"Adversarial review surfaced assumptions that may conflict with documented facts. Run a targeted conflict audit on the identified areas.\"\n    send: false",
+      "user-invocable": "true"
+    },
+    "conflict-auditor.agent.md": {
+      "name": "Conflict Auditor \u2014 ResearchTeam",
+      "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
+      "tools": "['read', 'search']",
+      "agents": "['conflict-resolution', 'agent-updater', 'technical-validator']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conflict audit is complete. Review the findings.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Conflicts detected that require documentation updates.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Conflicts have been identified and logged. Make ACCEPT/REJECT/REVISE decisions.\"\n    send: false\n  - label: Verify Source Drift\n    agent: technical-validator\n    prompt: \"SOURCE_DRIFT conflict detected. Verify deliverable description against current source file on disk.\"\n    send: false",
       "user-invocable": "false"
     },
     "conflict-resolution.agent.md": {
@@ -619,6 +637,13 @@
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conflict resolution is complete. Review decisions and route corrections.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Conflict resolutions may require agent documentation updates.\"\n    send: false",
       "user-invocable": "false"
     },
+    "cleanup.agent.md": {
+      "name": "Cleanup \u2014 ResearchTeam",
+      "description": "\"Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks\"",
+      "tools": "['edit', 'search', 'execute']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Cleanup is complete. Review the removal report.\"\n    send: false",
+      "user-invocable": "false"
+    },
     "agent-updater.agent.md": {
       "name": "Agent Updater \u2014 ResearchTeam",
       "description": "\"Synchronizes agent documentation after project structure, deliverable, or reference changes in ResearchTeam\"",
@@ -626,11 +651,42 @@
       "handoffs": "\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Documentation has been updated. Check for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Run Adversarial Review\n    agent: adversarial\n    prompt: \"Documentation has been updated. Challenge the repository change census, docs/API impact decision, and any newly synchronized assumptions before closeout.\"\n    send: false\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Documentation has been updated. Run a conflict audit to verify consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Agent documentation has been synchronized with project changes.\"\n    send: false",
       "user-invocable": "false"
     },
+    "agent-refactor.agent.md": {
+      "name": "Agent Refactor \u2014 ResearchTeam",
+      "description": "\"Extracts shared data to reference files and enforces spec compliance across all agent documentation in ResearchTeam\"",
+      "tools": "['edit', 'search', 'agent']",
+      "agents": "['conflict-auditor']",
+      "handoffs": "\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Agent documentation has been refactored. Run a conflict audit to verify consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Agent refactoring is complete. Review the changes.\"\n    send: false",
+      "user-invocable": "false"
+    },
     "repo-liaison.agent.md": {
       "name": "Repo Liaison \u2014 ResearchTeam",
       "description": "\"Tracks agent documentation in repositories adjacent to ResearchTeam, communicates cross-repository impacts, maintains the adjacent-repos registry, and coordinates between orchestrators when this project's activity affects neighboring agent infrastructures.\"",
       "tools": "['read', 'edit', 'search', 'execute', 'agent']",
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Cross-repository liaison work is complete. Summary of impacts, updates made, and any orchestrator coordination required.\"\n    send: false\n  - label: Security Review for Cross-Repo Write\n    agent: security\n    prompt: \"A write operation targeting an adjacent repository requires security clearance. Provide the target repo, file path, and intended change.\"\n    send: false\n  - label: Conflict Audit After Cross-Repo Change\n    agent: conflict-auditor\n    prompt: \"Adjacent repository documentation has been updated. Verify internal consistency with current project docs.\"\n    send: false",
+      "user-invocable": "false"
+    },
+    "git-operations.agent.md": {
+      "name": "Git Operations \u2014 ResearchTeam",
+      "description": "\"Executes and governs Git and GitHub operations in ResearchTeam, including commit/push, pull/merge/rebase, conflict handling, and recovery workflows.\"",
+      "tools": "['read', 'execute', 'search']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Git operation is complete. Return to orchestrator with outcome summary.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"A git operation includes force-push, destructive history rewrite, or sensitive content exposure risk. Review before proceeding.\"\n    send: false\n  - label: Conflict Resolution\n    agent: conflict-resolution\n    prompt: \"A merge or rebase conflict requires ACCEPT/REJECT/REVISE decisions beyond simple line merges.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Tracked repository content changed. Run repository change census and docs/API impact evaluation before closeout.\"\n    send: false",
+      "user-invocable": "true"
+    },
+    "work-summarizer.agent.md": {
+      "name": "Work Summarizer \u2014 ResearchTeam",
+      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
+      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
+      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
+      "handoffs": "\n  - label: Verify Summary Accuracy\n    agent: technical-validator\n    prompt: \"Work summary drafted. Verify factual claims (paths, hashes, counts) against on-disk state and git history.\"\n    send: false\n  - label: Run Adversarial Audit\n    agent: adversarial\n    prompt: \"Work summary drafted. Run a presupposition and cascade-risk audit before finalization.\"\n    send: false\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Work summary drafted. Run a consistency audit against authority sources.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Work summary reporting complete. See workSummaries/.\"\n    send: false",
+      "user-invocable": "true"
+    },
+    "primary-producer.agent.md": {
+      "name": "Primary Producer \u2014 ResearchTeam",
+      "description": "\"Drafts and revises deliverables in ResearchTeam from Component Briefs provided by workstream expert agents\"",
+      "tools": "['read', 'edit', 'search']",
+      "agents": "['cohesion-repairer', 'quality-auditor', 'conflict-auditor']",
+      "handoffs": "\n  - label: Cohesion Audit\n    agent: cohesion-repairer\n    prompt: \"Draft is ready for cohesion audit.\"\n    send: false\n  - label: Quality Audit\n    agent: quality-auditor\n    prompt: \"Revised draft is ready for quality audit.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"New deliverable added. Run consistency check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Deliverable production is complete.\"\n    send: false\n",
       "user-invocable": "false"
     },
     "quality-auditor.agent.md": {
@@ -641,12 +697,50 @@
       "handoffs": "\n  - label: Route Corrections to Primary Producer\n    agent: primary-producer\n    prompt: \"Audit findings attached. Please correct flagged passages.\"\n    send: false\n  - label: Route Cohesion Failures\n    agent: cohesion-repairer\n    prompt: \"Cohesion failures flagged in audit. Please repair.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Quality audit complete. See findings.\"\n    send: false\n",
       "user-invocable": "false"
     },
+    "cohesion-repairer.agent.md": {
+      "name": "Cohesion Repairer \u2014 ResearchTeam",
+      "description": "\"Repairs within-section cohesion failures in ResearchTeam deliverables \u2014 disjointedness, broken transitions, and missing argumentative spine; does not reorganize across sections\"",
+      "tools": "['read', 'edit']",
+      "agents": "['quality-auditor']",
+      "handoffs": "\n  - label: Quality Re-Check\n    agent: quality-auditor\n    prompt: \"Cohesion repairs applied. Re-check repaired sections.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Cohesion repairs complete.\"\n    send: false\n",
+      "user-invocable": "false"
+    },
     "technical-validator.agent.md": {
       "name": "Technical Validator \u2014 ResearchTeam",
       "tools": "['read', 'search']",
       "agents": "['primary-producer', 'reference-manager', 'conflict-auditor']",
       "handoffs": "\n  - label: Route Corrections to Primary Producer\n    agent: primary-producer\n    prompt: \"Technical accuracy findings attached. Please correct flagged inaccuracies.\"\n    send: false\n  - label: Route Reference Issues\n    agent: reference-manager\n    prompt: \"Reference accuracy issues found. Please verify.\"\n    send: false\n  - label: Log Conflict\n    agent: conflict-auditor\n    prompt: \"Technical conflict detected. Logging and routing.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Technical validation complete. See findings.\"\n    send: false",
       "user-invocable": "false"
+    },
+    "format-converter.agent.md": {
+      "name": "Format Converter \u2014 ResearchTeam",
+      "description": "\"Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam\"",
+      "tools": "['read', 'edit', 'execute']",
+      "handoffs": "\n  - label: Pass to Output Compiler\n    agent: output-compiler\n    prompt: \"Conversion complete. Assemble final output.\"\n    send: false\n  - label: Quality Check After Conversion\n    agent: quality-auditor\n    prompt: \"Conversion artifacts present. Spot-check converted files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Format conversion complete.\"\n    send: false",
+      "user-invocable": "false"
+    },
+    "reference-manager.agent.md": {
+      "name": "Reference Manager \u2014 ResearchTeam",
+      "tools": "['read', 'edit', 'search', 'retrieval']",
+      "agents": "['conflict-auditor']",
+      "handoffs": "\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Reference database updated. Check for cross-reference consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Reference database operation complete.\"\n    send: false",
+      "user-invocable": "false"
+    },
+    "output-compiler.agent.md": {
+      "name": "Output Compiler \u2014 ResearchTeam",
+      "description": "\"Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest\"",
+      "user-invocable": "false",
+      "tools": "['read', 'edit', 'execute']",
+      "agents": "['format-converter', 'technical-validator']",
+      "handoffs": "\n  - label: Convert Missing Components\n    agent: format-converter\n    prompt: \"Component needs conversion before assembly. Convert first.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Validate technical accuracy before final assembly.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Final output assembly complete.\"\n    send: false"
+    },
+    "visual-designer.agent.md": {
+      "name": "Visual Designer \u2014 ResearchTeam",
+      "description": "\"Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain\"",
+      "user-invocable": "false",
+      "tools": "['read', 'edit', 'execute', 'search']",
+      "agents": "['format-converter', 'quality-auditor']",
+      "handoffs": "\n  - label: Convert Figure Format\n    agent: format-converter\n    prompt: \"Diagram is ready for format conversion.\"\n    send: false\n  - label: Quality Check Figure\n    agent: quality-auditor\n    prompt: \"New or revised figure ready for quality check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Visual design work complete.\"\n    send: false"
     },
     "research-analyst.agent.md": {
       "name": "Research Analyst \u2014 ResearchTeam",
@@ -694,104 +788,6 @@
       "agents": "['primary-producer', 'adversarial', 'reference-manager']",
       "handoffs": "\n  - label: Vet Brief Before Drafting\n    agent: adversarial\n    prompt: \"Component Brief prepared. Review for hidden presuppositions before drafting begins.\"\n    send: false\n  - label: Send to Primary Producer\n    agent: primary-producer\n    prompt: \"Component Brief accepted. Ready for drafting.\"\n    send: false\n  - label: Verify Citations\n    agent: reference-manager\n    prompt: \"Verify citation keys in Component Brief before drafting begins.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conclusion and Executive Summary has been reviewed and accepted.\"\n    send: false",
       "user-invocable": "false"
-    },
-    "code-hygiene.agent.md": {
-      "name": "Code Hygiene \u2014 ResearchTeam",
-      "description": "\"Read-only auditor that enforces modular architecture, file hygiene, script lifecycle, anti-sprawl rules, and agent documentation quality. Delegates removals to @cleanup; delegates structural extraction to @agent-refactor.\"",
-      "tools": "['read', 'search']",
-      "handoffs": "\n  - label: Security Clearance (for Deletions)\n    agent: security\n    prompt: \"Code hygiene review identified files for deletion. Requesting security clearance before delegating to cleanup.\"\n    send: false\n  - label: Cleanup Agent\n    agent: cleanup\n    prompt: \"Code hygiene audit complete. Delegate removal of identified files (after @security clearance).\"\n    send: false\n  - label: Agent Refactor (Structural Violations)\n    agent: agent-refactor\n    prompt: \"Code hygiene audit found inline reference data in agent files (CH-08/CH-14) or agent doc contradictions (CH-20) that may benefit from structural extraction. Requesting @agent-refactor to evaluate and apply reference extraction.\"\n    send: false\n  - label: Log Conflict\n    agent: conflict-auditor\n    prompt: \"Code hygiene audit found agent documentation contradictions (CH-20). Logging as conflict.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Code hygiene review is complete. Returning findings to the orchestrator.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "adversarial.agent.md": {
-      "name": "Adversarial \u2014 ResearchTeam",
-      "description": "\"Presupposition critic: challenges the assumptions underlying any plan, proposal, or diagnosis produced by the agent team. Traces how justified changes in presuppositions cascade through dependent logic.\"",
-      "tools": "['read', 'search']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Adversarial review is complete. Return findings \u2014 validated presuppositions, challenged presuppositions, and cascade analysis \u2014 to the orchestrator for plan revision.\"\n    send: false\n  - label: Audit for Conflicts\n    agent: conflict-auditor\n    prompt: \"Adversarial review surfaced assumptions that may conflict with documented facts. Run a targeted conflict audit on the identified areas.\"\n    send: false",
-      "user-invocable": "true"
-    },
-    "conflict-auditor.agent.md": {
-      "name": "Conflict Auditor \u2014 ResearchTeam",
-      "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
-      "tools": "['read', 'search']",
-      "agents": "['conflict-resolution', 'agent-updater', 'technical-validator']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conflict audit is complete. Review the findings.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Conflicts detected that require documentation updates.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Conflicts have been identified and logged. Make ACCEPT/REJECT/REVISE decisions.\"\n    send: false\n  - label: Verify Source Drift\n    agent: technical-validator\n    prompt: \"SOURCE_DRIFT conflict detected. Verify deliverable description against current source file on disk.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "cleanup.agent.md": {
-      "name": "Cleanup \u2014 ResearchTeam",
-      "description": "\"Removes stale drafts, build artifacts, and orphaned files from ResearchTeam with mandatory safety checks\"",
-      "tools": "['edit', 'search', 'execute']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Cleanup is complete. Review the removal report.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "agent-refactor.agent.md": {
-      "name": "Agent Refactor \u2014 ResearchTeam",
-      "description": "\"Extracts shared data to reference files and enforces spec compliance across all agent documentation in ResearchTeam\"",
-      "tools": "['edit', 'search', 'agent']",
-      "agents": "['conflict-auditor']",
-      "handoffs": "\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Agent documentation has been refactored. Run a conflict audit to verify consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Agent refactoring is complete. Review the changes.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "git-operations.agent.md": {
-      "name": "Git Operations \u2014 ResearchTeam",
-      "description": "\"Executes and governs Git and GitHub operations in ResearchTeam, including commit/push, pull/merge/rebase, conflict handling, and recovery workflows.\"",
-      "tools": "['read', 'execute', 'search']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Git operation is complete. Return to orchestrator with outcome summary.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"A git operation includes force-push, destructive history rewrite, or sensitive content exposure risk. Review before proceeding.\"\n    send: false\n  - label: Conflict Resolution\n    agent: conflict-resolution\n    prompt: \"A merge or rebase conflict requires ACCEPT/REJECT/REVISE decisions beyond simple line merges.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Tracked repository content changed. Run repository change census and docs/API impact evaluation before closeout.\"\n    send: false",
-      "user-invocable": "true"
-    },
-    "work-summarizer.agent.md": {
-      "name": "Work Summarizer \u2014 ResearchTeam",
-      "description": "\"Synthesizes daily, weekly, and monthly work summaries from canonical plan artifacts and git evidence for ResearchTeam; supports append-first daily capture, legacy tmp/ fallback, and required adversarial/conflict audits\"",
-      "tools": "['read', 'search', 'execute', 'edit', 'agent']",
-      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
-      "handoffs": "\n  - label: Verify Summary Accuracy\n    agent: technical-validator\n    prompt: \"Work summary drafted. Verify factual claims (paths, hashes, counts) against on-disk state and git history.\"\n    send: false\n  - label: Run Adversarial Audit\n    agent: adversarial\n    prompt: \"Work summary drafted. Run a presupposition and cascade-risk audit before finalization.\"\n    send: false\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Work summary drafted. Run a consistency audit against authority sources.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Work summary reporting complete. See workSummaries/.\"\n    send: false",
-      "user-invocable": "true"
-    },
-    "primary-producer.agent.md": {
-      "name": "Primary Producer \u2014 ResearchTeam",
-      "description": "\"Drafts and revises deliverables in ResearchTeam from Component Briefs provided by workstream expert agents\"",
-      "tools": "['read', 'edit', 'search']",
-      "agents": "['cohesion-repairer', 'quality-auditor', 'conflict-auditor']",
-      "handoffs": "\n  - label: Cohesion Audit\n    agent: cohesion-repairer\n    prompt: \"Draft is ready for cohesion audit.\"\n    send: false\n  - label: Quality Audit\n    agent: quality-auditor\n    prompt: \"Revised draft is ready for quality audit.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"New deliverable added. Run consistency check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Deliverable production is complete.\"\n    send: false\n",
-      "user-invocable": "false"
-    },
-    "cohesion-repairer.agent.md": {
-      "name": "Cohesion Repairer \u2014 ResearchTeam",
-      "description": "\"Repairs within-section cohesion failures in ResearchTeam deliverables \u2014 disjointedness, broken transitions, and missing argumentative spine; does not reorganize across sections\"",
-      "tools": "['read', 'edit']",
-      "agents": "['quality-auditor']",
-      "handoffs": "\n  - label: Quality Re-Check\n    agent: quality-auditor\n    prompt: \"Cohesion repairs applied. Re-check repaired sections.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Cohesion repairs complete.\"\n    send: false\n",
-      "user-invocable": "false"
-    },
-    "format-converter.agent.md": {
-      "name": "Format Converter \u2014 ResearchTeam",
-      "description": "\"Converts deliverables from their source format to Markdown with Chicago citations for final output in ResearchTeam\"",
-      "tools": "['read', 'edit', 'execute']",
-      "handoffs": "\n  - label: Pass to Output Compiler\n    agent: output-compiler\n    prompt: \"Conversion complete. Assemble final output.\"\n    send: false\n  - label: Quality Check After Conversion\n    agent: quality-auditor\n    prompt: \"Conversion artifacts present. Spot-check converted files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Format conversion complete.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "reference-manager.agent.md": {
-      "name": "Reference Manager \u2014 ResearchTeam",
-      "tools": "['read', 'edit', 'search', 'retrieval']",
-      "agents": "['conflict-auditor']",
-      "handoffs": "\n  - label: Run Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Reference database updated. Check for cross-reference consistency.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Reference database operation complete.\"\n    send: false",
-      "user-invocable": "false"
-    },
-    "output-compiler.agent.md": {
-      "name": "Output Compiler \u2014 ResearchTeam",
-      "description": "\"Assembles all converted components into a final deliverable package for ResearchTeam \u2014 dependency check, ordering, build manifest\"",
-      "user-invocable": "false",
-      "tools": "['read', 'edit', 'execute']",
-      "agents": "['format-converter', 'technical-validator']",
-      "handoffs": "\n  - label: Convert Missing Components\n    agent: format-converter\n    prompt: \"Component needs conversion before assembly. Convert first.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Validate technical accuracy before final assembly.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Final output assembly complete.\"\n    send: false"
-    },
-    "visual-designer.agent.md": {
-      "name": "Visual Designer \u2014 ResearchTeam",
-      "description": "\"Creates and revises diagrams and figures for ResearchTeam using the approved diagram toolchain\"",
-      "user-invocable": "false",
-      "tools": "['read', 'edit', 'execute', 'search']",
-      "agents": "['format-converter', 'quality-auditor']",
-      "handoffs": "\n  - label: Convert Figure Format\n    agent: format-converter\n    prompt: \"Diagram is ready for format conversion.\"\n    send: false\n  - label: Quality Check Figure\n    agent: quality-auditor\n    prompt: \"New or revised figure ready for quality check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Visual design work complete.\"\n    send: false"
     },
     "team-builder.agent.md": {
       "name": "Team Builder \u2014 Agent Teams Module",
@@ -866,7 +862,7 @@
       "content": "7546e72ec88a1561beb3c3b9b4288bd082d9d79df9939e5c2d413496aa9260f6"
     },
     ".github/agents/interpretation-advisor.agent.md": {
-      "content": "8bef26b4cf0bb40067590341560c1cd0973866a6b964e6bbf6a616cb4dad3d56"
+      "content": "29cd4c7bc5221bf23e963d0e11409b29998b7b88eb9c76c510638b8961a89478"
     },
     ".github/agents/literature-review-expert.agent.md": {
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
@@ -931,7 +927,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "b2f4cb92a608db489a4e350987c4b99d3dd092d4b3b19310b2bb410409fe9c70",
+      "threat_intelligence": "24e095cf82f338c369f6f7503a67fe6ea0eb82f076f613afdcd46158ae53e780",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",

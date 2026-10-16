@@ -1,0 +1,55 @@
+# ===================================================================
+# agentteams-emitted Goose confinement example (P1-1) — INERT / EXAMPLE ONLY.
+#
+# DO NOT point Goose at this file directly and do NOT let it clobber your live
+# ~/.config/goose/config.yaml. Copy the GOOSE_SANDBOX line below into your OWN
+# config, or export it in the environment. agentteams never writes your live
+# config (ship-an-example, never-clobber convention).
+#
+# Profile requested: confined
+# Workspace write roots: ['.']
+#   Network (macOS Seatbelt): OPEN (confined = write-confinement only; egress is NOT
+#   restricted, matching Claude confined, so goose can reach its LLM). Use
+#   privilege_profile exclusive for network isolation. NOTE: the Linux runner
+#   (.goose/confined-run.example.sh) defaults egress to DENY (fail-closed) instead —
+#   this OPEN posture is the macOS Seatbelt default, not the Linux one.
+#
+# ENFORCEMENT — Goose has no NATIVE OS sandbox on any platform; agentteams emits a real
+# boundary per host:
+#   * Linux: the framework-neutral bwrap launcher sandbox/confine-run.sh IS the boundary
+#     (enforcement-verified). Do not run goose bare — wrap it with the emitted
+#     .goose/confined-run.example.sh (writable XDG dirs + GOOSE_DISABLE_KEYRING + env-injected
+#     key baked in). This GOOSE_SANDBOX/Seatbelt file is macOS-only and does nothing on Linux.
+#   * macOS: Apple Seatbelt via sandbox-exec + this .goose/sandbox.sb profile (paths below).
+#
+# macOS enforcement paths:
+#
+#  A) Ground-truth (ALWAYS enforces on macOS, independent of your Goose build):
+#       sandbox-exec -D WORKSPACE_ROOT="$PWD" -D HOME_DIR="$HOME" \
+#                    -f .goose/sandbox.sb goose run --recipe <recipe> ...
+#
+#  B) Goose-native (convenience; semantics VARY by Goose build/version — Desktop
+#     vs CLI differ, and older builds may ignore it). Set:
+#       GOOSE_SANDBOX=1
+#     and point your Goose build at the emitted profile (its exact key differs by
+#     build — consult `goose --version` and the Goose docs). Because this is
+#     build-variant, agentteams does NOT claim path B enforces anything until you
+#     confirm it with `--check-wiring` plus the manual test below. Prefer path A
+#     when in doubt (fail closed, do not assume Desktop behavior).
+#
+# VERIFY (must actually deny — a config that LOOKS protective but no-ops is the
+# failure this feature exists to prevent):
+#   1) run `agentteams generate ... --check-wiring` (checks GOOSE_SANDBOX live +
+#      the profile exists + write roots match).
+#   2) from inside the sandbox, a write outside the workspace MUST be denied. (Egress
+#      is OPEN under confined — do NOT expect network to be denied.) If the write
+#      succeeds, the boundary is NOT in effect on your build — use path A.
+#
+# CAVEAT: sandbox-exec / Seatbelt is Apple-deprecated (App Sandbox preferred); the
+# portable primary for untrusted code remains a container / WASI at the consumer
+# layer. This profile is the best OS boundary agentteams can emit for Goose today.
+# ===================================================================
+
+# --- inert example snippet (merge into your live config / environment) ---
+GOOSE_SANDBOX: 1
+# agentteams_sandbox_profile: <ABSOLUTE_PATH_TO_PROJECT>/.goose/sandbox.sb

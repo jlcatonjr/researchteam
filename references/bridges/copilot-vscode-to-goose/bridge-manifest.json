@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-10T18:23:08.896803+00:00",
+  "generated_at": "2026-10-16T23:27:13.797565+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -15,7 +15,7 @@
     },
     {
       "path": "agents/agent-updater.agent.md",
-      "sha256": "ef266eaec0dd59b64676b4f64dea92efbb7b80156df6bc1c7d0bc86156a56f08"
+      "sha256": "58b5a0d3fdf1e4afb5034942e50fd79e31e1b3d1c7390a7339f831c9710e89a8"
     },
     {
       "path": "agents/cleanup.agent.md",
@@ -31,7 +31,7 @@
     },
     {
       "path": "agents/conclusion-expert.agent.md",
-      "sha256": "6ef22988fc674a069a5095d647484477afba7e490aed39e037d1d6897725e5d7"
+      "sha256": "dcc12e07659f143c30946f99e422f458e59d2f5f9ddacd0039a0a0cd538e6f80"
     },
     {
       "path": "agents/conflict-auditor.agent.md",
@@ -39,7 +39,7 @@
     },
     {
       "path": "agents/conflict-resolution.agent.md",
-      "sha256": "0e777918b21a3ebc442a0f480f6e9dc0f32420568f4efd269dc6ea11c1cf811c"
+      "sha256": "e57a57e79bd87285809b07ced54fbe5a32eefd0907f019d362e3b6256da884aa"
     },
     {
       "path": "agents/content-enricher.agent.md",
@@ -55,23 +55,23 @@
     },
     {
       "path": "agents/interpretation-advisor.agent.md",
-      "sha256": "5d366661629100f0ec7c0818200061896225c14399cc6ccd5e82ed61d21e238a"
+      "sha256": "b6c13485f2832e79807997e84185579ec08454fcd9dab0e554328762def1cb3e"
     },
     {
       "path": "agents/literature-review-expert.agent.md",
-      "sha256": "3c951101b21c54731d50d9f5954ebe9c57a9834bc75ab1befc0c7db68ad898e0"
+      "sha256": "71ca0e10c7675e1c628ef1910755dcb28d1275c2c968f0e4a6d8c2b1198b8896"
     },
     {
       "path": "agents/main-analysis-expert.agent.md",
-      "sha256": "30aceecf29549e604cce368ae197085843bd7daa63f44c7b34197fb12f6c35e0"
+      "sha256": "accdba4997ff89b465722d350d55d6efa8f33dd3b2e419bb2da55d4bf4a68dba"
     },
     {
       "path": "agents/navigator.agent.md",
-      "sha256": "bf4639e8c17672a6f2d85d9a01eaf8e780c4c79966824a496d08198cd8ffaeb2"
+      "sha256": "ec41b004d2b282b9c00055406712f8d2e2167d1d62f6e804266171e8df75437a"
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "3f757820f6b982647c875a746223abfa120226519689ecf024173a99cd48e5ce"
+      "sha256": "e198ae24755611f13235bf5ffd3193038905d21ccc7ce94eef2a8af8922a39e9"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -83,7 +83,7 @@
     },
     {
       "path": "agents/quality-auditor.agent.md",
-      "sha256": "9280831b5b47584bda592b2226b19e6da2a3224363b8451eaa0e393a0c578c3b"
+      "sha256": "e1e408e5c22b012b496d9110a93a504b03e8ef3d31238be9a707c877988ff1ec"
     },
     {
       "path": "agents/reference-manager.agent.md",
@@ -91,11 +91,11 @@
     },
     {
       "path": "agents/repo-liaison.agent.md",
-      "sha256": "a50f2a872ed450c828f52687b089868573d31cc9b0b2dca10d0f1176c24b6781"
+      "sha256": "329ad2c55bab75bf7772e02fffef0738e0579a8293401a9853eaa8f214b9a4ff"
     },
     {
       "path": "agents/research-analyst.agent.md",
-      "sha256": "3d5e834926e41d4c497b3b2d06e4beed7dcd25a7ae9fac51bc050377aa626e1d"
+      "sha256": "bcfe0889b33644ab899960de90f51c927cfb5419a365d77a316daeba6c30ea99"
     },
     {
       "path": "agents/retrieval-integrator.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "e2ec5ecd856ee4f2848fc722f862872c05144fd13881902c944491672cfe8f9a"
+      "sha256": "33c93b145e2ee050beb2fbf487d61724323fbcd3d1a2a81ff907d541cd120df1"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -111,11 +111,11 @@
     },
     {
       "path": "agents/technical-validator.agent.md",
-      "sha256": "d3ede24a8f96d68c173c05d8b279c68022edf50d21ecaa9dfaaade585aa1557e"
+      "sha256": "cd6940d511a120487c6ed64079bd0a1677aec4465095b43ac98380669086b9a1"
     },
     {
       "path": "agents/tool-doc-researcher.agent.md",
-      "sha256": "47137a4d5178e2a13e517ecd1be5c694c845fc0b3414ddd8d581b3c5e27397e4"
+      "sha256": "3839b9063e6ba09ccacf8c289048c90030fd5e18c0ac75bf1ef48406e4d2a621"
     },
     {
       "path": "agents/tool-pandoc.agent.md",
@@ -123,7 +123,7 @@
     },
     {
       "path": "agents/topic-scoping-expert.agent.md",
-      "sha256": "0ae6465a66dde69e5ac4ee964f16a8863fbbecccfd482889ca50defab7122cf0"
+      "sha256": "eaeb80e7233d05b9cc51c2d57e7552a71a65173bd2faeb330fbf027dc11cb7d7"
     },
     {
       "path": "agents/visual-designer.agent.md",
@@ -135,7 +135,7 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "adf2c9c9a2118e04c5480fb65a5e93a3265e30c4ce472893a0bba15badcaff28"
+      "sha256": "3a6216f1b5f995c23d69cbec6a079c09ceaac7a54a1cca7e004133da00480af9"
     }
   ],
   "inventory_count": 32,
