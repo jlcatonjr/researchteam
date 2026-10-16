@@ -1,0 +1,10 @@
+# pip constraints: third-party versions vetted for S-10 on 2026-10-16 (see s10-dependency-vetting-2026-10-16.md)
+jsonschema==4.26.0
+attrs==26.1.0
+jsonschema-specifications==2025.9.1
+referencing==0.37.0
+rpds-py==2026.6.3
+cryptography==50.0.0
+cffi==2.1.1
+pycparser==3.0
+typing-extensions==4.16.0
