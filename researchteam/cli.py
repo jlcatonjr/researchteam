@@ -93,6 +93,12 @@ def main() -> None:
         "even though the repo customised it (Notes kept, previous file backed up). Repeatable. "
         "Without it a customised file is kept, also under --yes.",
     )
+    update_p.add_argument(
+        "--no-codex",
+        action="store_true",
+        help="Skip refreshing the Codex surface (.codex/agents, .agents/skills); for repositories "
+        "that keep Codex frozen for 1.0 (adopted agents; release policy section 5)",
+    )
 
     # ---- personalize ---------------------------------------------------------
     personalize_p = sub.add_parser(
@@ -178,6 +184,7 @@ def main() -> None:
             layer2_only=args.layer2_only,
             layer1_only=args.layer1_only,
             accept_upstream=args.accept_upstream,
+            codex=not args.no_codex,
         )
 
     elif args.command == "personalize":

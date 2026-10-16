@@ -53,7 +53,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
-| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise). |
+| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH] [--no-codex]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise; `--no-codex` leaves Codex unchanged). |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
@@ -243,6 +243,11 @@ of 1.0. So when `.codex/agents` exists, `update` and `materialize` handle Codex 
   #210 does not check.
 - **Not covered:** nothing runs and the command exits non-zero, with nothing under `.codex`
   changed. `--dry-run` prints the same message and continues.
+- **Frozen:** a repository whose roster includes adopted (bespoke) agents keeps its Codex surface
+  frozen for 1.0 (release policy section 5); agentteams 1.0 supports write_policy interop for claude
+  and goose only, and Codex interop comes as a 1.0.x backport. Pass `--no-codex` to `update` (or
+  `materialize`): the Codex step is skipped entirely (no native render, no skills projection, no
+  leftover warning) and `.codex` is left as it is, without setting it aside by hand.
 
 To cover codex, set these keys in `brief.json`:
 

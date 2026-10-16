@@ -180,3 +180,51 @@ def test_codex_roster_agents_are_not_leftovers(tmp_path):
     (agents / "references" / "build-log.json").write_text(json.dumps(
         {"file_hashes": {"orchestrator.toml": "a"}, "agent_slug_list": ["orchestrator", "interpretation-advisor"]}))
     assert _update_cmd._warn_codex_leftovers(tmp_path) == ["tool-pandoc.toml"]
+
+
+@pytest.mark.parametrize("layer1_only", [True, False])
+def test_update_no_codex_never_refreshes_codex(tmp_path, calls, monkeypatch, capsys, layer1_only):
+    # Frozen Codex (release policy section 5): no orchestrator-only switch, so a refresh would refuse.
+    root = _instance(tmp_path, ())
+    (root / ".codex" / "agents").mkdir(parents=True)
+    (root / ".claude" / "skills").mkdir(parents=True)
+    monkeypatch.setattr(_update_cmd, "managed_files_for", lambda profile: [])
+    monkeypatch.setattr(_update_cmd, "_sync_notes", lambda *a, **k: None)
+    monkeypatch.setattr(_update_cmd, "_refresh_codex", lambda *a, **k: pytest.fail("_refresh_codex called"))
+    _update_cmd.run_update(root, ref="main", yes=True, dry_run=False, layer2_only=False,
+                           layer1_only=layer1_only, codex=False)
+    assert not any("codex" in c for c in calls)                   # no render, no skills projection
+    out = capsys.readouterr().out
+    assert out.count("Codex surface left unchanged") == 1
+
+
+@pytest.mark.parametrize("layer1_only", [True, False])
+def test_update_without_no_codex_still_refreshes_codex(tmp_path, calls, monkeypatch, layer1_only):
+    root = _instance(tmp_path, ())
+    monkeypatch.setattr(_update_cmd, "managed_files_for", lambda profile: [])
+    monkeypatch.setattr(_update_cmd, "_sync_notes", lambda *a, **k: None)
+    refreshed: list[bool] = []
+    monkeypatch.setattr(_update_cmd, "_refresh_codex", lambda root, dry_run: refreshed.append(dry_run))
+    _update_cmd.run_update(root, ref="main", yes=True, dry_run=False, layer2_only=False,
+                           layer1_only=layer1_only)
+    assert refreshed == [False]
+
+
+def test_codex_refusal_offers_no_codex(tmp_path, calls):
+    root = _instance(tmp_path, ())
+    (root / ".codex" / "agents").mkdir(parents=True)
+    with pytest.raises(SystemExit) as exc:
+        _update_cmd._refresh_codex(root, dry_run=False)
+    assert "--no-codex" in str(exc.value) and "orchestrator-only" in str(exc.value)
+
+
+@pytest.mark.parametrize("argv, codex", [(["update"], True), (["update", "--no-codex"], False)])
+def test_cli_update_plumbs_no_codex(tmp_path, monkeypatch, argv, codex):
+    from researchteam import cli
+    seen: dict = {}
+    monkeypatch.setattr(cli, "_find_repo_root", lambda require_marker=False: tmp_path)
+    monkeypatch.setattr(cli, "_read_marker_ref", lambda root: "main")
+    monkeypatch.setattr(_update_cmd, "run_update", lambda root, **kw: seen.update(kw))
+    monkeypatch.setattr("sys.argv", ["researchteam", *argv])
+    cli.main()
+    assert seen["codex"] is codex

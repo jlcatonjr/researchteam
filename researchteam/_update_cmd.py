@@ -262,6 +262,7 @@ def run_update(
     layer2_only: bool,
     layer1_only: bool = False,
     accept_upstream: list[str] | tuple[str, ...] = (),
+    codex: bool = True,
 ) -> None:
     global _BACKUP_STAMP
     _BACKUP_STAMP = _new_backup_stamp()  # one backup folder per run
@@ -285,7 +286,7 @@ def run_update(
         # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
         _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
         # The merge may change canonical agents; keep Codex in step (native render, orchestrator-only).
-        _refresh_codex(root, dry_run=dry_run)
+        _refresh_codex_unless_frozen(root, dry_run=dry_run, codex=codex)
         # Bridges before the upstream Notes sync, so the Notes blocks are always written last.
         _merge_bridges(root, dry_run)
         from ._personalize import is_upstream
@@ -450,7 +451,7 @@ def run_update(
     # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
     _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
     # The merge may change canonical agents; keep Codex in step (native render, orchestrator-only).
-    _refresh_codex(root, dry_run=dry_run)
+    _refresh_codex_unless_frozen(root, dry_run=dry_run, codex=codex)
     _merge_bridges(root, dry_run)
     _print_frozen_summary(root, dry_run)
 
@@ -1040,8 +1041,23 @@ _CODEX_REFUSED = (
     "[researchteam] Codex: agentteams #210 refuses to project narrow-grant agents unless write_policy is "
     "orchestrator-only for codex; set it in brief.json (\"write_policy\": \"orchestrator-only\", with "
     "\"codex\" in \"write_policy_frameworks\" and an explicit \"privilege_profile\": \"confined\"; see "
-    "docs/researchteam-framework.md, \"Codex is orchestrator-only\") and re-run. Nothing under .codex was changed."
+    "docs/researchteam-framework.md, \"Codex is orchestrator-only\") and re-run. A repository that keeps "
+    "Codex frozen for 1.0 (adopted agents; release policy section 5) re-runs with --no-codex instead. "
+    "Nothing under .codex was changed."
 )
+
+
+def _refresh_codex_unless_frozen(root: Path, dry_run: bool, codex: bool) -> None:
+    """``update``'s Codex step: ``_refresh_codex`` unless ``--no-codex`` froze the surface.
+
+    Release policy section 5 keeps Codex frozen for 1.0 in a repository whose roster includes adopted
+    (bespoke) agents; Codex interop comes as a 1.0.x backport. ``--no-codex`` skips the whole step (no
+    native render, no skills projection, no leftover warning) and says so once.
+    """
+    if not codex:
+        print("[researchteam] Codex: --no-codex; Codex surface left unchanged (.codex, .agents/skills).")
+        return
+    _refresh_codex(root, dry_run=dry_run)
 
 
 def _refresh_codex(root: Path, dry_run: bool) -> None:

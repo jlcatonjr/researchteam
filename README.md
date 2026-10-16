@@ -65,7 +65,7 @@ researchteam init [name] [--ref REF] [--remote URL]
 ### `update` options
 
 ```
-researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref REF] [--accept-upstream PATH]
+researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref REF] [--accept-upstream PATH] [--no-codex]
 ```
 
 - `--yes / -y` — skip interactive confirmation; required in CI
@@ -73,6 +73,7 @@ researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref R
 - `--layer2-only` — only sync layer-2 files; skip `agentteams --update --merge`
 - `--ref` — override the upstream ref (default: value in `.researchteam` marker)
 - `--accept-upstream PATH` — take upstream's part above `## Project-Specific Notes` of an `above-notes` file the repo customised (kept by default, also under `--yes`); repeatable
+- `--no-codex` — leave the Codex surface (`.codex`, `.agents/skills`) unchanged; for repositories that keep Codex frozen for 1.0 (adopted agents)
 
 ## Update Architecture
 
