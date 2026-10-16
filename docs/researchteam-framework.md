@@ -164,6 +164,21 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
   - **Log schema.** agentteams treats signing as active whenever a decisions log has a `signature`
     column, whatever the flag says.
 
+### Rosters across surfaces (known 1.0 limitation)
+
+The native renders (claude, goose, codex) pass `--project .`, so agentteams scans the repo and fills in
+whatever `brief.json` leaves out. The copilot-vscode render uses the descriptor alone. A field the brief
+omits can therefore give the surfaces different agent rosters. The two that matter:
+
+- `retrieval_integration` decides whether `@retrieval-integrator` exists. Declare it, or set
+  `{"mode": "none"}`.
+- `tools`: without it, the scan adds tool agents from dependency manifests such as `pyproject.toml`
+  and `package.json`.
+
+`researchteam update` warns when either is missing and a native surface is present. Declare both in
+`brief.json` to get one roster everywhere. 1.0.1 applies one scan rule to every surface (masterTeacher
+ticket 4.4).
+
 ### Decision signing: the first `materialize`
 
 `materialize` runs the gated `--overwrite` pass, so a new instance needs one operator-signed
