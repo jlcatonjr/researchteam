@@ -10,6 +10,10 @@ by `researchteam materialize`.
 Constraint-relaxing exceptions need an Ed25519 row minted with `agentteams --sign-decision`
 instead; this helper does not produce those.
 
+The key must be at least 32 bytes and not a placeholder (agentteams 1.0.0rc12 refuses anything else, and
+rows signed with a shorter key stop verifying). Generate one with:
+  python3 -c 'import secrets; print(secrets.token_hex(32))'
+
 Usage:
   export AGENTTEAMS_DECISION_SIGNING_KEY=...
   python scripts/sign_security_decision.py --action overwrite --conditions "first render"
@@ -27,6 +31,22 @@ from pathlib import Path
 
 LOG = Path(".github/agents/references/security-decisions.log.csv")
 REQUIRED = ("timestamp", "requesting_agent", "action_reviewed", "verdict", "conditions", "conditions_verified")
+
+
+MIN_KEY_BYTES = 32
+_PLACEHOLDERS = ("...", "changeme", "change-me", "secret", "placeholder", "xxx", "todo", "your-key", "<")
+
+
+def key_problem(key: str) -> str:
+    """Why an HMAC signing key is unusable, or "" (agentteams 1.0.0rc12: >= 32 bytes, not a placeholder)."""
+    if not key:
+        return "is not set in this shell"
+    low = key.strip().lower()
+    if any(low == p or low.startswith(p) for p in _PLACEHOLDERS) or len(set(low)) <= 2:
+        return "looks like a placeholder"
+    if len(key.encode("utf-8")) < MIN_KEY_BYTES:
+        return f"is shorter than {MIN_KEY_BYTES} bytes"
+    return ""
 
 
 def write_atomic(path: Path, fields: list[str], rows: list[dict[str, str]]) -> None:
@@ -51,8 +71,10 @@ def main() -> int:
     ap.add_argument("--log", type=Path, default=LOG)
     args = ap.parse_args()
 
-    if not os.environ.get("AGENTTEAMS_DECISION_SIGNING_KEY"):
-        print("AGENTTEAMS_DECISION_SIGNING_KEY is not set in this shell — refusing.", file=sys.stderr)
+    why = key_problem(os.environ.get("AGENTTEAMS_DECISION_SIGNING_KEY", ""))
+    if why:
+        print(f"AGENTTEAMS_DECISION_SIGNING_KEY {why} — refusing. Generate one with: "
+              "python3 -c 'import secrets; print(secrets.token_hex(32))'", file=sys.stderr)
         return 1
     try:
         from agentteams.cli.decision_log import sign_decision_row
