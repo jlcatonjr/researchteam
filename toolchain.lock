@@ -4,3 +4,4 @@
 # and scripts/check_toolchain.py (SessionStart hook, researchteam doctor). Bump only after a green sync.
 researchteam=jlcatonjr/researchteam@632d02a1253a01005a022114dd21af32f04e4874
 agentteams=jlcatonjr/agentteams@69fe9447ae80bed6652586323d81672a1a8a8757
+agentteams.tag=v1.0.0-rc.12

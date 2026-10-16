@@ -168,11 +168,10 @@ def comparable_body(text: str) -> str:
 
 def pinned_ref(root: Path) -> tuple[str, str]:
     """The researchteam commit to compare against: toolchain.lock's pin, else the marker ref, else main."""
-    lock = root / "toolchain.lock"
-    if lock.exists():
-        for line in lock.read_text(encoding="utf-8").splitlines():
-            if line.startswith("researchteam=") and "@" in line:
-                return line.rsplit("@", 1)[1].strip(), "toolchain.lock pin"
+    from ._release import read_lock_pin
+    pin = read_lock_pin(root, "researchteam")
+    if pin and pin[1]:
+        return pin[1], "toolchain.lock pin"
     marker = None
     try:
         m = re.search(r"^ref\s*=\s*(\S+)", (root / ".researchteam").read_text(encoding="utf-8"), re.M)
