@@ -28,7 +28,8 @@ REPORT_STEM = "agentteams-shrink-report"
 STATE_FILE = "tmp/frozen-fences.state.json"
 INTENTIONAL_FILE = ".github/agents/references/intentional-pins.json"
 BRIDGES_DIR = "references/bridges"
-_NOTES_HEADING = re.compile(r"^## Project-Specific Notes\s*$", re.M)
+# The one Notes-heading rule for drift and above-notes alike; tolerates trailing blanks and CRLF.
+NOTES_HEADING_RE = re.compile(r"^## Project-Specific Notes[ \t]*\r?$", re.M)
 _CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
 # A ref we will put in a raw.githubusercontent.com URL: a commit, or a plain branch/tag name.
 SAFE_REF = re.compile(r"^(?:[0-9a-f]{7,40}|[A-Za-z0-9][A-Za-z0-9._/-]{0,99})$")
@@ -161,7 +162,7 @@ def age_days(since: str, today: _dt.date | None = None) -> int | None:
 
 def comparable_body(text: str) -> str:
     """A seeded file's upstream-owned part: everything before its ``## Project-Specific Notes``."""
-    m = _NOTES_HEADING.search(text)
+    m = NOTES_HEADING_RE.search(text)
     return (text[:m.start()] if m else text).rstrip()
 
 

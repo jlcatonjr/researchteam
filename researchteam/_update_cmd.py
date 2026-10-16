@@ -19,7 +19,7 @@ from ._manifest import (
     UPSTREAM_REPO,
     managed_files_for,
 )
-from ._drift import SAFE_REF, clean, comparable_body, pinned_ref
+from ._drift import NOTES_HEADING_RE, SAFE_REF, clean, comparable_body, pinned_ref
 from ._fetch import fetch_raw
 
 
@@ -56,12 +56,9 @@ def _fence_body(managed_block: str) -> str:
     return "".join(lines[1:-1])
 
 
-_NOTES_HEADING_RE = re.compile(r"^## Project-Specific Notes[ \t]*$", re.M)
-
-
 def _split_above_notes(text: str) -> tuple[str, str] | None:
     """``(upstream-owned head, repo-owned tail)`` split at the Notes heading, or None without one."""
-    m = _NOTES_HEADING_RE.search(text)
+    m = NOTES_HEADING_RE.search(text)
     return (text[:m.start()], text[m.start():]) if m else None
 
 
