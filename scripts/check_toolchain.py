@@ -17,6 +17,10 @@ Lock format (one pin per line, ``#`` comments allowed)::
     researchteam=jlcatonjr/researchteam@<40-hex sha>
     agentteams=jlcatonjr/agentteams@<40-hex sha>
 
+When the repository's own ``pyproject.toml`` installs agentteams from git (researchteam's ``update`` /
+``research`` extras), each such ref must name the same commit as the agentteams pin (release policy §3);
+a bare or different ref is a problem like a mismatched install.
+
 Exit 0 always (advisory), unless --strict, which exits 1 when a pin does not match.
 ``--write-lock`` exits 1 if either package has no recorded commit or comes from a dirty checkout.
 Stdlib only.
@@ -70,6 +74,28 @@ def pin_problem(name, repo, sha):
     if not _SHA.match(sha):
         return f"toolchain.lock pins {name} to {sha or '(none)'!r}, not a 40-hex commit"
     return ""
+
+
+_EXTRA_DEP = re.compile(r'"agentteams(?:\[[^\]]*\])?\s*@\s*git\+https://github\.com/([^/"\s]+/[^@"\s]+?)'
+                        r'(?:\.git)?(?:@([^"#\s]+))?"')
+
+
+def extras_problems(pins, pyproject=None):
+    """Each git-installed agentteams requirement in pyproject.toml that does not name the lock's commit."""
+    pyproject = pyproject or os.path.join(os.path.dirname(LOCK), "pyproject.toml")  # the lock's own repo
+    try:
+        with open(pyproject, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return []
+    repo, pin = pins.get("agentteams", ("", ""))
+    out = []
+    for m in _EXTRA_DEP.finditer(text):
+        dep_repo, ref = m.group(1), m.group(2) or ""
+        if dep_repo != repo or ref != pin:
+            out.append(f"pyproject.toml installs agentteams from {dep_repo}@{ref or '(no ref: main)'}, "
+                       f"but toolchain.lock pins {repo}@{pin[:7]}; pin the extra to the same commit")
+    return out
 
 
 def write_lock(commits, path=None):
@@ -253,6 +279,9 @@ def main(argv=None):
         print("[toolchain] no toolchain.lock yet; the next AgentTeams Autosync writes one "
               "(nothing to compare against)")
         return 0
+    extras = extras_problems(pins)
+    for e in extras:
+        print(f"[toolchain] MISMATCH: {e}")
     if not py:
         print(f"[toolchain] researchteam/agentteams not installed for this repo — {fix}")
         return 1 if a.strict else 0
@@ -284,11 +313,13 @@ def main(argv=None):
                 notes.append(f"{name}: upstream main is {head[:7]}, newer than the pin {pin[:7]} — "
                              "the next AgentTeams Autosync PR moves the pin")
 
+    problems += extras
     if not problems and not notes:
         print(f"[toolchain] OK: researchteam and agentteams match toolchain.lock ({py})")
         return 0
     for p in problems:
-        print(f"[toolchain] BEHIND: {p}")
+        if p not in extras:
+            print(f"[toolchain] BEHIND: {p}")
     for n in notes:
         print(f"[toolchain] note: {n}")
     if problems:

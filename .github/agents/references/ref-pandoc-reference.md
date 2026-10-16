@@ -15,8 +15,6 @@ Consult the official Pandoc documentation at: {MANUAL:TOOL_DOCS_URL}
 
 Verify CLI flags, configuration options, and rule/plugin behavior against this documentation.
 
-## Key API Surface
-
 <!-- AGENTTEAMS:BEGIN key_api_surface v=1 -->
 ## Key API Surface
 <!-- AGENTTEAMS:END key_api_surface -->
@@ -62,14 +60,6 @@ Before any configuration change:
 2. Capture stdout and stderr
 3. Check exit code — non-zero exit indicates findings or errors
 4. Parse output to identify actionable items vs informational messages
-
-## Output Interpretation
-
-After every execution:
-- Categorise findings by severity (error, warning, info)
-- Identify auto-fixable issues vs those requiring manual intervention
-- For auto-fixable issues, apply the fix and re-run to verify
-- Report remaining issues with file paths and line numbers
 
 ## Integration
 
