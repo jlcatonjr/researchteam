@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-16",
+  "requesting_agent": "operator",
+  "date": "2026-10-16",
+  "action_reviewed": "codex-orchestrator-only-native-render",
+  "verdict": "PASS",
+  "scope": ".codex/agents: replace the interop projection of .github/agents with the native Codex render under write_policy orchestrator-only (brief.json: write_policy, write_policy_frameworks [codex], privilege_profile confined)",
+  "conditions": "Release policy section 5 (1.0): Codex and Codex AGENTS.md are orchestrator-only in every repository; --interop-allow-cooperative is not used; Codex runs only through .codex/confined-run.example.sh; .agents/skills keeps the --interop-skills-only projection",
+  "conditions_verified": "agentteams f0dcdc85 (1.0.0rc10): interop_grant_check refuses narrow-grant agents on codex outside the role gate; --interop-skills-only returns before that check; write_policy.resolve(brief, codex) == orchestrator-only",
+  "evidence": "agentteams #210; researchteam PR fix/codex-orchestrator-only-210",
+  "author": "operator",
+  "derives_from": "agentteams#210; release-policy-1.0 section 5",
+  "effect_grants": "",
+  "effect_targets": ".codex/agents; .codex/hooks.json; .codex/confined-run.example.sh; .agentteams/bin/codex-role-gate.py",
+  "effect_relaxes": "",
+  "effect_destructive": "true",
+  "effect_cross_repo": "false",
+  "effect_bulk": "true",
+  "key_id": "op-2026"
+}

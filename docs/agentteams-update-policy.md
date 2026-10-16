@@ -33,8 +33,10 @@ had stayed at `61849fb`. What changed, for a consumer of this framework:
    - `content-enricher`
 
    Each released section's old body is in a `.lost` sidecar under `.agentteams-backups/`.
-3. **Codex.** Natively rendered Codex agent bodies are now fenced, so merges refresh them. This
-   repository's Codex surface is an interop projection from `.github` and is unaffected.
+3. **Codex.** Natively rendered Codex agent bodies are now fenced, so merges refresh them. Since
+   agentteams #210, Codex is no longer projected from `.github`. It is rendered natively under
+   `write_policy: orchestrator-only`, or refused (see *Codex is orchestrator-only* in
+   `researchteam-framework.md`).
 
 **Previously recorded:** `61849fb` (2026-08-15); before that, `c6a9cf6` (2026-08-07). This section's own narrative had lagged that
 ref since the day it landed — itself a symptom of what this update fixes: the weekly autosync
