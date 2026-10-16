@@ -290,3 +290,17 @@ def test_cli_fails_closed_on_an_unverifiable_locked_ref(tmp_path, monkeypatch):
     monkeypatch.setattr(rel, "verify_tag", boom)
     with pytest.raises(SystemExit, match="Layer-2 sync refused"):
         cli._release_locked_ref(tmp_path)
+
+
+@pytest.mark.parametrize("lock", [
+    f"researchteam={RT}@{A}\nagentteams={AT}@{B}\n",
+    f"# header\nresearchteam={RT}@{A}\nresearchteam.tag=v1.0.0-rc.1\nagentteams={AT}@{B}\nagentteams.tag=v1.0.0-rc.11\n",
+])
+def test_script_and_package_read_the_lock_alike(tmp_path, lock):
+    """scripts/check_toolchain.py (stdlib, runs before researchteam is installed) and the package agree."""
+    from researchteam import _drift
+    (tmp_path / "toolchain.lock").write_text(lock)
+    pins, tags = ct.read_lock(str(tmp_path / "toolchain.lock")), ct.read_tags(str(tmp_path / "toolchain.lock"))
+    for name in ("researchteam", "agentteams"):
+        assert rel.read_lock_pin(tmp_path, name) == (*pins[name], tags.get(name))
+    assert _drift.pinned_ref(tmp_path) == (A, "toolchain.lock pin")

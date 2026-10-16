@@ -5,7 +5,7 @@
 
 - Modules mapped: **12**
 - Packages: **1**
-- Internal import edges: **21**
+- Internal import edges: **22**
 - Distinct external dependencies: **0**
 
 ---
@@ -41,13 +41,13 @@ Every module, coloured by package (full adjacency in the table below).
 | `researchteam` | — | `researchteam.cli` |
 | `researchteam._agentteams_provenance` | — | `researchteam._update_cmd` |
 | `researchteam._doctor_cmd` | `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._update_cmd` | `researchteam.cli` |
-| `researchteam._drift` | — | `researchteam._doctor_cmd`, `researchteam._update_cmd` |
+| `researchteam._drift` | `researchteam._release` | `researchteam._doctor_cmd`, `researchteam._update_cmd` |
 | `researchteam._fetch` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._notes` | — | `researchteam._update_cmd` |
 | `researchteam._personalize` | `researchteam._manifest` | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
-| `researchteam._release` | — | `researchteam.cli` |
+| `researchteam._release` | — | `researchteam._drift`, `researchteam.cli` |
 | `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._notes`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
 | `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd` | — |
 
@@ -126,7 +126,9 @@ digraph "researchteam architecture" {
       "package": "researchteam",
       "path": "researchteam/_drift.py",
       "is_package": false,
-      "imports_internal": [],
+      "imports_internal": [
+        "researchteam._release"
+      ],
       "external": [],
       "repo_local": []
     },
@@ -233,6 +235,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam._doctor_cmd",
       "target": "researchteam._update_cmd"
+    },
+    {
+      "source": "researchteam._drift",
+      "target": "researchteam._release"
     },
     {
       "source": "researchteam._init_cmd",
