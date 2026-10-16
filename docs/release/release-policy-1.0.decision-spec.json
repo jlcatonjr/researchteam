@@ -1,7 +1,7 @@
 {
   "timestamp": "2026-10-16",
   "date": "2026-10-16",
-  "requesting_agent": "operator",
+  "requesting_agent": "security",
   "author": "operator",
   "key_id": "op-2026",
   "action_reviewed": "release-policy-1.0",
