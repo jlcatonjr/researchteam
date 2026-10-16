@@ -1,0 +1,22 @@
+# Release trust paths (shared v1.0.0 release policy §2-§4). A change here moves a pin, changes how tags are
+# verified, or touches a trust root, so the operator reviews it. Advisory until branch protection requires
+# code-owner review.
+
+# Pins: what bootstrap installs and which release line the gate follows (`<name>.tag=` lines)
+/toolchain.lock                                           @jlcatonjr
+/pyproject.toml                                           @jlcatonjr
+
+# Tag verification and the gate that acts on it
+/researchteam/_release.py                                 @jlcatonjr
+/scripts/check_toolchain.py                               @jlcatonjr
+/scripts/agentteams_autosync_gate.sh                      @jlcatonjr
+/.github/workflows/                                       @jlcatonjr
+
+# Signed decisions and the keys that verify them
+/docs/release/                                            @jlcatonjr
+/.github/agents/references/security-decisions.log.csv     @jlcatonjr
+/.github/agents/references/authorized-verify-keys/        @jlcatonjr
+/.codex/agents/references/authorized-verify-keys/         @jlcatonjr
+
+# The file that lists the owners
+/.github/CODEOWNERS                                       @jlcatonjr
