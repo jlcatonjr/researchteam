@@ -12,8 +12,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-from ._drift import pinned_ref
-
 _EPHEMERAL_MARKERS = ("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")
 
 
@@ -248,14 +246,14 @@ def _check_frozen_fences(root: Path, ok, warn) -> None:
 
 def _check_seeded_files(root: Path, ok, warn) -> None:
     """Seeded-but-unsynced files whose upstream-owned part differs from upstream at the pinned commit."""
-    from ._drift import SAFE_REF, clean, comparable_body
+    from ._drift import SAFE_REF, clean, comparable_body, pinned_ref
     from ._fetch import fetch_raw
     from ._manifest import SEEDED_FILES, UPSTREAM_REPO
 
     if not SEEDED_FILES:
         ok("seeded files: none (every file init seeds is now managed or project-owned).")
         return
-    ref, how = _upstream_ref(root)
+    ref, how = pinned_ref(root)
     if not SAFE_REF.match(ref):
         warn(f"seeded files: not checked; the upstream ref {clean(ref)!r} ({how}) is not a plain commit or name")
         return
@@ -279,7 +277,6 @@ def _check_seeded_files(root: Path, ok, warn) -> None:
 
 
 # Shared with `update` (the above-notes customisation check); kept under this name for callers.
-_upstream_ref = pinned_ref
 
 
 def _check_bridges(root: Path, ok, warn, fail=None) -> None:

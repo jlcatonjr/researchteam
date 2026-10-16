@@ -181,9 +181,17 @@ def test_seeded_file_drift_against_the_pinned_ref(tmp_path, monkeypatch):
 
 
 def test_upstream_ref_falls_back_to_marker_then_main(tmp_path):
-    assert _doctor_cmd._upstream_ref(tmp_path) == ("main", "main")
+    assert _drift.pinned_ref(tmp_path) == ("main", "main")
     (tmp_path / ".researchteam").write_text("[researchteam]\nref = v0.3.0\n")
-    assert _doctor_cmd._upstream_ref(tmp_path) == ("v0.3.0", "marker ref")
+    assert _drift.pinned_ref(tmp_path) == ("v0.3.0", "marker ref")
+
+
+@pytest.mark.parametrize("eol", ["\n", "\r\n"])
+def test_drift_and_above_notes_split_at_the_same_heading(eol):
+    text = eol.join(["---", "name: x", "---", "body", "", "## Project-Specific Notes  ", "", "ours", ""])
+    head, tail = _update_cmd._split_above_notes(text)
+    assert tail.startswith("## Project-Specific Notes")
+    assert _drift.comparable_body(text) == head.rstrip()
 
 
 @pytest.mark.parametrize("text, expect", [
