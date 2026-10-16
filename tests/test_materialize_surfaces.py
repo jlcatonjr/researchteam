@@ -155,3 +155,18 @@ def test_update_layer1_refreshes_codex_after_the_merge(tmp_path, calls):
     codex = [c for c in merge if "codex" in c]
     assert codex and calls.index(codex[0]) > calls.index(merge[0])
     assert not any("--interop-from" in c for c in calls)
+
+
+def test_codex_leftovers_are_named_not_deleted(tmp_path, capsys):
+    agents = tmp_path / ".codex" / "agents"
+    (agents / "references").mkdir(parents=True)
+    for name in ("orchestrator.toml", "navigator.toml", "tool-pandoc.toml"):
+        (agents / name).write_text("name = 'x'\n")
+    log = agents / "references" / "build-log.json"
+    log.write_text(json.dumps({"origin": "interop", "file_hashes": {"orchestrator.toml": "x"}}))
+    assert _update_cmd._warn_codex_leftovers(tmp_path) == []  # a projection's record: no comparison
+    log.write_text(json.dumps({"file_hashes": {"orchestrator.toml": "a", "navigator.toml": "b",
+                                               "../../.agents/skills/tool-pandoc/SKILL.md": "c"}}))
+    assert _update_cmd._warn_codex_leftovers(tmp_path) == ["tool-pandoc.toml"]
+    assert "tool-pandoc.toml" in capsys.readouterr().err
+    assert (agents / "tool-pandoc.toml").exists()
