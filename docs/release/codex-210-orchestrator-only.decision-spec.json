@@ -9,7 +9,7 @@
   "conditions_verified": "agentteams f0dcdc85 (1.0.0rc10): interop_grant_check refuses narrow-grant agents on codex outside the role gate; --interop-skills-only returns before that check; write_policy.resolve(brief, codex) == orchestrator-only",
   "evidence": "agentteams #210; researchteam PR fix/codex-orchestrator-only-210",
   "author": "operator",
-  "derives_from": "agentteams#210; release-policy-1.0 section 5",
+  "derives_from": "release-policy-1.0",
   "effect_grants": "",
   "effect_targets": ".codex/agents; .codex/hooks.json; .codex/confined-run.example.sh; .agentteams/bin/codex-role-gate.py",
   "effect_relaxes": "",

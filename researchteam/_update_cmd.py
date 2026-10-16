@@ -972,8 +972,9 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
     agentteams applies the narrowing (read-only agents, proposals, role gate). Otherwise nothing runs:
     agentteams #210 refuses to project the canonical team's narrow-grant agents onto Codex outside its
     role gate, and the cooperative opt-in (``--interop-allow-cooperative``) is not part of 1.0. A dry
-    run reports that and returns; a real run exits non-zero. Skills are still projected
-    (``.claude/skills`` -> ``.agents/skills``): ``--interop-skills-only`` returns before #210's check.
+    run reports that and returns; a real run exits non-zero, projecting nothing. Under the switch,
+    skills are projected too (``.claude/skills`` -> ``.agents/skills``): ``--interop-skills-only``
+    returns before #210's check.
     """
     if not (root / ".codex" / "agents").is_dir():
         return
