@@ -1,10 +1,12 @@
 [build-system]
-requires = ["setuptools>=68"]
+# The version comes from git tags (setuptools-scm). Build requirements are exact pins vetted for S-10 on
+# 2026-10-16 (docs/release/build-requirements-2026-10-16.md): no OSV advisories, all >= 14 days old.
+requires = ["setuptools==84.0.0", "setuptools-scm==10.3.4", "vcs-versioning==2.5.0", "packaging==26.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "researchteam"
-version = "0.2.0"
+dynamic = ["version"]
 description = "Agent-based research workflow framework with auto-updating infrastructure"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,3 +37,11 @@ include = ["researchteam*"]
 
 [tool.setuptools.package-data]
 researchteam = ["scaffold/*"]
+
+[tool.setuptools_scm]
+# Only release tags (vX.Y.Z, vX.Y.Z-rc.N) count: backup/* and pre-* safety tags must never become a version.
+# v1.0.0-rc.1 -> 1.0.0rc1. Between tags: the next version as a .devN with the commit (guess-next-dev).
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+(?:-rc\\.\\d+)?)$"
+git_describe_command = ["git", "describe", "--dirty", "--tags", "--long", "--match", "v[0-9]*"]
+# A GitHub source archive has no .git; .git_archival.txt (export-subst) carries the ref instead.
+fallback_version = "0.0.0+unknown"
