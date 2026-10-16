@@ -63,8 +63,8 @@ else
     url="$name @ git+https://github.com/${pin%@*}@${pin#*@}"
     echo "[bootstrap] $name @ ${pin#*@}"
     # 1) dependencies (a no-op once present); 2) the pinned commit itself. pip treats a same-version
-    # package as already satisfied, so without --force-reinstall a lock bump within one version
-    # (researchteam stays 0.2.0 across commits) would silently keep the old commit.
+    # package as already satisfied, so without --force-reinstall a lock bump between two commits with
+    # the same version (e.g. an agentteams RC string, or an older researchteam) would keep the old commit.
     "$VENV/bin/python" -m pip install -q "$url"
     "$VENV/bin/python" -m pip install -q --force-reinstall --no-deps "$url"
   done
