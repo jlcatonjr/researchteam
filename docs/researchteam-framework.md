@@ -53,7 +53,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
-| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then the Codex projection. |
+| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise). |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
@@ -200,9 +200,8 @@ All surfaces are rendered from the same reconciled descriptor, so they share one
 surface's gate reads that surface's own decisions log, so each needs its own clearance.
 `--copilot-only` restores the single-surface render. `--adopt-orphans` keeps bespoke agents (files with no agentteams template) in every
 surface's roster. agentteams does not persist adoption, so pass it on every render. When the
-instance has a Codex surface (`.codex/agents`), `materialize` then re-projects the Codex agents
-(from `.github/agents`) and the Codex skills (`.claude/skills` -> `.agents/skills`); `--no-codex`
-skips this. While `enforce_decision_signing` is `true`, each
+instance has a Codex surface (`.codex/agents`), `materialize` then refreshes Codex (see *Codex is
+orchestrator-only* below); `--no-codex` skips this. While `enforce_decision_signing` is `true`, each
 surface's overwrite pass needs a signed clearance (see *Decision signing* above).
 
 The overwrite carries every user-editable `## Project-Specific Notes` (agents) and
@@ -215,6 +214,33 @@ that shadows the installed copy is refused. A VCS install pinned to a merged com
 extra) always passes; a local-folder snapshot (no commit recorded) is refused unless
 `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. `researchteam doctor` does not
 run this check.
+
+### Codex is orchestrator-only
+
+Release policy section 5 makes Codex (and Codex `AGENTS.md`) orchestrator-only in every repository
+for 1.0. Since agentteams #210 (1.0.0rc10), agentteams refuses to project narrow-grant agents onto
+Codex outside its role gate, and the cooperative opt-in (`--interop-allow-cooperative`) is not part
+of 1.0. So when `.codex/agents` exists, `update` and `materialize` handle Codex as follows:
+
+- **Covered:** the brief turns the switch on for codex. Codex is rendered natively from the brief
+  (`--framework codex --materialize-native`), with read-only agents, proposals and the role gate.
+  The Claude skills are still projected into `.agents/skills` with `--interop-skills-only`, which
+  #210 does not check.
+- **Not covered:** nothing runs and the command exits non-zero, with nothing under `.codex`
+  changed. `--dry-run` prints the same message and continues.
+
+To cover codex, set these keys in `brief.json`:
+
+```json
+"write_policy": "orchestrator-only",
+"write_policy_frameworks": ["codex"],
+"privilege_profile": "confined"
+```
+
+agentteams requires the explicit `privilege_profile` (`confined` or `exclusive`). The switch holds
+only when Codex is launched through `.codex/confined-run.example.sh` (Linux or macOS). An explicit
+`privilege_profile` also flips Claude's constitutional-gate hook to fail-closed on the next Claude
+render.
 
 ## Drift report
 
@@ -254,9 +280,8 @@ it:
   covers: `write_policy_frameworks`, or claude, goose and codex when that field is unset. The
   native surface is authoritative there, and a bridge would re-create agents that keep dispatch and
   write tools. **Changes still propagate:** covered Claude and Goose teams are re-rendered natively from
-  the brief on every `update` (merge mode), and when the switch covers codex, Codex is rendered
-  natively too instead of being projected from `.github/agents`. Claude skills are still projected
-  into `.agents/skills`. If a covered framework has no native team yet, `update` warns that changes
+  the brief on every `update` (merge mode), and Codex is rendered natively (see *Codex is
+  orchestrator-only*). Claude skills are still projected into `.agents/skills`. If a covered framework has no native team yet, `update` warns that changes
   no longer reach it; create one with `researchteam materialize`. The switch is read from `brief.json`, falling back to
   `_build-description.json`. `update` lists the bridge agents still present in covered frameworks.
   `doctor --drift` **fails** on them, because the pilot's guarantee doesn't hold until they are

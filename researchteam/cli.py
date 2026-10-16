@@ -132,7 +132,7 @@ def main() -> None:
     materialize_p.add_argument(
         "--no-codex",
         action="store_true",
-        help="Skip re-projecting the Codex surface (.codex/agents, .agents/skills) after rendering",
+        help="Skip refreshing the Codex surface (.codex/agents, .agents/skills) after rendering",
     )
     materialize_p.add_argument(
         "--yes", "-y",
