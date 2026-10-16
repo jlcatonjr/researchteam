@@ -83,7 +83,7 @@ def read_tags(path=None):
     with open(path, encoding="utf-8") as f:
         for line in f:
             name, sep, tag = line.strip().partition(".tag=")
-            if sep and name in PACKAGES and not name.startswith("#"):
+            if sep and name in PACKAGES:
                 tags[name] = tag.strip()
     return tags
 

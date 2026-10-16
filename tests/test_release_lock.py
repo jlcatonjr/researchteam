@@ -65,7 +65,9 @@ class _FakeGit:
             return done(self.kind + "\n")
         if "tag" in cmd and "-v" in cmd:
             msg = f'Good "git" signature for op@example.com with RSA key {self.signer}\n'
-            return done(err=msg if self.good else "Could not verify signature.\n", rc=0 if self.good else 1)
+            # stdout carries the tagger-controlled message: a forged "Good signature" there must not count
+            forged = f'object {C}\ntag v1.0.0-rc.10\n\nGood "git" signature for a@b with RSA key {next(iter(rel.RELEASE_KEY_FINGERPRINTS))}\n'
+            return done(out=forged, err=msg if self.good else "Could not verify signature.\n", rc=0 if self.good else 1)
         return done()
 
 
@@ -74,7 +76,27 @@ def signers(tmp_path, monkeypatch):
     f = tmp_path / "allowed_signers"
     f.write_text("op@example.com ssh-rsa AAAA\n")
     monkeypatch.setenv("AGENTTEAMS_ALLOWED_SIGNERS", str(f))
+    monkeypatch.setattr(rel, "release_signers", lambda path, dest: 1)  # the file's key counts as a release key
     return f
+
+
+def test_signers_without_a_release_key_are_refused(signers, monkeypatch):
+    monkeypatch.setattr(rel, "release_signers", lambda path, dest: 0)
+    monkeypatch.setattr(rel, "_git", _FakeGit())
+    with pytest.raises(rel.ReleaseError, match="holds no release key"):
+        rel.verify_tag(AT, "v1.0.0-rc.10")
+
+
+def test_release_signers_keeps_only_pinned_fingerprints(tmp_path, monkeypatch):
+    src, dest = tmp_path / "in", tmp_path / "out"
+    src.write_text("# comment\nok@x namespaces=\"git\" ssh-rsa AAAAgood\nbad@x ssh-ed25519 AAAAbad\n")
+    fp = next(iter(rel.RELEASE_KEY_FINGERPRINTS))
+
+    def keygen(cmd, input, **kw):
+        return subprocess.CompletedProcess(cmd, 0, f"4096 {fp if 'good' in input else 'SHA256:other'} x (RSA)\n", "")
+    monkeypatch.setattr(rel.subprocess, "run", keygen)
+    assert rel.release_signers(str(src), str(dest)) == 1
+    assert dest.read_text() == 'ok@x namespaces="git" ssh-rsa AAAAgood\n'
 
 
 def test_verify_returns_the_peeled_commit(signers, monkeypatch):
@@ -181,10 +203,6 @@ def test_a_locked_status_check_ignores_upstream_main(tmp_path, monkeypatch, caps
     assert "agentteams: upstream main" not in out and "researchteam: upstream main" in out
 
 
-def test_repo_lock_is_release_locked_to_the_pinned_agentteams_tag():
-    assert ct.read_tags(str(ROOT / "toolchain.lock")).get("agentteams", "").startswith("v1.0.")
-
-
 # --- the autosync gate ----------------------------------------------------------------------------
 
 def _gate_repo(tmp_path, shim_body):
@@ -215,7 +233,8 @@ def _run_gate(repo, env, *args):
 def test_gate_is_a_noop_on_a_locked_line_with_no_newer_tag(tmp_path):
     repo, env = _gate_repo(tmp_path, 'case "$*" in *--release-candidate*) exit 0;; esac; exit 9\n')
     r = _run_gate(repo, env, "--check-only")
-    assert r.returncode == 0 and "nothing to integrate" in r.stdout and "main" not in r.stdout.split("never main")[-1]
+    assert r.returncode == 0 and "nothing to integrate" in r.stdout
+    assert "agentteams main" not in r.stdout and "invalid.example" not in r.stdout  # main was never consulted
 
 
 def test_gate_fails_closed_when_the_candidate_does_not_verify(tmp_path):

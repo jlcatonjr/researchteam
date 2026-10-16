@@ -233,6 +233,11 @@ if printf '%s\n' "$staged" | grep -qx 'toolchain.lock'; then
   if [ "$(git show HEAD:toolchain.lock 2>/dev/null | lock_repos)" != "$(lock_repos < toolchain.lock)" ]; then
     sensitive="$(printf '%s\n%s\n' "$sensitive" "toolchain.lock (pinned repository changed)" | sed '/^$/d')"
   fi
+  # A release tag decides which line the next run follows; dropping or rewinding one is a trust change.
+  lock_tag_lines() { grep -E '^(researchteam|agentteams)\.tag=' | sort; }
+  if [ "$(git show HEAD:toolchain.lock 2>/dev/null | lock_tag_lines)" != "$(lock_tag_lines < toolchain.lock)" ]; then
+    sensitive="$(printf '%s\n%s\n' "$sensitive" "toolchain.lock (release tag changed)" | sed '/^$/d')"
+  fi
 fi
 if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false"; fi
 {

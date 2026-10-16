@@ -31,6 +31,8 @@ RELEASE_KEY_FINGERPRINTS = frozenset({"SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qx
 DEFAULT_ALLOWED_SIGNERS = os.path.join("~", ".config", "agentteams", "allowed_signers")
 TAG_RE = re.compile(r"^v(\d+)\.(\d+)\.(\d+)(?:-rc\.(\d+))?$")
 _SHA = re.compile(r"^[0-9a-f]{40}$")
+# Read from `git tag -v` STDERR only, whole line: stdout carries the tag message, which the tagger controls.
+_GOOD_SIG = re.compile(r'^Good "git" signature for \S+ with \S+ key (SHA256:[A-Za-z0-9+/=]+)$', re.M)
 # Never let a checkout-configured hook, monitor or signing program run while verifying.
 _NEUTRAL = ["-c", "core.hooksPath=/dev/null", "-c", "core.fsmonitor=false", "-c", "gpg.format=ssh",
             "-c", "gpg.ssh.program=ssh-keygen"]
@@ -61,12 +63,39 @@ def allowed_signers_path() -> str:
 
 def _git(args: list[str], cwd: str | None = None, timeout: int = 60) -> subprocess.CompletedProcess:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
-    env["GIT_TERMINAL_PROMPT"] = "0"
+    # No user or system config either: a url.*.insteadOf there would redirect fetch and ls-remote alike.
+    env.update(GIT_TERMINAL_PROMPT="0", GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM="1")
     try:
         return subprocess.run(["git", *_NEUTRAL, *args], cwd=cwd, capture_output=True, text=True,
                               timeout=timeout, env=env)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise ReleaseError(f"git {args[0]} failed: {exc}") from exc
+
+
+def release_signers(path: str, dest: str) -> int:
+    """Copy into ``dest`` only the ``allowed_signers`` lines whose key is a release key; return the count.
+
+    The file the environment names is then never trusted beyond the pinned fingerprints.
+    """
+    kept = []
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            if not line.strip() or line.lstrip().startswith("#"):
+                continue
+            key = re.search(r"((?:ssh|ecdsa|sk)-[\w@.-]+\s+[A-Za-z0-9+/=]+)", line)
+            if not key:
+                continue
+            try:
+                r = subprocess.run(["ssh-keygen", "-lf", "-"], input=key.group(1) + "\n", capture_output=True,
+                                   text=True, timeout=10)
+            except (OSError, subprocess.TimeoutExpired):
+                continue
+            fields = r.stdout.split()
+            if r.returncode == 0 and len(fields) > 1 and fields[1] in RELEASE_KEY_FINGERPRINTS:
+                kept.append(line if line.endswith("\n") else line + "\n")
+    with open(dest, "w", encoding="utf-8") as f:
+        f.writelines(kept)
+    return len(kept)
 
 
 def remote_tags(repo: str) -> dict[str, str]:
@@ -107,16 +136,25 @@ def verify_tag(repo: str, tag: str) -> tuple[str, str]:
             r = _git(args, timeout=300)
             if r.returncode != 0:
                 raise ReleaseError(f"cannot fetch {repo} {tag}: {r.stderr.strip() or r.returncode}")
-        obj = _git(["-C", tmp, "rev-parse", f"refs/tags/{tag}"]).stdout.strip()
-        if _git(["-C", tmp, "cat-file", "-t", obj]).stdout.strip() != "tag":
+        r = _git(["-C", tmp, "rev-parse", f"refs/tags/{tag}"])
+        obj = r.stdout.strip()
+        if r.returncode != 0 or not _SHA.match(obj):
+            raise ReleaseError(f"cannot resolve the fetched tag {tag}")
+        kind = _git(["-C", tmp, "cat-file", "-t", obj])
+        if kind.returncode != 0:
+            raise ReleaseError(f"cannot read the fetched tag object of {tag}")
+        if kind.stdout.strip() != "tag":
             raise ReleaseError(f"{tag} is a lightweight tag; a release tag is annotated and signed")
         if obj != advertised:
             raise ReleaseError(f"{tag}: fetched tag object {obj[:12]} differs from advertised {advertised[:12]}")
-        r = _git(["-c", f"gpg.ssh.allowedSignersFile={signers}", "-C", tmp, "tag", "-v", tag])
-        out = r.stdout + r.stderr
-        if r.returncode != 0 or 'Good "git" signature' not in out:
-            raise ReleaseError(f"{tag}: signature does not verify against {signers}")
-        if not any(fp in out for fp in RELEASE_KEY_FINGERPRINTS):
+        trusted = os.path.join(tmp, "release_signers")
+        if not release_signers(signers, trusted):
+            raise ReleaseError(f"{signers} holds no release key ({', '.join(sorted(RELEASE_KEY_FINGERPRINTS))})")
+        r = _git(["-c", f"gpg.ssh.allowedSignersFile={trusted}", "-C", tmp, "tag", "-v", tag])
+        good = _GOOD_SIG.findall(r.stderr)
+        if r.returncode != 0 or not good:
+            raise ReleaseError(f"{tag}: signature does not verify against the release keys in {signers}")
+        if any(fp not in RELEASE_KEY_FINGERPRINTS for fp in good):
             raise ReleaseError(f"{tag}: signed by a key that is not a release key")
         peeled = _git(["-C", tmp, "rev-parse", f"refs/tags/{tag}^{{commit}}"]).stdout.strip()
     if not _SHA.match(peeled):
@@ -124,7 +162,7 @@ def verify_tag(repo: str, tag: str) -> tuple[str, str]:
     return obj, peeled
 
 
-def read_lock_pin(root, name: str) -> tuple[str, str, str | None] | None:
+def read_lock_pin(root: "os.PathLike[str] | str", name: str) -> tuple[str, str, str | None] | None:
     """(owner/repo, sha, tag or None) for ``name`` in ``<root>/toolchain.lock``, or None."""
     path = os.path.join(str(root), "toolchain.lock")
     try:
