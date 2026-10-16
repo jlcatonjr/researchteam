@@ -102,3 +102,22 @@ def test_the_autosync_scrubs_native_machine_path_files():
     for surface in (".github/agents", ".claude/agents", ".goose/recipes"):
         for name in ("delivery-receipt.json", "memory-index.json"):
             assert f'"{surface}/references/{name}"' in block
+
+
+def test_scan_divergence_names_fields_the_brief_omits(tmp_path):
+    import json as _json
+    from researchteam import _update_cmd as uc
+    (tmp_path / "brief.json").write_text(_json.dumps({"project_name": "x"}))
+    (tmp_path / "pyproject.toml").write_text("[project]\nname='x'\n")
+    found = uc._scan_divergence(tmp_path)
+    assert any(f.startswith("retrieval_integration") for f in found)
+    assert any(f.startswith("tools") and "pyproject.toml" in f for f in found)
+    (tmp_path / "brief.json").write_text(_json.dumps({"retrieval_integration": {"mode": "none"}, "tools": []}))
+    assert uc._scan_divergence(tmp_path) == []
+
+
+def test_researchteams_own_brief_has_no_scan_divergence():
+    from pathlib import Path
+    from researchteam import _update_cmd as uc
+    root = Path(__file__).resolve().parent.parent
+    assert not any(f.startswith("retrieval_integration") for f in uc._scan_divergence(root))

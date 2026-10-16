@@ -860,6 +860,44 @@ def _native_surfaces(root: Path) -> list[tuple[str, str]]:
     return found
 
 
+# Dependency manifests agentteams' project scan turns into tool agents (ingest.parse_dependency_manifests).
+_SCANNED_MANIFESTS = ("pyproject.toml", "requirements.txt", "package.json", "Cargo.toml", "go.mod", "Gemfile")
+
+
+def _scan_divergence(root: Path) -> list[str]:
+    """Brief fields the native surfaces would infer by scanning the repo, while copilot-vscode would not.
+
+    Native renders pass ``--project .`` (needed for ``--materialize-native``), so agentteams scans the repo
+    and fills in what the brief leaves out. The copilot-vscode render uses the descriptor alone. A field the
+    brief omits can therefore give the surfaces different rosters (masterTeacher 4.4: retrieval-integrator
+    on claude/goose only). This is a known 1.0 limitation; 1.0.1 applies one scan rule to every surface.
+    """
+    try:
+        brief = json.loads((root / "brief.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(brief, dict):
+        return []
+    found = []
+    if "retrieval_integration" not in brief:
+        found.append("retrieval_integration (decides whether @retrieval-integrator exists; declare it, "
+                     "or set {\"mode\": \"none\"})")
+    manifests = [m for m in _SCANNED_MANIFESTS if (root / m).is_file()]
+    if "tools" not in brief and manifests:
+        found.append(f"tools (the scan adds tool agents from {', '.join(manifests)})")
+    return found
+
+
+def _warn_scan_divergence(root: Path) -> None:
+    found = _scan_divergence(root)
+    if found:
+        print("[researchteam] WARNING: native surfaces scan the repo but copilot-vscode does not, so these "
+              "fields, missing from brief.json, can give the surfaces different agent rosters:\n  - "
+              + "\n  - ".join(found)
+              + "\n  Declare them in brief.json for one roster everywhere (see docs/researchteam-framework.md, "
+              "\"Rosters across surfaces\").", file=sys.stderr)
+
+
 def _render_native_surfaces(root: Path, *, yes: bool, dry_run: bool, overwrite: bool,
                             adopt_orphans: bool = False, discard_user_regions: bool = False,
                             label: str = "update") -> None:
@@ -870,6 +908,8 @@ def _render_native_surfaces(root: Path, *, yes: bool, dry_run: bool, overwrite: 
     non-zero exit so an autosync opens no PR.
     """
     surfaces = _native_surfaces(root)
+    if surfaces:
+        _warn_scan_divergence(root)
     done = [".github/agents (copilot-vscode)"]
     for i, (framework, directory) in enumerate(surfaces):
         print(f"[researchteam] {label}: native surface {directory} ({framework})")
