@@ -1,0 +1,21 @@
+S-10 release-key exemption (researchteam; operator ruling 2026-10-15, release policy draft 4 §3).
+
+Scope: an agentteams git tag (vX.Y.Z or vX.Y.Z-rc.N on the 1.0 line) is exempt from the 14-day
+release cooldown only when ALL of these hold:
+  1. it is an annotated tag SSH-signed by the operator release key
+     RSA SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM (fingerprint checked, not only "Good signature");
+  2. `git tag -v` verifies it against ~/.config/agentteams/allowed_signers under neutralised repository
+     config (core.hooksPath=/dev/null, core.fsmonitor=false);
+  3. the verified local tag object equals the tag object `git ls-remote` reports on
+     https://github.com/jlcatonjr/agentteams;
+  4. the pin is that tag's peeled 40-hex commit.
+
+Not exempt: every third-party package version that actually resolves at install time (direct or
+transitive, e.g. jsonschema and the research extra's dependencies); those keep the cooldown and the
+known-vulnerability search. Not exempt either: researchteam or other repositories' tags, any tag signed
+by another key or failing any check above, and any branch head. The OSV/GHSA search still runs for
+every adopted release. Each pin move still needs its own @security row naming the tag object and the
+peeled SHA.
+
+Expiry: void at the first of (a) agentteams v1.1.0, (b) 2027-04-15, (c) rotation, loss or suspected
+compromise of the release key. Renewal needs a new signed operator decision.
