@@ -11,6 +11,9 @@
 #   1. SHA-GATE FIRST (before any install/regen): compare agentteams main HEAD to the ref recorded on
 #      the evergreen PR branch (if open) or on the current branch. If unchanged -> emit changed=false
 #      and exit 0 with ZERO writes. This is the whole "evergreen, not weekly spam" guarantee.
+#      RELEASE-LOCKED repos (toolchain.lock has `agentteams.tag=`): the target is instead the newest
+#      VERIFIED signed tag on that tag's vX.Y line (scripts/check_toolchain.py --release-candidate /
+#      --verify-tag), never `main`; no newer tag -> no-op. --force re-integrates the locked tag (soak).
 #   2. On a real change: install that EXACT SHA (reproducible + closes the ls-remote/pip TOCTOU), run
 #      the researchteam regen (--shrink-policy preserve is pinned in _update_cmd), scrub machine-path
 #      churn (delivery-receipt/memory-index embed absolute paths that flip to the runner path), run the
@@ -109,11 +112,30 @@ done
 emit() { [ -n "${GITHUB_OUTPUT:-}" ] && printf '%s\n' "$1" >> "$GITHUB_OUTPUT" || true; }
 log()  { printf 'autosync-gate: %s\n' "$1"; }
 
+lock_tag() { [ -f toolchain.lock ] && sed -n "s/^$1\.tag=//p" toolchain.lock | head -1 | tr -d '[:space:]'; }
+
 # --- 1. SHA-GATE (first; no writes on the no-change path) -----------------------------------------
-new_sha="$(git ls-remote "$AGENTTEAMS_GIT" main 2>/dev/null | awk 'NR==1{print $1}')"
-if [ -z "$new_sha" ]; then
-  log "could not reach agentteams main via git ls-remote ($AGENTTEAMS_GIT) — treating as no-op."
-  emit "changed=false"; exit 0
+RELEASE_TAG="$(lock_tag agentteams)"
+TARGET_TAG=""
+if [ -n "$RELEASE_TAG" ]; then
+  # Release-locked: follow the tag's release line, verified, and never fall back to main.
+  log "release-locked at agentteams ${RELEASE_TAG}: following its release line (never main)."
+  candidate="$(python scripts/check_toolchain.py --release-candidate agentteams)" \
+    || { log "GATE FAIL: cannot read the agentteams release line"; exit 1; }
+  if [ -z "$candidate" ] && [ "$FORCE" -eq 0 ]; then
+    log "no newer verified release on ${RELEASE_TAG}'s line — nothing to integrate."
+    emit "changed=false"; exit 0
+  fi
+  TARGET_TAG="${candidate:-$RELEASE_TAG}"
+  new_sha="$(python scripts/check_toolchain.py --verify-tag agentteams "$TARGET_TAG")" \
+    || { log "GATE FAIL: agentteams ${TARGET_TAG} did not verify as a signed release tag"; exit 1; }
+  log "agentteams ${TARGET_TAG} verified: peeled commit ${new_sha}"
+else
+  new_sha="$(git ls-remote "$AGENTTEAMS_GIT" main 2>/dev/null | awk 'NR==1{print $1}')"
+  if [ -z "$new_sha" ]; then
+    log "could not reach agentteams main via git ls-remote ($AGENTTEAMS_GIT) — treating as no-op."
+    emit "changed=false"; exit 0
+  fi
 fi
 # Baseline = the ref recorded on the OPEN evergreen PR branch if it exists (so an already-integrated
 # SHA does not re-fire weekly while the PR waits to be merged), else the ref on the current branch.
@@ -136,6 +158,19 @@ if [ "$CHECK_ONLY" -eq 1 ]; then
 fi
 
 # --- 2. Integrate exactly that SHA ---------------------------------------------------------------
+RT_TAG="$(lock_tag researchteam)"
+if [ "$MODE" = "derived" ] && [ -n "$RT_TAG" ]; then
+  # Release-locked researchteam: run the verified pinned researchteam, whose Layer-2 files `update`
+  # syncs from that same tag (not the researchteam main the workflow installed).
+  rt_pin="$(sed -n 's/^researchteam=.*@//p' toolchain.lock | head -1 | tr -d '[:space:]')"
+  rt_sha="$(python scripts/check_toolchain.py --verify-tag researchteam "$RT_TAG")" \
+    || { log "GATE FAIL: researchteam ${RT_TAG} did not verify as a signed release tag"; exit 1; }
+  [ "$rt_sha" = "$rt_pin" ] \
+    || { log "GATE FAIL: toolchain.lock pins researchteam ${rt_pin:0:7}, but ${RT_TAG} is ${rt_sha:0:7}"; exit 1; }
+  log "installing researchteam ${RT_TAG} @ ${rt_sha} (release-locked)"
+  python -m pip install --quiet --no-deps --force-reinstall "git+https://github.com/jlcatonjr/researchteam.git@${rt_sha}" \
+    || { log "pip install of researchteam@${rt_sha} FAILED"; exit 1; }
+fi
 log "installing agentteams @ ${new_sha} (pinned; closes ls-remote/pip TOCTOU)"
 python -m pip install --quiet "git+${AGENTTEAMS_GIT}@${new_sha}" || {
   log "pip install of agentteams@${new_sha} FAILED"; exit 1; }
@@ -168,15 +203,22 @@ fi
 printf '%s\n' "$new_sha" > "$REF_FILE"
 # Pin the toolchain this green sync was verified with (researchteam + agentteams commits of the
 # interpreter that just ran it), so bootstrap_toolchain.sh and the SessionStart check follow it.
-# Advisory: a lock that cannot be written (no recorded commit) never fails the sync.
+# Advisory: a lock that cannot be written (no recorded commit) never fails the sync, unless the repo is
+# release-locked, where it fails closed.
 lock_note=""
 if [ -f scripts/check_toolchain.py ]; then
   # No --python: pin the interpreter behind `researchteam`, the one that just ran the sync.
-  if lock_out="$(python scripts/check_toolchain.py --write-lock 2>&1)"; then
+  # A release-locked lock is rewritten only with the verified tag; check_toolchain refuses anything else.
+  lock_args=(--write-lock); [ -n "$TARGET_TAG" ] && lock_args+=(--tag "agentteams=${TARGET_TAG}")
+  if lock_out="$(python scripts/check_toolchain.py "${lock_args[@]}" 2>&1)"; then
     log "$lock_out"
   else
     log "toolchain.lock not written: $lock_out"; lock_note="$lock_out"
+    # Release-locked: an unrecorded pin move would ship a commit the lock does not name. Fail closed.
+    [ -n "$TARGET_TAG" ] && { log "GATE FAIL: release-locked toolchain.lock could not record ${TARGET_TAG}"; exit 1; }
   fi
+elif [ -n "$TARGET_TAG" ]; then
+  log "GATE FAIL: release-locked, but scripts/check_toolchain.py is missing"; exit 1
 fi
 
 git add -A >/dev/null 2>&1 || true
@@ -202,9 +244,13 @@ if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false";
     printf '%s\n' "$sensitive" | sed 's/^/> - `/; s/$/`/'
     echo
   fi
-  echo "agentteams \`main\` advanced — integrating the pinned SHA."
+  if [ -n "$TARGET_TAG" ]; then
+    echo "agentteams release line \`${RELEASE_TAG}\` → verified signed tag \`${TARGET_TAG}\` — integrating its peeled SHA."
+  else
+    echo "agentteams \`main\` advanced — integrating the pinned SHA."
+  fi
   echo
-  echo "- **agentteams:** \`${old_sha:-<none>}\` → \`${new_sha}\`"
+  echo "- **agentteams:** \`${old_sha:-<none>}\` → \`${new_sha}\`${TARGET_TAG:+ (${TARGET_TAG})}"
   echo "- **mode:** ${MODE}"
   if [ -f toolchain.lock ]; then
     echo "- **toolchain.lock:** $(grep -E '^(researchteam|agentteams)=' toolchain.lock | sed 's/=.*@\(.\{7\}\).*/ \1/' | paste -sd, - | sed 's/,/, /g')"

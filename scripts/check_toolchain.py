@@ -16,6 +16,11 @@ Lock format (one pin per line, ``#`` comments allowed)::
 
     researchteam=jlcatonjr/researchteam@<40-hex sha>
     agentteams=jlcatonjr/agentteams@<40-hex sha>
+    agentteams.tag=v1.0.0-rc.10          # optional: release-locked (see researchteam/_release.py)
+
+A pin with a ``<name>.tag`` line is RELEASE-LOCKED: its commit is that verified signed tag's peeled
+commit, and ``--write-lock`` moves it only to a newer verified tag on the same ``vX.Y`` line
+(``--tag name=vX.Y.Z``), never to an untagged commit such as agentteams ``main``.
 
 When the repository's own ``pyproject.toml`` installs agentteams from git (researchteam's ``update`` /
 ``research`` extras), each such ref must name the same commit as the agentteams pin (release policy §3);
@@ -62,9 +67,25 @@ def read_lock(path=None):
             line = line.strip()
             if line and not line.startswith("#") and "=" in line:
                 name, spec = line.split("=", 1)
+                if "." in name:  # a <name>.tag line, read by read_tags
+                    continue
                 repo, _, sha = spec.partition("@")
                 pins[name.strip()] = (repo.strip(), sha.strip())
     return pins
+
+
+def read_tags(path=None):
+    """{name: release tag} for the release-locked pins in the lock."""
+    path = path or LOCK
+    tags = {}
+    if not os.path.exists(path):
+        return tags
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            name, sep, tag = line.strip().partition(".tag=")
+            if sep and name in PACKAGES and not name.startswith("#"):
+                tags[name] = tag.strip()
+    return tags
 
 
 def pin_problem(name, repo, sha):
@@ -98,10 +119,12 @@ def extras_problems(pins, pyproject=None):
     return out
 
 
-def write_lock(commits, path=None):
-    """Write the lock from {name: (owner/repo, sha)}, keeping the fixed header."""
+def write_lock(commits, path=None, tags=None):
+    """Write the lock from {name: (owner/repo, sha)} and {name: release tag}, keeping the fixed header."""
     path = path or LOCK
-    body = "".join(f"{name}={commits[name][0]}@{commits[name][1]}\n" for name in PACKAGES)
+    tags = tags or {}
+    body = "".join(f"{name}={commits[name][0]}@{commits[name][1]}\n"
+                   + (f"{name}.tag={tags[name]}\n" if name in tags else "") for name in PACKAGES)
     with open(path, "w", encoding="utf-8") as f:
         f.write(LOCK_HEADER + body)
 
@@ -232,7 +255,61 @@ def hook_installed(root=None):
     return False
 
 
-def cmd_write_lock(py):
+def _release():
+    """researchteam._release, or None when the installed researchteam predates release-line pins."""
+    try:
+        from researchteam import _release
+    except ImportError:
+        return None
+    return _release
+
+
+def parse_tag_args(values):
+    """{name: tag} from repeated --tag name=vX.Y.Z; raises ValueError on a malformed one."""
+    out = {}
+    for v in values or []:
+        name, sep, tag = v.partition("=")
+        if not sep or name not in PACKAGES or not tag:
+            raise ValueError(f"--tag {v!r}: expected one of {', '.join(PACKAGES)}=vX.Y.Z[-rc.N]")
+        out[name] = tag
+    return out
+
+
+def lock_tags(commits, old_pins, old_tags, new_tags, verify):
+    """The tags to write, or (None, why) when the move would break a release lock.
+
+    A release-locked pin keeps its tag while its commit is unchanged. It moves only to a ``--tag`` that is
+    newer on the same release line and whose verified peeled commit is the installed one. A ``--tag``
+    on an unlocked pin starts a release lock under the same verification.
+    """
+    tags = {}
+    for name in PACKAGES:
+        sha, old_tag, new_tag = commits[name][1], old_tags.get(name), new_tags.get(name)
+        if new_tag is None:
+            if old_tag is None:
+                continue
+            if old_pins.get(name, ("", ""))[1] != sha:
+                return None, (f"{name} is release-locked at {old_tag}; refusing to move it to the untagged "
+                              f"commit {sha[:7]} (pass --tag {name}=<newer verified tag> to move it)")
+            tags[name] = old_tag
+            continue
+        rel = verify()
+        if rel is None:
+            return None, "researchteam._release is unavailable; cannot verify --tag (install researchteam >= 1.0)"
+        try:
+            if old_tag is not None and (rel.release_line(new_tag) != rel.release_line(old_tag)
+                                        or rel.tag_key(new_tag) < rel.tag_key(old_tag)):
+                return None, f"{name}: {new_tag} is not on {old_tag}'s release line, or is older"
+            _, peeled = rel.verify_tag(commits[name][0], new_tag)
+        except rel.ReleaseError as exc:
+            return None, f"{name}: {exc}"
+        if peeled != sha:
+            return None, f"{name}: installed {sha[:7]} is not {new_tag}'s peeled commit {peeled[:7]}"
+        tags[name] = new_tag
+    return tags, ""
+
+
+def cmd_write_lock(py, new_tags=None):
     info = installed(py) if py else None
     if not info:
         print(f"[toolchain] cannot inspect {py or 'any interpreter'}; toolchain.lock not written")
@@ -253,11 +330,41 @@ def cmd_write_lock(py):
             return 1
         commits[name] = (repo, sha)
     old = read_lock()
-    write_lock(commits)
+    tags, why = lock_tags(commits, old, read_tags(), new_tags or {}, _release)
+    if tags is None:
+        print(f"[toolchain] {why}; toolchain.lock not written")
+        return 1
+    write_lock(commits, tags=tags)
     changed = {n for n in PACKAGES if old.get(n, ("", ""))[1] != commits[n][1]}
-    summary = ", ".join(f"{n} {commits[n][1][:7]}" for n in PACKAGES)
+    summary = ", ".join(f"{n} {commits[n][1][:7]}" + (f" ({tags[n]})" if n in tags else "") for n in PACKAGES)
     print(f"[toolchain] toolchain.lock {'updated' if changed else 'unchanged'}: {summary}")
     return 0
+
+
+def cmd_release(candidate_of, verify):
+    """--release-candidate / --verify-tag for the autosync gate. Exit 1 when the answer cannot be trusted."""
+    rel = _release()
+    if rel is None:
+        print("[toolchain] researchteam._release is unavailable (install researchteam >= 1.0)", file=sys.stderr)
+        return 1
+    pins, tags = read_lock(), read_tags()
+    name = candidate_of or verify[0]
+    if name not in PACKAGES or pin_problem(name, *pins.get(name, ("", ""))):
+        print(f"[toolchain] {name}: no valid pin in toolchain.lock", file=sys.stderr)
+        return 1
+    try:
+        if candidate_of:
+            if name not in tags:
+                return 0  # not release-locked: no candidate
+            newer = rel.newest_on_line(pins[name][0], tags[name])
+            if newer:
+                print(newer)
+            return 0
+        print(rel.verify_tag(pins[name][0], verify[1])[1])
+        return 0
+    except rel.ReleaseError as exc:
+        print(f"[toolchain] {name}: {exc}", file=sys.stderr)
+        return 1
 
 
 def main(argv=None):
@@ -267,11 +374,24 @@ def main(argv=None):
     ap.add_argument("--strict", action="store_true")
     ap.add_argument("--write-lock", action="store_true",
                     help="record the installed commits in toolchain.lock (autosync, after a green sync)")
+    ap.add_argument("--tag", action="append", metavar="NAME=TAG",
+                    help="with --write-lock: the verified release tag the installed NAME commit is (repeatable)")
+    ap.add_argument("--release-candidate", metavar="NAME",
+                    help="print the newest verified-able tag on NAME's locked release line, if newer; exit 0")
+    ap.add_argument("--verify-tag", nargs=2, metavar=("NAME", "TAG"),
+                    help="verify TAG of NAME's pinned repository and print its peeled commit")
     a = ap.parse_args(argv)
 
+    if a.release_candidate or a.verify_tag:
+        return cmd_release(a.release_candidate, a.verify_tag)
     py = pick_python(a.python)
     if a.write_lock:
-        return cmd_write_lock(py)
+        try:
+            new_tags = parse_tag_args(a.tag)
+        except ValueError as exc:
+            print(f"[toolchain] {exc}")
+            return 2
+        return cmd_write_lock(py, new_tags)
 
     pins = read_lock()
     fix = "run: bash scripts/bootstrap_toolchain.sh"
@@ -290,7 +410,7 @@ def main(argv=None):
         print(f"[toolchain] could not inspect {py} — {fix}")
         return 1 if a.strict else 0
 
-    problems, notes = [], []
+    problems, notes, tags = [], [], read_tags()
     for name in PACKAGES:
         repo, pin = pins.get(name, ("", ""))
         why = pin_problem(name, repo, pin)
@@ -307,6 +427,8 @@ def main(argv=None):
             problems.append(f"{name}: installed {sha[:7]} ({how}) but toolchain.lock pins {pin[:7]}")
         elif "dirty" in how:
             notes.append(f"{name}: matches the pin, but the editable checkout has uncommitted changes")
+        if name in tags:
+            continue  # release-locked: upstream main is irrelevant; the gate follows the release line
         if not a.no_remote and repo:
             head = remote_main(repo)
             if head and head != pin:

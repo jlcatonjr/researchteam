@@ -129,6 +129,49 @@ green upstream.
    the evergreen PR — deliberately not enabled by default.)
 4. Workflow defense-in-depth guard must fail CI if `.github/agents/.github/` exists before or after update execution.
 
+## Release-Locked Repositories
+
+A repository is **release-locked** when its `toolchain.lock` records a release tag beside a pin:
+
+```
+agentteams=jlcatonjr/agentteams@f0dcdc85701f0187a2fb242be35a9b7b3e892d40
+agentteams.tag=v1.0.0-rc.10
+researchteam=jlcatonjr/researchteam@<peeled sha>
+researchteam.tag=v1.0.0-rc.1
+```
+
+A pin is the **peeled commit of a verified signed tag**: an annotated tag that `git tag -v` verifies
+against the operator's `~/.config/agentteams/allowed_signers` under neutralised repository config,
+signed by a release-key fingerprint listed in `researchteam/_release.py` (agentteams SECURITY.md
+"Release signers"), whose tag object matches the one the remote advertises. The `name=` lines keep their
+old format, so older readers still parse the lock.
+
+Under a release lock, the Execution Policy above changes as follows:
+
+1. **The gate follows the release line, never `main`.** The SHA-gate target is the newest verified tag on
+   the locked tag's `vX.Y` line that is newer than it (`check_toolchain.py --release-candidate`, then
+   `--verify-tag`). With no newer tag, the run is a no-op. A tag that fails verification fails the gate,
+   and no PR opens. `force=true` re-integrates the locked tag, which is how an operator-dispatched soak
+   run works.
+2. **The lock moves only to a verified tag.** `check_toolchain.py --write-lock` refuses to move a locked
+   pin to an untagged commit. It moves the pin only with `--tag name=vX.Y.Z`, on the same line and not
+   older, whose peeled commit is the installed one. A gate run whose lock write fails, fails closed.
+3. **Layer 2 syncs from the verified researchteam tag.** When the lock has `researchteam.tag`,
+   `researchteam update` fetches managed files from that tag's peeled commit instead of `main`, and in
+   derived mode the gate installs that researchteam first. A tag that does not verify, or a commit that
+   is not its peeled commit, stops the update; it never falls back to `main`. `--ref` overrides the lock
+   deliberately.
+4. **CI needs the trust root.** A runner has no `~/.config/agentteams/allowed_signers`. The operator
+   provisions one, for example by writing a repository secret to a file and exporting
+   `AGENTTEAMS_ALLOWED_SIGNERS`, in the derived workflow before the gate step. Without it, release-locked
+   runs fail closed.
+5. **Schedules stay paused during a joint cut.** In a coordinated release (the shared v1.0.0 policy), the
+   weekly schedule is disabled with `gh workflow disable`, with no file edit, until every repository has
+   tagged. Soak runs are operator-dispatched.
+
+Moving a pin is a security event: record each move in an `@security` row naming the tag object and the
+peeled SHA.
+
 ## Automatic Integration (keep the tree always integrated)
 
 Goal: the committed repository state should always equal what `agentteams --update --merge` would

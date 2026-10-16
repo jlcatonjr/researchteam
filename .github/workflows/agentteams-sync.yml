@@ -48,6 +48,18 @@ jobs:
       - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
         run: git fetch origin "chore/agentteams-autosync" || true
 
+      - name: Release trust root (release-locked repos; operator-provisioned secret)
+        env:
+          ALLOWED_SIGNERS: ${{ secrets.AGENTTEAMS_ALLOWED_SIGNERS }}
+        run: |
+          # A release-locked toolchain.lock verifies signed tags against allowed_signers. The runner has
+          # none, so the operator stores the line from agentteams SECURITY.md "Release signers" as this
+          # secret. Without it, release-locked runs fail closed; unlocked runs never read it.
+          if [ -n "$ALLOWED_SIGNERS" ]; then
+            printf '%s\n' "$ALLOWED_SIGNERS" > "$RUNNER_TEMP/allowed_signers"
+            echo "AGENTTEAMS_ALLOWED_SIGNERS=$RUNNER_TEMP/allowed_signers" >> "$GITHUB_ENV"
+          fi
+
       - name: Autosync gate — SHA-gate → pinned install → regen → BLOCKING gates
         id: gate
         env:

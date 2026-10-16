@@ -82,7 +82,8 @@ def main() -> None:
         "--ref",
         default=None,
         metavar="REF",
-        help="Upstream git ref to fetch from (overrides .researchteam marker; default: main)",
+        help="Upstream git ref to fetch from (overrides a release-locked toolchain.lock and the "
+        ".researchteam marker; default: the lock's verified researchteam tag, else the marker, else main)",
     )
     update_p.add_argument(
         "--accept-upstream",
@@ -174,7 +175,7 @@ def main() -> None:
 
     elif args.command == "update":
         root = _find_repo_root(require_marker=True)
-        ref = args.ref or _read_marker_ref(root)
+        ref = args.ref or (None if args.layer1_only else _release_locked_ref(root)) or _read_marker_ref(root)
         from ._update_cmd import run_update
         run_update(
             root,
@@ -241,6 +242,25 @@ def _find_repo_root(require_marker: bool = False) -> Path:
         print("Error: not inside a git repository.", file=sys.stderr)
         sys.exit(1)
     return root
+
+
+def _release_locked_ref(root: Path) -> str | None:
+    """The verified researchteam tag's commit when toolchain.lock release-locks researchteam.
+
+    Layer 2 then syncs from that tag, not from main (release policy §4). A lock whose tag does not
+    verify stops the update: fail closed, never fall back to main.
+    """
+    from ._manifest import UPSTREAM_REPO
+    from ._release import ReleaseError, locked_layer2_ref
+    try:
+        locked = locked_layer2_ref(root, UPSTREAM_REPO)
+    except ReleaseError as exc:
+        sys.exit(f"[researchteam] toolchain.lock release-locks researchteam, but {exc}. Layer-2 sync "
+                 "refused; fix the lock, or pass --ref to choose a ref deliberately.")
+    if locked is None:
+        return None
+    print(f"[researchteam] release-locked: syncing layer 2 from researchteam {locked[1]} ({locked[0][:12]}).")
+    return locked[0]
 
 
 def _read_marker_ref(root: Path) -> str:
