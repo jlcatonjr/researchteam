@@ -90,6 +90,9 @@ pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchtea
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
 pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git"
+
+# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.0.0-rc.1
+# (pin the tag's peeled commit in toolchain.lock; see docs/release-policy.md)
 ```
 
 Agents must not assume the toolchain is present, and must not assume that an `agentteams` found on
@@ -113,7 +116,7 @@ green sync. To run exactly that pair:
 ```bash
 bash scripts/bootstrap_toolchain.sh          # .venv with the pinned commits (gitignored)
 bash scripts/bootstrap_toolchain.sh --local  # editable installs from your own checkouts
-python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main
+python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main (not for release-locked pins)
 ```
 
 The bootstrap installs researchteam *without* the `[update]` extra, because that extra pins the

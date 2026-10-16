@@ -536,7 +536,9 @@ An agentteams tag signed by the operator release key, RSA
 must verify against `~/.config/agentteams/allowed_signers` and match its remote tag object. Every
 third-party package version that resolves at install time keeps the cooldown and the known-vulnerability
 search. The exemption expires at agentteams v1.1.0, on 2027-04-15, or on any key rotation or compromise,
-whichever comes first.
+whichever comes first. This is a summary only: the binding text also requires neutralised repository config
+for `git tag -v`, pinning the tag's peeled commit, the agentteams 1.0 line only (not researchteam or other
+repositories' tags), and its own @security row for each pin move.
 
 The binding text is `docs/release/s10-release-key-exemption.conditions.txt`, sha256 `9aa5869e8e569c9ac3a58727137418f6cf3e4e2ecef0387651b7c49adea8154b`. It takes effect
 only once `.github/agents/references/security-decisions.log.csv` holds the operator's Ed25519-signed
