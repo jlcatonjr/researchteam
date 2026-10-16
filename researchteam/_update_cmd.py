@@ -500,16 +500,19 @@ def _merge_bridges(root: Path, dry_run: bool) -> None:
 
 
 def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
-    """Write each NOTES_AGENTS agent's upstream researchteam:notes block into every surface it has.
+    """Write each upstream researchteam:notes block into every surface its agent has in this repo.
+
+    Only the NOTES_AGENTS this repo's team has get one (``_notes.agents_for``): an expert block goes
+    to an expert the brief's ``components`` still define, never to a stale or unrelated one.
 
     ``ref`` names the upstream researchteam ref to read the blocks from; ``None`` reads this repo's
     own ``.github`` copies (the upstream repository itself). Repo-owned Notes outside the block are
     never touched; hand-copied duplicates are folded on first adoption (see ``_notes``).
     """
-    from ._notes import NOTES_AGENTS, NotesError, apply_block, extract_block, source_path, surfaces
+    from ._notes import NotesError, agents_for, apply_block, extract_block, source_path, surfaces
 
     changed = 0
-    for agent in NOTES_AGENTS:
+    for agent in agents_for(root):
         rel = source_path(agent)
         try:
             source = (root / rel).read_text(encoding="utf-8") if ref is None else fetch_raw(UPSTREAM_REPO, ref, rel)

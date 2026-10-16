@@ -73,10 +73,14 @@ experts consume — it is **not compiled into the final report**.
 
 | You OWN | You must NOT restate (owner) |
 |---|---|
-| Cross-tradition **philosophical provenance** and centuries-spanning **genealogy** of concepts/methods | The report's **chosen methodology** and source strategy (`@topic-scoping-expert`) |
-| The interpretive **scaffolding** — how to read each school on its own terms | The literature's **themes/debates** and research-gap prose (`@literature-review-expert`) |
-| Methodological **conflict provenance** — where each side's commitments originate | The **analysis itself** and counter-argument handling (`@main-analysis-expert`) |
-| The **Historical setting register** and what key terms meant in each period | The deliverable's own situating prose (`@literature-review-expert`, `@main-analysis-expert`) |
+| Cross-tradition **philosophical provenance** and centuries-spanning **genealogy** of concepts/methods | The report's **chosen methodology** and source strategy (the expert of the scoping / research-plan component) |
+| The interpretive **scaffolding** — how to read each school on its own terms | The literature's **themes/debates** and research-gap prose (the expert of the literature-review component) |
+| Methodological **conflict provenance** — where each side's commitments originate | The **analysis itself** and counter-argument handling (the expert of the analysis component) |
+| The **Historical setting register** and what key terms meant in each period | The deliverable's own situating prose (the expert of each component that situates sources) |
+
+Each owner is a component expert, `@<component-slug>-expert`, from the project's own `brief.json`
+`components`; find it in the Workstream Experts roster of the project instructions. Where no
+component owns one of these workstreams, the orchestrator decides who does.
 
 When your material would overlap a section another expert owns, hand the *provenance and
 genealogy* only, and defer the section's own claims to its owner. `@conflict-auditor`

@@ -77,11 +77,13 @@ When a deliverable compares two traditions, texts or practices, it states:
 
 ## Who does what
 
+Component experts are the project's own: `@<component-slug>-expert`, one per `brief.json` component.
+
 | Agent | Role under this protocol |
 |---|---|
-| `@topic-scoping-expert` | The Source Strategy records the setting of each core source, or marks it unknown. |
+| Expert of the scoping / research-plan component | The Source Strategy records the setting of each core source, or marks it unknown. |
 | `@interpretation-advisor` | Commissions the `## Historical setting` register as part of the Interpretive Map Brief. Maps what key terms meant in each period. Directs the downstream experts. |
-| `@literature-review-expert` / `@main-analysis-expert` | Apply rules 2–4 in their components. They do not restate the register. |
+| Experts of the literature-review and analysis components | Apply rules 2–4 in their components. They do not restate the register. |
 | `@primary-producer` | Writes the register and the deliverables, and keeps every basis tag verbatim. |
 | `@reference-manager` | Confirms that each work cited as a basis exists. Where the project keeps a catalogue with composition fields (date, place), it drafts them from dating finding aids as `UNVERIFIED`. |
 | `@technical-validator` | Puts each register row on the claim ledger. Any row it cannot confirm is marked `UNVERIFIED`. |
