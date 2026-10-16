@@ -1,4 +1,4 @@
-# S-10 dependency vetting — agentteams v1.0.0-rc.10 (2026-10-16)
+# S-10 dependency vetting — agentteams v1.0.0-rc.10 / rc.11 (2026-10-16)
 
 Scope: every third-party package that resolves when installing agentteams `f0dcdc85` (v1.0.0-rc.10)
 with the `signing` extra, the trusted signer install. The S-10 release-key exemption covers agentteams
@@ -16,6 +16,10 @@ ecosystem PyPI), queried 2026-10-16. The cooldown is 14 days.
 | cffi | 2.1.1 | 2026-08-03 | 73d | none | adopt |
 | pycparser | 3.11 | 2026-10-09 | 6d | none | **inside cooldown**: constrain to 3.0 (2026-01-21, 267d, OSV none) |
 | typing-extensions | 4.16.0 | 2026-07-02 | 105d | none | adopt (Python < 3.11 only) |
+
+**Carried over to v1.0.0-rc.11** (tag object `dcb66d97`, peeled `ee09a037`): between `f0dcdc85` and
+`ee09a037`, `pyproject.toml` changes only the version line, `1.0.0rc10` → `1.0.0rc11`. There are no
+dependency, extra or constraint changes, so the table above is the resolved set for rc.11 as well.
 
 Constraints that installs use until the two newer releases clear the cooldown (2026-10-18 and
 2026-10-23): `docs/release/constraints-2026-10-16.txt`.
