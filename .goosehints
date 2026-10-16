@@ -8,6 +8,13 @@ This team's canonical brief is AGENTS.md (included above). Entry point:
 Delegation model:
 - The orchestrator recipe delegates to specialist recipes via `sub_recipes`
   (each runs in its own isolated session).
+- A delegate gets the delegating session's extensions, not the ones its own
+  recipe lists. Pass `extensions` on every `delegate` call (omitted, the
+  delegate inherits everything, write and shell included). Under
+  `goose_tool_scoping: "grant"` the orchestrator lists the argument per agent.
+  That table assumes the orchestrator recipe's own extensions: in a plain
+  `goose session` the delegator holds your configured extensions instead, so
+  start grant-mode teams with `goose run --recipe .goose/recipes/orchestrator.yaml`.
 - Goose forbids nested delegation, so specialists reference cross-cutting
   agents in-context with the `summon` `load("<recipe-slug>")` tool rather
   than spawning a sub-agent. The relevant `load(...)` calls are listed in

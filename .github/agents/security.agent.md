@@ -74,14 +74,14 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-10-16T12:48:19Z`
+Generated at: `2026-10-16T23:05:54Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.10.15, items 1746) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.10.16, items 1748) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
-- NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
+- NVD (NIST): ok (items 4) — https://services.nvd.nist.gov/rest/json/cves/2.0
 - OSV.dev: skipped — https://api.osv.dev/v1/querybatch
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - MITRE ATLAS: static — https://atlas.mitre.org/
@@ -91,21 +91,21 @@ Generated at: `2026-10-16T12:48:19Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-21589` | Atlassian Multiple Products | Atlassian Multiple Products Files or Directories Accessible to External Parties Vulnerability | added 2026-10-15 | EPSS 0.027770000, percentile 0.861180000 | CVSS 7.5 HIGH
-- `CVE-2026-105134` | Ahsay AhsayCBS | Ahsay AhsayCBS Command Injection Vulnerability | added 2026-10-14 | EPSS 0.032370000, percentile 0.880630000 | CVSS 10.0 CRITICAL
-- `CVE-2026-76519` | Cisco Secure Email Gateway | Cisco Secure Email Gateway Relative Path Traversal Vulnerability | added 2026-10-14 | EPSS 0.017430000, percentile 0.773540000 | CVSS 9.8 CRITICAL
-- `CVE-2026-105133` | Ahsay AhsayCBS | Ahsay AhsayCBS Improper Authentication Vulnerability | added 2026-10-14 | EPSS 0.006660000, percentile 0.507760000 | CVSS 7.3 HIGH
-- `CVE-2026-0322` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Code Injection Vulnerability | added 2026-10-14 | EPSS 0.010760000, percentile 0.643490000 | CVSS 7.2 HIGH
-- `CVE-2026-104935` | Ivanti Connect Secure | Ivanti Connect Secure Authentication Bypass by Spoofing Vulnerability | added 2026-10-13 | EPSS 0.259820000, percentile 0.979630000
-- `CVE-2026-96951` | Microsoft Windows | Microsoft Windows Command Injection Vulnerability | added 2026-10-13 | EPSS 0.015120000, percentile 0.739930000
+- `CVE-2026-102764` | BeyondTrust Remote Support | BeyondTrust Remote Support Authentication Bypass by Spoofing Vulnerability | added 2026-10-16 | EPSS 0.006010000, percentile 0.476470000 | CVSS 9.8 CRITICAL
+- `CVE-2025-61624` | Fortinet Multiple Products | Fortinet Multiple Products Path Traversal Vulnerability | added 2026-10-16 | EPSS 0.005800000, percentile 0.465510000 | CVSS 6.0 MEDIUM
+- `CVE-2026-21589` | Atlassian Multiple Products | Atlassian Multiple Products Files or Directories Accessible to External Parties Vulnerability | added 2026-10-15 | EPSS 0.127110000, percentile 0.962250000
+- `CVE-2026-105134` | Ahsay AhsayCBS | Ahsay AhsayCBS Command Injection Vulnerability | added 2026-10-14 | EPSS 0.047820000, percentile 0.918090000 | CVSS 10.0 CRITICAL
+- `CVE-2026-76519` | Cisco Secure Email Gateway | Cisco Secure Email Gateway Relative Path Traversal Vulnerability | added 2026-10-14 | EPSS 0.015730000, percentile 0.749820000 | CVSS 9.8 CRITICAL
+- `CVE-2026-105133` | Ahsay AhsayCBS | Ahsay AhsayCBS Improper Authentication Vulnerability | added 2026-10-14 | EPSS 0.008540000, percentile 0.575420000
+- `CVE-2026-0322` | Palo Alto Networks PAN-OS | Palo Alto Networks PAN-OS Code Injection Vulnerability | added 2026-10-14 | EPSS 0.012150000, percentile 0.680640000
+- `CVE-2026-104935` | Ivanti Connect Secure | Ivanti Connect Secure Authentication Bypass by Spoofing Vulnerability | added 2026-10-13 | EPSS 0.259820000, percentile 0.979650000
+- `CVE-2026-96951` | Microsoft Windows | Microsoft Windows Command Injection Vulnerability | added 2026-10-13 | EPSS 0.015120000, percentile 0.740260000
 - `CVE-2015-5477` | ISC BIND | ISC BIND Data Processing Errors Vulnerability | added 2026-10-08 | EPSS 0.994090000, percentile 0.999420000
-- `CVE-2016-3081` | Apache Struts | Apache Struts Command Injection Vulnerability | added 2026-10-08 | EPSS 0.960520000, percentile 0.998770000
-- `CVE-2023-22894` | Strapi Strapi | Strapi Cleartext Storage of Sensitive Information Vulnerability | added 2026-10-08 | EPSS 0.036090000, percentile 0.893110000
-- `CVE-2021-3199` | ONLYOFFICE Docs | ONLYOFFICE Docs Server Path Traversal Vulnerability | added 2026-10-08 | EPSS 0.193520000, percentile 0.973190000
+- `CVE-2016-3081` | Apache Struts | Apache Struts Command Injection Vulnerability | added 2026-10-08 | EPSS 0.960520000, percentile 0.998780000
+- `CVE-2023-22894` | Strapi Strapi | Strapi Cleartext Storage of Sensitive Information Vulnerability | added 2026-10-08 | EPSS 0.036090000, percentile 0.893220000
+- `CVE-2021-3199` | ONLYOFFICE Docs | ONLYOFFICE Docs Server Path Traversal Vulnerability | added 2026-10-08 | EPSS 0.193520000, percentile 0.973230000
 - `CVE-2015-3306` | ProFTPD ProFTPD | ProFTPD Improper Access Control Vulnerability | added 2026-10-08 | EPSS 0.994970000, percentile 0.999450000
-- `CVE-2026-88779` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-10-04 | EPSS 0.005920000, percentile 0.471070000
-- `CVE-2026-102490` | Zammad GmbH Zammad | Zammad GmbH Zammad Improper Privilege Management Vulnerability | added 2026-10-02 | EPSS 0.005500000, percentile 0.447480000
-- `CVE-2026-102489` | Zammad GmbH Zammad | Zammad GmbH Zammad Session Fixation Vulnerability | added 2026-10-02 | EPSS 0.012550000, percentile 0.689630000
+- `CVE-2026-88779` | Citrix NetScaler | Citrix NetScaler Improper Restriction of Operations within the Bounds of a Memory Buffer Vulnerability | added 2026-10-04 | EPSS 0.005920000, percentile 0.471630000
 
 **Prevention and mitigation playbook:**
 

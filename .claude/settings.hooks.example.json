@@ -131,6 +131,7 @@
       "Edit(/.claude/settings.hooks.example.json)",
       "Edit(/.goose/confined-run.example.sh)",
       "Edit(/.codex/confined-run.example.sh)",
+      "Edit(/.grok/confined-run.example.sh)",
       "Edit(/.claude/hooks/**)",
       "Edit(/.github/agents/references/agent-privilege.json)",
       "Edit(/.github/agents/references/authorized-verify-keys/**)",
@@ -150,8 +151,16 @@
       "Edit(/.goose/recipes/references/authorized-managers.txt)",
       "Edit(/.goose/recipes/references/management-authority.json)",
       "Edit(/.goose/recipes/references/build-log.json)",
+      "Edit(/.grok/agents/references/agent-privilege.json)",
+      "Edit(/.grok/agents/references/authorized-verify-keys/**)",
+      "Edit(/.grok/agents/references/security-approvers.txt)",
+      "Edit(/.grok/agents/references/authorized-managers.txt)",
+      "Edit(/.grok/agents/references/management-authority.json)",
+      "Edit(/.grok/agents/references/build-log.json)",
       "Edit(/.goose/sandbox.sb)",
-      "Edit(/.codex/config.toml)"
+      "Edit(/.codex/config.toml)",
+      "Edit(/.grok/config.toml)",
+      "Edit(/.grok/sandbox.toml)"
     ]
   },
   "sandbox": {

@@ -233,5 +233,11 @@
       "Projects/<project>/references/library/library-manifest.json"
     ],
     "trigger_contract_version": "v1"
-  }
+  },
+  "enforce_decision_signing": false,
+  "write_policy": "orchestrator-only",
+  "write_policy_frameworks": [
+    "codex"
+  ],
+  "privilege_profile": "confined"
 }

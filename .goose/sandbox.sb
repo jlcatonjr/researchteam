@@ -1,0 +1,102 @@
+(version 1)
+
+;; ===================================================================
+;; agentteams-emitted Goose confinement profile (P1-1). INERT until you
+;; wire it in (see config.yaml.agentteams.example). Enforced by the macOS
+;; kernel via Apple Seatbelt (sandbox-exec) ONLY — there is NO Linux/Windows
+;; equivalent. sandbox-exec / Seatbelt is Apple-DEPRECATED; for untrusted code
+;; the portable primary is a container / WASI at the consumer layer. VERIFY on
+;; YOUR machine and Goose build (see `agentteams ... --check-wiring`); this file
+;; does not by itself prove your Goose build honors it.
+;;
+;; Ground-truth launch (ALWAYS enforces on macOS, independent of GOOSE_SANDBOX
+;; build variance):
+;;   sandbox-exec -D WORKSPACE_ROOT="$PWD" -D HOME_DIR="$HOME" \
+;;                -f .goose/sandbox.sb goose run --recipe <recipe> ...
+;; ===================================================================
+
+(allow default)
+
+;; --- Workspace write-confinement (deny writes outside the workspace roots) ---
+(deny file-write*)
+(allow file-write*
+    (subpath (param "WORKSPACE_ROOT"))
+)
+;; Ephemeral runtime scratch Goose needs to function (NOT protected zones):
+(allow file-write*
+    (subpath "/private/tmp")
+    (subpath "/private/var/folders")
+    (literal "/dev/null")
+    (literal "/dev/stdout")
+    (literal "/dev/stderr"))
+;; --- Control-plane protection (agent may not rewrite its own enforcement) ---
+(deny file-write*
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references/agent-privilege.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.claude/hooks/constitutional-gate.py"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references/authorized-verify-keys"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/sandbox.sb"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references/security-approvers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references/authorized-managers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references/management-authority.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.claude"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/agent-privilege.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/authorized-verify-keys"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/security-approvers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/authorized-managers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/management-authority.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.github/agents/references/build-log.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/agent-privilege.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/authorized-verify-keys"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/security-approvers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/authorized-managers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/management-authority.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references/build-log.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.codex/config.toml"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/agent-privilege.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/authorized-verify-keys"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/security-approvers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/authorized-managers.txt"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/management-authority.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references/build-log.json"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/config.toml"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/.grok/sandbox.toml"))
+    (subpath (string-append (param "WORKSPACE_ROOT") "/references/security-approvers.txt"))
+)
+;; F-4: refuse RENAMING an ancestor of the control plane away (rename = unlink of the
+;; source + create at the destination). Literal = the directory entry only; writes inside
+;; it are unaffected. UNVERIFIED on a real macOS host.
+(deny file-write-unlink file-write-create
+    (literal (string-append (param "WORKSPACE_ROOT") "/.claude"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.claude/hooks"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.codex"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.codex/agents"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.codex/agents/references"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.github"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.github/agents"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.github/agents/references"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.goose"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.goose/recipes"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.goose/recipes/references"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.grok"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.grok/agents"))
+    (literal (string-append (param "WORKSPACE_ROOT") "/.grok/agents/references"))
+)
+
+;; --- Network egress ---
+;; privilege_profile: confined — network is NOT restricted (egress OPEN), matching
+;; the Claude confined block, so a default-on goose team can reach its LLM out of
+;; the box. This is write-confinement only. HONEST RESIDUAL: a confined agent can
+;; still make arbitrary network connections (exfiltration is NOT closed here). For
+;; network isolation, use privilege_profile: exclusive (adds deny network* + a
+;; loopback egress-proxy allow) and read-exclusion.
+
+;; --- Operator signing-key isolation (F-1, every profile) ---
+;; The private decision-signing key lives outside the workspace; no agent may read it.
+;; This denies the key FILE only: AGENTTEAMS_DECISION_ED25519_KEYFILE / *_SIGNING_KEY
+;; environment variables are inherited unless the launcher scrubs them (sandbox-exec
+;; does not). UNVERIFIED on a real macOS host.
+(deny file-read*
+    (subpath (string-append (param "HOME_DIR") "/.config/agentteams/keys"))
+)
+
