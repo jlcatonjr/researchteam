@@ -53,7 +53,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md`. |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`. |
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
-| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise). |
+| `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise). |
 | `researchteam status` | Show marker info and CLI version. |
 | `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
@@ -92,6 +92,9 @@ Before, `init` copied them in once and nothing updated them after that.
   matter included, down to its `## Project-Specific Notes` heading. That heading and everything
   after it belong to the repo. When the upstream part changes, `update` saves the previous file
   under the gitignored `tmp/researchteam-backups/` and prints the diff, even in unattended runs.
+  It does so only while the local part still matches upstream's at the pinned researchteam
+  commit. A repo that customised it keeps its version, even under `--yes`, until it runs
+  `researchteam update --accept-upstream <path>`.
 
 Rules that researchteam itself writes into an agent's Notes now reach every derived repo. Until
 now they reached derived repos only when someone copied them by hand. These rules cover the

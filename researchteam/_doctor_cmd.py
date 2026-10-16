@@ -7,11 +7,12 @@ a deleted temporary path.
 """
 
 import json
-import re
 import shlex
 import subprocess
 import sys
 from pathlib import Path
+
+from ._drift import pinned_ref
 
 _EPHEMERAL_MARKERS = ("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")
 
@@ -277,20 +278,8 @@ def _check_seeded_files(root: Path, ok, warn) -> None:
         ok(f"seeded files match upstream @{ref[:12]} ({how}) outside Project-Specific Notes.")
 
 
-def _upstream_ref(root: Path) -> tuple[str, str]:
-    """The researchteam commit to compare against: toolchain.lock's pin, else the marker ref, else main."""
-    lock = root / "toolchain.lock"
-    if lock.exists():
-        for line in lock.read_text(encoding="utf-8").splitlines():
-            if line.startswith("researchteam=") and "@" in line:
-                return line.rsplit("@", 1)[1].strip(), "toolchain.lock pin"
-    marker = None
-    try:
-        m = re.search(r"^ref\s*=\s*(\S+)", (root / ".researchteam").read_text(encoding="utf-8"), re.M)
-        marker = m.group(1).strip("\"'") if m else None
-    except OSError:
-        pass
-    return (marker or "main"), ("marker ref" if marker else "main")
+# Shared with `update` (the above-notes customisation check); kept under this name for callers.
+_upstream_ref = pinned_ref
 
 
 def _check_bridges(root: Path, ok, warn, fail=None) -> None:

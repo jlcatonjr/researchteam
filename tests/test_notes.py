@@ -176,14 +176,31 @@ def test_grant_widening_is_detected_and_narrowing_is_not():
     assert _update_cmd._grant_widening(FM + "body", narrower + "body") == []
 
 
-def _layer2_only(tmp_path, monkeypatch, local: str, remote: str, yes: bool) -> str:
+PIN = "a" * 40
+
+
+def _layer2_only(tmp_path, monkeypatch, local: str, remote: str, yes: bool, pinned: str | None = None,
+                 accept: tuple[str, ...] = (), dry_run: bool = False, answer: str = "y") -> str:
+    """Run the layer-2 sync of the advisor alone. ``pinned`` is upstream's copy at the toolchain.lock
+    pin (default: the local file, i.e. un-customised); an exception instance is raised by its fetch."""
     (tmp_path / ".github" / "agents").mkdir(parents=True)
     (tmp_path / ADVISOR).write_text(local)
+    (tmp_path / "toolchain.lock").write_text(f"researchteam=jlcatonjr/researchteam@{PIN}\n")
+    pinned = local if pinned is None else pinned
+
+    def fetch(repo, ref, path):
+        if ref != PIN:
+            return remote
+        if isinstance(pinned, Exception):
+            raise pinned
+        return pinned
+
     monkeypatch.setattr(_update_cmd, "managed_files_for", lambda profile: [ADVISOR])
-    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda repo, ref, path: remote)
+    monkeypatch.setattr(_update_cmd, "fetch_raw", fetch)
     monkeypatch.setattr(_update_cmd, "_sync_notes", lambda *a, **k: None)
-    monkeypatch.setattr("builtins.input", lambda prompt="": "y")
-    _update_cmd.run_update(tmp_path, ref="main", yes=yes, dry_run=False, layer2_only=True, layer1_only=False)
+    monkeypatch.setattr("builtins.input", lambda prompt="": answer)
+    _update_cmd.run_update(tmp_path, ref="main", yes=yes, dry_run=dry_run, layer2_only=True, layer1_only=False,
+                           accept_upstream=accept)
     return (tmp_path / ADVISOR).read_text()
 
 
@@ -202,6 +219,76 @@ def test_update_replaces_advisor_head_backs_up_and_keeps_notes(tmp_path, monkeyp
     backups = list((tmp_path / "tmp" / "researchteam-backups").rglob("interpretation-advisor.agent.md"))
     assert len(backups) == 1 and backups[0].read_text() == local
     assert "+new body" in capsys.readouterr().out  # the diff is shown even unattended
+
+
+# --- above-notes: a customised advisor is kept (mathAgents) ------------------------------------------
+
+PINNED = FM.replace("name: x", "name: Interpretation Advisor\ndescription: generic") + \
+    "generic body v1\n\n## Project-Specific Notes\n\n> placeholder\n"
+REMOTE = PINNED.replace("generic body v1", "generic body v2")
+CUSTOM = FM.replace("name: x", "name: Interpretation Advisor — mathAgents\ndescription: proofs and models") + \
+    "mathAgents body\n\n## Project-Specific Notes\n\nours\n"
+
+
+def test_pristine_advisor_upgrades(tmp_path, monkeypatch, capsys):
+    local = PINNED.replace("> placeholder", "ours")
+    assert _layer2_only(tmp_path, monkeypatch, local, REMOTE, yes=True, pinned=PINNED) == REMOTE.replace("> placeholder", "ours")
+    assert "customised" not in capsys.readouterr().out
+    assert list((tmp_path / "tmp" / "researchteam-backups").rglob("interpretation-advisor.agent.md"))
+
+
+def test_pristine_check_ignores_trailing_whitespace_before_notes_only(tmp_path):
+    (tmp_path / "toolchain.lock").write_text(f"researchteam=jlcatonjr/researchteam@{PIN}\n")
+    trailing = PINNED.replace("v1\n\n## Project-Specific Notes", "v1  \n\n\n## Project-Specific Notes")
+    assert _update_cmd._above_notes_pristine(tmp_path, ADVISOR, trailing, PIN, PINNED) == (True, f"upstream @{PIN[:12]}")
+    inner = PINNED.replace("name: Interpretation Advisor", "name: Interpretation Advisor ")
+    assert _update_cmd._above_notes_pristine(tmp_path, ADVISOR, inner, PIN, PINNED)[0] is False
+
+
+def test_customised_advisor_is_kept_under_yes(tmp_path, monkeypatch, capsys):
+    assert _layer2_only(tmp_path, monkeypatch, CUSTOM, REMOTE, yes=True, pinned=PINNED) == CUSTOM
+    out = capsys.readouterr().out
+    assert (f"[above-notes] {ADVISOR}: customised locally (differs from upstream @{PIN[:12]}); "
+            "kept local unchanged") in out
+    assert f"--accept-upstream {ADVISOR}" in out and "1 skipped" in out
+    assert not (tmp_path / "tmp" / "researchteam-backups").exists()
+
+
+def test_customised_advisor_interactive_defaults_to_keep(tmp_path, monkeypatch, capsys):
+    assert _layer2_only(tmp_path, monkeypatch, CUSTOM, REMOTE, yes=False, pinned=PINNED, answer="") == CUSTOM
+    out = capsys.readouterr().out
+    assert "approving below REPLACES it" in out and "+generic body v2" in out  # the diff is shown
+
+
+def test_customised_advisor_dry_run_writes_nothing(tmp_path, monkeypatch, capsys):
+    assert _layer2_only(tmp_path, monkeypatch, CUSTOM, REMOTE, yes=False, pinned=PINNED, dry_run=True) == CUSTOM
+    assert f"[dry-run] Would keep: {ADVISOR}" in capsys.readouterr().out
+    assert not (tmp_path / "tmp").exists()
+
+
+def test_unverifiable_pin_keeps_local(tmp_path, monkeypatch, capsys):
+    out = _layer2_only(tmp_path, monkeypatch, CUSTOM, REMOTE, yes=True, pinned=RuntimeError("HTTP 404"))
+    assert out == CUSTOM and "not verified as un-customised: could not fetch upstream" in capsys.readouterr().out
+
+
+def test_odd_pinned_ref_is_never_fetched_and_keeps_local(tmp_path, monkeypatch):
+    (tmp_path / ".researchteam").write_text("ref = ../../evil?x=1\n")
+    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda *a: pytest.fail("must not fetch"))
+    verdict, detail = _update_cmd._above_notes_pristine(tmp_path, ADVISOR, CUSTOM, "main", REMOTE)
+    assert verdict is None and "not a plain commit or name" in detail
+
+
+def test_accept_upstream_replaces_a_customised_advisor(tmp_path, monkeypatch):
+    out = _layer2_only(tmp_path, monkeypatch, CUSTOM, REMOTE, yes=True, pinned=PINNED, accept=(f"./{ADVISOR}",))
+    assert out == REMOTE.replace("> placeholder", "ours")
+    backups = list((tmp_path / "tmp" / "researchteam-backups").rglob("interpretation-advisor.agent.md"))
+    assert len(backups) == 1 and backups[0].read_text() == CUSTOM
+
+
+def test_accept_upstream_still_refuses_a_widening_under_yes(tmp_path, monkeypatch, capsys):
+    wider = REMOTE.replace("['read', 'search']", "['read', 'search', 'execute']")
+    assert _layer2_only(tmp_path, monkeypatch, CUSTOM, wider, yes=True, pinned=PINNED, accept=(ADVISOR,)) == CUSTOM
+    assert "WIDENS capability grants (tools: +execute)" in capsys.readouterr().out
 
 
 def test_upstream_layer1_run_propagates_its_own_blocks(tmp_path, monkeypatch):

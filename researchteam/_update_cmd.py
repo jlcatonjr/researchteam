@@ -19,6 +19,7 @@ from ._manifest import (
     UPSTREAM_REPO,
     managed_files_for,
 )
+from ._drift import SAFE_REF, clean, comparable_body, pinned_ref
 from ._fetch import fetch_raw
 
 
@@ -85,6 +86,24 @@ def _reconcile_above_notes(rel_path: str, local: str, remote: str) -> tuple[str 
                                      fromfile=f"local/{rel_path} (above Notes)",
                                      tofile=f"upstream/{rel_path} (above Notes)"))
     return new, diff
+
+
+def _above_notes_pristine(root: Path, rel_path: str, local: str, ref: str,
+                          remote: str) -> tuple[bool | None, str]:
+    """Is the local part above Notes still the upstream copy at the repo's pinned researchteam commit?
+
+    Returns ``(verdict, detail)``: ``True`` when it matches the pinned upstream (an un-customised
+    file, safe to upgrade), ``False`` when the repo changed it, ``None`` when that cannot be told (an
+    odd ref, a failed fetch). Compared the way ``doctor --drift`` compares seeded files.
+    """
+    pin, how = pinned_ref(root)
+    if not SAFE_REF.match(pin):
+        return None, f"the pinned ref {clean(pin)!r} ({how}) is not a plain commit or name"
+    try:
+        pinned = remote if pin == ref else fetch_raw(UPSTREAM_REPO, pin, rel_path)
+    except RuntimeError as exc:
+        return None, f"could not fetch upstream @{pin[:12]} ({clean(exc)})"
+    return comparable_body(local) == comparable_body(pinned), f"upstream @{pin[:12]}"
 
 
 def _new_backup_stamp() -> str:
@@ -245,6 +264,7 @@ def run_update(
     dry_run: bool,
     layer2_only: bool,
     layer1_only: bool = False,
+    accept_upstream: list[str] | tuple[str, ...] = (),
 ) -> None:
     global _BACKUP_STAMP
     _BACKUP_STAMP = _new_backup_stamp()  # one backup folder per run
@@ -289,6 +309,9 @@ def run_update(
     updated: list[str] = []
     skipped: list[str] = []
     errors: list[str] = []
+    accepted = {Path(p).as_posix().removeprefix("./") for p in accept_upstream}
+    for path in sorted(accepted - {p for p in managed if MERGE_STRATEGIES.get(p) == "above-notes"}):
+        print(f"  [above-notes] --accept-upstream {clean(path)}: not an above-notes managed file; ignored.")
 
     for rel_path in managed:
         local_path = root / rel_path
@@ -308,6 +331,23 @@ def run_update(
                     if diff_lines:  # upstream copy has no Notes heading: kept local, warned
                         skipped.append(rel_path)
                     continue
+                # The upstream part is upstream's only while the repo has not retargeted it (mathAgents
+                # did). A customised or unverifiable file is never replaced unless explicitly accepted.
+                pristine, detail = (True, "") if rel_path in accepted else _above_notes_pristine(
+                    root, rel_path, local_content, ref, remote_content)
+                if not pristine:
+                    why = (f"customised locally (differs from {detail})" if pristine is False
+                           else f"not verified as un-customised: {detail}")
+                    hint = (f"    to take upstream's part above Notes anyway (Notes kept, file backed up): "
+                            f"researchteam update --accept-upstream {rel_path}")
+                    if yes or dry_run:
+                        print(f"  [above-notes] {rel_path}: {why}; kept local unchanged\n{hint}")
+                        if dry_run:
+                            print(f"  [dry-run] Would keep: {rel_path}")
+                        skipped.append(rel_path)
+                        continue
+                    # Interactive: the prompt below decides, and its default (No) keeps local.
+                    print(f"  [above-notes] {rel_path}: {why}; approving below REPLACES it\n{hint}")
                 widening = _grant_widening(local_content, remote_content)
                 if widening:
                     # Constitutional C-3: widening a declared grant is a privileged change. Never apply
