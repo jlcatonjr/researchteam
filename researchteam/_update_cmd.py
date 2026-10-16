@@ -1087,7 +1087,10 @@ def _warn_codex_leftovers(root: Path) -> list[str]:
         return []
     if not isinstance(log, dict) or log.get("origin") == "interop":
         return []  # still the projection's record: nothing to compare against yet
+    # Part of the team: a file agentteams hashed, or an agent on its roster. A researchteam-managed agent
+    # such as interpretation-advisor is on the roster without being in file_hashes.
     generated = {Path(k).name for k in (log.get("file_hashes") or {})}
+    generated |= {f"{slug}.toml" for slug in (log.get("agent_slug_list") or []) if isinstance(slug, str)}
     leftovers = sorted(p.name for p in agents.glob("*.toml") if p.name not in generated)
     if leftovers:
         print("[researchteam] Codex: WARNING: .codex/agents holds agent file(s) the native render did not "
