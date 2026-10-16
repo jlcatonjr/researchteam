@@ -1025,6 +1025,33 @@ def _refresh_codex(root: Path, dry_run: bool) -> None:
           "from the brief.")
     _run_agentteams(root, yes=True, dry_run=dry_run, overwrite=False, framework="codex")
     _project_codex_skills(root, dry_run)
+    if not dry_run:
+        _warn_codex_leftovers(root)
+
+
+def _warn_codex_leftovers(root: Path) -> list[str]:
+    """Name the ``.codex/agents/*.toml`` files the native render did not generate; delete nothing.
+
+    The pre-#210 interop projection wrote one agent file per canonical agent. The native render
+    generates its own roster, and agentteams never rewrites a file it did not generate, so a projected
+    agent the native team no longer has (``tool-pandoc``, now a skill) stays behind un-narrowed, with
+    its old write sandbox, and fails the write-policy audit. Removing one is the operator's call.
+    """
+    agents = root / ".codex" / "agents"
+    try:
+        log = json.loads((agents / "references" / "build-log.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(log, dict) or log.get("origin") == "interop":
+        return []  # still the projection's record: nothing to compare against yet
+    generated = {Path(k).name for k in (log.get("file_hashes") or {})}
+    leftovers = sorted(p.name for p in agents.glob("*.toml") if p.name not in generated)
+    if leftovers:
+        print("[researchteam] Codex: WARNING: .codex/agents holds agent file(s) the native render did not "
+              f"generate: {', '.join(leftovers)}. They are not narrowed under orchestrator-only and fail "
+              "agentteams' write-policy audit. Review, then remove them (git rm .codex/agents/<file>) or "
+              "narrow them with agentteams.write_policy.apply.", file=sys.stderr)
+    return leftovers
 
 
 def _project_codex_skills(root: Path, dry_run: bool) -> None:
