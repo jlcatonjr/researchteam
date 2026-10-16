@@ -170,3 +170,13 @@ def test_codex_leftovers_are_named_not_deleted(tmp_path, capsys):
     assert _update_cmd._warn_codex_leftovers(tmp_path) == ["tool-pandoc.toml"]
     assert "tool-pandoc.toml" in capsys.readouterr().err
     assert (agents / "tool-pandoc.toml").exists()
+
+
+def test_codex_roster_agents_are_not_leftovers(tmp_path):
+    agents = tmp_path / ".codex" / "agents"
+    (agents / "references").mkdir(parents=True)
+    for name in ("orchestrator.toml", "interpretation-advisor.toml", "tool-pandoc.toml"):
+        (agents / name).write_text("name = 'x'\n")
+    (agents / "references" / "build-log.json").write_text(json.dumps(
+        {"file_hashes": {"orchestrator.toml": "a"}, "agent_slug_list": ["orchestrator", "interpretation-advisor"]}))
+    assert _update_cmd._warn_codex_leftovers(tmp_path) == ["tool-pandoc.toml"]
