@@ -207,6 +207,13 @@ silently.
 >   saved to the gitignored `tmp/researchteam-backups/<run>/`, and the diff is printed even under
 >   `--yes`. Under `--yes`, an upstream change that **widens** the front matter's `tools:`,
 >   `agents:` or handoff targets is refused (Constitutional C-3); review it interactively instead.
+> - **A customised advisor is kept.** Upstream's part replaces the local one only when the local
+>   part still equals upstream's at the repo's pinned researchteam commit (`toolchain.lock`, else
+>   the `.researchteam` ref, else `main`; compared like `doctor --drift`). A repo that retargeted it
+>   (mathAgents) is kept with a `customised locally … kept local unchanged` line, under `--yes`
+>   too; so is one whose pinned copy cannot be fetched. Interactively the prompt defaults to No.
+>   `researchteam update --accept-upstream <path>` (repeatable) takes upstream's part anyway; the
+>   C-3 widening refusal still applies.
 > - **Notes blocks.** Rules that researchteam writes for the advisor and the topic-scoping,
 >   literature-review and main-analysis experts live in a `researchteam:notes` block at the top of
 >   each agent's Notes. `update` syncs the block on `.github`, `.claude` and `.goose`, backs up each

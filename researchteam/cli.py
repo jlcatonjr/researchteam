@@ -84,6 +84,15 @@ def main() -> None:
         metavar="REF",
         help="Upstream git ref to fetch from (overrides .researchteam marker; default: main)",
     )
+    update_p.add_argument(
+        "--accept-upstream",
+        action="append",
+        default=[],
+        metavar="PATH",
+        help="Replace this above-notes file's part above '## Project-Specific Notes' with upstream's "
+        "even though the repo customised it (Notes kept, previous file backed up). Repeatable. "
+        "Without it a customised file is kept, also under --yes.",
+    )
 
     # ---- personalize ---------------------------------------------------------
     personalize_p = sub.add_parser(
@@ -168,6 +177,7 @@ def main() -> None:
             dry_run=args.dry_run,
             layer2_only=args.layer2_only,
             layer1_only=args.layer1_only,
+            accept_upstream=args.accept_upstream,
         )
 
     elif args.command == "personalize":

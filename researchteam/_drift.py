@@ -165,6 +165,22 @@ def comparable_body(text: str) -> str:
     return (text[:m.start()] if m else text).rstrip()
 
 
+def pinned_ref(root: Path) -> tuple[str, str]:
+    """The researchteam commit to compare against: toolchain.lock's pin, else the marker ref, else main."""
+    lock = root / "toolchain.lock"
+    if lock.exists():
+        for line in lock.read_text(encoding="utf-8").splitlines():
+            if line.startswith("researchteam=") and "@" in line:
+                return line.rsplit("@", 1)[1].strip(), "toolchain.lock pin"
+    marker = None
+    try:
+        m = re.search(r"^ref\s*=\s*(\S+)", (root / ".researchteam").read_text(encoding="utf-8"), re.M)
+        marker = m.group(1).strip("\"'") if m else None
+    except OSError:
+        pass
+    return (marker or "main"), ("marker ref" if marker else "main")
+
+
 def bridge_frameworks(root: Path) -> list[str]:
     """Frameworks with a copilot-vscode bridge recorded under ``references/bridges/``."""
     base = root / BRIDGES_DIR
