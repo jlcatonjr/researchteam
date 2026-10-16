@@ -341,3 +341,98 @@ def test_surfaces_skip_symlinks_that_leave_the_repo(tmp_path):
     (root / ".claude" / "agents").mkdir(parents=True)
     (root / ".claude" / "agents" / "main-analysis-expert.md").symlink_to(outside)
     assert _notes.surfaces(root, "main-analysis-expert") == []
+
+
+# --- experts come from the brief, not the scaffold (masterTeacher 4.3) ------------------------------
+
+import json  # noqa: E402
+import re  # noqa: E402
+
+from researchteam._manifest import MANAGED_FILES  # noqa: E402
+
+DEFAULT_EXPERT = re.compile(r"@(topic-scoping|literature-review|main-analysis|conclusion)-expert")
+CUSTOM_COMPONENTS = ("tutoring-dialogue", "subject-pedagogy")
+
+
+def _brief(root: Path, slugs) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "brief.json").write_text(json.dumps({"components": [{"slug": s, "name": s} for s in slugs]}))
+
+
+def test_researchteams_own_brief_keeps_every_notes_agent():
+    assert _notes.agents_for(ROOT) == _notes.NOTES_AGENTS
+
+
+def test_custom_components_drop_the_scaffold_experts(tmp_path):
+    _brief(tmp_path, CUSTOM_COMPONENTS)
+    assert _notes.agents_for(tmp_path) == ("interpretation-advisor",)
+    _brief(tmp_path, ("topic-scoping", "main-analysis", "conclusion"))  # the scaffold's default brief
+    assert _notes.agents_for(tmp_path) == ("interpretation-advisor", "topic-scoping-expert", "main-analysis-expert")
+
+
+def test_without_a_readable_brief_every_agent_is_considered(tmp_path):
+    assert _notes.agents_for(tmp_path) == _notes.NOTES_AGENTS
+    (tmp_path / "brief.json").write_text("{not json")
+    assert _notes.agents_for(tmp_path) == _notes.NOTES_AGENTS
+
+
+def test_custom_brief_sync_skips_stale_and_custom_experts(tmp_path, monkeypatch):
+    _brief(tmp_path, CUSTOM_COMPONENTS)
+    agents = tmp_path / ".github" / "agents"
+    agents.mkdir(parents=True)
+    files = {a: agents / f"{a}.agent.md" for a in ("interpretation-advisor", "topic-scoping-expert",
+                                                   "tutoring-dialogue-expert")}
+    for path in files.values():
+        path.write_text(_agent("\n### Ours\nx\n"))
+    before = {a: p.read_text() for a, p in files.items()}
+    asked = []
+    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda repo, ref, path: asked.append(path)
+                        or (ROOT / path).read_text(encoding="utf-8"))
+    _update_cmd._sync_notes(tmp_path, "abc123", yes=True, dry_run=False)
+    assert asked == [_notes.source_path("interpretation-advisor")]  # no expert block is even fetched
+    assert _notes.BEGIN in files["interpretation-advisor"].read_text()
+    for a in ("topic-scoping-expert", "tutoring-dialogue-expert"):
+        assert files[a].read_text() == before[a]
+    for path in agents.iterdir():
+        assert not DEFAULT_EXPERT.search(path.read_text()), path
+
+
+def _shipped(rel: str) -> str:
+    """The upstream-owned part of a managed file: what `update` writes into a derived repo."""
+    text = (ROOT / rel).read_text(encoding="utf-8")
+    if MERGE_STRATEGIES.get(rel) == "fenced-preserve":
+        split = _update_cmd._split_fence(text)
+        return split[1] if split else ""
+    if MERGE_STRATEGIES.get(rel) == "above-notes":
+        return _update_cmd._split_above_notes(text)[0]
+    return text
+
+
+@pytest.mark.parametrize("rel", MANAGED_FILES)
+def test_managed_files_name_no_scaffold_expert(rel):
+    assert not DEFAULT_EXPERT.search(_shipped(rel)), f"{rel} ships a scaffold expert handle"
+
+
+@pytest.mark.parametrize("name", ["CLAUDE.template.md", "README.template.md", "brief.template.json"])
+def test_scaffold_templates_name_no_scaffold_expert(name):
+    text = (ROOT / "researchteam" / "scaffold" / name).read_text(encoding="utf-8")
+    assert not DEFAULT_EXPERT.search(text)
+
+
+def test_non_expert_notes_blocks_name_no_scaffold_expert():
+    for agent in _notes.NOTES_AGENTS:
+        if not agent.endswith(_notes.EXPERT_SUFFIX):
+            assert not DEFAULT_EXPERT.search(_notes.extract_block((ROOT / _notes.source_path(agent)).read_text()))
+
+
+def test_pristine_advisor_with_the_old_handles_upgrades_to_the_generic_text(tmp_path, monkeypatch):
+    remote = (ROOT / ADVISOR).read_text(encoding="utf-8")
+    old_row = ("| The interpretive **scaffolding** — how to read each school on its own terms | The literature's "
+               "**themes/debates** and research-gap prose (`@literature-review-expert`) |\n")
+    head, notes = _update_cmd._split_above_notes(remote)
+    row = next(ln for ln in head.splitlines(keepends=True) if ln.startswith("| The interpretive **scaffolding**"))
+    pinned = head.replace(row, old_row) + notes
+    local = pinned.replace(_notes.NOTES_HEADING, _notes.NOTES_HEADING + "\n\nours", 1)
+    out = _layer2_only(tmp_path, monkeypatch, local, remote, yes=True, pinned=pinned)
+    assert out == head + _update_cmd._split_above_notes(local)[1]
+    assert not DEFAULT_EXPERT.search(_update_cmd._split_above_notes(out)[0])

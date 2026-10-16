@@ -3,7 +3,7 @@
 Agent documentation for building and maintaining a **per-project, vectorized library of the
 literature the agents deem relevant** while investigating. Reusable across projects; each project
 builds and owns its own library, separable from every other. This is the single authoritative spec —
-`reference-manager`, `literature-review-expert`, and the orchestrator point here.
+`reference-manager`, the orchestrator and the literature-review component's expert point here.
 
 ## The honest ceiling (read first — binding; do not soften)
 
@@ -51,9 +51,9 @@ Under `Projects/<project>/references/library/` (user-owned; the researchteam gen
 
 ## How agents build it out as they investigate
 
-1. **Deem relevance.** When investigating (e.g. `@literature-review-expert` preparing a Component
-   Brief, or `@reference-manager` adding a verified citation), a source judged relevant is added to
-   the project `.bib` with a `url`/`doi` (the `[LINK]`/`[REFURL]` citation standards apply).
+1. **Deem relevance.** When investigating (e.g. the literature-review component's expert preparing a
+   Component Brief, or `@reference-manager` adding a verified citation), a source judged relevant is
+   added to the project `.bib` with a `url`/`doi` (the `[LINK]`/`[REFURL]` citation standards apply).
 2. **Author the relevance record.** `@reference-manager` (which holds `edit`) creates/updates the
    source's `literature.jsonl` record with a **substantive `relevance.summary`** in the agent's own
    words — *why this source is relevant to this project, what it contributes* — and sets

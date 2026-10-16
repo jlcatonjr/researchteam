@@ -25,11 +25,17 @@ First adoption folds in hand-copied duplicates: an outside-block ``###`` subsect
 matches one in the block, or a top-level bullet item identical to one in the block, is removed, since
 the block now carries it. Nothing else outside the block is ever touched.
 
+Expert blocks are role-specific (scoping, literature review, analysis), so they go only to an expert
+the repo's ``brief.json`` still defines: agentteams names each component's expert ``<slug>-expert``, and
+a derived repo with its own ``components`` must not get a block written into a stale or unrelated
+expert (masterTeacher 4.3). Non-expert agents (the advisor) are not tied to components.
+
 All functions expect LF line endings (``Path.read_text`` already translates CRLF). Files reached through
 a symlink that resolves outside the repository are refused.
 """
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -44,6 +50,29 @@ END = "<!-- <<< researchteam:notes -->"
 BEGIN_CORE = ">>> researchteam:notes"
 END_CORE = "<<< researchteam:notes"
 NOTES_HEADING = "## Project-Specific Notes"
+EXPERT_SUFFIX = "-expert"  # agentteams: a component's expert is `<component slug>-expert`
+
+
+def component_slugs(root: Path) -> set[str] | None:
+    """The ``components[].slug`` set of ``root``'s ``brief.json``, or None when it cannot be read."""
+    try:
+        comps = json.loads((root / "brief.json").read_text(encoding="utf-8")).get("components")
+    except (OSError, ValueError, AttributeError):
+        return None
+    if not isinstance(comps, list):
+        return None
+    return {c["slug"] for c in comps if isinstance(c, dict) and isinstance(c.get("slug"), str)}
+
+
+def agents_for(root: Path) -> tuple[str, ...]:
+    """The NOTES_AGENTS whose block belongs in ``root``: every non-expert, and each expert whose
+    component the brief defines. Without a readable brief, all of them (``surfaces`` still limits the
+    sync to files that exist)."""
+    slugs = component_slugs(root)
+    if slugs is None:
+        return NOTES_AGENTS
+    return tuple(a for a in NOTES_AGENTS
+                 if not a.endswith(EXPERT_SUFFIX) or a[:-len(EXPERT_SUFFIX)] in slugs)
 
 
 def source_path(agent: str) -> str:
