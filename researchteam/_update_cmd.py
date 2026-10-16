@@ -267,7 +267,7 @@ def run_update(
         _run_agentteams(root, yes=yes, dry_run=dry_run)
         # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
         _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
-        # The merge may change canonical agents; keep the Codex projection in step.
+        # The merge may change canonical agents; keep Codex in step (native render, orchestrator-only).
         _refresh_codex(root, dry_run=dry_run)
         # Bridges before the upstream Notes sync, so the Notes blocks are always written last.
         _merge_bridges(root, dry_run)
@@ -412,7 +412,7 @@ def run_update(
     _run_agentteams(root, yes=yes, dry_run=dry_run)
     # Native claude/goose surfaces too (merge mode), so their generated MCP/sandbox/hook output keeps up.
     _render_native_surfaces(root, yes=yes, dry_run=dry_run, overwrite=False)
-    # The merge may change canonical agents; keep the Codex projection in step.
+    # The merge may change canonical agents; keep Codex in step (native render, orchestrator-only).
     _refresh_codex(root, dry_run=dry_run)
     _merge_bridges(root, dry_run)
     _print_frozen_summary(root, dry_run)
@@ -955,47 +955,39 @@ def _run_agentteams(
         _reconcile_manifest_back(root)
 
 
-def _refresh_codex(root: Path, dry_run: bool) -> None:
-    """Re-project the Codex surface after a render, if the instance carries one.
+#: Shown when a Codex surface exists but the brief does not put codex under orchestrator-only.
+_CODEX_REFUSED = (
+    "[researchteam] Codex: agentteams #210 refuses to project narrow-grant agents unless write_policy is "
+    "orchestrator-only for codex; set it in brief.json (\"write_policy\": \"orchestrator-only\", with "
+    "\"codex\" in \"write_policy_frameworks\" and an explicit \"privilege_profile\": \"confined\"; see "
+    "docs/researchteam-framework.md, \"Codex is orchestrator-only\") and re-run. Nothing under .codex was changed."
+)
 
-    Codex is an interop projection, not a native render target: agents come from the canonical
-    copilot-vscode team (``.github/agents`` -> ``.codex/agents/*.toml``), and skills come from
-    the Claude skills (``.claude/skills`` -> ``.agents/skills``, via ``--interop-skills-only``).
-    Without this step a render leaves ``.codex`` on the previous roster.
+
+def _refresh_codex(root: Path, dry_run: bool) -> None:
+    """Re-render the Codex surface after a render, if the instance carries one.
+
+    Codex is orchestrator-only in every repository (release policy section 5). Under
+    ``write_policy: orchestrator-only`` covering codex, it is rendered natively from the brief, so
+    agentteams applies the narrowing (read-only agents, proposals, role gate). Otherwise nothing runs:
+    agentteams #210 refuses to project the canonical team's narrow-grant agents onto Codex outside its
+    role gate, and the cooperative opt-in (``--interop-allow-cooperative``) is not part of 1.0. A dry
+    run reports that and returns; a real run exits non-zero, projecting nothing. Under the switch,
+    skills are projected too (``.claude/skills`` -> ``.agents/skills``): ``--interop-skills-only``
+    returns before #210's check.
     """
     if not (root / ".codex" / "agents").is_dir():
         return
     from ._drift import write_policy_frameworks
-    if "codex" in write_policy_frameworks(root):
-        # The projection would copy the canonical (dispatching) team into .codex/agents. Under the
-        # orchestrator-only switch Codex is rendered natively from the brief instead, so agentteams
-        # applies the narrowing (read-only agents, proposals, role gate) and changes keep flowing.
-        print("[researchteam] Codex: write_policy: orchestrator-only covers codex; rendering it natively "
-              "from the brief instead of projecting the canonical team.")
-        _run_agentteams(root, yes=True, dry_run=dry_run, overwrite=False, framework="codex")
-        _project_codex_skills(root, dry_run)
-        return
-    exe = _preflight_agentteams()
-    # --overwrite is required: without it interop SKIPS existing files, so an already-projected
-    # agent or skill would never pick up later canonical changes. Codex files are pure generated
-    # projections (never hand-edited), so full replacement is correct.
-    runs = [[exe, "--interop-from", ".github/agents", "--framework", "codex", "--output", ".",
-             "--overwrite", "--yes"]]
-    if (root / ".claude" / "skills").is_dir():
-        runs.append([exe, "--interop-from", ".claude/agents", "--interop-source-framework", "claude",
-                     "--framework", "codex", "--interop-skills-only", "--output", ".", "--overwrite", "--yes"])
-    for cmd in runs:
+    if "codex" not in write_policy_frameworks(root):
         if dry_run:
-            cmd.append("--dry-run")
-        print(f"[researchteam] materialize: refreshing Codex projection ({' '.join(cmd[1:4])} ...)")
-        result = subprocess.run(cmd, cwd=str(root))
-        if result.returncode != 0:
-            print("[researchteam] materialize: Codex projection FAILED; the rendered surfaces are "
-                  "current, .codex is not. Fix the cause and re-run.", file=sys.stderr)
-            sys.exit(result.returncode)
-    _prune_stale_codex_agents(root, dry_run=dry_run)
-    if not dry_run:
-        _check_codex_team_marker(root)
+            print(_CODEX_REFUSED + "\n[researchteam] (dry-run) a real run exits non-zero here.")
+            return
+        sys.exit(_CODEX_REFUSED)
+    print("[researchteam] Codex: write_policy: orchestrator-only covers codex; rendering it natively "
+          "from the brief.")
+    _run_agentteams(root, yes=True, dry_run=dry_run, overwrite=False, framework="codex")
+    _project_codex_skills(root, dry_run)
 
 
 def _project_codex_skills(root: Path, dry_run: bool) -> None:
@@ -1007,55 +999,6 @@ def _project_codex_skills(root: Path, dry_run: bool) -> None:
            "--interop-skills-only", "--output", ".", "--overwrite", "--yes"] + (["--dry-run"] if dry_run else [])
     if subprocess.run(cmd, cwd=str(root)).returncode != 0:
         print("[researchteam] Codex skills projection FAILED; .agents/skills is not current.", file=sys.stderr)
-
-
-def _check_codex_team_marker(root: Path) -> None:
-    """Warn when the Codex projection left no team marker.
-
-    Since agentteams ``d31d4a0`` an interop projection writes ``references/build-log.json`` (with
-    ``"origin": "interop"``), so agentteams recognises ``.codex/agents`` as a team: verify-key store
-    sentinel, roster stubs, launcher protection, fleet/--update discovery. An older agentteams writes
-    none, and the Codex team stays unrecognised. This is a warning, not a failure: the projected
-    agents themselves are still current.
-    """
-    marker = root / ".codex" / "agents" / "references" / "build-log.json"
-    try:
-        data = json.loads(marker.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        data = None
-    if not isinstance(data, dict):
-        print("[researchteam] materialize: WARNING: the Codex projection wrote no team marker "
-              "(.codex/agents/references/build-log.json). The installed agentteams predates the "
-              "interop team-marker fix (agentteams d31d4a0); upgrade it so agentteams recognises the "
-              "Codex team.", file=sys.stderr)
-
-
-#: First line agentteams writes into every projected Codex agent. Only files carrying it are ever
-#: pruned, so a hand-authored Codex agent is never deleted.
-_CODEX_GENERATED_HEADER = "# Codex custom agent — generated by agentteams"
-
-
-def _prune_stale_codex_agents(root: Path, dry_run: bool) -> None:
-    """Remove generated Codex agents whose canonical source no longer exists.
-
-    The interop projection only adds or updates ``.codex/agents/*.toml``; it never deletes one
-    whose ``.github/agents/<slug>.agent.md`` was removed, so a retired agent would linger in Codex.
-    Only files that carry the agentteams generation header are candidates.
-    """
-    canonical = {p.name[: -len(".agent.md")] for p in (root / ".github" / "agents").glob("*.agent.md")}
-    for toml in sorted((root / ".codex" / "agents").glob("*.toml")):
-        if toml.stem in canonical:
-            continue
-        try:
-            first = toml.read_text(encoding="utf-8").splitlines()[0]
-        except (OSError, IndexError):
-            continue
-        if not first.startswith(_CODEX_GENERATED_HEADER):
-            continue
-        verb = "would prune" if dry_run else "pruned"
-        print(f"[researchteam] materialize: {verb} stale Codex agent {toml.name} (no canonical source)")
-        if not dry_run:
-            toml.unlink()
 
 
 def run_materialize(
@@ -1082,8 +1025,8 @@ def run_materialize(
 
     ``adopt_orphans`` passes ``--adopt-orphans`` to every surface's render, so bespoke agents
     (files with no agentteams template) stay in the orchestrator roster. When the instance
-    carries a Codex surface (``.codex/agents``), its agents and skills are re-projected after the
-    renders unless ``codex`` is False.
+    carries a Codex surface (``.codex/agents``), Codex is refreshed after the renders (``_refresh_codex``:
+    native and orchestrator-only, or refused) unless ``codex`` is False.
 
     The overwrite carries every user-editable ``## Project-Specific Notes`` / ``## Project-Specific
     Rules`` region into the new files (agentteams P5a), so an agentteams without P5a is refused before
