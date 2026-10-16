@@ -36,13 +36,13 @@ def _sign(ws: Path, key: str | None) -> subprocess.CompletedProcess[str]:
 def test_signer_appends_verified_row(tmp_path, monkeypatch):
     pytest.importorskip("agentteams")
     ws = _workspace(tmp_path)
-    r = _sign(ws, "throwaway-test-key")
+    r = _sign(ws, "throwaway-test-key-0123456789abcdef0123")
     assert r.returncode == 0, r.stderr
     rows = list(csv.DictReader((ws / ".github/agents/references/security-decisions.log.csv").open()))
     assert rows[0]["verdict"] == "VOID" and rows[0]["signature"] == ""   # history preserved
     assert rows[-1]["verdict"] == "PASS" and len(rows[-1]["signature"]) == 64
     from agentteams.cli.security_gate import check_clearance
-    monkeypatch.setenv("AGENTTEAMS_DECISION_SIGNING_KEY", "a-different-key")
+    monkeypatch.setenv("AGENTTEAMS_DECISION_SIGNING_KEY", "a-different-key-0123456789abcdef01234567")
     ok, reason = check_clearance(ws / ".github" / "agents", action="overwrite")
     assert not ok and "signature verification" in reason                  # wrong key fails closed
 
@@ -52,7 +52,7 @@ def test_signer_refuses_unexpected_log_layout_without_touching_it(tmp_path):
     log = ws / ".github/agents/references/security-decisions.log.csv"
     log.write_text("date,decision,status\n2026-01-01,overwrite,VOID\n")
     before = log.read_text()
-    r = _sign(ws, "throwaway-test-key")
+    r = _sign(ws, "throwaway-test-key-0123456789abcdef0123")
     assert r.returncode == 1 and log.read_text() == before
 
 
