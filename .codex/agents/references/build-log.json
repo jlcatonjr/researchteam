@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc13",
+  "agentteams_version": "1.0.0rc14",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "03592ea253cef4f67089377821fb5d6abe2f6722",
+    "commit": "c22aca0e507885d1e062a736af7fda80003d3151",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-17T04:05:24.370456+00:00",
+  "generated_at": "2026-10-17T23:12:37.656778+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -524,11 +524,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "661d9ea5e503de40",
+  "manifest_fingerprint": "c207157ae80f7838",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "1786eccb39ff29e9",
-    "security.toml": "eb1abcb8e4783809",
+    "references/security-vulnerability-watch.json": "ab8cba21380366c8",
+    "security.toml": "c2537f3ebb8aeb02",
     "references/security-vulnerability-watch.reference.md": "df8a2b349c0c8327",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "4663213799503326",
@@ -571,7 +571,7 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "529d8ea46afbbd01",
+    "../../AGENTS.md": "8120195ce7703d87",
     "team-builder.toml": "63c7b9ae34cede90",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
@@ -731,7 +731,7 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "f004ecb6a5ba44eec5b32d988685d21b20b5d9a59105f9bb47789143686d831f",
+      "threat_intelligence": "dfc275b56eb33782c4155d081954bc10794a7b586bf120408adf9241c6855fdb",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",

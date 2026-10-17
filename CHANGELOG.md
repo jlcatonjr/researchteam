@@ -3,6 +3,27 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.0rc3 (tag `v1.0.0-rc.3`, on `release/1.0`)
+
+The third release candidate, required by the shared release policy (§6, 2b) once agentteams cut `v1.0.0-rc.14`.
+
+- **agentteams pin:** `v1.0.0-rc.14` (peeled `c22aca0e`), in the lock (release-locked) and both extras. rc.14
+  changes agentteams' proposal runner, MCP grant revocation and the integrity check for a clean Claude team.
+  pyproject changes only the version line, so the S-10 vetting carries over. researchteam is re-rendered on
+  rc.14 (churn only).
+- **Notes sync leaves bespoke agents alone (#79; mathAgents).** An agent whose upstream-owned part is
+  customised (the same check as #50), or that `brief.json` lists under `researchteam_notes.exclude`, is
+  skipped on every surface and left byte-identical. A malformed `researchteam_notes` syncs no Notes block
+  at all until it is fixed.
+- **Derived repos verify a release-locked researchteam before installing it (#77, #78).** The derived
+  workflow's trust-root step now runs first. For a lock with `researchteam.tag`, the runner's own `git`
+  checks that the tag is in researchteam's refs, is annotated, verifies against `AGENTTEAMS_ALLOWED_SIGNERS`
+  and peels to the locked commit. Only then is that commit installed. The derived workflow isn't synced, so
+  derived repos adopt this step in their first release-lock PR.
+- **CI runs the tests (#75, #76).** `.github/workflows/tests.yml` runs pytest and the bridge validator on
+  `main` and `release/**`, on Python 3.10 and 3.13. The actions are SHA-pinned and the test dependencies are
+  hash-locked and S-10-vetted.
+
 ## 1.0.0rc2 (tag `v1.0.0-rc.2`, on `release/1.0`)
 
 The second release candidate. The joint soak moved to agentteams `v1.0.0-rc.13` (operator ruling 2026-10-17),
