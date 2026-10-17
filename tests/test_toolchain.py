@@ -298,3 +298,16 @@ def test_extras_mismatch_fails_strict(tmp_path, monkeypatch, capsys):
 
 def test_repo_extras_match_repo_lock():
     assert ct.extras_problems(ct.read_lock(str(ROOT / "toolchain.lock")), str(ROOT / "pyproject.toml")) == []
+
+
+def test_probe_ignores_a_stray_egg_info_in_the_working_directory(tmp_path, monkeypatch):
+    """The 2026-10-16 soak: a repo-root researchteam.egg-info (an editable build artifact) shadowed the
+    installed distribution, so --write-lock saw 'no commit recorded' and the release-locked gate failed."""
+    stray = tmp_path / "researchteam.egg-info"
+    stray.mkdir()
+    (stray / "PKG-INFO").write_text("Metadata-Version: 2.1\nName: researchteam\nVersion: 0.0.0\n")
+    monkeypatch.chdir(tmp_path)
+    info = ct.installed(sys.executable)
+    assert info is not None
+    rt = info.get("researchteam")
+    assert rt is None or rt["version"] != "0.0.0", "the stray egg-info must not be what the probe reports"
