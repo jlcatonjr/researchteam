@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc12",
+  "agentteams_version": "1.0.0rc13",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "69fe9447ae80bed6652586323d81672a1a8a8757",
+    "commit": "03592ea253cef4f67089377821fb5d6abe2f6722",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-16T23:25:56.818006+00:00",
+  "generated_at": "2026-10-17T04:04:09.384742+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -524,11 +524,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "0e094c031904971e",
+  "manifest_fingerprint": "bfe8b0fb42f506b3",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "c130aeb0c4462506",
-    "security.md": "cb490dc3abeb38be",
+    "references/security-vulnerability-watch.json": "2ce40625603ff03c",
+    "security.md": "5b5c39a6250b0205",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/security-vulnerability-watch.reference.md": "a0442e5f3290e51e",
@@ -829,7 +829,7 @@
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "8bd67a40239bf37f836d7ad8fa7497d3fefe759048e2242f6d04f3555fd048c6",
-      "threat_intelligence": "513a892dc91ac750bf0bbc4c74a7b17c4fb27b32c4b52ad560b0f4983f66f565",
+      "threat_intelligence": "40b7d40485c719792a790d343daf2996d3e59ee99f7c933025f83a8ac5a90330",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {

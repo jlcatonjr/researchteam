@@ -43,6 +43,15 @@ researchteam may add rules to it but may not weaken it.
   sync Layer 2 from the verified researchteam tag named in their lock.
 
 ## Codex (#210)
+- **Frozen Codex (shared policy §5, draft 6).** agentteams 1.0 supports `write_policy` interop for claude and
+  goose only. A repository whose roster includes adopted (bespoke) agents therefore keeps its Codex surface
+  **frozen** for 1.0 (`researchteam update --no-codex`). Orchestrator-only applies to agentteams-rendered
+  Codex teams; Codex interop arrives as a 1.0.x backport. researchteam's own Codex is native and
+  orchestrator-only.
+- **The upstream self-pin is advisory.** In researchteam's own `toolchain.lock`, the `researchteam=` line
+  records the release commit the repo was last verified with. It carries no `researchteam.tag`, because the
+  upstream autosync installs `main` editable and would refuse to rewrite a locked self-pin. Derived repos
+  pin researchteam to a verified tag.
 - Codex and Codex `AGENTS.md` are **orchestrator-only**, recorded in an Ed25519-signed decision row. A
   cooperative opt-in is not part of 1.0.
 

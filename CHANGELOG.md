@@ -3,6 +3,26 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.0rc2 (tag `v1.0.0-rc.2`, on `release/1.0`)
+
+The second release candidate. The joint soak moved to agentteams `v1.0.0-rc.13` (operator ruling 2026-10-17),
+so it tests exactly what ships.
+
+- **agentteams pin:** `v1.0.0-rc.13` (peeled `03592ea2`), in the lock (release-locked) and both extras. rc.13
+  changes only agentteams' macOS proposal runner, which researchteam does not use. pyproject changes only the
+  version line, so the S-10 vetting carries over. researchteam is re-rendered on rc.13.
+- **The rc.1 soak's findings (#70):**
+  - `check_toolchain`'s version probe runs isolated (`python -I`), so an editable build's `*.egg-info` can no
+    longer make a release-locked `--write-lock` fail closed;
+  - the upstream sync workflow installs the commit being synced, not `main`.
+- Closing-audit fixes for rc.1. researchteam's own `toolchain.lock` self-pin moves to the rc.1 commit
+  (advisory; no `researchteam.tag` upstream). The autosync ref records agentteams rc.12. The release policy
+  states the frozen-Codex exception (shared policy §5) and the upstream self-pin rule. Doc wording is
+  corrected.
+- Note for operators: once a decisions log is migrated to the signing schema and `enforce_decision_signing`
+  is on, older **unsigned** rows (such as researchteam's own `commit-scaffold-fixes` from 2026-09-30) no
+  longer clear any action. Sign a fresh row instead.
+
 ## 1.0.0rc1 (tag `v1.0.0-rc.1`, on `release/1.0`)
 
 The first 1.0 release candidate. It is cut jointly with agentteams `v1.0.0-rc.12`, mathAgents and baseAgent

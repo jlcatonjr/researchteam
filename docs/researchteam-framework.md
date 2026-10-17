@@ -36,7 +36,7 @@ green sync. To run exactly that pair:
 ```bash
 bash scripts/bootstrap_toolchain.sh          # .venv with the pinned commits (gitignored)
 bash scripts/bootstrap_toolchain.sh --local  # editable installs from your own checkouts
-python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main
+python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main (not for release-locked pins)
 ```
 
 The bootstrap installs researchteam *without* the `[update]` extra, because that extra pins the

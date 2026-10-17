@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc12",
+  "agentteams_version": "1.0.0rc13",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "69fe9447ae80bed6652586323d81672a1a8a8757",
+    "commit": "03592ea253cef4f67089377821fb5d6abe2f6722",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-16T23:25:19.160693+00:00",
+  "generated_at": "2026-10-17T04:03:32.017203+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -524,11 +524,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "5bf9568cf1673f39",
+  "manifest_fingerprint": "b5bff501205c74ec",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "33c93b145e2ee050",
-    "references/security-vulnerability-watch.json": "7df5e9b2f1dc446b",
+    "security.agent.md": "c4e5bfa7587ca4f7",
+    "references/security-vulnerability-watch.json": "195823607e897bc1",
     "orchestrator.agent.md": "e198ae24755611f1",
     "navigator.agent.md": "ec41b004d2b282b9",
     "code-hygiene.agent.md": "654d28d9fb509933",
@@ -927,7 +927,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "24e095cf82f338c369f6f7503a67fe6ea0eb82f076f613afdcd46158ae53e780",
+      "threat_intelligence": "87845b39f55eb99d4a74c831cd46311caf46445115fb5647cea77067878e3107",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
