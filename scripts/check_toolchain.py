@@ -16,7 +16,7 @@ Lock format (one pin per line, ``#`` comments allowed)::
 
     researchteam=jlcatonjr/researchteam@<40-hex sha>
     agentteams=jlcatonjr/agentteams@<40-hex sha>
-    agentteams.tag=v1.0.0-rc.13          # optional: release-locked (see researchteam/_release.py)
+    agentteams.tag=v1.0.0-rc.14          # optional: release-locked (see researchteam/_release.py)
 
 A pin with a ``<name>.tag`` line is RELEASE-LOCKED: its commit is that verified signed tag's peeled
 commit, and ``--write-lock`` moves it only to a newer verified tag on the same ``vX.Y`` line
