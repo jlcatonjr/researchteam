@@ -48,7 +48,22 @@ jobs:
       - name: Install ResearchTeam CLI
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "git+https://github.com/jlcatonjr/researchteam.git"
+          # A release-locked repo (toolchain.lock has `researchteam.tag=`) installs researchteam at the
+          # lock's PR-reviewed commit, so the code that verifies release tags in the gate below is the
+          # pinned release, not whatever is on researchteam main (release policy §3). The gate re-verifies
+          # that commit against the signed tag. An unlocked repo keeps the latest main, as before.
+          RT_REF=""
+          if [ -f toolchain.lock ] && grep -qE '^researchteam\.tag=' toolchain.lock; then
+            pin="$(grep -E '^researchteam=' toolchain.lock | head -1 | cut -d= -f2-)"
+            sha="${pin#jlcatonjr/researchteam@}"
+            if [ "$sha" = "$pin" ] || ! printf '%s' "$sha" | grep -qE '^[0-9a-f]{40}$'; then
+              echo "toolchain.lock is release-locked but researchteam= is not jlcatonjr/researchteam@<40-hex sha>: '$pin'" >&2
+              exit 1
+            fi
+            RT_REF="@$sha"
+            echo "release-locked: installing researchteam at the lock's commit $sha"
+          fi
+          python -m pip install "git+https://github.com/jlcatonjr/researchteam.git${RT_REF}"
           researchteam --version
 
       - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
