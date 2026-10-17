@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc12",
+  "agentteams_version": "1.0.0rc13",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "69fe9447ae80bed6652586323d81672a1a8a8757",
+    "commit": "03592ea253cef4f67089377821fb5d6abe2f6722",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-16T23:26:34.243463+00:00",
+  "generated_at": "2026-10-17T04:04:46.987761+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -524,11 +524,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "79199579bb84f013",
+  "manifest_fingerprint": "21712968efe21d75",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "7f4c341132af02bf",
-    "security.yaml": "12725453a7d1a261",
+    "references/security-vulnerability-watch.json": "c990ea8036a31fe9",
+    "security.yaml": "3e770748b7f0c698",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -693,7 +693,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "e87c8aef9b6fe5aa7650e99456e2a97188faf301d218adb72830f433b808eb3e",
+      "threat_intelligence": "3eca3fc760a140f12ef1090db8a8e5e623734a89968f34efd5fed6fe1bc29619",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",

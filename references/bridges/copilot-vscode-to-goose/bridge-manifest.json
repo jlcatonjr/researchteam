@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-16T23:27:13.797565+00:00",
+  "generated_at": "2026-10-17T04:05:26.994373+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "33c93b145e2ee050beb2fbf487d61724323fbcd3d1a2a81ff907d541cd120df1"
+      "sha256": "c4e5bfa7587ca4f7572cbed55c4460ac7333c030dc538ca5c9010c6598c66e85"
     },
     {
       "path": "agents/team-builder.agent.md",
