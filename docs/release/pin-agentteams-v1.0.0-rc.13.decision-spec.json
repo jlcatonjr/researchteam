@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-17",
+  "date": "2026-10-17",
+  "requesting_agent": "security",
+  "author": "operator",
+  "action_reviewed": "pin-agentteams-v1.0.0-rc.13",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.0.0-rc.13",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.0.0-rc.13 (tag object 44664b8086539d7455c0e7ef80d34809af9a3e34, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). S-10 exemption applies to agentteams itself; resolved third-party packages vetted in docs/release/s10-dependency-vetting-2026-10-16.md (no OSV advisories; rpds-py and pycparser constrained).",
+  "conditions_verified": "tag v1.0.0-rc.13 object 44664b8086539d7455c0e7ef80d34809af9a3e34 peeled 03592ea253cef4f67089377821fb5d6abe2f6722; git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; remote advertisement matches",
+  "evidence": "researchteam PR #71 (rc.2); S-10 vetting carried over (pyproject: version line only); Scope: toolchain.lock and the update/research extras: agentteams -> 03592ea253cef4f67089377821fb5d6abe2f6722",
+  "derives_from": "release-policy-1.0; s10-release-key-exemption",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false",
+  "key_id": "op-2026"
+}
