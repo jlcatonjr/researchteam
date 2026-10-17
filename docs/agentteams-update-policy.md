@@ -134,8 +134,8 @@ green upstream.
 A repository is **release-locked** when its `toolchain.lock` records a release tag beside a pin:
 
 ```
-agentteams=jlcatonjr/agentteams@69fe9447ae80bed6652586323d81672a1a8a8757
-agentteams.tag=v1.0.0-rc.12
+agentteams=jlcatonjr/agentteams@03592ea253cef4f67089377821fb5d6abe2f6722
+agentteams.tag=v1.0.0-rc.13
 researchteam=jlcatonjr/researchteam@<peeled sha>
 researchteam.tag=v1.0.0-rc.1
 ```
