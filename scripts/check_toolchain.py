@@ -180,7 +180,9 @@ print(json.dumps(out))
 
 def installed(py):
     try:
-        r = subprocess.run([py, "-c", _PROBE, *PACKAGES], capture_output=True, text=True, timeout=10)
+        # -I: isolated mode, so the probe never sees the current directory. A repo root with a
+        # researchteam.egg-info from an editable build would otherwise shadow the real install record.
+        r = subprocess.run([py, "-I", "-c", _PROBE, *PACKAGES], capture_output=True, text=True, timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         return None
     if r.returncode != 0:
