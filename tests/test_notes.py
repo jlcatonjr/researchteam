@@ -384,6 +384,7 @@ def test_custom_brief_sync_skips_stale_and_custom_experts(tmp_path, monkeypatch)
                                                    "tutoring-dialogue-expert")}
     for path in files.values():
         path.write_text(_agent("\n### Ours\nx\n"))
+    files["interpretation-advisor"].write_text(_pristine_advisor())  # a customised one is skipped
     before = {a: p.read_text() for a, p in files.items()}
     asked = []
     monkeypatch.setattr(_update_cmd, "fetch_raw", lambda repo, ref, path: asked.append(path)
@@ -436,3 +437,140 @@ def test_pristine_advisor_with_the_old_handles_upgrades_to_the_generic_text(tmp_
     out = _layer2_only(tmp_path, monkeypatch, local, remote, yes=True, pinned=pinned)
     assert out == head + _update_cmd._split_above_notes(local)[1]
     assert not DEFAULT_EXPERT.search(_update_cmd._split_above_notes(out)[0])
+
+
+# --- a customised or excluded agent gets no notes block (mathAgents) -------------------------------
+
+ADVISOR_SLUG = "interpretation-advisor"
+UPSTREAM_ADVISOR = (ROOT / ADVISOR).read_text(encoding="utf-8")
+_BLOCK = _notes.extract_block(UPSTREAM_ADVISOR).splitlines(keepends=True)
+DUP = next("".join(_BLOCK[s:e]) for key, s, e in _notes._units(_BLOCK, "") if key.startswith("b:"))  # hand copy
+
+
+def _pristine_advisor(notes: str = "\n### Ours\nx\n") -> str:
+    """researchteam's advisor above Notes (un-customised) with a repo's own Notes below."""
+    return _update_cmd._split_above_notes(UPSTREAM_ADVISOR)[0] + _notes.NOTES_HEADING + "\n\n" + QUOTE + notes
+
+
+def _advisor_surfaces(root: Path, github: str, pinned=UPSTREAM_ADVISOR, brief: dict | None = None) -> dict:
+    """The advisor on .github, .claude and .goose (each holding a hand copy the sync would fold), and
+    upstream fetches: ``main`` serves researchteam's advisor, the toolchain.lock pin serves ``pinned``."""
+    files = {root / ADVISOR: github,
+             root / ".claude" / "agents" / f"{ADVISOR_SLUG}.md": _agent("\n" + DUP),
+             root / ".goose" / "recipes" / f"{ADVISOR_SLUG}.yaml":
+                 "title: x\ninstructions: |\n  ## Role\n\n  ## Project-Specific Notes\n\n  > USER-EDITABLE\n\n"
+                 + "".join("  " + ln if ln.strip() else ln for ln in DUP.splitlines(keepends=True)) + "prompt: go\n"}
+    for path, text in files.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(text)
+    (root / "toolchain.lock").write_text(f"researchteam=jlcatonjr/researchteam@{PIN}\n")
+    _brief(root, ())
+    if brief is not None:
+        (root / "brief.json").write_text(json.dumps(brief))
+    return {p: p.read_bytes() for p in files}
+
+
+def _upstream(pinned=UPSTREAM_ADVISOR):
+    def fetch(repo, ref, path):
+        if ref == PIN and isinstance(pinned, Exception):
+            raise pinned
+        return pinned if ref == PIN else UPSTREAM_ADVISOR
+    return fetch
+
+
+def _unchanged(root: Path, before: dict) -> None:
+    assert {p: p.read_bytes() for p in before} == before
+    assert not (root / "tmp").exists()  # no backup either
+
+
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_customised_advisor_gets_no_notes_block_on_any_surface(tmp_path, monkeypatch, capsys, dry_run):
+    custom = CUSTOM.replace("ours\n", QUOTE + "\n" + DUP)  # its Notes also hold a foldable hand copy
+    before = _advisor_surfaces(tmp_path, custom)
+    monkeypatch.setattr(_update_cmd, "fetch_raw", _upstream(PINNED))
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=dry_run)
+    _unchanged(tmp_path, before)
+    out = capsys.readouterr().out
+    assert (f"[notes] {ADVISOR_SLUG}: customised locally (differs from upstream @{PIN[:12]}); "
+            "researchteam notes block not synced (left unchanged)") in out
+    assert "Would sync" not in out and out.count("[notes]") == 1
+
+
+def test_excluded_advisor_is_skipped_before_any_fetch(tmp_path, monkeypatch, capsys):
+    before = _advisor_surfaces(tmp_path, _pristine_advisor(),
+                               brief={"researchteam_notes": {"exclude": [ADVISOR_SLUG, "no-such-agent"]}})
+    monkeypatch.setattr(_notes, "NOTES_AGENTS", (ADVISOR_SLUG,))
+    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda *a: pytest.fail("must not fetch"))
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=False)
+    _unchanged(tmp_path, before)
+    out = capsys.readouterr().out
+    assert f"[notes] {ADVISOR_SLUG}: excluded by brief.json researchteam_notes.exclude" in out
+    assert "'no-such-agent' is not a researchteam notes agent; ignored" in out
+
+
+@pytest.mark.parametrize("cfg", [{"exclude": ADVISOR_SLUG}, {"exclude": [ADVISOR_SLUG, 3]}, [ADVISOR_SLUG]])
+def test_malformed_exclude_syncs_nothing(tmp_path, monkeypatch, capsys, cfg):
+    before = _advisor_surfaces(tmp_path, _pristine_advisor(), brief={"researchteam_notes": cfg})
+    assert _notes.excluded(tmp_path)[0] is None
+    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda *a: pytest.fail("must not fetch"))
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=False)
+    _unchanged(tmp_path, before)
+    assert 'brief.json "researchteam_notes" must be {"exclude"' in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("dry_run", [False, True])
+def test_pristine_advisor_still_gets_the_block_everywhere(tmp_path, monkeypatch, capsys, dry_run):
+    before = _advisor_surfaces(tmp_path, _pristine_advisor("\n" + DUP))
+    monkeypatch.setattr(_update_cmd, "fetch_raw", _upstream())
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=dry_run)
+    out = capsys.readouterr().out
+    assert "customised" not in out
+    if dry_run:
+        _unchanged(tmp_path, before)
+        assert out.count("[dry-run] Would sync upstream Notes into") == 3
+        return
+    for path in before:
+        text = path.read_text()
+        assert _notes.BEGIN in text and text.count(DUP.splitlines()[0].strip()) == 1, path  # duplicate folded
+
+
+def test_advisor_just_upgraded_to_the_ref_is_not_customised(tmp_path, monkeypatch):
+    # the layer-2 pass may have moved the head to upstream@ref, past the pin: still researchteam's own
+    _advisor_surfaces(tmp_path, _pristine_advisor())
+    monkeypatch.setattr(_update_cmd, "fetch_raw", _upstream(PINNED))
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=False)
+    assert _notes.BEGIN in (tmp_path / ADVISOR).read_text()
+
+
+@pytest.mark.parametrize("unverifiable", ["fetch", "ref"])
+def test_unverifiable_advisor_gets_no_notes_block(tmp_path, monkeypatch, capsys, unverifiable):
+    before = _advisor_surfaces(tmp_path, _pristine_advisor().replace("Advisor", "Advisor (local)", 1))
+    if unverifiable == "ref":
+        (tmp_path / "toolchain.lock").unlink()
+        (tmp_path / ".researchteam").write_text("ref = ../../evil?x=1\n")
+        before[tmp_path / ".researchteam"] = (tmp_path / ".researchteam").read_bytes()
+    monkeypatch.setattr(_update_cmd, "fetch_raw", _upstream(RuntimeError("HTTP 404")))
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=False)
+    _unchanged(tmp_path, before)
+    out = capsys.readouterr().out
+    assert f"[notes] {ADVISOR_SLUG}: not verified as un-customised (" in out
+    assert ("could not fetch upstream" if unverifiable == "fetch" else "not a plain commit or name") in out
+
+
+def test_researchteams_own_repo_is_unchanged(tmp_path, monkeypatch, capsys):
+    assert _notes.excluded(ROOT) == (set(), [])
+    for name in ("brief.json", ".researchteam", "toolchain.lock"):
+        (tmp_path / name).write_text((ROOT / name).read_text(encoding="utf-8"))
+    before = {}
+    for agent in _notes.NOTES_AGENTS:
+        for path, _ in _notes.surfaces(ROOT, agent):
+            dest = tmp_path / path.relative_to(ROOT)
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes(path.read_bytes())
+            before[dest] = dest.read_bytes()
+    assert tmp_path / ADVISOR in before
+    monkeypatch.setattr(_update_cmd, "fetch_raw", lambda repo, ref, path: (ROOT / path).read_text(encoding="utf-8"))
+    _update_cmd._sync_notes(tmp_path, None, yes=True, dry_run=False)  # upstream's own layer-1 pass
+    _update_cmd._sync_notes(tmp_path, "main", yes=True, dry_run=False)  # and a layer-2 run against itself
+    _unchanged(tmp_path, before)
+    assert "not synced" not in capsys.readouterr().out  # (a Notes-less .claude stub is reported as before)

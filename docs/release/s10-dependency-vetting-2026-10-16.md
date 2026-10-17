@@ -1,4 +1,4 @@
-# S-10 dependency vetting — agentteams v1.0.0-rc.10 through rc.13 (2026-10-16, 2026-10-17)
+# S-10 dependency vetting — agentteams v1.0.0-rc.10 through rc.14 (2026-10-16, 2026-10-17)
 
 Scope: every third-party package that resolves when installing agentteams `f0dcdc85` (v1.0.0-rc.10)
 with the `signing` extra, the trusted signer install. The S-10 release-key exemption covers agentteams
@@ -27,6 +27,10 @@ unchanged.
 
 **Carried over to v1.0.0-rc.13** (tag object `44664b80`, peeled `03592ea2`; verified 2026-10-17): between
 `69fe9447` and `03592ea2`, `pyproject.toml` changes only the version line, `1.0.0rc12` → `1.0.0rc13`. The
+resolved set is unchanged.
+
+**Carried over to v1.0.0-rc.14** (tag object `3a3e423e`, peeled `c22aca0e`; verified 2026-10-17): between
+`03592ea2` and `c22aca0e`, `pyproject.toml` changes only the version line, `1.0.0rc13` → `1.0.0rc14`. The
 resolved set is unchanged.
 
 Constraints that installs use until the two newer releases clear the cooldown (2026-10-18 and

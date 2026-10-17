@@ -500,6 +500,27 @@ def _merge_bridges(root: Path, dry_run: bool) -> None:
                   "left as it was", file=sys.stderr)
 
 
+def _notes_customised(root: Path, rel: str, ref: str, source: str) -> str | None:
+    """Why ``rel``'s Notes block must not be synced, or None. Only ``above-notes`` files are judged.
+
+    The upstream-owned part matching ``source`` (upstream at ``ref``, e.g. just upgraded by the
+    layer-2 pass) is un-customised; otherwise it is ``_above_notes_pristine``'s pinned-commit test,
+    and a file it cannot verify is treated as customised (fail safe, as the layer-2 pass does).
+    """
+    from ._notes import inside
+    path = root / rel
+    if MERGE_STRATEGIES.get(rel) != "above-notes" or not path.is_file() or not inside(root, path):
+        return None
+    local = path.read_text(encoding="utf-8")
+    if comparable_body(local) == comparable_body(source):
+        return None
+    pristine, detail = _above_notes_pristine(root, rel, local, ref, source)
+    if pristine:
+        return None
+    return (f"customised locally (differs from {detail})" if pristine is False
+            else f"not verified as un-customised ({detail})")
+
+
 def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
     """Write each upstream researchteam:notes block into every surface its agent has in this repo.
 
@@ -509,12 +530,29 @@ def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
     ``ref`` names the upstream researchteam ref to read the blocks from; ``None`` reads this repo's
     own ``.github`` copies (the upstream repository itself). Repo-owned Notes outside the block are
     never touched; hand-copied duplicates are folded on first adoption (see ``_notes``).
-    """
-    from ._notes import NotesError, agents_for, apply_block, extract_block, source_path, surfaces
 
+    An agent is skipped on every surface, its files left byte-identical, when the brief lists it in
+    ``researchteam_notes.exclude`` (checked before any fetch), or when its canonical ``.github`` file
+    is an ``above-notes`` file the repo customised (``_notes_customised``): the block is written for
+    researchteam's agent and would become live instructions in a retargeted one (mathAgents).
+    """
+    from ._notes import NotesError, agents_for, apply_block, excluded, extract_block, source_path, surfaces
+    from ._personalize import is_upstream
+
+    skip, notes = excluded(root)
+    for note in notes:
+        print(f"  [notes] {note}")
+    if skip is None:  # malformed: never guess which agents the repo meant to protect
+        print("  [notes] upstream Notes blocks not synced into any agent until that is fixed (left unchanged)")
+        return
+    check_customised = ref is not None and not is_upstream(root)  # upstream is the blocks' source
     changed = 0
     for agent in agents_for(root):
         rel = source_path(agent)
+        if agent in skip:
+            print(f"  [notes] {agent}: excluded by brief.json researchteam_notes.exclude; "
+                  "researchteam notes block not synced (left unchanged)")
+            continue
         try:
             source = (root / rel).read_text(encoding="utf-8") if ref is None else fetch_raw(UPSTREAM_REPO, ref, rel)
             inner = extract_block(source)
@@ -523,6 +561,10 @@ def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
             continue
         if inner is None:
             continue  # upstream carries no block for this agent (yet)
+        why = _notes_customised(root, rel, ref, source) if check_customised else None
+        if why:
+            print(f"  [notes] {agent}: {why}; researchteam notes block not synced (left unchanged)")
+            continue
         for path, indent in surfaces(root, agent):
             shown = path.relative_to(root)
             text = path.read_text(encoding="utf-8")
