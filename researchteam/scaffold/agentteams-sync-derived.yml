@@ -45,30 +45,6 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install ResearchTeam CLI
-        run: |
-          python -m pip install --upgrade pip
-          # A release-locked repo (toolchain.lock has `researchteam.tag=`) installs researchteam at the
-          # lock's PR-reviewed commit, so the code that verifies release tags in the gate below is the
-          # pinned release, not whatever is on researchteam main (release policy §3). The gate re-verifies
-          # that commit against the signed tag. An unlocked repo keeps the latest main, as before.
-          RT_REF=""
-          if [ -f toolchain.lock ] && grep -qE '^researchteam\.tag=' toolchain.lock; then
-            pin="$(grep -E '^researchteam=' toolchain.lock | head -1 | cut -d= -f2-)"
-            sha="${pin#jlcatonjr/researchteam@}"
-            if [ "$sha" = "$pin" ] || ! printf '%s' "$sha" | grep -qE '^[0-9a-f]{40}$'; then
-              echo "toolchain.lock is release-locked but researchteam= is not jlcatonjr/researchteam@<40-hex sha>: '$pin'" >&2
-              exit 1
-            fi
-            RT_REF="@$sha"
-            echo "release-locked: installing researchteam at the lock's commit $sha"
-          fi
-          python -m pip install "git+https://github.com/jlcatonjr/researchteam.git${RT_REF}"
-          researchteam --version
-
-      - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
-        run: git fetch origin "chore/agentteams-autosync" || true
-
       - name: Release trust root (release-locked repos; operator-provisioned secret)
         env:
           ALLOWED_SIGNERS: ${{ secrets.AGENTTEAMS_ALLOWED_SIGNERS }}
@@ -80,6 +56,60 @@ jobs:
             printf '%s\n' "$ALLOWED_SIGNERS" > "$RUNNER_TEMP/allowed_signers"
             echo "AGENTTEAMS_ALLOWED_SIGNERS=$RUNNER_TEMP/allowed_signers" >> "$GITHUB_ENV"
           fi
+
+      - name: Install ResearchTeam CLI
+        run: |
+          python -m pip install --upgrade pip
+          # A release-locked repo (toolchain.lock has `researchteam.tag=`) installs researchteam at the
+          # lock's PR-reviewed commit, so the code that verifies release tags in the gate below is the
+          # pinned release, not whatever is on researchteam main (release policy §3). The gate re-verifies
+          # that commit against the signed tag. An unlocked repo keeps the latest main, as before.
+          RT_GIT="${RESEARCHTEAM_GIT:-https://github.com/jlcatonjr/researchteam.git}"
+          RT_REF=""
+          if [ -f toolchain.lock ] && grep -qE '^researchteam\.tag=' toolchain.lock; then
+            pin="$(grep -E '^researchteam=' toolchain.lock | head -1 | cut -d= -f2-)"
+            tag="$(grep -E '^researchteam\.tag=' toolchain.lock | head -1 | cut -d= -f2-)"
+            sha="${pin#jlcatonjr/researchteam@}"
+            if [ "$sha" = "$pin" ] || ! printf '%s' "$sha" | grep -qE '^[0-9a-f]{40}$'; then
+              echo "toolchain.lock is release-locked but researchteam= is not jlcatonjr/researchteam@<40-hex sha>: '$pin'" >&2
+              exit 1
+            fi
+            if ! printf '%s' "$tag" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$'; then
+              echo "toolchain.lock is release-locked but researchteam.tag is not a release tag: '$tag'" >&2
+              exit 1
+            fi
+            if [ -z "${AGENTTEAMS_ALLOWED_SIGNERS:-}" ] || [ ! -s "$AGENTTEAMS_ALLOWED_SIGNERS" ]; then
+              echo "release-locked: no allowed_signers (set the AGENTTEAMS_ALLOWED_SIGNERS secret); refusing" >&2
+              exit 1
+            fi
+            # Verify with the runner's own git, BEFORE installing anything: the tag must exist in
+            # researchteam's own refs (not merely a commit reachable in its fork network), be an annotated
+            # tag signed by a release key in allowed_signers, and peel to the locked commit. The gate's
+            # later re-check runs the installed code, so this is the independent one.
+            vdir="$(mktemp -d)"
+            export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1  # neutralised config
+            git init -q --bare "$vdir/rt.git"
+            git -C "$vdir/rt.git" fetch -q --no-tags "$RT_GIT" "refs/tags/$tag:refs/tags/$tag" || {
+              echo "release-locked: tag $tag not found in $RT_GIT" >&2; exit 1; }
+            if [ "$(git -C "$vdir/rt.git" cat-file -t "refs/tags/$tag")" != "tag" ]; then
+              echo "release-locked: $tag is not an annotated tag" >&2; exit 1
+            fi
+            git -C "$vdir/rt.git" -c gpg.ssh.allowedSignersFile="$AGENTTEAMS_ALLOWED_SIGNERS" tag -v "$tag" >/dev/null 2>&1 || {
+              echo "release-locked: $tag does not verify against allowed_signers" >&2; exit 1; }
+            peeled="$(git -C "$vdir/rt.git" rev-parse "refs/tags/$tag^{commit}")"
+            if [ "$peeled" != "$sha" ]; then
+              echo "release-locked: $tag peels to $peeled, but the lock pins $sha" >&2; exit 1
+            fi
+            rm -rf "$vdir"
+            unset GIT_CONFIG_GLOBAL GIT_CONFIG_NOSYSTEM
+            RT_REF="@$sha"
+            echo "release-locked: $tag verified (peeled $sha); installing researchteam at that commit"
+          fi
+          python -m pip install "git+${RT_GIT}${RT_REF}"
+          researchteam --version
+
+      - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
+        run: git fetch origin "chore/agentteams-autosync" || true
 
       - name: Autosync gate — SHA-gate → pinned install → full update → BLOCKING gates
         id: gate

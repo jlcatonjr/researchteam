@@ -160,12 +160,15 @@ Under a release lock, the Execution Policy above changes as follows:
    `researchteam update` fetches managed files from that tag's peeled commit instead of `main`, and in
    derived mode the gate installs that researchteam first. A tag that does not verify, or a commit that
    is not its peeled commit, stops the update; it never falls back to `main`. `--ref` overrides the lock
-   deliberately. The derived workflow also installs researchteam **at the lock's `researchteam=` commit**
-   before the gate runs, so the code that verifies release tags is the pinned release, not researchteam
-   `main`. The gate then re-verifies that commit against the signed tag. A release-locked lock whose
-   `researchteam=` line isn't `jlcatonjr/researchteam@<40-hex sha>` stops the workflow. The derived
-   workflow is seeded at `init` and isn't a synced file, so an existing repository adopts this step in
-   its first release-lock PR.
+   deliberately. Before installing anything, the derived workflow verifies `researchteam.tag` **with the
+   runner's own `git`**, under neutralised config. The tag must exist in researchteam's own refs (not
+   merely as a commit reachable through a fork), be annotated, verify against `allowed_signers`, and
+   peel to the lock's `researchteam=` commit. Only then does the workflow install researchteam at that
+   commit. So the code that verifies agentteams tags in the gate is the pinned release, not researchteam
+   `main`. The gate's own later re-check runs that installed code, so it is not independent; the runner
+   check is. A malformed pin or tag, a tag that doesn't verify, a commit mismatch, or a missing
+   `allowed_signers` stops the workflow. The derived workflow is seeded at `init` and isn't a synced
+   file, so an existing repository adopts this step in its first release-lock PR.
 4. **CI needs the trust root.** A runner has no `~/.config/agentteams/allowed_signers`. The operator
    provisions one, for example by writing a repository secret to a file and exporting
    `AGENTTEAMS_ALLOWED_SIGNERS`, in the derived workflow before the gate step. Without it, release-locked
