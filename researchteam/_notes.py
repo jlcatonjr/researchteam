@@ -30,6 +30,10 @@ the repo's ``brief.json`` still defines: agentteams names each component's exper
 a derived repo with its own ``components`` must not get a block written into a stale or unrelated
 expert (masterTeacher 4.3). Non-expert agents (the advisor) are not tied to components.
 
+An agent is skipped entirely, every surface left byte-identical, when ``brief.json`` lists it under
+``"researchteam_notes": {"exclude": [...]}``, or when its canonical ``.github`` file is an
+``above-notes`` file the repo has customised (``update`` decides that; see ``_sync_notes``).
+
 All functions expect LF line endings (``Path.read_text`` already translates CRLF). Files reached through
 a symlink that resolves outside the repository are refused.
 """
@@ -73,6 +77,29 @@ def agents_for(root: Path) -> tuple[str, ...]:
         return NOTES_AGENTS
     return tuple(a for a in NOTES_AGENTS
                  if not a.endswith(EXPERT_SUFFIX) or a[:-len(EXPERT_SUFFIX)] in slugs)
+
+
+def excluded(root: Path) -> tuple[set[str] | None, list[str]]:
+    """``(slugs, notes)`` from ``brief.json``'s ``"researchteam_notes": {"exclude": [...]}``.
+
+    A listed agent gets no block on any surface: its files are left exactly as they are (a repo whose
+    agent is not researchteam's, e.g. mathAgents' retargeted advisor). ``slugs`` is None when the key
+    is present but malformed, so the caller can refuse to guess; a slug that is not a NOTES_AGENT is
+    dropped with a note. An absent or unreadable brief excludes nothing.
+    """
+    try:
+        brief = json.loads((root / "brief.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return set(), []
+    cfg = brief.get("researchteam_notes") if isinstance(brief, dict) else None
+    if cfg is None:
+        return set(), []
+    listed = cfg.get("exclude", []) if isinstance(cfg, dict) else None
+    if not isinstance(listed, list) or not all(isinstance(s, str) for s in listed):
+        return None, ['brief.json "researchteam_notes" must be {"exclude": [<agent slug>, ...]}']
+    notes = [f"brief.json researchteam_notes.exclude: {s!r} is not a researchteam notes agent; ignored"
+             for s in listed if s not in NOTES_AGENTS]
+    return {s for s in listed if s in NOTES_AGENTS}, notes
 
 
 def source_path(agent: str) -> str:

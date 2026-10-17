@@ -133,6 +133,27 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
   outside the block changes.
 - **Editing the rules.** Edit the block upstream. A local edit inside the block is replaced at the
   next `update`, and the previous file is saved under `tmp/researchteam-backups/`.
+- **Agents that get no block.** The block is written for researchteam's own agent. In a repo that
+  retargeted the agent it would become live instructions that do not apply, so `update` skips the
+  agent on every surface and leaves its files byte-identical, with no duplicate folding and no
+  backup. It does this in two cases:
+  - *Customised.* The agent's `.github` file uses the `above-notes` strategy (today, the advisor),
+    and its part above Notes differs from upstream's at the pinned researchteam commit. This is
+    the same test that keeps a customised advisor. A file that cannot be checked (a failed fetch,
+    an unsafe pinned ref) is skipped too. `update` prints
+    `[notes] <agent>: customised locally (...); researchteam notes block not synced (left unchanged)`.
+    After `--accept-upstream <path>`, the file is upstream's again, so it gets the block.
+  - *Excluded.* `brief.json` lists the agent:
+
+    ```json
+    "researchteam_notes": {"exclude": ["interpretation-advisor"]}
+    ```
+
+    The list is read before anything is fetched. A slug that is not one of the agents above is
+    ignored with a note. If the key is not an object whose `exclude` is a list of strings, no
+    block is synced into any agent until it is fixed.
+
+  `--dry-run` prints the same lines and writes nothing.
 
 ## `brief.json` fields that shape the instance
 
