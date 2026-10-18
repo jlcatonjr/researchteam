@@ -51,13 +51,17 @@ is maximal *detection* plus honest *escalation*, not proof.
 
 ## Layer 1 — the mechanical detector (deterministic)
 
-`scripts/check_citation_integrity.sh [project]` (also `bash scripts/claude_researchteam_bridge.sh
-citation-audit [project]`) checks the machine-certain subset and code-tags every line:
+`scripts/check_citation_integrity.sh [project] [--bib PATH]` (also `bash scripts/claude_researchteam_bridge.sh
+citation-audit [project] [--bib PATH]`) checks the machine-certain subset and code-tags every line.
+It audits the `--bib` file(s) if given (these *replace* discovery, so the project's own `.bib`
+files are not checked in that run); otherwise every `*.bib` under the project; otherwise the
+repo-level `references/*.bib`. It **fails closed**: if it cannot create a writable temp directory it
+exits 2 and prints no PASS, and a project that cites sources with no `.bib` found is a `DEFECT[NOBIB]`.
 
 | Class | Codes | Meaning | Exit effect |
 |-------|-------|---------|-------------|
-| `DEFECT` | `[DUP]` `[META]` `[LINK]` `[REFURL]` | duplicate key; entry with no title, or no author **and** no editor; entry with **no source link** (no `url` and no `doi`); a **reference-list entry that embeds no URL** (the link in the `.bib` must also appear in the end-of-document entry) | blocks (exit 1); `CITATION_INTEGRITY_ADVISORY=1` downgrades to exit 0 |
-| `NEEDS-REVIEW` | `[CU]` `[RM]` `[PE]` `[META]` `[URL]` `[DOI]` `[STRUCT]` | in-text cite with no backing; `## References` entry absent from `.bib`; uncited entry; missing year; malformed-looking locator; missing reference list | advisory only — never changes the exit code |
+| `DEFECT` | `[DUP]` `[META]` `[LINK]` `[REFURL]` `[NOBIB]` | duplicate key; entry with no title, or no author **and** no editor; entry with **no source link** (no `url` and no `doi`); a **reference-list entry that embeds no URL** (the link in the `.bib` must also appear in the end-of-document entry); deliverables that **cite sources but have no `.bib`** to check them against | blocks (exit 1); `CITATION_INTEGRITY_ADVISORY=1` downgrades to exit 0 |
+| `NEEDS-REVIEW` | `[CU]` `[RM]` `[PE]` `[META]` `[URL]` `[DOI]` `[STRUCT]` | in-text cite with no backing; `## References` entry absent from `.bib`; uncited entry; missing year; malformed-looking locator; missing reference list, or no `.bib` when nothing is cited | advisory only — never changes the exit code |
 
 The detector is a **stateless stdout scanner**: it does not write `conflict-log.csv`. Its code tags
 map onto the `@conflict-auditor` taxonomy so consolidation is mechanical — `[CU]→CU`, `[RM]→RM`,
