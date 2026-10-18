@@ -35,28 +35,63 @@ set -uo pipefail
 #                   [META] .bib entry missing a year (legitimate for @misc/software/forthcoming)
 #                   [URL]  a url= value that does not look like a URL
 #                   [DOI]  a doi= value that does not look like a DOI
-#                   [STRUCT] project has no .bib, or a deliverable has no "## References"
+#                   [STRUCT] project has no .bib and cites nothing, or a deliverable has no
+#                          "## References"
+#   DEFECT        [NOBIB] a project whose deliverables cite sources (in-text or a reference list)
+#                          but no .bib was found, so every bibliography check would be skipped
 #   PASS          none of the above
 #
+# Bibliography discovery: --bib PATH if given; else every *.bib under the project; else the
+# repo-level references/*.bib (the scaffold's default location).
+#
 # Usage:
-#   scripts/check_citation_integrity.sh [project-name-or-path]
-#     no arg  -> scan every research project under Projects/ and .projects/ (recursive)
-#     <name>  -> check only the matching project
+#   scripts/check_citation_integrity.sh [project-name-or-path] [--bib PATH ...]
+#     no arg      -> scan every research project under Projects/ and .projects/ (recursive)
+#     <name>      -> check only the matching project
+#     --bib PATH  -> audit this .bib for the named project (repeatable; requires a target)
 #
 # Exit codes (mirrors check_methodology_coverage.sh):
 #   0  no DEFECT (or advisory mode, or nothing in scope). NEEDS-REVIEW never changes the code.
 #   1  at least one DEFECT in blocking mode
-#   2  usage / environment error
+#   2  usage / environment error (including no writable temp directory — never a silent PASS)
 #
 # Environment:
 #   RT_ROOT=<path>                    override repo root (used by the test harness)
 #   CITATION_INTEGRITY_ADVISORY=1     warn-only: report DEFECTs but always exit 0
+#   TMPDIR=<path>                     where the scratch directory is created (default /tmp)
 
 ROOT_DIR="${RT_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 ADVISORY="${CITATION_INTEGRITY_ADVISORY:-0}"
-target="${1:-}"
 
-WORK="$(mktemp -d 2>/dev/null || mktemp -d -t rt-citint)"
+target=""
+BIB_OVERRIDE=""   # newline-separated absolute paths (no arrays: bash 3.2 + set -u)
+add_bib() {
+  [ -f "$1" ] || { echo "ERROR: --bib file not found: $1" >&2; exit 2; }
+  BIB_OVERRIDE="${BIB_OVERRIDE}$(CDPATH= cd -- "$(dirname -- "$1")" && pwd)/$(basename -- "$1")
+"
+}
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --bib)   [ $# -ge 2 ] || { echo "ERROR: --bib needs a path" >&2; exit 2; }; add_bib "$2"; shift 2 ;;
+    --bib=*) add_bib "${1#--bib=}"; shift ;;
+    --)      shift; [ $# -eq 0 ] || { [ -z "$target" ] || { echo "ERROR: only one project target is accepted" >&2; exit 2; }; target="$1"; shift; }
+             [ $# -eq 0 ] || { echo "ERROR: unexpected argument after the target: $1" >&2; exit 2; } ;;
+    -*)      echo "ERROR: unknown option: $1" >&2; exit 2 ;;
+    *)       [ -z "$target" ] || { echo "ERROR: only one project target is accepted" >&2; exit 2; }
+             target="$1"; shift ;;
+  esac
+done
+if [ -n "$BIB_OVERRIDE" ] && [ -z "$target" ]; then
+  echo "ERROR: --bib applies to one project; name the project target too" >&2; exit 2
+fi
+
+# Fail CLOSED if no writable scratch dir: every finding is staged under $WORK, so an empty or
+# unwritable WORK would drop all output and still print PASS (exit 0).
+WORK="$(mktemp -d "${TMPDIR:-/tmp}/rt-citint.XXXXXX" 2>/dev/null || mktemp -d 2>/dev/null || true)"
+if [ -z "$WORK" ] || [ ! -d "$WORK" ] || [ ! -w "$WORK" ]; then
+  echo "ERROR: cannot create a writable temp directory (set TMPDIR to a writable path); nothing was checked" >&2
+  exit 2
+fi
 trap 'rm -rf "$WORK"' EXIT
 
 # ---------------------------------------------------------------------------
@@ -96,7 +131,24 @@ resolve_target() {
   return 1
 }
 
-project_bibs() { find "$1" -type f -name '*.bib' 2>/dev/null | sort; }
+project_bibs() {
+  local found
+  if [ -n "$BIB_OVERRIDE" ]; then printf '%s' "$BIB_OVERRIDE"; return; fi
+  found="$(find "$1" -type f -name '*.bib' 2>/dev/null | sort)"
+  if [ -z "$found" ] && [ -d "$ROOT_DIR/references" ]; then
+    found="$(find "$ROOT_DIR/references" -maxdepth 1 -type f -name '*.bib' 2>/dev/null | sort)"
+  fi
+  printf '%s\n' "$found"
+}
+
+# Display path for a .bib: relative to the project, else to the repo root, else as given.
+bib_rel() {
+  case "$1" in
+    "$2"/*)        printf '%s' "${1#"$2"/}" ;;
+    "$ROOT_DIR"/*) printf '%s' "${1#"$ROOT_DIR"/}" ;;
+    *)             printf '%s' "$1" ;;
+  esac
+}
 
 # Deliverable markdown = the asserted-claims articles: top-level NN-*.md and other top-level .md,
 # EXCLUDING the research plan (scaffolding, not an article) and anything under references/.
@@ -266,17 +318,16 @@ check_bib_locators() {
 }
 
 audit_project() {
-  local dir="$1" name idx cited bibs nbib b rel f frel
+  local dir="$1" name idx cited citeflag bibs nbib b rel f frel
   name="$(printf '%s' "${dir#$ROOT_DIR/}")"
   printf '\n=== %s\n' "$name"
 
   bibs="$(project_bibs "$dir")"
   nbib="$(printf '%s' "$bibs" | grep -c . || true)"
-  [ "$nbib" -eq 0 ] && emit "NEEDS-REVIEW[STRUCT]" "no .bib file under the project (bibliography audit skipped)"
 
   printf '%s\n' "$bibs" | while IFS= read -r b; do
     [ -n "$b" ] || continue
-    rel="${b#$dir/}"
+    rel="$(bib_rel "$b" "$dir")"
     check_bib_defects "$b" "$rel"
     check_bib_locators "$b" "$rel"
   done
@@ -288,6 +339,7 @@ audit_project() {
   done > "$idx"
 
   cited="$WORK/cited"; : > "$cited"
+  citeflag="$WORK/citeflag"; rm -f "$citeflag"
   while IFS= read -r f; do
     [ -n "$f" ] || continue
     frel="${f#$dir/}"
@@ -323,9 +375,26 @@ audit_project() {
     fi
 
     { cat "$WORK/itp"; refs_pairs "$WORK/refs"; } >> "$cited"
+
+    # "Cites sources" for the no-bib gate: author-date pairs, ANY content in a reference list
+    # (bulleted/numbered entries yield no refs_pairs), or a Chicago footnote definition ([^1]:).
+    if [ -s "$WORK/itp" ] || grep -q '[[:alnum:]]' "$WORK/refs" 2>/dev/null \
+       || grep -qE '^\[\^[^]]+\]:' "$WORK/body" 2>/dev/null; then
+      : > "$citeflag"
+    fi
   done <<EOF
 $(project_deliverables "$dir")
 EOF
+
+  # No .bib anywhere: fail CLOSED when the deliverables cite sources (every bibliography check
+  # would otherwise be skipped and the run would PASS); advisory only when nothing is cited.
+  if [ "$nbib" -eq 0 ]; then
+    if [ -e "$citeflag" ]; then
+      emit "DEFECT[NOBIB]" "deliverables cite sources but no .bib was found (searched the project and references/*.bib) — add one or pass --bib PATH"
+    else
+      emit "NEEDS-REVIEW[STRUCT]" "no .bib file under the project (bibliography audit skipped)"
+    fi
+  fi
 
   if [ "$nbib" -gt 0 ] && [ -s "$idx" ]; then
     sort -u "$cited" > "$WORK/cited.u" 2>/dev/null || : > "$WORK/cited.u"
@@ -384,7 +453,10 @@ main() {
   echo "      review. DEFECT = mechanically certain; NEEDS-REVIEW = advisory (never blocks)."
 
   local out="$WORK/out"
-  : > "$out"
+  if ! : > "$out" 2>/dev/null; then
+    echo "ERROR: cannot write to the temp directory $WORK; nothing was checked" >&2
+    return 2
+  fi
   while IFS= read -r p; do
     [ -n "$p" ] || continue
     audit_project "$p" >> "$out"
@@ -405,10 +477,10 @@ EOF
   if [ "$defects" -gt 0 ]; then
     if [ "$ADVISORY" = "1" ]; then
       echo "ADVISORY mode: DEFECT(s) found but not blocking (exit 0)."
-      echo "Remediation: fix duplicate keys / missing title or author-editor / missing source links / reference-list URLs, then re-run."
+      echo "Remediation: fix duplicate keys / missing title or author-editor / missing source links / reference-list URLs / missing bibliography, then re-run."
       return 0
     fi
-    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor / missing source link / reference-list URL) before compiling."
+    echo "GATE FAILED: resolve DEFECT(s) (duplicate key / missing title or author-editor / missing source link / reference-list URL / missing bibliography) before compiling."
     return 1
   fi
 
