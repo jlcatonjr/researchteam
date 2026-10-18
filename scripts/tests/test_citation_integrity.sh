@@ -374,8 +374,119 @@ fi
 R="$TMP_ROOT/outside"; mkdir -p "$R/reports"
 printf '# Doc\n\nA claim (Smith 2020).\n' > "$R/reports/01-doc.md"
 run "$R" "$R/reports"
-assert "explicit target outside Projects/ is checked" 0 "Projects checked: 1" "$CODE" "$OUT"
+# It cites (Smith 2020) with no .bib anywhere, so it is checked AND fails closed ([NOBIB]).
+assert "explicit target outside Projects/ is checked" 1 "Projects checked: 1" "$CODE" "$OUT"
 assert_absent "explicit target not skipped" "nothing to check" "$OUT"
+
+# 18. Fail-open #1: no writable temp dir must exit 2 and NEVER print PASS.
+SHIM="$TMP_ROOT/shim"; mkdir -p "$SHIM"
+printf '#!/bin/sh\nexit 1\n' > "$SHIM/mktemp"; chmod +x "$SHIM/mktemp"
+OUT="$(PATH="$SHIM:$PATH" RT_ROOT="$TMP_ROOT/s1" bash "$DETECTOR" Good 2>&1)"; CODE=$?
+assert        "mktemp refused exits 2"                 2 "cannot create a writable temp directory" "$CODE" "$OUT"
+assert_absent "mktemp refused never PASSes"              "PASS" "$OUT"
+
+# 19. Fail-open #2: a bib at repo-level references/ (scaffold default) is found and audited.
+R="$TMP_ROOT/s19"
+mkfile "$R/references/bibliography.bib" <<'EOF'
+@book{NoLink2000, author = {A, A.}, title = {A Book}, year = {2000}, isbn = {9780000000000}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (A 2000).
+
+## References
+A, A. 2000. A Book. https://example.org/a
+EOF
+run "$R" P
+assert        "repo-level references/*.bib is audited" 1 "references/bibliography.bib: entry 'nolink2000' has no source link" "$CODE" "$OUT"
+assert_absent "repo-level bib: no NOBIB"                 "DEFECT\[NOBIB\]" "$OUT"
+
+# 20. A project-level .bib takes precedence over the repo-level one.
+R="$TMP_ROOT/s20"
+mkfile "$R/references/bibliography.bib" <<'EOF'
+@book{NoLink2000, author = {A, A.}, title = {A Book}, year = {2000}}
+EOF
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+See (X 2000).
+
+## References
+X, X. 2000. "T." https://example.org/x
+EOF
+run "$R" P
+assert "project bib wins over repo-level"        0 "PASS" "$CODE" "$OUT"
+
+# 21. Cited deliverable with no .bib anywhere -> DEFECT[NOBIB]; advisory mode downgrades it.
+R="$TMP_ROOT/s21"
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+A claim (Smith 2020).
+
+## References
+Smith, S. 2020. "T." https://example.org/s
+EOF
+run "$R" P
+assert "cited but no bib is DEFECT[NOBIB]"       1 "DEFECT\[NOBIB\]" "$CODE" "$OUT"
+run_advisory "$R" P
+assert "NOBIB advisory downgrade exits 0"        0 "ADVISORY" "$CODE" "$OUT"
+
+# 22. No .bib and nothing cited stays advisory (exit 0).
+R="$TMP_ROOT/s22"
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+Prose with no citations at all.
+EOF
+run "$R" P
+assert        "uncited, no bib is advisory STRUCT"     0 "NEEDS-REVIEW\[STRUCT\] no .bib file" "$CODE" "$OUT"
+assert_absent "uncited, no bib: no NOBIB"                "DEFECT\[NOBIB\]" "$OUT"
+
+# 22b. No .bib + a BULLETED reference list (no author-date pairs) still fails closed.
+R="$TMP_ROOT/s22b"
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+A claim, cited by note.
+
+## References
+- Smith, S. 2020. "T." https://example.org/s
+EOF
+run "$R" P
+assert "bulleted refs, no bib is DEFECT[NOBIB]"  1 "DEFECT\[NOBIB\]" "$CODE" "$OUT"
+
+# 22c. No .bib + Chicago footnote notes only still fails closed.
+R="$TMP_ROOT/s22c"
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+A claim.[^1]
+
+[^1]: Smith, *T* (City: Press, 2020), 12.
+EOF
+run "$R" P
+assert "footnote notes, no bib is DEFECT[NOBIB]" 1 "DEFECT\[NOBIB\]" "$CODE" "$OUT"
+
+# 23. --bib PATH audits a bibliography kept anywhere.
+R="$TMP_ROOT/s23"
+mkfile "$R/elsewhere/lib.bib" <<'EOF'
+@book{NoLink2000, author = {A, A.}, title = {A Book}, year = {2000}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+As shown (A 2000).
+EOF
+run "$R" P --bib "$R/elsewhere/lib.bib"
+assert "--bib PATH is audited"                   1 "DEFECT\[LINK\]" "$CODE" "$OUT"
+run "$R" P --bib="$R/elsewhere/lib.bib"
+assert "--bib=PATH form works"                   1 "DEFECT\[LINK\]" "$CODE" "$OUT"
+run "$R" P --bib "$R/missing.bib"
+assert "--bib missing file exits 2"              2 "bib file not found" "$CODE" "$OUT"
+run "$R" --bib "$R/elsewhere/lib.bib"
+assert "--bib without a target exits 2"          2 "name the project target" "$CODE" "$OUT"
+run "$R" P --nope
+assert "unknown option exits 2"                  2 "unknown option" "$CODE" "$OUT"
+run "$R" --bib "$R/elsewhere/lib.bib" -- P
+assert "-- terminator accepts the target"        1 "DEFECT\[LINK\]" "$CODE" "$OUT"
 
 echo "---"
 echo "Passed: $pass  Failed: $fail"
