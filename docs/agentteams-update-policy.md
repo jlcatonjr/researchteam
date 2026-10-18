@@ -134,11 +134,15 @@ green upstream.
 A repository is **release-locked** when its `toolchain.lock` records a release tag beside a pin:
 
 ```
-agentteams=jlcatonjr/agentteams@c22aca0e507885d1e062a736af7fda80003d3151
-agentteams.tag=v1.0.0-rc.14
-researchteam=jlcatonjr/researchteam@<peeled sha>
-researchteam.tag=v1.0.0-rc.1
+agentteams=jlcatonjr/agentteams@<peeled sha of the agentteams tag>
+agentteams.tag=vX.Y.Z
+researchteam=jlcatonjr/researchteam@<peeled sha of the researchteam tag>
+researchteam.tag=vX.Y.Z
 ```
+
+(The values are placeholders; a tag is `vX.Y.Z` or `vX.Y.Z-rc.N`. A derived repo pins the tags of the release
+it adopts. researchteam's own
+`toolchain.lock` shows a live example of the agentteams lines.)
 
 A pin is the **peeled commit of a verified signed tag**: an annotated tag that `git tag -v` verifies
 against the operator's `~/.config/agentteams/allowed_signers` under neutralised repository config,
@@ -173,6 +177,11 @@ Under a release lock, the Execution Policy above changes as follows:
    provisions one, for example by writing a repository secret to a file and exporting
    `AGENTTEAMS_ALLOWED_SIGNERS`, in the derived workflow before the gate step. Without it, release-locked
    runs fail closed.
+   **So does every collaborator.** On a developer machine, `researchteam update` in a release-locked repo
+   verifies the researchteam tag before syncing Layer 2, and refuses without
+   `~/.config/agentteams/allowed_signers`. That's the intended fail-closed behaviour. Install the release
+   signers' line from agentteams SECURITY.md "Release signers" there, or pass `--ref` to choose a ref
+   deliberately.
 5. **Schedules stay paused during a joint cut.** In a coordinated release (the shared v1.0.0 policy), the
    weekly schedule is disabled with `gh workflow disable`, with no file edit, until every repository has
    tagged. Soak runs are operator-dispatched.
