@@ -140,3 +140,28 @@ def test_unfenced_upstream_never_overwrites():
     write, _diff, warn = _reconcile_fenced(".gitignore", local, remote_unfenced, yes=True)
     assert write is None  # refuse to wholesale-overwrite under a preserve strategy
     assert "no researchteam:managed fence" in warn
+
+
+
+def test_managed_block_ignores_env_files_but_not_templates(tmp_path):
+    """baseAgent @security S-1: every derived repo inherits the managed block, so it must keep
+    environment files out of git while letting placeholder templates in."""
+    import shutil
+    import subprocess
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parent.parent
+    block = (root / ".gitignore").read_text(encoding="utf-8")
+    managed = block[block.index(">>> researchteam:managed"):block.index("<<< researchteam:managed")]
+    for pattern in (".env", ".env.*", "*.env", "!.env.example", "!.env.template"):
+        assert f"\n{pattern}\n" in managed, pattern
+    if shutil.which("git") is None:
+        return
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    (tmp_path / ".gitignore").write_text(managed.split("\n", 1)[1])
+    def ignored(name):
+        return subprocess.run(["git", "check-ignore", "-q", name], cwd=tmp_path).returncode == 0
+    for name in (".env", ".env.local", ".env.production", "deploy.env", "sub/.env"):
+        assert ignored(name), name
+    for name in (".env.example", ".env.template", "environment.yml", "README.md"):
+        assert not ignored(name), name
