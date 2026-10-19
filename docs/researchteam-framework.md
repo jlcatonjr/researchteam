@@ -16,14 +16,17 @@ touching your research content.
 
 ```bash
 # base CLI only — layer-2 file sync, no agent regeneration
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
 
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
-pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
 ```
+
+These install the signed `v1.0.0` tag (later `v1.0.N`). For a verified install (a separate checkout of the tag, its
+signature checked with repository config neutralised), see researchteam `docs/CONTRIBUTING.md`, "Using researchteam".
 
 `agentteams` is not on PyPI and is never installed standalone — routing it through the `[update]`
 extra keeps the two pinned to a compatible pair in one environment. Run `researchteam doctor` to
