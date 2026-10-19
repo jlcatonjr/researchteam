@@ -52,9 +52,27 @@ jobs:
           # A release-locked toolchain.lock verifies signed tags against allowed_signers. The runner has
           # none, so the operator stores the line from agentteams SECURITY.md "Release signers" as this
           # secret. Without it, release-locked runs fail closed; unlocked runs never read it.
+          # Only the agentteams release key is trusted here, by its pinned fingerprint (SECURITY.md "Release
+          # signers"): a secret holding another key, or more than that one line, would let that key's tags
+          # verify as releases. A key rotation is a reviewed change to RELEASE_FP, never a secret edit.
           if [ -n "$ALLOWED_SIGNERS" ]; then
-            printf '%s\n' "$ALLOWED_SIGNERS" > "$RUNNER_TEMP/allowed_signers"
-            echo "AGENTTEAMS_ALLOWED_SIGNERS=$RUNNER_TEMP/allowed_signers" >> "$GITHUB_ENV"
+            RELEASE_FP="SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM"
+            signers="$RUNNER_TEMP/allowed_signers"
+            printf '%s\n' "$ALLOWED_SIGNERS" | sed '/^[[:space:]]*$/d' > "$signers"
+            if [ "$(wc -l < "$signers" | tr -d ' ')" != 1 ]; then
+              echo "AGENTTEAMS_ALLOWED_SIGNERS must hold exactly one line, the release key's; refusing" >&2; exit 1
+            fi
+            read -r principal opts ktype kdata rest < "$signers"
+            if [ -z "$principal" ] || [ "$opts" != 'namespaces="git"' ] || [ -z "$kdata" ] || [ -n "$rest" ]; then
+              echo 'AGENTTEAMS_ALLOWED_SIGNERS is not "<principal> namespaces="git" <type> <key>"; refusing' >&2; exit 1
+            fi
+            printf '%s %s\n' "$ktype" "$kdata" > "$signers.pub"
+            fp="$(ssh-keygen -l -E sha256 -f "$signers.pub" 2>/dev/null | awk '{print $2}')"
+            if [ "$fp" != "$RELEASE_FP" ]; then
+              echo "AGENTTEAMS_ALLOWED_SIGNERS holds key ${fp:-<unreadable>}, not the release key $RELEASE_FP; refusing" >&2
+              exit 1
+            fi
+            echo "AGENTTEAMS_ALLOWED_SIGNERS=$signers" >> "$GITHUB_ENV"
           fi
 
       - name: Install ResearchTeam CLI
