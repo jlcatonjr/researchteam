@@ -3,7 +3,7 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## 1.0.2 (unreleased, on `release/1.0`)
+## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
 
 A patch release on `release/1.0` with two fixes found during Batallion's v1.0.0 sync. The agentteams pin is
 unchanged (`v1.0.0`, `cc5b8c9e`), so there is no new pin row.
