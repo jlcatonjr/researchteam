@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc14",
+  "agentteams_version": "1.0.0",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "c22aca0e507885d1e062a736af7fda80003d3151",
+    "commit": "cc5b8c9ec4efdcb479939e0c1246a0ac11913259",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-17T23:10:45.895437+00:00",
+  "generated_at": "2026-10-19T03:29:48.524255+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -524,11 +524,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "ccb92c7bb84c1fa8",
+  "manifest_fingerprint": "ee430ef18e511d96",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "df9259fda91aa5bd",
-    "references/security-vulnerability-watch.json": "cea5b7b8e6ef7e9f",
+    "security.agent.md": "0605a2833cc4378c",
+    "references/security-vulnerability-watch.reference.md": "f6638c77d2793063",
+    "references/security-vulnerability-watch.json": "60539101f910c22e",
     "orchestrator.agent.md": "e198ae24755611f1",
     "navigator.agent.md": "ec41b004d2b282b9",
     "code-hygiene.agent.md": "654d28d9fb509933",
@@ -555,7 +556,6 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "24ad64b819b338f0",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -927,7 +927,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "1ac7da9bb3d38981e9e6d7dda855c61f6fba44732c125cca88ba2df18540dbf9",
+      "threat_intelligence": "fba6fc00108ef007ddb98462742bf708a2360197fb863cf1c3db1b82d1706e65",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
