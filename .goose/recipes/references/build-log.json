@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0rc14",
+  "agentteams_version": "1.0.0",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "c22aca0e507885d1e062a736af7fda80003d3151",
+    "commit": "cc5b8c9ec4efdcb479939e0c1246a0ac11913259",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-17T23:12:00.550174+00:00",
+  "generated_at": "2026-10-19T03:31:08.128725+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -524,16 +524,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "4646c99f5953a0d3",
+  "manifest_fingerprint": "fd5a3e7dc6170f67",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "b7a8d94f0f5c04a3",
-    "security.yaml": "55c258a67d41de02",
+    "references/security-vulnerability-watch.reference.md": "f6638c77d2793063",
+    "references/security-vulnerability-watch.json": "d6d5b837ff493b34",
+    "security.yaml": "8affc759ac8c2d37",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "24ad64b819b338f0",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -571,7 +571,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "8120195ce7703d87",
+    "../../AGENTS.md": "1c618a9e945c7963",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
     "references/goose-capabilities-reference.md": "e0887b3aff4bacc8",
@@ -693,7 +693,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "fa3c2b2a6e9a38a16637acf6bc7273418372a19664ae066c7e499e656c3bd4a8",
+      "threat_intelligence": "978996854d75521f1482ede716cde5f94a768a0b0f855dc50b38b9181f5920ae",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",
