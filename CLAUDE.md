@@ -67,8 +67,9 @@ researchteam update --dry-run  # preview only
 ```
 
 `researchteam update` syncs framework files under `docs/`, `scripts/`, `.claude/`, and the
-**managed block of this `CLAUDE.md`** from the upstream template, then runs
-`agentteams --update --merge` for agent infrastructure. It never touches `brief.json`,
+**managed block of this `CLAUDE.md`** from the upstream template, then (unless `.researchteam` sets
+`layer1 = off`) runs `agentteams --update --merge` for agent infrastructure. A release-locked
+`toolchain.lock` makes it sync from the verified researchteam tag instead of `main`. It never touches `brief.json`,
 `Projects/`, or `references/`. This file's title and Project Purpose header, and `README.md`, are
 project-owned and are generated from `brief.json` — not synced. To re-render them run
 `researchteam personalize`; to re-render the agent team after a domain/identity change in
@@ -92,7 +93,8 @@ pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchtea
 pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git"
 
 # a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.0.0-rc.1
-# (pin the tag's peeled commit in toolchain.lock; see docs/release-policy.md)
+# (pin the tag's peeled commit in toolchain.lock; see docs/release-policy.md upstream:
+#  https://github.com/jlcatonjr/researchteam/blob/main/docs/release-policy.md)
 ```
 
 Agents must not assume the toolchain is present, and must not assume that an `agentteams` found on
