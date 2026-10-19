@@ -35,7 +35,7 @@ action.
 | OI-2026-10-19-02 | The Codex render's `codex_write_policy` fence in the shared `AGENTS.md` is unscoped, so Grok reads it | [AT] agentteams | Filed as #249; no owner yet | [02](open-items/2026-10-19/02-agentteams-249-codex-fence-scope.md) |
 | OI-2026-10-19-03 | baseAgent's move to researchteam v1.0.2 isn't finished | [PO] baseAgent | Pinned on `release/1.0` (#166); `v1.0.1` not tagged; `main` still v1.0.0 | [03](open-items/2026-10-19/03-baseagent-v1.0.2-pin.md) |
 | OI-2026-10-19-04 | Batallion has two Codex agent files outside the native render (`content-enricher`, `team-builder`) that aren't restricted under orchestrator-only | [PO] Batallion | Not started; needs an operator choice | [04](open-items/2026-10-19/04-batallion-codex-unnarrowed-agents.md) |
-| OI-2026-10-19-05 | Turning the weekly autosync back on (operator ruling); mathAgents' schedule is still **active** on a v1.0.0 pin, and failing | [OP] | Decision pending; the mathAgents fix is due now | [05](open-items/2026-10-19/05-autosync-resume.md) |
+| OI-2026-10-19-05 | Turning the weekly autosync back on (operator ruling); mathAgents' schedule is still **active** on a v1.0.0 pin, and failing | [OP] | Decision pending. The mathAgents schedule was disabled 2026-10-19 by the operator. | [05](open-items/2026-10-19/05-autosync-resume.md) |
 
 ## Smaller carry-overs (no separate report)
 - **OI-2026-10-19-06 [RT]:** researchteam **#98** (frozen Goose owns `.goosehints` and its scripts) and **#102**
@@ -48,7 +48,7 @@ action.
 - **OI-2026-10-19-09 [PO]:** Kronos P1 still has open `@reference-manager` GAPs (steps CSV row 6), and the
   provisional `financial-forecast-evaluation` methodology guide still needs its README index row, through
   `@agent-updater`, because that README is fenced.
-- **OI-2026-10-19-10 [OP]:** Batallion `stash@{0}` ("duplicate v1.0.2 pin move") holds only copies of files now
+- ✅ **OI-2026-10-19-10 [OP], resolved 2026-10-19:** the duplicate stash (`0b2befe9`) had already been dropped by another session. The operator's `stash drop stash@{0}` then removed the older "rc8 churn pre-branch (kept)" stash (`051d0b02`) by position. researchteam-51 restored it with `git stash store` the same hour. Lesson: name a stash by its commit, not its position. Originally: Batallion `stash@{0}` ("duplicate v1.0.2 pin move") holds only copies of files now
   committed in #20. Drop it with `git -C ~/githubrepositories/Batallion stash drop stash@{0}`.
 - **OI-2026-10-19-11 [RT]:** `@conflict-auditor` asks for findings to be logged in
   `.github/agents/references/conflict-log.csv`, which doesn't exist in researchteam. Create it, or change the

@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Open: operator decision, plus one inconsistency to fix now |
+| **Status** | Open: operator decision. The mathAgents inconsistency was fixed on 2026-10-19 (schedule disabled). |
 | **Owner** | [OP] operator (James); per-repo sessions carry it out |
 | **Recorded** | 2026-10-19, researchteam-51 closeout |
 
@@ -19,7 +19,7 @@ have tagged v1.0.0**.
 | researchteam | advisory self-pin `a21e7db` (v1.0.0) | `disabled_manually` |
 | Batallion | **v1.0.2** (`10a36758`) | `disabled_manually` |
 | baseAgent | v1.0.0 on `main`; v1.0.2 on `release/1.0` (OI-03) | `disabled_manually` |
-| mathAgents | **v1.0.0** | **active**. Its last three runs all failed: 2026-10-10 dispatch, 2026-10-12 **schedule**, 2026-10-18 dispatch. |
+| mathAgents | **v1.0.0** | was **active**; `disabled_manually` since 2026-10-19 (operator). Its last three runs all failed: 2026-10-10 dispatch, 2026-10-12 **schedule**, 2026-10-18 dispatch. |
 | agentteams | (n/a) | no autosync. The AI Bad-Habits catalog sync is active, and unrelated. |
 
 **Inconsistency:** mathAgents' weekly schedule is still **active**. It ran on schedule on 2026-10-12, and
@@ -27,7 +27,7 @@ failed. mathAgents is still on v1.0.0, so under the policy its schedule should b
 or later. Each failed run costs CI time and may open a PR.
 
 ## Next actions
-1. **Now (mathAgents):** disable the schedule (`gh workflow disable -R jlcatonjr/mathAgents "ResearchTeam +
+1. ✅ **Done 2026-10-19 (mathAgents):** the operator disabled the schedule. Still to do: read why the runs failed before it's re-enabled. The disable command was (`gh workflow disable -R jlcatonjr/mathAgents "ResearchTeam +
    AgentTeams Autosync (SHA-gated evergreen PR)"`), or pin it to v1.0.2 first. Read why the 2026-10-12 and
    2026-10-18 runs failed.
 2. **Operator decision:**
