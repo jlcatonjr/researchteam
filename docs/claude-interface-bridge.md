@@ -43,6 +43,12 @@ fence and placeholder checks run, but the update-run scope allowlist is skipped,
 repos legitimately change files outside it. After an update run, call
 `bash scripts/validate_agentteams_update.sh` directly so that the scope allowlist is enforced.
 
+Then it runs every executable file directly in `scripts/validate.d/`, from the repo root in name order,
+and fails if any of them fails. These are the repository's own checks (for example a drift check for
+a local integration). `scripts/validate.d/` is not a managed path, so `researchteam update` never
+touches it. Hidden files and files without the executable bit are skipped, and a skipped file is
+named. The autosync gate does not run them: it calls `validate_agentteams_update.sh` directly.
+
 The checks cover tracked changes (staged or not) and new untracked files that `.gitignore` doesn't
 exclude. So `validate` also runs the fence and placeholder checks on a new, uncommitted markdown file.
 The validator is a drift check: it catches an update that writes outside its scope. It is not a
