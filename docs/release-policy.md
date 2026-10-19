@@ -5,6 +5,8 @@ baseAgent. The operator recorded this as decision `release-policy-1.0`, and the 
 agentteams' `tmp/by-week/2026-W42/v1.0.0-shared-release-policy.md`. This page states it for researchteam.
 researchteam may add rules to it but may not weaken it.
 
+How collaborators work within this policy (branches, installs, contributions, backports): [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
 ## Versions and branches
 - SemVer. researchteam 1.x supports agentteams 1.x.
 - The version comes from the tag (setuptools-scm): `v1.0.0-rc.1` builds `1.0.0rc1`, and `v1.0.0` builds
@@ -38,7 +40,8 @@ researchteam may add rules to it but may not weaken it.
 
 ## Autosync and Layer 2
 - During the joint cut, the weekly `agentteams-sync` schedule is disabled (`gh workflow disable`), and
-  soak syncs are operator-dispatched with `force=true`. It is re-enabled once all four `v1.0.0` tags exist.
+  soak syncs are operator-dispatched with `force=true`. Under shared-policy draft 9 (operator ruling 2026-10-18) it stays disabled until researchteam v1.0.1 is tagged
+  and consumers pin it.
 - Under a release lock, the gate follows verified tags on the line and never `main`. Derived repositories
   sync Layer 2 from the verified researchteam tag named in their lock.
 
