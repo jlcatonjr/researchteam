@@ -46,8 +46,9 @@ repos legitimately change files outside it. After an update run, call
 Then it runs every executable file directly in `scripts/validate.d/`, from the repo root in name order,
 and fails if any of them fails. These are the repository's own checks (for example a drift check for
 a local integration). `scripts/validate.d/` is not a managed path, so `researchteam update` never
-touches it. Hidden files and files without the executable bit are skipped, and a skipped file is
-named. The autosync gate does not run them: it calls `validate_agentteams_update.sh` directly.
+touches it. Only regular files are considered: hidden files, symlinks and subdirectories are ignored
+silently, and a regular file without the executable bit is skipped with a message naming it. The
+autosync gate does not run them: it calls `validate_agentteams_update.sh` directly.
 
 The checks cover tracked changes (staged or not) and new untracked files that `.gitignore` doesn't
 exclude. So `validate` also runs the fence and placeholder checks on a new, uncommitted markdown file.
