@@ -5,6 +5,13 @@
 # Ignore all files in tmp (plan artifacts, logs, and local scratch)
 tmp/
 
+# Environment files hold secrets: never tracked (baseAgent @security S-1). Placeholder templates may be.
+.env
+.env.*
+*.env
+!.env.example
+!.env.template
+
 # agentteams update/migration backups (local rollback artifacts)
 .github/agents/.agentteams-backups/
 
