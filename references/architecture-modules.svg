@@ -1,54 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 896 394" width="896" height="394" font-family="monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 422" width="920" height="422" font-family="monospace">
   <title>researchteam — Module Dependencies</title>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <polygon points="0,0 10,5 0,10" fill="#8a8a8a"/>
     </marker>
   </defs>
-  <path d="M252,169 L256,169 C292,169 292,61 328,61 L440,61 C476,61 476,31 512,31 L576,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,169 L256,169 C292,169 292,165 328,165 L440,165 C476,165 476,231 512,231 L576,231" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,169 L256,169 C292,169 292,137 328,137 L440,137 C476,137 476,193 512,193 L712,193 C748,193 748,221 784,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M252,169 L256,169 C292,169 292,99 328,99" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M648,31 L712,31 C748,31 748,173 784,173 L788,173" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M244,273 L256,273 C292,273 292,221 328,221 L440,221 C476,221 476,231 512,231 L576,231" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M244,273 L256,273 C292,273 292,277 328,277 L440,277 C476,277 476,317 512,317 L712,317 C748,317 748,221 784,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M244,273 L256,273 C292,273 292,249 328,249 L440,249 C476,249 476,279 512,279 L552,279" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M672,279 L712,279 C748,279 748,221 784,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,79 512,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,31 512,31 L576,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,231 512,231 L576,231" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,165 512,165 L712,165 C748,165 748,221 784,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,127 512,127 L576,127" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M440,99 C476,99 476,279 512,279 L552,279" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,93 136,93" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,169 136,169 L140,169" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,273 136,273 L148,273" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,235 136,235 L256,235 C292,235 292,305 328,305 L440,305 C476,305 476,345 512,345 L712,345 C748,345 748,221 784,221" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,207 136,207 L256,207 C292,207 292,193 328,193 L440,193 C476,193 476,279 512,279 L552,279" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,311 136,311 L256,311 C292,311 292,333 328,333 L440,333 C476,333 476,373 512,373 L712,373 C748,373 748,173 784,173 L788,173" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <path d="M64,197 C100,197 100,131 136,131 L256,131 C292,131 292,99 328,99" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <rect x="136" y="78" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="196" y="98" font-size="13" text-anchor="middle" fill="#000000">researchteam</text>
-  <rect x="512" y="64" width="200" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="612" y="84" font-size="13" text-anchor="middle" fill="#000000">_agentteams_provenance</text>
-  <rect x="140" y="154" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="196" y="174" font-size="13" text-anchor="middle" fill="#000000">_doctor_cmd</text>
-  <rect x="576" y="16" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="612" y="36" font-size="13" text-anchor="middle" fill="#000000">_drift</text>
-  <rect x="576" y="216" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="612" y="236" font-size="13" text-anchor="middle" fill="#000000">_fetch</text>
-  <rect x="148" y="258" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="196" y="278" font-size="13" text-anchor="middle" fill="#000000">_init_cmd</text>
-  <rect x="784" y="206" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="832" y="226" font-size="13" text-anchor="middle" fill="#000000">_manifest</text>
-  <rect x="576" y="112" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="612" y="132" font-size="13" text-anchor="middle" fill="#000000">_notes</text>
-  <rect x="552" y="264" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="612" y="284" font-size="13" text-anchor="middle" fill="#000000">_personalize</text>
-  <rect x="788" y="158" width="88" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="832" y="178" font-size="13" text-anchor="middle" fill="#000000">_release</text>
-  <rect x="328" y="84" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="384" y="104" font-size="13" text-anchor="middle" fill="#000000">_update_cmd</text>
-  <rect x="16" y="182" width="48" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
-  <text x="40" y="202" font-size="13" text-anchor="middle" fill="#000000">cli</text>
+  <path d="M252,183 L256,183 C292,183 292,61 328,61 L440,61 C476,61 476,31 512,31 L536,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,183 L256,183 C292,183 292,193 328,193 L440,193 C476,193 476,259 512,259 L536,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,183 L256,183 C292,183 292,89 328,89 L440,89 C476,89 476,79 512,79 L532,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,183 L256,183 C292,183 292,165 328,165 L440,165 C476,165 476,221 512,221 L632,221 C668,221 668,259 704,259 L756,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M252,183 L256,183 C292,183 292,127 328,127" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M608,31 L632,31 C668,31 668,211 704,211 L760,211" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M612,79 L632,79 C668,79 668,163 704,163" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,315 L256,315 C292,315 292,249 328,249 L440,249 C476,249 476,259 512,259 L536,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,315 L256,315 C292,315 292,333 328,333 L440,333 C476,333 476,373 512,373 L632,373 C668,373 668,259 704,259 L756,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M244,315 L256,315 C292,315 292,277 328,277 L440,277 C476,277 476,307 512,307" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M632,307 C668,307 668,259 704,259 L756,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,117 512,117 L632,117 C668,117 668,163 704,163" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,31 512,31 L536,31" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,259 512,259 L536,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,79 512,79 L532,79" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,193 512,193 L632,193 C668,193 668,259 704,259 L756,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,155 512,155 L536,155" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M440,127 C476,127 476,307 512,307" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,107 136,107" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,183 136,183 L140,183" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,315 136,315 L148,315" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,249 136,249 L256,249 C292,249 292,305 328,305 L440,305 C476,305 476,345 512,345 L632,345 C668,345 668,259 704,259 L756,259" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,221 136,221 L256,221 L328,221 L440,221 C476,221 476,307 512,307" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,277 136,277 L256,277 C292,277 292,361 328,361 L440,361 C476,361 476,401 512,401 L632,401 C668,401 668,211 704,211 L760,211" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <path d="M64,211 C100,211 100,145 136,145 L256,145 C292,145 292,127 328,127" fill="none" stroke="#8a8a8a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="136" y="92" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="112" font-size="13" text-anchor="middle" fill="#000000">researchteam</text>
+  <rect x="704" y="148" width="200" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="804" y="168" font-size="13" text-anchor="middle" fill="#000000">_agentteams_provenance</text>
+  <rect x="140" y="168" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="188" font-size="13" text-anchor="middle" fill="#000000">_doctor_cmd</text>
+  <rect x="536" y="16" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="572" y="36" font-size="13" text-anchor="middle" fill="#000000">_drift</text>
+  <rect x="536" y="244" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="572" y="264" font-size="13" text-anchor="middle" fill="#000000">_fetch</text>
+  <rect x="532" y="64" width="80" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="572" y="84" font-size="13" text-anchor="middle" fill="#000000">_frozen</text>
+  <rect x="148" y="300" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="196" y="320" font-size="13" text-anchor="middle" fill="#000000">_init_cmd</text>
+  <rect x="756" y="244" width="96" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="804" y="264" font-size="13" text-anchor="middle" fill="#000000">_manifest</text>
+  <rect x="536" y="140" width="72" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="572" y="160" font-size="13" text-anchor="middle" fill="#000000">_notes</text>
+  <rect x="512" y="292" width="120" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="572" y="312" font-size="13" text-anchor="middle" fill="#000000">_personalize</text>
+  <rect x="760" y="196" width="88" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="804" y="216" font-size="13" text-anchor="middle" fill="#000000">_release</text>
+  <rect x="328" y="112" width="112" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="384" y="132" font-size="13" text-anchor="middle" fill="#000000">_update_cmd</text>
+  <rect x="16" y="196" width="48" height="30" rx="6" fill="#e8eefb" stroke="#1b3fa0" stroke-width="1.5"/>
+  <text x="40" y="216" font-size="13" text-anchor="middle" fill="#000000">cli</text>
 </svg>
