@@ -1,5 +1,7 @@
 # Open Items — ResearchTeam work review (2026-07-08, REVISED ×2)
 
+> **Later entry:** [open-items-2026-10-19.md](open-items-2026-10-19.md) records the items still open after researchteam v1.0.2 and the Batallion sync. This file is kept as the 2026-07-08 snapshot.
+
 Review of everything built across recent sessions (2-fold citation & claim audit; `[LINK]`/`[REFURL]`
 source-link standards; agentteams auto-integration; per-project vectorized literature library;
 derived-repo updates + private-repo baselines). **Revised after an adversarial audit** (§0), then
