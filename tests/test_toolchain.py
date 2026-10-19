@@ -266,6 +266,27 @@ def test_bootstrap_force_reinstalls_each_pin_and_verifies_the_lock(tmp_path):
         url = f"{name} @ git+https://github.com/jlcatonjr/{name}@{sha}"
         assert any(c.endswith(f"--force-reinstall --no-deps {url}") for c in calls), (name, calls)
     assert any("check_toolchain.py" in c and "--strict" in c for c in calls)
+    # agentteams' dependencies come in with the [signing] extra, under the constraints file
+    signing = f"agentteams[signing] @ git+https://github.com/jlcatonjr/agentteams@{B}"
+    assert any(c.endswith(signing) and " -c " in c for c in calls), calls
+    assert any(c == "-c import cryptography" for c in calls), calls
+
+
+def test_bootstrap_fails_when_cryptography_is_missing(tmp_path):
+    repo, log = _fake_venv_repo(tmp_path, check_exit=0)
+    py = repo / ".venv" / "bin" / "python"
+    py.write_text(py.read_text().replace("esac\n", "esac\n[ \"$*\" = \"-c import cryptography\" ] && exit 1\n"))
+    r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)
+    assert r.returncode == 1 and "cryptography is not importable" in r.stderr, r.stderr
+
+
+def test_bootstrap_signing_constraints_match_the_vetted_set():
+    text = (ROOT / "scripts" / "bootstrap_toolchain.sh").read_text()
+    embedded = set(text.split("SIGNING_CONSTRAINTS='", 1)[1].split("'", 1)[0].split())
+    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-10-16.txt").read_text().splitlines()
+              if line.strip() and not line.startswith("#")}
+    assert embedded == {p for p in vetted if p.split("==")[0] in {"cryptography", "cffi", "pycparser"}}
+    assert len(embedded) == 3
 
 
 def test_bootstrap_fails_when_the_install_does_not_match_the_lock(tmp_path):
