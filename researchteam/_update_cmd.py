@@ -108,7 +108,7 @@ def _new_backup_stamp() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
 
 
-_BACKUP_STAMP = _new_backup_stamp()  # reset at the start of every run_update
+_BACKUP_STAMP = _new_backup_stamp()  # reset at the start of every update run
 
 
 def _backup(root: Path, rel_path: str, content: str) -> Path:
@@ -254,7 +254,7 @@ def _brief_has_placeholder(root: Path) -> bool:
         return False
 
 
-def run_update(
+def _run_update_body(
     root: Path,
     ref: str,
     yes: bool,
@@ -312,6 +312,10 @@ def run_update(
         print(f"  [above-notes] --accept-upstream {clean(path)}: not an above-notes managed file; ignored.")
 
     for rel_path in managed:
+        if _is_frozen(rel_path):
+            print(f"  [frozen] {rel_path}: under a frozen surface; not synced (left unchanged)")
+            skipped.append(rel_path)
+            continue
         local_path = root / rel_path
         try:
             remote_content = fetch_raw(UPSTREAM_REPO, ref, rel_path)
@@ -467,6 +471,17 @@ def _merge_bridges(root: Path, dry_run: bool) -> None:
     from ._drift import bridge_frameworks, bridge_outputs, write_policy_frameworks
 
     frameworks = bridge_frameworks(root)
+    if _FROZEN:
+        from ._frozen import AGENTS_MD, owned_paths
+        if AGENTS_MD in owned_paths(_FROZEN):
+            # Every bridge merge also writes the root AGENTS.md, which is frozen.
+            if frameworks:
+                print(f"[researchteam] bridges: not refreshed; {AGENTS_MD} is frozen (brief.json frozen_surfaces) "
+                      "and every --bridge-merge writes it.")
+            return
+        for fw in [f for f in frameworks if f in _FROZEN]:
+            print(f"[researchteam] bridge copilot-vscode→{fw}: {fw} is frozen (brief.json frozen_surfaces); not refreshed.")
+        frameworks = [f for f in frameworks if f not in _FROZEN]
     covered = write_policy_frameworks(root)
     native = {fw for fw, _ in _native_surfaces(root)}
     for fw in sorted(covered - native - {"codex"}):
@@ -521,6 +536,112 @@ def _notes_customised(root: Path, rel: str, ref: str, source: str) -> str | None
             else f"not verified as un-customised ({detail})")
 
 
+# --- frozen surfaces (brief.json frozen_surfaces; the shared agentteams contract, see _frozen) ---------------------
+_FROZEN: frozenset[str] = frozenset()   # the validated frozen set of the current run (set by _frozen_begin)
+
+
+def _frozen_begin(root: Path) -> tuple[frozenset[str], dict[str, str], bytes | None]:
+    """Validate ``frozen_surfaces``, refuse an unverified unfreeze, and snapshot every frozen path."""
+    global _FROZEN
+    from ._frozen import (AGENTS_MD, FrozenSurfacesError, at_head, load, owned_paths, recorded, snapshot,
+                          verify_unfreeze)
+
+    try:
+        frozen = load(root)
+    except FrozenSurfacesError as exc:
+        sys.exit(f"[researchteam] {exc}. Nothing was changed.")
+    # "Was frozen": what researchteam recorded, plus what brief.json and .researchteam say at HEAD, so editing both
+    # working files together can't drop a surface unnoticed.
+    dropped = sorted((recorded(root) | at_head(root)) - frozen)
+    if dropped:
+        exe, _ = _resolve_agentteams()
+        for surface in dropped:
+            ok, why = verify_unfreeze(root, surface, exe)
+            if not ok:
+                sys.exit(
+                    f"[researchteam] Refusing to render into {surface}: brief.json no longer freezes it, but it was\n"
+                    f"  frozen (.researchteam records it). Unfreezing is constraint-relaxing: it needs an operator-\n"
+                    f"  signed (Ed25519) `unfreeze-{surface}` decision row that agentteams' gate verifies.\n"
+                    f"  Check: {why}. To keep it frozen, put {surface!r} back in frozen_surfaces. Nothing was changed."
+                )
+            print(f"[researchteam] unfreeze-{surface}: verified by agentteams' gate ({why}); rendering into it again.")
+    if frozen:
+        print(f"[researchteam] Frozen surfaces (brief.json): {', '.join(sorted(frozen))}. researchteam will not "
+              f"write {', '.join(owned_paths(frozen))}.")
+    agents_md = (root / AGENTS_MD).read_bytes() if (AGENTS_MD in owned_paths(frozen) and (root / AGENTS_MD).is_file()) else None
+    before = snapshot(root, frozen)
+    _FROZEN = frozen  # only once the snapshot exists, so a failed start never leaves it set
+    return frozen, before, agents_md
+
+
+def _frozen_end(root: Path, state: tuple[frozenset[str], dict[str, str], bytes | None], *, dry_run: bool,
+                succeeded: bool) -> None:
+    """Prove nothing under a frozen path changed; restore a frozen AGENTS.md that an unfrozen render wrote.
+
+    Runs on EVERY exit of update/materialize (from a ``finally``): a body that failed half-way gets the same check
+    and restore, and only a successful run records the honoured set.
+    """
+    global _FROZEN
+    from ._frozen import AGENTS_MD, changed_since, record
+
+    frozen, before, agents_md = state
+    _FROZEN = frozenset()
+    changed = changed_since(root, frozen, before)
+    if AGENTS_MD in changed and agents_md is not None:
+        # An unfrozen surface's render (Goose owns AGENTS.md; Codex adds a block) wrote the frozen root file:
+        # put back the exact bytes it had before this run, then re-check.
+        (root / AGENTS_MD).write_bytes(agents_md)
+        print(f"[researchteam] {AGENTS_MD} is frozen; an unfrozen render wrote it, so its earlier content was restored.")
+        changed = changed_since(root, frozen, before)
+    if changed:
+        sys.exit(
+            "[researchteam] FAILED CLOSED: files under frozen surfaces changed during this run:\n  "
+            + "\n  ".join(changed[:20]) + ("\n  …" if len(changed) > 20 else "")
+            + "\n  Do not commit them; restore them with git and report this (a frozen surface must not change)."
+        )
+    if succeeded and not dry_run and record(root, frozen):
+        print(f"[researchteam] recorded frozen_surfaces in .researchteam: {', '.join(sorted(frozen)) or '(none)'}")
+
+
+def _is_frozen(rel: str) -> bool:
+    from ._frozen import is_frozen_path
+    return bool(_FROZEN) and is_frozen_path(rel, _FROZEN)
+
+
+def _guarded(root: Path, dry_run: bool, body) -> None:
+    """Run ``body(frozen)`` inside the frozen-surfaces guard; :func:`_frozen_end` runs whatever happens."""
+    state = _frozen_begin(root)
+    ok = False
+    try:
+        body(state[0])
+        ok = True
+    finally:
+        _frozen_end(root, state, dry_run=dry_run, succeeded=ok)
+
+
+def _codex_allowed(frozen: frozenset[str], codex: bool) -> bool:
+    if "codex" in frozen and codex:
+        print("[researchteam] frozen_surfaces lists codex: same as --no-codex.")
+        return False
+    return codex
+
+
+def run_update(root: Path, ref: str, yes: bool, dry_run: bool, layer2_only: bool, layer1_only: bool = False,
+               accept_upstream: list[str] | tuple[str, ...] = (), codex: bool = True) -> None:
+    """``researchteam update``: :func:`_run_update_body` inside the frozen-surfaces guard (:func:`_guarded`)."""
+    _guarded(root, dry_run, lambda frozen: _run_update_body(
+        root, ref=ref, yes=yes, dry_run=dry_run, layer2_only=layer2_only, layer1_only=layer1_only,
+        accept_upstream=accept_upstream, codex=_codex_allowed(frozen, codex)))
+
+
+def run_materialize(root: Path, yes: bool, dry_run: bool, copilot_only: bool = False, adopt_orphans: bool = False,
+                    codex: bool = True, discard_user_regions: bool = False) -> None:
+    """``researchteam materialize``: :func:`_run_materialize_body` inside the frozen-surfaces guard."""
+    _guarded(root, dry_run, lambda frozen: _run_materialize_body(
+        root, yes=yes, dry_run=dry_run, copilot_only=copilot_only, adopt_orphans=adopt_orphans,
+        codex=_codex_allowed(frozen, codex), discard_user_regions=discard_user_regions))
+
+
 def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
     """Write each upstream researchteam:notes block into every surface its agent has in this repo.
 
@@ -567,6 +688,9 @@ def _sync_notes(root: Path, ref: str | None, yes: bool, dry_run: bool) -> None:
             continue
         for path, indent in surfaces(root, agent):
             shown = path.relative_to(root)
+            if _is_frozen(shown.as_posix()):
+                print(f"  [notes] {shown}: under a frozen surface; Notes block not synced (left unchanged)")
+                continue
             text = path.read_text(encoding="utf-8")
             try:
                 new, folded = apply_block(text, inner, indent)
@@ -951,6 +1075,9 @@ def _render_native_surfaces(root: Path, *, yes: bool, dry_run: bool, overwrite: 
     non-zero exit so an autosync opens no PR.
     """
     surfaces = _native_surfaces(root)
+    for fw, d in [x for x in surfaces if x[0] in _FROZEN]:
+        print(f"[researchteam] {label}: native surface {d} ({fw}) is frozen (brief.json frozen_surfaces); not rendered.")
+    surfaces = [x for x in surfaces if x[0] not in _FROZEN]
     if surfaces:
         _warn_scan_divergence(root)
     done = [".github/agents (copilot-vscode)"]
@@ -984,6 +1111,11 @@ def _run_agentteams(
     adopt_orphans: bool = False,
     discard_user_regions: bool = False,
 ) -> None:
+    # Frozen surfaces: never render into one (copilot-vscode/copilot-cli own .github/agents).
+    surface_ids = (framework,) if framework else ("copilot-vscode", "copilot-cli")
+    if _FROZEN and any(f in _FROZEN for f in surface_ids):
+        print(f"[researchteam] {framework or 'copilot-vscode'} surface: frozen (brief.json frozen_surfaces); not rendered.")
+        return
     if _brief_has_placeholder(root):
         msg = (
             f"[researchteam] brief.json still contains the scaffold placeholder "
@@ -1169,7 +1301,7 @@ def _project_codex_skills(root: Path, dry_run: bool) -> None:
         print("[researchteam] Codex skills projection FAILED; .agents/skills is not current.", file=sys.stderr)
 
 
-def run_materialize(
+def _run_materialize_body(
     root: Path,
     yes: bool,
     dry_run: bool,
