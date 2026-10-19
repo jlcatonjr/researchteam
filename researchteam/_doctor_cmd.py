@@ -97,6 +97,9 @@ def run_doctor(root: Path, drift: bool = False) -> None:
     # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
     _check_toolchain(root, ok, warn)
 
+    # --- frozen surfaces (brief.json frozen_surfaces) -----------------------------------
+    _check_frozen_surfaces(root, ok, warn, fail)
+
     # --- 3d. frozen fences (offline; from the last update's shrink review report) -------
     _check_frozen_fences(root, ok, warn)
 
@@ -328,3 +331,24 @@ def _check_bridges(root: Path, ok, warn, fail=None) -> None:
         refresh = shlex.join(["agentteams", "--bridge-from", ".github/agents", "--framework", fw,
                               "--output", ".", "--bridge-merge"])
         warn(f"bridge copilot-vscode→{clean(fw)}: {clean(result)}{detail}. Refresh: {clean(refresh)}")
+
+
+def _check_frozen_surfaces(root: Path, ok, warn, fail) -> None:
+    """Report brief.json frozen_surfaces (validated), what researchteam last honoured, and any pending unfreeze."""
+    from ._frozen import FrozenSurfacesError, load, owned_paths, recorded
+
+    try:
+        frozen = load(root)
+    except FrozenSurfacesError as exc:
+        fail(f"frozen_surfaces: {exc}; `researchteam update` refuses to run until it is fixed.")
+        return
+    last = recorded(root)
+    if frozen:
+        ok(f"frozen surfaces: {', '.join(sorted(frozen))}; researchteam never writes {', '.join(owned_paths(frozen))}.")
+    elif not last:
+        ok("frozen surfaces: none.")
+    dropped = sorted(last - frozen)
+    if dropped:
+        warn(f"unfreeze pending: {', '.join(dropped)} recorded as frozen but no longer in brief.json. `update` refuses to "
+             "render into them without an operator-signed unfreeze-<surface> row that agentteams' gate verifies.")
+

@@ -226,6 +226,48 @@ that launches an agent harness: the agent would inherit it and could sign its ow
 and materialize in a separate terminal, then close it or `unset` the key. A review by `@security` should
 precede the signature.
 
+## Frozen surfaces (`frozen_surfaces`)
+
+A repository can keep one or more agent surfaces exactly as they are by listing them in `brief.json`:
+
+```json
+{"frozen_surfaces": ["goose", "codex"]}
+```
+
+This is a contract shared with agentteams 1.0.x, so both tools read the key the same way.
+
+- **Ids.** `copilot-vscode`, `copilot-cli`, `claude`, `goose`, `agents-md`, `codex`, `grok`. An absent key or `[]`
+  freezes nothing. An unknown id, a duplicate or a non-array value stops `update` and `materialize` before they
+  change anything.
+- **What researchteam won't write.** For every listed surface, researchteam never renders, merges, projects,
+  bridges, Notes-syncs or managed-syncs into the paths that surface owns:
+  - `copilot-*`: `.github/agents/`;
+  - `claude`: `.claude/agents/`;
+  - `goose`: `.goose/`;
+  - `codex`: `.codex/` and `.agents/skills/` (the same as `--no-codex`);
+  - `grok`: `.grok/`.
+  The root `AGENTS.md` is frozen whenever `codex`, `goose` or `agents-md` is listed. Every bridge merge writes
+  `AGENTS.md`, so while it is frozen, no bridge is refreshed.
+- **Checked on every run.** `update` and `materialize` hash every frozen path before they start and check it on every
+  exit, including a failed run. If an unfrozen render wrote a frozen `AGENTS.md`, its earlier bytes are restored. Any
+  other change under a frozen path fails the run closed: exit 1, and the autosync opens no PR. `doctor` reports
+  the frozen set and any pending unfreeze.
+- **Unfreezing is constraint-relaxing.** researchteam records the set it honoured in `.researchteam`. A surface that
+  was frozen counts as being unfrozen when it is missing from `brief.json`. "Was frozen" means recorded in
+  `.researchteam`, or listed at git HEAD in `brief.json` or `.researchteam`. researchteam renders into it again only
+  when the pinned agentteams' own security gate confirms an `unfreeze-<surface>` decision row:
+  - the row clears the gate;
+  - agentteams itself derives it as constraint-relaxing, never self-declared;
+  - it is Ed25519-signed by the operator;
+  - it is a decision row, not a waiver.
+
+  Until agentteams ships its frozen-surfaces support, no agentteams can derive that, so researchteam refuses every
+  unfreeze. That is the intended fail-closed behaviour.
+- **Known limitation.** A reviewed commit that removes a surface from `frozen_surfaces` and drops its
+  `.researchteam` record in the same commit bypasses the check. Reviewers must treat any removal as an unfreeze that
+  needs a signed row. agentteams' hash-tracked freeze manifest (1.0.x) and its aggregate cap close this on the
+  agentteams side.
+
 ## Why `update` cannot re-brand an instance (use `materialize`)
 
 `researchteam update` runs `agentteams --update --merge --shrink-policy preserve` on the copilot-vscode team and on every native surface that already has a native agentteams build-log (`.claude/agents`, `.goose/recipes`; a bare bridge or an interop projection marker is skipped), adding `--framework <fw> --project . --materialize-native` for the native ones. A failure on any surface stops the run (non-zero exit, so an autosync opens no PR) and names the surfaces done and not attempted. `--merge` is
