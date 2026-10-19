@@ -72,6 +72,12 @@ refuses an `agentteams` older than the required commit, in the spirit of mathAge
 pre-flight, which is waiting on approval. The adopted-row fence restored by hand in mathAgents is
 safe only from a render that uses a pinned agentteams which includes #106.
 
+**Update 2026-10-19 (researchteam-a5): the PATH exposure is closed.** Both remedies have landed on
+`main`. (b) is the provenance pre-flight from #29 (`4a2dcc9`): it refuses an editable agentteams
+that is off `origin/main` or dirty, and refuses a local snapshot by default. (a) is in `2e51027`:
+researchteam now runs the `agentteams` installed beside it and falls back to PATH only when none is
+there. `agentteams/.venv-ci` was also re-pinned to `729a0ad`.
+
 **Item 2 stands and is researchteam's to fix.** `researchteam update` should leave a committed file
 alone when its upstream source is missing, and should never write an absolute local path into a
 synced file. This is open.

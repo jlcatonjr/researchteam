@@ -30,10 +30,10 @@ Commands:
                 "## Historical setting" register whose rows give a date and a basis.
                 Structural only (WELL-FORMED, not verified). See
                 docs/historical-context-protocol.md.
-  citation-audit [project]
+  citation-audit [project] [--bib PATH]
                 Run the 2-fold citation & claim integrity detector: bibliography /
                 URL structural integrity + an in-text citation-backing signal.
-                DEFECT (duplicate key / missing title|author) blocks; NEEDS-REVIEW is
+                DEFECT (dup key / missing title|author / no link / ref w/o URL / no .bib) blocks; NEEDS-REVIEW is
                 advisory. No arg scans all research projects; a name checks one.
                 This is the mechanical layer; the full doubled semantic audit is in
                 docs/citation-claim-audit-protocol.md.
