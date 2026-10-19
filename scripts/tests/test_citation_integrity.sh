@@ -488,6 +488,33 @@ assert "unknown option exits 2"                  2 "unknown option" "$CODE" "$OU
 run "$R" --bib "$R/elsewhere/lib.bib" -- P
 assert "-- terminator accepts the target"        1 "DEFECT\[LINK\]" "$CODE" "$OUT"
 
+# 24. --bib REPLACES discovery: a defective project .bib is not audited while --bib is in use.
+R="$TMP_ROOT/s24"
+mkfile "$R/Projects/P/references/bibliography.bib" <<'EOF'
+@article{Dup2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
+@article{Dup2000, author = {X, X.}, title = {T2}, year = {2000}, url = {https://example.org/x}}
+EOF
+mkfile "$R/clean.bib" <<'EOF'
+@article{X2000, author = {X, X.}, title = {T}, year = {2000}, url = {https://example.org/x}}
+EOF
+mkfile "$R/Projects/P/01-x.md" <<'EOF'
+# X
+See (X 2000).
+
+## References
+X, X. 2000. "T." https://example.org/x
+EOF
+run "$R" P --bib "$R/clean.bib"
+assert        "--bib replaces discovery (PASS)"        0 "PASS" "$CODE" "$OUT"
+assert_absent "--bib: project .bib not audited"          "DEFECT\[DUP\]" "$OUT"
+
+# 25. --bib is repeatable: both files are audited.
+mkfile "$R/nolink.bib" <<'EOF'
+@book{NoLink2001, author = {Y, Y.}, title = {B}, year = {2001}}
+EOF
+run "$R" P --bib "$R/clean.bib" --bib "$R/nolink.bib"
+assert "repeated --bib audits every file"        1 "nolink2001" "$CODE" "$OUT"
+
 echo "---"
 echo "Passed: $pass  Failed: $fail"
 [[ "$fail" -eq 0 ]]

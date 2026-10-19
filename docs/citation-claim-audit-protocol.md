@@ -53,7 +53,7 @@ is maximal *detection* plus honest *escalation*, not proof.
 
 `scripts/check_citation_integrity.sh [project] [--bib PATH]` (also `bash scripts/claude_researchteam_bridge.sh
 citation-audit [project] [--bib PATH]`) checks the machine-certain subset and code-tags every line.
-It audits the `--bib` file(s) if given (these *replace* discovery, so the project's own `.bib`
+It audits the `--bib` file(s) if given (repeatable, and a project target is required; these *replace* discovery, so the project's own `.bib`
 files are not checked in that run); otherwise every `*.bib` under the project; otherwise the
 repo-level `references/*.bib`. It **fails closed**: if it cannot create a writable temp directory it
 exits 2 and prints no PASS, and a project that cites sources with no `.bib` found is a `DEFECT[NOBIB]`.
@@ -170,7 +170,9 @@ not deserve the same evidentiary weight even when both happen to "survive."
 ## What this protocol does NOT do
 
 - It does not prove non-fabrication (ceiling above).
-- It does not block on heuristic/fuzzy signals — only on duplicate keys and entries missing a title
-  or an author/editor. Everything else is advisory.
+- It does not block on heuristic/fuzzy signals. It blocks only on mechanically certain `DEFECT`s:
+  duplicate keys, entries missing a title or an author/editor, entries with no source link
+  (`[LINK]`), reference-list entries with no URL (`[REFURL]`), and cited deliverables with no
+  `.bib` (`[NOBIB]`). Everything else is advisory.
 - It does not add a numbered Workflow inside an `AGENTTEAMS` fence, a new Constitutional Rule, or a
   blocking pre-commit hook. Routing lives in USER-EDITABLE notes and this doc; the gate is Rule 12.
