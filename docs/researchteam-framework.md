@@ -243,7 +243,8 @@ This is a contract shared with agentteams 1.0.x, so both tools read the key the 
   bridges, Notes-syncs or managed-syncs into the paths that surface owns:
   - `copilot-*`: `.github/agents/`;
   - `claude`: `.claude/agents/`;
-  - `goose`: `.goose/`;
+  - `goose`: `.goose/`, `.goosehints`, `scripts/goose-run-resilient.py`, `scripts/goose-openrouter-route-proxy.py`
+    and `scripts/goose-coordination-mcp.py` (the Goose emitter writes these outside `.goose/`);
   - `codex`: `.codex/` and `.agents/skills/` (the same as `--no-codex`);
   - `grok`: `.grok/`.
   The root `AGENTS.md` is frozen whenever `codex`, `goose` or `agents-md` is listed. Every bridge merge writes
