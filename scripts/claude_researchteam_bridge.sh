@@ -16,7 +16,8 @@ Usage:
 Commands:
   help          Show this help message
   status        Show git status and current branch
-  validate      Run repository validator (if available)
+  validate      Run repository validator (if available), then each executable
+                in scripts/validate.d/ (repo-owned local checks, in name order)
   open-reader   Print path to main Zelda research guide
   open-summary  Print path to Zelda summary document
   open-claude-dir Print path to Claude support folder
@@ -63,12 +64,34 @@ command_status() {
   fi
 }
 
+# Repo-owned checks: every executable regular file directly in scripts/validate.d/, run from the repo root
+# in name order. All of them run; validate fails if any fails. The directory is not managed, so `update`
+# never touches it, and the autosync gate calls validate_agentteams_update.sh directly, so these never run
+# inside its write-permission job.
+run_local_validators() {
+  local dir="scripts/validate.d" f failed=()
+  [[ -d "$dir" ]] || return 0
+  while IFS= read -r f; do
+    if [[ ! -x "$f" ]]; then
+      echo "Skipping $f (not executable)"
+      continue
+    fi
+    echo "Running $f ..."
+    "./$f" || failed+=("$f")
+  done < <(find "$dir" -mindepth 1 -maxdepth 1 -type f ! -name '.*' | LC_ALL=C sort)
+  if (( ${#failed[@]} )); then
+    printf 'Local validator failed: %s\n' "${failed[@]}" >&2
+    exit 1
+  fi
+}
+
 command_validate() {
   if [[ -x "scripts/validate_agentteams_update.sh" ]]; then
     echo "Running scripts/validate_agentteams_update.sh ..."
     # General edits: skip the update-run scope allowlist (derived repos legitimately change files
     # outside it). After an update run, call scripts/validate_agentteams_update.sh directly.
     VALIDATION_SKIP_SCOPE=1 bash scripts/validate_agentteams_update.sh
+    run_local_validators
     echo "Validation completed."
   else
     echo "Validator not found at scripts/validate_agentteams_update.sh"
