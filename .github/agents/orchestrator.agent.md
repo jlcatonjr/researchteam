@@ -802,7 +802,10 @@ one document; do not restate it here:
   bash scripts/claude_researchteam_bridge.sh citation-audit <project>
   # or directly: bash scripts/check_citation_integrity.sh <project>
   ```
-  `DEFECT` (duplicate key / entry missing title or author-editor) is the only blocking class;
+  `DEFECT` (duplicate key / entry missing title or author-editor / no source link / reference entry
+  with no URL / cited but no `.bib` — `DUP`/`META`/`LINK`/`REFURL`/`NOBIB`) is the only blocking
+  class, and exit 2 means nothing was checked (e.g. no writable temp dir). Pass `--bib PATH` when the
+  bibliography lives outside the project and outside `references/`;
   `NEEDS-REVIEW` (`CU`/`RM`/`PE`/`URL`/`DOI`/`STRUCT`) is advisory — route those to the semantic
   audit, do not treat them as gate failures. `CITATION_INTEGRITY_ADVISORY=1` downgrades DEFECT to a
   warning (CI mode).
