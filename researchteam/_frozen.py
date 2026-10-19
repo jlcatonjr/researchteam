@@ -2,7 +2,7 @@
 
 ``brief.json`` may carry ``frozen_surfaces``, a JSON array of unique framework ids. For every listed surface,
 researchteam never renders, merges, projects, converts, bridges, Notes-syncs, managed-syncs, overwrites, deletes
-or restores over that surface's files, including the root paths it owns. The same key, with the same meaning, is
+over that surface's files (it only restores a frozen ``AGENTS.md``'s own earlier bytes), including the root paths it owns. The same key, with the same meaning, is
 honoured by agentteams 1.0.x (agentteams ``tmp/by-week/2026-W42/f3-drafts/design/frozen-surfaces-1.0.x.design.md``,
 "Shared contract with researchteam"); agentteams' freeze manifest and ``--freeze-surface`` are agentteams-only.
 
@@ -11,9 +11,10 @@ honoured by agentteams 1.0.x (agentteams ``tmp/by-week/2026-W42/f3-drafts/design
 - The root ``AGENTS.md`` is frozen when any surface that can own it (codex, goose, agents-md) is listed. Over-freezing
   it only narrows what is written.
 - **Unfreeze.** researchteam records the frozen set it last honoured in ``.researchteam``. A surface that is recorded
-  but no longer listed is an unfreeze, which is constraint-relaxing. researchteam renders into it only when the
-  pinned agentteams' own security gate says that an ``unfreeze-<surface>`` decision row clears, derives as needing
-  the operator's signature, and is Ed25519-signed (:func:`verify_unfreeze`, run under agentteams' interpreter, so
+  (in the working tree or at git HEAD, :func:`at_head`) but no longer listed is an unfreeze, which is
+  constraint-relaxing. researchteam renders into it only when the
+  pinned agentteams' own security gate says that an ``unfreeze-<surface>`` decision row clears, derives (never
+  self-declares) as constraint-relaxing and needing the operator's signature, and is Ed25519-signed (:func:`verify_unfreeze`, run under agentteams' interpreter, so
   there is one security implementation). Anything less refuses, including an agentteams too old to say.
 """
 from __future__ import annotations
