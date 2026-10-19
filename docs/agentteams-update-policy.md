@@ -184,7 +184,8 @@ Under a release lock, the Execution Policy above changes as follows:
    deliberately.
 5. **Schedules stay paused during a joint cut.** In a coordinated release (the shared v1.0.0 policy), the
    weekly schedule is disabled with `gh workflow disable`, with no file edit, until every repository has
-   tagged. Soak runs are operator-dispatched.
+   tagged. Soak runs are operator-dispatched. After the v1.0.0 cut the schedule stayed paused for the frozen-surfaces
+   limitation. researchteam v1.0.1 fixes it, so a consumer re-enables the schedule once it pins v1.0.1.
 
 Moving a pin is a security event: record each move in an `@security` row naming the tag object and the
 peeled SHA.
