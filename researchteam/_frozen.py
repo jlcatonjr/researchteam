@@ -32,7 +32,10 @@ OWNED: dict[str, tuple[str, ...]] = {
     "copilot-vscode": (".github/agents/",),
     "copilot-cli": (".github/agents/",),
     "claude": (".claude/agents/",),
-    "goose": (".goose/",),
+    # Goose's emitter also writes these outside .goose/ on every render (agentteams frameworks/goose.py
+    # extra_output_files; the coordination MCP only when coordination is on, owned regardless).
+    "goose": (".goose/", ".goosehints", "scripts/goose-run-resilient.py", "scripts/goose-openrouter-route-proxy.py",
+              "scripts/goose-coordination-mcp.py"),
     "agents-md": (),
     "codex": (".codex/", ".agents/skills/"),
     "grok": (".grok/",),
