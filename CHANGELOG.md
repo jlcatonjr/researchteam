@@ -3,6 +3,33 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.1 (tag `v1.0.1`, on `release/1.0`)
+
+A patch release on `release/1.0`. It fixes the 1.0.0 known limitation, so consumers can resume the AgentTeams
+Autosync once they pin 1.0.1. The agentteams pin is unchanged (`v1.0.0`, `cc5b8c9e`), so there is no new pin row.
+
+- **Frozen surfaces (#94).** `brief.json` `frozen_surfaces` is the contract shared with agentteams 1.0.x.
+  - It takes ids from `copilot-vscode`, `copilot-cli`, `claude`, `goose`, `agents-md`, `codex` and `grok`. An
+    unknown id, a duplicate or a non-array value refuses the run.
+  - researchteam never renders, merges, projects, bridges, Notes-syncs or managed-syncs into a listed surface's
+    paths. `codex` behaves like `--no-codex`.
+  - The root `AGENTS.md` is frozen when `codex`, `goose` or `agents-md` is listed. While it is frozen, **no
+    bridge is refreshed**, because every `--bridge-merge` writes `AGENTS.md`.
+  - `update` and `materialize` check every frozen path on every exit. A frozen `AGENTS.md` that an unfrozen
+    render wrote is restored; any other change fails the run closed.
+  - An unfreeze is constraint-relaxing. It needs an Ed25519-signed `unfreeze-<surface>` decision row that the
+    pinned agentteams itself derives as relaxing. agentteams v1.0.0 can't make that derivation, so every
+    unfreeze refuses until agentteams 1.0.x.
+  - `doctor` reports the frozen set and any pending unfreeze.
+  - Known limitation: a reviewed commit that removes a surface and its `.researchteam` record together isn't
+    caught here. agentteams' freeze manifest covers it.
+- **Environment files ignored (#85).** The managed `.gitignore` block ignores `.env`, `.env.*` and `*.env`, and
+  allows `.env.example` and `.env.template`.
+- **Docs (#84, part of #92).** A neutral release-lock example; collaborators need `allowed_signers` too. The
+  citation-audit protocol, the orchestrator's notes and the bridge help now describe the defect classes
+  added in 1.0.0 (#87), exit 2 and `--bib`. Two more citation-integrity scenarios.
+- **Self-pin:** the advisory `researchteam=` line moves to `v1.0.0` (`a21e7db7`).
+
 ## 1.0.0 (tag `v1.0.0`, on `release/1.0`)
 
 The first stable release, cut with agentteams `v1.0.0` in the joint order agentteams → researchteam →
