@@ -3,6 +3,20 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
+
+A patch release on `release/1.0` with two fixes found during Batallion's v1.0.0 sync. The agentteams pin is
+unchanged (`v1.0.0`, `cc5b8c9e`), so there is no new pin row.
+
+- **Bootstrap installs `agentteams[signing]` (#100).** `scripts/bootstrap_toolchain.sh` installed agentteams
+  without its `signing` extra, so every Ed25519 gate check in a derived repo's `.venv` failed closed. It now
+  installs the extra under the S-10 vetted `cryptography==50.0.0`, `cffi==2.1.1` and `pycparser==3.0`
+  (embedded, because derived repos don't receive `docs/release/`; a test keeps them equal to
+  `docs/release/constraints-2026-10-16.txt`), and fails if `cryptography` still isn't importable.
+- **`CLAUDE.md` managed block (#101).** The layer-1 pass is described as skipped under `layer1 = off`, and a
+  release-locked `toolchain.lock` as syncing layer 2 from the verified tag. The `docs/release-policy.md` link
+  points upstream, since derived repos don't receive that file.
+
 ## 1.0.1 (tag `v1.0.1`, on `release/1.0`)
 
 A patch release on `release/1.0`. It fixes the 1.0.0 known limitation, so consumers can resume the AgentTeams
