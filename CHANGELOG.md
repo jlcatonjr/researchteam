@@ -3,6 +3,46 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.0 (tag `v1.0.0`, on `release/1.0`)
+
+The first stable release, cut with agentteams `v1.0.0` in the joint order agentteams → researchteam →
+mathAgents → baseAgent. It is `1.0.0rc3` plus the release changes below and one fix made after rc.3. By
+operator ruling (2026-10-19) there is no rc.4 and no further soak.
+
+- **agentteams pin:** `v1.0.0` (tag object `5b0ac774`, peeled `cc5b8c9e`), in the lock (release-locked) and
+  both extras. The operator-signed `@security` row `pin-agentteams-v1.0.0` names the tag object and the
+  peeled commit. pyproject changes only the pin lines, so the S-10 vetting carries over.
+- **Self-pin:** researchteam's own advisory `researchteam=` line moves to rc.3 (`3358b6c2`), the release it
+  was last verified with.
+- **Render:** researchteam is re-rendered on agentteams `v1.0.0`. The change is churn only: the agentteams
+  version and commit, timestamps and the live vulnerability-watch data. Machine-path files are scrubbed,
+  as the autosync gate does (S-8).
+
+### Changed after rc.3
+
+- **The citation audit no longer reports PASS without checking (#87).** `scripts/check_citation_integrity.sh`
+  (`bridge citation-audit`), the fail-closed gate before compiling cited deliverables, could print PASS and
+  exit 0 in two cases:
+  - **No writable temp dir.** This happens in a sandboxed agent, for example. The audit now honours
+    `TMPDIR` and exits **2** ("nothing was checked") when it can't write its work or output.
+  - **The bibliography is outside the project.** This includes the scaffold default
+    `references/bibliography.bib`. The DUP, META, LINK, CU, RM and REFURL checks never ran. The audit now
+    looks for `--bib PATH` first, then the project's own `*.bib`, then the repo-level `references/*.bib`.
+  - **Intended behaviour change:** a deliverable that cites sources but has no `.bib` anywhere now gives
+    `DEFECT[NOBIB]` (exit 1), and an audit that passed vacuously may now report real defects.
+  - This change was not in an RC. It ships in 1.0.0 by operator ruling (2026-10-19), because the defect was a
+    false PASS on the anti-fabrication gate. CI runs its 57 scenarios. Backported by `cherry-pick -x`.
+
+### Known limitation
+
+- **The managed autosync gate does not honour frozen Codex and Goose surfaces.** The fix ships in
+  researchteam 1.0.1. Keep the AgentTeams Autosync paused until consumers pin 1.0.1.
+
+### Held for 1.0.1 (on `main`)
+
+- #84 (update-policy docs) and #85: the managed `.gitignore` block will ignore `.env`, `.env.*` and `*.env`,
+  and allow `.env.example` and `.env.template`. Until then, derived repos keep their own env-file ignore lines.
+
 ## 1.0.0rc3 (tag `v1.0.0-rc.3`, on `release/1.0`)
 
 The third release candidate, required by the shared release policy (§6, 2b) once agentteams cut `v1.0.0-rc.14`.
