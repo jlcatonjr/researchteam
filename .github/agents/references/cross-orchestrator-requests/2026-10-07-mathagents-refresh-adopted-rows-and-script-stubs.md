@@ -82,6 +82,18 @@ there. `agentteams/.venv-ci` was also re-pinned to `729a0ad`.
 alone when its upstream source is missing, and should never write an absolute local path into a
 synced file. This is open.
 
+**Update 2026-10-19 (researchteam-a5): item 2 is closed. The cause was in agentteams, not
+researchteam.** During layer 1 (`agentteams --update --merge`), agentteams' `frameworks/goose.py`
+always emits `scripts/goose-run-resilient.py` and `scripts/goose-openrouter-route-proxy.py`. It read
+them from the agentteams repo's own `scripts/`, which a pip install lacks, so it fell back to a
+5-line placeholder that overwrote the committed file. Until `d3be500`, that placeholder embedded the
+install path. agentteams `aaa009e` (2026-10-10; in `v1.0.0-rc.10` and later and in `v1.0.0`) fixed
+it: the scripts now ship in `agentteams/data/`, and the emitter never writes a placeholder; it skips
+with "not emitted". agentteams-f3 ran a read-only reproduction with mathAgents, agentteams and
+researchteam all at `v1.0.0`. Both scripts were emitted byte-identical to mathAgents' committed
+copies, with no home path. With the packaged copies removed, nothing was written. researchteam's
+layer 2 (`_manifest.py`) never touches these files, so researchteam needs no change.
+
 **Related: the render descriptor cannot be recovered.** `_resolve_descriptor`
 (`_update_cmd.py:330`) writes the merged `brief.json` + `_build-description.json` descriptor to a
 `tempfile.mkstemp` file (`:392`) and deletes it after the run (`:522`). So the descriptor a past
