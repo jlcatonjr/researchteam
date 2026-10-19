@@ -16,13 +16,13 @@ touching your research content.
 
 ```bash
 # base CLI only — layer-2 file sync, no agent regeneration
-pip install "git+https://github.com/jlcatonjr/researchteam.git"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
 
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
-pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git"
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@release/1.0"
 ```
 
 `agentteams` is not on PyPI and is never installed standalone — routing it through the `[update]`
