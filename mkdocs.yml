@@ -11,6 +11,12 @@ site_author: jlcatonjr
 extra:
   generator: false
 copyright: "&copy; <span id='copyright-year'></span> jlcatonjr"
+# Report broken in-page anchors and links as warnings, so `mkdocs build --strict` (CI) fails on them.
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+  anchors: warn
 extra_javascript:
   - javascripts/current-year.js
 

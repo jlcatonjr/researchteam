@@ -4,7 +4,7 @@ Command-line scripts under `scripts/` that researchteam ships to derived reposit
 
 > *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`*
 
-> **Stability.** These scripts are managed files: `researchteam update` overwrites them from upstream, so local edits do not survive. Their command lines are used by other tooling (the SessionStart hook, `researchteam doctor`, the autosync gate); internal functions may change between releases.
+> **Stability.** The supported interface is each script's command line ([Bridge reference](../bridge-reference.md)); internals may change between releases.
 
 ---
 
@@ -41,22 +41,22 @@ python3 scripts/check_toolchain.py [--python PATH] [--no-remote] [--strict]
 
 ### `toolchain.lock` format
 
-One pin per line; `#` comments allowed.
+One pin per line. Only whole-line `#` comments are allowed: an inline `#` after a value becomes part of that value. The `agentteams.tag` line below is optional; its presence makes the `agentteams` pin release-locked.
 
 ```text
 researchteam=jlcatonjr/researchteam@<40-hex sha>
 agentteams=jlcatonjr/agentteams@<40-hex sha>
-agentteams.tag=v1.0.0               # optional: release-locked
+agentteams.tag=v1.0.0
 ```
 
-A pin is valid only if its repository is the allowed one (`jlcatonjr/researchteam` or `jlcatonjr/agentteams`) and its commit is 40 lowercase hex characters. A pin with a `<name>.tag` line is release-locked: `--write-lock` moves it only to a newer verified tag on the same `vX.Y` line, never to an untagged commit. `--write-lock` writes a fixed comment header followed by the two pins (and any tags).
+A pin is valid only if its repository is the allowed one (`jlcatonjr/researchteam` or `jlcatonjr/agentteams`) and its commit is 40 lowercase hex characters. A pin with a `<name>.tag` line is release-locked: `--write-lock` moves it only to a verified tag on the same `vX.Y` line that is not older than the locked tag, never to an untagged commit. `--write-lock` writes a fixed comment header followed by the two pins (and any tags).
 
 ### Default check
 
 1. No `toolchain.lock`: prints `[toolchain] no toolchain.lock yet; …` and exits 0.
 2. For every git-installed `agentteams` requirement in the repo's `pyproject.toml` whose repository or ref differs from the `agentteams` pin, prints `[toolchain] MISMATCH: …`.
 3. No interpreter found, or it cannot be inspected: prints a line suggesting `bash scripts/bootstrap_toolchain.sh`.
-4. For each package: a problem if the pin is invalid, the package is not installed, its install records no commit (index or plain local-folder install), or its commit differs from the pin. A match from an editable checkout with uncommitted changes is a note. For pins that are not release-locked and unless `--no-remote`, a note when upstream `main` differs from the pin.
+4. For each package: a problem if the pin is invalid, the package is not installed, its install records no commit (index or plain local-folder install), or its commit differs from the pin. A match from an editable checkout with uncommitted changes is a note. For valid, installed, not-release-locked pins, unless `--no-remote`, a note when upstream `main` differs from the pin.
 5. Prints `[toolchain] OK: researchteam and agentteams match toolchain.lock (<python>)` when there are no problems and no notes. Otherwise prints each problem as `[toolchain] BEHIND: …` (pyproject mismatches were already printed), each note as `[toolchain] note: …`, and, if there were problems, the bootstrap hint.
 
 An install's commit comes from its `direct_url.json`: `vcs_info.commit_id` for a git install, or `git rev-parse HEAD` in the checkout for an editable install (with `git status --porcelain --untracked-files=no` for the dirty flag).
@@ -103,9 +103,9 @@ Exactly one positional argument is accepted. It is resolved as follows: if it is
 
 - Reads every `references/*.bib` file (sorted). The first entry seen for a key wins; `@string`, `@comment` and `@preamble` are ignored.
 - Existing records in `literature.jsonl` are kept, with `title`, `source_url` and `doi` refreshed from the `.bib` when the `.bib` has a value. Records whose key is no longer in the `.bib` are dropped.
-- A new record is seeded with `relevance.summary` set to the entry's `note` field, `relevance.source` set to `seeded-from-bib-note` (or `unseeded` when there is no note), `deemed_by` and `investigation` set to `null`, and empty `tags`. `source_db` is never inferred from the URL.
+- A new record is seeded with `relevance.summary` set to the entry's `note` field, `relevance.source` set to `seeded-from-bib-note` (or `unseeded` when there is no note), `deemed_by` and `investigation` set to `null`, empty `tags`, and `verification_state` set to `"UNVERIFIED — no human resolution performed"`; existing records keep their stored `verification_state`. `source_db` is never inferred from the URL.
 - Every record gets `record_text_sha256`, the SHA-256 of its indexed text.
-- Tokenizing lower-cases the text, removes URLs, splits on non-letters, and drops tokens shorter than 3 characters, stopwords and URL-related words.
+- Tokenizing lower-cases the text, removes `http(s)://` URLs, splits on any character other than ASCII `a-z`, and drops tokens shorter than 3 characters, stopwords and URL-related words.
 - Prints a summary with the record count, the number seeded this build, and the number with a relevance summary under 8 words.
 
 ### Output files

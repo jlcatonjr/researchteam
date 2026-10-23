@@ -36,8 +36,12 @@ SAFE_REF = re.compile(r"^(?:[0-9a-f]{7,40}|[A-Za-z0-9][A-Za-z0-9._/-]{0,99})$")
 
 
 def is_safe_ref(ref: object) -> bool:
-    """Whether ``ref`` may go into a GitHub URL: it matches :data:`SAFE_REF` and has no ``..`` path segment."""
-    return isinstance(ref, str) and bool(SAFE_REF.match(ref)) and ".." not in ref.split("/")
+    """Whether ``ref`` may go into a GitHub URL: it matches :data:`SAFE_REF`, has no ``.``/``..`` path segment
+    and is not a pull-request head (``refs/pull/...``)."""
+    if not (isinstance(ref, str) and SAFE_REF.match(ref)):
+        return False
+    # No `.`/`..` segments, and no pull-request heads (unreviewed code served from the upstream repository).
+    return not ({".", ".."} & set(ref.split("/"))) and not ref.startswith("refs/pull/")
 
 
 def clean(text: object) -> str:

@@ -52,8 +52,9 @@ researchteam update --yes      # non-interactive (CI)
 researchteam update --dry-run  # preview only
 ```
 
-Projects created with `init` also receive `.github/workflows/agentteams-sync.yml`, which runs both layers on a
-weekly schedule and on `workflow_dispatch`.
+Projects created with `init` also receive `.github/workflows/agentteams-sync.yml`, which checks weekly (Monday
+06:00 UTC) and on `workflow_dispatch`, gated on the agentteams commit, and opens one evergreen PR running both
+layers when agentteams changed (a manual run with `force` skips the gate).
 
 ## Pinned toolchain
 
@@ -62,7 +63,7 @@ with. To run exactly that pair:
 
 ```bash
 bash scripts/bootstrap_toolchain.sh          # .venv with the pinned commits (gitignored)
-python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main
+python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main (not for release-locked pins)
 ```
 
 See [`scripts`](api-reference/scripts.md) for `check_toolchain.py`'s flags and the lock format.

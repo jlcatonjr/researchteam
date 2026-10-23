@@ -6,7 +6,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 
 > *Source: `researchteam/_manifest.py`*
 
-> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI; these names are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -64,7 +64,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 | `.github/agents/interpretation-advisor.agent.md` | `above-notes` |
 | `.github/agents/references/methodology/_TEMPLATE.methodology.guide.md` | overwrite |
 
-The last two were seeded at `init` only before OrthodoxLLM Item 1 and are now synced.
+Before researchteam 1.0.0 these two were seeded only at `init`; `update` now syncs them.
 
 | Name | Value | Purpose |
 |------|-------|---------|
@@ -135,7 +135,7 @@ The Markdown forms are used in `CLAUDE.md` because they are invisible when rende
 
 > *Source: `researchteam/_manifest.py`*
 
-Return the layer-2 managed-file set for a brief's `layer2_profile`. `update` reads the profile from `brief.json` (a missing brief, unreadable JSON, an absent field or a non-string value all give `None`) and syncs exactly the returned list.
+Return the layer-2 managed-file set for a brief's `layer2_profile`. `update` reads the profile from `brief.json` (a missing brief, invalid JSON, an absent field or a non-string value give `None`; a brief that is not a JSON object raises) and syncs the returned list, except paths under a frozen surface and `above-notes` files kept local.
 
 **Args:**
 

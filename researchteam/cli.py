@@ -175,11 +175,14 @@ def main() -> None:
 
     elif args.command == "update":
         root = _find_repo_root(require_marker=True)
-        ref = args.ref or (None if args.layer1_only else _release_locked_ref(root)) or _read_marker_ref(root)
+        locked = None if args.ref or args.layer1_only else _release_locked_ref(root)
+        ref = args.ref or locked or _read_marker_ref(root)
         from ._drift import is_safe_ref
         if not is_safe_ref(ref):
             sys.exit(f"[researchteam] refusing the upstream ref {ref!r}: not a plain branch, tag or commit name "
                      "(check --ref and the .researchteam marker's ref).")
+        if ref != locked and not args.layer1_only:
+            _check_commit_ref(ref)
         from ._update_cmd import run_update
         run_update(
             root,
@@ -265,6 +268,26 @@ def _release_locked_ref(root: Path) -> str | None:
         return None
     print(f"[researchteam] release-locked: syncing layer 2 from researchteam {locked[1]} ({locked[0][:12]}).")
     return locked[0]
+
+
+def _check_commit_ref(ref: str) -> None:
+    """A commit ref must be in researchteam's reviewed history (GitHub serves fork commits under its URL too).
+
+    Exits when GitHub says it is not on main or a release branch; warns and continues when that cannot be
+    determined (offline or rate-limited). Branch and tag names, and the verified release-locked commit, skip this.
+    """
+    import re
+    if not re.fullmatch(r"[0-9a-f]{7,40}", ref):
+        return
+    from ._fetch import commit_is_reviewed
+    from ._manifest import UPSTREAM_REPO
+    reviewed = commit_is_reviewed(UPSTREAM_REPO, ref)
+    if reviewed is False:
+        sys.exit(f"[researchteam] refusing commit {ref[:12]}: it is not on main or a release branch of "
+                 f"{UPSTREAM_REPO}.")
+    if reviewed is None:
+        print(f"[researchteam] WARNING: could not confirm that commit {ref[:12]} is on {UPSTREAM_REPO} main or a "
+              "release branch (offline or rate-limited; set GITHUB_TOKEN to raise the limit).", file=sys.stderr)
 
 
 def _read_marker_ref(root: Path) -> str:

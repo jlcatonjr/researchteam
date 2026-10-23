@@ -1,10 +1,10 @@
 # `_drift` — ResearchTeam
 
-Drift reporting: what `researchteam update` would otherwise leave behind without saying so. The module covers three kinds of drift. **Frozen fences:** `update` pins `--shrink-policy preserve`, so when a template rewords text the shrink guard reads the change as lost enrichment and keeps the old body. agentteams writes a review report of every section it kept when `AGENTTEAMS_SHRINK_REPORT` is set; `update` always sets it (under the gitignored `tmp/`), prints the count, and `doctor` lists the sections with how long each has been frozen. **Seeded files behind upstream** (`doctor --drift`): files `init` seeds but `update` never syncs, compared with upstream at the pinned researchteam commit. **Stale bridges** (`doctor --drift`): `agentteams --bridge-check` per bridge. This module holds the shared helpers; the commands themselves live in `update` and `doctor`.
+Drift reporting: what `researchteam update` would otherwise leave behind without saying so. The module covers three kinds of drift. **Frozen fences:** `update` pins `--shrink-policy preserve`, so when a template rewords text the shrink guard reads the change as lost enrichment and keeps the old body. agentteams writes a review report of every section it kept when `AGENTTEAMS_SHRINK_REPORT` is set; `update` sets it on every non-dry-run render (under the gitignored `tmp/`), prints the count, and `doctor` lists the sections with how long each has been frozen. **Seeded files behind upstream** (`doctor --drift`): files `init` seeds but `update` never syncs, compared with upstream at the pinned researchteam commit. **Stale bridges** (`doctor --drift`): `agentteams --bridge-check` per bridge. This module holds the shared helpers; the commands themselves live in `update` and `doctor`.
 
 > *Source: `researchteam/_drift.py`*
 
-> **Stability.** researchteam's modules are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)). The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -17,7 +17,7 @@ Drift reporting: what `researchteam update` would otherwise leave behind without
 | `INTENTIONAL_FILE` | `".github/agents/references/intentional-pins.json"` | Repo-owned list of deliberate pins; never synced. |
 | `BRIDGES_DIR` | `"references/bridges"` | Where copilot-vscode bridges are recorded. |
 | `NOTES_HEADING_RE` | `^## Project-Specific Notes[ \t]*\r?$` (multiline) | The single Notes-heading rule used by drift and above-notes checks; tolerates trailing blanks and CRLF. |
-| `SAFE_REF` | compiled regex (below) | A ref that may be placed in a GitHub URL: a commit, or a plain branch/tag name. Every ref check goes through `is_safe_ref`, which adds a `..`-segment check. |
+| `SAFE_REF` | compiled regex (below) | A ref that may be placed in a GitHub URL: a commit, or a plain branch/tag name. Every ref check goes through `is_safe_ref`, which also rejects `.`/`..` segments and `refs/pull/` heads. |
 
 `SAFE_REF`:
 
@@ -68,12 +68,13 @@ Whether `ref` may go into a GitHub URL. `init` checks `--ref` with it, and the C
 
 - `ref` (`object`) — The ref to check; any non-`str` value fails.
 
-**Returns:** `bool` — True when `ref` is a `str`, matches `SAFE_REF`, and has no `..` path segment (no `/`-separated part equal to `..`).
+**Returns:** `bool` — True when `ref` is a `str`, matches `SAFE_REF`, has no `/`-separated part equal to `.` or `..`, and does not start with `refs/pull/` (a pull-request head is unreviewed code served from the upstream repository).
 
 ```python
 is_safe_ref("v1.0.2")       # True
 is_safe_ref("feature/x")    # True
 is_safe_ref("a/../b")       # False
+is_safe_ref("refs/pull/1/head")  # False
 is_safe_ref("-main")        # False
 ```
 
@@ -208,7 +209,7 @@ Days between an ISO date and today.
 
 ### `comparable_body(text)`
 
-A seeded file's upstream-owned part: everything before its `## Project-Specific Notes` heading (matched with `NOTES_HEADING_RE`), with trailing whitespace stripped. Without the heading, the whole text (stripped).
+A seeded file's upstream-owned part: everything before its `## Project-Specific Notes` heading (matched with `NOTES_HEADING_RE`), with trailing whitespace stripped. Without the heading, the whole text with trailing whitespace stripped.
 
 **Args:**
 

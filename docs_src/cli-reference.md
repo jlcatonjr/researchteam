@@ -31,7 +31,7 @@ researchteam init [name] [--ref REF] [--remote URL]
 | Option | Default | Meaning |
 |---|---|---|
 | `name` | current directory | Directory name for the new project |
-| `--ref REF` | `main` | Upstream branch, tag or commit (short or full SHA) to scaffold from. A commit is recorded in full in `.researchteam` |
+| `--ref REF` | `main` | Upstream branch, tag or commit (short or full SHA) to scaffold from. A commit must be on `main` or a `release/*` branch (checked with the GitHub API; refused when it cannot be confirmed) and is recorded in full in `.researchteam` |
 | `--remote URL` | none | Git remote URL to set as `origin` after init |
 
 Implementation: [`init`](api-reference/init.md).
@@ -51,7 +51,7 @@ researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref R
 | `--dry-run` | Show what would change without writing any files |
 | `--layer2-only` | Only sync layer-2 files; skip `agentteams --update --merge` |
 | `--layer1-only` | Only run the agentteams merge (union descriptor); skip layer-2 file sync. Safe on the upstream repo; used by the auto-integration git hook |
-| `--ref REF` | Upstream git ref to fetch from. Default: a release-locked `toolchain.lock`'s verified researchteam tag, else the `.researchteam` marker's `ref`, else `main` |
+| `--ref REF` | Upstream git ref to fetch from. Default: a release-locked `toolchain.lock`'s verified researchteam tag, else the `.researchteam` marker's `ref`, else `main`. With `--layer1-only` the lock is not consulted (marker ref, else `main`) |
 | `--accept-upstream PATH` | Replace this `above-notes` file's part above `## Project-Specific Notes` with upstream's even though the repo customised it (Notes kept, previous file backed up). Repeatable. Without it a customised file is kept, also under `--yes` |
 | `--no-codex` | Skip refreshing the Codex surface (`.codex/agents`, `.agents/skills`); for repositories that keep Codex frozen for 1.0 |
 
@@ -59,7 +59,10 @@ When `toolchain.lock` release-locks researchteam but its tag does not verify, `u
 never falls back to `main`). Pass `--ref` to choose a ref deliberately.
 
 The resolved ref must be a plain branch, tag or commit name; otherwise `update` exits 1 with a message
-naming the ref, before fetching anything.
+naming the ref, before fetching anything. A commit ref (other than the verified release-locked one) must be on
+researchteam's `main` or a `release/*` branch, because GitHub serves a fork's commits under this repository's URL
+too: `update` refuses a commit GitHub says is on neither, and warns and continues when GitHub cannot answer
+(offline or rate-limited; a `GITHUB_TOKEN` raises the limit).
 
 Implementation: [`update`](api-reference/update.md).
 

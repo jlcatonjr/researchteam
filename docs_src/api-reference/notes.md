@@ -1,10 +1,10 @@
 # `_notes` — ResearchTeam
 
-Upstream-authored Project-Specific Notes, synced into every agent surface. agentteams treats an agent's `## Project-Specific Notes` section as repo-owned and preserves it verbatim, so rules researchteam itself writes there (history, literature-library, news-perspective and so on) used to reach derived repos only by hand-copying. researchteam now keeps them in a fenced block at the top of each listed agent's Notes. The source of truth is the block in upstream researchteam's `.github/agents/<agent>.agent.md`; `researchteam update` writes it into the agent's file on every surface the repo carries: `.github/agents` (markdown), `.claude/agents` (markdown) and `.goose/recipes` (inside the recipe's indented `instructions:` block). Codex is projected from `.github` and follows automatically. Text outside the block is never touched, except that on first adoption hand-copied duplicates of the block's content are folded in. Expert blocks go only to experts whose component the repo's `brief.json` still defines, and an agent can be excluded entirely through `brief.json`.
+Upstream-authored Project-Specific Notes, synced into every agent surface. agentteams treats an agent's `## Project-Specific Notes` section as repo-owned and preserves it verbatim, so rules researchteam itself writes there (history, literature-library, news-perspective and so on) used to reach derived repos only by hand-copying. researchteam now keeps them in a fenced block at the top of each listed agent's Notes. The source of truth is the block in upstream researchteam's `.github/agents/<agent>.agent.md`; `researchteam update` writes it into the agent's file on every surface the repo carries: `.github/agents` (markdown), `.claude/agents` (markdown) and `.goose/recipes` (inside the recipe's indented `instructions:` block). Codex is projected from `.github` and follows automatically. Text outside the block is never touched, except that on first adoption hand-copied duplicates of the block's content are folded in. Expert blocks go only to experts whose component the repo's `brief.json` still defines, or to all experts when `brief.json` has no readable `components` list, and an agent can be excluded entirely through `brief.json`.
 
 > *Source: `researchteam/_notes.py`*
 
-> **Stability.** researchteam's modules are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)). The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 All functions expect LF line endings (`Path.read_text` already translates CRLF). Files reached through a symlink that resolves outside the repository are refused.
 
@@ -79,7 +79,7 @@ The `components[].slug` set of the repo's `brief.json`. Components that are not 
 
 ### `agents_for(root)`
 
-The `NOTES_AGENTS` whose block belongs in this repo: every non-expert, and each expert whose component slug (the agent name minus `-expert`) the brief defines. Without a readable brief, all of `NOTES_AGENTS` (`surfaces` still limits the sync to files that exist).
+The `NOTES_AGENTS` whose block belongs in this repo: every non-expert, and each expert whose component slug (the agent name minus `-expert`) the brief defines. Without a readable brief or a `components` list, all of `NOTES_AGENTS` (`surfaces` still limits the sync to files that exist).
 
 **Args:**
 
@@ -100,7 +100,7 @@ Read `brief.json`'s `"researchteam_notes": {"exclude": [...]}`.
 **Returns:** `tuple[set[str] | None, list[str]]` — `(slugs, notes)`.
 
 - An absent or unreadable brief, or no `researchteam_notes` key: `(set(), [])`.
-- `researchteam_notes` present but not an object, or `exclude` not a list of strings: `(None, [message])`, so the caller can refuse to guess.
+- `researchteam_notes` present, non-null and not an object, or `exclude` not a list of strings: `(None, [message])`, so the caller can refuse to guess.
 - Otherwise the listed slugs that are in `NOTES_AGENTS`; each other slug is dropped and produces a note `brief.json researchteam_notes.exclude: '<slug>' is not a researchteam notes agent; ignored`.
 
 ---
@@ -161,7 +161,7 @@ The block's inner text, unindented, from an upstream `.github` agent file.
 
 ### `apply_block(text, inner, indent="")`
 
-Put `inner` into `text`'s Notes block at `indent`. If a block already exists it is replaced. Otherwise (first adoption) the function removes outside-block units the block now carries — a `###` subsection whose heading matches one in `inner`, or a top-level bullet item (with its continuation lines) identical to one in `inner` — and then inserts the block after the USER-EDITABLE blockquote if there is one, else directly under the heading, adding blank lines around it as needed. Blank lines inside `inner` are written without indent. A missing final newline on `text` is added.
+Put `inner` into `text`'s Notes block at `indent`. If a block already exists it is replaced. Otherwise (first adoption) the function removes outside-block units the block now carries — a `###` subsection whose heading matches one in `inner`, or a top-level bullet item (with its continuation lines) identical to one in `inner` — and then inserts the block after a blockquote that opens the section (such as the USER-EDITABLE note), else directly under the heading, adding blank lines around it as needed. Blank lines inside `inner` are written without indent. A missing final newline on `text` is added.
 
 **Args:**
 

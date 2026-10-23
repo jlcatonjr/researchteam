@@ -86,7 +86,8 @@ def test_safe_refs(ref):
     assert is_safe_ref(ref)
 
 
-@pytest.mark.parametrize("ref", ["a/../b", "..", "-x", "a b", "", "x" * 101, None])
+@pytest.mark.parametrize("ref", ["a/../b", "..", "a/./b", "./x", "refs/pull/1/head", "-x", "a b", "", "x" * 101,
+                                 None])
 def test_unsafe_refs(ref):
     assert not is_safe_ref(ref)
 
@@ -138,8 +139,28 @@ def test_a_short_commit_is_recorded_in_full(tmp_path, monkeypatch):
     def populate(target, tarball, members, links, ref, remote):
         recorded["ref"] = ref
     monkeypatch.setattr(_init_cmd, "_populate", populate)
+    monkeypatch.setattr(_init_cmd, "commit_is_reviewed", lambda repo, sha: sha == SHA)
     _init_cmd.run_init("proj", "0c72a18", None)
     assert recorded["ref"] == SHA
+
+
+@pytest.mark.parametrize("reviewed, says", [(False, "is not on main"), (None, "could not be confirmed")])
+def test_an_unreviewed_or_unconfirmed_commit_is_refused(tmp_path, monkeypatch, capsys, reviewed, says):
+    """GitHub serves a fork's commits under the upstream URL: init scaffolds only from reviewed history."""
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(_init_cmd, "fetch_tarball", lambda *a: _tarball({f"researchteam-{SHA}/docs/a.md": b"a"}))
+    monkeypatch.setattr(_init_cmd, "commit_is_reviewed", lambda repo, sha: reviewed)
+    with pytest.raises(SystemExit):
+        _init_cmd.run_init("proj", "0c72a18", None)
+    assert says in capsys.readouterr().err and not (tmp_path / "proj").exists()
+
+
+def test_a_branch_or_tag_never_asks_the_api(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(_init_cmd, "fetch_tarball", lambda *a: _tarball({"researchteam-v1.0.2/docs/a.md": b"a"}))
+    monkeypatch.setattr(_init_cmd, "commit_is_reviewed", lambda *a: pytest.fail("asked the API"))
+    monkeypatch.setattr(_init_cmd, "_populate", lambda *a: None)
+    _init_cmd.run_init("proj", "v1.0.2", None)
 
 
 def test_a_failure_after_creation_names_the_partial_project(tmp_path, monkeypatch, capsys):

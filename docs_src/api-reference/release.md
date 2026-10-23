@@ -1,10 +1,10 @@
 # `_release` — ResearchTeam
 
-Release-line pins: verify a signed release tag and find the newest one on a release line. A repository is *release-locked* when its `toolchain.lock` records a tag beside a pin. The `name=owner/repo@sha` lines keep their old format, so older readers still parse the lock. A release-locked pin moves only to a newer tag on the same `vX.Y` line, and only after that tag verifies: it is an annotated tag; `git tag -v` passes against the operator's `allowed_signers` under neutralised git configuration; the signing key's fingerprint is one of the release keys named in this module, not just any good signature; and the verified tag object equals the one the remote advertises. The pin is then the tag's peeled commit. The module is stdlib-only; `scripts/check_toolchain.py` imports it, and `researchteam update` uses `locked_layer2_ref` to decide which researchteam commit to sync from.
+Release-line pins: verify a signed release tag and find the newest one on a release line. A repository is *release-locked* when its `toolchain.lock` records a tag beside a pin. The `name=owner/repo@sha` lines keep their old format, so older readers still parse the lock. A release-locked pin moves only to a newer tag on the same `vX.Y` line, and only after that tag verifies: it is an annotated tag; `git tag -v` passes against the operator's `allowed_signers` under neutralised git configuration; the signing key's fingerprint is one of the release keys named in this module, not just any good signature; and the verified tag object equals the one the remote advertises. The pin is then the tag's peeled commit. The module is stdlib-only; `scripts/check_toolchain.py` imports it, and `researchteam update` uses `locked_layer2_ref` to decide which researchteam commit to sync from. `update`'s ref order is: `--ref`, then the release-locked commit (skipped under `--layer1-only`), then the marker's `ref`, then the upstream branch.
 
 > *Source: `researchteam/_release.py`*
 
-> **Stability.** researchteam's modules are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)). The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -143,7 +143,7 @@ The newest release tag on `current`'s `vX.Y` line that sorts after `current`. Th
 
 ### `verify_tag(repo, tag)`
 
-Verify a signed release tag and return its tag object and peeled commit. The tag is fetched into a temporary bare repository, then checked in this order:
+Verify a signed release tag and return its tag object and peeled commit. Checks 1–3 run before anything is fetched; the tag is then fetched into a temporary bare repository (a failed fetch raises `ReleaseError`), and checks 4–8 run on the fetched copy:
 
 1. `tag` matches `TAG_RE`.
 2. The `allowed_signers` file exists.
@@ -198,7 +198,7 @@ The researchteam commit to sync Layer 2 from when `toolchain.lock` release-locks
 - `root` — Repository root (anything `read_lock_pin` accepts).
 - `upstream_repo` (`str`) — Expected `owner/repo` for researchteam.
 
-**Returns:** `tuple[str, str] | None` — `(peeled sha, tag)`; `None` when the lock has no researchteam pin or the pin carries no tag.
+**Returns:** `tuple[str, str] | None` — `(peeled sha, tag)`; `None` when the lock has no researchteam pin or no `researchteam.tag=` line. An empty tag value raises `ReleaseError` (it is not a release tag).
 
 **Raises:**
 

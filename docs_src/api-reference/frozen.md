@@ -1,10 +1,10 @@
 # `_frozen` — ResearchTeam
 
-Declared frozen surfaces: the contract shared by agentteams and researchteam (introduced in researchteam 1.0.1). `brief.json` may carry `frozen_surfaces`, a JSON array of unique framework ids. For every listed surface, researchteam never renders, merges, projects, converts, bridges, Notes-syncs, managed-syncs, overwrites or deletes that surface's files, including the root paths it owns. The one write it makes is restoring a frozen `AGENTS.md`'s own earlier bytes after an unfrozen render touched it. agentteams 1.0.x honours the same key with the same meaning; agentteams' freeze manifest and `--freeze-surface` are agentteams-only. An absent key or `[]` freezes nothing. An unknown id, a duplicate or a non-array value refuses the run. Removing a surface researchteam previously recorded as frozen is an *unfreeze*, which is constraint-relaxing and needs an operator-signed decision row verified by the pinned agentteams' own security gate.
+Declared frozen surfaces: the contract shared by agentteams and researchteam (introduced in researchteam 1.0.1). `brief.json` may carry `frozen_surfaces`, a JSON array of unique framework ids. For every listed surface, researchteam never renders, merges, projects, converts, bridges, Notes-syncs, managed-syncs, overwrites or deletes that surface's files, including the root paths it owns. The one write it makes is restoring a frozen `AGENTS.md`'s own earlier bytes after an unfrozen render touched it. agentteams 1.0.x honours the same key with the same meaning; agentteams' freeze manifest and `--freeze-surface` are agentteams-only. An absent key or `[]` freezes nothing. An unknown id, a duplicate or a non-array value refuses the run. Removing a surface that researchteam previously recorded as frozen, or that `brief.json` / `.researchteam` list at git HEAD, is an *unfreeze* (the dropped set is `(recorded | at_head) - frozen`), which is constraint-relaxing and needs an operator-signed decision row verified by the pinned agentteams' own security gate.
 
 > *Source: `researchteam/_frozen.py`*
 
-> **Stability.** researchteam's modules are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)). The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -121,7 +121,7 @@ is_frozen_path("AGENTS.md", frozenset({"claude"}))                   # False
 
 ### `snapshot(root, frozen)`
 
-SHA-256 of every file under the frozen paths. Directories are walked recursively; symlinks are skipped. A file path that does not exist is recorded with the value `"absent"`.
+SHA-256 of every file under the frozen paths. Owned directories are walked recursively, and symlinks found while walking them are skipped; an owned file entry that is itself a symlink is hashed through its target. A file path that does not exist is recorded with the value `"absent"`.
 
 **Args:**
 
@@ -167,7 +167,7 @@ The frozen set researchteam last honoured, from the `frozen_surfaces` line of `.
 
 - `root` (`Path`) — Repository root.
 
-**Returns:** `frozenset[str]` — Empty when the marker is unreadable or has no such line.
+**Returns:** `frozenset[str]` — Empty when `.researchteam` cannot be opened (`OSError`) or has no such line. A marker that is not valid UTF-8 raises `UnicodeDecodeError`.
 
 ---
 

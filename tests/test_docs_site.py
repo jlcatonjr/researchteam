@@ -82,3 +82,46 @@ def test_docs_workflow_is_pinned_and_hash_locked():
     reqs = (ROOT / ".github" / "ci" / "requirements-docs.txt").read_text(encoding="utf-8")
     pins = re.findall(r"^([a-z0-9-]+)==(\S+) \\$", reqs, re.M)
     assert ("mkdocs-material", "9.7.7") in pins and all("--hash=sha256:" in reqs for _ in pins)
+
+
+def test_cli_reference_documents_no_flag_the_parser_lacks():
+    commands, options = _cli_surface()
+    text = (DOCS / "cli-reference.md").read_text(encoding="utf-8")
+    # The page's own claims: option-table rows and the usage blocks (prose may name agentteams flags).
+    documented = set(re.findall(r"^\| `(--?[a-z][a-z0-9-]*)", text, re.M))
+    for block in re.findall(r"```\n(researchteam .*?)```", text, re.S):
+        documented |= set(re.findall(r"(?<![\w-])(--?[a-z][a-z0-9-]*)", block))
+    stale = sorted(documented - set(options) - {"--version"})
+    assert not stale, f"docs_src/cli-reference.md documents flags cli.py does not define: {stale}"
+
+
+def _module_slug(name: str) -> str:
+    return name.lstrip("_").removesuffix("_cmd").replace("_", "-")
+
+
+def test_every_public_name_is_on_its_module_page():
+    """A renamed or removed function, class or constant leaves its page stale; a new one goes undocumented."""
+    missing = []
+    for mod in sorted((ROOT / "researchteam").glob("*.py")):
+        if mod.name == "__init__.py":
+            continue
+        tree = ast.parse(mod.read_text(encoding="utf-8"))
+        names = [n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))]
+        names += [t.id for n in tree.body if isinstance(n, (ast.Assign, ast.AnnAssign))
+                  for t in (n.targets if isinstance(n, ast.Assign) else [n.target])
+                  if isinstance(t, ast.Name) and t.id.isupper()]
+        page = (DOCS / "api-reference" / f"{_module_slug(mod.stem)}.md").read_text(encoding="utf-8")
+        missing += [f"{mod.name}:{name}" for name in names if not name.startswith("_") and f"`{name}" not in page]
+    assert not missing, f"public names missing from their API page: {missing}"
+
+
+def test_bridge_reference_matches_the_bridge_commands():
+    script = (ROOT / "scripts" / "claude_researchteam_bridge.sh").read_text(encoding="utf-8")
+    case = script[script.rindex('case "$cmd" in'):]
+    commands = set(re.findall(r"^  ([a-z][a-z-]*)\)$", case, re.M))
+    text = (DOCS / "bridge-reference.md").read_text(encoding="utf-8")
+    documented = {c for cell in re.findall(r"^\| `([^`]+)`", text, re.M) for c in re.findall(r"^[a-z][a-z-]*", cell)}
+    documented |= {c for cell in re.findall(r"^\| `[^`]+`, `([a-z-]+)`", text, re.M) for c in [cell]}
+    assert commands, "parsed no bridge commands"
+    assert commands == documented, (f"undocumented: {sorted(commands - documented)}; "
+                                    f"documented but gone: {sorted(documented - commands)}")

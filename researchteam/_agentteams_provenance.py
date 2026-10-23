@@ -40,11 +40,17 @@ from importlib import metadata
 from pathlib import Path
 from urllib.parse import unquote, urlparse
 
+try:  # imported as researchteam._agentteams_provenance
+    from . import _fetch
+except ImportError:  # run as a script (--inner) under the launcher's interpreter: _fetch.py sits beside it
+    import _fetch  # type: ignore[no-redef]
+
 TAG = "[researchteam] agentteams provenance"
 ALLOW_SNAPSHOT_ENV = "RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT"
 ALLOW_UNVERIFIED_ENV = "RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS"
 # The one reviewed source: a VCS install must come from here (any scheme, case, `.git` or trailing slash).
 CANONICAL_REPO = ("github.com", "/jlcatonjr/agentteams")
+CANONICAL_SLUG = "jlcatonjr/agentteams"
 # What the `agentteams` launcher runs: its console-script entry point is build_team:main.
 ENTRY_MODULES = ("build_team", "agentteams")
 
@@ -119,6 +125,16 @@ def inner(exe: str) -> int:
         if not is_canonical_repo(url):
             return _unverified(f"the VCS install comes from {url}, not github.com/jlcatonjr/agentteams (a fork "
                                "or mirror at a commit that was not reviewed there)")
+        # GitHub serves a fork's commits under the parent's URL too, so the URL alone does not prove the commit
+        # was reviewed: it must be on agentteams' main or a release/* branch.
+        reviewed = _fetch.commit_is_reviewed(CANONICAL_SLUG, str(vcs_info["commit_id"]))
+        if reviewed is False:
+            return _unverified(f"commit {str(vcs_info['commit_id'])[:12]} is not on main or a release branch of "
+                               "jlcatonjr/agentteams (GitHub serves fork commits under the upstream URL)")
+        if reviewed is None:
+            print(f"{TAG}: WARNING: could not confirm that commit {str(vcs_info['commit_id'])[:12]} is on "
+                  "jlcatonjr/agentteams main or a release branch (offline or rate-limited; set GITHUB_TOKEN to "
+                  "raise the limit); running it", file=sys.stderr)
     elif url.startswith("file:"):
         print(f"{TAG}: {exe} is a non-editable snapshot of {unquote(urlparse(url).path)}")
         if os.environ.get(ALLOW_SNAPSHOT_ENV) != "1":
@@ -144,6 +160,11 @@ def is_canonical_repo(url: str) -> bool:
         host, path = user_host.split("@", 1)[1], "/" + path
     else:
         parsed = urlparse(url)
+        try:
+            if parsed.port not in (None, 443, 22):
+                return False
+        except ValueError:  # a malformed port
+            return False
         host, path = parsed.hostname or "", parsed.path
     path = path.lower().rstrip("/").removesuffix(".git").rstrip("/")
     return (host.lower(), path) == CANONICAL_REPO

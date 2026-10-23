@@ -13,7 +13,7 @@ from ._manifest import (
     INIT_SKIP_PREFIXES,
     UPSTREAM_REPO,
 )
-from ._fetch import fetch_tarball
+from ._fetch import commit_is_reviewed, fetch_tarball
 
 # is_upstream = false is written EXPLICITLY (never omitted): the personalize / materialize guards
 # refuse only on a literal `is_upstream = true`, and a derived repo must always be personalizable.
@@ -62,6 +62,16 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     commit = top.rsplit("-", 1)[-1]
     if _HEX.match(ref) and _FULL_SHA.match(commit) and commit.startswith(ref):
         ref = commit
+    if _HEX.match(ref):
+        # GitHub serves a fork's commits under this repository's URL too: scaffold only from reviewed history.
+        reviewed = commit_is_reviewed(UPSTREAM_REPO, ref)
+        if reviewed is not True:
+            why = ("is not on main or a release branch" if reviewed is False else
+                   "could not be confirmed to be on main or a release branch (offline or rate-limited; set "
+                   "GITHUB_TOKEN to raise the limit)")
+            print(f"Error: commit {ref[:12]} {why} of {UPSTREAM_REPO}; use a branch or tag name, or a reviewed "
+                  "commit.", file=sys.stderr)
+            sys.exit(1)
 
     created = name is not None and not target.exists()
     if name:

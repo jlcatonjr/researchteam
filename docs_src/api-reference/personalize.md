@@ -9,7 +9,7 @@ Two safety rules apply:
 
 > *Source: `researchteam/_personalize.py`*
 
-> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI; these functions are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -24,7 +24,7 @@ The module also imports `FENCE_CORE_BEGIN`, `FENCE_CORE_END` and `INIT_RENDER_TE
 
 ### Template tokens
 
-`_render` substitutes these tokens from `brief.json`. Values are converted with `str()` and stripped; an empty value uses the fallback.
+`_render` substitutes these tokens from `brief.json`. Scalar fields are converted with `str()` and stripped; a missing field or an empty (or whitespace-only) string uses the fallback (a JSON `null` renders as `None`). `deliverables` uses its fallback unless it is a non-empty list, and its items are not stripped.
 
 | Token | `brief.json` field | Fallback |
 |-------|--------------------|----------|
@@ -125,14 +125,14 @@ Classify a file or header region. Finds the first line containing `GEN_MARKER_PR
 
 ---
 
-### Minor helpers
+### Private helpers
 
 | Function | Behaviour |
 |----------|-----------|
 | `_render(template: str, brief: dict) -> str` | Replaces the template tokens listed above. |
 | `_marker_line(body: str) -> str` | Returns `` <!-- researchteam:generated sha256=<digest> — regenerate with `researchteam personalize`; edits to generated regions are overwritten --> `` plus newline, where `<digest>` is SHA-256 of `body`. |
 | `_wrap(body: str) -> str` | Ensures `body` ends with a newline, then appends `_marker_line(body)`. |
-| `_split_fence(text: str) -> tuple[str, str, str] \| None` | Splits into `(before, fenced block including both marker lines, after)` using the first line containing `FENCE_CORE_BEGIN` and the next line containing `FENCE_CORE_END`; `None` if either is missing. |
+| `_split_fence(text: str) -> Optional[tuple[str, str, str]]` | Splits into `(before, fenced block including both marker lines, after)` using the first line containing `FENCE_CORE_BEGIN` and the next line containing `FENCE_CORE_END`; `None` if either is missing. |
 | `_load_template(name: str) -> str` | Reads `researchteam/scaffold/<name>` from the installed package. |
 | `_write_generated(dest, dest_rel, rendered, *, force, quiet) -> bool` | Applies the write rules above; returns `True` if the file was written. |
 | `_skip(dest_rel, status, quiet, *, header_only) -> None` | Prints the skip message to stderr unless `quiet`. |

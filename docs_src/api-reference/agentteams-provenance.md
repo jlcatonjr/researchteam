@@ -1,10 +1,10 @@
 # `_agentteams_provenance` — ResearchTeam
 
-Check which agentteams code a layer-1 render is about to run, and refuse unreviewed code. Adapted from mathAgents' `scripts/lib/agentteams_provenance.py`, the guard written after mathAgents renders dropped every adopted routing row because the agentteams that ran was an unrecorded local snapshot taken before the fix (CA-033). The check classifies the install that the resolved `agentteams` launcher imports, using its PEP 610 `direct_url.json`. "The code" is both modules the launcher runs: its entry module `build_team` (a top-level module beside the package) and the `agentteams` package. The check runs in two stages: `check(exe)` runs under researchteam's interpreter, finds the interpreter the launcher uses, and re-runs this file there with `--inner`, so the install it inspects is the one the launcher imports. The file is stdlib-only for that reason. `researchteam update` runs this check before a render and refuses on a non-zero result.
+Check which agentteams code a layer-1 render is about to run, and refuse unreviewed code. Adapted from mathAgents' `scripts/lib/agentteams_provenance.py`, the guard written after mathAgents renders dropped every adopted routing row because the agentteams that ran was an unrecorded local snapshot taken before the fix (CA-033). The check classifies the install that the resolved `agentteams` launcher imports, using its PEP 610 `direct_url.json`. "The code" is both modules the launcher runs: its entry module `build_team` (a top-level module beside the package) and the `agentteams` package. The check runs in two stages: `check(exe)` runs under researchteam's interpreter, finds the interpreter the launcher uses, and re-runs this file there with `--inner`, so the install it inspects is the one the launcher imports. The file is stdlib-only for that reason (so is `_fetch`, which it imports for the reviewed-commit check). `researchteam update`, `researchteam materialize` and `researchteam doctor --drift` (for bridges outside `write_policy: orchestrator-only`) run this check through `_preflight_agentteams` before they invoke agentteams, and refuse on a non-zero result.
 
 > *Source: `researchteam/_agentteams_provenance.py`*
 
-> **Stability.** researchteam's modules are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)). The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -13,7 +13,8 @@ Check which agentteams code a layer-1 render is about to run, and refuse unrevie
 | Install | Result |
 |---------|--------|
 | Editable (`dir_info.editable`), or no installed distribution (a bare source tree on `sys.path`) | Refused unless the checkout's `HEAD` is an ancestor of `origin/main` and the imported package directory and `build_team` module have no uncommitted or untracked sources (bytecode caches excepted). |
-| VCS install (`vcs_info.commit_id`) from `github.com/jlcatonjr/agentteams` (see `is_canonical_repo`) | Passes; prints the source URL and the first 12 characters of the commit. |
+| VCS install (`vcs_info.commit_id`) from `github.com/jlcatonjr/agentteams` (see `is_canonical_repo`) whose commit is on agentteams' `main` or a `release/*` branch ([`_fetch.commit_is_reviewed`](fetch.md#commit_is_reviewedrepo-str-sha-str-bool-none)) | Passes; prints the source URL and the first 12 characters of the commit. If GitHub cannot answer (offline or rate-limited), it passes with a `WARNING` that the commit could not be confirmed. |
+| VCS install from `github.com/jlcatonjr/agentteams` whose commit GitHub reports is on neither | Unverified: GitHub serves a fork's commits under the upstream URL, so the URL alone does not prove the commit was reviewed. |
 | VCS install from any other repository (a fork or mirror at a commit not reviewed upstream) | Unverified: refused unless `RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1`. |
 | Local-folder snapshot (non-editable `file:` URL, no commit) | Refused, unless `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1`, which runs it and prints a `WARNING` to stderr. |
 | Archive install (a non-`file:` URL without VCS info) | Unverified: no commit is recorded, so the code cannot be matched to a reviewed one. |
@@ -37,7 +38,12 @@ Messages are prefixed with `[researchteam] agentteams provenance`; refusals go t
 | `ALLOW_SNAPSHOT_ENV` | `"RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT"` | Set to `1` to run a local-folder snapshot with a warning. Matches mathAgents' `MATHAGENTS_ALLOW_AGENTTEAMS_SNAPSHOT`. |
 | `ALLOW_UNVERIFIED_ENV` | `"RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS"` | Set to `1` to run an unverified install (other-repo VCS, archive, or index) with a warning. |
 | `CANONICAL_REPO` | `("github.com", "/jlcatonjr/agentteams")` | `(host, path)` of the one reviewed source; a VCS install must come from here. |
+| `CANONICAL_SLUG` | `"jlcatonjr/agentteams"` | The repository asked whether a VCS install's commit is reviewed history. |
 | `ENTRY_MODULES` | `("build_team", "agentteams")` | The modules the `agentteams` launcher runs (its console-script entry point is `build_team:main`). |
+
+---
+
+When run as a script (`--inner`), the module imports `_fetch` from its own directory, since it is not loaded as part of the package there.
 
 ---
 
@@ -63,7 +69,7 @@ A quoted trampoline path may contain spaces; an unquoted one stops at the first 
 
 ### `is_canonical_repo(url)`
 
-Whether a VCS URL names `github.com/jlcatonjr/agentteams`. An scp-like URL (`git@github.com:owner/repo`) is split at the first `:`, taking the host after `@`; any other URL is parsed with `urlparse` (scheme ignored). The host is lower-cased; the path is lower-cased, and trailing `/` and a `.git` suffix are removed. The result is compared with `CANONICAL_REPO`.
+Whether a VCS URL names `github.com/jlcatonjr/agentteams`. An scp-like URL (`git@github.com:owner/repo`) is split at the first `:`, taking the host after `@`; any other URL is parsed with `urlparse` (scheme ignored). A URL with a port other than none, 443 or 22 (or a malformed port) is rejected. The host is lower-cased; the path is lower-cased, and trailing `/` and a `.git` suffix are removed. The result is compared with `CANONICAL_REPO`.
 
 **Args:**
 

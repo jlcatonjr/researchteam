@@ -4,7 +4,7 @@ The `researchteam` console-script entry point. `main()` builds the argparse pars
 
 > *Source: `researchteam/cli.py`*
 
-> **Stability.** The supported interface is the `researchteam` CLI. The functions on this page (and the underscore-prefixed modules they call) are documented for contributors and may change between releases.
+> **Stability.** This module's helpers are underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -44,7 +44,7 @@ A subcommand is required (`sub.required = True`); the top-level parser also acce
 2. `_release_locked_ref(root)`, unless `--layer1-only` is set (the lock is not consulted for a layer-1-only run);
 3. `_read_marker_ref(root)`.
 
-The resolved ref must pass [`_drift.is_safe_ref`](drift.md#is_safe_refref); otherwise `main()` exits 1 with `[researchteam] refusing the upstream ref '<ref>': not a plain branch, tag or commit name (check --ref and the .researchteam marker's ref).` before `run_update` is called.
+The resolved ref must pass [`_drift.is_safe_ref`](drift.md#is_safe_refref); otherwise `main()` exits 1 with `[researchteam] refusing the upstream ref '<ref>': not a plain branch, tag or commit name (check --ref and the .researchteam marker's ref).` before `run_update` is called. A commit ref that is not the release-locked commit then goes through [`_check_commit_ref`](#_check_commit_refref) (skipped under `--layer1-only`).
 
 **Returns:** `None`.
 
@@ -92,6 +92,18 @@ Return the commit of the verified researchteam tag when `toolchain.lock` release
 **Returns:** `str | None` — the tag's commit SHA, or `None` when the lock does not release-lock researchteam. On success it prints `[researchteam] release-locked: syncing layer 2 from researchteam <tag> (<sha[:12]>).`
 
 **Exit behaviour:** a `ReleaseError` (the lock names a tag that does not verify) exits with a message saying layer-2 sync is refused. It fails closed and never falls back to `main`; `--ref` is the documented way past it.
+
+---
+
+### `_check_commit_ref(ref)`
+
+For `update`: when the resolved ref is a 7–40 hex commit and is not the verified release-locked commit, ask [`_fetch.commit_is_reviewed`](fetch.md#commit_is_reviewedrepo-str-sha-str-bool-none) whether it is on researchteam's `main` or a `release/*` branch. `False` exits with `[researchteam] refusing commit <sha>: it is not on main or a release branch of jlcatonjr/researchteam.`; `None` prints a `WARNING` to stderr and continues. Branch and tag names return at once. Not called under `--layer1-only`.
+
+**Args:**
+
+- `ref` (`str`) — The resolved upstream ref.
+
+**Returns:** `None`.
 
 ---
 

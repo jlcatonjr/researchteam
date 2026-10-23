@@ -4,7 +4,7 @@ Implementation of `researchteam update` and `researchteam materialize`. `update`
 
 > *Source: `researchteam/_update_cmd.py`*
 
-> **Stability.** The supported interface is the `researchteam` CLI. The functions on this page are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -69,7 +69,7 @@ Merge strategies come from `_manifest.MERGE_STRATEGIES` (see [`manifest`](manife
    - **`overwrite`:** replaced wholesale when it differs.
    - With a change pending: under dry run prints `Would update`. Interactively it shows up to 50 diff lines and asks `Apply? [y/N]`. Otherwise it writes the file and adds the execute bits to `.sh` files.
 5. **Notes sync.** Unless the profile is `generic`, runs `_sync_notes(root, ref, yes, dry_run)`.
-6. Prints fetch errors (to stderr), a summary (`N updated, N skipped, N errors`), and `_toolchain_hook_note` when the toolchain check exists but is not wired to SessionStart.
+6. Prints a `Fetch errors:` header (stdout) and each fetch error (stderr), a summary (`N updated, N skipped, N errors`), and `_toolchain_hook_note` when the toolchain check exists but is not wired to SessionStart.
 7. Returns here if `layer2_only` or layer 1 is off.
 8. **Layer 1:** `_run_agentteams` (copilot-vscode merge), `_render_native_surfaces(overwrite=False)`, `_refresh_codex_unless_frozen`, `_merge_bridges`, `_print_frozen_summary`.
 
@@ -112,7 +112,7 @@ researchteam update --layer1-only --no-codex
 3. Prints that the run replaces generated agent bodies. Unless `dry_run` or `yes`, asks `Proceed with the overwrite re-render? [y/N]`. Any answer but `y` prints `Aborted; nothing changed.` and returns.
 4. `_run_agentteams(..., overwrite=True, adopt_orphans, discard_user_regions)` on copilot-vscode. On success (not dry run) this includes the `_reconcile_manifest_back` write-back.
 5. Unless `copilot_only`: `_render_native_surfaces(..., overwrite=True, label="materialize")`.
-6. If `codex`: `_refresh_codex(root, dry_run)`. Unlike `update`, nothing is printed when `codex` is `False`.
+6. If `codex`: `_refresh_codex(root, dry_run)`. When `codex` is `False` the body prints nothing (`_codex_allowed` still prints its frozen-codex notice when `codex` is in `frozen_surfaces`).
 7. If not dry run: `_personalize.run_personalize(root, force=False, quiet=False)`. Otherwise prints what it would re-personalize.
 
 `_frozen_end` then runs from a `finally`.
@@ -300,7 +300,7 @@ Refresh each recorded copilot-vscode bridge (`_drift.bridge_frameworks`) with `a
 - A frozen framework is skipped.
 - A framework covered by `write_policy: orchestrator-only` (`_drift.write_policy_frameworks`) is skipped, and its remaining bridge outputs are listed for removal through `@cleanup`. Nothing is deleted.
 
-It warns (stderr) for each covered framework other than codex that has no native team. A failed merge is reported to stderr and is not fatal. A dry run only lists what it would refresh.
+It warns (stderr) for each covered framework other than codex that has no native team. A failed `--bridge-merge` is reported to stderr and is not fatal; the `_preflight_agentteams` check that runs before the merges can still exit. A dry run only lists what it would refresh.
 
 ### Codex
 
@@ -313,7 +313,7 @@ It warns (stderr) for each covered framework other than codex that has no native
 
 ---
 
-## Minor helpers
+## Private helpers
 
 | Function | Purpose |
 |----------|---------|

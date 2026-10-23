@@ -4,7 +4,7 @@ Implementation of `researchteam doctor`, a health check for the researchteam ↔
 
 > *Source: `researchteam/_doctor_cmd.py`*
 
-> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI; these functions are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -64,7 +64,7 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 
 **5. Toolchain pin** (`_check_toolchain`, always runs).
 - WARN: `scripts/check_toolchain.py` is missing (run `researchteam update` to receive it); nothing else in this check runs.
-- Otherwise runs `check_toolchain.py --python <sys.executable>` with a 60-second timeout. Each non-blank output line is reported with its `[toolchain] ` prefix removed: OK if the line starts with `[toolchain] OK`, WARN for every other line (including "no toolchain.lock yet", `BEHIND`, `MISMATCH` and `note` lines, and a failure to run the script).
+- Otherwise runs `check_toolchain.py --python <sys.executable>` with a 60-second timeout. Each non-blank stdout line is reported (stderr and the exit status are ignored; empty stdout gives one WARN `(no output)`) with its `[toolchain] ` prefix removed: OK if the line starts with `[toolchain] OK`, WARN for every other line (including "no toolchain.lock yet", `BEHIND`, `MISMATCH` and `note` lines, and a failure to run the script).
 - OK / WARN: whether `.claude/settings.json` or `.claude/settings.local.json` has a SessionStart hook whose command contains `scripts/check_toolchain.py`. WARN asks the operator to merge `.claude/settings.toolchain.example.json`.
 
 **6. Frozen surfaces** (`_check_frozen_surfaces`, always runs). Reads `frozen_surfaces` from `brief.json` and the set recorded in `.researchteam`.
@@ -118,13 +118,13 @@ Check 9 above. When `fail` is `None`, the leftover-bridge-agent finding is repor
 
 ---
 
-### Minor helpers
+### Private helpers
 
 | Function | Behaviour |
 |----------|-----------|
 | `_load(path: Path) -> dict` | JSON-decodes `path`; returns `{}` on `OSError` or `JSONDecodeError`. |
 | `_script_interpreter(exe: str) -> str` | First token after `#!` on the script's first line; `sys.executable` if there is no shebang or the file cannot be read. |
-| `_agentteams_source(interp: str) -> str \| None` | Runs `interp -c` to print the directory of `build_team.__file__`; `None` on failure or empty output. |
+| `_agentteams_source(interp: str) -> Optional[str]` | Runs `interp -c` to print the directory of `build_team.__file__`; `None` on failure or empty output. |
 | `_check_frozen_surfaces(root, ok, warn, fail) -> None` | Check 6. |
 | `_check_frozen_fences(root, ok, warn) -> None` | Check 7. |
 | `_check_seeded_files(root, ok, warn) -> None` | Check 8. |

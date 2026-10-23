@@ -1,6 +1,6 @@
 # ResearchTeam
 
-Conduct rigorous, source-grounded scholarly research with agent-based workflows and robust update safety.
+Conduct rigorous, source-grounded scholarly research with agent-based workflows and updates that never touch your research content.
 
 ---
 

@@ -4,7 +4,7 @@ Implementation of `researchteam init`. `run_init` scaffolds a new derived reposi
 
 > *Source: `researchteam/_init_cmd.py`*
 
-> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([`cli.md`](cli.md), [`../cli-reference.md`](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
+> **Stability.** This module is underscore-prefixed. The supported interface is the `researchteam` CLI ([CLI reference](../cli-reference.md)); the functions below are documented for contributors and may change between releases.
 
 ---
 
@@ -13,11 +13,20 @@ Implementation of `researchteam init`. `run_init` scaffolds a new derived reposi
 | Name | Value | Purpose |
 |------|-------|---------|
 | `_MARKER_TEMPLATE` | `"[researchteam]\nupstream = https://github.com/{repo}\nref = {ref}\nis_upstream = false\n"` | Contents of the `.researchteam` marker written by `init`. `is_upstream = false` is always written explicitly; the personalize and materialize guards refuse only when `is_upstream` reads as `true` (see [`is_upstream`](personalize.md#is_upstreamroot-path-bool)), which `init` never writes. |
-
 | `_HEX` | compiled regex `^[0-9a-f]{7,40}$` | A `ref` that may be a commit (short or full SHA). |
 | `_FULL_SHA` | compiled regex `^[0-9a-f]{40}$` | A full commit SHA, as found at the end of the archive's top directory name. |
 
 `run_init` also uses `UPSTREAM_REPO`, `INIT_SKIP_PREFIXES` and `INIT_SCAFFOLD_REPLACEMENTS` from [`_manifest`](manifest.md).
+
+---
+
+## Classes
+
+### `ArchiveError`
+
+> *Source: `researchteam/_init_cmd.py`*
+
+Subclass of `Exception`. An upstream archive `init` will not extract: unreadable, a member path that could escape the target, or not exactly one top-level directory. Raised by `_validate_archive`; `run_init` turns it into exit 1 before anything is created.
 
 ---
 
@@ -40,7 +49,10 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 1. Check `ref` with `is_safe_ref`.
 2. Validate the target directory (see Args). Nothing is created yet.
 3. Download `UPSTREAM_REPO` at `ref` with `fetch_tarball`, and check the whole archive with `_validate_archive`.
-4. For a hex `ref`, replace it with the full commit SHA taken from the archive's top directory (see Args).
+4. For a hex `ref`, replace it with the full commit SHA taken from the archive's top directory (see Args), then
+   require [`_fetch.commit_is_reviewed`](fetch.md#commit_is_reviewedrepo-str-sha-str-bool-none) to return `True`.
+   GitHub serves a fork's commits under this repository's URL, so a commit must be on `main` or a `release/*`
+   branch. Branch and tag names skip this step.
 5. Create the `name` directory, if given, and print where the project is being initialized.
 6. Call `_populate`, which runs the remaining steps:
     1. Warn on stderr if the archive held link members (`skipped N link member(s) in the archive: …`, at most five named); they are not extracted.
@@ -59,6 +71,9 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 
 - Prints `Error: --ref '<ref>' is not a plain branch, tag or commit name.` to stderr and calls `sys.exit(1)` when `ref` fails `is_safe_ref`.
 - Prints an error to stderr and calls `sys.exit(1)` if `name` exists and is not an empty directory, or if `name` is `None` and the current directory is not empty.
+- Prints `Error: commit <sha> is not on main or a release branch of …` (or `could not be confirmed to be on …`
+  when GitHub cannot answer) and calls `sys.exit(1)` for a commit `ref` that is not reviewed history. Nothing
+  has been created.
 - Prints `Error: <message>` to stderr and calls `sys.exit(1)` when `fetch_tarball` raises `RuntimeError` or `_validate_archive` raises `ArchiveError`. No directory has been created at that point.
 - After the directory is created, an `OSError` or `subprocess.CalledProcessError` from `_populate` is printed as `[researchteam] init failed: <exc>` followed by a line saying the project at the target is incomplete and to remove it (when `init` created the directory) or the files written there (when it already existed) before retrying; then `sys.exit(1)`. Nothing is deleted.
 - A `SystemExit` raised by `run_personalize` is re-raised unchanged. Any other exception from personalize is printed as `[researchteam] init failed while personalizing: …` and ends with `sys.exit(1)`.
@@ -72,14 +87,6 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 Write the checked archive into `target`, then the scaffold files, `brief.json`, the marker, the identity files and the git repository: sub-steps 6.1–6.8 of `run_init` above. `members` and `links` are the first two values returned by `_validate_archive`; `ref` is the value recorded in the marker.
 
 **Raises:** `OSError` (including from `_extract`) and `subprocess.CalledProcessError` (a git command failed); `run_init` reports both.
-
----
-
-### `class ArchiveError(Exception)`
-
-> *Source: `researchteam/_init_cmd.py`*
-
-An upstream archive `init` will not extract: unreadable, a member path that could escape the target, or not exactly one top-level directory. Raised by `_validate_archive`; `run_init` turns it into exit 1 before anything is created.
 
 ---
 
@@ -109,7 +116,7 @@ Write the members `_validate_archive` accepted into `target`. Members whose name
 
 ---
 
-### Minor helpers
+### Private helpers
 
 | Function | Behaviour |
 |----------|-----------|

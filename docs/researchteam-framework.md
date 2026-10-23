@@ -296,7 +296,10 @@ the provenance of the `agentteams` that will execute (the one installed beside t
 else the first one on `PATH`) and prints its source
 and commit: an editable checkout must be on `origin/main` with no uncommitted sources, and a checkout
 that shadows the installed copy is refused. A VCS install from `github.com/jlcatonjr/agentteams` pinned to
-a commit (the `update` extra) passes; a local-folder snapshot (no commit recorded) is refused unless
+a commit on its `main` or a `release/*` branch (the `update` extra) passes; GitHub also serves a fork's commits
+under that URL, so a commit GitHub reports is on neither is treated as unverified (refused unless
+`RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1`), and one it cannot check (offline or
+rate-limited) runs with a warning; a local-folder snapshot (no commit recorded) is refused unless
 `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. A VCS install from any other
 repository (a fork or mirror, including a non-default `AGENTTEAMS_GIT` in the autosync gate), a remote archive
 install and an index install (agentteams is not on PyPI) are refused unless
