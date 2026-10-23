@@ -1,6 +1,14 @@
 # ResearchTeam
 
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![Docs](https://img.shields.io/badge/docs-github--pages-blue)](https://jlcatonjr.github.io/researchteam/)
+[![API Reference](https://img.shields.io/badge/API-reference-teal)](https://jlcatonjr.github.io/researchteam/api-reference/)
+
 Conduct rigorous, source-grounded scholarly research with agent-based workflows and robust update safety.
+
+**Documentation:** https://jlcatonjr.github.io/researchteam/ · **API Reference:** https://jlcatonjr.github.io/researchteam/api-reference/
+
+---
 
 ## What is ResearchTeam?
 

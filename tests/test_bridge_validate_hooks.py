@@ -3,6 +3,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -70,3 +72,11 @@ def test_non_executable_and_hidden_files_are_skipped(tmp_path):
 def test_validate_d_is_not_managed():
     from researchteam._manifest import MANAGED_FILES
     assert not any(p.startswith("scripts/validate.d") for p in MANAGED_FILES)
+
+
+@pytest.mark.parametrize("cmd", ["open-reader", "open-summary"])
+def test_the_example_project_commands_are_gone(cmd):
+    """They printed fixed Projects/ZeldaTimeline paths, which no derived repo has (init skips Projects/)."""
+    bridge = ROOT / "scripts" / "claude_researchteam_bridge.sh"
+    assert cmd not in subprocess.run(["bash", str(bridge), "help"], capture_output=True, text=True).stdout
+    assert subprocess.run(["bash", str(bridge), cmd], capture_output=True, text=True).returncode == 2

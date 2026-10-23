@@ -95,3 +95,6 @@ Projects/**/*.synctex.gz
 # (agentteams convention gitignores .claude/settings.json; added 2026-W40 sandbox launch).
 .claude/settings.json
 .claude/settings.local.json
+
+# MkDocs build output (mkdocs.yml → _site/; deployed by .github/workflows/docs.yml, never committed).
+_site/

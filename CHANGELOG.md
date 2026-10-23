@@ -3,6 +3,52 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (on `main`)
+
+- **Documentation site.** An MkDocs Material site (`mkdocs.yml`, `docs_src/`) with a CLI reference, a bridge
+  reference and a per-module API reference, deployed to GitHub Pages at https://jlcatonjr.github.io/researchteam/
+  by `.github/workflows/docs.yml` (pinned actions, hash-locked build dependencies in
+  `.github/ci/requirements-docs.txt`, strict build with anchor checks on pull requests, deploy from `main` only),
+  the same pipeline as agentteams. The README links it at the top. `tests/test_docs_site.py` keeps the site in
+  step with the code, in both directions: a module without a page, a public name missing from its page, a CLI
+  command or flag missing from the CLI reference (or documented but gone), and bridge commands that differ from
+  the bridge reference all fail it. These files stay in this repository: none is synced by `update`, and `init`
+  now skips `mkdocs.yml`, `docs_src/` and `.github/ci/requirements-docs.txt`, as it already skipped
+  `.github/workflows/`.
+
+Fixes found while writing and auditing the API reference:
+
+- **`init --ref <commit>` works.** The help promised a SHA, but only branch and tag archives were tried. A 7–40 hex
+  ref now falls through to the commit archive, and the marker records the full SHA. Fetch failures are a
+  one-line error and exit 1 (was a traceback), and a ref with `.`/`..` segments, a `refs/pull/` head or other
+  unsafe text is refused first.
+- **Commits must be reviewed history.** GitHub serves every commit in a repository's fork network under the
+  parent's URLs, so a SHA alone does not prove a commit was reviewed. `init --ref <commit>` now requires the
+  commit to be on `main` or a `release/*` branch (asked through the GitHub API; refused when that cannot be
+  confirmed). `update` with a commit ref refuses one GitHub says is on neither and warns when GitHub cannot
+  answer. A `GITHUB_TOKEN` or `GH_TOKEN` raises GitHub's limit of 60 unauthenticated requests an hour.
+- **`init` writes nothing until the archive checks out.** The download and a check of every member happen
+  before the directory is created, so a failed fetch no longer leaves an empty directory. An archive with an
+  absolute or `..` member is refused whole. Extraction confirms every destination is inside the target, and
+  link members are skipped with a warning. A later failure names the incomplete project; nothing is deleted.
+- **One `.researchteam` reader.** `update`'s fetch ref and the drift / pristine-check ref could disagree on
+  `ref=foo` or `ref = "foo"`. `ref`, `layer1` and `is_upstream` are now all read by `_personalize.read_marker`:
+  first occurrence wins, a trailing ` #comment` is dropped, and one pair of quotes is stripped. Note:
+  `is_upstream = "true"` now counts as true. `update` refuses an unsafe resolved ref.
+- **The agentteams provenance guard refuses unverifiable installs.** A VCS install now passes only from
+  `github.com/jlcatonjr/agentteams`. A fork or mirror, a remote archive install, or an index install (agentteams
+  is not on PyPI) is refused unless `RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1`, and so is an agentteams commit
+  that GitHub reports is not on its `main` or a `release/*` branch (a fork's commit installed through the upstream
+  URL); when GitHub cannot answer, the install runs with a warning. URLs with an unexpected port are not treated as
+  the canonical repository. This includes a non-default
+  `AGENTTEAMS_GIT` in the autosync gate. `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT` still covers local snapshots
+  only.
+- **`library-query -k N`** no longer drops query words or a project name equal to `N`. A missing, non-integer
+  or < 1 value is a usage error, and every usage error exits 2.
+- **Removed `open-reader` / `open-summary`** from the bridge. They printed fixed `Projects/ZeldaTimeline/` paths
+  that no derived repo has. Derived repos lose them on their next sync, and a call now prints the help and
+  exits 2.
+
 ## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
 
 A patch release on `release/1.0` with two fixes found during Batallion's v1.0.0 sync. The agentteams pin is

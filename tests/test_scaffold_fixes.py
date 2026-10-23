@@ -73,7 +73,7 @@ def test_init_accepts_existing_empty_dir_and_refuses_nonempty(tmp_path, monkeypa
     def stop(*_a, **_k):
         raise RuntimeError("stop-before-network")
     monkeypatch.setattr(_init_cmd, "fetch_tarball", stop)
-    with pytest.raises(RuntimeError, match="stop-before-network"):  # got past the existence check
+    with pytest.raises(SystemExit):  # got past the existence check; a fetch failure is a clean exit 1
         _init_cmd.run_init("empty", "main", None)
 
 
