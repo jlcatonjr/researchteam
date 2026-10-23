@@ -3,6 +3,40 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (on `main`)
+
+- **Documentation site.** An MkDocs Material site (`mkdocs.yml`, `docs_src/`) with a CLI reference, a bridge
+  reference and a per-module API reference, deployed to GitHub Pages at https://jlcatonjr.github.io/researchteam/
+  by `.github/workflows/docs.yml` (pinned actions, hash-locked build dependencies in
+  `.github/ci/requirements-docs.txt`, strict build on pull requests), the same pipeline as agentteams. The README
+  links it at the top. `tests/test_docs_site.py` fails when a module has no API page or a CLI command or flag is
+  missing from the CLI reference. Upstream only: none of it is a managed file, and `init` now skips
+  `mkdocs.yml`, `docs_src/` and `.github/ci/requirements-docs.txt` (as it already skipped `.github/workflows/`).
+
+Fixes found while writing the API reference (plan `tmp/by-week/2026-W43/api-doc-findings-remediation.plan.md`):
+
+- **`init --ref <commit>` works.** The help promised a SHA, but only branch and tag archives were tried. A 7–40 hex
+  ref now falls through to the commit archive, and the marker records the full SHA. Fetch failures are a
+  one-line error and exit 1 (was a traceback), and a ref with `..` or other unsafe text is refused first.
+- **`init` writes nothing until the archive checks out.** The download and a check of every member happen
+  before the directory is created, so a failed fetch no longer leaves an empty directory. An archive with an
+  absolute or `..` member is refused whole. Extraction confirms every destination is inside the target, and
+  link members are skipped with a warning. A later failure names the incomplete project; nothing is deleted.
+- **One `.researchteam` reader.** `update`'s fetch ref and the drift / pristine-check ref could disagree on
+  `ref=foo` or `ref = "foo"`. `ref`, `layer1` and `is_upstream` are now all read by `_personalize.read_marker`:
+  first occurrence wins, a trailing ` #comment` is dropped, and one pair of quotes is stripped. Note:
+  `is_upstream = "true"` now counts as true. `update` refuses an unsafe resolved ref.
+- **The agentteams provenance guard refuses unverifiable installs.** A VCS install now passes only from
+  `github.com/jlcatonjr/agentteams`. A fork or mirror, a remote archive install, or an index install (agentteams
+  is not on PyPI) is refused unless `RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1`. This includes a non-default
+  `AGENTTEAMS_GIT` in the autosync gate. `RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT` still covers local snapshots
+  only.
+- **`library-query -k N`** no longer drops query words or a project name equal to `N`. A missing, non-integer
+  or < 1 value is a usage error, and every usage error exits 2.
+- **Removed `open-reader` / `open-summary`** from the bridge. They printed fixed `Projects/ZeldaTimeline/` paths
+  that no derived repo has. Derived repos lose them on their next sync, and a call now prints the help and
+  exits 2.
+
 ## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
 
 A patch release on `release/1.0` with two fixes found during Batallion's v1.0.0 sync. The agentteams pin is

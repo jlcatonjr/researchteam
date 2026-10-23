@@ -19,7 +19,7 @@ from ._manifest import (
     UPSTREAM_REPO,
     managed_files_for,
 )
-from ._drift import NOTES_HEADING_RE, SAFE_REF, clean, comparable_body, pinned_ref
+from ._drift import NOTES_HEADING_RE, clean, comparable_body, is_safe_ref, pinned_ref
 from ._fetch import fetch_raw
 
 
@@ -94,7 +94,7 @@ def _above_notes_pristine(root: Path, rel_path: str, local: str, ref: str,
     odd ref, a failed fetch). Compared the way ``doctor --drift`` compares seeded files.
     """
     pin, how = pinned_ref(root)
-    if not SAFE_REF.match(pin):
+    if not is_safe_ref(pin):
         return None, f"the pinned ref {clean(pin)!r} ({how}) is not a plain commit or name"
     try:
         pinned = remote if pin == ref else fetch_raw(UPSTREAM_REPO, pin, rel_path)
@@ -776,12 +776,12 @@ def layer1_enabled(root: Path) -> bool:
     """False when ``.researchteam`` declares ``layer1 = off``: a repo with no agentteams descriptor
     (brief.json / _build-description.json) whose agent files are maintained by hand, so `update`
     syncs layer 2 only instead of failing at layer 1."""
+    from ._personalize import read_marker
     try:
-        text = (root / ".researchteam").read_text(encoding="utf-8")
+        value = read_marker(root).get("layer1", "")
     except OSError:
         return True
-    m = re.search(r"^layer1\s*=\s*(\S+)", text, re.M)
-    return not (m and m.group(1).strip("\"'").lower() in _LAYER1_OFF)
+    return value.lower() not in _LAYER1_OFF
 
 
 def _resolve_agentteams() -> tuple[str | None, str]:

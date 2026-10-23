@@ -32,16 +32,24 @@ _SHA_RE = re.compile(r"sha256=([0-9a-f]{64})")
 
 # --------------------------------------------------------------------------- marker helpers
 def read_marker(root: Path) -> dict[str, str]:
-    """Parse the ``.researchteam`` marker into a flat ``key -> value`` dict (values stripped)."""
+    """Parse the ``.researchteam`` marker into a flat ``key -> value`` dict.
+
+    The one reader for ``ref``, ``layer1`` and ``is_upstream``. The first occurrence of a key wins, a trailing
+    `` #comment`` is dropped, and one pair of matching surrounding quotes is stripped. Raises ``OSError`` when
+    the marker exists but cannot be read; a missing marker gives ``{}``.
+    """
     marker = root / ".researchteam"
     out: dict[str, str] = {}
     if not marker.exists():
         return out
     for line in marker.read_text(encoding="utf-8").splitlines():
         s = line.strip()
-        if "=" in s and not s.startswith("["):
+        if "=" in s and not s.startswith(("[", "#")):
             key, _, value = s.partition("=")
-            out[key.strip()] = value.strip()
+            value = re.split(r"\s+#", value, maxsplit=1)[0].strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                value = value[1:-1]
+            out.setdefault(key.strip(), value)
     return out
 
 

@@ -249,7 +249,7 @@ def _check_frozen_fences(root: Path, ok, warn) -> None:
 
 def _check_seeded_files(root: Path, ok, warn) -> None:
     """Seeded-but-unsynced files whose upstream-owned part differs from upstream at the pinned commit."""
-    from ._drift import SAFE_REF, clean, comparable_body, pinned_ref
+    from ._drift import clean, comparable_body, is_safe_ref, pinned_ref
     from ._fetch import fetch_raw
     from ._manifest import SEEDED_FILES, UPSTREAM_REPO
 
@@ -257,7 +257,7 @@ def _check_seeded_files(root: Path, ok, warn) -> None:
         ok("seeded files: none (every file init seeds is now managed or project-owned).")
         return
     ref, how = pinned_ref(root)
-    if not SAFE_REF.match(ref):
+    if not is_safe_ref(ref):
         warn(f"seeded files: not checked; the upstream ref {clean(ref)!r} ({how}) is not a plain commit or name")
         return
     behind = failed = 0

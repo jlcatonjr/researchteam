@@ -55,11 +55,9 @@ exclude. So `validate` also runs the fence and placeholder checks on a new, unco
 The validator is a drift check: it catches an update that writes outside its scope. It is not a
 control against a compromised upstream.
 
-### Reader and Summary Paths
+### Claude Folder Path
 
 ```bash
-bash scripts/claude_researchteam_bridge.sh open-reader
-bash scripts/claude_researchteam_bridge.sh open-summary
 bash scripts/claude_researchteam_bridge.sh open-claude-dir
 ```
 

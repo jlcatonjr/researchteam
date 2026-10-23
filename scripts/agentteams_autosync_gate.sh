@@ -26,6 +26,8 @@
 #   scripts/agentteams_autosync_gate.sh --mode {upstream|derived} [--check-only]
 # Env (optional):
 #   AGENTTEAMS_GIT           override the agentteams git URL
+#                            (a mirror or fork is not github.com/jlcatonjr/agentteams, so the layer-1
+#                            provenance guard refuses it unless RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1)
 #   AUTOSYNC_PR_BODY_FILE    where to write the PR body (default: ./.autosync-pr-body.md, gitignored)
 # GitHub outputs (when $GITHUB_OUTPUT is set): changed=<bool>, new_sha=<sha>, old_sha=<sha>
 # Exit: 0 = success (check `changed`); non-zero = a blocking gate failed (workflow must NOT open a PR).

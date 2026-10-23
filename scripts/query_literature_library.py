@@ -62,7 +62,7 @@ def _cosine(a: dict[str, float], b: dict[str, float]) -> float:
     return sum(w * b.get(t, 0.0) for t, w in a.items())
 
 
-def query(libdir: Path, q: str, k: int) -> list[tuple[str, float]]:
+def query(libdir: Path, q: str, k: int) -> tuple[list[tuple[str, float]], dict]:
     lit, vecs = _load(libdir)
     idf = _idf(vecs)
     doc_vecs = {key: _tfidf({t: float(c) for t, c in terms.items()}, idf) for key, terms in vecs.items()}
@@ -76,18 +76,29 @@ def query(libdir: Path, q: str, k: int) -> list[tuple[str, float]]:
     return [(key, s) for key, s in scored[:k] if s > 0.0], lit
 
 
+USAGE = 'usage: query_literature_library.py <project> "<query>" [-k N]'
+
+
+def _usage(msg: str = "") -> None:
+    print(f"{msg}\n{USAGE}" if msg else USAGE, file=sys.stderr)
+    sys.exit(2)
+
+
 def main() -> None:
-    args = [a for a in sys.argv[1:] if a != "-k"]
-    k = 8
-    if "-k" in sys.argv:
-        i = sys.argv.index("-k")
+    # Remove exactly the -k flag and the value after it (by position): a query word or project name that
+    # happens to equal the value is kept.
+    args, k = list(sys.argv[1:]), 8
+    if "-k" in args:
+        i = args.index("-k")
         try:
-            k = int(sys.argv[i + 1])
-            args = [a for a in args if a != sys.argv[i + 1]]
+            k = int(args[i + 1])
         except (IndexError, ValueError):
-            pass
+            _usage("-k needs a whole number")
+        if k < 1:
+            _usage("-k must be at least 1")
+        del args[i:i + 2]
     if len(args) < 2:
-        sys.exit('usage: query_literature_library.py <project> "<query>" [-k N]')
+        _usage()
     project, q = args[0], " ".join(args[1:])
     libdir = _resolve_project(_root(), project) / "references" / "library"
     if not (libdir / "term-vectors.jsonl").exists():

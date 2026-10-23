@@ -18,8 +18,6 @@ Commands:
   status        Show git status and current branch
   validate      Run repository validator (if available), then each executable
                 in scripts/validate.d/ (repo-owned local checks, in name order)
-  open-reader   Print path to main Zelda research guide
-  open-summary  Print path to Zelda summary document
   open-claude-dir Print path to Claude support folder
   plan-path     Print current ISO-week plan directory path
   methodology-check [project]
@@ -97,14 +95,6 @@ command_validate() {
     echo "Validator not found at scripts/validate_agentteams_update.sh"
     exit 1
   fi
-}
-
-command_open_reader() {
-  echo "$ROOT_DIR/Projects/ZeldaTimeline/ZeldaTimelineReader.html"
-}
-
-command_open_summary() {
-  echo "$ROOT_DIR/Projects/ZeldaTimeline/ZeldaTimelineSummary.html"
 }
 
 command_open_claude_dir() {
@@ -207,12 +197,6 @@ case "$cmd" in
     ;;
   validate)
     command_validate
-    ;;
-  open-reader)
-    command_open_reader
-    ;;
-  open-summary)
-    command_open_summary
     ;;
   open-claude-dir)
     command_open_claude_dir

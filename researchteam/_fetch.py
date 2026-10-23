@@ -1,10 +1,12 @@
 """GitHub fetching utilities — stdlib only, no third-party dependencies."""
 
-import urllib.request
+import re
 import urllib.error
+import urllib.request
 
 GITHUB_RAW_BASE = "https://raw.githubusercontent.com"
 GITHUB_ARCHIVE_BASE = "https://github.com"
+_HEX_REF = re.compile(r"^[0-9a-f]{7,40}$")
 
 
 def fetch_raw(repo: str, ref: str, path: str) -> str:
@@ -24,13 +26,26 @@ def fetch_raw(repo: str, ref: str, path: str) -> str:
 
 
 def fetch_tarball(repo: str, ref: str) -> bytes:
-    """Download a branch/tag tarball from GitHub."""
-    url = f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/refs/heads/{ref}.tar.gz"
-    try:
-        with urllib.request.urlopen(url, timeout=60) as resp:
-            return resp.read()
-    except urllib.error.HTTPError:
-        # Fall back to tags archive if heads fails (e.g. when ref is a tag).
-        url = f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/refs/tags/{ref}.tar.gz"
-        with urllib.request.urlopen(url, timeout=60) as resp:
-            return resp.read()
+    """Download a branch, tag or commit tarball from GitHub.
+
+    Tries ``refs/heads/<ref>``, then ``refs/tags/<ref>``, then (only for a 7-40 hex ``ref``) the commit archive
+    ``archive/<ref>.tar.gz``. A 404 moves to the next candidate; any other HTTP error or a network error stops at
+    once. Every failure is a ``RuntimeError``, as in :func:`fetch_raw`.
+    """
+    candidates = [
+        f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/refs/heads/{ref}.tar.gz",
+        f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/refs/tags/{ref}.tar.gz",
+    ]
+    if _HEX_REF.match(ref):
+        candidates.append(f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/{ref}.tar.gz")
+    for url in candidates:
+        try:
+            with urllib.request.urlopen(url, timeout=60) as resp:
+                return resp.read()
+        except urllib.error.HTTPError as exc:
+            if exc.code != 404:
+                raise RuntimeError(f"Failed to fetch the {repo}@{ref} archive: HTTP {exc.code}") from exc
+        except OSError as exc:
+            raise RuntimeError(f"Network error fetching the {repo}@{ref} archive: {exc}") from exc
+    kinds = "branch, tag or commit" if _HEX_REF.match(ref) else "branch or tag"
+    raise RuntimeError(f"No {kinds} '{ref}' in {repo} (HTTP 404)")

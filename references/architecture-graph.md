@@ -5,7 +5,7 @@
 
 - Modules mapped: **13**
 - Packages: **1**
-- Internal import edges: **25**
+- Internal import edges: **28**
 - Distinct external dependencies: **0**
 
 ---
@@ -41,16 +41,16 @@ Every module, coloured by package (full adjacency in the table below).
 | `researchteam` | — | `researchteam.cli` |
 | `researchteam._agentteams_provenance` | — | `researchteam._frozen`, `researchteam._update_cmd` |
 | `researchteam._doctor_cmd` | `researchteam._drift`, `researchteam._fetch`, `researchteam._frozen`, `researchteam._manifest`, `researchteam._update_cmd` | `researchteam.cli` |
-| `researchteam._drift` | `researchteam._release` | `researchteam._doctor_cmd`, `researchteam._update_cmd` |
+| `researchteam._drift` | `researchteam._personalize`, `researchteam._release` | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._fetch` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd` |
 | `researchteam._frozen` | `researchteam._agentteams_provenance` | `researchteam._doctor_cmd`, `researchteam._update_cmd` |
-| `researchteam._init_cmd` | `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
+| `researchteam._init_cmd` | `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
 | `researchteam._manifest` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._notes` | — | `researchteam._update_cmd` |
-| `researchteam._personalize` | `researchteam._manifest` | `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
+| `researchteam._personalize` | `researchteam._manifest` | `researchteam._drift`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._release` | — | `researchteam._drift`, `researchteam.cli` |
 | `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._frozen`, `researchteam._manifest`, `researchteam._notes`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
-| `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd` | — |
+| `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._drift`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd` | — |
 
 ---
 
@@ -129,6 +129,7 @@ digraph "researchteam architecture" {
       "path": "researchteam/_drift.py",
       "is_package": false,
       "imports_internal": [
+        "researchteam._personalize",
         "researchteam._release"
       ],
       "external": [],
@@ -157,6 +158,7 @@ digraph "researchteam architecture" {
       "path": "researchteam/_init_cmd.py",
       "is_package": false,
       "imports_internal": [
+        "researchteam._drift",
         "researchteam._fetch",
         "researchteam._manifest",
         "researchteam._personalize"
@@ -221,6 +223,7 @@ digraph "researchteam architecture" {
       "imports_internal": [
         "researchteam",
         "researchteam._doctor_cmd",
+        "researchteam._drift",
         "researchteam._init_cmd",
         "researchteam._manifest",
         "researchteam._personalize",
@@ -255,11 +258,19 @@ digraph "researchteam architecture" {
     },
     {
       "source": "researchteam._drift",
+      "target": "researchteam._personalize"
+    },
+    {
+      "source": "researchteam._drift",
       "target": "researchteam._release"
     },
     {
       "source": "researchteam._frozen",
       "target": "researchteam._agentteams_provenance"
+    },
+    {
+      "source": "researchteam._init_cmd",
+      "target": "researchteam._drift"
     },
     {
       "source": "researchteam._init_cmd",
@@ -312,6 +323,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam.cli",
       "target": "researchteam._doctor_cmd"
+    },
+    {
+      "source": "researchteam.cli",
+      "target": "researchteam._drift"
     },
     {
       "source": "researchteam.cli",

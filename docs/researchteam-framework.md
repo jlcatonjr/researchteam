@@ -292,12 +292,17 @@ The overwrite carries every user-editable `## Project-Specific Notes` (agents) a
 `## Project-Specific Rules` (instruction files) region into the re-rendered files (agentteams P5a,
 f113f5d); `--discard-user-regions` drops them instead. Before the confirmation prompt, `materialize`
 refuses an agentteams that predates P5a. Every layer-1 run (`update` and `materialize`) also checks
-the provenance of the `agentteams` that will execute (the first one on `PATH`) and prints its source
+the provenance of the `agentteams` that will execute (the one installed beside this researchteam,
+else the first one on `PATH`) and prints its source
 and commit: an editable checkout must be on `origin/main` with no uncommitted sources, and a checkout
-that shadows the installed copy is refused. A VCS install pinned to a merged commit (the `update`
-extra) always passes; a local-folder snapshot (no commit recorded) is refused unless
-`RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. `researchteam doctor` does not
-run this check.
+that shadows the installed copy is refused. A VCS install from `github.com/jlcatonjr/agentteams` pinned to
+a commit (the `update` extra) passes; a local-folder snapshot (no commit recorded) is refused unless
+`RESEARCHTEAM_ALLOW_AGENTTEAMS_SNAPSHOT=1` is set, which runs it with a warning. A VCS install from any other
+repository (a fork or mirror, including a non-default `AGENTTEAMS_GIT` in the autosync gate), a remote archive
+install and an index install (agentteams is not on PyPI) are refused unless
+`RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1` is set, which also runs it with a warning. Plain `researchteam doctor`
+does not run this check; `doctor --drift` runs it when it checks bridges
+not covered by `write_policy: orchestrator-only`.
 
 ### Codex is orchestrator-only
 

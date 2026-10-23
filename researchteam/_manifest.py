@@ -135,6 +135,9 @@ INIT_SKIP_PREFIXES = [
     "brief.json",                  # generated fresh from scaffold/brief.template.json
     "README.md",                   # generated per-project from scaffold/README.template.md
     "CLAUDE.md",                   # generated per-project from scaffold/CLAUDE.template.md
+    "mkdocs.yml",                  # the framework's own docs site (GitHub Pages), not for derived repos
+    "docs_src/",
+    ".github/ci/requirements-docs.txt",
 ]
 
 # Scaffold files bundled in the package that replace upstream files during init.

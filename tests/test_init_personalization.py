@@ -36,6 +36,11 @@ def test_projects_and_identity_files_are_skipped_on_init():
         assert path in INIT_SKIP_PREFIXES, f"{path} must be excluded from init extraction"
 
 
+def test_framework_docs_site_is_skipped_on_init():
+    for path in ("mkdocs.yml", "docs_src/", ".github/ci/requirements-docs.txt"):
+        assert path in INIT_SKIP_PREFIXES, f"{path} is the framework's own docs site, not for derived repos"
+
+
 def test_readme_is_not_synced_but_claude_is_fenced():
     assert "README.md" not in MANAGED_FILES  # generated per-project, never re-synced
     assert "README.md" not in FRAMEWORK_MANAGED_FILES

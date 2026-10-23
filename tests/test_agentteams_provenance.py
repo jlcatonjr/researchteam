@@ -40,10 +40,15 @@ def fake_agentteams(tmp: Path, install: str = "editable", layout: str = "flat", 
     info = site / "agentteams-9.9.dist-info"
     info.mkdir(parents=True)
     (info / "METADATA").write_text("Metadata-Version: 2.1\nName: agentteams\nVersion: 9.9\n")
+    vcs = {"vcs": "git", "commit_id": "c" * 40}
     direct = {"editable": {"url": repo.as_uri(), "dir_info": {"editable": True}},
-              "vcs": {"url": "https://github.com/x/agentteams", "vcs_info": {"vcs": "git", "commit_id": "c" * 40}},
+              "vcs": {"url": "https://github.com/jlcatonjr/agentteams", "vcs_info": vcs},
+              "fork": {"url": "https://github.com/x/agentteams", "vcs_info": vcs},
+              "archive": {"url": "https://example.com/agentteams-9.9.tar.gz", "archive_info": {}},
+              "index": None,
               "snapshot": {"url": repo.as_uri(), "dir_info": {}}}[install]
-    (info / "direct_url.json").write_text(json.dumps(direct))
+    if direct is not None:  # an index install has no direct_url.json at all
+        (info / "direct_url.json").write_text(json.dumps(direct))
     pythonpath = f"{site}:{root}"
     if install != "editable":  # an installed copy lives in site-packages and is listed in the install's RECORD
         (site / "agentteams").mkdir()
@@ -263,3 +268,36 @@ def test_an_agentteams_without_p5a_is_refused(tmp_path):
     with pytest.raises(SystemExit, match="predates agentteams P5a"):
         _update_cmd._require_p5a(_help_launcher(tmp_path, "  --overwrite  re-render"))
 
+
+
+@pytest.mark.parametrize("install, says", [("fork", "not github.com/jlcatonjr/agentteams"),
+                                           ("archive", "archive install"), ("index", "not published on PyPI")])
+def test_an_unverifiable_install_is_refused_by_default(tmp_path, provenance, monkeypatch, install, says):
+    monkeypatch.delenv(_agentteams_provenance.ALLOW_UNVERIFIED_ENV, raising=False)
+    *_, launcher, env = fake_agentteams(tmp_path, install=install, git_repo=False)
+    code, out, err = provenance(launcher, env)
+    assert code == 1 and "REFUSED" in err and says in out + err and "ALLOW_UNVERIFIED_AGENTTEAMS" in err, out + err
+
+
+@pytest.mark.parametrize("install", ["fork", "archive", "index"])
+def test_an_unverifiable_install_runs_only_with_its_own_override(tmp_path, provenance, monkeypatch, install):
+    *_, launcher, env = fake_agentteams(tmp_path, install=install, git_repo=False)
+    code, _, err = provenance(launcher, {**env, _agentteams_provenance.ALLOW_SNAPSHOT_ENV: "1"})
+    assert code == 1, "the snapshot override must not cover an unverified install"
+    code, _, err = provenance(launcher, {**env, _agentteams_provenance.ALLOW_UNVERIFIED_ENV: "1"})
+    assert code == 0 and "WARNING" in err, err
+
+
+@pytest.mark.parametrize("url, ok", [
+    ("https://github.com/jlcatonjr/agentteams", True),
+    ("https://github.com/jlcatonjr/agentteams.git", True),
+    ("https://GitHub.com/JLCatonJr/AgentTeams/", True),
+    ("ssh://git@github.com/jlcatonjr/agentteams.git", True),
+    ("git@github.com:jlcatonjr/agentteams.git", True),
+    ("https://github.com/x/agentteams", False),
+    ("https://github.com/jlcatonjr/agentteams-fork", False),
+    ("https://gitlab.com/jlcatonjr/agentteams", False),
+    ("https://github.com.evil.example/jlcatonjr/agentteams", False),
+])
+def test_only_the_canonical_repository_is_recognised(url, ok):
+    assert _agentteams_provenance.is_canonical_repo(url) is ok

@@ -35,6 +35,11 @@ _CONTROL = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
 SAFE_REF = re.compile(r"^(?:[0-9a-f]{7,40}|[A-Za-z0-9][A-Za-z0-9._/-]{0,99})$")
 
 
+def is_safe_ref(ref: object) -> bool:
+    """Whether ``ref`` may go into a GitHub URL: it matches :data:`SAFE_REF` and has no ``..`` path segment."""
+    return isinstance(ref, str) and bool(SAFE_REF.match(ref)) and ".." not in ref.split("/")
+
+
 def clean(text: object) -> str:
     """Text from reports and repo files, safe to print: control characters (ANSI escapes) removed."""
     return _CONTROL.sub("", str(text))
@@ -172,12 +177,11 @@ def pinned_ref(root: Path) -> tuple[str, str]:
     pin = read_lock_pin(root, "researchteam")
     if pin and pin[1]:
         return pin[1], "toolchain.lock pin"
-    marker = None
+    from ._personalize import read_marker
     try:
-        m = re.search(r"^ref\s*=\s*(\S+)", (root / ".researchteam").read_text(encoding="utf-8"), re.M)
-        marker = m.group(1).strip("\"'") if m else None
+        marker = read_marker(root).get("ref") or None
     except OSError:
-        pass
+        marker = None
     return (marker or "main"), ("marker ref" if marker else "main")
 
 

@@ -1,0 +1,74 @@
+site_name: ResearchTeam
+site_description: Agent-based research workflow framework with auto-updating infrastructure — CLI and API reference.
+site_url: https://jlcatonjr.github.io/researchteam/
+repo_url: https://github.com/jlcatonjr/researchteam
+repo_name: jlcatonjr/researchteam
+edit_uri: edit/main/docs_src/
+docs_dir: docs_src
+site_dir: _site
+use_directory_urls: true
+site_author: jlcatonjr
+extra:
+  generator: false
+copyright: "&copy; <span id='copyright-year'></span> jlcatonjr"
+extra_javascript:
+  - javascripts/current-year.js
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - CLI Reference: cli-reference.md
+  - Bridge Reference: bridge-reference.md
+  - Guides: guides.md
+  - API Reference:
+      - Overview: api-reference/index.md
+      - cli: api-reference/cli.md
+      - update / materialize: api-reference/update.md
+      - init: api-reference/init.md
+      - personalize: api-reference/personalize.md
+      - doctor: api-reference/doctor.md
+      - drift: api-reference/drift.md
+      - frozen surfaces: api-reference/frozen.md
+      - notes: api-reference/notes.md
+      - release: api-reference/release.md
+      - agentteams provenance: api-reference/agentteams-provenance.md
+      - manifest: api-reference/manifest.md
+      - fetch: api-reference/fetch.md
+      - scripts: api-reference/scripts.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - tables
+  - toc:
+      permalink: true

@@ -176,6 +176,10 @@ def main() -> None:
     elif args.command == "update":
         root = _find_repo_root(require_marker=True)
         ref = args.ref or (None if args.layer1_only else _release_locked_ref(root)) or _read_marker_ref(root)
+        from ._drift import is_safe_ref
+        if not is_safe_ref(ref):
+            sys.exit(f"[researchteam] refusing the upstream ref {ref!r}: not a plain branch, tag or commit name "
+                     "(check --ref and the .researchteam marker's ref).")
         from ._update_cmd import run_update
         run_update(
             root,
@@ -266,13 +270,11 @@ def _release_locked_ref(root: Path) -> str | None:
 def _read_marker_ref(root: Path) -> str:
     """Read the upstream ref recorded in .researchteam, defaulting to UPSTREAM_BRANCH."""
     from ._manifest import UPSTREAM_BRANCH
-    marker = root / ".researchteam"
-    if not marker.exists():
+    from ._personalize import read_marker
+    try:
+        return read_marker(root).get("ref") or UPSTREAM_BRANCH
+    except OSError:
         return UPSTREAM_BRANCH
-    for line in marker.read_text().splitlines():
-        if line.startswith("ref ="):
-            return line.split("=", 1)[1].strip()
-    return UPSTREAM_BRANCH
 
 
 def _cmd_status() -> None:
