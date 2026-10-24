@@ -25,7 +25,7 @@ for a `.researchteam` marker and exit 1 without one). `status` and `doctor` also
 ## `init`
 
 ```
-researchteam init [name] [--ref REF] [--remote URL]
+researchteam init [name] [--ref REF] [--remote URL] [--vulnscan-level off|scan]
 ```
 
 | Option | Default | Meaning |
@@ -33,6 +33,7 @@ researchteam init [name] [--ref REF] [--remote URL]
 | `name` | current directory | Directory name for the new project |
 | `--ref REF` | `main` | Upstream branch, tag or commit (short or full SHA) to scaffold from. A commit must be on `main` or a `release/*` branch (checked with the GitHub API; refused when it cannot be confirmed) and is recorded in full in `.researchteam` |
 | `--remote URL` | none | Git remote URL to set as `origin` after init |
+| `--vulnscan-level` | `scan` (the scaffold's) | `vulnerability_scanning.level` written into the seeded `brief.json`: `off` or `scan`. `remediate` is an operator choice, made later with `agentteams --set-vulnscan` |
 
 Implementation: [`init`](api-reference/init.md).
 

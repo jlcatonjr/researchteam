@@ -120,13 +120,78 @@ def extras_problems(pins, pyproject=None):
 
 
 def write_lock(commits, path=None, tags=None):
-    """Write the lock from {name: (owner/repo, sha)} and {name: release tag}, keeping the fixed header."""
+    """Write the lock from {name: (owner/repo, sha)} and {name: release tag}.
+
+    An existing lock is rewritten **in place**: every comment line (a project's own policy header, notes
+    between pins) keeps its text and position, and pins keep their order. A pin or tag line that is missing is
+    added after its package's last line; a tag line for a package no longer release-locked is removed. Only a
+    new lock gets the fixed header.
+    """
     path = path or LOCK
     tags = tags or {}
-    body = "".join(f"{name}={commits[name][0]}@{commits[name][1]}\n"
-                   + (f"{name}.tag={tags[name]}\n" if name in tags else "") for name in PACKAGES)
+    try:
+        with open(path, encoding="utf-8") as f:
+            lines = f.read().splitlines()
+    except FileNotFoundError:
+        lines = None
+    if not lines:
+        body = "".join(f"{name}={commits[name][0]}@{commits[name][1]}\n"
+                       + (f"{name}.tag={tags[name]}\n" if name in tags else "") for name in PACKAGES)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(LOCK_HEADER + body)
+        return
+    out, seen_pin, seen_tag = [], set(), set()
+    for line in lines:
+        key = line.split("=", 1)[0].strip() if "=" in line and not line.lstrip().startswith("#") else None
+        if key in PACKAGES:
+            out.append(f"{key}={commits[key][0]}@{commits[key][1]}")
+            seen_pin.add(key)
+        elif key and key.endswith(".tag") and key[:-4] in PACKAGES:
+            name = key[:-4]
+            if name in tags:
+                out.append(f"{name}.tag={tags[name]}")
+                seen_tag.add(name)
+            # else: no longer release-locked: the tag line is dropped
+        else:
+            out.append(line)
+    for name in PACKAGES:  # a missing pin goes at the end; a missing tag line right after its pin
+        if name not in seen_pin:
+            out.append(f"{name}={commits[name][0]}@{commits[name][1]}")
+        if name in tags and name not in seen_tag:
+            at = max(i for i, ln in enumerate(out) if ln.split("=", 1)[0].strip() == name)
+            out.insert(at + 1, f"{name}.tag={tags[name]}")
     with open(path, "w", encoding="utf-8") as f:
-        f.write(LOCK_HEADER + body)
+        f.write("\n".join(out) + "\n")
+
+
+def sync_extras(pins, pyproject=None):
+    """Point every git-installed agentteams extra in the repo's pyproject.toml at the lock's agentteams commit.
+
+    Only the ``@<ref>`` of a requirement matching :data:`_EXTRA_DEP` from the lock's own repository changes;
+    every other byte of the file stays. Returns ``(changed, problems)``: problems are what is still wrong after
+    the edit (a requirement from another repository is never rewritten, so it remains a problem).
+    """
+    pyproject = pyproject or os.path.join(os.path.dirname(LOCK), "pyproject.toml")
+    try:
+        with open(pyproject, encoding="utf-8") as f:
+            text = f.read()
+    except OSError:
+        return False, []
+    repo, pin = pins.get("agentteams", ("", ""))
+
+    def repin(m):
+        whole = m.group(0)
+        if m.group(1) != repo:
+            return whole
+        if m.group(2):  # replace the ref
+            return whole[:m.start(2) - m.start(0)] + pin + whole[m.end(2) - m.start(0):]
+        return whole[:-1] + "@" + pin + '"'  # no ref (installs main): add one before the closing quote
+
+    new = _EXTRA_DEP.sub(repin, text)
+    if new != text:
+        with open(pyproject, "w", encoding="utf-8") as f:
+            f.write(new)
+    return new != text, extras_problems(pins, pyproject)
 
 
 def launcher_interpreter(exe):
@@ -311,7 +376,7 @@ def lock_tags(commits, old_pins, old_tags, new_tags, verify):
     return tags, ""
 
 
-def cmd_write_lock(py, new_tags=None):
+def cmd_write_lock(py, new_tags=None, sync=False):
     info = installed(py) if py else None
     if not info:
         print(f"[toolchain] cannot inspect {py or 'any interpreter'}; toolchain.lock not written")
@@ -336,6 +401,15 @@ def cmd_write_lock(py, new_tags=None):
     if tags is None:
         print(f"[toolchain] {why}; toolchain.lock not written")
         return 1
+    if sync:
+        moved, problems = sync_extras(commits)
+        if problems:  # e.g. an extra from another repository: never rewritten, so the lock must not move
+            for p in problems:
+                print(f"[toolchain] MISMATCH: {p}")
+            print("[toolchain] the pyproject extras cannot follow the lock; toolchain.lock not written")
+            return 1
+        if moved:
+            print(f"[toolchain] pyproject.toml: agentteams extras now pin {commits['agentteams'][1][:7]}")
     write_lock(commits, tags=tags)
     changed = {n for n in PACKAGES if old.get(n, ("", ""))[1] != commits[n][1]}
     summary = ", ".join(f"{n} {commits[n][1][:7]}" + (f" ({tags[n]})" if n in tags else "") for n in PACKAGES)
@@ -378,6 +452,9 @@ def main(argv=None):
                     help="record the installed commits in toolchain.lock (autosync, after a green sync)")
     ap.add_argument("--tag", action="append", metavar="NAME=TAG",
                     help="with --write-lock: the verified release tag the installed NAME commit is (repeatable)")
+    ap.add_argument("--sync-extras", action="store_true",
+                    help="with --write-lock: also point the repo's own pyproject agentteams extras at the new pin "
+                         "(upstream researchteam only; a derived repo's pyproject.toml is project-owned)")
     ap.add_argument("--release-candidate", metavar="NAME",
                     help="print the newest verified-able tag on NAME's locked release line, if newer; exit 0")
     ap.add_argument("--verify-tag", nargs=2, metavar=("NAME", "TAG"),
@@ -393,7 +470,7 @@ def main(argv=None):
         except ValueError as exc:
             print(f"[toolchain] {exc}")
             return 2
-        return cmd_write_lock(py, new_tags)
+        return cmd_write_lock(py, new_tags, sync=a.sync_extras)
 
     pins = read_lock()
     fix = "run: bash scripts/bootstrap_toolchain.sh"

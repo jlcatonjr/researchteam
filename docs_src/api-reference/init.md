@@ -13,6 +13,7 @@ Implementation of `researchteam init`. `run_init` scaffolds a new derived reposi
 | Name | Value | Purpose |
 |------|-------|---------|
 | `_MARKER_TEMPLATE` | `"[researchteam]\nupstream = https://github.com/{repo}\nref = {ref}\nis_upstream = false\n"` | Contents of the `.researchteam` marker written by `init`. `is_upstream = false` is always written explicitly; the personalize and materialize guards refuse only when `is_upstream` reads as `true` (see [`is_upstream`](personalize.md#is_upstreamroot-path-bool)), which `init` never writes. |
+| `VULNSCAN_INIT_LEVELS` | `("off", "scan")` | The `vulnerability_scanning.level` values `init --vulnscan-level` may write. `remediate` widens what the operator's remediation agent may change, so only the operator sets it (`agentteams --set-vulnscan`). |
 | `_HEX` | compiled regex `^[0-9a-f]{7,40}$` | A `ref` that may be a commit (short or full SHA). |
 | `_FULL_SHA` | compiled regex `^[0-9a-f]{40}$` | A full commit SHA, as found at the end of the archive's top directory name. |
 
@@ -32,7 +33,7 @@ Subclass of `Exception`. An upstream archive `init` will not extract: unreadable
 
 ## Functions
 
-### `run_init(name: str | None, ref: str, remote_url: str | None) -> None`
+### `run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None) -> None`
 
 > *Source: `researchteam/_init_cmd.py`*
 
@@ -43,6 +44,7 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 - `name` (`str | None`) — Directory to create the project in. When given, it is resolved to an absolute path; it must either not exist or be an empty directory, and is created with `mkdir(parents=True, exist_ok=True)` only after the archive has been downloaded and validated. When `None`, the current working directory is used and must be empty.
 - `ref` (`str`) — Upstream git ref to scaffold from: a branch, tag, or commit (short or full SHA). It must pass [`_drift.is_safe_ref`](drift.md#is_safe_refref). It is passed to [`fetch_tarball`](fetch.md), which tries the branch archive, then the tag archive, then (for a hex `ref`) the commit archive. It is recorded as `ref = …` in the marker; a hex `ref` is recorded as the full commit SHA when the archive's top directory (`<repo>-<sha>`) ends in a 40-character SHA that starts with `ref`.
 - `remote_url` (`str | None`) — When set, added as the `origin` remote after the initial commit.
+- `vulnscan_level` (`str | None`) — `off` or `scan`: the `vulnerability_scanning.level` to seed into `brief.json` (`cli` passes `--vulnscan-level`). `None` keeps the template's `scan`.
 
 **Steps, in order:**
 
@@ -58,7 +60,8 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
     1. Warn on stderr if the archive held link members (`skipped N link member(s) in the archive: …`, at most five named); they are not extracted.
     2. Extract the accepted members with `_extract`.
     3. Overwrite paths listed in `INIT_SCAFFOLD_REPLACEMENTS` with bundled scaffold files (`_apply_scaffold_replacements`).
-    4. Write `brief.json` from `scaffold/brief.template.json` (`_seed_brief`).
+    4. Write `brief.json` from `scaffold/brief.template.json` (`_seed_brief`), with `vulnerability_scanning.level`
+       set to `vulnscan_level` when given (the template's default is `scan`).
     5. Write `.researchteam` from `_MARKER_TEMPLATE`. This happens before personalize because the `is_upstream` guard reads it.
     6. Call `run_personalize(target, force=True, quiet=False)` to render `README.md` and `CLAUDE.md`.
     7. Run `git init`, `git add -A`, and `git commit -m "chore: initialize from researchteam template"` in the target (each with `check=True`, output captured).
@@ -80,7 +83,7 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 
 ---
 
-### `_populate(target: Path, tarball: bytes, members: set[str], links: list[str], ref: str, remote_url: str | None) -> None`
+### `_populate(target: Path, tarball: bytes, members: set[str], links: list[str], ref: str, remote_url: str | None, vulnscan_level: str | None = None) -> None`
 
 > *Source: `researchteam/_init_cmd.py`*
 
@@ -122,7 +125,7 @@ Write the members `_validate_archive` accepted into `target`. Members whose name
 |----------|-----------|
 | <code>_rel(name: str) -&gt; str &#124; None</code> | A member's path with the archive's top directory stripped (POSIX `/`-joined); `None` for the top directory itself. |
 | `_should_skip(rel_path: str) -> bool` | True when `rel_path` equals an `INIT_SKIP_PREFIXES` entry (trailing `/` stripped) or starts with that entry followed by `/`. |
-| `_seed_brief(target: Path) -> None` | Copies the bundled `researchteam/scaffold/brief.template.json` to `target/brief.json`. The framework's own `brief.json` is excluded on extract. |
+| `_seed_brief(target: Path, vulnscan_level: str | None = None) -> None` | Copies the bundled `researchteam/scaffold/brief.template.json` to `target/brief.json`; with `vulnscan_level` (`off` or `scan`) it rewrites `vulnerability_scanning.level`, and any other value raises `ValueError`. The framework's own `brief.json` is excluded on extract. |
 | `_apply_scaffold_replacements(target: Path) -> None` | For each `dest → scaffold_name` in `INIT_SCAFFOLD_REPLACEMENTS`, creates the parent directory and writes the bundled `researchteam/scaffold/<scaffold_name>` to `target/<dest>`. |
 
 ---

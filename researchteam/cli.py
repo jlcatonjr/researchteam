@@ -50,6 +50,13 @@ def main() -> None:
         metavar="URL",
         help="Git remote URL to set as 'origin' after init",
     )
+    init_p.add_argument(
+        "--vulnscan-level",
+        choices=("off", "scan"),
+        default=None,
+        help="brief.json vulnerability_scanning level (default: scan, from the scaffold). 'remediate' is "
+        "an operator choice: agentteams --set-vulnscan",
+    )
 
     # ---- update --------------------------------------------------------------
     update_p = sub.add_parser(
@@ -171,7 +178,7 @@ def main() -> None:
 
     if args.command == "init":
         from ._init_cmd import run_init
-        run_init(args.name, args.ref, args.remote)
+        run_init(args.name, args.ref, args.remote, vulnscan_level=args.vulnscan_level)
 
     elif args.command == "update":
         root = _find_repo_root(require_marker=True)

@@ -9,9 +9,11 @@ Define review and rollback policy for automated AgentTeams synchronization runs 
 
 ## Integrated AgentTeams Baseline
 
-**Integrated ref:** `7fd4de4` (agentteams `main`, 2026-10-04), recorded in
-`.github/agentteams-autosync-ref`. The previously recorded ref was `f3a8b8c`; the narrative below
-had stayed at `61849fb`. What changed, for a consumer of this framework:
+**The integrated ref is recorded, not written here.** `toolchain.lock` names the agentteams commit (and, when
+release-locked, its tag: `agentteams.tag=`), and `.github/agentteams-autosync-ref` the commit the last sync
+integrated. This page does not repeat them, so it cannot go stale. The history below is the 2026-10-04
+integration (agentteams `main` `7fd4de4`, previously `f3a8b8c`); what changed then, for a consumer of this
+framework:
 
 1. **The branch lifecycle** (agentteams #101/#102). There is a new emitted
    `references/branch-lifecycle.reference.md`. `@git-operations` gains Invariant rule 8, a

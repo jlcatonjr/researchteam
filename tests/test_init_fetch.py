@@ -136,7 +136,7 @@ def test_a_short_commit_is_recorded_in_full(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(_init_cmd, "fetch_tarball", lambda *a: _tarball({f"researchteam-{SHA}/docs/a.md": b"a"}))
     recorded = {}
-    def populate(target, tarball, members, links, ref, remote):
+    def populate(target, tarball, members, links, ref, remote, vulnscan_level=None):
         recorded["ref"] = ref
     monkeypatch.setattr(_init_cmd, "_populate", populate)
     monkeypatch.setattr(_init_cmd, "commit_is_reviewed", lambda repo, sha: sha == SHA)
@@ -173,3 +173,29 @@ def test_a_failure_after_creation_names_the_partial_project(tmp_path, monkeypatc
         _init_cmd.run_init("proj", "main", None)
     err = capsys.readouterr().err
     assert "incomplete" in err and str(tmp_path / "proj") in err and (tmp_path / "proj").is_dir()
+
+
+# --- vulnerability_scanning intent in the seeded brief (agentteams 1.1) -----------------------------------
+
+def test_the_scaffold_brief_asks_for_scanning(tmp_path):
+    import json
+    _init_cmd._seed_brief(tmp_path)
+    assert json.loads((tmp_path / "brief.json").read_text())["vulnerability_scanning"] == {"level": "scan"}
+
+
+@pytest.mark.parametrize("level", ["off", "scan"])
+def test_init_writes_the_chosen_level(tmp_path, level):
+    import json
+    _init_cmd._seed_brief(tmp_path, level)
+    brief = json.loads((tmp_path / "brief.json").read_text())
+    assert brief["vulnerability_scanning"] == {"level": level} and brief["project_name"] == "<YOUR PROJECT NAME>"
+
+
+def test_init_never_writes_remediate(tmp_path, monkeypatch):
+    with pytest.raises(ValueError):
+        _init_cmd._seed_brief(tmp_path, "remediate")
+    from researchteam import cli
+    monkeypatch.setattr("sys.argv", ["researchteam", "init", "x", "--vulnscan-level", "remediate"])
+    with pytest.raises(SystemExit) as exc:  # argparse rejects it before anything runs
+        cli.main()
+    assert exc.value.code == 2

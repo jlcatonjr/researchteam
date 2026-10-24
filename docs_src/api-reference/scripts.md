@@ -18,7 +18,7 @@ Checks whether the installed `researchteam` and `agentteams` are the commits pin
 
 ```text
 python3 scripts/check_toolchain.py [--python PATH] [--no-remote] [--strict]
-                                   [--write-lock [--tag NAME=TAG ...]]
+                                   [--write-lock [--tag NAME=TAG ...] [--sync-extras]]
                                    [--release-candidate NAME]
                                    [--verify-tag NAME TAG]
 ```
@@ -30,6 +30,7 @@ python3 scripts/check_toolchain.py [--python PATH] [--no-remote] [--strict]
 | `--strict` | Exit 1 when a pin does not match (see exit codes). |
 | `--write-lock` | Record the installed commits in `toolchain.lock`. |
 | `--tag NAME=TAG` | With `--write-lock`: the verified release tag that the installed `NAME` commit is. Repeatable. `NAME` is `researchteam` or `agentteams`. |
+| `--sync-extras` | With `--write-lock`: also point every `agentteams … @ git+https://github.com/<lock repo>[.git]@<ref>` requirement in the repository's own `pyproject.toml` at the new agentteams commit (only the ref changes; a requirement without a ref gains one). The autosync gate passes it in `--mode upstream` only: a derived repository's `pyproject.toml` is project-owned. A requirement from another repository is never rewritten, and then the lock is not written either. |
 | `--release-candidate NAME` | Print the newest tag on `NAME`'s locked release line if it is newer than the locked tag; prints nothing when `NAME` is not release-locked. |
 | `--verify-tag NAME TAG` | Verify `TAG` in `NAME`'s pinned repository and print its peeled commit. |
 
@@ -49,7 +50,7 @@ agentteams=jlcatonjr/agentteams@<40-hex sha>
 agentteams.tag=v1.0.0
 ```
 
-A pin is valid only if its repository is the allowed one (`jlcatonjr/researchteam` or `jlcatonjr/agentteams`) and its commit is 40 lowercase hex characters. A pin with a `<name>.tag` line is release-locked: `--write-lock` moves it only to a verified tag on the same `vX.Y` line that is not older than the locked tag, never to an untagged commit. `--write-lock` writes a fixed comment header followed by the two pins (and any tags).
+A pin is valid only if its repository is the allowed one (`jlcatonjr/researchteam` or `jlcatonjr/agentteams`) and its commit is 40 lowercase hex characters. A pin with a `<name>.tag` line is release-locked: `--write-lock` moves it only to a verified tag on the same `vX.Y` line that is not older than the locked tag, never to an untagged commit. A new lock gets a fixed comment header followed by the two pins (and any tags). An existing lock is rewritten in place: every comment (a project's own policy header, notes between pins) keeps its text and position, pins keep their order, a missing pin or tag line is added, and the tag line of a pin that is no longer release-locked is removed.
 
 ### Default check
 
@@ -66,7 +67,7 @@ An install's commit comes from its `direct_url.json`: `vcs_info.commit_id` for a
 | Mode | 0 | 1 | 2 |
 |------|---|---|---|
 | Default | Always, unless `--strict` | `--strict` and a problem was found, or `--strict` and no interpreter could be found or inspected | — |
-| `--write-lock` | Lock written (prints `updated` or `unchanged` with the short commits) | Interpreter cannot be inspected; a package is not installed; a package has no recorded 40-hex commit or is from a dirty checkout; a pin would name a disallowed repo; a release lock would be broken or a `--tag` cannot be verified | A `--tag` value is malformed |
+| `--write-lock` | Lock written (prints `updated` or `unchanged` with the short commits) | Interpreter cannot be inspected; a package is not installed; a package has no recorded 40-hex commit or is from a dirty checkout; a pin would name a disallowed repo; a release lock would be broken or a `--tag` cannot be verified; with `--sync-extras`, an extra that cannot follow the lock (`MISMATCH` lines) | A `--tag` value is malformed |
 | `--release-candidate` / `--verify-tag` | Answer printed (or no candidate) | `researchteam._release` is not importable; `NAME` has no valid pin; release verification failed | — |
 
 argparse usage errors exit 2.
@@ -74,6 +75,7 @@ argparse usage errors exit 2.
 ### Output files
 
 - `toolchain.lock` at the repository root, written only with `--write-lock`.
+- `pyproject.toml` at the repository root, only with `--write-lock --sync-extras` and only when an extra's ref changes.
 
 ---
 
