@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-23",
+  "date": "2026-10-23",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "release-line-agentteams-1.1",
+  "verdict": "PASS",
+  "scope": "release-line-agentteams-1.1",
+  "conditions": "researchteam's toolchain.lock leaves the agentteams 1.0 line for the 1.1 line: the agentteams.tag=v1.0.0 line is dropped and a new release lock is started with check_toolchain.py --write-lock --tag agentteams=<verified 1.1 tag> --sync-extras (the same-line rule refuses a cross-line move under an existing lock). The new lock follows only verified tags on v1.1; release/1.0 keeps v1.0.N backports. The pin itself needs its own row (pin-agentteams-v1.1.0-rc.N).",
+  "conditions_verified": "operator ruling: adopt agentteams 1.1 (vulnscan rollout, 2026-10-23); docs/release-policy.md 'The 1.1 line'",
+  "evidence": "researchteam PR #114 (release policy 1.1 section; --sync-extras); agentteams integration review 2026-10-23 (R1, blocker 2); Scope: the trust change from the agentteams 1.0 release line to the 1.1 release line in toolchain.lock and the update/research extras",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
