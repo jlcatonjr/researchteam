@@ -190,6 +190,20 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
   - **Log schema.** agentteams treats signing as active whenever a decisions log has a `signature`
     column, whatever the flag says.
 
+- **`vulnerability_scanning`** (object; agentteams 1.1). This project's own dependency-scanning intent. `level` is
+  `off`, `scan` (dependency names and versions are checked against OSV.dev) or `remediate` (findings may also
+  be offered to the operator's remediation agent, inside a signed grant). Optional keys: `exclude_paths`,
+  `private_packages` (names never sent to OSV, PyPI or npm), `include_dev`, `delivery` (`pr` | `plan`) and
+  `base_branch`. The scaffold ships `{"level": "scan"}`, and `researchteam init --vulnscan-level off|scan`
+  sets it. A brief without the block is reported as *unanswered*.
+  - **Who may change it.** `brief.json` is user-owned: no update layer writes the block. The operator command
+    `agentteams --set-vulnscan` edits only this block (it shows the diff and asks y/N). That is an operator
+    action, the only one that writes `remediate`, and it is not part of `researchteam update`.
+  - **Where it is read.** `update` copies brief fields into `.github/agents/_build-description.json`
+    (`_reconcile_manifest_back`), so the block appears there too. agentteams' scanner reads the rich
+    `brief.json` first and the stub only when there is no brief.
+  - The block holds intent only: no host names, URLs, IP addresses or absolute paths (agentteams refuses them).
+
 ### Rosters across surfaces (known 1.0 limitation)
 
 The native renders (claude, goose, codex) pass `--project .`, so agentteams scans the repo and fills in

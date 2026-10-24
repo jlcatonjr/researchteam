@@ -20,7 +20,9 @@ dependencies = []
 # OPTIONAL extra installed from git, never a PyPI floor. Prefer an editable install from a
 # stable local checkout for development:  pip install -e /path/to/agentteams
 # Both extras pin the peeled commit of a verified signed agentteams tag (release policy §3), the same
-# commit as toolchain.lock; scripts/check_toolchain.py reports any disagreement. Now: v1.0.0.
+# commit as toolchain.lock (its `agentteams=` / `agentteams.tag=` lines name the current pin; this comment does
+# not, so it cannot go stale). scripts/check_toolchain.py reports any disagreement, and the upstream autosync
+# moves both together (`--write-lock --sync-extras`).
 # `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
 [project.optional-dependencies]
 update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@cc5b8c9ec4efdcb479939e0c1246a0ac11913259"]

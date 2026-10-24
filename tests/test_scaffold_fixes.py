@@ -152,12 +152,12 @@ def _sensitive(paths: list[str]) -> list[str]:
 def test_gate_flags_security_boundary_paths():
     sensitive = ["sandbox/confine-run.sh", ".agentteams/bin/codex-role-gate.py", ".github/workflows/x.yml",
                  ".github/actions/a/action.yml", ".github/agents/orchestrator.agent.md", "CODEOWNERS",
-                 ".github/CODEOWNERS", ".claude/settings.json", ".claude/settings.local.json",
+                 ".github/CODEOWNERS", "pyproject.toml", ".claude/settings.json", ".claude/settings.local.json",
                  ".codex/config.toml", ".codex/hooks.json", ".goose/recipes/orchestrator.yaml",
                  ".vscode/tasks.json", "scripts/validate_agentteams_update.sh"]
     routine = [".github/agents/references/build-log.json", ".codex/agents/orchestrator.toml", "docs/x.md",
                "AGENTS.md", ".claude/agents/x.md", "references/bridges/claude.bridge.json",
-               ".github/agents/sub/x.agent.md"]
+               ".github/agents/sub/x.agent.md", "docs/pyproject.toml"]
     assert _sensitive(sensitive + routine) == sensitive
 
 

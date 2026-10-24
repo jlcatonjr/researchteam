@@ -126,5 +126,8 @@
   ],
   "capabilities": [
     "research_verification"
-  ]
+  ],
+  "vulnerability_scanning": {
+    "level": "scan"
+  }
 }

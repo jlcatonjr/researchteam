@@ -332,3 +332,67 @@ def test_probe_ignores_a_stray_egg_info_in_the_working_directory(tmp_path, monke
     assert info is not None
     rt = info.get("researchteam")
     assert rt is None or rt["version"] != "0.0.0", "the stray egg-info must not be what the probe reports"
+
+
+# --- agentteams 1.1 readiness (R2): the lock keeps its comments; the upstream extras follow the lock --------
+
+C = "c" * 40
+PINS = {"researchteam": ("jlcatonjr/researchteam", A), "agentteams": ("jlcatonjr/agentteams", C)}
+
+
+def test_write_lock_keeps_a_custom_header_and_comments_between_pins(tmp_path):
+    lock = tmp_path / "toolchain.lock"
+    lock.write_text("# mathAgents policy header\n# line two\n"
+                    f"researchteam=jlcatonjr/researchteam@{B}\n# why agentteams is pinned\n"
+                    f"agentteams=jlcatonjr/agentteams@{B}\nagentteams.tag=v1.0.0\n")
+    ct.write_lock(PINS, str(lock), tags={"agentteams": "v1.1.0-rc.2"})
+    assert lock.read_text() == ("# mathAgents policy header\n# line two\n"
+                                f"researchteam=jlcatonjr/researchteam@{A}\n# why agentteams is pinned\n"
+                                f"agentteams=jlcatonjr/agentteams@{C}\nagentteams.tag=v1.1.0-rc.2\n")
+
+
+def test_write_lock_adds_and_drops_tag_lines_and_writes_the_header_only_for_a_new_lock(tmp_path):
+    lock = tmp_path / "toolchain.lock"
+    ct.write_lock(PINS, str(lock), tags={"agentteams": "v1.1.0-rc.2"})
+    assert lock.read_text().startswith(ct.LOCK_HEADER) and "agentteams.tag=v1.1.0-rc.2\n" in lock.read_text()
+    lock.write_text(f"# own\nresearchteam=jlcatonjr/researchteam@{A}\nagentteams=jlcatonjr/agentteams@{C}\n"
+                    "agentteams.tag=v1.1.0-rc.2\n")
+    ct.write_lock(PINS, str(lock))
+    assert lock.read_text() == f"# own\nresearchteam=jlcatonjr/researchteam@{A}\nagentteams=jlcatonjr/agentteams@{C}\n"
+    ct.write_lock(PINS, str(lock), tags={"agentteams": "v1.1.0-rc.3"})
+    assert lock.read_text().splitlines()[-1] == "agentteams.tag=v1.1.0-rc.3"
+    assert ct.read_tags(str(lock)) == {"agentteams": "v1.1.0-rc.3"} and ct.read_lock(str(lock)) == PINS
+
+
+def test_sync_extras_moves_only_the_agentteams_refs(tmp_path):
+    py = tmp_path / "pyproject.toml"
+    py.write_text('[project.optional-dependencies]\n'
+                  f'update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@{B}"]\n'
+                  f'research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@{B}"]\n'
+                  'other = ["agentteams @ git+https://github.com/jlcatonjr/agentteams"]  # keep this comment\n'
+                  'dev = ["pytest==9.1.1"]\n')
+    changed, problems = ct.sync_extras(PINS, str(py))
+    text = py.read_text()
+    assert changed and problems == [] and B not in text and text.count(C) == 3
+    assert 'agentteams.git@' + C in text and '/agentteams@' + C + '"]  # keep this comment' in text
+    assert 'dev = ["pytest==9.1.1"]' in text
+    assert ct.sync_extras(PINS, str(py)) == (False, [])  # idempotent
+
+
+def test_sync_extras_never_rewrites_another_repository(tmp_path):
+    py = tmp_path / "pyproject.toml"
+    py.write_text(f'x = ["agentteams @ git+https://github.com/someone/agentteams@{B}"]\n')
+    changed, problems = ct.sync_extras(PINS, str(py))
+    assert not changed and problems and "someone/agentteams" in problems[0]
+
+
+def test_a_repo_without_extras_is_a_no_op(tmp_path):
+    py = tmp_path / "pyproject.toml"
+    py.write_text('[project]\ndependencies = []\n')
+    assert ct.sync_extras(PINS, str(py)) == (False, []) and py.read_text() == '[project]\ndependencies = []\n'
+    assert ct.sync_extras(PINS, str(tmp_path / "missing.toml")) == (False, [])
+
+
+def test_the_gate_syncs_extras_in_upstream_mode_only():
+    gate = (ROOT / "scripts" / "agentteams_autosync_gate.sh").read_text(encoding="utf-8")
+    assert '[ "$MODE" = upstream ] && lock_args+=(--sync-extras)' in gate

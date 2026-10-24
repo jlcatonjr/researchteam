@@ -216,5 +216,8 @@
   "write_policy_frameworks": [
     "codex"
   ],
-  "privilege_profile": "confined"
+  "privilege_profile": "confined",
+  "vulnerability_scanning": {
+    "level": "scan"
+  }
 }

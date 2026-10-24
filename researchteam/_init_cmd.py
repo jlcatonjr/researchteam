@@ -2,6 +2,7 @@
 
 import importlib.resources
 import io
+import json
 import re
 import subprocess
 import sys
@@ -27,7 +28,7 @@ is_upstream = false
 """
 
 
-def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
+def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None) -> None:
     from ._drift import is_safe_ref
 
     if not is_safe_ref(ref):
@@ -80,7 +81,7 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     else:
         print("[researchteam] Initializing project in current directory ...")
     try:
-        _populate(target, tarball, members, links, ref, remote_url)
+        _populate(target, tarball, members, links, ref, remote_url, vulnscan_level)
     except (OSError, subprocess.CalledProcessError) as exc:
         where = "it" if created else "the files written there"
         print(f"[researchteam] init failed: {exc}\n"
@@ -94,6 +95,8 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
     print("       (Set layer2_profile to \"generic\" for a non-scholarly project.)")
     print("  2. researchteam personalize   # regenerate README.md / CLAUDE.md header from brief.json")
     print("  3. researchteam materialize   # render the agent team from your edited brief.json")
+    print("  Dependency scanning: brief.json vulnerability_scanning.level is "
+          f"'{vulnscan_level or 'scan'}' (change it with: agentteams --set-vulnscan).")
     print("  bash scripts/claude_researchteam_bridge.sh help")
     print(
         "\nNote: strict decision signing is ON (enforce_decision_signing:true, agentteams' secure "
@@ -108,7 +111,7 @@ def run_init(name: str | None, ref: str, remote_url: str | None) -> None:
 
 
 def _populate(target: Path, tarball: bytes, members: set[str], links: list[str], ref: str,
-              remote_url: str | None) -> None:
+              remote_url: str | None, vulnscan_level: str | None = None) -> None:
     """Write the checked archive into ``target``, then the scaffold, marker, identity files and git repo."""
     print("[researchteam] Extracting template files ...")
     if links:
@@ -120,7 +123,7 @@ def _populate(target: Path, tarball: bytes, members: set[str], links: list[str],
     _apply_scaffold_replacements(target)
 
     # Seed a neutral placeholder brief.json (the framework's own brief.json is skipped on extract).
-    _seed_brief(target)
+    _seed_brief(target, vulnscan_level)
 
     # Write marker BEFORE personalize: the is_upstream guard reads it, and a marker written after a
     # personalize failure would leave a half-initialized repo. is_upstream = false ⇒ personalizable.
@@ -161,6 +164,10 @@ def _populate(target: Path, tarball: bytes, members: set[str], links: list[str],
 class ArchiveError(Exception):
     """An upstream archive init will not extract: a member path that could escape the target."""
 
+
+#: The levels ``init --vulnscan-level`` may write. ``remediate`` widens what the operator's remediation agent
+#: may change, so only the operator sets it (``agentteams --set-vulnscan``).
+VULNSCAN_INIT_LEVELS = ("off", "scan")
 
 _HEX = re.compile(r"^[0-9a-f]{7,40}$")
 _FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
@@ -234,15 +241,25 @@ def _should_skip(rel_path: str) -> bool:
     return False
 
 
-def _seed_brief(target: Path) -> None:
+def _seed_brief(target: Path, vulnscan_level: str | None = None) -> None:
     """Write a neutral placeholder brief.json from the bundled scaffold template.
 
     The framework's own brief.json is excluded on extract (INIT_SKIP_PREFIXES), so a derived repo
     never inherits the ResearchTeam identity. The user edits this before generating the team.
+    ``vulnscan_level`` (``off`` or ``scan``) replaces the template's ``vulnerability_scanning.level``
+    (``scan``); ``remediate`` is left to the operator (``agentteams --set-vulnscan``).
     """
     pkg = importlib.resources.files("researchteam") / "scaffold"
     dest = target / "brief.json"
-    dest.write_bytes((pkg / "brief.template.json").read_bytes())
+    raw = (pkg / "brief.template.json").read_bytes()
+    if vulnscan_level is None:
+        dest.write_bytes(raw)
+        return
+    if vulnscan_level not in VULNSCAN_INIT_LEVELS:
+        raise ValueError(f"vulnscan level {vulnscan_level!r} is not one of {VULNSCAN_INIT_LEVELS}")
+    brief = json.loads(raw)
+    brief.setdefault("vulnerability_scanning", {})["level"] = vulnscan_level
+    dest.write_text(json.dumps(brief, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def _apply_scaffold_replacements(target: Path) -> None:

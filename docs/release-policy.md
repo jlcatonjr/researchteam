@@ -21,6 +21,20 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Once `v1.0.0` is tagged, `main` builds `1.0.1.devN` until a `v1.1.0` tag is cut. setuptools-scm's guess-next-dev
   replaces the hand-set `1.1.0.dev0` of the shared policy.
 
+### The 1.1 line
+- researchteam 1.1 pins agentteams 1.1. `release/1.1` is cut from `main` at `1.1.0rc1`, after the agentteams 1.1 pin
+  has merged to `main`. The 1.1 RC and final tags (`v1.1.0-rc.N`, `v1.1.0`, `v1.1.N`) are cut and signed **on
+  `release/1.1` only**, and each tag is merged forward into `main` as above.
+- `release/1.0` stays open for `v1.0.N` backports and keeps its own tags; it does not move to agentteams 1.1.
+- Moving `toolchain.lock` from the 1.0 line to the 1.1 line is a trust change with its own `@security` row
+  (`release-line-agentteams-1.1`), separate from the pin row. `check_toolchain.py` refuses a cross-line move under
+  an existing lock, so the move drops the `agentteams.tag=` line and starts a new lock with
+  `--write-lock --tag agentteams=<1.1 tag> --sync-extras`.
+- The 1.0 S-10 exemption covers the 1.0 line only and ends at agentteams v1.1.0. The 1.1 line has its own
+  (`s10-release-key-exemption-1.1`). A repository that stays on 1.0 after agentteams v1.1.0 renews its own.
+- Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag
+  (`--researchteam-tag v1.1.0-rc.N`), which keeps the order agentteams → researchteam → derived.
+
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
   `SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM` (agentteams SECURITY.md "Release signers"),
@@ -36,7 +50,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Each pin move gets its own `@security` row naming the tag object and the peeled SHA.
 - **S-10:** a release-key tag that verifies is exempt from the 14-day cooldown. Third-party packages that
   resolve at install keep the cooldown and the OSV/GHSA search (`docs/release/`).
-- `check_toolchain.py` fails when an extra and the lock disagree.
+- `check_toolchain.py` fails when an extra and the lock disagree. In researchteam itself the upstream autosync
+  moves them together (`--write-lock --sync-extras`); a derived repository's `pyproject.toml` is never rewritten.
 
 ## Autosync and Layer 2
 - During the joint cut, the weekly `agentteams-sync` schedule is disabled (`gh workflow disable`), and

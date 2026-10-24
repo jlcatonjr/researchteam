@@ -5,6 +5,22 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased (on `main`)
 
+Readiness for agentteams 1.1 (requested by the agentteams vulnscan rollout; the pin move itself is a separate PR):
+
+- **The upstream lock and extras move together.** `check_toolchain.py --write-lock --sync-extras` also points the
+  `update`/`research` extras in researchteam's own `pyproject.toml` at the new agentteams commit, and refuses to
+  write the lock when an extra cannot follow (another repository). The autosync gate passes it in `--mode
+  upstream` only; a derived repository's `pyproject.toml` is never rewritten. `pyproject.toml` is now a
+  security-relevant path in the gate's PR body.
+- **`toolchain.lock` keeps its comments.** `--write-lock` rewrites an existing lock in place, so a project's own
+  policy header and notes between pins survive (mathAgents' header was replaced before). Only a new lock gets the
+  fixed header.
+- **Dependency-scanning intent.** `brief.json` and the scaffold brief carry `"vulnerability_scanning": {"level":
+  "scan"}` (agentteams 1.1). `researchteam init --vulnscan-level off|scan` sets it; `remediate` stays an operator
+  choice (`agentteams --set-vulnscan`, which edits only that block of the user-owned brief).
+- **Docs.** The release policy gains the 1.1 line (`release/1.1`, the line-move row, the 1.1 S-10 exemption); the
+  pyproject comment and the update policy no longer name a pinned version, so they cannot go stale.
+
 - **Documentation site.** An MkDocs Material site (`mkdocs.yml`, `docs_src/`) with a CLI reference, a bridge
   reference and a per-module API reference, deployed to GitHub Pages at https://jlcatonjr.github.io/researchteam/
   by `.github/workflows/docs.yml` (pinned actions, hash-locked build dependencies in

@@ -95,7 +95,7 @@ NOISE_REGEX='(^|/)(build-log\.json|delivery-receipt\.json|memory-index\.json|sec
 # routine review. They are listed first in the PR body and the job emits `sensitive=true`, which the
 # workflow turns into a `security-review-required` label. Hooks, confinement, CI, executable scripts,
 # agent capability declarations and ownership rules.
-SENSITIVE_REGEX='^(sandbox/|\.agentteams/bin/|\.github/workflows/|\.github/actions/|\.github/agents/[^/]+\.agent\.md$|(\.github/|docs/)?CODEOWNERS$|\.claude/settings[^/]*\.json$|\.codex/(config\.toml|hooks\.json)$|\.goose/recipes/|\.vscode/tasks\.json$|scripts/)'
+SENSITIVE_REGEX='^(sandbox/|\.agentteams/bin/|\.github/workflows/|\.github/actions/|\.github/agents/[^/]+\.agent\.md$|(\.github/|docs/)?CODEOWNERS$|pyproject\.toml$|\.claude/settings[^/]*\.json$|\.codex/(config\.toml|hooks\.json)$|\.goose/recipes/|\.vscode/tasks\.json$|scripts/)'
 
 # Print the security-boundary paths among the newline-separated paths on stdin.
 sensitive_paths() { grep -E "$SENSITIVE_REGEX" || true; }
@@ -212,6 +212,9 @@ if [ -f scripts/check_toolchain.py ]; then
   # No --python: pin the interpreter behind `researchteam`, the one that just ran the sync.
   # A release-locked lock is rewritten only with the verified tag; check_toolchain refuses anything else.
   lock_args=(--write-lock); [ -n "$TARGET_TAG" ] && lock_args+=(--tag "agentteams=${TARGET_TAG}")
+  # Upstream only: researchteam's own pyproject `update`/`research` extras must name the lock's agentteams
+  # commit (release policy, Pins). A derived repo's pyproject.toml is project-owned and never rewritten.
+  [ "$MODE" = upstream ] && lock_args+=(--sync-extras)
   if lock_out="$(python scripts/check_toolchain.py "${lock_args[@]}" 2>&1)"; then
     log "$lock_out"
   else
