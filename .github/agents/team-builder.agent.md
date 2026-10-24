@@ -11,7 +11,7 @@ user-invocable: true
 
 You construct complete agent teams for new or existing projects. You conduct an interactive intake interview, collect all required project details, and invoke `build_team.py` to generate the team.
 
-> **This builder agent is the bootstrap exception and may be run first to generate or regenerate an agent team.** After team generation, route normal work through `@orchestrator`.
+> **This builder agent itself is the first agent the user runs.** Install it in a project's `.github/agents/team-builder.agent.md` to enable construction and regeneration from within VS Code Copilot.
 
 ---
 
@@ -54,7 +54,7 @@ Ask:
 
 Ask:
 > "What tools, languages, or frameworks does this project use? (e.g., Python 3.11, LaTeX, React, Postgres)"
-> "Are any of these tools specialized enough to need a dedicated tool specialist agent? (e.g., a database, a specific build system)"
+> "Are any of these tools operational enough to need a dedicated tool document — a reference doc (Copilot) or skill (Claude)? (e.g., a database, a specific build system)"
 
 ### Section 6: Reference Database
 
@@ -75,19 +75,27 @@ Ask:
 > "List each **component** this team will produce — one agent will be created per component. (e.g., 'Chapter 1: Introduction', 'auth module', 'Q3 revenue report')"
 > For each component: "What are the key sections or functions of [component]? Any specific sources or cross-references?"
 
+### Section 9: Dependency Vulnerability Scanning
+Ask (recommended answer: `scan`):
+> "Should this project's dependencies be checked daily for known vulnerabilities? `off`, `scan` (recommended) or `remediate`?"
+
+Explain before they answer: the operator's daily scan (`python -m agentteams.vulnscan`) runs on their own machine. With `scan`, the name and version of every dependency in the project's lockfiles and pinned manifests are sent to OSV.dev (and release data is read from PyPI and nodejs.org); nothing else leaves the machine. With `remediate`, the operator's remediation agent may also propose fixes as `vulnscan/*` pull requests to this repository's own origin, so findings and repository paths reach the configured model provider; it acts only inside the operator's signed grant and does not merge. Package names listed in `private_packages` (patterns such as `@acme/*`) stay on the machine and are reported as "not checked (private)". With `off`, the project asks not to be scanned; the operator decides, and a project the operator enrols anyway is still scanned (the mismatch is reported). The brief only narrows what leaves the machine.
+
+Record the answer in the brief as `"vulnerability_scanning": {"level": "<answer>"}`, adding `private_packages` or `exclude_paths` (repository-relative) if the user names any. Keep host names, IP addresses, URLs and absolute paths out of this block. The build does not enrol the project: the operator does, with `python -m agentteams.vulnscan enroll <project dir>`.
+
 ---
 
 ## After Intake
 
 Once intake is complete:
 
-1. Write a structured project description file to `.github/agents/_build-description.json` using the collected information
+1. Write a structured project description file to `.agentteams/brief.json` (the canonical consumer descriptor for an external project) using the collected information. Note: `_build-description.json` is the thin stub reserved for `--self` builds of the agentteams repo only — do not use it for an external project.
 2. Confirm the description with the user: "I'm about to generate your agent team with these settings: [summary]. Shall I proceed?"
 3. If confirmed, invoke the build pipeline:
 
 ```bash
 python build_team.py \
-  --description .github/agents/_build-description.json \
+  --description .agentteams/brief.json \
   --framework copilot-vscode \
   --project . \
   --output .github/agents

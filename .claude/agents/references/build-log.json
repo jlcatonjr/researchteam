@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.0.0",
+  "agentteams_version": "1.1.0rc2",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "cc5b8c9ec4efdcb479939e0c1246a0ac11913259",
+    "commit": "df1ab17a98c3b42f91446e1ba5df2fb6228772ba",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-19T03:30:28.498075+00:00",
+  "generated_at": "2026-10-24T02:42:24.375998+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -31,12 +31,14 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".claude/agents/references/sandbox-handoff.reference.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "171d8c2a2a8ec0ad",
+    "universal/orchestrator.template.md": "2a882c47d21d0fb5",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "3b9958a26d342746",
+    "universal/security.template.md": "a2640ec92be63d96",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -45,7 +47,7 @@
     "universal/agent-updater.template.md": "fceaeaa65379ff06",
     "universal/agent-refactor.template.md": "b1417e2f09b84022",
     "universal/repo-liaison.template.md": "70331bea47521df8",
-    "universal/git-operations.template.md": "04ede882f19cbfa2",
+    "universal/git-operations.template.md": "9f3fcbd9167a8833",
     "domain/work-summarizer.template.md": "4124536ef03c333d",
     "domain/primary-producer.template.md": "278ed220891ba707",
     "domain/quality-auditor.template.md": "3dd911ae905e8b28",
@@ -71,12 +73,13 @@
     "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
     "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
     "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
-    "universal/github-workflows-merge.reference.template.md": "cfb434aeaa6fbae0",
+    "universal/github-workflows-merge.reference.template.md": "aa26e7db5d333f1f",
     "universal/branch-lifecycle.reference.template.md": "8f199043003804b3",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
-    "universal/parallelization.reference.template.md": "e31593ccbba4a7ff",
+    "universal/parallelization.reference.template.md": "12111b7bb9a9aa10",
+    "universal/sandbox-handoff.reference.template.md": "fe27b3ca2d7de60d",
     "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
     "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
@@ -88,7 +91,7 @@
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
     "copilot-instructions.template.md": "d3fcc564166c5285",
-    "builder/team-builder-claude.template.md": "d6158978f4955fc1",
+    "builder/team-builder-claude.template.md": "16a39fe972a3f97d",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
   "output_files_map": [
@@ -360,6 +363,12 @@
       "component_slug": null
     },
     {
+      "path": "references/sandbox-handoff.reference.md",
+      "template": "universal/sandbox-handoff.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/instruction-authority.reference.md",
       "template": "universal/instruction-authority.reference.template.md",
       "type": "reference",
@@ -524,12 +533,17 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "fc71664f81147c95",
+  "manifest_fingerprint": "138b2a54be0f3b19",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "aec2ede3acf1f9bb",
-    "references/security-vulnerability-watch.json": "25734d77329fc720",
-    "security.md": "d4c87be774838e2d",
+    "references/sandbox-handoff.reference.md": "e37829533f55d57e",
+    "references/security-vulnerability-watch.reference.md": "d76ce0083f1a87ec",
+    "references/security-vulnerability-watch.json": "87432d7059060f20",
+    "references/parallelization.reference.md": "fbd84bddbf5f6c13",
+    "orchestrator.md": "65b40f84b31af7c5",
+    "security.md": "38026328e95c7e55",
+    "team-builder.md": "0f505b1fe0d18e2c",
+    "../settings.hooks.example.json": "bbd89c7510fdcf40",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/framework-watch.reference.md": "21a796552c902998",
@@ -540,7 +554,6 @@
     "../CLAUDE.md": "a71478ec4a029f26",
     "SETUP-REQUIRED.md": "ec5cc6c80bcbe2ea",
     "references/runtime-handoffs.json": "1037771f1e7155d3",
-    "orchestrator.md": "7bc1fd65cc67d402",
     "navigator.md": "6dc7292dcd345c62",
     "code-hygiene.md": "a68e2d09066eb158",
     "adversarial.md": "f776459b9a0df2b0",
@@ -567,7 +580,6 @@
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
-    "references/parallelization.reference.md": "e25040ccfbdae337",
     "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
@@ -577,21 +589,20 @@
     "literature-review-expert.md": "6078fe1565d55834",
     "main-analysis-expert.md": "33991ae5d1b8c38c",
     "conclusion-expert.md": "da468961a1e77c6a",
-    "team-builder.md": "8a2d497a3743d77c",
     "content-enricher.md": "726ca63431fbea48",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "references/pipeline-graph.md": "8ceca1ec14af245a"
   },
   "front_matter_baseline": {
-    "security.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "Read, Grep, Glob"
-    },
     "orchestrator.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
       "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task"
+    },
+    "security.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "Read, Grep, Glob"
     },
     "navigator.md": {
       "name": "Navigator \u2014 ResearchTeam",
@@ -784,7 +795,7 @@
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
       "routing_table_rows": "871b2aa4cad0dee48a6c9a139e2a9f95892b4f5b1a02f107b307a914937fa9db",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "6c015616080cb241d4d78dbf5ac27bfab40567975b4da3cf05fb631759f7f592"
+      "available_workflows": "2d45fc114a1c253a2b91e3a7dbefdd69bc86da8781e40c1c564a9a2b685b4f46"
     },
     ".claude/agents/output-compiler.md": {
       "content": "f6263aacfcd71e21f66bd511ed0914b800c362eb234a34c197220ea927772a34"
@@ -828,12 +839,12 @@
     ".claude/agents/security.md": {
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "8bd67a40239bf37f836d7ad8fa7497d3fefe759048e2242f6d04f3555fd048c6",
-      "threat_intelligence": "99bb5e9b71432150655a4380ac992dff8687e9d9affa184f30490f97bf6605c3",
+      "security_rules_invariant": "3781cac11ff605d0c51088ad45022aa129c5261e450103307a92e7a879ce567a",
+      "threat_intelligence": "3acedd2bdd051e1364d9b393b3a1a1da2ebc74f818493851cd2700bb5ba5eef6",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {
-      "content": "c0124871a5fee3352267c580db56ca22f7331107b886b7a8e9aa09f9b76234c2"
+      "content": "4c4a54c52b8ce1308430f55c7e6a0142be372e1f4910b8dc8111633e8e68e498"
     },
     ".claude/agents/technical-validator.md": {
       "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
