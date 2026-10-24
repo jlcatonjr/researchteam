@@ -1,0 +1,27 @@
+S-10 release-key exemption, agentteams 1.1 line (researchteam; drafted 2026-10-23 for operator signature).
+
+Scope: an agentteams git tag (v1.1.Z or v1.1.Z-rc.N on the 1.1 line) is exempt from the 14-day
+release cooldown only when ALL of these hold:
+  1. it is an annotated tag SSH-signed by the operator release key
+     RSA SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM (fingerprint checked, not only "Good signature");
+  2. `git tag -v` verifies it against ~/.config/agentteams/allowed_signers under neutralised repository
+     config (core.hooksPath=/dev/null, core.fsmonitor=false);
+  3. the verified local tag object equals the tag object `git ls-remote` reports on
+     https://github.com/jlcatonjr/agentteams;
+  4. the pin is that tag's peeled 40-hex commit.
+
+Not exempt: every third-party package version that actually resolves at install time (direct or
+transitive); those keep the cooldown and the known-vulnerability search. The OSV/GHSA search still runs
+for every adopted release, fresh at each pin move. What carries over from the 2026-10-16 vetting
+(docs/release/s10-dependency-vetting-2026-10-16.md) is the cooldown result only, and only while agentteams'
+declared dependencies (pyproject.toml [project] dependencies and optional-dependencies) are unchanged
+from v1.0.0; constraints-2026-10-16.txt still applies at install. Any change to the declared dependencies
+needs a new vetting. Not exempt either: researchteam or other repositories' tags, any tag signed by
+another key or failing any check above, and any branch head. Each pin move still needs its own @security
+row naming the tag object and the peeled SHA.
+
+This exemption does not extend the 1.0-line exemption (s10-release-key-exemption), which still ends at
+agentteams v1.1.0.
+
+Expiry: void at the first of (a) agentteams v1.2.0, (b) 2027-04-23, (c) rotation, loss or suspected
+compromise of the release key. Renewal needs a new signed operator decision.

@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-23",
+  "date": "2026-10-23",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "s10-release-key-exemption-1.1",
+  "verdict": "PASS",
+  "scope": "s10-release-key-exemption-1.1",
+  "conditions": "Binding text: docs/release/s10-release-key-exemption-1.1.conditions.txt. agentteams 1.1 line only (v1.1.Z, v1.1.Z-rc.N). Resolved third-party packages keep the cooldown and a fresh OSV/GHSA search at every pin move; only the 2026-10-16 cooldown result carries over, while agentteams' declared dependencies equal v1.0.0's (constraints-2026-10-16.txt still applies). Each pin move still needs its own row. Does not extend the 1.0-line exemption. Expires at agentteams v1.2.0, 2027-04-23, or key rotation/compromise.",
+  "conditions_verified": "sha256:7253ee0995f7c87da1956a784ff7e109e0246220bcb930ffd3fb822af5a8f390",
+  "evidence": "researchteam governance/agentteams-1.1; agentteams integration review 2026-10-23 (R1); Scope: S-10 14-day release cooldown: exempt agentteams 1.1-line tags signed by release key RSA SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM that verify against allowed_signers and match the remote tag object",
+  "derives_from": "release-policy-1.0; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "S-10 release cooldown",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
