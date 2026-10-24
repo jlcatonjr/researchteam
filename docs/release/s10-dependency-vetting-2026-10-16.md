@@ -35,3 +35,17 @@ resolved set is unchanged.
 
 Constraints that installs use until the two newer releases clear the cooldown (2026-10-18 and
 2026-10-23): `docs/release/constraints-2026-10-16.txt`.
+
+**Carried over to agentteams v1.1.0-rc.2** (tag object `4ef4d4f3`, peeled `df1ab17a`; verified 2026-10-23): the
+declared dependencies (`[project]` and `[project.*]` tables) are identical to v1.0.0's. A fresh OSV/GHSA query
+(2026-10-23) of the `signing` set resolved under `constraints-2026-10-16.txt` (Python 3.11 and 3.13) found no
+advisory, and every version in the table above is past the cooldown. agentteams requires Python >= 3.11, as
+v1.0.0 did.
+
+**Not covered by this vetting: the `research` extra.** `researchteam[research]` installs `agentteams[research]`,
+which also resolves anyio 4.15.1, certifi 2026.10.23, h11 0.16.0, httpcore 1.0.9, httpx 0.28.1, idna 3.20 and
+pypdf 6.21.2 (OSV none, 2026-10-23). certifi 2026.10.23 (uploaded 2026-10-23) and pypdf 6.21.2 (2026-10-21) are
+**inside the 14-day cooldown**. No certifi release currently clears both the cooldown and the advisory search
+(2026.7.22 carries GHSA-6q48-6c7w-9gw2; 2026.10.19 clears the cooldown on 2026-11-03). This gap predates 1.1 (the
+same extra resolved unvetted packages under v1.0.0); it needs its own operator decision and constraints before
+`researchteam[research]` is recommended for install.
