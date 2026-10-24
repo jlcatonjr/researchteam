@@ -23,11 +23,11 @@ dependencies = []
 # commit as toolchain.lock; scripts/check_toolchain.py reports any disagreement. Now: v1.0.0.
 # `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
 [project.optional-dependencies]
-update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@cc5b8c9ec4efdcb479939e0c1246a0ac11913259"]
+update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@df1ab17a98c3b42f91446e1ba5df2fb6228772ba"]
 # `agentteams.research` (web search, curated-source rating, dual-lens claim verification) — the
 # real, generalized implementation the on-the-fly-retrieval-profile.md / citation-claim-audit-
 # protocol.md docs describe. Pinned exactly like `update`.
-research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@cc5b8c9ec4efdcb479939e0c1246a0ac11913259"]
+research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@df1ab17a98c3b42f91446e1ba5df2fb6228772ba"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"
