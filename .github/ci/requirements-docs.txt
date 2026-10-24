@@ -5,10 +5,9 @@
 # mkdocs-material is 9.7.7, not 9.7.6: 9.7.6 carries GHSA-xvg9-69gf-fjrf (DOM XSS in search suggestions,
 # fixed in 9.7.7).
 #
-# KNOWN EXCEPTION — certifi 2026.7.22 carries GHSA-6q48-6c7w-9gw2 / PYSEC-2026-4320 (compromised emSign
-# intermediates). The fix, 2026.10.19, was published 2026-10-20 and is inside the 14-day cooldown. The build
-# makes no TLS connections (no network plugins), so the CA bundle is not exercised. Re-vet on or after
-# 2026-11-03 and move to certifi >= 2026.10.19.
+# certifi is 2026.10.19: it fixes GHSA-6q48-6c7w-9gw2 / PYSEC-2026-4320 (compromised emSign intermediates,
+# critical). Adopted 2026-10-24, inside the 14-day S-10 cooldown, as an operator-approved exception for a critical
+# advisory; both pinned hashes were checked against PyPI's published sha256 values. Re-vet on or after 2026-11-03.
 
 babel==2.18.0 \
     --hash=sha256:b80b99a14bd085fcacfa15c9165f651fbb3406e66cc603abf11c5750937c992d \
