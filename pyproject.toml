@@ -1,7 +1,9 @@
 [build-system]
 # The version comes from git tags (setuptools-scm). Build requirements are exact pins vetted for S-10 on
 # 2026-10-16 (docs/release/build-requirements-2026-10-16.md): no OSV advisories, all >= 14 days old.
-requires = ["setuptools==84.0.0", "setuptools-scm==10.3.4", "vcs-versioning==2.5.0", "packaging==26.3"]
+# Exception: setuptools 84.1.0 (uploaded 2026-10-19) was adopted 2026-10-24, inside the 14-day cooldown, on
+# the operator's instruction: it fixes GHSA-xmj3-9gf7-h52w (low) in 84.0.0. Re-vet on or after 2026-11-02.
+requires = ["setuptools==84.1.0", "setuptools-scm==10.3.4", "vcs-versioning==2.5.0", "packaging==26.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
