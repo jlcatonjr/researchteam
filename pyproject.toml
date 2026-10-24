@@ -1,7 +1,7 @@
 [build-system]
 # The version comes from git tags (setuptools-scm). Build requirements are exact pins vetted for S-10 on
 # 2026-10-16 (docs/release/build-requirements-2026-10-16.md): no OSV advisories, all >= 14 days old.
-requires = ["setuptools==84.0.0", "setuptools-scm==10.3.4", "vcs-versioning==2.5.0", "packaging==26.3"]
+requires = ["setuptools==84.1.0", "setuptools-scm==10.3.4", "vcs-versioning==2.5.0", "packaging==26.3"]
 build-backend = "setuptools.build_meta"
 
 [project]
