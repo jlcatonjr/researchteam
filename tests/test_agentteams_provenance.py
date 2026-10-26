@@ -60,7 +60,9 @@ def fake_agentteams(tmp: Path, install: str = "editable", layout: str = "flat", 
     bin_dir.mkdir()
     py = sys.executable
     first = {"direct": f"#!{py}\n", "env": "#!/usr/bin/env python3\n",
-             "trampoline": f"#!/bin/sh\n'''exec' \"{py}\" \"$0\" \"$@\"\n' '''\n"}[shebang]
+             "trampoline": f"#!/bin/sh\n'''exec' \"{py}\" \"$0\" \"$@\"\n' '''\n",
+             # uv writes the long-path trampoline with the interpreter in single quotes
+             "uv-trampoline": f"#!/bin/sh\n'''exec' '{py}' \"$0\" \"$@\"\n' '''\n"}[shebang]
     launcher = bin_dir / "agentteams"
     launcher.write_text(first + "print('agentteams 9.9')\n")
     launcher.chmod(0o755)
@@ -116,7 +118,7 @@ def test_a_src_layout_is_checked_where_python_imports_it(tmp_path, provenance):
     assert provenance(launcher, env)[0] == 1
 
 
-@pytest.mark.parametrize("shebang", ["env", "trampoline"])
+@pytest.mark.parametrize("shebang", ["env", "trampoline", "uv-trampoline"])
 def test_env_and_pip_trampoline_shebangs_are_followed(tmp_path, provenance, shebang):
     *_, launcher, env = fake_agentteams(tmp_path, shebang=shebang)
     code, out, err = provenance(launcher, env)

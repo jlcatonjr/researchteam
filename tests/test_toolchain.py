@@ -396,3 +396,17 @@ def test_a_repo_without_extras_is_a_no_op(tmp_path):
 def test_the_gate_syncs_extras_in_upstream_mode_only():
     gate = (ROOT / "scripts" / "agentteams_autosync_gate.sh").read_text(encoding="utf-8")
     assert '[ "$MODE" = upstream ] && lock_args+=(--sync-extras)' in gate
+
+
+@pytest.mark.parametrize("quote", ['"', "'"])  # pip quotes the interpreter with ", uv with '
+def test_a_long_path_trampoline_names_its_interpreter(tmp_path, quote):
+    py = "/very/long path/with spaces/bin/python"
+    launcher = tmp_path / "researchteam"
+    launcher.write_text(f"#!/bin/sh\n'''exec' {quote}{py}{quote} \"$0\" \"$@\"\n' '''\n")
+    assert ct.launcher_interpreter(str(launcher)) == py
+
+
+def test_an_unquoted_trampoline_path_is_kept_whole(tmp_path):
+    launcher = tmp_path / "researchteam"
+    launcher.write_text("#!/bin/sh\n'''exec' /opt/py/bin/python \"$0\" \"$@\"\n' '''\n")
+    assert ct.launcher_interpreter(str(launcher)) == "/opt/py/bin/python"
