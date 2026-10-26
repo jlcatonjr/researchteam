@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc2",
+  "agentteams_version": "1.1.0rc6",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "df1ab17a98c3b42f91446e1ba5df2fb6228772ba",
+    "commit": "0ef4404ce7bab4e994d607430c307ddfd3f9da72",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-24T02:43:41.260023+00:00",
+  "generated_at": "2026-10-26T18:59:05.014593+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -31,14 +31,12 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".codex/agents/references/sandbox-handoff.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "2a882c47d21d0fb5",
+    "universal/orchestrator.template.md": "38605c73b99c7769",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "a2640ec92be63d96",
+    "universal/security.template.md": "6475c29909a952f9",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -91,7 +89,7 @@
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
     "copilot-instructions.template.md": "d3fcc564166c5285",
-    "builder/team-builder-copilot-vscode.template.md": "c1eb75cdd53ba85f",
+    "builder/team-builder-copilot-vscode.template.md": "799171f781e58676",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
   "output_files_map": [
@@ -533,18 +531,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "630d38eaf44eb7b3",
+  "manifest_fingerprint": "b8ae4740acb846ae",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/sandbox-handoff.reference.md": "e37829533f55d57e",
-    "references/security-vulnerability-watch.reference.md": "0b11a92670a89092",
-    "references/security-vulnerability-watch.json": "73576f1830419bb2",
-    "references/github-workflows-merge.reference.md": "694954400de46210",
-    "references/parallelization.reference.md": "fbd84bddbf5f6c13",
-    "orchestrator.toml": "006967b6cbe16ec0",
-    "security.toml": "00328241374f959d",
-    "team-builder.toml": "8c6d5982f0b699c7",
+    "references/security-vulnerability-watch.json": "bafaa18eae222b2f",
+    "security.toml": "b0446aebba0b311f",
+    "references/security-vulnerability-watch.reference.md": "aa86de62cad13e01",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
+    "orchestrator.toml": "2138ef3d7e42ddc8",
     "navigator.toml": "3519e944e8f26d47",
     "code-hygiene.toml": "c91429ad94b4b7d3",
     "conflict-auditor.toml": "4c67411f94889d12",
@@ -568,9 +562,11 @@
     "tool-doc-researcher.toml": "76f71018cdbb7382",
     "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
     "references/code-hygiene-rules.reference.md": "bb27601e343fd1d2",
+    "references/github-workflows-merge.reference.md": "694954400de46210",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "fbd84bddbf5f6c13",
     "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/retrospective-remediation.reference.md": "a0945ac134972385",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
@@ -582,7 +578,8 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "a94ef87634e063b9",
+    "../../AGENTS.md": "8c8b92f08aa0a024",
+    "team-builder.toml": "d3dd092c84096ecc",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
     "references/write-policy.reference.md": "d5d003ec5740b609",
@@ -686,7 +683,7 @@
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
       "routing_table_rows": "b87a841af0a9df1806a26e911847f90e0f1891649cc6e7f1839ed93833f18053",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "4d6b7997b90efa8c1ebddf8911b994d3fd0edd30320ba8198b0cdd6bc1c59e29",
+      "available_workflows": "13d10e77705fd4b37e0b34dab92171cdf37745775aff9fc15c38d29ec06ae0ae",
       "write_policy": "4209c85f8de9588e949279570922e7d0d2b36256f86ae1699d7f6d8dbc6df6ab",
       "codex_translation": "d609f110f9d4912cc32b260c5d823889f6f03d825707e2d9e55a78bcf2900b57"
     },
@@ -741,16 +738,16 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "5c913b881e7db9587281df2e79bb1318583925ae8126bc0a8152de33e8be8341",
+      "threat_intelligence": "e8a704cbe586692b25329ecb98fce3bdd52f54fe3985b325b5eb47d27ab84651",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
-      "security_rules_invariant": "374114e7d80a6b36f9b41667c755bcc98b9a97b82861b0457d959a05fb49af23",
+      "security_rules_invariant": "668808e647f902bd9f798cbc6742670b2fe19e917cff063cf840df0f7e8221d2",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "codex_translation": "fdc79aa0df18d788e75a8356d98df31622e0f4eb5788b9d0e3507e5611d8c413"
     },
     ".codex/agents/team-builder.toml": {
-      "content": "0ec02e9b45312b8aec9599d78f70d8cb1c3b3e1387020678aaa6fef4b000bbdf",
+      "content": "501f1b6a77a56355ba45214a2d19d31614a5f36cfeb4e906a651487af6fa6345",
       "codex_translation": "af8a8d3360dea77e678ef3dc6d8197dd534fddc69304797eb0f90ab14e20c110"
     },
     ".codex/agents/technical-validator.toml": {
