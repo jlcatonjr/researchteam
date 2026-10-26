@@ -42,6 +42,11 @@ declared dependencies (`[project]` and `[project.*]` tables) are identical to v1
 advisory, and every version in the table above is past the cooldown. agentteams requires Python >= 3.11, as
 v1.0.0 did.
 
+**Carried over to agentteams v1.1.0-rc.6** (tag object `7645e308`, peeled `0ef4404c`; verified 2026-10-26): the
+declared dependencies are still identical to v1.0.0's. A fresh OSV/GHSA query (2026-10-26) of the `signing` set
+resolved under `constraints-2026-10-16.txt` (Python 3.11 and 3.13) found no advisory; the resolved versions are
+unchanged from the table above and all are past the cooldown.
+
 **Not covered by this vetting: the `research` extra.** `researchteam[research]` installs `agentteams[research]`,
 which also resolves anyio 4.15.1, certifi 2026.10.23, h11 0.16.0, httpcore 1.0.9, httpx 0.28.1, idna 3.20 and
 pypdf 6.21.2 (OSV none, 2026-10-23). certifi 2026.10.23 (uploaded 2026-10-23) and pypdf 6.21.2 (2026-10-21) are

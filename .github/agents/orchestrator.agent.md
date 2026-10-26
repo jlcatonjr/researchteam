@@ -232,7 +232,7 @@ Use this baseline command sequence for update-safe execution:
 - Any action touching adjacent repositories must go through `@repo-liaison` first
 - Enforce fail-closed quality gates: no workflow may proceed past verification stages while critical or major findings remain open
 
-<!-- AGENTTEAMS:BEGIN available_workflows v=6 -->
+<!-- AGENTTEAMS:BEGIN available_workflows v=7 -->
 ## Available Workflows
 
 > ⚠️ Destructive operations require `@security` clearance before use.

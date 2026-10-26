@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-26",
+  "date": "2026-10-26",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.0-rc.6",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.0-rc.6",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.0-rc.6 (tag object 7645e3085879e6a9c0ea2f9e33e523f3b1b689f2, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). S-10 exemption s10-release-key-exemption-1.1 applies to agentteams itself; resolved third-party packages: the 2026-10-16 cooldown result carries over (agentteams' declared dependencies unchanged from v1.0.0, checked at the tag), constraints-2026-10-16.txt applies at install, and a fresh OSV/GHSA search ran for this pin (2026-10-26: signing set resolved under constraints-2026-10-16.txt (Python 3.11/3.13) = jsonschema 4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.6.3, cryptography 50.0.0, cffi 2.1.1, pycparser 3.0, typing-extensions 4.16.0: OSV none, all >= 14 days; the research extra is outside this vetting (see s10-dependency-vetting-2026-10-16.md)).",
+  "conditions_verified": "tag v1.1.0-rc.6 object 7645e3085879e6a9c0ea2f9e33e523f3b1b689f2 peeled 0ef4404ce7bab4e994d607430c307ddfd3f9da72; the tag object names itself v1.1.0-rc.6; git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; remote advertisement matches; pyproject dependencies identical to v1.0.0",
+  "evidence": "researchteam chore/agentteams-1.1.0-rc.6 (autosync gate --mode upstream; rc.4 security fixes, rc.5, rc.6); Scope: toolchain.lock and the update/research extras: agentteams df1ab17a98c3b42f91446e1ba5df2fb6228772ba (v1.1.0-rc.2) -> 0ef4404ce7bab4e994d607430c307ddfd3f9da72 (v1.1.0-rc.6)",
+  "derives_from": "release-policy-1.0; s10-release-key-exemption-1.1; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
