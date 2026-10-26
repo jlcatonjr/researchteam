@@ -10,14 +10,18 @@ scanning (`python -m agentteams.vulnscan`) and per-project scanning intent in th
 `main` here; `release/1.0` stays open for `v1.0.N` backports. Derived repositories move to 1.1 only by pinning this
 tag (`--researchteam-tag v1.1.0-rc.1`), keeping the order agentteams → researchteam → derived.
 
-### agentteams 1.1 (#114, #115, #116)
-- **The pin moves to the signed agentteams `v1.1.0-rc.2`** (tag object `4ef4d4f3`, peeled `df1ab17a`), in
-  `toolchain.lock` (now release-locked on the 1.1 line) and in both the `update` and `research` extras (#116). The
-  move is covered by three operator-signed `@security` rows (#115): `release-line-agentteams-1.1` (the trust change
-  from the 1.0 to the 1.1 line), `s10-release-key-exemption-1.1` (the 14-day cooldown is waived for verified
-  1.1-line release-key tags only; third-party packages keep it, with a fresh OSV/GHSA search at every pin) and
-  `pin-agentteams-v1.1.0-rc.2`. The rc.2 render refreshed the Claude and Codex orchestrators' `available_workflows`
-  (held by the shrink guard since a hand-splice) and the team builder, which now asks for a scanning level.
+### agentteams 1.1 (#114, #115, #116, #120)
+- **The pin is the signed agentteams `v1.1.0-rc.6`** (tag object `7645e308`, peeled `0ef4404c`), in
+  `toolchain.lock` (release-locked on the 1.1 line) and in both the `update` and `research` extras (#120). It
+  includes agentteams' rc.4 security fixes (Copilot agent-file bypass, DLP secrets failing closed, goose recipe
+  hidden-key check), rc.5 (Linux agent mode) and rc.6 (prefixed requirements scanned, macOS gate-8 fix). The line
+  first moved to `v1.1.0-rc.2` (#116). Every move is covered by operator-signed `@security` rows:
+  `release-line-agentteams-1.1` (the trust change from the 1.0 to the 1.1 line) and `s10-release-key-exemption-1.1`
+  (the 14-day cooldown is waived for verified 1.1-line release-key tags only; third-party packages keep it, with a
+  fresh OSV/GHSA search at every pin) (#115), and one pin row per tag (`pin-agentteams-v1.1.0-rc.2`,
+  `pin-agentteams-v1.1.0-rc.6`). The rc.2 render refreshed the Claude and Codex orchestrators'
+  `available_workflows` (held by the shrink guard since a hand-splice) and the team builder, which now asks for a
+  scanning level.
 - **Known gap:** the `research` extra is outside the S-10 vetting; it resolves packages inside the cooldown
   (`docs/release/s10-dependency-vetting-2026-10-16.md`). Use the `update` extra, or decide constraints first.
 - **The upstream lock and extras move together.** `check_toolchain.py --write-lock --sync-extras` also points the
