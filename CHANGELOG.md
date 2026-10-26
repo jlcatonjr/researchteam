@@ -3,10 +3,23 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## Unreleased (on `main`)
+## 1.1.0rc1 (tag `v1.1.0-rc.1`, on `release/1.1`)
 
-Readiness for agentteams 1.1 (requested by the agentteams vulnscan rollout; the pin move itself is a separate PR):
+The first 1.1 release candidate. researchteam 1.1 supports agentteams 1.1, which adds dependency-vulnerability
+scanning (`python -m agentteams.vulnscan`) and per-project scanning intent in the brief. `release/1.1` is cut from
+`main` here; `release/1.0` stays open for `v1.0.N` backports. Derived repositories move to 1.1 only by pinning this
+tag (`--researchteam-tag v1.1.0-rc.1`), keeping the order agentteams → researchteam → derived.
 
+### agentteams 1.1 (#114, #115, #116)
+- **The pin moves to the signed agentteams `v1.1.0-rc.2`** (tag object `4ef4d4f3`, peeled `df1ab17a`), in
+  `toolchain.lock` (now release-locked on the 1.1 line) and in both the `update` and `research` extras (#116). The
+  move is covered by three operator-signed `@security` rows (#115): `release-line-agentteams-1.1` (the trust change
+  from the 1.0 to the 1.1 line), `s10-release-key-exemption-1.1` (the 14-day cooldown is waived for verified
+  1.1-line release-key tags only; third-party packages keep it, with a fresh OSV/GHSA search at every pin) and
+  `pin-agentteams-v1.1.0-rc.2`. The rc.2 render refreshed the Claude and Codex orchestrators' `available_workflows`
+  (held by the shrink guard since a hand-splice) and the team builder, which now asks for a scanning level.
+- **Known gap:** the `research` extra is outside the S-10 vetting; it resolves packages inside the cooldown
+  (`docs/release/s10-dependency-vetting-2026-10-16.md`). Use the `update` extra, or decide constraints first.
 - **The upstream lock and extras move together.** `check_toolchain.py --write-lock --sync-extras` also points the
   `update`/`research` extras in researchteam's own `pyproject.toml` at the new agentteams commit, and refuses to
   write the lock when an extra cannot follow (another repository). The autosync gate passes it in `--mode
@@ -21,6 +34,7 @@ Readiness for agentteams 1.1 (requested by the agentteams vulnscan rollout; the 
 - **Docs.** The release policy gains the 1.1 line (`release/1.1`, the line-move row, the 1.1 S-10 exemption); the
   pyproject comment and the update policy no longer name a pinned version, so they cannot go stale.
 
+### Documentation site (#111)
 - **Documentation site.** An MkDocs Material site (`mkdocs.yml`, `docs_src/`) with a CLI reference, a bridge
   reference and a per-module API reference, deployed to GitHub Pages at https://jlcatonjr.github.io/researchteam/
   by `.github/workflows/docs.yml` (pinned actions, hash-locked build dependencies in
@@ -32,7 +46,7 @@ Readiness for agentteams 1.1 (requested by the agentteams vulnscan rollout; the 
   now skips `mkdocs.yml`, `docs_src/` and `.github/ci/requirements-docs.txt`, as it already skipped
   `.github/workflows/`.
 
-Fixes found while writing and auditing the API reference:
+### Fixes found while writing and auditing the API reference (#111)
 
 - **`init --ref <commit>` works.** The help promised a SHA, but only branch and tag archives were tried. A 7–40 hex
   ref now falls through to the commit archive, and the marker records the full SHA. Fetch failures are a
@@ -64,6 +78,10 @@ Fixes found while writing and auditing the API reference:
 - **Removed `open-reader` / `open-summary`** from the bridge. They printed fixed `Projects/ZeldaTimeline/` paths
   that no derived repo has. Derived repos lose them on their next sync, and a call now prints the help and
   exits 2.
+
+### CI
+- The docs build pins certifi 2026.10.19, which fixes the critical GHSA-6q48-6c7w-9gw2, adopted inside the S-10
+  cooldown on the operator's instruction (#112, #118). setuptools 84.1.0 for the test build (#117).
 
 ## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
 
