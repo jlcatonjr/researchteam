@@ -69,11 +69,11 @@ def launcher_interpreter(exe: str) -> str | None:
     if Path(parts[0]).name == "env":
         args = [a for a in parts[1:] if not a.startswith("-")]
         return shutil.which(args[0]) if args else None
-    if Path(parts[0]).name in ("sh", "bash") and len(head) > 1:  # pip: '''exec' "/long/path/python" "$0" "$@"
+    if Path(parts[0]).name in ("sh", "bash") and len(head) > 1:  # pip: '''exec' "/long/path/python" "$0" "$@"; uv: single quotes
         # A quoted interpreter path may contain spaces; an unquoted one stops at the first space (and then
         # fails the os.access check in check(): a refusal, never a wrong interpreter).
-        m = re.search(r"exec'?\s+(?:\"([^\"]+)\"|(\S+))\s+\"\$0\"", head[1])
-        return (m.group(1) or m.group(2)) if m else None
+        m = re.search(r"exec'?\s+(?:\"([^\"]+)\"|'([^']+)'|(\S+))\s+\"\$0\"", head[1])
+        return (m.group(1) or m.group(2) or m.group(3)) if m else None
     return parts[0]
 
 

@@ -210,8 +210,9 @@ def launcher_interpreter(exe):
         args = [a for a in parts[1:] if not a.startswith("-")]
         return shutil.which(args[0]) if args else None
     if os.path.basename(parts[0]) in ("sh", "bash"):
-        m = re.search(r"exec'?\s+(?:\"([^\"]+)\"|(\S+))\s+\"\$0\"", head[1])
-        return (m.group(1) or m.group(2)) if m else None
+        # pip writes '''exec' "/long/path/python" "$0" "$@"; uv writes the same with the path in single quotes.
+        m = re.search(r"exec'?\s+(?:\"([^\"]+)\"|'([^']+)'|(\S+))\s+\"\$0\"", head[1])
+        return (m.group(1) or m.group(2) or m.group(3)) if m else None
     return parts[0]
 
 
