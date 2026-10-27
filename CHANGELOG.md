@@ -3,6 +3,24 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.1.0rc2 (tag `v1.1.0-rc.2`, on `release/1.1`)
+
+The second 1.1 release candidate. It moves agentteams to `v1.1.0-rc.7` and retires the S-10 release cooldown, so derived
+repositories that pin this tag get the deprecation (their gates refuse rc.7 until researchteam pins it).
+
+- **The pin moves to the signed agentteams `v1.1.0-rc.7`** (tag object `2c6b25fc`, peeled `decbcda8`), in `toolchain.lock`
+  and both extras, by the autosync gate (`--write-lock --sync-extras`). It brings agentteams #299 (the S-10 cooldown is
+  deprecated; the rendered `@security` rule is now fence v17 on every surface) and #296 (root-brief `sandbox/` sync;
+  researchteam's `sandbox/` files already match the rc.7 templates). Rows: `pin-agentteams-v1.1.0-rc.7`.
+- **The S-10 release cooldown is deprecated** (operator ruling 2026-10-26, signed row `s10-release-cooldown-deprecated`).
+  A release is adopted once its exact version passes the known-vulnerability search and, for a release-key tag, the
+  signature checks; every pin row still records that search. `docs/release-policy.md` and the vetting record are
+  updated; the earlier cooldown exemptions stay in the log as history. This closes the `research` extra's cooldown gap
+  noted under 1.1.0rc1; its packages had no OSV advisory.
+- **Correction to the signed `s10-release-cooldown-deprecated` row:** its text says the deprecation ships in agentteams
+  "v1.0.3+/v1.1.0-rc.7+". On the 1.0 line it ships in **v1.0.4** (v1.0.3 predates the ruling and carries only #296).
+  The row is signed and stays as is; what it authorizes is unaffected. Pin v1.0.4 or later for the deprecation on 1.0.
+
 ## 1.1.0rc1 (tag `v1.1.0-rc.1`, on `release/1.1`)
 
 The first 1.1 release candidate. researchteam 1.1 supports agentteams 1.1, which adds dependency-vulnerability

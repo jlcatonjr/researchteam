@@ -54,3 +54,14 @@ pypdf 6.21.2 (OSV none, 2026-10-23). certifi 2026.10.23 (uploaded 2026-10-23) an
 (2026.7.22 carries GHSA-6q48-6c7w-9gw2; 2026.10.19 clears the cooldown on 2026-11-03). This gap predates 1.1 (the
 same extra resolved unvetted packages under v1.0.0); it needs its own operator decision and constraints before
 `researchteam[research]` is recommended for install.
+
+**Carried over to agentteams v1.1.0-rc.7** (tag object `2c6b25fc`, peeled `decbcda8`; verified 2026-10-26): the
+declared dependencies are still identical to v1.0.0's. A fresh OSV/GHSA query (2026-10-26) of the `signing` set
+resolved under `constraints-2026-10-16.txt` (Python 3.11 and 3.13) found no advisory; the resolved versions are
+unchanged. The same search over the `research` extra's resolved set (anyio 4.15.1, certifi 2026.10.23, h11 0.16.0,
+httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.2) found none either.
+
+**The cooldown is deprecated (2026-10-26).** By operator ruling (`s10-release-cooldown-deprecated`; agentteams #299)
+releases no longer wait 14 days: the known-vulnerability search is what decides. The cooldown notes above are the
+record of how each pin was vetted at the time. The `research` extra gap above therefore narrows to the vulnerability
+search: certifi 2026.10.23 and pypdf 6.21.2 had no OSV advisory on 2026-10-23, and a fresh search runs at each pin.

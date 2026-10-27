@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc6",
+  "agentteams_version": "1.1.0rc7",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "0ef4404ce7bab4e994d607430c307ddfd3f9da72",
+    "commit": "decbcda88db2b18fd6039a1a624d63c2934a5e1e",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-26T18:57:48.420296+00:00",
+  "generated_at": "2026-10-27T00:55:08.632834+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -34,9 +34,9 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "38605c73b99c7769",
+    "universal/orchestrator.template.md": "1a69f80133e36dda",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "6475c29909a952f9",
+    "universal/security.template.md": "2f1580cf50d6f389",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -531,14 +531,15 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "fed5364486d79daa",
+  "manifest_fingerprint": "0ae2b0b395b0e9a4",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "99d2f8b6aace176d",
-    "security.md": "1a2285419292095c",
+    "references/security-vulnerability-watch.reference.md": "ab4e4555ba600275",
+    "references/security-vulnerability-watch.json": "53c31a549c39a663",
+    "orchestrator.md": "8d588d024a85eb7b",
+    "security.md": "487a9c53edabc0d3",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
-    "references/security-vulnerability-watch.reference.md": "14db9b2233280e7a",
     "references/framework-watch.reference.md": "21a796552c902998",
     "references/adjacent-repos.md": "9b88cb119c4a99e6",
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
@@ -547,7 +548,6 @@
     "../CLAUDE.md": "a71478ec4a029f26",
     "SETUP-REQUIRED.md": "ec5cc6c80bcbe2ea",
     "references/runtime-handoffs.json": "1037771f1e7155d3",
-    "orchestrator.md": "2d4db5ff28b290f3",
     "navigator.md": "6dc7292dcd345c62",
     "code-hygiene.md": "a68e2d09066eb158",
     "adversarial.md": "f776459b9a0df2b0",
@@ -590,15 +590,15 @@
     "references/pipeline-graph.md": "8ceca1ec14af245a"
   },
   "front_matter_baseline": {
-    "security.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "Read, Grep, Glob"
-    },
     "orchestrator.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
       "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task"
+    },
+    "security.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "Read, Grep, Glob"
     },
     "navigator.md": {
       "name": "Navigator \u2014 ResearchTeam",
@@ -791,7 +791,7 @@
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
       "routing_table_rows": "871b2aa4cad0dee48a6c9a139e2a9f95892b4f5b1a02f107b307a914937fa9db",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "28b6b2222c975a4f9d8add27d857fddbbb73998287ad06660f5714961772e106"
+      "available_workflows": "1ac8cfc99421c2d7b4bff23fbf84a49c64f10b2a315fb0fb4f54bf8ea38d4529"
     },
     ".claude/agents/output-compiler.md": {
       "content": "f6263aacfcd71e21f66bd511ed0914b800c362eb234a34c197220ea927772a34"
@@ -835,8 +835,8 @@
     ".claude/agents/security.md": {
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "557cfa99c36f0d3ddce1a2804e45ed506707b60adcf3b59eb4701275f196adf8",
-      "threat_intelligence": "3d0be6bf40b301e7d99ab666aa280b535f2e637c85d98aec9c4143d9ee264b2a",
+      "security_rules_invariant": "44a5fb4ad45d3f9048c4c0bc6bb6329c72e8cb9a355d5bc9a1fcbfea8d0dc338",
+      "threat_intelligence": "5ea9b6d70908227f37bfe22ffe61272e5d5653feb969163a6786e5a961eb0fc1",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {

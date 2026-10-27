@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc6",
+  "agentteams_version": "1.1.0rc7",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "0ef4404ce7bab4e994d607430c307ddfd3f9da72",
+    "commit": "decbcda88db2b18fd6039a1a624d63c2934a5e1e",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-26T18:58:26.522109+00:00",
+  "generated_at": "2026-10-27T00:55:50.012311+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -34,9 +34,9 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "38605c73b99c7769",
+    "universal/orchestrator.template.md": "1a69f80133e36dda",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "6475c29909a952f9",
+    "universal/security.template.md": "2f1580cf50d6f389",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -531,16 +531,17 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "1c8d9c905eb09b40",
+  "manifest_fingerprint": "6ef62b832a650997",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "0efe2f9eea664650",
-    "security.yaml": "4ab9f4d7830fe315",
+    "references/security-vulnerability-watch.reference.md": "f6d528e5b26ebe47",
+    "references/security-vulnerability-watch.json": "3a77462aaffea3fe",
+    "orchestrator.yaml": "35083c2f32ad4c49",
+    "security.yaml": "7a121e07b0862a56",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "65a100d914cee3e4",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -550,7 +551,6 @@
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
-    "orchestrator.yaml": "8c07766b001c86e3",
     "navigator.yaml": "71228e6e0b1122f0",
     "code-hygiene.yaml": "68eaba54394c151a",
     "adversarial.yaml": "3b234b9c1c1896d2",
@@ -659,7 +659,7 @@
       "authority_hierarchy": "cb9a43a7f8b5b292b5e5a17f8ce2c53ca9e09833abd0a22dbc6f16d865bbd68d",
       "routing_table_rows": "84899f8f3849106560b07195320403ad8038dea349c8c210236e3382cf42882e",
       "update_compatibility_source_pack": "3dfed3e703c0266bece3c551844e84652ade8b396d45ca96cc2d57b6d6cc8c56",
-      "available_workflows": "4afc144ce662d12d699c0f6bcd9fcc234ccce80e9a82a8405556f871d74d896d"
+      "available_workflows": "d1df9b8a15d2a4ac3f86fcc6e2f2ac6ef73e7a796132c487041e0b5c6d2a33f9"
     },
     ".goose/recipes/output-compiler.yaml": {
       "*": "359c003bc113a47c395010cc2b2616a3e11e545434c682cecae96d6c05701aef"
@@ -701,11 +701,11 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "e1e61a49570b77ab2509d9c4b1db0b65981360e51fe1ef356314a26e62a43e78",
+      "threat_intelligence": "ea6b9d1499e5680b7f2cf730ee2cc52c772301887f7056e9568a8b4bdfed2080",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",
-      "security_rules_invariant": "2d88973c8fec6da86c2a33fbd5e6e26a18791672c66144a5dddbb146d2fbda0e"
+      "security_rules_invariant": "ff4d3bee72fcd5120b5467c768bb3d1f7cb60c9c9eb3addc11af1b51d7a3d193"
     },
     ".goose/recipes/team-builder.yaml": {
       "*": "8d447f4c66287bf1d49b2fdd77c3cd6029873f843d8c4652d7f7fddc0d17644d"

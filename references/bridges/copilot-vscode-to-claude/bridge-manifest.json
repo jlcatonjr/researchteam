@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-26T18:59:07.468825+00:00",
+  "generated_at": "2026-10-27T00:56:34.833933+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": ".github/agents",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "5363c9d27e8483f87066287166ed3611830320123d9a90e7df1994403d0b32f0"
+      "sha256": "f4cdf4ff2c2e7e075a6a2cc1c8132cdb9c208c1de4d296979132a8c8c5ae1434"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "bff3e4f2dac21c7e45ef628c035431ebed37c739c447d3c57e4935d66005ee05"
+      "sha256": "2b747fca0f8a80a5070989d7cafd9ec94f218641f71a1cc19d190b12d766a8a9"
     },
     {
       "path": "agents/team-builder.agent.md",

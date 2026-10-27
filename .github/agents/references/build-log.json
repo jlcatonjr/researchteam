@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc6",
+  "agentteams_version": "1.1.0rc7",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "0ef4404ce7bab4e994d607430c307ddfd3f9da72",
+    "commit": "decbcda88db2b18fd6039a1a624d63c2934a5e1e",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-26T18:57:09.370218+00:00",
+  "generated_at": "2026-10-27T00:54:27.427530+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -34,9 +34,9 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "38605c73b99c7769",
+    "universal/orchestrator.template.md": "1a69f80133e36dda",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "6475c29909a952f9",
+    "universal/security.template.md": "2f1580cf50d6f389",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -531,14 +531,15 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "fe0628d250b112b6",
+  "manifest_fingerprint": "66f1a49ee14a44e8",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "bff3e4f2dac21c7e",
-    "references/security-vulnerability-watch.json": "9ffea5b570be130e",
+    "orchestrator.agent.md": "f4cdf4ff2c2e7e07",
+    "security.agent.md": "2b747fca0f8a80a5",
+    "references/security-vulnerability-watch.reference.md": "f6d528e5b26ebe47",
+    "references/security-vulnerability-watch.json": "563a949546d10e0c",
     "references/pipeline-graph.md": "468377b007e20f44",
     "references/pipeline-graph.svg": "9bc9066885357454",
-    "orchestrator.agent.md": "5363c9d27e8483f8",
     "navigator.agent.md": "ec41b004d2b282b9",
     "code-hygiene.agent.md": "654d28d9fb509933",
     "adversarial.agent.md": "099d1135eceb514d",
@@ -564,7 +565,6 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
-    "references/security-vulnerability-watch.reference.md": "65a100d914cee3e4",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -595,19 +595,19 @@
     "references/authorized-verify-keys/README.md": "badf32b421079acf"
   },
   "front_matter_baseline": {
-    "security.agent.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "['read', 'search']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
-      "user-invocable": "false"
-    },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
       "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
       "handoffs": "\n  - label: Produce / Revise Deliverable\n    agent: primary-producer\n    prompt: \"A workstream is ready to produce or revise its deliverable. Provide the workstream name and any specific instructions.\"\n    send: false\n  - label: Audit Quality\n    agent: quality-auditor\n    prompt: \"A deliverable is ready for quality audit. Provide the file path.\"\n    send: false\n  - label: Repair Cohesion\n    agent: cohesion-repairer\n    prompt: \"A deliverable section has structural cohesion failures. Provide the file and section.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Audit technical accuracy of claims, code, or specifications in a deliverable. Provide the file path.\"\n    send: false\n  - label: Convert / Transform Output\n    agent: format-converter\n    prompt: \"Convert a primary deliverable to its secondary format. Provide the source file.\"\n    send: false\n  - label: Manage References / Dependencies\n    agent: reference-manager\n    prompt: \"Perform a reference operation: add, verify, deduplicate, or retire. Describe the operation.\"\n    send: false\n  - label: Compile Final Output\n    agent: output-compiler\n    prompt: \"Assemble and compile the final deliverable from all sources.\"\n    send: false\n  - label: Generate / Revise Diagram\n    agent: visual-designer\n    prompt: \"Generate or revise a diagram. Describe what is needed.\"\n    send: false\n  - label: Navigate Project\n    agent: navigator\n    prompt: \"Locate files, answer structural questions, or regenerate the project map.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"Review the planned action for credentials, destructive operations, or sensitive content.\"\n    send: false\n  - label: Code Hygiene Audit\n    agent: code-hygiene\n    prompt: \"Run a code hygiene audit. Provide scope or 'full' for all rules.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge the presuppositions underlying this plan before execution.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Detect contradictions across project files. Provide scope if targeted.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Make ACCEPT/REJECT/REVISE decisions on flagged conflicts.\"\n    send: false\n  - label: Clean Up Artifacts\n    agent: cleanup\n    prompt: \"Remove stale build artifacts, orphaned files, or abandoned drafts.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Project structure or conventions have changed. Sync all affected agent files.\"\n    send: false\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Check agent docs for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Cross-Repository Liaison\n    agent: repo-liaison\n    prompt: \"Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos.\"\n    send: false\n  - label: Summarize Work Period\n    agent: work-summarizer\n    prompt: \"Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period.\"\n    send: false\n  - label: Git Operations\n    agent: git-operations\n    prompt: \"Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed.\"\n    send: false\n",
       "user-invocable": "true"
+    },
+    "security.agent.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "['read', 'search']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "user-invocable": "false"
     },
     "navigator.agent.md": {
       "name": "Navigator \u2014 ResearchTeam",
@@ -893,7 +893,7 @@
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
       "routing_table_rows": "b87a841af0a9df1806a26e911847f90e0f1891649cc6e7f1839ed93833f18053",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "28b6b2222c975a4f9d8add27d857fddbbb73998287ad06660f5714961772e106"
+      "available_workflows": "1ac8cfc99421c2d7b4bff23fbf84a49c64f10b2a315fb0fb4f54bf8ea38d4529"
     },
     ".github/agents/output-compiler.agent.md": {
       "content": "973c0762a5d2c40381f1261c4dc82877804370a5e0212938fb43fd70ed5e8a79"
@@ -935,11 +935,11 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "6180a9157f90818dd74731567145e882b86a0ae52c1d6e2f105b8bfa008a06da",
+      "threat_intelligence": "9e854aa1b9ade00528719639b266033111fa95ba94cf8dd3b7b5eaa2042b8c14",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "557cfa99c36f0d3ddce1a2804e45ed506707b60adcf3b59eb4701275f196adf8"
+      "security_rules_invariant": "44a5fb4ad45d3f9048c4c0bc6bb6329c72e8cb9a355d5bc9a1fcbfea8d0dc338"
     },
     ".github/agents/team-builder.agent.md": {
       "content": "227e43b27bdc041ee2feda6002a1e3dd8f32360851d32c09bb2c6951bea7dd31"
