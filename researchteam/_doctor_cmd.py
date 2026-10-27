@@ -8,6 +8,7 @@ a deleted temporary path.
 
 import json
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -96,6 +97,9 @@ def run_doctor(root: Path, drift: bool = False) -> None:
 
     # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
     _check_toolchain(root, ok, warn)
+
+    # --- 3c'. pandoc for compile/convert steps (informational; never fails doctor) ------
+    _check_pandoc(ok, warn)
 
     # --- frozen surfaces (brief.json frozen_surfaces) -----------------------------------
     _check_frozen_surfaces(root, ok, warn, fail)
@@ -217,6 +221,21 @@ def _check_toolchain(root: Path, ok, warn) -> None:
     else:
         warn(f"toolchain check is not wired to SessionStart — merge {TOOLCHAIN_HOOK_EXAMPLE} "
              "into .claude/settings.json (operator step).")
+
+
+def _check_pandoc(ok, warn) -> None:
+    """Report whether pandoc is on PATH (with its version). Informational: never fails doctor."""
+    exe = shutil.which("pandoc")
+    if exe is None:
+        warn("pandoc not found on PATH — compile/convert steps (format-converter, output-compiler) need it.")
+        return
+    try:
+        r = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=20)
+        version = ((r.stdout or "").strip().splitlines() or ["(version unknown)"])[0]
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        warn(f"pandoc found at {exe} but `pandoc --version` could not run ({exc}).")
+        return
+    ok(f"{version} ({exe})")
 
 
 def _check_frozen_fences(root: Path, ok, warn) -> None:
