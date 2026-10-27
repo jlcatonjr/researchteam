@@ -1,6 +1,6 @@
 # `_doctor_cmd` — ResearchTeam
 
-Implementation of `researchteam doctor`, a health check for the researchteam ↔ agentteams toolchain. It checks that `agentteams` resolves, runs, and is not installed from a temporary path; reports the `toolchain.lock` pin and SessionStart wiring; reports whether `pandoc` is on `PATH`; reports frozen surfaces and frozen fences; optionally checks seeded files and bridges; and checks that `brief.json` and `_build-description.json` together give `update` a complete descriptor. It was written to catch, before it causes an outage, a stale editable `agentteams` install whose finder points at a deleted temporary path.
+Implementation of `researchteam doctor`, a health check for the researchteam ↔ agentteams toolchain. It checks that `agentteams` resolves, runs, and is not installed from a temporary path; reports the `toolchain.lock` pin and SessionStart wiring; reports whether `pandoc` and the scholarly integrity scripts are present; reports frozen surfaces and frozen fences; optionally checks seeded files and bridges; and checks that `brief.json` and `_build-description.json` together give `update` a complete descriptor. It was written to catch, before it causes an outage, a stale editable `agentteams` install whose finder points at a deleted temporary path.
 
 > *Source: `researchteam/_doctor_cmd.py`*
 
@@ -12,6 +12,7 @@ Implementation of `researchteam doctor`, a health check for the researchteam ↔
 
 | Name | Value | Purpose |
 |------|-------|---------|
+| `SCHOLARLY_CAPABILITY_SCRIPTS` | `("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh")` | Scholarly tooling check 5b reports on. |
 | `_EPHEMERAL_MARKERS` | `("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")` | Substrings that mark an `agentteams` source path as ephemeral. |
 
 ---
@@ -70,6 +71,10 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 **5a. Pandoc** (`_check_pandoc`, always runs, informational).
 - OK: `pandoc` is on `PATH`; prints the first line of `pandoc --version` and the path.
 - WARN: not on `PATH` (compile/convert steps such as `@format-converter` and `@output-compiler` need it), or `pandoc --version` could not run.
+
+**5b. Scholarly tooling** (`_check_scholarly_tooling`, always runs, informational). For each of `SCHOLARLY_CAPABILITY_SCRIPTS`, decided by `managed_files_for(<brief layer2_profile>)`:
+- OK: the script is present; or the profile does not manage it (`layer2_profile: "generic"`), so it is not expected.
+- WARN: the profile manages it but it is missing; run `researchteam update` to receive it.
 
 **6. Frozen surfaces** (`_check_frozen_surfaces`, always runs). Reads `frozen_surfaces` from `brief.json` and the set recorded in `.researchteam`.
 - FAIL: `brief.json` is unreadable, or `frozen_surfaces` is invalid; `researchteam update` refuses to run until it is fixed. The rest of this check is skipped.
@@ -130,6 +135,7 @@ Check 9 above. When `fail` is `None`, the leftover-bridge-agent finding is repor
 | `_script_interpreter(exe: str) -> str` | First token after `#!` on the script's first line; `sys.executable` if there is no shebang or the file cannot be read. |
 | `_agentteams_source(interp: str) -> Optional[str]` | Runs `interp -c` to print the directory of `build_team.__file__`; `None` on failure or empty output. |
 | `_check_pandoc(ok, warn) -> None` | Check 5a. Never reports FAIL. |
+| `_check_scholarly_tooling(root, ok, warn) -> None` | Check 5b. Never reports FAIL. |
 | `_check_frozen_surfaces(root, ok, warn, fail) -> None` | Check 6. |
 | `_check_frozen_fences(root, ok, warn) -> None` | Check 7. |
 | `_check_seeded_files(root, ok, warn) -> None` | Check 8. |
