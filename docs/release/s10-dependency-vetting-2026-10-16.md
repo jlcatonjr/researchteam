@@ -58,7 +58,8 @@ same extra resolved unvetted packages under v1.0.0); it needs its own operator d
 **Carried over to agentteams v1.1.0-rc.7** (tag object `2c6b25fc`, peeled `decbcda8`; verified 2026-10-26): the
 declared dependencies are still identical to v1.0.0's. A fresh OSV/GHSA query (2026-10-26) of the `signing` set
 resolved under `constraints-2026-10-16.txt` (Python 3.11 and 3.13) found no advisory; the resolved versions are
-unchanged.
+unchanged. The same search over the `research` extra's resolved set (anyio 4.15.1, certifi 2026.10.23, h11 0.16.0,
+httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.2) found none either.
 
 **The cooldown is deprecated (2026-10-26).** By operator ruling (`s10-release-cooldown-deprecated`; agentteams #299)
 releases no longer wait 14 days: the known-vulnerability search is what decides. The cooldown notes above are the
