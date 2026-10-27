@@ -49,7 +49,9 @@ Because there is no human-curated catalogue at answer time, reputability must be
   - **A domain not on the allowlist is REFUSED** — never returned. (Subdomains of an allowed domain match.)
 - **Primary-source steering.** Turn the topic into targeted `site:` searches against the *primary*
   repositories for that subject area (plus one allowlist-filtered general search as a backstop). Rank
-  results **primary > authoritative > reference**; dedupe by URL.
+  results by tier via `AllowlistConfig.tier_rank`: this profile intends **primary > authoritative >
+  reference**, but agentteams' default ranks authoritative > reference > primary, so set `tier_rank`
+  explicitly. Dedupe by URL.
 - **Best-effort, honestly.** `site:` is honored per-domain by some search backends and not others; empty
   per-domain results are simply skipped. When the whole pass yields nothing allowlisted, return empty
   (the ceiling above).
@@ -95,11 +97,12 @@ This profile has two halves; only the first is a real, present implementation as
   (tier/type per domain, optional path-scoping, topic-keyword routing), with a public `tier_of
   (url)` and an honest-empty `reputable_sources(...) → []`. Generalized from the pattern originally
   built in LingoFriend `b6579ad` (`knowledge/reputable.py`) — that commit is this pattern's
-  historical origin, not the implementation a consumer needs to port from scratch anymore. No
-  project-specific domain-allowlist data ships in `agentteams.research`; every consumer supplies
-  its own `AllowlistConfig`. A small, deliberately generic default (4 broadly-uncontroversial
-  domains — wikipedia.org, reuters.com, apnews.com, bbc.com) ships as a convenience starting
-  point, not a substitute for a consumer's own editorial judgment.
+  historical origin, not the implementation a consumer needs to port from scratch anymore. Besides
+  a small, deliberately generic `DEFAULT_CONFIG` (4 broadly-uncontroversial domains —
+  wikipedia.org, reuters.com, apnews.com, bbc.com), `agentteams.research` ships larger starting
+  presets per project type (`SOFTWARE_CONFIG`, `RESEARCH_CONFIG`, `DATA_CONFIG`, chosen by
+  `config_for_project_type()`). These are convenience starting points: a consumer edits them or
+  supplies its own `AllowlistConfig`, and none substitutes for its own editorial judgment.
 - **Fetch → chunk → dense-embed → per-account query (still hypothetical):** this half of the
   profile has no implementation in `agentteams.research` or anywhere else in this framework as of
   this writing. LingoFriend `b6579ad`'s `knowledge/sources.py` (fetch →

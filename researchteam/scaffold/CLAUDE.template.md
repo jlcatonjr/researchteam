@@ -92,7 +92,7 @@ pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchtea
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
 pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git"
 
-# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.0.0-rc.1
+# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.0.2
 # (pin the tag's peeled commit in toolchain.lock; see docs/release-policy.md upstream:
 #  https://github.com/jlcatonjr/researchteam/blob/main/docs/release-policy.md)
 ```

@@ -6,6 +6,7 @@
 | **Owner** | [PO] baseAgent (baseagent-bd owns its `toolchain.lock` pins) |
 | **Repo** | jlcatonjr/baseAgent |
 | **Recorded** | 2026-10-19, researchteam-51 closeout |
+| **Update (2026-10-20)** | `v1.0.1` tagged (tag object `f3aadeb1`); baseAgent `main` pins researchteam v1.0.2 (`10a36758`); autosync active (#173 merged); #167 and #163 still open; the `@security` pin row was not checked |
 
 ## Summary
 researchteam v1.0.2 (tag object `5e5aeca593d568b2f57b6ce63283961069afa643`, peeled

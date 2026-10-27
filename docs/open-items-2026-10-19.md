@@ -33,9 +33,9 @@ action.
 |---|---|---|---|---|
 | OI-2026-10-19-01 | Kronos P1 data and competitor packages (`yfinance`, `akshare`, `statsforecast`, Chronos runtime) need an S-10 review before P1 step 5 | [PO] Batallion | Not started; blocks P1 step 5 and steps 7–14 | [01](open-items/2026-10-19/01-kronos-p1-data-package-s10.md) |
 | OI-2026-10-19-02 | The Codex render's `codex_write_policy` fence in the shared `AGENTS.md` is unscoped, so Grok reads it | [AT] agentteams | Filed as #249; no owner yet | [02](open-items/2026-10-19/02-agentteams-249-codex-fence-scope.md) |
-| OI-2026-10-19-03 | baseAgent's move to researchteam v1.0.2 isn't finished | [PO] baseAgent | Pinned on `release/1.0` (#166); `v1.0.1` not tagged; `main` still v1.0.0 | [03](open-items/2026-10-19/03-baseagent-v1.0.2-pin.md) |
+| OI-2026-10-19-03 | baseAgent's move to researchteam v1.0.2 isn't finished | [PO] baseAgent | Pinned on `release/1.0` (#166); `v1.0.1` not tagged; `main` still v1.0.0. **2026-10-20:** `v1.0.1` tagged; `main` pins v1.0.2; #167/#163 still open | [03](open-items/2026-10-19/03-baseagent-v1.0.2-pin.md) |
 | OI-2026-10-19-04 | Batallion has two Codex agent files outside the native render (`content-enricher`, `team-builder`) that aren't restricted under orchestrator-only | [PO] Batallion | Not started; needs an operator choice | [04](open-items/2026-10-19/04-batallion-codex-unnarrowed-agents.md) |
-| OI-2026-10-19-05 | Turning the weekly autosync back on (operator ruling); mathAgents' schedule is still **active** on a v1.0.0 pin, and failing | [OP] | Decision pending. The mathAgents schedule was disabled 2026-10-19 by the operator. | [05](open-items/2026-10-19/05-autosync-resume.md) |
+| OI-2026-10-19-05 | Turning the weekly autosync back on (operator ruling); mathAgents' schedule was active on a v1.0.0 pin, and failing | [OP] | Decision pending. The mathAgents schedule was disabled 2026-10-19 by the operator. **2026-10-20:** baseAgent's autosync is active again (dispatch succeeded; #173 merged) | [05](open-items/2026-10-19/05-autosync-resume.md) |
 
 ## Smaller carry-overs (no separate report)
 - **OI-2026-10-19-06 [RT]:** researchteam **#98** (frozen Goose owns `.goosehints` and its scripts) and **#102**

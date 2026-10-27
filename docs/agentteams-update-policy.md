@@ -103,13 +103,11 @@ Earlier integrated (ref `67655da`, 2026-08-03; kept for continuity):
     merge as the real run, so the preview is no longer a different code path from the thing it
     previews.
 
-**Not yet integrated.** agentteams' constitutional red-team work (the `--redteam` standing
-audit, the 21 closed exploits, and the fleet capability-key remediation) is on an unmerged
-branch and is therefore **not** reachable from `main`. It is deliberately excluded from this
-baseline: as of 2026-08-07 that branch fails its own `tests/test_constitutional_redteam.py`
-(probe E3, `C-5 has no mechanical enforcement for agent-initiated destruction`, measures
-`EXPLOITED` against an accepted value of `DEFENDED`). Integrate it only once that battery is
-green upstream.
+**Since integrated.** agentteams' constitutional red-team work (the `--redteam` standing audit
+and `tests/test_constitutional_redteam.py`) ships in agentteams since `v1.0.0` (`cc5b8c9e`), so the pin
+in `toolchain.lock` includes it. As of 2026-08-07 it sat on an unmerged branch that failed its own battery (probe E3,
+`C-5 has no mechanical enforcement for agent-initiated destruction`, measured `EXPLOITED` against an
+accepted `DEFENDED`), and was excluded from the baseline then.
 
 ## Execution Policy
 
@@ -194,7 +192,8 @@ Under a release lock, the Execution Policy above changes as follows:
 5. **Schedules stay paused during a joint cut.** In a coordinated release (the shared v1.0.0 policy), the
    weekly schedule is disabled with `gh workflow disable`, with no file edit, until every repository has
    tagged. Soak runs are operator-dispatched. After the v1.0.0 cut the schedule stayed paused for the frozen-surfaces
-   limitation. researchteam v1.0.1 fixes it, so a consumer re-enables the schedule once it pins v1.0.1.
+   limitation. researchteam v1.0.1 fixes it, so a consumer becomes eligible once it pins v1.0.1 or later; the operator re-enables
+   each schedule (OI-2026-10-19-05).
 
 Moving a pin is a security event: record each move in an `@security` row naming the tag object and the
 peeled SHA.
@@ -393,10 +392,12 @@ Expected:
 - Error indicating forbidden nested mirror path.
 - Exit code `1`.
 
-5. Agent file with unresolved placeholders (expected fail, exit 1)
+5. Agent file with unresolved placeholders (expected fail, exit 1). No current active agent file fails
+this check (`conclusion-expert.agent.md`, used here formerly, now exits 0), so insert a `{MANUAL:...}`
+placeholder into an active agent file first and revert it afterwards:
 
 ```bash
-VALIDATION_CHANGED_FILES='.github/agents/conclusion-expert.agent.md' bash scripts/validate_agentteams_update.sh
+VALIDATION_CHANGED_FILES='.github/agents/<agent-with-placeholder>.agent.md' bash scripts/validate_agentteams_update.sh
 echo $?
 ```
 

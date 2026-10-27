@@ -33,6 +33,8 @@ that can silently break integration.
 
 ### F-1 — HIGH — Both frameworks install from a floating git branch (unpinned)
 
+**Status (2026-10-20):** Remediated: `toolchain.lock` + bootstrap (`2e51027`), extras SHA-pinned (`10cb8bc`, now `cc5b8c9e` via `e303abc`), CI installs the synced commit (`2749a07`).
+
 The `[update]`/`[research]` extras declare `agentteams @ git+https://github.com/jlcatonjr/agentteams`
 with **no `@ref`** ([pyproject.toml:22,27](../pyproject.toml#L22-L27)), and CI installs *researchteam
 itself* unpinned — `pip install "git+https://github.com/jlcatonjr/researchteam.git"`
@@ -73,6 +75,8 @@ compile, and no minimum version is declared.
   there).
 
 ### F-3 — MEDIUM — The update-policy baseline narrative lags the recorded agentteams ref
+
+**Status (2026-10-20):** Refreshed to `7fd4de4` in `8cd7733`; refreshed again to the v1.0.0 pin (`cc5b8c9e`) on 2026-10-20.
 
 `docs/agentteams-update-policy.md` states the *Integrated AgentTeams Baseline* as `61849fb`
 (2026-08-15) ([agentteams-update-policy.md:12](../docs/agentteams-update-policy.md#L12)), but the
@@ -123,6 +127,8 @@ share one fingerprint (a week that integrates nothing):
 
 ### F-6 — MEDIUM — Declared Python floor `>=3.10` is untested and nears end-of-life
 
+**Status (2026-10-20):** Remediated: `.github/workflows/tests.yml` runs a 3.10 / 3.13 matrix (`dc04b26`).
+
 `requires-python = ">=3.10"` ([pyproject.toml:10](../pyproject.toml#L10)) while CI pins a single
 `python-version: "3.11"` ([agentteams-sync.yml:40](../.github/workflows/agentteams-sync.yml#L40)),
 so 3.10, 3.12, and 3.13 are asserted-compatible but never exercised. The floor is genuinely
@@ -135,6 +141,8 @@ definition time (e.g. [_doctor_cmd.py:159](../researchteam/_doctor_cmd.py#L159))
   3.10 retires.
 
 ### F-7 — MEDIUM — Standing watch: agentteams' constitutional red-team battery is not integrated
+
+**Status (2026-10-20):** The battery (`--redteam`, `tests/test_constitutional_redteam.py`) ships in the pinned agentteams v1.0.0 (`cc5b8c9e`, `e303abc`); its result was not re-run for this note.
 
 The policy doc excludes agentteams' `--redteam` audit and its C-5 enforcement work because, **as of
 2026-08-07**, that upstream branch failed its own `tests/test_constitutional_redteam.py` (probe E3:

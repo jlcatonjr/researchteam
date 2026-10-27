@@ -52,7 +52,9 @@ claim into the same undifferentiated confidence bucket as a scholarly or officia
 
 ## "Recency drift" — a named `@adversarial` check
 
-A standard addition to `@adversarial`'s toolkit, for any project whose sources include
+A check `@adversarial` should apply (a protocol-level convention: it is not yet in
+`adversarial.agent.md` or the agentteams template, and today only the upstream-written Notes of
+the interpretation-advisor and one workstream expert link to this protocol), for any project whose sources include
 `type="news"` items: **are dated, recent-event claims stated with their date and attribution, not
 presented as timeless procedure or settled fact?** A claim that was accurate "as reported on
 `<date>`" can read as evergreen once its date is dropped during drafting — this check exists to
@@ -85,8 +87,9 @@ this protocol is that formalization and generalization, not a new invention.
 
 ## Reference implementation
 
-`agentteams.research.news` (merged `agentteams` PR #59, commit `e631cc9`, part of the same
-`agentteams[research]` optional-dependency group this repo already depends on):
+`agentteams.research.news` (shipped in agentteams since v1.0.0, `cc5b8c9`, so in the pin `toolchain.lock` names; first developed
+pre-release as `e631cc9`, which is not in the public release history; installed through this repo's
+optional `research` dependency group):
 `is_news_source(source) -> bool` and `perspective_attribution(source, published_at) -> str` — the
 shared attribution-string formatter this protocol's "Reported"/"Contested" framing is presented
 through. A `PerspectiveKind` type alias (`"reported"` / `"contested"`) exports the same two-label
@@ -102,8 +105,9 @@ existing `fetch_text(url)` (identical behavior, unchanged signature).
 claim is `"reported"` or `"contested"` — that judgment needs the claim's own text, which the
 module never sees. It supplies the vocabulary and the attribution/date-extraction primitives; the
 classification judgment is made by whatever agent or pipeline is producing the claim (for a
-researchteam project, this is where `@technical-validator`'s claim-ledger convention and
-`@adversarial`'s "Recency drift" check, both described above, actually apply the distinction).
+researchteam project, this protocol asks `@technical-validator`'s claim ledger and `@adversarial`'s
+"Recency drift" check, both described above, to apply the distinction; that wiring is not yet in
+`technical-validator.agent.md` or `adversarial.agent.md`).
 
 ## Acceptance for this protocol
 

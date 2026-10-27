@@ -11,9 +11,10 @@ and baseAgent all follow the same model, so what you learn here applies to all f
 - **`release/1.0`** collects the reviewed fixes for the next patch release. It changes only when Jim copies in a fix
   that is already on `main` (a *backport*). Between tags its commits are unsigned, so it is not for installing or
   pinning.
-- **Each tag is cut on `release/1.0`** and signed by Jim. After each tag, `release/1.0` is merged back into `main`.
-- **The next minor version gets its own branch.** `release/1.1` will be cut from `main` at its first release
-  candidate.
+- **Each tag is cut on its line's branch** (`release/1.0` for `v1.0.N`, `release/1.1` for `v1.1.*`) and signed by
+  Jim. After each tag, that branch is merged back into `main`.
+- **Each minor version gets its own branch.** `release/1.1` was cut from `main` at its first release candidate
+  (`v1.1.0-rc.1`) and carries the 1.1 tags.
 
 ## Branches and tags
 
@@ -21,32 +22,35 @@ and baseAgent all follow the same model, so what you learn here applies to all f
 |---|---|---|
 | `main` | Development, the next minor version | Anyone, through a pull request |
 | `release/1.0` | Reviewed fixes queued for the next patch release; unsigned between tags; not for pinning | Jim only, by backport |
+| `release/1.1` | The 1.1 line: release candidates now, `v1.1.N` later; unsigned between tags; not for pinning | Jim only, by backport |
 | `vX.Y.Z`, `vX.Y.Z-rc.N` | One exact release, signed by Jim, never moved; what you install and pin | Jim only |
 | Your work branch (`feat/…`, `fix/…`, `docs/…`, `chore/…`) | One change, deleted after merge | Its author |
 
-researchteam takes its version from git tags (setuptools-scm), and has no version file. `release/1.0` builds `1.0.0` at the `v1.0.0` tag. `main` builds `1.0.1.devN` until a `v1.1.0` tag exists. That is scm's default, explained in the release policy, and it doesn't mean `main` is a 1.0 patch.
+researchteam takes its version from git tags (setuptools-scm), and has no version file. `release/1.0` builds the version of its latest tag (now `1.0.2` at `v1.0.2`) and `release/1.1` builds its own (now `1.1.0rc2` at `v1.1.0-rc.2`). Because each tag is merged forward, `main` builds the next `.devN` after its nearest tag (now `1.1.0rc3.devN`). That is scm's default, explained in the release policy.
 
-**Older lines:** none. The 1.0 line is the first maintained line.
+**Maintained lines:** 1.0 (`release/1.0`, `v1.0.N` backports) and 1.1 (`release/1.1`, release candidates). 1.0 is the
+older line.
 
 The name `release/<X.Y>` is reserved for maintained lines. Never create a `release/*` branch, locally or on GitHub.
 
 ## Using researchteam
 
-Install a signed release tag: `v1.0.0`, and later `v1.0.N`.
+Install the latest stable signed tag, currently `v1.0.2`. The `v1.1.0-rc.N` tags are release candidates for derived
+repositories moving to 1.1 (release policy, "The 1.1 line"). Installs move to `v1.1.N` at `v1.1.0`.
 
 ```bash
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
 ```
 
 **Verified install,** for a governed team, an experiment or a paper. Clone the tag into a directory of its own, check its signature with repository config neutralised, then install from that checkout:
 
 ```bash
-git clone --branch v1.0.0 https://github.com/jlcatonjr/researchteam.git researchteam-v1.0.0
-cd researchteam-v1.0.0
+git clone --branch v1.0.2 https://github.com/jlcatonjr/researchteam.git researchteam-v1.0.2
+cd researchteam-v1.0.2
 git -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
     -c gpg.ssh.allowedSignersFile=$HOME/.config/agentteams/allowed_signers \
     -c gpg.program=/usr/bin/gpg -c core.fsmonitor=false -c core.hooksPath=/dev/null \
-    tag -v v1.0.0 && pip install .
+    tag -v v1.0.2 && pip install .
 ```
 
 The `&&` stops the install if the signature check fails. The output must also show the release key's full fingerprint, which begins `SHA256:IPdnLwlF`, not just "Good signature"; if it doesn't, stop and uninstall. "Verifying a release" below explains how to set up `allowed_signers` once. For a patch release, repeat this with the new tag in a new directory.
@@ -131,7 +135,7 @@ Nothing enforces the rules yet. The repository is public, but it has no rulesets
 You only need this for context:
 
 1. **Fixes accumulate.** They land on `main`, and the ones requested for backport are copied to `release/1.0`.
-2. **Jim releases.** He signs the tag `vX.Y.Z` on `release/1.0` from his own terminal. The version comes from the tag, so there is no version file to bump. Then he publishes the GitHub release and merges `release/1.0` forward into `main`.
+2. **Jim releases.** He signs the tag `vX.Y.Z` on `release/X.Y` from his own terminal. The version comes from the tag, so there is no version file to bump. Then he publishes the GitHub release and merges that branch forward into `main`.
 3. **Repositories release in order:** agentteams → researchteam → mathAgents → baseAgent. Each one moves its pins only
    after verifying the upstream tag's signature.
 4. **Next minor.** When `1.1` reaches its first release candidate, Jim cuts `release/1.1` from `main`. From then on,
@@ -151,7 +155,7 @@ copy inside the repository you are checking, or confirm the fingerprint with Jim
    git -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
        -c gpg.ssh.allowedSignersFile=$HOME/.config/agentteams/allowed_signers \
        -c gpg.program=/usr/bin/gpg -c core.fsmonitor=false -c core.hooksPath=/dev/null \
-       tag -v v1.0.0
+       tag -v v1.0.2
    ```
 
 3. Check that the output shows the full fingerprint from `SECURITY.md`, not just "Good signature".
@@ -160,7 +164,7 @@ copy inside the repository you are checking, or confirm the fingerprint with Jim
 
 - **researchteam is pinned to agentteams** through `toolchain.lock`. That pin moves only to a verified agentteams tag, and only Jim moves it.
 - **Downstream use.** mathAgents pins researchteam the same way, by a verified tag's commit.
-- **Autosync is paused.** The weekly `agentteams-sync.yml` is disabled until researchteam v1.0.1 ships the frozen-surfaces fix.
+- **Autosync is paused.** The weekly `agentteams-sync.yml` stays disabled. v1.0.1 shipped the frozen-surfaces fix; re-enabling it awaits the operator's decision once consumers pin ≥ 1.0.1 (OI-2026-10-19-05).
 
 ## Questions
 

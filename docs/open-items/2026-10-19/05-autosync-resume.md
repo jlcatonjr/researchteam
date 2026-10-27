@@ -1,10 +1,11 @@
-# OI-2026-10-19-05: Turning the weekly AgentTeams autosync back on, and mathAgents' schedule is still active
+# OI-2026-10-19-05: Turning the weekly AgentTeams autosync back on, and mathAgents' schedule (resolved: disabled 2026-10-19)
 
 | | |
 |---|---|
 | **Status** | Open: operator decision. The mathAgents inconsistency was fixed on 2026-10-19 (schedule disabled). |
 | **Owner** | [OP] operator (James); per-repo sessions carry it out |
 | **Recorded** | 2026-10-19, researchteam-51 closeout |
+| **Update (2026-10-20)** | baseAgent's autosync is active again: a dispatch run succeeded 2026-10-20T01:39Z and autosync PR #173 merged. Whether that was a recorded operator ruling is not yet confirmed here. |
 
 ## Summary
 `docs/release-policy.md` keeps each repo's weekly `agentteams-sync` schedule disabled during the joint cut. Under
@@ -18,11 +19,11 @@ have tagged v1.0.0**.
 |---|---|---|
 | researchteam | advisory self-pin `a21e7db` (v1.0.0) | `disabled_manually` |
 | Batallion | **v1.0.2** (`10a36758`) | `disabled_manually` |
-| baseAgent | v1.0.0 on `main`; v1.0.2 on `release/1.0` (OI-03) | `disabled_manually` |
+| baseAgent | v1.0.0 on `main`; v1.0.2 on `release/1.0` (OI-03). 2026-10-20: `main` pins v1.0.2 | `disabled_manually`; **active** again 2026-10-20 |
 | mathAgents | **v1.0.0** | was **active**; `disabled_manually` since 2026-10-19 (operator). Its last three runs all failed: 2026-10-10 dispatch, 2026-10-12 **schedule**, 2026-10-18 dispatch. |
 | agentteams | (n/a) | no autosync. The AI Bad-Habits catalog sync is active, and unrelated. |
 
-**Inconsistency:** mathAgents' weekly schedule is still **active**. It ran on schedule on 2026-10-12, and
+**Inconsistency (resolved 2026-10-19, schedule disabled, `049afbd`):** mathAgents' weekly schedule was still **active**. It ran on schedule on 2026-10-12, and
 failed. mathAgents is still on v1.0.0, so under the policy its schedule should be disabled until it pins v1.0.1
 or later. Each failed run costs CI time and may open a PR.
 
