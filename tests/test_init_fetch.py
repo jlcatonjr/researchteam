@@ -199,3 +199,42 @@ def test_init_never_writes_remediate(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as exc:  # argparse rejects it before anything runs
         cli.main()
     assert exc.value.code == 2
+
+
+def test_a_transient_network_error_is_retried_once(monkeypatch):
+    """F-9: one retry with a short backoff on URLError / timeout; the second answer is used."""
+    seen: list[str] = []
+    calls = iter([urllib.error.URLError("reset"), TimeoutError("slow")])
+    def urlopen(url, timeout=None):
+        seen.append(url)
+        if len(seen) == 1:
+            raise next(calls)
+        return _Resp(b"ok")
+    sleeps: list[float] = []
+    monkeypatch.setattr(_fetch.time, "sleep", sleeps.append)
+    monkeypatch.setattr(_fetch.urllib.request, "urlopen", urlopen)
+    assert _fetch.fetch_raw("o/r", "main", "x.md") == "ok"
+    assert len(seen) == 2 and sleeps == [_fetch.FETCH_BACKOFF_SECONDS]
+    assert 1 <= _fetch.FETCH_BACKOFF_SECONDS <= 2
+
+
+def test_a_persistent_network_error_stops_after_two_attempts(monkeypatch):
+    seen: list[str] = []
+    monkeypatch.setattr(_fetch.time, "sleep", lambda s: None)
+    monkeypatch.setattr(_fetch.urllib.request, "urlopen",
+                        _opener({f"{ARCHIVE}/refs/heads/main.tar.gz": TimeoutError("slow")}, seen))
+    with pytest.raises(RuntimeError, match="Network error"):
+        _fetch.fetch_tarball("o/r", "main")
+    assert len(seen) == 2
+
+
+def test_an_http_404_is_never_retried(monkeypatch):
+    seen: list[str] = []
+    monkeypatch.setattr(_fetch.time, "sleep", lambda s: pytest.fail("an HTTP error must not back off"))
+    monkeypatch.setattr(_fetch.urllib.request, "urlopen", _opener({}, seen))
+    with pytest.raises(RuntimeError, match="HTTP 404"):
+        _fetch.fetch_raw("o/r", "main", "x.md")
+    assert len(seen) == 1
+    with pytest.raises(RuntimeError, match="No branch or tag"):
+        _fetch.fetch_tarball("o/r", "main")
+    assert len(seen) == 3  # heads then tags, each tried exactly once

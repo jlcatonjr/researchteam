@@ -17,6 +17,8 @@ GitHub fetching utilities, using only the standard library (`urllib.request`). `
 | `_HEX_REF` | compiled regex `^[0-9a-f]{7,40}$` | A ref that may be a commit (short or full SHA); only such a ref gets the commit-archive candidate in `fetch_tarball`. |
 | `GITHUB_API_BASE` | `"https://api.github.com"` | Base URL for `commit_is_reviewed`; the `RESEARCHTEAM_GITHUB_API` environment variable overrides it (the tests point it at a local fake). |
 | `REVIEWED_BRANCH_PREFIX` | `"release/"` | Branches whose history counts as reviewed, besides `main`. |
+| `FETCH_ATTEMPTS` | `2` | Attempts per URL in `fetch_raw` and `fetch_tarball`: a `URLError` (other than `HTTPError`) or a timeout is retried once. |
+| `FETCH_BACKOFF_SECONDS` | `1.5` | Pause before that retry. An HTTP answer (4xx or 5xx) is final and never retried. |
 
 ---
 
@@ -26,7 +28,7 @@ GitHub fetching utilities, using only the standard library (`urllib.request`). `
 
 > *Source: `researchteam/_fetch.py`*
 
-Fetch one file from `{GITHUB_RAW_BASE}/{repo}/{ref}/{path}` with a 20-second timeout and decode it as UTF-8.
+Fetch one file from `{GITHUB_RAW_BASE}/{repo}/{ref}/{path}` with a 20-second timeout and decode it as UTF-8. A `URLError` or timeout is retried once after `FETCH_BACKOFF_SECONDS`; an HTTP error is not.
 
 **Args:**
 
@@ -61,7 +63,7 @@ Download a gzip archive of `ref`, trying these URLs in order, each with a 60-sec
 2. `{GITHUB_ARCHIVE_BASE}/{repo}/archive/refs/tags/{ref}.tar.gz` (tag)
 3. `{GITHUB_ARCHIVE_BASE}/{repo}/archive/{ref}.tar.gz` (commit) — only when `ref` matches `_HEX_REF` (7–40 lower-case hex characters).
 
-An HTTP 404 moves on to the next candidate. Any other HTTP error, or a network error, stops at once without trying the remaining candidates.
+An HTTP 404 moves on to the next candidate. Any other HTTP error, or a network error that persists after one retry (`URLError` or timeout only, after `FETCH_BACKOFF_SECONDS`), stops at once without trying the remaining candidates.
 
 **Args:**
 

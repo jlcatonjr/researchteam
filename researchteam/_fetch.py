@@ -1,20 +1,38 @@
 """GitHub fetching utilities — stdlib only, no third-party dependencies."""
 
 import re
+import time
 import urllib.error
 import urllib.request
 
 GITHUB_RAW_BASE = "https://raw.githubusercontent.com"
 GITHUB_ARCHIVE_BASE = "https://github.com"
 _HEX_REF = re.compile(r"^[0-9a-f]{7,40}$")
+# One retry for a transient network failure (URLError / timeout). An HTTP answer, 4xx or 5xx, is final.
+FETCH_ATTEMPTS = 2
+FETCH_BACKOFF_SECONDS = 1.5
+
+
+def _read_url(url: str, timeout: int) -> bytes:
+    """``urlopen(url).read()``, retried once after a short backoff on a URLError or timeout."""
+    for attempt in range(1, FETCH_ATTEMPTS + 1):
+        try:
+            with urllib.request.urlopen(url, timeout=timeout) as resp:
+                return resp.read()
+        except urllib.error.HTTPError:
+            raise  # a URLError subclass, but the server answered: never retried
+        except (urllib.error.URLError, TimeoutError):
+            if attempt == FETCH_ATTEMPTS:
+                raise
+            time.sleep(FETCH_BACKOFF_SECONDS)
+    raise AssertionError("unreachable")
 
 
 def fetch_raw(repo: str, ref: str, path: str) -> str:
     """Fetch a single file from GitHub raw content delivery."""
     url = f"{GITHUB_RAW_BASE}/{repo}/{ref}/{path}"
     try:
-        with urllib.request.urlopen(url, timeout=20) as resp:
-            return resp.read().decode("utf-8")
+        return _read_url(url, timeout=20).decode("utf-8")
     except urllib.error.HTTPError as exc:
         raise RuntimeError(
             f"Failed to fetch '{path}' from {repo}@{ref}: HTTP {exc.code}"
@@ -40,8 +58,7 @@ def fetch_tarball(repo: str, ref: str) -> bytes:
         candidates.append(f"{GITHUB_ARCHIVE_BASE}/{repo}/archive/{ref}.tar.gz")
     for url in candidates:
         try:
-            with urllib.request.urlopen(url, timeout=60) as resp:
-                return resp.read()
+            return _read_url(url, timeout=60)
         except urllib.error.HTTPError as exc:
             if exc.code != 404:
                 raise RuntimeError(f"Failed to fetch the {repo}@{ref} archive: HTTP {exc.code}") from exc
