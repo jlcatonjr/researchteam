@@ -61,6 +61,8 @@ the integration and the tool being integrated are *both* floating-`main` install
 
 ### F-2 — MEDIUM — Pandoc has no presence/version preflight
 
+**Status (2026-10-27):** Partly addressed in #127 (`b46e021`): `researchteam doctor` reports pandoc's presence and version, for information. The compile-preflight probe this finding recommends is still open.
+
 `brief.json` sets `conversion_pipeline` to `pandoc --from markdown --to html …`
 ([brief.json:96](../brief.json#L96)), with a `@tool-pandoc` agent and skill. It is **not** a
 framework-code dependency — no Python code shells out to pandoc; the string appears only in a
@@ -96,6 +98,8 @@ itself an integration). The prose baseline lags the actual dependency state by a
 
 ### F-4 — MEDIUM — GitHub Actions pinned to mutable major tags
 
+**Status (2026-10-27):** Addressed in #127 (`05d4413`): `create-pull-request`, `checkout` and `setup-python` are SHA-pinned in both autosync workflows, and `tests/test_workflow_action_pins.py` enforces it. No Dependabot config exists yet.
+
 The workflow uses `actions/checkout@v4`, `actions/setup-python@v5`, and
 `peter-evans/create-pull-request@v6` ([agentteams-sync.yml:33,38,70](../.github/workflows/agentteams-sync.yml#L33-L70)).
 These are mutable major tags, not commit SHAs, so a republished tag changes behavior silently. The
@@ -107,6 +111,8 @@ here and should be checked before any bump.
   lower-risk.
 
 ### F-5 — MEDIUM — The autosync path has two silent single-points-of-failure
+
+**Status (2026-10-27):** The ls-remote half is addressed in #127 (`b2b231a`): the unlocked path, now around `scripts/agentteams_autosync_gate.sh:136`, exits 1 with a `::warning::`; the release-locked path already failed closed. The "change detected but no PR" alert is still open.
 
 The weekly autosync depends on external state that can fail invisibly, in two distinct ways that
 share one fingerprint (a week that integrates nothing):
@@ -168,6 +174,8 @@ break; `researchteam doctor` diagnoses the resulting failure.
 - **Remediate:** none needed now — the trade-off is deliberate and documented.
 
 ### F-9 — LOW — Layer-2 fetch is single-attempt against hardcoded endpoints, with an unwrapped fallback
+
+**Status (2026-10-27):** Addressed in #127 (`6b5611b`): one retry with backoff on network errors. The fallback was already wrapped in `RuntimeError`.
 
 `_fetch.py` hardcodes `raw.githubusercontent.com` and `github.com/.../archive` with fixed 20s/60s
 timeouts and no retry/backoff ([_fetch.py:6-37](../researchteam/_fetch.py#L6-L37)). A transient blip
