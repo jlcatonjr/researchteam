@@ -17,6 +17,9 @@ repositories that pin this tag get the deprecation (their gates refuse rc.7 unti
   signature checks; every pin row still records that search. `docs/release-policy.md` and the vetting record are
   updated; the earlier cooldown exemptions stay in the log as history. This closes the `research` extra's cooldown gap
   noted under 1.1.0rc1; its packages had no OSV advisory.
+- **Correction to the signed `s10-release-cooldown-deprecated` row:** its text says the deprecation ships in agentteams
+  "v1.0.3+/v1.1.0-rc.7+". On the 1.0 line it ships in **v1.0.4** (v1.0.3 predates the ruling and carries only #296).
+  The row is signed and stays as is; what it authorizes is unaffected. Pin v1.0.4 or later for the deprecation on 1.0.
 
 ## 1.1.0rc1 (tag `v1.1.0-rc.1`, on `release/1.1`)
 

@@ -32,7 +32,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
   `--write-lock --tag agentteams=<1.1 tag> --sync-extras`.
 - The S-10 cooldown is deprecated (see Pins). Before that ruling the 1.0 and 1.1 lines each had a release-key
   exemption (`s10-release-key-exemption`, `s10-release-key-exemption-1.1`); a derived repository keeps its own until
-  it renders an agentteams release with S-10 fence v17 (v1.0.3+ / v1.1.0-rc.7+), because its rendered `@security`
+  it renders an agentteams release with S-10 fence v17 (v1.0.4+ on the 1.0 line, v1.1.0-rc.7+ on 1.1), because its rendered `@security`
   applies the cooldown until then.
 - Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag
   (`--researchteam-tag v1.1.0-rc.N`), which keeps the order agentteams → researchteam → derived.
