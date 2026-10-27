@@ -257,6 +257,19 @@ def test_gate_force_reintegrates_the_locked_tag_for_a_soak(tmp_path):
     assert r.returncode == 0 and f"v1.0.0-rc.10 verified: peeled commit {B}" in r.stdout
 
 
+def test_unlocked_gate_fails_closed_when_ls_remote_returns_nothing(tmp_path):
+    """F-5: an empty ls-remote (network failure, missing main) is a failure, not a silent green no-op."""
+    repo, env = _gate_repo(tmp_path, "exit 9\n")
+    (repo / "toolchain.lock").write_text(f"researchteam={RT}@{A}\nagentteams={AT}@{B}\n")  # unlocked
+    real_git = subprocess.run(["bash", "-c", "command -v git"], capture_output=True, text=True).stdout.strip()
+    git = tmp_path / "bin" / "git"
+    git.write_text(f'#!/usr/bin/env bash\n[ "$1" = ls-remote ] && exit 128\nexec {real_git} "$@"\n')
+    git.chmod(0o755)
+    r = _run_gate(repo, env, "--check-only")
+    assert r.returncode == 1 and "cannot resolve upstream" in r.stdout, r.stdout + r.stderr
+    assert "::warning::" in r.stdout and "'main'" in r.stdout and "invalid.example/never-contacted.git" in r.stdout
+
+
 # --- update's Layer-2 ref -------------------------------------------------------------------------
 
 def test_unlocked_researchteam_syncs_from_the_marker_ref(tmp_path):
