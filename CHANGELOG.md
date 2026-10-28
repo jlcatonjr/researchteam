@@ -3,6 +3,29 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.1.0rc3 (tag `v1.1.0-rc.3`, on `release/1.1`)
+
+The third 1.1 release candidate. It moves agentteams to `v1.1.0-rc.11`, so derived repositories can take the
+vulnscan-executor fixes by pinning this tag (`--researchteam-tag v1.1.0-rc.3`).
+
+- **The pin moves to the signed agentteams `v1.1.0-rc.11`** (tag object `242add53`, peeled `19ba0943`), in
+  `toolchain.lock` and both extras (#132, via the agentteams C1 rollout). rc.8–rc.11 change only vulnscan's remediation
+  pipeline (daily agent, gateway, executor). They add goose 1.54 wire compatibility, repo aliases, `close-superseded`
+  with a merge digest, the handoff gate, git-lfs, `agent.reasoning`, refusal of `includeIf.*` git config, and `open-pr`
+  reuse of an open PR that carries the same change. The only rendered change is the `@security`
+  agent's vulnscan S-VM text and the vulnerability-watch references. agentteams' declared dependencies are unchanged, and
+  the fresh OSV/GHSA search found nothing (pypdf is now 6.21.4). Rows: `pin-agentteams-v1.1.0-rc.11`.
+- **The autosync fails loudly instead of quietly (#127, #129; dependency-audit F-5).** The unlocked gate path fails when
+  `git ls-remote` cannot resolve agentteams `main`. A detected change that opens no PR now fails the run, unless
+  `create-pull-request` reports `none`. Existing derived repos copy the new workflow step from
+  `researchteam/scaffold/agentteams-sync-derived.yml` by hand, because the scaffold isn't synced.
+- **Other hardening from the 2026-10-27 open items (#127).** GitHub Actions are SHA-pinned in both workflows, and a
+  test enforces it (F-4). `fetch_raw` and `fetch_tarball` retry once on a network error (F-9). `doctor` reports pandoc
+  and the scholarly tooling, for information only (F-2, P3-12). The literature-library suite and an end-to-end
+  retrieval smoke test run under pytest (P1-2), and `conflict-log.csv` is seeded (OI-2026-10-19-11).
+- **Docs and housekeeping.** The stale-fact audit was refreshed for the 1.1 line (#124). The orphaned
+  egyptian-cosmopolitanism plans were removed (#125). The 1.0.3 entry was merged forward (#128).
+
 ## 1.1.0rc2 (tag `v1.1.0-rc.2`, on `release/1.1`)
 
 The second 1.1 release candidate. It moves agentteams to `v1.1.0-rc.7` and retires the S-10 release cooldown, so derived
