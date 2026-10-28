@@ -177,6 +177,13 @@ Under a release lock, the Execution Policy above changes as follows:
    provisions one, for example by writing a repository secret to a file and exporting
    `AGENTTEAMS_ALLOWED_SIGNERS`, in the derived workflow before the gate step. Without it, release-locked
    runs fail closed.
+   **The secret holds exactly one line: the release key's.** Its format is
+   `<principal> namespaces="git" <type> <key>`, copied from agentteams SECURITY.md "Release signers". The
+   trust-root step pins the release key's fingerprint (`RELEASE_FP`). A secret holding another key, a second
+   line or a malformed line stops the workflow before anything is installed. A key rotation is a reviewed edit
+   to `RELEASE_FP` in the workflow, never a secret change. Existing derived repositories must hand-copy this
+   step from `researchteam/scaffold/agentteams-sync-derived.yml`, as they did for item 3, because that file
+   isn't synced.
    **So does every collaborator.** On a developer machine, `researchteam update` in a release-locked repo
    verifies the researchteam tag before syncing Layer 2, and refuses without
    `~/.config/agentteams/allowed_signers`. That's the intended fail-closed behaviour. Install the release

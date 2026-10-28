@@ -62,6 +62,21 @@ def test_is_frozen_path():
     assert not _frozen.is_frozen_path(".goosefoo/x", f)
 
 
+@pytest.mark.parametrize("rel", [".goosehints", "scripts/goose-run-resilient.py",
+                                 "scripts/goose-openrouter-route-proxy.py", "scripts/goose-coordination-mcp.py"])
+def test_goose_owns_its_extra_output_files(rel, tmp_path, monkeypatch):
+    # agentteams' Goose emitter writes these outside .goose/ on every render (agentteams-f3, 2026-10-19).
+    assert _frozen.is_frozen_path(rel, frozenset({"goose"}))
+    assert not _frozen.is_frozen_path(rel, frozenset({"codex", "claude"}))
+    assert not _frozen.is_frozen_path("scripts/claude_researchteam_bridge.sh", frozenset({"goose"}))
+    root = _repo(tmp_path, ["goose"])
+    def body(root_, **kw):
+        (root_ / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root_ / rel).write_text("refreshed by a render\n")
+    with pytest.raises(SystemExit, match="FAILED CLOSED"):
+        _run(monkeypatch, root, body)
+
+
 def test_record_round_trip(tmp_path):
     root = _repo(tmp_path)
     assert _frozen.recorded(root) == set()

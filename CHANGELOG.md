@@ -3,6 +3,24 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.3 (tag `v1.0.3`, on `release/1.0`)
+
+A patch release on `release/1.0` that backports two fixes from `main`. The agentteams pin is unchanged (`v1.0.0`,
+`cc5b8c9e`), so there is no new pin row. The agentteams #249 fix (the Codex write-policy fence) is not in any
+agentteams 1.0.x release yet, so it goes in a later 1.0.x (operator ruling 2026-10-27).
+
+- **Frozen Goose owns its extras (#98).** agentteams' Goose emitter writes `.goosehints`,
+  `scripts/goose-run-resilient.py`, `scripts/goose-openrouter-route-proxy.py` and
+  `scripts/goose-coordination-mcp.py` outside `.goose/`. researchteam skipped the Goose render and every bridge
+  while `goose` is frozen, so nothing wrote these files. A frozen `goose` now owns them too, so a write to any of them fails closed.
+- **The release trust root accepts only the release key (#102).** The "Release trust root" step in both
+  `.github/workflows/agentteams-sync.yml` and the derived scaffold wrote whatever `AGENTTEAMS_ALLOWED_SIGNERS`
+  held. It now requires exactly one `<principal> namespaces="git" <type> <key>` line whose key matches the
+  pinned release-key fingerprint (`RELEASE_FP`), and fails closed otherwise. Rotating the key is a reviewed edit
+  to `RELEASE_FP`, never a secret change. Existing derived repos must hand-copy the step from
+  `researchteam/scaffold/agentteams-sync-derived.yml`, because that file isn't synced
+  (`docs/agentteams-update-policy.md`).
+
 ## 1.0.2 (tag `v1.0.2`, on `release/1.0`)
 
 A patch release on `release/1.0` with two fixes found during Batallion's v1.0.0 sync. The agentteams pin is
