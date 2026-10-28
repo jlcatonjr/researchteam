@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Open, not started |
+| **Status** | **Resolved 2026-10-28**: Batallion #32 (31abbc6c), security #4 (b189dfe4) |
 | **Owner** | [PO] Batallion (orchestrator + `@security`) |
 | **Repo** | jlcatonjr/Batallion (private); jlcatonjr/security (added 2026-10-27) |
 | **Recorded** | 2026-10-19, researchteam-51 closeout |
@@ -18,6 +18,14 @@ Both files declare `sandbox_mode = "read-only"`. But Batallion's own Codex agent
 declaration, NOT enforced: Codex ignores a spawned agent's sandbox_mode". So those two agents aren't held to the
 orchestrator-only policy the team was cleared under. The files were last touched in `842b56a` (2026-10-19, the
 Notion integration).
+
+## Resolution (2026-10-28)
+- **Batallion #32** (merge 31abbc6c): `content-enricher.toml` and `team-builder.toml` recorded as accepted, adopted
+  Codex agents.
+- **security #4** (merge b189dfe4): `tool-doc-researcher.toml` adopted, and the stale S-10 exemption note in
+  `security.agent.md` retired.
+- Both were done by the repos' own sessions on the operator's instruction. Batallion's own daily summary (#37) records
+  this item closed there.
 
 ## Update 2026-10-27 (agentteams 1.1 rollout)
 - **security has the same gap:** `.codex/agents/tool-doc-researcher.toml` was flagged "not narrowed" by the rc.7 render
