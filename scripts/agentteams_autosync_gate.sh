@@ -135,8 +135,11 @@ if [ -n "$RELEASE_TAG" ]; then
 else
   new_sha="$(git ls-remote "$AGENTTEAMS_GIT" main 2>/dev/null | awk 'NR==1{print $1}')"
   if [ -z "$new_sha" ]; then
-    log "could not reach agentteams main via git ls-remote ($AGENTTEAMS_GIT) — treating as no-op."
-    emit "changed=false"; exit 0
+    # Fail closed, as the release-locked path does: an unreachable remote (or a missing `main`) must
+    # not pass as a green "nothing to integrate" run.
+    echo "::warning::autosync-gate: git ls-remote returned no SHA for ref 'main' at ${AGENTTEAMS_GIT}"
+    log "GATE FAIL: cannot resolve upstream agentteams main via git ls-remote ($AGENTTEAMS_GIT)"
+    exit 1
   fi
 fi
 # Baseline = the ref recorded on the OPEN evergreen PR branch if it exists (so an already-integrated

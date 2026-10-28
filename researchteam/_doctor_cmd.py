@@ -8,6 +8,7 @@ a deleted temporary path.
 
 import json
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -96,6 +97,12 @@ def run_doctor(root: Path, drift: bool = False) -> None:
 
     # --- 3c. toolchain pin (toolchain.lock) + SessionStart wiring (advisory) ------------
     _check_toolchain(root, ok, warn)
+
+    # --- 3c'. pandoc for compile/convert steps (informational; never fails doctor) ------
+    _check_pandoc(ok, warn)
+
+    # --- 3c''. scholarly tooling capability (informational; profile-aware) ---------------
+    _check_scholarly_tooling(root, ok, warn)
 
     # --- frozen surfaces (brief.json frozen_surfaces) -----------------------------------
     _check_frozen_surfaces(root, ok, warn, fail)
@@ -217,6 +224,44 @@ def _check_toolchain(root: Path, ok, warn) -> None:
     else:
         warn(f"toolchain check is not wired to SessionStart — merge {TOOLCHAIN_HOOK_EXAMPLE} "
              "into .claude/settings.json (operator step).")
+
+
+def _check_pandoc(ok, warn) -> None:
+    """Report whether pandoc is on PATH (with its version). Informational: never fails doctor."""
+    exe = shutil.which("pandoc")
+    if exe is None:
+        warn("pandoc not found on PATH — compile/convert steps (format-converter, output-compiler) need it.")
+        return
+    try:
+        r = subprocess.run([exe, "--version"], capture_output=True, text=True, timeout=20)
+        version = ((r.stdout or "").strip().splitlines() or ["(version unknown)"])[0]
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        warn(f"pandoc found at {exe} but `pandoc --version` could not run ({exc}).")
+        return
+    ok(f"{version} ({exe})")
+
+
+# Capability scripts doctor reports on; they are expected only where the layer2_profile manages them.
+SCHOLARLY_CAPABILITY_SCRIPTS = ("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh")
+
+
+def _check_scholarly_tooling(root: Path, ok, warn) -> None:
+    """Report whether the scholarly integrity checks are present. Informational: never fails doctor.
+
+    A ``layer2_profile: "generic"`` repo does not receive them (``managed_files_for``), so it is not warned.
+    """
+    from ._manifest import managed_files_for
+    from ._update_cmd import _read_brief_profile
+
+    profile = _read_brief_profile(root)
+    managed = set(managed_files_for(profile))
+    for rel in SCHOLARLY_CAPABILITY_SCRIPTS:
+        if rel not in managed:
+            ok(f"scholarly tooling: {rel} not expected (layer2_profile={profile}).")
+        elif (root / rel).is_file():
+            ok(f"scholarly tooling: {rel} present.")
+        else:
+            warn(f"scholarly tooling: {rel} missing — run `researchteam update` to receive it.")
 
 
 def _check_frozen_fences(root: Path, ok, warn) -> None:
