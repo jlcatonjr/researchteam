@@ -121,7 +121,8 @@ indexes. This mirrors the ceiling in `docs/literature-library-protocol.md` and t
 anti-fabrication design law; do not soften any surface into a fabrication or auto-citation engine.
 
 ---
-*See also: `references/bridges/copilot-vscode-to-claude/domain-boundary.md` (agentteams' 3-surface subset),
+*See also: `references/bridges/<src>-to-<target>/domain-boundary.md` for each bridge pair the repository records
+(agentteams' 3-surface subset),
 `docs/literature-library-protocol.md` (surface #4; its former dense stub is now surface #5),
 `docs/code-index-integration-plan.md` (how surface #2 was integrated). Reference implementation for surface
 #5: the sibling **SocialScienceHumanities** corpus (`docs/source-corpus-protocol.md` + its source-corpus scripts).*
