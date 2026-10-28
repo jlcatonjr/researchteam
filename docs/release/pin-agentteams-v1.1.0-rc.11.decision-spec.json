@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-28",
+  "date": "2026-10-28",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.0-rc.11",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.0-rc.11",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.0-rc.11 (tag object 242add53d5db5ad7a885a6a52df2f49e712c5788, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). Adopted under s10-release-cooldown-deprecated (no release-age wait); agentteams' declared dependencies are unchanged from v1.0.0 (checked at the tag), constraints-2026-10-16.txt applies at install, and a fresh OSV/GHSA search ran for this pin (2026-10-28: signing set resolved under constraints-2026-10-16.txt (Python 3.11/3.13) = jsonschema 4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.6.3, cryptography 50.0.0, cffi 2.1.1, pycparser 3.0, typing-extensions 4.16.0; research extra adds anyio 4.15.1, certifi 2026.10.23, h11 0.16.0, httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.4: OSV none for all).",
+  "conditions_verified": "tag v1.1.0-rc.11 object 242add53d5db5ad7a885a6a52df2f49e712c5788 peeled 19ba0943664f4dadc848e689dfcb4a8549049171; the tag object names itself v1.1.0-rc.11; git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; remote advertisement matches; pyproject dependencies identical to v1.0.0",
+  "evidence": "researchteam PR #132 chore/agentteams-1.1.0-rc.11 (agentteams C1 rollout, stage researchteam; autosync gate --mode upstream; rc.8-rc.11 are vulnscan-executor changes and the security agent's vulnscan S-VM text); Scope: toolchain.lock and the update/research extras: agentteams decbcda88db2b18fd6039a1a624d63c2934a5e1e (v1.1.0-rc.7) -> 19ba0943664f4dadc848e689dfcb4a8549049171 (v1.1.0-rc.11)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-deprecated; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
