@@ -1,10 +1,10 @@
-# OI-2026-10-19-04: Batallion has two Codex agent files outside the native render, not restricted under orchestrator-only
+# OI-2026-10-19-04: Codex agent files outside the native render, not restricted under orchestrator-only (Batallion, security)
 
 | | |
 |---|---|
 | **Status** | Open, not started |
 | **Owner** | [PO] Batallion (orchestrator + `@security`) |
-| **Repo** | jlcatonjr/Batallion (private) |
+| **Repo** | jlcatonjr/Batallion (private); jlcatonjr/security (added 2026-10-27) |
 | **Recorded** | 2026-10-19, researchteam-51 closeout |
 
 ## Summary
@@ -19,8 +19,20 @@ declaration, NOT enforced: Codex ignores a spawned agent's sandbox_mode". So tho
 orchestrator-only policy the team was cleared under. The files were last touched in `842b56a` (2026-10-19, the
 Notion integration).
 
+## Update 2026-10-27 (agentteams 1.1 rollout)
+- **security has the same gap:** `.codex/agents/tool-doc-researcher.toml` was flagged "not narrowed" by the rc.7 render
+  (security #3). Same shape: non-generated, declares `sandbox_mode = "read-only"`.
+- **Operator ruling (2026-10-27):** merge the agentteams pin PRs anyway (Batallion #30 and security #3 are merged)
+  and track the three files here. All three are already on each repo's `main`.
+- **The risk is real, not cosmetic:** per the header quoted above, `sandbox_mode` is not enforced for spawned agents,
+  so "read-only" is a declaration only. Options 1-3 below apply to all three files.
+- Owners: a Batallion session and a security session (to be started by the operator; researchteam sessions are under
+  an `@security` HALT on writing other repositories). Brief and context: researchteam-wt-at11-gov
+  `tmp/by-week/2026-W43/operator/README.md`, "Derived rc.7 round".
+
 ## Options
-1. **Remove them** (`git rm .codex/agents/content-enricher.toml .codex/agents/team-builder.toml`), if Codex
+1. **Remove them** (Batallion: `git rm .codex/agents/content-enricher.toml .codex/agents/team-builder.toml`; security:
+   `git rm .codex/agents/tool-doc-researcher.toml`), if Codex
    sessions don't need them. Both are generic Copilot-era agents. `team-builder` builds VS Code Copilot teams.
 2. **Restrict them** with `agentteams.write_policy.apply`, so they're read-only proposers like the other 27.
 3. **Adopt them** as bespoke Codex agents. Per #12's decisions, adopting bespoke agents into Codex or Grok is a
