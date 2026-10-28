@@ -3,6 +3,8 @@
 **From:** agentteams (upstream) — PR #50 `feat(code-index): …`, merged to `main` (`efe8f12`).
 **To:** researchteam maintainer(s).
 **Date:** 2026-07-08.
+**Status (2026-10-20):** Integrated into researchteam; see `docs/code-index-integration-plan.md`.
+(Path note 2026-10-20: flat skill files became `.claude/skills/<name>/SKILL.md` in `a29469a`.)
 **Scope:** (1) integrate the feature into the **researchteam module**, and (2) into researchteam's
 **local agent infrastructure**.
 **Status of upstream:** shipped, audited (two adversarial + conflict rounds), full CI green (macOS +
@@ -127,6 +129,7 @@ via agentteams. Two concrete regenerations surface the feature to the agents:
    `todo-from-plan.md`).
 
 **B2 — Gitignore the code-index cache (researchteam does NOT yet ignore it).**
+(2026-10-20: done in `7ac7743`; see the `.gitignore` managed block.)
 researchteam's `.gitignore` ignores the literature library's bulky store but has **no** `references/code-index/`
 rule. Because researchteam also manages nested projects, add both the root and nested patterns:
 ```
@@ -174,6 +177,9 @@ commit `0a8a519`.
 ---
 
 ## 7. Open decisions for the researchteam maintainer
+
+Status (2026-10-20): #1 adopted (the local partition is indexed); #2 done (`docs/retrieval-surfaces.md`);
+#3 and #4 not verified.
 
 1. **Adopt the code-index over researchteam's own code?** Recommended for the `researchteam/` module +
    `scripts/` (navigation value); the API partitions will be thin given the stdlib-only code.

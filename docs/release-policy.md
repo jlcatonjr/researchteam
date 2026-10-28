@@ -18,7 +18,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - RC and final tags (`v1.0.0-rc.N`, `v1.0.0`, `v1.0.N`) are cut and signed **on `release/1.0` only**.
 - After each tag, `release/1.0` is merged forward into `main` with a regular merge, so `main` always
   contains every tagged commit.
-- Once `v1.0.0` is tagged, `main` builds `1.0.1.devN` until a `v1.1.0` tag is cut. setuptools-scm's guess-next-dev
+- After each tag is merged forward, `main` builds the next version's `.devN` from its nearest tag. With `v1.1.0-rc.N`
+  on `main` that is `1.1.0rc(N+1).devN`; at the `v1.1.0-rc.2` commit itself it builds `1.1.0rc2`. setuptools-scm's guess-next-dev
   replaces the hand-set `1.1.0.dev0` of the shared policy.
 
 ### The 1.1 line

@@ -42,7 +42,7 @@ Commands:
   library-query <project> "<terms>"
                 Lexical-similarity candidates from the library (NAVIGATION only, NOT evidence).
   library-check <project>
-                Fail-closed integrity gate for the library.
+                Integrity gate for the library: a DEFECT exits 1; no library yet (NEEDS-BUILD) exits 0.
                 See docs/literature-library-protocol.md for the full protocol + honest ceiling.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for

@@ -115,6 +115,7 @@ Component experts are the project's own: `@<component-slug>-expert`, one per `br
 | `MISSING-SETTING` | The map has no `## Historical setting` section. | blocks |
 | `EMPTY-SETTING` | The section has no table rows. | blocks |
 | `SETTING-BAD` | One or more rows lack a source or date, or have a basis outside the three allowed forms. | blocks |
+| `ERROR` | The register could not be parsed. | blocks |
 
 `HISTORICAL_CONTEXT_ADVISORY=1` downgrades a block to exit 0.
 

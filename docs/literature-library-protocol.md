@@ -25,7 +25,8 @@ Generalized from the OrthodoxLLM instance, whose guardrails "must not be softene
   semantic; the two are disjoint surfaces (relevance summaries vs. source body text).
 - **No self-attestation.** The gate rejects a record claiming `verification_state: resolved/attested`
   in an autonomous run; a human sign-off (`LIBRARY_HUMAN_SIGNOFF=1`) with an out-of-band anchor is
-  required to assert resolution.
+  required to assert resolution (the anchor is a procedural requirement; the gate checks only the
+  env var).
 - **Acquisition is out-of-band.** Full text / abstracts are provisioned by a separate, human-gated
   step — **never an audit-time fetch** by an investigating agent. The base library needs no fetch.
 - **Not exhaustive.** The library captures the sources the agents surfaced and deemed relevant so
@@ -67,14 +68,16 @@ Under `Projects/<project>/references/library/` (user-owned; the researchteam gen
    + gates before `@output-compiler`. What is automatic is the *rebuild*; the *relevance judgment* is
    the agents' investigation.
 4. **Navigate** — `… library-query <project> "<terms>"` returns lexical candidates (navigation only).
-5. **Gate** — `… library-check <project>` (fail-closed) before relying on the library.
+5. **Gate** — `… library-check <project>` before relying on the library: any `DEFECT`
+   (`STALE`/`COVERAGE`/`CEILING`/`LINK`/`ORPHAN`/`ATTEST`) exits 1; a project with no library yet
+   reports `NEEDS-BUILD` and exits 0; `LITERATURE_LIBRARY_ADVISORY=1` downgrades DEFECTs to exit 0.
 
 ## Commands
 
 ```bash
 bash scripts/claude_researchteam_bridge.sh library-build <project>          # (re)build the index
 bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>" # navigate (candidates)
-bash scripts/claude_researchteam_bridge.sh library-check <project>          # fail-closed integrity gate
+bash scripts/claude_researchteam_bridge.sh library-check <project>          # integrity gate (blocks on DEFECT; NEEDS-BUILD = exit 0)
 # direct: python3 scripts/build_literature_library.py <project>;  scripts/check_literature_library_integrity.sh <project>
 ```
 

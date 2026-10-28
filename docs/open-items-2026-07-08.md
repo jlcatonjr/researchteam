@@ -32,11 +32,11 @@ derived-repo updates + private-repo baselines). **Revised after an adversarial a
 ## 0.2 Code-index integration (F-CODEIDX) — this session
 Integrated agentteams' **code & API vector index (retrieval surface #2)** — full audited record in
 `docs/code-index-integration-plan.md` (binding R1–R11). Branch `feat/code-index-integration`
-(`7ac7743` non-bridge + `eda95d8` claude bridge regen); **not yet merged to main / pushed**.
+(`7ac7743` non-bridge + `eda95d8` claude bridge regen); **not yet merged to main / pushed** (2026-10-20: merged to `main`).
 - ✅ Shipped: `.gitignore` cache block; managed `docs/retrieval-surfaces.md` (4-surface superset that
   supersedes the bridge's 3-surface `domain-boundary.md`); guarded `code-query` bridge command; PSN
   pointers (navigator/reference-manager/literature-review-expert/orchestrator); advisory `doctor`
-  `--query-code` probe; `.claude/skills/code-recall.md`. Gates: lit-lib 10/10, citation 38/38, doctor
+  `--query-code` probe; `.claude/skills/code-recall.md` (now `.claude/skills/code-recall/SKILL.md`, `a29469a`). Gates: lit-lib 10/10, citation 38/38, doctor
   green, `--bridge-check` PASS, build+query proven, cache verified gitignored. No revert triggered.
 - ⏸️ **Deferred (validated):** full agent-team `--update` regen (orthogonal — code-index isn't in the
   agent templates); goose bridge regen (`/code-recall` is claude-only).
@@ -65,7 +65,7 @@ of any bad change = one `git reset` to a prior commit on the private repo.
 2. **[RT] Wire the existing library test into CI + add a query smoke test (M2).** `scripts/tests/
    test_literature_library.sh` exists but no workflow runs it; `query_literature_library.py` has **zero
    test coverage** (only build + gate are tested). Add a blocking test step (upstream) + advisory scan,
-   mirroring citation/methodology, and a query smoke test (ranking/tokenization parity, empty-result).
+   mirroring citation/methodology (2026-10-20: the citation advisory scan was removed in `f7065cf`), and a query smoke test (ranking/tokenization parity, empty-result).
 3. **[RT/shared] Make the library/citation routing hint reach derived repos.** The PSN pointers live in
    the **layer-1** agent docs (`reference-manager`, `orchestrator`) which do **not** sync to existing
    derived repos — OrthodoxLLM/SSH lack them (verified). The **protocol docs *do* sync** (layer-2), so
@@ -74,6 +74,7 @@ of any bad change = one `git reset` to a prior commit on the private repo.
    (agentteams writes `.vscode/tasks.json`), so the CI-sync window can trip. One-line regex add — but
    `validate` diffs only *unstaged tracked* files, so this is a narrow, latent fix. **[AT co-owner]:**
    the durable fix is agentteams declaring `.vscode/` in its managed scope.
+   **Status (2026-10-20):** fixed in `529ca68` (#13); the regex now allows `.vscode/tasks.json`.
 
 ## P2 — Can wait (deferred by design / lower value) — [RT] unless noted
 5. **Literature relevance authoring** — records are seeded/thin (`NEEDS-ENRICHMENT`); an agent must

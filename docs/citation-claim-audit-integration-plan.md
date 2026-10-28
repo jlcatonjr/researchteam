@@ -1,6 +1,10 @@
 # Integration Plan — 2-Fold Citation & Claim Audit
 
 **Date:** 2026-07-07
+**Status (2026-10-20):** Implemented. The CI advisory scan this plan describes (derived scaffold and
+sync workflow) was later removed in `f7065cf`; the blocking unit test runs in `tests.yml` through
+`tests/test_citation_integrity_suite.py`. The mechanical layer is now run on demand
+(`docs/citation-claim-audit-protocol.md`).
 **Author:** infrastructure integration (Claude)
 **Trigger (user request):** "Each time a project is initiated or developed, the workflow should
 trigger a 2-fold audit of the bibliography and URL links to the bibliography, as well as all the

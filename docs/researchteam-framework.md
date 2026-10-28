@@ -16,16 +16,17 @@ touching your research content.
 
 ```bash
 # base CLI only — layer-2 file sync, no agent regeneration
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
 
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
-pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
 ```
 
-These install the signed `v1.0.0` tag (later `v1.0.N`). For a verified install (a separate checkout of the tag, its
+These install the signed `v1.0.2` tag, the newest `v1.0.N` (1.0.1 or later is required to resume the
+AgentTeams Autosync). For a verified install (a separate checkout of the tag, its
 signature checked with repository config neutralised), see researchteam `docs/CONTRIBUTING.md`, "Using researchteam".
 
 `agentteams` is not on PyPI and is never installed standalone — routing it through the `[update]`
@@ -71,6 +72,12 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 
 **User-owned, never overwritten:** `brief.json`, `Projects/`, `references/`.
 
+**Layer-2-only repositories.** A repository whose agent files are maintained by hand has no
+agentteams descriptor (`brief.json` / `.github/agents/_build-description.json`). It can declare
+`layer1 = off` in `.researchteam`. `update` (including the derived autosync) then syncs layer 2
+only, `materialize` refuses, and `doctor` says so. Without that line, a missing descriptor is an
+error that names both ways out: describe the project in `brief.json`, or add `layer1 = off`.
+
 **Project identity — generated, not synced:** `README.md` and the title + *Project Purpose* header
 of `CLAUDE.md` are generated from `brief.json` and are **not** part of layer-2 sync. `update` will
 never re-impose the framework's identity on them. Re-render them with `researchteam personalize`.
@@ -107,13 +114,6 @@ historical-context, literature-library and news-perspective protocols and the in
 directives. They live in a block at the top of the Notes section:
 
 ```markdown
-
-**Layer-2-only repositories.** A repository whose agent files are maintained by hand has no
-agentteams descriptor (`brief.json` / `.github/agents/_build-description.json`). It can declare
-`layer1 = off` in `.researchteam`. `update` (including the derived autosync) then syncs layer 2
-only, `materialize` refuses, and `doctor` says so. Without that line, a missing descriptor is an
-error that names both ways out: describe the project in `brief.json`, or add `layer1 = off`.
-
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — ...
@@ -132,7 +132,8 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
 
 - **Where it is written.** `update` writes the block into each of these agents on every surface
   the repo carries: `.github/agents`, `.claude/agents`, and `.goose/recipes`, where it is indented
-  inside `instructions:`. Codex follows from `.github`.
+  inside `instructions:`. researchteam does not write the block into Codex: since agentteams #210, Codex is
+  rendered natively from the brief, not projected from `.github`.
 - **First adoption.** Hand-copied duplicates are removed: any `###` subsection with a heading that
   matches one in the block, and any top-level bullet identical to one in the block. Nothing else
   outside the block changes.
@@ -216,8 +217,9 @@ omits can therefore give the surfaces different agent rosters. The two that matt
   and `package.json`.
 
 `researchteam update` warns when either is missing and a native surface is present. Declare both in
-`brief.json` to get one roster everywhere. 1.0.1 applies one scan rule to every surface (masterTeacher
-ticket 4.4).
+`brief.json` to get one roster everywhere. One scan rule for every surface (masterTeacher ticket 4.4)
+was planned for 1.0.1 but has not shipped (not in 1.0.1, 1.0.2 or the 1.1.0 release candidates); until it does,
+declare both fields.
 
 ### Decision signing: the first `materialize`
 
@@ -278,8 +280,9 @@ This is a contract shared with agentteams 1.0.x, so both tools read the key the 
   - it is Ed25519-signed by the operator;
   - it is a decision row, not a waiver.
 
-  Until agentteams ships its frozen-surfaces support, no agentteams can derive that, so researchteam refuses every
-  unfreeze. That is the intended fail-closed behaviour.
+  researchteam asks the pinned agentteams to derive that and refuses the unfreeze if it cannot. agentteams v1.0.0
+  (which researchteam v1.0.2's extras pin) cannot, so under it every unfreeze is refused; frozen-surfaces support
+  ships in agentteams from v1.0.1 on the 1.0 line and in every 1.1 tag. That is the intended fail-closed behaviour.
 - **Known limitation.** A reviewed commit that removes a surface from `frozen_surfaces` and drops its
   `.researchteam` record in the same commit bypasses the check. Reviewers must treat any removal as an unfreeze that
   needs a signed row. agentteams' hash-tracked freeze manifest (1.0.x) and its aggregate cap close this on the
@@ -399,11 +402,15 @@ it:
   gone. Neither command deletes them: review them, then remove them through `@cleanup` with a
   recorded clearance.
 
-All drift findings are warnings. They never fail `doctor`.
+Drift findings are warnings and never fail `doctor`, with one exception: under
+`write_policy: orchestrator-only`, bridge agents left in a covered framework fail `doctor --drift`
+(above).
 
 ## Derived-repo CI
 
 Projects created with `researchteam init` receive `.github/workflows/agentteams-sync.yml`, which
-runs both layers on a schedule and on `workflow_dispatch`: installs the CLIs, runs
-`researchteam update --layer2-only --yes` and `agentteams --update --merge --yes`, validates
-changed paths and fence integrity, and can open a PR with the combined diff.
+runs weekly (Monday 06:00 UTC) and on `workflow_dispatch`: it installs the CLI and runs the managed
+`scripts/agentteams_autosync_gate.sh --mode derived`. The gate SHA-gates on agentteams, installs the
+pinned commit, runs a full `researchteam update --yes` and the blocking validation gates, and the
+workflow then opens or updates one evergreen PR (`chore/agentteams-autosync`). See
+`docs/agentteams-update-policy.md`.

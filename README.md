@@ -17,10 +17,10 @@ ResearchTeam is a pip-installable framework for producing well-structured resear
 ## Installation
 
 ```bash
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
 ```
 
-Install the signed `v1.0.0` tag (later `v1.0.N`); for a verified install from a separate tag checkout, see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). `release/1.0` holds reviewed fixes queued for the next patch release: unsigned between tags, not for pinning.
+Install the latest signed `v1.0.N` tag (currently `v1.0.2`); for a verified install from a separate tag checkout, see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). `release/1.0` holds reviewed fixes queued for the next patch release: unsigned between tags, not for pinning.
 How branches, releases and contributions work: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
 
 ## Quick Start
@@ -53,7 +53,7 @@ Then follow the onboarding steps in `CLAUDE.md` or `.github/copilot-instructions
 |---|---|
 | `researchteam init [name]` | Scaffold a new project: extract the template, seed a neutral placeholder `brief.json`, and generate a project-specific `README.md` / `CLAUDE.md` |
 | `researchteam personalize [--force]` | Regenerate `README.md` and `CLAUDE.md`'s project header from the current `brief.json`; `--force` overwrites even hand-edited generated regions |
-| `researchteam materialize [--yes] [--dry-run]` | Re-render the agent team from `brief.json` via a cleared agentteams `--overwrite` pass (plain `update` uses `--merge --shrink-policy preserve` and will not re-brand enriched agent bodies), then re-personalize `README.md` / `CLAUDE.md` |
+| `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team from `brief.json` via a cleared agentteams `--overwrite` pass (plain `update` uses `--merge --shrink-policy preserve` and will not re-brand enriched agent bodies), then re-personalize `README.md` / `CLAUDE.md` |
 | `researchteam update` | Sync layer-2 files from upstream, then run agentteams update |
 | `researchteam update --layer2-only` | Sync layer-2 files only; skip agentteams |
 | `researchteam update --layer1-only` | Run only the agentteams pass (no file sync); used by the upstream autosync |
@@ -66,12 +66,13 @@ Then follow the onboarding steps in `CLAUDE.md` or `.github/copilot-instructions
 ### `init` options
 
 ```
-researchteam init [name] [--ref REF] [--remote URL]
+researchteam init [name] [--ref REF] [--remote URL] [--vulnscan-level off|scan]
 ```
 
 - `name` — directory to create (defaults to current directory if empty)
 - `--ref` — upstream git ref to scaffold from (default: `main`)
 - `--remote` — git remote URL to set as `origin` after init
+- `--vulnscan-level` — set `brief.json`'s `vulnerability_scanning.level` (default `scan`, from the scaffold); `remediate` is an operator choice via `agentteams --set-vulnscan`
 
 ### `update` options
 
@@ -82,7 +83,7 @@ researchteam update [--yes] [--dry-run] [--layer2-only | --layer1-only] [--ref R
 - `--yes / -y` — skip interactive confirmation; required in CI
 - `--dry-run` — show what would change without writing files
 - `--layer2-only` — only sync layer-2 files; skip `agentteams --update --merge`
-- `--ref` — override the upstream ref (default: value in `.researchteam` marker)
+- `--ref` — override the upstream ref (default: the release-locked `toolchain.lock`'s verified researchteam tag, else the `.researchteam` marker, else `main`)
 - `--accept-upstream PATH` — take upstream's part above `## Project-Specific Notes` of an `above-notes` file the repo customised (kept by default, also under `--yes`); repeatable
 - `--no-codex` — leave the Codex surface (`.codex`, `.agents/skills`) unchanged; for repositories that keep Codex frozen for 1.0 (adopted agents)
 
@@ -106,10 +107,10 @@ ResearchTeam infrastructure is split into two independently updatable layers:
 
 Projects created with `researchteam init` receive a `.github/workflows/agentteams-sync.yml` that runs both layers automatically on a weekly schedule and on `workflow_dispatch`. The CI:
 
-1. Installs the `researchteam` CLI and runs `researchteam update --layer2-only --yes`
-2. Installs the `agentteams` CLI and runs `agentteams --update --merge --yes`
+1. Installs the `researchteam` CLI (verifying a release-locked tag first)
+2. Runs `scripts/agentteams_autosync_gate.sh --mode derived`: SHA gate, pinned `agentteams` install, full `researchteam update`, blocking gates
 3. Validates changed paths and fence integrity
-4. Optionally opens a PR with the combined diff (manual runs with `open_pr=true`)
+4. On a change, opens or updates one evergreen PR (`chore/agentteams-autosync`) for human review; a manual run with `force=true` integrates even when the agentteams SHA is unchanged
 
 ## Directory Structure
 
@@ -134,7 +135,7 @@ The orchestrator agent is the entry point for all agent-based workflows. It coor
 ### Agent Roles
 - **Orchestrator:** Coordinates all agent operations and workflow routing.
 - **Domain Agents:** Specialized for research, writing, validation, reference management, and more. See `.github/copilot-instructions.md` for the full agent team list and roles.
-- **Note on topology:** `.github/agents/references/pipeline-graph.md` is auto-generated from `build_team.py`. Agents declared in `copilot-instructions.md` but not yet wired into `build_team.py` (e.g., `@work-summarizer`, `@git-operations`) will not appear in the graph until the build system is updated.
+- **Note on topology:** `.github/agents/references/pipeline-graph.md` is auto-generated from `build_team.py`.
 - **Claude vs. Copilot/agentteams:**
   - *Claude users* use the bridge in `CLAUDE.md` and `.claude/README.md`.
   - *Copilot/agentteams users* follow `.github/copilot-instructions.md` and use `.github/agents/`.
@@ -144,7 +145,7 @@ Fenced regions are blocks managed by agents. **Do not edit inside fenced regions
 
 ## Onboarding and Safety Checklist
 
-1. **Install:** `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"`
+1. **Install:** `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"`
 2. **Initialize:** `researchteam init my-project` (or clone directly)
 3. **Edit `brief.json`** with your project name and goal, then run `researchteam personalize` (regenerate `README.md` / `CLAUDE.md` header) and `researchteam materialize` (re-render the agent team from the brief).
 4. **Choose your workflow:** Claude (`CLAUDE.md`) or Copilot/agentteams (`.github/copilot-instructions.md`).
@@ -181,7 +182,7 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 ## FAQ
 
 - **Is this a pip package?**
-  - Yes. `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"` gives you the `researchteam` CLI for `init` and `update`.
+  - Yes. `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"` gives you the `researchteam` CLI for `init` and `update`.
 - **Will `researchteam update` overwrite my research?**
   - No. `brief.json`, `Projects/`, and `references/` are user-owned and never touched. Only layer-2 infrastructure files (`docs/`, `scripts/`, `.claude/`, and the fenced-preserve managed block of `CLAUDE.md`) are synced. `README.md` and `CLAUDE.md`'s project header are generated per-project from `brief.json` — `update` never overwrites them; use `researchteam personalize` to regenerate them.
 - **What is the `layer2_profile` field in `brief.json`?**
@@ -189,7 +190,7 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 - **What are fenced regions?**
   - Agent-managed blocks delimited by `AGENTTEAMS:BEGIN/END` comments. Do not edit inside them.
 - **Where do I start?**
-  - `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.0"`, then `researchteam init my-project`.
+  - `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"`, then `researchteam init my-project`.
 - **What if something goes wrong?**
   - Review logs and validation output, restore from backup if needed, and see `docs/agent-infrastructure-authority.md` for recovery steps.
 

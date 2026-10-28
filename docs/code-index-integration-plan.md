@@ -1,6 +1,8 @@
 # Integration Plan — agentteams Code & API Vector Index (F-CODEIDX) → researchteam
 
 **Status:** REVISED (post adversarial + conflict audit) — cleared for execution.
+**Status (2026-10-20):** Implemented on `main` (`7ac7743` non-bridge, `eda95d8` bridge, follow-up `32c8f9a`).
+(Path note 2026-10-20: flat skill files became `.claude/skills/<name>/SKILL.md` in `a29469a`.)
 **Source handoff:** `docs/code-api-vector-index-integration-handoff.md` (agentteams PR #50 → `efe8f12`).
 **Discipline:** plan → parallel adversarial + conflict audit → revise (binding R#) → implement → gates green.
 **Baseline:** researchteam @ `66eec1c` (clean; only untracked file = the handoff doc). agentteams editable

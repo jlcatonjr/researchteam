@@ -1,5 +1,8 @@
 # S-10 dependency vetting — agentteams v1.0.0-rc.10 through rc.14 (2026-10-16, 2026-10-17)
 
+Status (2026-10-20): carried over to agentteams v1.0.0 (peeled `cc5b8c9e`); pyproject changed only the pin
+lines (CHANGELOG 1.0.0, `pin-agentteams-v1.0.0.decision-spec.json`).
+
 Scope: every third-party package that resolves when installing agentteams `f0dcdc85` (v1.0.0-rc.10)
 with the `signing` extra, the trusted signer install. The S-10 release-key exemption covers agentteams
 itself only. Sources are the PyPI JSON API (`upload_time_iso_8601`) and the OSV API (`/v1/query`,

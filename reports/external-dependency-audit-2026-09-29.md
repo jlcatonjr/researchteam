@@ -33,6 +33,8 @@ that can silently break integration.
 
 ### F-1 — HIGH — Both frameworks install from a floating git branch (unpinned)
 
+**Status (2026-10-20):** Remediated: `toolchain.lock` + bootstrap (`2e51027`), extras SHA-pinned (`10cb8bc`, now `cc5b8c9e` via `e303abc`), CI installs the synced commit (`2749a07`).
+
 The `[update]`/`[research]` extras declare `agentteams @ git+https://github.com/jlcatonjr/agentteams`
 with **no `@ref`** ([pyproject.toml:22,27](../pyproject.toml#L22-L27)), and CI installs *researchteam
 itself* unpinned — `pip install "git+https://github.com/jlcatonjr/researchteam.git"`
@@ -59,6 +61,8 @@ the integration and the tool being integrated are *both* floating-`main` install
 
 ### F-2 — MEDIUM — Pandoc has no presence/version preflight
 
+**Status (2026-10-27):** Partly addressed in #127 (`b46e021`): `researchteam doctor` reports pandoc's presence and version, for information. The compile-preflight probe this finding recommends is still open.
+
 `brief.json` sets `conversion_pipeline` to `pandoc --from markdown --to html …`
 ([brief.json:96](../brief.json#L96)), with a `@tool-pandoc` agent and skill. It is **not** a
 framework-code dependency — no Python code shells out to pandoc; the string appears only in a
@@ -73,6 +77,8 @@ compile, and no minimum version is declared.
   there).
 
 ### F-3 — MEDIUM — The update-policy baseline narrative lags the recorded agentteams ref
+
+**Status (2026-10-20):** Refreshed to `7fd4de4` in `8cd7733`; refreshed again to the v1.0.0 pin (`cc5b8c9e`) on 2026-10-20.
 
 `docs/agentteams-update-policy.md` states the *Integrated AgentTeams Baseline* as `61849fb`
 (2026-08-15) ([agentteams-update-policy.md:12](../docs/agentteams-update-policy.md#L12)), but the
@@ -92,6 +98,8 @@ itself an integration). The prose baseline lags the actual dependency state by a
 
 ### F-4 — MEDIUM — GitHub Actions pinned to mutable major tags
 
+**Status (2026-10-27):** Addressed in #127 (`05d4413`): `create-pull-request`, `checkout` and `setup-python` are SHA-pinned in both autosync workflows, and `tests/test_workflow_action_pins.py` enforces it. No Dependabot config exists yet.
+
 The workflow uses `actions/checkout@v4`, `actions/setup-python@v5`, and
 `peter-evans/create-pull-request@v6` ([agentteams-sync.yml:33,38,70](../.github/workflows/agentteams-sync.yml#L33-L70)).
 These are mutable major tags, not commit SHAs, so a republished tag changes behavior silently. The
@@ -103,6 +111,8 @@ here and should be checked before any bump.
   lower-risk.
 
 ### F-5 — MEDIUM — The autosync path has two silent single-points-of-failure
+
+**Status (2026-10-27):** The ls-remote half is addressed in #127 (`b2b231a`): the unlocked path, now around `scripts/agentteams_autosync_gate.sh:136`, exits 1 with a `::warning::`; the release-locked path already failed closed. The "change detected but no PR" alert is still open.
 
 The weekly autosync depends on external state that can fail invisibly, in two distinct ways that
 share one fingerprint (a week that integrates nothing):
@@ -123,6 +133,8 @@ share one fingerprint (a week that integrates nothing):
 
 ### F-6 — MEDIUM — Declared Python floor `>=3.10` is untested and nears end-of-life
 
+**Status (2026-10-20):** Remediated: `.github/workflows/tests.yml` runs a 3.10 / 3.13 matrix (`dc04b26`).
+
 `requires-python = ">=3.10"` ([pyproject.toml:10](../pyproject.toml#L10)) while CI pins a single
 `python-version: "3.11"` ([agentteams-sync.yml:40](../.github/workflows/agentteams-sync.yml#L40)),
 so 3.10, 3.12, and 3.13 are asserted-compatible but never exercised. The floor is genuinely
@@ -135,6 +147,8 @@ definition time (e.g. [_doctor_cmd.py:159](../researchteam/_doctor_cmd.py#L159))
   3.10 retires.
 
 ### F-7 — MEDIUM — Standing watch: agentteams' constitutional red-team battery is not integrated
+
+**Status (2026-10-20):** The battery (`--redteam`, `tests/test_constitutional_redteam.py`) ships in the pinned agentteams v1.0.0 (`cc5b8c9e`, `e303abc`); its result was not re-run for this note.
 
 The policy doc excludes agentteams' `--redteam` audit and its C-5 enforcement work because, **as of
 2026-08-07**, that upstream branch failed its own `tests/test_constitutional_redteam.py` (probe E3:
@@ -160,6 +174,8 @@ break; `researchteam doctor` diagnoses the resulting failure.
 - **Remediate:** none needed now — the trade-off is deliberate and documented.
 
 ### F-9 — LOW — Layer-2 fetch is single-attempt against hardcoded endpoints, with an unwrapped fallback
+
+**Status (2026-10-27):** Addressed in #127 (`6b5611b`): one retry with backoff on network errors. The fallback was already wrapped in `RuntimeError`.
 
 `_fetch.py` hardcodes `raw.githubusercontent.com` and `github.com/.../archive` with fixed 20s/60s
 timeouts and no retry/backoff ([_fetch.py:6-37](../researchteam/_fetch.py#L6-L37)). A transient blip

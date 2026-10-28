@@ -22,7 +22,7 @@ anchor.
 | 2 | **Code index** (agentteams) | **code + external APIs** — repo `local-script`s, the `api-module`s they import, `api-doc`s | `agentteams --query-code` · `/code-recall` · `bash scripts/claude_researchteam_bridge.sh code-query` | **gitignored cache** `references/code-index/` (never committed) |
 | 3 | **Project retrieval-integrator** | a project-level validation contract (e.g. `mode: relational-metadata` against project data tables) | project-defined | project-defined |
 | 4 | **Literature library** (researchteam) | research **sources / agent relevance summaries** — "why is this source relevant" (stdlib TF-IDF, lexical) | `bash scripts/claude_researchteam_bridge.sh library-query` · `query_literature_library.py` | **committed base index** `references/library/*.jsonl` + gitignored corpus/vectors |
-| 5 | **Source corpus** (researchteam) | source **body text**, page-anchored — "where in the actual sources is a passage about X" (real local dense embedder) | `bash scripts/claude_researchteam_bridge.sh corpus-query` · `query_source_corpus.py` | **committed anchors** `references/corpus/chunks.jsonl` + manifests; gitignored text/vectors |
+| 5 | **Source corpus** (researchteam) | source **body text**, page-anchored — "where in the actual sources is a passage about X" (real local dense embedder) | `query_source_corpus.py` in an adopting corpus (reference: SocialScienceHumanities; no researchteam bridge command) | **committed anchors** `references/corpus/chunks.jsonl` + manifests; gitignored text/vectors |
 
 ## Which surface for which question
 
@@ -33,7 +33,7 @@ anchor.
 - "What sources did the team read about topic X, and why were they relevant?" → **literature library**
   (`library-query`).
 - "Where in the actual source *text* is a passage about X (to quote / referee against)?" → **source
-  corpus** (`corpus-query`), page-anchored.
+  corpus** (an adopting corpus's `query_source_corpus.py`), page-anchored.
 
 Surfaces **#2 (code)** and **#4 (literature)** are the two most easily confused because both are stdlib
 TF-IDF. They cover **disjoint** corpora and answer different questions: #2 indexes the *code and APIs that
@@ -44,7 +44,7 @@ Surfaces **#4 (relevance summaries)** and **#5 (source body text)** are the next
 both concern the literature, but #4 answers "*why* did the team deem this source relevant" (short,
 agent-authored, lexical TF-IDF) while #5 answers "*where in the source text* is a passage about X" (the
 actual body text, page-anchored, dense neural embeddings). #5 is the operational form of the dense layer
-that `docs/literature-library-protocol.md` documents as a STUB — **additive to** the TF-IDF surfaces, not
+that `docs/literature-library-protocol.md` once documented as a stub (it now points here) — **additive to** the TF-IDF surfaces, not
 a replacement for them. Different corpora, different questions — **do not merge them.**
 
 ## Surface #2 — Code index: honest ceiling (binding)
@@ -71,8 +71,8 @@ every other retrieval surface here**:
 ## Surface #5 — Source corpus: standard + honest ceiling (binding)
 
 Surface #5 is the framework standard for a **dense, page-anchored index over a project's source *body
-text*** — the operational form of the dense layer the literature-library protocol documents as a deferred
-STUB. It is **additive** to the lexical surfaces (#4 stays TF-IDF over relevance summaries); a corpus adopts
+text*** — the operational form of the dense layer the literature-library protocol formerly documented as a
+stub. It is **additive** to the lexical surfaces (#4 stays TF-IDF over relevance summaries); a corpus adopts
 #5 when it needs "where in the actual source text is a passage about X," e.g. to feed an internal
 referee/quote-check leg. A corpus can adopt this surface **without inventing a private one** by following
 the spec below; the reference implementation lives in a sibling researchRepositories corpus,
@@ -122,6 +122,6 @@ anti-fabrication design law; do not soften any surface into a fabrication or aut
 
 ---
 *See also: `references/bridges/copilot-vscode-to-claude/domain-boundary.md` (agentteams' 3-surface subset),
-`docs/literature-library-protocol.md` (surface #4 + the dense STUB that surface #5 fulfills),
+`docs/literature-library-protocol.md` (surface #4; its former dense stub is now surface #5),
 `docs/code-index-integration-plan.md` (how surface #2 was integrated). Reference implementation for surface
 #5: the sibling **SocialScienceHumanities** corpus (`docs/source-corpus-protocol.md` + its source-corpus scripts).*

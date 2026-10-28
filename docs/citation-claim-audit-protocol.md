@@ -46,8 +46,9 @@ is maximal *detection* plus honest *escalation*, not proof.
   `@output-compiler`** assembles a release. Regardless of whether an initiate/develop prompt fired,
   no project is compiled until the doubled audit has run and no `CU`/`FU`/`AE` finding is unresolved
   (orchestrator Constitutional **Rule 12**; `@conflict-auditor` Rule 6).
-- **Automatic surface: CI advisory scan** (`CITATION_INTEGRITY_ADVISORY=1`) reports the mechanical
-  layer on every sync run — visibility, not a gate.
+- **No automatic CI surface.** CI does not run the mechanical layer: the sync-workflow advisory scan
+  was removed in `f7065cf`, and `.github/workflows/tests.yml` runs pytest and `validate` only. Run it
+  yourself; `CITATION_INTEGRITY_ADVISORY=1` gives a warn-only scan — visibility, not a gate.
 
 ## Layer 1 — the mechanical detector (deterministic)
 
@@ -71,7 +72,9 @@ or `AE`.
 ## Layer 2 — the doubled semantic audit (agents)
 
 **Round 1 — baseline.**
-1. `@reference-manager` runs Dimension A against `references/bibliography.bib` (key resolution,
+1. `@reference-manager` runs Dimension A against the project's bibliography
+   (the `.bib` passed via `--bib`; else every `.bib` under the project, e.g.
+   `Projects/<project>/references/bibliography.bib`; else the repo-level `references/*.bib`) (key resolution,
    metadata completeness, resolver check where network is available, deduplication).
 2. `@technical-validator` runs Dimension B (claim ledger; `CH-08` every claim paired with explicit
    evidence; `CH-09` insufficient → `UNVERIFIED`; `CH-10` contradicted → escalate).
@@ -111,8 +114,10 @@ it. It **feeds** the Layer-2 semantic audit (Dimension B); it is not a substitut
 weaken the [honest ceiling](#the-honest-ceiling-read-this-first--it-is-binding): automation *detects and
 escalates candidates*, it does not *prove*.
 
-**Precision on what's real, as of this writing:** `agentteams.research.verify` (installed via `pip
-install agentteams[research]`, or this repo's own `research` optional-dependency group) ships the
+**Precision on what's real, as of this writing:** `agentteams.research.verify` (installed through this
+repo's `research` optional-dependency group, `pip install "researchteam[research] @
+git+https://github.com/jlcatonjr/researchteam.git"`, which pins the agentteams commit named in
+`toolchain.lock`; agentteams is not on PyPI) ships the
 reusable **claim-verification primitives** this pattern is built on — `extract_claims()`,
 `audit_claims(claims, evidence_by_claim, chat_fn, lens)` (per-claim survival checking against a
 lens-selected critique, with a deterministic, non-LLM `_supported_by_evidence(correction, claim,
