@@ -1,11 +1,11 @@
 {
   "artifact_type": "delivery-receipt",
   "receipt_schema_version": "1.0",
-  "delivered_at": "2026-10-27T00:56:31Z",
+  "delivered_at": "2026-10-28T22:22:52Z",
   "project_name": "ResearchTeam",
   "framework": "codex",
-  "manifest_fingerprint": "c6f63be1e64b3a6d",
+  "manifest_fingerprint": "fee0605847ffa000",
   "fingerprint_algo_version": 1,
   "output_dir": ".codex/agents",
-  "agentteams_version": "1.1.0rc7"
+  "agentteams_version": "1.1.0rc11"
 }

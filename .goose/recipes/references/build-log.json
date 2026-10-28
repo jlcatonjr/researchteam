@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc7",
+  "agentteams_version": "1.1.0rc11",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "decbcda88db2b18fd6039a1a624d63c2934a5e1e",
+    "commit": "19ba0943664f4dadc848e689dfcb4a8549049171",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-27T00:55:50.012311+00:00",
+  "generated_at": "2026-10-28T22:22:11.849920+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -36,7 +36,7 @@
   "template_hashes": {
     "universal/orchestrator.template.md": "1a69f80133e36dda",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "2f1580cf50d6f389",
+    "universal/security.template.md": "12f027791fe214d2",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -531,13 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "6ef62b832a650997",
+  "manifest_fingerprint": "3b7ffa7c91b3c9b8",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "f6d528e5b26ebe47",
-    "references/security-vulnerability-watch.json": "3a77462aaffea3fe",
-    "orchestrator.yaml": "35083c2f32ad4c49",
-    "security.yaml": "7a121e07b0862a56",
+    "references/security-vulnerability-watch.reference.md": "d8c8a45765513de8",
+    "references/security-vulnerability-watch.json": "28d74270592208ad",
+    "security.yaml": "b9378cb40dcda606",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -551,6 +550,7 @@
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
+    "orchestrator.yaml": "35083c2f32ad4c49",
     "navigator.yaml": "71228e6e0b1122f0",
     "code-hygiene.yaml": "68eaba54394c151a",
     "adversarial.yaml": "3b234b9c1c1896d2",
@@ -578,7 +578,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "8c8b92f08aa0a024",
+    "../../AGENTS.md": "1d175d7c10ab644b",
     "team-builder.yaml": "8d447f4c66287bf1",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
@@ -701,11 +701,11 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "ea6b9d1499e5680b7f2cf730ee2cc52c772301887f7056e9568a8b4bdfed2080",
+      "threat_intelligence": "aa6c3e6d2d7caf05aa158b65a954b00c67d609870b5e9151393033e1cecefa6c",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",
-      "security_rules_invariant": "ff4d3bee72fcd5120b5467c768bb3d1f7cb60c9c9eb3addc11af1b51d7a3d193"
+      "security_rules_invariant": "2d62cd63aa7666af74d984775a7b519c5cc04e0d3b04a0d7eb553924a8cb9cee"
     },
     ".goose/recipes/team-builder.yaml": {
       "*": "8d447f4c66287bf1d49b2fdd77c3cd6029873f843d8c4652d7f7fddc0d17644d"
