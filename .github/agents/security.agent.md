@@ -74,11 +74,11 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-10-27T00:53:48Z`
+Generated at: `2026-10-28T22:20:19Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.10.26, items 1758) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.10.28, items 1762) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
 - NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
@@ -91,21 +91,21 @@ Generated at: `2026-10-27T00:53:48Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-109618` | PHP Group PHP | PHP Memory Corruption Vulnerability | added 2026-10-26 | EPSS 0.999810000, percentile 0.999810000 | CVSS 9.8 CRITICAL
-- `CVE-2026-109619` | PHP Group PHP | PHP Stale Internal Request-State Vulnerability | added 2026-10-26 | EPSS 0.999970000, percentile 0.999890000 | CVSS 8.1 HIGH
-- `CVE-2026-114625` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator SQL Injection Vulnerability | added 2026-10-23 | EPSS 0.010250000, percentile 0.633350000 | CVSS 9.9 CRITICAL
-- `CVE-2026-110447` | Collabora Collabora Online – Built-in CODE Server | Collabora Online – Built-in CODE Server OS Command Injection Vulnerability | added 2026-10-23 | EPSS 0.123280000, percentile 0.961650000 | CVSS 9.8 CRITICAL
-- `CVE-2026-106931` | EG Secure Solutions SiteGuard Server Edition | EG Secure Solutions SiteGuard Server Edition OS Command Injection Vulnerability | added 2026-10-20 | EPSS 0.025280000, percentile 0.847830000 | CVSS 7.8 HIGH
-- `CVE-2026-96656` | Plex Media Server | Plex Media Server External Control of File Name or Path Vulnerability | added 2026-10-20 | EPSS 0.017850000, percentile 0.781510000
-- `CVE-2026-96655` | Plex Media Server | Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability | added 2026-10-20 | EPSS 0.016370000, percentile 0.761690000
-- `CVE-2026-96654` | Plex Media Server | Plex Media Server Improper Neutralization of Encoded URI Schemes in a Web Page Vulnerability | added 2026-10-20 | EPSS 0.019490000, percentile 0.800790000
-- `CVE-2026-96652` | Plex Media Server | Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability | added 2026-10-20 | EPSS 0.018210000, percentile 0.786060000
-- `CVE-2026-110936` | Siemens Software Center | Siemens Software Center Uncontrolled Search Path Element Vulnerability | added 2026-10-20 | EPSS 0.009670000, percentile 0.615000000
-- `CVE-2026-102764` | BeyondTrust Remote Support | BeyondTrust Remote Support Authentication Bypass by Spoofing Vulnerability | added 2026-10-16 | EPSS 0.203410000, percentile 0.974620000
-- `CVE-2025-61624` | Fortinet Multiple Products | Fortinet Multiple Products Path Traversal Vulnerability | added 2026-10-16 | EPSS 0.013430000, percentile 0.711620000
-- `CVE-2026-21589` | Atlassian Multiple Products | Atlassian Multiple Products Files or Directories Accessible to External Parties Vulnerability | added 2026-10-15 | EPSS 0.994770000, percentile 0.999430000
-- `CVE-2026-105134` | Ahsay AhsayCBS | Ahsay AhsayCBS Command Injection Vulnerability | added 2026-10-14 | EPSS 0.862660000, percentile 0.997310000
-- `CVE-2026-76519` | Cisco Secure Email Gateway | Cisco Secure Email Gateway Relative Path Traversal Vulnerability | added 2026-10-14 | EPSS 0.021520000, percentile 0.820220000
+- `CVE-2026-41709` | Broadcom VMware ESX | Broadcom VMWare ESX Insufficient Logging Vulnerability | added 2026-10-28 | EPSS 0.002970000, percentile 0.222910000 | CVSS 2.7 LOW
+- `CVE-2026-46300` | Linux Kernel | Linux Kernel Missing Initialization of a Variable Vulnerability | added 2026-10-28 | EPSS 0.101920000, percentile 0.956510000 | CVSS 7.8 HIGH
+- `CVE-2026-48356` | Adobe Commerce and Magento | Adobe Commerce and Magento Unrestricted Upload of File with Dangerous Type Vulnerability | added 2026-10-27 | EPSS 0.590780000, percentile 0.991100000 | CVSS 9.3 CRITICAL
+- `CVE-2026-111497` | Google Brotli | Google Brotli Unchecked Return Value Vulnerability | added 2026-10-27 | EPSS 0.879880000, percentile 0.997630000 | CVSS 9.8 CRITICAL
+- `CVE-2026-109618` | PHP Group PHP | PHP Memory Corruption Vulnerability | added 2026-10-26 | EPSS 0.999990000, percentile 0.999980000 | CVSS 9.8 CRITICAL
+- `CVE-2026-109619` | PHP Group PHP | PHP Stale Internal Request-State Vulnerability | added 2026-10-26 | EPSS 0.999990000, percentile 0.999990000
+- `CVE-2026-114625` | Arista VeloCloud Orchestrator | Arista VeloCloud Orchestrator SQL Injection Vulnerability | added 2026-10-23 | EPSS 0.010250000, percentile 0.634540000
+- `CVE-2026-110447` | Collabora Collabora Online – Built-in CODE Server | Collabora Online – Built-in CODE Server OS Command Injection Vulnerability | added 2026-10-23 | EPSS 0.116340000, percentile 0.960340000
+- `CVE-2026-106931` | EG Secure Solutions SiteGuard Server Edition | EG Secure Solutions SiteGuard Server Edition OS Command Injection Vulnerability | added 2026-10-20 | EPSS 0.025280000, percentile 0.848350000
+- `CVE-2026-96656` | Plex Media Server | Plex Media Server External Control of File Name or Path Vulnerability | added 2026-10-20 | EPSS 0.017850000, percentile 0.782210000
+- `CVE-2026-96655` | Plex Media Server | Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability | added 2026-10-20 | EPSS 0.016370000, percentile 0.762470000
+- `CVE-2026-96654` | Plex Media Server | Plex Media Server Improper Neutralization of Encoded URI Schemes in a Web Page Vulnerability | added 2026-10-20 | EPSS 0.019490000, percentile 0.801430000
+- `CVE-2026-96652` | Plex Media Server | Plex Media Server Server-Side Request Forgery (SSRF) Vulnerability | added 2026-10-20 | EPSS 0.018210000, percentile 0.786740000
+- `CVE-2026-110936` | Siemens Software Center | Siemens Software Center Uncontrolled Search Path Element Vulnerability | added 2026-10-20 | EPSS 0.009670000, percentile 0.616230000
+- `CVE-2026-102764` | BeyondTrust Remote Support | BeyondTrust Remote Support Authentication Bypass by Spoofing Vulnerability | added 2026-10-16 | EPSS 0.189500000, percentile 0.972900000
 
 **Prevention and mitigation playbook:**
 
@@ -208,7 +208,7 @@ Runtime enforcement also consumes machine-readable freshness metadata from the s
 > ⛔ **Do not modify or omit.** All triggers, rules, the HALT directive, and the AI-authored-code screening guidance carried in this file's fenced sections are the immutable contract for this agent. Sections are referenced by name, never by position: the merge engine places a fenced region relative to whichever fences already exist on disk, so a deployed file may carry them in a different order than this template.
 <!-- AGENTTEAMS:END invariant_core -->
 
-<!-- AGENTTEAMS:BEGIN security_rules_invariant v=17 -->
+<!-- AGENTTEAMS:BEGIN security_rules_invariant v=18 -->
 ### Mandatory Review Triggers
 
 | Trigger | Risk Category |
@@ -479,6 +479,11 @@ installed. Its id is deliberately not numbered (S-11, S-12, … belong to projec
   addresses) is scrubbed, and a content scan runs first. Its gate action is `vulnscan-publish`: a HALT
   on it stops publishing; escalations do not.
 - ❌ A grant **never** overrides an unretracted HALT (C-2). The check runs before every use, on the gate action `vulnscan-remediation`. A HALT scoped to one target (`vulnscan-remediation:<repo-or-host>`) stops **all** grant use until it is retracted, because a suffix decorates the action and never narrows it.
+- ✅ **Closing superseded remediation PRs.** A grant may name `close-superseded`: the executor closes a
+  repository's older remediation PRs once its newest one is open, and only PRs it opened itself that no
+  person has reviewed, commented on or pushed to. It closes with a fixed comment, never deletes a branch,
+  and never merges. Merging stays with the operator, who runs the daily run's machine-local merge digest
+  with their own credentials, one confirmation per PR (it is not a grant use).
 - ❌ A grant **never** covers merging, force-pushing, applying changes to a server, or any change the
   agent itself wrote (the fenced run report a publish grant pushes is text for the operator, never a
   change to code or configuration). These need their own signed relaxation (Rule 15) and evidence

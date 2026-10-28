@@ -27,11 +27,11 @@ dependencies = []
 # moves both together (`--write-lock --sync-extras`).
 # `researchteam doctor` / the update preflight verify it is present and runnable at runtime.
 [project.optional-dependencies]
-update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@decbcda88db2b18fd6039a1a624d63c2934a5e1e"]
+update = ["agentteams @ git+https://github.com/jlcatonjr/agentteams@19ba0943664f4dadc848e689dfcb4a8549049171"]
 # `agentteams.research` (web search, curated-source rating, dual-lens claim verification) — the
 # real, generalized implementation the on-the-fly-retrieval-profile.md / citation-claim-audit-
 # protocol.md docs describe. Pinned exactly like `update`.
-research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@decbcda88db2b18fd6039a1a624d63c2934a5e1e"]
+research = ["agentteams[research] @ git+https://github.com/jlcatonjr/agentteams@19ba0943664f4dadc848e689dfcb4a8549049171"]
 
 [project.scripts]
 researchteam = "researchteam.cli:main"
