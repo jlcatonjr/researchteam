@@ -112,7 +112,7 @@ here and should be checked before any bump.
 
 ### F-5 — MEDIUM — The autosync path has two silent single-points-of-failure
 
-**Status (2026-10-27):** The ls-remote half is addressed in #127 (`b2b231a`): the unlocked path, now around `scripts/agentteams_autosync_gate.sh:136`, exits 1 with a `::warning::`; the release-locked path already failed closed. The "change detected but no PR" alert is still open.
+**Status (2026-10-27):** The ls-remote half is addressed in #127 (`b2b231a`): the unlocked path, now around `scripts/agentteams_autosync_gate.sh:136`, exits 1 with a `::warning::`; the release-locked path already failed closed. The "change detected but no PR" alert is added in `fix/autosync-no-pr-alert`: a run that detects a change but opens or updates no PR fails with `::error::`. A run with no diff warns instead.
 
 The weekly autosync depends on external state that can fail invisibly, in two distinct ways that
 share one fingerprint (a week that integrates nothing):

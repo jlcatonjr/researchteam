@@ -99,6 +99,7 @@ jobs:
 
       - name: Open / update the evergreen auto-PR (never auto-merge)
         if: steps.gate.outputs.changed == 'true'
+        id: cpr
         uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c  # v6.1.0
         with:
           branch: chore/agentteams-autosync
@@ -109,3 +110,19 @@ jobs:
           # security-review-required: the gate found a security-boundary path (sandbox/, hooks, CI,
           # scripts, agent capability files, ...) in this update. Do not merge without @security.
           labels: agentteams-autosync${{ steps.gate.outputs.sensitive == 'true' && ',security-review-required' || '' }}
+
+      # F-5: a detected change that opens or updates no PR is a silent failure (for example, Actions not allowed to
+      # create pull requests). Fail the run so it shows red instead of passing as a quiet week.
+      - name: Fail when a detected change produced no PR
+        if: steps.gate.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''
+        env:
+          OPERATION: ${{ steps.cpr.outputs.pull-request-operation }}
+          NEW_SHA: ${{ steps.gate.outputs.new_sha }}
+        run: |
+          if [ "$OPERATION" = none ]; then
+            # Nothing to commit (for example a force=true run with no new content): not a failure.
+            echo "::warning::autosync ran for $NEW_SHA but the working tree had no diff, so no PR was needed."
+            exit 0
+          fi
+          echo "::error::autosync detected a change ($NEW_SHA) but no pull request was opened or updated (operation: '$OPERATION'). Check Settings > Actions > General > 'Allow GitHub Actions to create and approve pull requests'."
+          exit 1
