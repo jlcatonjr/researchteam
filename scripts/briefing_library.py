@@ -6,8 +6,9 @@ by ``agentteams.research.build_briefing``). Unlike the literature library (``bui
 which is committed, keyed to a project's ``.bib`` and holds the agents' relevance judgements, a briefing
 library is:
 
-- **kept out of version control**: the store is a directory the caller names, and every command refuses a
-  store that git would track (``DEFECT[TRACKED]``);
+- **kept out of version control**: the store is a directory the caller names. ``ingest`` and ``query`` refuse
+  (exit 2) a store git would track, or whose git state cannot be read; ``check`` reports it as
+  ``DEFECT[TRACKED]``. Every file the store holds, temporary names included, must be ignored;
 - **perishable**: each record carries ``as_of`` and ``expires`` (reported and contested claims 7 days, web 30,
   scholarly 365; :data:`TTL_DAYS`), ``ingest`` prunes expired records, and ``query`` never returns them;
 - **external claims, not relevance**: the indexed text is the claim itself.
@@ -24,7 +25,12 @@ Usage:
 
 ``briefing.json`` is ``{"topic": str, "claims": [{claim, source_domain, attribution, published_at, kind,
 single_source, sensitive}, ...], "critic_label": str?}``, the shape of ``agentteams.research.Briefing``.
-Exit codes: 0 ok (or advisory only), 1 DEFECT, 2 usage or a refused store.
+Exit codes: 0 ok (or advisory only), 1 DEFECT, 2 usage, a refused store, or an unreadable briefing.
+
+Claims come from outside sources. This script validates their shape (length, kind, dates, no links, markup or
+control characters) but does NOT screen their meaning: a claim worded as an instruction passes here. The
+producer must screen read content before ingest (for example ``agentteams.research.screen``), and every
+consumer must treat records as data, never instructions.
 """
 from __future__ import annotations
 
@@ -35,6 +41,7 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -49,23 +56,46 @@ TTL_DAYS = {"reported": 7, "contested": 7, "web": 30, "scholarly": 365}
 CLAIM_MAX = 240
 ATTRIBUTION_MAX = 120
 TOPIC_MAX = 120
+BRIEFING_MAX_BYTES = 1_000_000
+CLAIMS_MAX = 200
+STORE_FILES = ("literature.jsonl", "term-vectors.jsonl", "library-manifest.json")
 COVERAGE_STATEMENT = (
     "Coverage = the claims a briefing run surfaced and a critic did not refute, from sources found for each "
     "topic. This is NOT a completeness proof and does NOT claim to be exhaustive; claims expire."
 )
 _DOMAIN = re.compile(r"^[a-z0-9.-]{3,253}$")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+_PUBLISHED = re.compile(r"^\d{4}(-\d{2}(-\d{2}([T ][0-9:.+-Z]{1,15})?)?)?$")
 _MARKUP = re.compile(r"https?://|www\.|\]\(|[<>`*#|\\]")
 FIELDS = ("key", "record_class", "topic", "claim", "source_domain", "attribution", "published_at", "kind",
           "single_source", "sensitive", "as_of", "expires", "verification_state", "record_text_sha256")
 
 
+def _is_date(text: object) -> bool:
+    if not (isinstance(text, str) and _DATE.match(text)):
+        return False
+    try:
+        _dt.date.fromisoformat(text)
+    except ValueError:
+        return False
+    return True
+
+
 def _today(as_of: str | None) -> str:
     if as_of is None:
         return _dt.date.today().isoformat()
-    if not _DATE.match(as_of):
-        _usage(f"--as-of must be YYYY-MM-DD, got {as_of!r}")
+    if not _is_date(as_of):
+        _usage(f"--as-of must be a real YYYY-MM-DD date, got {as_of!r}")
     return as_of
+
+
+def _plain(text: str) -> bool:
+    """No line breaks, links, markup, or control/format characters (no terminal or bidi spoofing)."""
+    return not (_MARKUP.search(text) or any(unicodedata.category(ch) in ("Cc", "Cf") for ch in text))
+
+
+def _git(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", "-c", "core.fsmonitor=false", *args], capture_output=True, text=True)
 
 
 def _expires(as_of: str, kind: str) -> str:
@@ -78,17 +108,19 @@ def _tracked_reason(store: Path) -> str | None:
     probe_dir = store
     while not probe_dir.exists() and probe_dir != probe_dir.parent:
         probe_dir = probe_dir.parent                     # the nearest existing ancestor decides
-    inside = subprocess.run(["git", "-C", str(probe_dir), "rev-parse", "--is-inside-work-tree"],
-                            capture_output=True, text=True)
+    inside = _git("-C", str(probe_dir), "rev-parse", "--is-inside-work-tree")
+    if inside.returncode == 128 and "not a git repository" in inside.stderr:
+        return None                                      # outside any git work tree
     if inside.returncode != 0 or inside.stdout.strip() != "true":
-        return None
-    ignored = subprocess.run(["git", "-C", str(probe_dir), "check-ignore", "-q", str(store / "probe")])
-    if ignored.returncode != 0:
-        return f"{store} is inside a git work tree and not ignored; briefings must never be committed"
+        return f"git cannot vouch for {store} ({inside.stderr.strip()[:120] or 'unknown state'}); refusing"
+    names = [*STORE_FILES, *(f".{n}.tmp" for n in STORE_FILES)]
+    for name in names:                                   # every file the store writes, so a negated rule is caught
+        if _git("-C", str(probe_dir), "check-ignore", "-q", str(store / name)).returncode != 0:
+            return f"{store / name} would not be ignored by git; briefings must never be committed"
     if store.exists():
-        tracked = subprocess.run(["git", "-C", str(store), "ls-files", "."], capture_output=True, text=True)
-        if tracked.stdout.strip():
-            return f"{store} has git-tracked files; briefings must never be committed"
+        tracked = _git("-C", str(store), "ls-files", ".")
+        if tracked.returncode != 0 or tracked.stdout.strip():
+            return f"{store} has git-tracked files (or git cannot list them); briefings must never be committed"
     return None
 
 
@@ -100,12 +132,11 @@ def _clean_claim(raw: object, topic: str, as_of: str) -> dict | None:
     kind, published = raw.get("kind"), raw.get("published_at")
     if not (isinstance(claim, str) and 0 < len(claim.strip()) <= CLAIM_MAX and isinstance(domain, str)
             and _DOMAIN.match(domain) and isinstance(attr, str) and 0 < len(attr) <= ATTRIBUTION_MAX
-            and kind in TTL_DAYS and (published is None or isinstance(published, str) and len(published) <= 32)
+            and kind in TTL_DAYS and (published is None or isinstance(published, str) and _PUBLISHED.match(published))
             and isinstance(raw.get("single_source"), bool) and isinstance(raw.get("sensitive"), bool)):
         return None
-    for text in (claim, attr, published or ""):
-        if "\n" in text or _MARKUP.search(text):
-            return None
+    if not all(_plain(text) for text in (claim, attr, published or "")):
+        return None
     claim = " ".join(claim.split())
     rec = {"key": hashlib.sha256(f"{topic}\x00{domain}\x00{claim}".encode("utf-8")).hexdigest()[:16],
            "record_class": RECORD_CLASS, "topic": topic, "claim": claim, "source_domain": domain,
@@ -124,7 +155,7 @@ def _schema_problem(r: dict) -> str | None:
         return "unknown record class or kind"
     if r["verification_state"] != UNVERIFIED:
         return "verification_state must stay UNVERIFIED"
-    if not (_DATE.match(str(r["as_of"])) and _DATE.match(str(r["expires"]))):
+    if not (_is_date(r["as_of"]) and _is_date(r["expires"])):
         return "as_of/expires are not dates"
     if r["expires"] > _expires(r["as_of"], r["kind"]):
         return f"TTL longer than {TTL_DAYS[r['kind']]} days for {r['kind']}"
@@ -145,6 +176,7 @@ def _load(store: Path) -> list[dict]:
 
 def _write(store: Path, records: list[dict]) -> None:
     store.mkdir(mode=0o700, parents=True, exist_ok=True)
+    os.chmod(store, 0o700)                               # an existing store keeps its mode under exist_ok
     records = sorted(records, key=lambda r: (r["topic"], r["key"]))
     lit = "".join(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n" for r in records)
     vecs = ""
@@ -174,24 +206,35 @@ def ingest(store: Path, briefing_path: Path, as_of: str) -> int:
     if reason:
         print(f"[briefing-library] refused: {reason}", file=sys.stderr)
         return 2
-    data = json.loads(briefing_path.read_text(encoding="utf-8"))
+    try:
+        if briefing_path.stat().st_size > BRIEFING_MAX_BYTES:
+            print(f"[briefing-library] refused: {briefing_path} is over {BRIEFING_MAX_BYTES} bytes", file=sys.stderr)
+            return 2
+        data = json.loads(briefing_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, ValueError, RecursionError) as exc:
+        print(f"[briefing-library] refused: cannot read {briefing_path} ({type(exc).__name__})", file=sys.stderr)
+        return 2
     topic = data.get("topic") if isinstance(data, dict) else None
-    if not (isinstance(topic, str) and 0 < len(topic) <= TOPIC_MAX and "\n" not in topic
-            and not _MARKUP.search(topic) and isinstance(data.get("claims"), list)):
-        print("[briefing-library] refused: not a briefing (topic and claims)", file=sys.stderr)
+    if not (isinstance(topic, str) and 0 < len(topic) <= TOPIC_MAX and _plain(topic)
+            and isinstance(data.get("claims"), list) and len(data["claims"]) <= CLAIMS_MAX):
+        print(f"[briefing-library] refused: not a briefing (a plain topic and at most {CLAIMS_MAX} claims)",
+              file=sys.stderr)
         return 2
     new = [r for r in (_clean_claim(c, topic, as_of) for c in data["claims"]) if r is not None]
     rejected = len(data["claims"]) - len(new)
-    kept = [r for r in _load(store) if r.get("topic") != topic and r.get("expires", "") > as_of]
-    pruned = len(_load(store)) - len(kept) - sum(1 for r in _load(store) if r.get("topic") == topic)
+    existing = _load(store)
+    valid = [r for r in existing if isinstance(r, dict) and _schema_problem(r) is None]
+    dropped = len(existing) - len(valid)                 # tampered or malformed records are not carried forward
+    expired = sum(1 for r in valid if r["topic"] != topic and r["expires"] <= as_of)
+    kept = [r for r in valid if r["topic"] != topic and r["expires"] > as_of]
     seen, merged = set(), []
     for r in kept + new:
         if r["key"] not in seen:
             seen.add(r["key"])
             merged.append(r)
     _write(store, merged)
-    print(f"[briefing-library] {topic!r}: {len(new)} records ingested, {rejected} rejected, "
-          f"{max(pruned, 0)} expired pruned; {len(merged)} records in the store.")
+    print(f"[briefing-library] {topic!r}: {len(new)} records ingested, {rejected} rejected, {expired} expired "
+          f"pruned, {dropped} malformed dropped; {len(merged)} records in the store.")
     print("  NOTE: " + CEILING_BANNER)
     return 0
 
@@ -205,9 +248,10 @@ def check(store: Path, as_of: str) -> int:
         defects.append(f"DEFECT[TRACKED]  {reason}")
     manifest_path = store / "library-manifest.json"
     if not manifest_path.is_file():
-        print("  NEEDS-BUILD     no briefing library yet (advisory, exit 0)" if not defects else "")
         for d in defects:
             print("  " + d)
+        if not defects:
+            print("  NEEDS-BUILD     no briefing library yet (advisory, exit 0)")
         return 1 if defects else 0
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     lit = (store / "literature.jsonl").read_text(encoding="utf-8") if (store / "literature.jsonl").is_file() else ""

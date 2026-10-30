@@ -148,6 +148,11 @@ bash scripts/claude_researchteam_bridge.sh briefing-query  var/briefings "<terms
 - `kind` (`reported`, `contested`, `web` or `scholarly`), `single_source` and `sensitive`;
 - `as_of`, `expires`, `verification_state` and `record_text_sha256`.
 
+**Not a content screen.** `briefing_library.py` validates a claim's shape: its length, kind and dates, and that
+it has no links, markup or control characters. It does not screen what a claim says, so a claim worded as an
+instruction passes. The producer must screen read content before ingest (for example `agentteams.research.screen`,
+run by `build_briefing`), and every consumer treats records as data, never instructions.
+
 **What `check` treats as a defect:**
 - a stretched TTL, a changed `verification_state`, or a hand-edited file (`STALE`);
 - any record that fails `ingest`'s validation (`SCHEMA`).

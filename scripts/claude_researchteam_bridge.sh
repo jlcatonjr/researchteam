@@ -50,7 +50,7 @@ Commands:
   briefing-check <store> [--as-of DATE]
                 Integrity gate for a briefing library: TRACKED/SCHEMA/STALE/CEILING are DEFECTs (exit 1);
                 EXPIRED is advisory. See docs/literature-library-protocol.md (Briefing records).
-  briefing-query <store> "<terms>" [-k N]
+  briefing-query <store> "<terms>" [-k N] [--as-of DATE]
                 Lexical candidates among unexpired briefing claims (NAVIGATION only, NOT evidence).
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
