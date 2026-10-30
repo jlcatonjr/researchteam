@@ -44,6 +44,14 @@ Commands:
   library-check <project>
                 Integrity gate for the library: a DEFECT exits 1; no library yet (NEEDS-BUILD) exits 0.
                 See docs/literature-library-protocol.md for the full protocol + honest ceiling.
+  briefing-ingest <store> <briefing.json> [--as-of DATE]
+                Add one topic's briefing (dated external claims) to a gitignored briefing library;
+                replaces that topic's earlier records and prunes expired ones. Refuses a tracked store.
+  briefing-check <store> [--as-of DATE]
+                Integrity gate for a briefing library: TRACKED/SCHEMA/STALE/CEILING are DEFECTs (exit 1);
+                EXPIRED is advisory. See docs/literature-library-protocol.md (Briefing records).
+  briefing-query <store> "<terms>" [-k N]
+                Lexical candidates among unexpired briefing claims (NAVIGATION only, NOT evidence).
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -144,6 +152,15 @@ command_library_build() {
   fi
 }
 
+command_briefing() {
+  if [[ -f "scripts/briefing_library.py" ]]; then
+    python3 scripts/briefing_library.py "$@"
+  else
+    echo "Briefing library not found at scripts/briefing_library.py" >&2
+    exit 1
+  fi
+}
+
 command_library_query() {
   if [[ -f "scripts/query_literature_library.py" ]]; then
     python3 scripts/query_literature_library.py "$@"
@@ -227,6 +244,18 @@ case "$cmd" in
   library-check)
     shift
     command_library_check "$@"
+    ;;
+  briefing-ingest)
+    shift
+    command_briefing ingest "$@"
+    ;;
+  briefing-check)
+    shift
+    command_briefing check "$@"
+    ;;
+  briefing-query)
+    shift
+    command_briefing query "$@"
     ;;
   code-query)
     shift

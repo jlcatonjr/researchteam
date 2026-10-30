@@ -111,3 +111,43 @@ OrthodoxLLM has its own **instance-local, domain-specific** library pipeline
 canonical-repertory IDs) — a superset. This researchteam capability is the **domain-agnostic,
 stdlib** generalization; its gate is deliberately named `check_literature_library_integrity.sh` so it
 never overwrites OrthodoxLLM's instance-local `check_library_integrity.sh`.
+
+## Briefing records (the short-lived record class)
+
+A **briefing library** holds dated external claims about a topic: what outside sources reported, each with its
+source domain, attribution and date. An example is the output of `agentteams.research.build_briefing`. Its
+record class is `briefing`, and it differs from the literature library in four ways.
+
+- **Never committed.** The store is a directory the caller names, for example a derived product's `var/briefings/`.
+  `scripts/briefing_library.py` refuses a store that git would track (`DEFECT[TRACKED]`). A store outside any
+  git work tree is allowed.
+- **Perishable.** Every record carries `as_of` and `expires`:
+  - reported and contested claims last 7 days;
+  - web claims last 30;
+  - scholarly claims last 365.
+
+  `ingest` prunes expired records and replaces a topic's earlier records. `query` never returns an expired
+  claim. `check` reports `EXPIRED` as advisory.
+- **External claims, not relevance.** The indexed text is the claim. There is no `relevance.summary`, no `.bib`
+  key and no `NEEDS-ENRICHMENT` loop.
+- **Same layout and ceiling.** The store holds `literature.jsonl`, `term-vectors.jsonl` (raw counts, IDF at query
+  time) and `library-manifest.json` (`artifact_type: "briefing-index"`, the same ceiling banner). Records ship
+  `UNVERIFIED`. A rated outlet is provenance, not truth. A claim that survived a critic is "survived", never
+  "verified". News is a dated perspective.
+
+```bash
+bash scripts/claude_researchteam_bridge.sh briefing-ingest var/briefings briefing.json
+bash scripts/claude_researchteam_bridge.sh briefing-check  var/briefings      # TRACKED/SCHEMA/STALE/CEILING block
+bash scripts/claude_researchteam_bridge.sh briefing-query  var/briefings "<terms>"
+```
+
+**Each record holds:**
+- `key`, `record_class`, `topic`;
+- `claim` (at most 240 characters, with no link, markup or line break) and `source_domain`;
+- `attribution` (at most 120 characters) and `published_at`;
+- `kind` (`reported`, `contested`, `web` or `scholarly`), `single_source` and `sensitive`;
+- `as_of`, `expires`, `verification_state` and `record_text_sha256`.
+
+**What `check` treats as a defect:**
+- a stretched TTL, a changed `verification_state`, or a hand-edited file (`STALE`);
+- any record that fails `ingest`'s validation (`SCHEMA`).

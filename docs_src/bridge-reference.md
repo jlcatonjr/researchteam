@@ -40,6 +40,9 @@ A per-project, stdlib TF-IDF index over the agents' relevance summaries, under
 | `library-build <project>` | (Re)build the library (`scripts/build_literature_library.py`) |
 | `library-query <project> "<terms>"` | Lexical-similarity candidates (`scripts/query_literature_library.py`) |
 | `library-check <project>` | Integrity gate (`scripts/check_literature_library_integrity.sh`): a DEFECT exits 1; no library yet (NEEDS-BUILD) exits 0 |
+| `briefing-ingest <store> <briefing.json>` | Add one topic's dated external claims to a gitignored briefing library (`scripts/briefing_library.py`); refuses a tracked store |
+| `briefing-check <store>` | Briefing-library gate: TRACKED, SCHEMA, STALE or CEILING exits 1; EXPIRED is advisory |
+| `briefing-query <store> "<terms>"` | Lexical candidates among unexpired briefing claims (navigation only) |
 
 Script arguments are documented in [`scripts`](api-reference/scripts.md).
 

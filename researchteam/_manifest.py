@@ -54,6 +54,7 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/build_literature_library.py",
     "scripts/query_literature_library.py",
     "scripts/check_literature_library_integrity.sh",
+    "scripts/briefing_library.py",                 # short-lived briefing records (masterTeacher nx1f N22.5)
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",

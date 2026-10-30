@@ -3,6 +3,22 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased
+
+### added (briefing records: the literature library's short-lived record class)
+
+- **`scripts/briefing_library.py`** (`ingest`, `check`, `query`; bridge `briefing-ingest`, `briefing-check`,
+  `briefing-query`) keeps dated external claims in a gitignored briefing library. It uses the literature library's
+  layout, tokenizer and ceiling, with `artifact_type: "briefing-index"` and records of class `briefing`.
+  - TTLs: reported and contested 7 days, web 30, scholarly 365. Ingest prunes expired records and replaces a
+    topic's earlier records; query skips expired ones.
+  - A git-tracked store is refused (`DEFECT[TRACKED]`). Stretched TTLs, hand edits and malformed records are
+    `DEFECT[SCHEMA]` or `DEFECT[STALE]`.
+  - It is synced to scholarly derived repos (`SCHOLARLY_MANAGED_FILES`), and documented in
+    `docs/literature-library-protocol.md` (Briefing records) and `docs_src/bridge-reference.md`.
+  - From masterTeacher nx1f N22.5. It ingests the output of `agentteams.research.build_briefing`
+    (jlcatonjr/agentteams#336).
+
 ## 1.1.0rc2 (tag `v1.1.0-rc.2`, on `release/1.1`)
 
 The second 1.1 release candidate. It moves agentteams to `v1.1.0-rc.7` and retires the S-10 release cooldown, so derived
