@@ -167,11 +167,26 @@ def _schema_problem(r: dict) -> str | None:
     return None
 
 
+class CorruptStore(Exception):
+    """A store file that is not line-delimited JSON objects."""
+
+
 def _load(store: Path) -> list[dict]:
     path = store / "literature.jsonl"
     if not path.is_file():
         return []
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    out = []
+    for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            rec = json.loads(line)
+        except ValueError as exc:
+            raise CorruptStore(f"{path.name} line {n} is not JSON") from exc
+        if not isinstance(rec, dict):
+            raise CorruptStore(f"{path.name} line {n} is not an object")
+        out.append(rec)
+    return out
 
 
 def _write(store: Path, records: list[dict]) -> None:
@@ -262,7 +277,12 @@ def check(store: Path, as_of: str) -> int:
     banner = (manifest.get("ceiling_banner") or "").lower()
     if "navigation" not in banner or "not truth" not in banner:
         defects.append("DEFECT[CEILING]  manifest ceiling_banner missing (navigation-not-evidence / not-truth)")
-    records = [json.loads(line) for line in lit.splitlines() if line.strip()]
+    try:
+        records = _load(store)
+    except CorruptStore as exc:
+        print(f"  DEFECT[SCHEMA]   {exc}")
+        print("GATE FAILED: resolve DEFECT(s) before relying on the briefing library.")
+        return 1
     for r in records:
         problem = _schema_problem(r) if isinstance(r, dict) else "not an object"
         if problem:
@@ -285,7 +305,7 @@ def query(store: Path, q: str, k: int, as_of: str) -> int:
     if reason:
         print(f"[briefing-library] refused: {reason}", file=sys.stderr)
         return 2
-    records = {r["key"]: r for r in _load(store) if r.get("expires", "") > as_of}
+    records = {r["key"]: r for r in _load(store) if _schema_problem(r) is None and r["expires"] > as_of}
     vecs = {}
     vec_path = store / "term-vectors.jsonl"
     if vec_path.is_file():
@@ -345,6 +365,14 @@ def main(argv: list[str] | None = None) -> int:
         _usage()
     today = _today(as_of)
     cmd = args[0]
+    try:
+        return _dispatch(cmd, args, k, today)
+    except CorruptStore as exc:
+        print(f"[briefing-library] refused: {exc}; run check, then rebuild the store", file=sys.stderr)
+        return 2
+
+
+def _dispatch(cmd: str, args: list[str], k: int, today: str) -> int:
     if cmd == "ingest" and len(args) == 3:
         return ingest(Path(args[1]).resolve(), Path(args[2]), today)
     if cmd == "check" and len(args) == 2:

@@ -156,6 +156,19 @@ def test_query_ranks_and_k_limits(repo: Path) -> None:
     assert out.count("  0.") == 1 and "Bakeries" not in out
 
 
+def test_query_skips_malformed_records_and_a_corrupt_line_stops_cleanly(repo: Path) -> None:
+    store = _ingested(repo)
+    recs = records(store)
+    recs[0]["kind"] = "opinion"
+    _rewrite(store, recs)
+    assert "no lexical overlap" in run("query", str(store), "grid intrusion", "--as-of", TODAY).stdout
+    (store / "literature.jsonl").write_text("{not json\n")
+    assert run("query", str(store), "grid", "--as-of", TODAY).returncode == 2
+    assert run("ingest", str(store), str(briefing(repo, "t", [claim("A plain claim.")]))).returncode == 2
+    r = run("check", str(store), "--as-of", TODAY)
+    assert r.returncode == 1 and "not JSON" in r.stdout
+
+
 def test_duplicate_claims_are_stored_once(repo: Path) -> None:
     store = repo / "var" / "b"
     run("ingest", str(store), str(briefing(repo, "t", [claim("Same claim."), claim("Same claim.")])), "--as-of", TODAY)
