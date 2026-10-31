@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc11",
+  "agentteams_version": "1.1.0rc12",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "19ba0943664f4dadc848e689dfcb4a8549049171",
+    "commit": "ac93628a9b875cf1049100795291f2bd5f537a4d",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-28T22:21:34.579252+00:00",
+  "generated_at": "2026-10-31T03:36:26.467197+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "f571b2e035625ca2",
+  "manifest_fingerprint": "9817508b1efbdf62",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "589ccb90890706c7",
-    "references/security-vulnerability-watch.json": "30c2d619fa244217",
-    "security.md": "5f77760e24db9af7",
+    "references/security-vulnerability-watch.reference.md": "78fbe40638fc05d5",
+    "references/security-vulnerability-watch.json": "58e7c580d085a436",
+    "security.md": "f2a35c5ed17a8c49",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/framework-watch.reference.md": "21a796552c902998",
@@ -836,7 +836,7 @@
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "98fd5921a96f09c4a0864c5c2a65c1126824da09a2ac76430f25f72962ae1161",
-      "threat_intelligence": "fca3ea1653cc1b351f1b5c7e6e82fa8a8007ddea5b5e37dfd511a86e158cd0d4",
+      "threat_intelligence": "ebcb89efe338dc853dd3ee60176ee1d5b6ae31a294433a60f166651f84f31072",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {

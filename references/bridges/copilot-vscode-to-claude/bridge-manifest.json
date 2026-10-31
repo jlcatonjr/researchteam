@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-28T22:22:54.112223+00:00",
+  "generated_at": "2026-10-31T03:37:48.139344+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": ".github/agents",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "f9f535501dbb732aec61ddc8961674981fe96e2ce43f014f0ab7d7f9710447a5"
+      "sha256": "a088edc9e38cb07d0026d665d00e8d6be5049e2c667ec6bc4f9907e201e7033e"
     },
     {
       "path": "agents/team-builder.agent.md",
