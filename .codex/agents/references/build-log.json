@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc11",
+  "agentteams_version": "1.1.0rc12",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "19ba0943664f4dadc848e689dfcb4a8549049171",
+    "commit": "ac93628a9b875cf1049100795291f2bd5f537a4d",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-28T22:22:51.997776+00:00",
+  "generated_at": "2026-10-31T03:37:43.249331+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "fee0605847ffa000",
+  "manifest_fingerprint": "5495a5256125941f",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "e0479c1983d6b429",
-    "references/security-vulnerability-watch.json": "f48a2924d7619df0",
-    "security.toml": "4310273263131382",
+    "references/security-vulnerability-watch.reference.md": "4ccab719bd1ed1b2",
+    "references/security-vulnerability-watch.json": "e4d6112b6f2cad02",
+    "security.toml": "581db70151058685",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "818071a8bcd6f900",
     "navigator.toml": "3519e944e8f26d47",
@@ -578,7 +578,7 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "1d175d7c10ab644b",
+    "../../AGENTS.md": "fa2456574f1ac6f6",
     "team-builder.toml": "d3dd092c84096ecc",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
@@ -738,7 +738,7 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "44d617e3427f1b44ecb35adeb9232a4ec5c3e590a8c8b5c4db53a4e16750aeb3",
+      "threat_intelligence": "a9aa3c73b7764ee65abb8ca494fd7437009e62c56e1e6d4d1c7ad71577203eac",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
