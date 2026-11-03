@@ -3,8 +3,36 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## Unreleased (on `main`)
+## 1.1.0rc4 (tag `v1.1.0-rc.4`, on `release/1.1`)
 
+The fourth 1.1 release candidate. It moves agentteams to `v1.1.0-rc.15`, which brings back the S-10 release cooldown
+with two carve-outs, makes renders honour `frozen_surfaces`, and adds baseAgent's cross-surface fixes. Derived
+repositories take it by pinning this tag (`--researchteam-tag v1.1.0-rc.4`).
+
+- **The pin moves to the signed agentteams `v1.1.0-rc.15`** (tag object `167c8933`, peeled `9900fbd3`), in
+  `toolchain.lock` and both extras (#139; supersedes the unmerged rc.14 pin #137 and the rc.12 autosync #136). Since
+  rc.11 agentteams adds:
+  - Project-Specific Rules projected onto every instruction surface;
+  - `references/agent-surface-matrix.md` (now allowed in `validate_agentteams_update.sh`'s update scope);
+  - a read-only `--query-index`;
+  - renders that never write a path a frozen surface owns;
+  - the restored S-10 cooldown (fence v20).
+  
+  Its declared dependencies are unchanged apart from the research extra's `pypdf>=6.21.2` floor, a CVE remediation
+  since rc.12. The fresh OSV/GHSA search found nothing. Rows: `pin-agentteams-v1.1.0-rc.15`.
+- **The S-10 release cooldown is in force again** (operator ruling 2026-11-03, signed row
+  `s10-release-cooldown-restored`, #138), reversing the 2026-10-26 deprecation. It has two carve-outs:
+  - **Vulnerability remediation.** A release that fixes a vulnerability that `pip-audit`, `npm audit`, `cargo audit` or
+    an OSV.dev query found may be adopted inside the cooldown.
+  - **Local interdependent repositories.** The cooldown does not apply to releases of this toolchain's own
+    repositories.
+  
+  `docs/release-policy.md` is updated to match.
+- **researchteam exempts `jlcatonjr/agentteams` from the cooldown** (`brief.json` `s10_cooldown_exempt_repos`, signed
+  row `s10-cooldown-exempt:jlcatonjr/agentteams`; a 90-day sunset, re-checked on every render). Known gap: in rc.15
+  only the Copilot surface's `@security` names it. The Claude, Goose and Codex surfaces read their own decision logs and
+  still apply the cooldown to agentteams. That is stricter than intended, never looser. agentteams' fix (one canonical
+  governance log for S-10) is planned for `v1.1.0-rc.16`, and needs no new row here.
 - **Managed docs, from mathAgents' 2026-10-28 handoff.**
   - `docs/agentteams-update-policy.md` gains *Derived Repositories*: in a derived repo, an update is a refresh plus
     a projection to every unfrozen surface; a repo can state its own procedure in `CLAUDE.md` after the managed
