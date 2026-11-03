@@ -9,6 +9,7 @@ SECTION MANIFEST — copilot-instructions.template.md
 | authority_hierarchy   | FENCED        | Source hierarchy list                    |
 | source_repositories   | FENCED        | Authority source entries                 |
 | constitutional_rules  | USER-EDITABLE | Project may extend or customise          |
+| project_specific_rules| USER-EDITABLE | Extension home for instruction files     |
 | style_rules           | USER-EDITABLE | Project may extend or customise          |
 -->
 
@@ -223,3 +224,13 @@ Terse mode reduces consumer-harness token consumption on the
 common case of audit-and-route turns. Producing roles override the
 default explicitly by saying so in their first line.
 <!-- AGENTTEAMS:END tone_and_style -->
+
+---
+
+## Project-Specific Rules
+
+> ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions. This section lies
+> outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+> Agent persona files receive an equivalent `## Project-Specific Notes` region automatically from
+> `emit`; instruction files do not, so it is declared here. Additions here may extend the
+> Constitutional Rules; they may not weaken the Constitutional Core.

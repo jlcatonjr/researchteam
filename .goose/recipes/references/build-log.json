@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc12",
+  "agentteams_version": "1.1.0rc14",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "ac93628a9b875cf1049100795291f2bd5f537a4d",
+    "commit": "d88c53ed34e5c9170078caf76c5f727f801e1bdf",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-31T03:37:05.353213+00:00",
+  "generated_at": "2026-11-03T15:07:51.231109+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "697d12efbdf66753",
+  "manifest_fingerprint": "0aa03c2c2d02b914",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "e112a774b1942fd1",
-    "references/security-vulnerability-watch.json": "0053d8dc2dec0af1",
-    "security.yaml": "00169244f897712e",
+    "references/security-vulnerability-watch.reference.md": "4a9631eebc5f9e7d",
+    "references/security-vulnerability-watch.json": "1dc932bac7a2ee7c",
+    "security.yaml": "ee50af94719bbbfc",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -578,7 +578,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "fa2456574f1ac6f6",
+    "../../AGENTS.md": "4e1226f7011277a5",
     "team-builder.yaml": "8d447f4c66287bf1",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
@@ -701,7 +701,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "7bf93c4821b07d76cce7f76e427b03cacb27e6baf74678724f8f2d3b02cd5632",
+      "threat_intelligence": "5a4d9a3d7b0a92324ef50b04dfebc07ad8061ad39786eec4d53dafa6ed1f0d38",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",

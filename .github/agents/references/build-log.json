@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc12",
+  "agentteams_version": "1.1.0.dev0",
   "agentteams_source": {
-    "kind": "vcs-pin",
-    "commit": "ac93628a9b875cf1049100795291f2bd5f537a4d",
-    "branch": null,
-    "dirty": false
+    "kind": "checkout",
+    "commit": "a60fd11966f7c4a2dd150adbf73b598cd8a2c75c",
+    "branch": "chore/agentteams-1.1.0-rc.14",
+    "dirty": true
   },
-  "generated_at": "2026-10-31T03:35:46.426389+00:00",
+  "generated_at": "2026-11-03T15:10:39.366909+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -31,12 +31,15 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [],
+  "files_written": [
+    ".github/agents/references/api-impact.reference.md",
+    ".github/agents/references/operator-decision.reference.md"
+  ],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "1a69f80133e36dda",
+    "universal/orchestrator.template.md": "822b11f61bd45af8",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "12f027791fe214d2",
+    "universal/security.template.md": "36df1582c77e4cec",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -76,8 +79,10 @@
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
-    "universal/parallelization.reference.template.md": "12111b7bb9a9aa10",
-    "universal/sandbox-handoff.reference.template.md": "fe27b3ca2d7de60d",
+    "universal/parallelization.reference.template.md": "b64f1bdb7ebfe17c",
+    "universal/sandbox-handoff.reference.template.md": "ad52fed534b8421b",
+    "universal/api-impact.reference.template.md": "fa2a263b685388b9",
+    "universal/operator-decision.reference.template.md": "f29f5aac1ff23b3d",
     "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
     "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
@@ -367,6 +372,18 @@
       "component_slug": null
     },
     {
+      "path": "references/api-impact.reference.md",
+      "template": "universal/api-impact.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
+      "path": "references/operator-decision.reference.md",
+      "template": "universal/operator-decision.reference.template.md",
+      "type": "reference",
+      "component_slug": null
+    },
+    {
       "path": "references/instruction-authority.reference.md",
       "template": "universal/instruction-authority.reference.template.md",
       "type": "reference",
@@ -531,15 +548,19 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "8e1cc67099967030",
+  "manifest_fingerprint": "2ce8f860891cbaf0",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "a088edc9e38cb07d",
-    "references/security-vulnerability-watch.reference.md": "ae585da5aab00dfc",
-    "references/security-vulnerability-watch.json": "38b91ff674d46dff",
+    "references/api-impact.reference.md": "b07b9e28f1b85501",
+    "references/operator-decision.reference.md": "c39f98de3992883c",
+    "orchestrator.agent.md": "bbe37bd2c9774093",
+    "security.agent.md": "6fff10b95d4e96e8",
+    "references/security-vulnerability-watch.reference.md": "850de8b9ffdc8ef0",
+    "references/security-vulnerability-watch.json": "97f4c55f303b3b6e",
+    "references/parallelization.reference.md": "0c40fc2b6afe9339",
+    "references/sandbox-handoff.reference.md": "62bc460596cf7240",
     "references/pipeline-graph.md": "468377b007e20f44",
     "references/pipeline-graph.svg": "9bc9066885357454",
-    "orchestrator.agent.md": "f4cdf4ff2c2e7e07",
     "navigator.agent.md": "ec41b004d2b282b9",
     "code-hygiene.agent.md": "654d28d9fb509933",
     "adversarial.agent.md": "099d1135eceb514d",
@@ -559,6 +580,7 @@
     "reference-manager.agent.md": "13e119ce1f6a073f",
     "output-compiler.agent.md": "2fa4f0796f13dbfd",
     "visual-designer.agent.md": "d673edd9111b93ca",
+    "retrieval-integrator.agent.md": "6fffb054e4e9c122",
     "research-analyst.agent.md": "bcfe0889b33644ab",
     "tool-doc-researcher.agent.md": "3839b9063e6ba09c",
     "references/ref-pandoc-reference.md": "441afe924858a440",
@@ -576,15 +598,13 @@
     "literature-review-expert.agent.md": "71ca0e10c7675e1c",
     "main-analysis-expert.agent.md": "accdba4997ff89b4",
     "conclusion-expert.agent.md": "dcc12e07659f143c",
-    "../copilot-instructions.md": "3a6216f1b5f995c2",
+    "../copilot-instructions.md": "9234cb2e017bc4b8",
     "team-builder.agent.md": "8fb46693fb059db3",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "6574a79bc3912546",
-    "retrieval-integrator.agent.md": "6fffb054e4e9c122",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
-    "references/parallelization.reference.md": "fbd84bddbf5f6c13",
     "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/retrospective-remediation.reference.md": "a0945ac134972385",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
@@ -595,19 +615,19 @@
     "references/authorized-verify-keys/README.md": "badf32b421079acf"
   },
   "front_matter_baseline": {
-    "security.agent.md": {
-      "name": "Security \u2014 ResearchTeam",
-      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "['read', 'search']",
-      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
-      "user-invocable": "false"
-    },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
       "tools": "['read', 'edit', 'search', 'execute', 'todo', 'agent']",
       "handoffs": "\n  - label: Produce / Revise Deliverable\n    agent: primary-producer\n    prompt: \"A workstream is ready to produce or revise its deliverable. Provide the workstream name and any specific instructions.\"\n    send: false\n  - label: Audit Quality\n    agent: quality-auditor\n    prompt: \"A deliverable is ready for quality audit. Provide the file path.\"\n    send: false\n  - label: Repair Cohesion\n    agent: cohesion-repairer\n    prompt: \"A deliverable section has structural cohesion failures. Provide the file and section.\"\n    send: false\n  - label: Validate Technical Accuracy\n    agent: technical-validator\n    prompt: \"Audit technical accuracy of claims, code, or specifications in a deliverable. Provide the file path.\"\n    send: false\n  - label: Convert / Transform Output\n    agent: format-converter\n    prompt: \"Convert a primary deliverable to its secondary format. Provide the source file.\"\n    send: false\n  - label: Manage References / Dependencies\n    agent: reference-manager\n    prompt: \"Perform a reference operation: add, verify, deduplicate, or retire. Describe the operation.\"\n    send: false\n  - label: Compile Final Output\n    agent: output-compiler\n    prompt: \"Assemble and compile the final deliverable from all sources.\"\n    send: false\n  - label: Generate / Revise Diagram\n    agent: visual-designer\n    prompt: \"Generate or revise a diagram. Describe what is needed.\"\n    send: false\n  - label: Navigate Project\n    agent: navigator\n    prompt: \"Locate files, answer structural questions, or regenerate the project map.\"\n    send: false\n  - label: Security Review\n    agent: security\n    prompt: \"Review the planned action for credentials, destructive operations, or sensitive content.\"\n    send: false\n  - label: Code Hygiene Audit\n    agent: code-hygiene\n    prompt: \"Run a code hygiene audit. Provide scope or 'full' for all rules.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge the presuppositions underlying this plan before execution.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Detect contradictions across project files. Provide scope if targeted.\"\n    send: false\n  - label: Resolve Conflicts\n    agent: conflict-resolution\n    prompt: \"Make ACCEPT/REJECT/REVISE decisions on flagged conflicts.\"\n    send: false\n  - label: Clean Up Artifacts\n    agent: cleanup\n    prompt: \"Remove stale build artifacts, orphaned files, or abandoned drafts.\"\n    send: false\n  - label: Update Agent Docs\n    agent: agent-updater\n    prompt: \"Project structure or conventions have changed. Sync all affected agent files.\"\n    send: false\n  - label: Refactor Agent Docs\n    agent: agent-refactor\n    prompt: \"Check agent docs for reference extraction opportunities and spec compliance.\"\n    send: false\n  - label: Cross-Repository Liaison\n    agent: repo-liaison\n    prompt: \"Assess or communicate impact of this project's activity on adjacent repositories. Describe the change and list any known adjacent repos.\"\n    send: false\n  - label: Summarize Work Period\n    agent: work-summarizer\n    prompt: \"Create daily, weekly, or monthly work summaries from planning artifacts and git diffs for the requested period.\"\n    send: false\n  - label: Git Operations\n    agent: git-operations\n    prompt: \"Run a git operation: commit and push, pull/merge/rebase, resolve conflicts, or recover a file. Describe the operation needed.\"\n    send: false\n",
       "user-invocable": "true"
+    },
+    "security.agent.md": {
+      "name": "Security \u2014 ResearchTeam",
+      "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
+      "tools": "['read', 'search']",
+      "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
+      "user-invocable": "false"
     },
     "navigator.agent.md": {
       "name": "Navigator \u2014 ResearchTeam",
@@ -750,6 +770,15 @@
       "agents": "['format-converter', 'quality-auditor']",
       "handoffs": "\n  - label: Convert Figure Format\n    agent: format-converter\n    prompt: \"Diagram is ready for format conversion.\"\n    send: false\n  - label: Quality Check Figure\n    agent: quality-auditor\n    prompt: \"New or revised figure ready for quality check.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Visual design work complete.\"\n    send: false"
     },
+    "retrieval-integrator.agent.md": {
+      "name": "Retrieval Integrator \u2014 ResearchTeam",
+      "description": "\"Validates retrieval integration contracts in ResearchTeam \u2014 query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations\"",
+      "user-invocable": "false",
+      "tools": "['read', 'search', 'execute']",
+      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
+      "model": "[\"Claude Opus 4.8 (copilot)\"]",
+      "handoffs": "\n  - label: Technical Validation\n    agent: technical-validator\n    prompt: \"Validate retrieval claims and source-of-truth evidence for this integration.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge assumptions in retrieval mode, trigger wiring, and staleness checks.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Confirm retrieval contract statements are consistent with authority files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Retrieval integration validation complete.\"\n    send: false"
+    },
     "research-analyst.agent.md": {
       "name": "Research Analyst \u2014 ResearchTeam",
       "description": "\"Orchestrates the optional agentteams[research] runtime library in ResearchTeam \u2014 web search, reputable-source rating, and dual-lens claim verification\"",
@@ -809,18 +838,241 @@
       "tools": "['read', 'edit', 'search']",
       "handoffs": "\n  - label: Validate Enriched Content\n    agent: technical-validator\n    prompt: \"Content enrichment complete. Verify that filled-in values are technically accurate against project source files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Content enrichment complete. All auto-fillable placeholders have been resolved.\"\n    send: false",
       "user-invocable": "true"
-    },
-    "retrieval-integrator.agent.md": {
-      "name": "Retrieval Integrator \u2014 ResearchTeam",
-      "description": "\"Validates retrieval integration contracts in ResearchTeam \u2014 query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations\"",
-      "user-invocable": "false",
-      "tools": "['read', 'search', 'execute']",
-      "agents": "['technical-validator', 'adversarial', 'conflict-auditor']",
-      "model": "[\"Claude Opus 4.8 (copilot)\"]",
-      "handoffs": "\n  - label: Technical Validation\n    agent: technical-validator\n    prompt: \"Validate retrieval claims and source-of-truth evidence for this integration.\"\n    send: false\n  - label: Adversarial Review\n    agent: adversarial\n    prompt: \"Challenge assumptions in retrieval mode, trigger wiring, and staleness checks.\"\n    send: false\n  - label: Conflict Audit\n    agent: conflict-auditor\n    prompt: \"Confirm retrieval contract statements are consistent with authority files.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Retrieval integration validation complete.\"\n    send: false"
     }
   },
   "front_matter_baseline_version": 2,
+  "fence_baseline": {
+    "references/api-impact.reference.md": {
+      "api_impact": "d7323aadb7856a3298083d99eab889b3571a096ec4831144ae0d017037bb1b6a"
+    },
+    "references/operator-decision.reference.md": {
+      "operator_decision": "a5bfacb5896357ba5801a051bd50d571ede3524f7b74797314a6542e3af0aac9"
+    },
+    "orchestrator.agent.md": {
+      "constitutional_core": "f05ead693f33d316cc83453eb195d232f5ac76cd36d8cce45b3605e14747def4",
+      "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
+      "routing_table_rows": "caad1d79bd8137fe3c6bf300d2d6dc13301f5df84749fdb658517844f7c796a9",
+      "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
+      "available_workflows": "d7a1956fb34abe87120cc6442aef8acb2028e001d1dc64e85873014672b1d93e"
+    },
+    "security.agent.md": {
+      "threat_intelligence": "1ee9ca2802be814dd09774f6bbcfb3d88be400487a3a790e8fc0114376d88624",
+      "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
+      "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
+      "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
+      "security_rules_invariant": "911e43957ac16ad62c3b445052e809cf8a326ad1195e441f5418b1b61316f2b0"
+    },
+    "references/security-vulnerability-watch.reference.md": {
+      "threat_data": "092cdfab8bd05ccbedf6622b28978186686c5732c6fa160b75d2dd2617086926",
+      "operational_integration_process": "d0f4bee8580d904734bf5622085cd2e48005c302778e24410f92b310603e1f8a"
+    },
+    "references/parallelization.reference.md": {
+      "content": "0c40fc2b6afe9339099fa6ed9f15949c2d544135d0cc2ee0fb00925781ce8d6e"
+    },
+    "references/sandbox-handoff.reference.md": {
+      "sandbox_handoff": "0afffb8143ec8345110263eaf482f2584b8b961390ed1e8223b3a85f8217326d"
+    },
+    "navigator.agent.md": {
+      "invariant_core": "05aac7cabeea587ef7f6a7071f606bed85d271c26453655455db5122fe2fb52a",
+      "workstream_source_map": "552a7f33f6ea6ce73160e238fa18016bb11c4cc93dca53f57121f874f1ee0132",
+      "invariant_rules": "9f02cd5b924adde05a397c1b80f155200b00f523ebc2e4ddce10fc55dffb80bd",
+      "code_index_consultation": "560588e20a4a7fccd2004323c8aa94422d41e8aa7ebf8ff48ab7dcbc5142ff41"
+    },
+    "code-hygiene.agent.md": {
+      "content": "f1a8f853ab2438690e8436f7361b6960365ff48d1c514dad402085c87d9e193b"
+    },
+    "adversarial.agent.md": {
+      "content": "7af756d7bbf3c3a0c25e801aca0cdbe49fafdd795c3622f0d70ec513ceb66266"
+    },
+    "conflict-auditor.agent.md": {
+      "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
+      "rules": "9667b10268dd7a058c0dbeb757bbaf7937550a95bc459e2bdefcb4989b79b9a2",
+      "handoff_payload_conflict_codes": "506c97de1dfef1269beed438b6055154cd3a439047084983f9ac0a80353b7b51",
+      "invariant_core": "9b62e5b358ee6726ec3600c39b2c57fb451c623a4fb6ade7f4776c2570e836dc",
+      "typed_handoff_audit": "fc72a6ded9e4248c0c174d24b21d57fe6ddd2bc09cf71feba6f5ddeac4802f67",
+      "behavioral_spec_cross_check": "d33518a32d59fa60e97f94e60df6934397e5e937e4716aea6a8e28f6fefbe597",
+      "handoff_payload_codes": "38a1bcd36aa352b02b6d96b38af008454e46d34b558188c323241ef43c3f3e1a",
+      "memory_index_consultation": "d73e2eb4b3c7d5d30693d0f8f8d088d74ef4be6f0292e816083e774d29c563c2"
+    },
+    "conflict-resolution.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "memory_index_consultation": "1f9ab4e9c464b9123c74b5416a22acd7c1086b5f4d8311ac68c5c22969411f9b",
+      "rules": "5a133df68a1d37204898e3310a3756bb9bf7dbd1ede35e31e2b5800dcef55e65"
+    },
+    "cleanup.agent.md": {
+      "content": "7f07a2ddd7ff949313785571e9b408c8e85be29a73dd18a3e076120c29e94957"
+    },
+    "agent-updater.agent.md": {
+      "content": "14ccfa5a6f61e1504ed19650c3fc947643483b820175b69c32d2ce51fca92c62"
+    },
+    "agent-refactor.agent.md": {
+      "content": "cbe2b3a725b226706c60501a2c98497238d1f1525bc7a9869745b84df0355a56"
+    },
+    "repo-liaison.agent.md": {
+      "purpose": "ec87a91e7a040f445db9af2a85b4f43fded764957b9f49a7d75145677732ffab",
+      "invariant_core": "11ee3a421de34d2567653140682221671470b77bf96cecc7835dbe6264849745",
+      "protocols": "ebd4a9509ff2d57077334dd4978e5eb0a151d88782fde4690036bf539438b1b2",
+      "output_format": "92a7ecbd969c55a1ba9b02c7d56b9e23c4a65d486eeb6a0ae775690d3fbd6a46"
+    },
+    "work-summarizer.agent.md": {
+      "content": "7c74bc5da06bb56cd3a2decb51fd55dda3438ecee4d341783726ddec6a70a15b"
+    },
+    "primary-producer.agent.md": {
+      "content": "f831a31d8230c56530ab65ef810806e3e47a49b5c3e253a1a5bb5eb4d7bb4008"
+    },
+    "quality-auditor.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "defect_taxonomy": "e9468640170cbdc1e966b0c589f2d1e4926c1fde9ca792f49923fae80e903b79",
+      "memory_index_consultation": "f9040d9f95fdeec1cddaf21ba6a5764730ea3cf3590ab7d90d3aafe48bc84043",
+      "audit_protocol": "6f7dd04ad5bc4fdc90898a08269ca14eca4e0bd5826af0444d66debf313e1498",
+      "output_format": "4d2983fcb4a1bb09df289219928ea3844d56fed192f91098c702e458b5eb0e6e",
+      "boundary_rules": "91444ed2e3202780cdc752d5e4cefb5aea17e9d58c0d6dd6b009dcbf51e7f64c"
+    },
+    "cohesion-repairer.agent.md": {
+      "content": "a8a3316a5e38b522d2102fe2f0e6bfb4202f11ee99d1decf6252ee1460adb57e"
+    },
+    "technical-validator.agent.md": {
+      "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
+      "invariant_core": "7adfc511ccfd9b2a91c93a9a441afdc6b9650de80c17bfa4751125e09075621f",
+      "accuracy_rules": "cf7b9555eed3b39638fa1c1016f84caa590691686fdf6b47aeabc8ea8b2b0417",
+      "memory_index_consultation": "52ec6bf27003097b9c859c6f179946fd38b01fcb45a85f776398d22242442aa3",
+      "cross_reference_rules": "a98aee0f1402dd069e280347dd6eb751d7de27c4f05884aa43aebb4b484cd92e",
+      "output_format": "7bf8d1da76afa8db69ae4e2382d560767ef4c7a7831cc4d60f4917edc553272c",
+      "boundary_rules": "633e41e63ba35fde70c573320cc6ddbe6983a5b5644ad52a08dfd6a330768cda"
+    },
+    "format-converter.agent.md": {
+      "content": "52b0f5c51a5dcaf4e1dd45325681b188636f97e517aadd26de6dda207bbe2f3d"
+    },
+    "output-compiler.agent.md": {
+      "content": "973c0762a5d2c40381f1261c4dc82877804370a5e0212938fb43fd70ed5e8a79"
+    },
+    "visual-designer.agent.md": {
+      "content": "aaee8537be04a2ff66b2c3fadfd1064b5f7d6248f065a9c98bf670093b6fbb1d"
+    },
+    "retrieval-integrator.agent.md": {
+      "invariant_core": "c6e2ebd81a8bf4709f2e941bc865ef0e063a86a8c87d85e9eee3ae26db803205",
+      "memory_index_consultation": "d2b225360709018676d13dd25afa66da1b2047759b7a5b97c29c66e8b9c6b23e",
+      "code_index_consultation": "e661688f593d1e0ad46895f7436b88e2f0f4340b85ef84636584c2e395f34a90",
+      "validation_procedure": "c374434c6ac0802c268d92c106adfa99ea03a91d245b5c377133a1f26c19bb99",
+      "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
+    },
+    "research-analyst.agent.md": {
+      "a_note_on_what_you_orchestrate": "a29ed82747ee6ab724f33e69855718c16dd9fa0289da6ab61fd62b68989e2029",
+      "invariant_core": "335ad3c0f668cb985c409ad570c0d734c1f7434470deb18959bc2e4e8480f674",
+      "memory_index_consultation": "75c24a1268805ce7a248e353dfde27fe49c649afc6be216ac0fe1129d9fcccaf",
+      "procedure": "f5fdd70bde5a761b09aae5d78717c47d193350b093efae076a137096be65554a",
+      "external_retrieval_quality_gate": "77f54ec03535c1bc9ce99cc3090889913fa3441c6261c7df3d9562288aed1ef6",
+      "output_format": "f751fcb4fa4f36501bc3ec3bba179f2483438521a4bb529a6e3ef7a1e73fe218",
+      "external_retrieval_quality_gate_output": "5b130293ed8b3531d99ad4e53bf2ec6d9cddcba11cc28df28e962a185e16c04a"
+    },
+    "tool-doc-researcher.agent.md": {
+      "invariant_core": "57148e053e2c27129b9d1550b06c854d3aed1ba20bdef4ed5d4f88ec07df9e87",
+      "memory_index_consultation": "61299ede6b2272a9f6aa7fca1cbe2775b329255da4060eff8e95a80aba848f54",
+      "documentation_discovery_strategies": "fbf469b5f86a24b9f66c3f8f87eca9aadf8669ad889a3f87caf133c4262f347f",
+      "what_to_research_per_tool": "41740352b84e48194ff41b84964ba9dd823e190864d4664e2c7826fe555bb14e",
+      "quality_constraints": "9fc5e1d33a34845b9af7f7dad60258c421ae7cc0721778e6bfec696a5c5405f6",
+      "output_format": "26feb1e9773fc461668c089a1538711f3be813573798cf809ac13b87eba9c204",
+      "external_retrieval_quality_gate": "86ea12930fbd72607c3f26ded370da4ff1ec1b164c379d948f7d64025adf6cdd"
+    },
+    "references/ref-pandoc-reference.md": {
+      "key_api_surface": "98446aeef126997088239164244a7a350b2354dcf0ab94a6368fe23b9b02e2c6",
+      "tool_api_surface": "39bc07f166be47645f2a22f18e8d29c69acac3f67dd08da4a61d8955402f4f72",
+      "output_interpretation": "c753df411c4c7bea1926314ff8f845c9e7d3d2defe490730f801183ef24c4670"
+    },
+    "references/unix-philosophy-mapping.reference.md": {
+      "content": "6292c05a2ffa85201d43b8e12efe1c1bafbe8eba5ac8a4137ac432a0f1ae2422"
+    },
+    "references/security-linux-hardening.reference.md": {
+      "linux_hardening": "5e21d4dda682e52b04a021fad5e3f9a2ddb244aad10afa8e5dd7c87d900c79a5",
+      "operational_integration": "75dc3a601517f62f32dbe2e8522607fdd7338973847aebedd68c3bf8862cff8a"
+    },
+    "references/security-macos-hardening.reference.md": {
+      "macos_hardening": "d8450905ea9b0781ce6c5bc9562cce04fb5bbb6bcc2126aa8ffb0537c8609c01",
+      "operational_integration": "117c2522e724739b938f4a4dc0ddc7a52a24c7d1684fe3e74a9cfb0000174dcd"
+    },
+    "references/security-windows-hardening.reference.md": {
+      "windows_hardening": "cce35cbc130fe3e81f627147e682d05eebd5510b7ba43099ce5ac649032d7cb9",
+      "operational_integration": "d4eadf5c7db34aa596bd3efca7fee605b2874ea5c7b768d64282da66b1805573"
+    },
+    "references/ai-bad-habits-watch.reference.md": {
+      "content": "7cd164a25e954e7aacb751e18fd43fc17a91ee94e99c6497e98a0bb3219083e1"
+    },
+    "references/framework-watch.reference.md": {
+      "operational_integration_process": "157d0f536d83f2a774e8b4520699ed625464572a33f1eb05f8e57498b91e1361",
+      "conformance_standard_check": "537d190f9ffb045d217e5a602dba6a0a5fafb21283aeaa0d28435edb5952c618"
+    },
+    "references/adjacent-repos.md": {
+      "registry_header": "d02144704af3d27cdc93d526731ba08706ef34d8b8c46aa0c03a0a2771aa4c2a",
+      "cross_orchestrator_coordination_log": "ef5dcca20d4a2a51a7724bbe176f9546c5b0281590a89f8a0312bf9155547ceb",
+      "retired_entries": "4ca30cab8d0e2bcc2b3d38a8775a062d2fbf3dac303dc8aac5c9ce0d4c4ea7ef"
+    },
+    "topic-scoping-expert.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "component_spec": "6d7969c81a89d9eeb07adaa1d9f944d9f60ad9d2d6fe374e69bfd2e50e227245",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf"
+    },
+    "literature-review-expert.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "component_spec": "ba768851892512055813cd4d61100454902485625091496f1cba3a3cd424258f",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf"
+    },
+    "main-analysis-expert.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "component_spec": "08ea551d2f8030717f0c52dd8d7da2f1fede535d6580a45b4aa78069176834a9",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf"
+    },
+    "conclusion-expert.agent.md": {
+      "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
+      "component_spec": "0e8cb3f5f9e024049680f83f06c2bf93e075feab1a961e73ce8bd93072d1b566",
+      "review_protocol": "02cf50fba478fcc6202c2ffde432fbb02b7506c9784246ad66dbd71459959caf"
+    },
+    "../copilot-instructions.md": {
+      "project_overview": "07dcb3e732c748cc1c71e38b9d2f3e570325f2c2bf036d5f02accf6571a092fa",
+      "directory_structure": "799d41fb36097027e1199a3095dd99d214c204f8dfd4f5fd63c0e0b25f17cecc",
+      "output_conventions": "353216e282769cc6474fb33c8db38a3362159ef92591f8ea12effa39f3e3d595",
+      "agent_team": "43386e55455ed47cf2f2dbc37bcd20bfbd8b57759d2165ed94885c3120301293",
+      "authority_hierarchy": "5ca16ab8402b9373f111ec96d2e4eb4324ea82c36aa4b5fafeb806921ed3aa01",
+      "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
+      "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
+      "tone_and_style": "d0b42a0c3d2c045dbbe4e980eb42023b1b31915d93e219545a8f78de1dcece24"
+    },
+    "team-builder.agent.md": {
+      "content": "227e43b27bdc041ee2feda6002a1e3dd8f32360851d32c09bb2c6951bea7dd31"
+    },
+    "references/work-summary-spec.reference.md": {
+      "content": "96232231a1f7c6bedf5f88786a47ade3b083b9863a26df30049c8de946d6f1bc"
+    },
+    "references/work-summary-tooling.reference.md": {
+      "content": "f3656972717153a91dc1fb099d9af73f6d11aa9d616edc99a664c24b3f4d221d"
+    },
+    "references/work-summary-backfill.reference.md": {
+      "content": "0169973c90979a3d733b51af4a6dc255d3fc27bc60b398dba08d63661be2f234"
+    },
+    "references/instruction-authority.reference.md": {
+      "content": "685d5590c135102bbb8ebb4bf22851f981f11a5433bd210e8eae3fb342f8df06"
+    },
+    "references/retrospective-remediation.reference.md": {
+      "content": "a0945ac1349723853641e97b51a568820995e26acd47309caf8d187782eaa3ff"
+    },
+    "references/cli-tool-discovery.reference.md": {
+      "content": "5a5b553acd907c934b92e261dad5fed2acd720a79e724bf81d8806bb53fd2c26"
+    },
+    "references/skill-generation.reference.md": {
+      "content": "3078fc869d2f87909adf2ad011696303881842d347963902da35de17eb2d4ba5"
+    },
+    "references/external-retrieval-quality-gate.reference.md": {
+      "content": "b235cfffb74fd0f35efe9c4c3c87c8bfe08329cb5be12a41b3d149bdadc0ed37"
+    },
+    "references/retrieval-integration.reference.md": {
+      "content": "64287ba420232229e2fb24c72ff69cfd15c691557cadeb031a41c062da4bfda9"
+    },
+    "references/retrieval-trigger-contract.reference.md": {
+      "content": "5d7c73c524a48061dafecc7259f3307cf0b1f3251ad82c1a786309ac0f030f1c"
+    },
+    "references/authorized-verify-keys/README.md": {
+      "content": "badf32b421079acf99f54a9748ec8d8115e224a762329dfce074095ed50a56a6"
+    }
+  },
   "prompt_root_hashes": {
     ".github/agents/adversarial.agent.md": {
       "content": "7af756d7bbf3c3a0c25e801aca0cdbe49fafdd795c3622f0d70ec513ceb66266"
@@ -891,9 +1143,9 @@
     ".github/agents/orchestrator.agent.md": {
       "constitutional_core": "f05ead693f33d316cc83453eb195d232f5ac76cd36d8cce45b3605e14747def4",
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
-      "routing_table_rows": "b87a841af0a9df1806a26e911847f90e0f1891649cc6e7f1839ed93833f18053",
+      "routing_table_rows": "caad1d79bd8137fe3c6bf300d2d6dc13301f5df84749fdb658517844f7c796a9",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "1ac8cfc99421c2d7b4bff23fbf84a49c64f10b2a315fb0fb4f54bf8ea38d4529"
+      "available_workflows": "d7a1956fb34abe87120cc6442aef8acb2028e001d1dc64e85873014672b1d93e"
     },
     ".github/agents/output-compiler.agent.md": {
       "content": "973c0762a5d2c40381f1261c4dc82877804370a5e0212938fb43fd70ed5e8a79"
@@ -935,11 +1187,11 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "f385eb6787479a1d766879912b86eaeb9074c6471e4e9c0a7198a50a5e0cf358",
+      "threat_intelligence": "1ee9ca2802be814dd09774f6bbcfb3d88be400487a3a790e8fc0114376d88624",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "98fd5921a96f09c4a0864c5c2a65c1126824da09a2ac76430f25f72962ae1161"
+      "security_rules_invariant": "911e43957ac16ad62c3b445052e809cf8a326ad1195e441f5418b1b61316f2b0"
     },
     ".github/agents/team-builder.agent.md": {
       "content": "227e43b27bdc041ee2feda6002a1e3dd8f32360851d32c09bb2c6951bea7dd31"
