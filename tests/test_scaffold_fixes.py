@@ -102,6 +102,7 @@ def test_scope_allows_every_surface_a_layer1_run_writes(tmp_path):
         # exact layer-1 root artifacts (eaae749, 9fe245d, 3e3dc71) and the Codex role gate (agentteams b96e7e3)
         "references/architecture-graph.md", "references/architecture-graph.svg",
         "references/architecture-modules.svg", ".goosehints", "SETUP-REQUIRED.md",
+        "references/agent-surface-matrix.md",  # agentteams v1.1.0-rc.14 (cross-surface #356-#359)
         ".agentteams/bin/codex-role-gate.py",
     ])
     r = _scope(tmp_path, written)
