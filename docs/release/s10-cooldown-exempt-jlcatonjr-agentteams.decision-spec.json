@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-03",
+  "date": "2026-11-03",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "s10-cooldown-exempt:jlcatonjr/agentteams",
+  "verdict": "PASS",
+  "scope": "s10-cooldown-exempt:jlcatonjr/agentteams",
+  "conditions": "Operator ruling 2026-11-03 (s10-release-cooldown-restored): the S-10 14-day release cooldown does not apply to updates of local, interdependent repositories. researchteam names jlcatonjr/agentteams in brief.json s10_cooldown_exempt_repos, so its rendered @security lists it under Rule S-10's local interdependent-repository carve-out (agentteams cli/s10_exempt_gate; 90-day sunset, re-verified on every render). The carve-out lifts the cooldown only: every agentteams adoption still needs the known-vulnerability search on its exact name==version and any changed dependency (OSV/GHSA, including MAL-* entries), Rule S-9's signed-tag identity check against the release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM, and its own pin row.",
+  "conditions_verified": "brief.json s10_cooldown_exempt_repos = [\"jlcatonjr/agentteams\"] validates against agentteams v1.1.0-rc.15 schemas/project-description.schema.json; row shape per s10_exempt_gate._check_new (scope = effect_relaxes = the action, no effect_grants)",
+  "evidence": "Operator answer in researchteam session researchteam-25, 2026-11-03 (\"Add agentteams to brief\"), on branch chore/agentteams-1.1.0-rc.15; agentteams v1.1.0-rc.15 renders the carve-out only for repositories this row covers",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored",
+  "effect_grants": "",
+  "effect_targets": "brief.json",
+  "effect_relaxes": "s10-cooldown-exempt:jlcatonjr/agentteams",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

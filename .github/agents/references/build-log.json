@@ -3,11 +3,11 @@
   "agentteams_version": "1.1.0.dev0",
   "agentteams_source": {
     "kind": "checkout",
-    "commit": "263f64149d02003a383f12c956f1d68c3ca0ce16",
+    "commit": "876056aa1141870ef0cc6ea1b6e3c8d3eab672a1",
     "branch": "chore/agentteams-1.1.0-rc.15",
     "dirty": true
   },
-  "generated_at": "2026-11-03T19:50:26.046053+00:00",
+  "generated_at": "2026-11-03T19:52:26.720081+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -31,10 +31,7 @@
     "main-analysis",
     "conclusion"
   ],
-  "files_written": [
-    ".github/agents/references/api-impact.reference.md",
-    ".github/agents/references/operator-decision.reference.md"
-  ],
+  "files_written": [],
   "manual_required": 8,
   "template_hashes": {
     "universal/orchestrator.template.md": "822b11f61bd45af8",
@@ -548,13 +545,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "d3948e4c932196b7",
+  "manifest_fingerprint": "2c5e3819f1b45c07",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/api-impact.reference.md": "b07b9e28f1b85501",
-    "references/operator-decision.reference.md": "c39f98de3992883c",
-    "security.agent.md": "459f713d47357f2b",
-    "references/security-vulnerability-watch.json": "cf3f2c7899c3c966",
+    "security.agent.md": "3e00a16adc6314cb",
+    "references/security-vulnerability-watch.json": "ea9c6dc01c384a2b",
     "references/pipeline-graph.md": "468377b007e20f44",
     "references/pipeline-graph.svg": "9bc9066885357454",
     "orchestrator.agent.md": "bbe37bd2c9774093",
@@ -592,8 +587,6 @@
     "references/framework-watch.reference.md": "a989bfe037c80ea3",
     "references/adjacent-repos.md": "78d20a4fde516de3",
     "references/github-workflows-merge.reference.md": "d17a1c652ba84bbd",
-    "references/parallelization.reference.md": "0c40fc2b6afe9339",
-    "references/sandbox-handoff.reference.md": "62bc460596cf7240",
     "topic-scoping-expert.agent.md": "eaeb80e7233d05b9",
     "literature-review-expert.agent.md": "71ca0e10c7675e1c",
     "main-analysis-expert.agent.md": "accdba4997ff89b4",
@@ -605,6 +598,7 @@
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
+    "references/parallelization.reference.md": "0c40fc2b6afe9339",
     "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/retrospective-remediation.reference.md": "a0945ac134972385",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
@@ -842,14 +836,8 @@
   },
   "front_matter_baseline_version": 2,
   "fence_baseline": {
-    "references/api-impact.reference.md": {
-      "api_impact": "d7323aadb7856a3298083d99eab889b3571a096ec4831144ae0d017037bb1b6a"
-    },
-    "references/operator-decision.reference.md": {
-      "operator_decision": "a5bfacb5896357ba5801a051bd50d571ede3524f7b74797314a6542e3af0aac9"
-    },
     "security.agent.md": {
-      "threat_intelligence": "d60c1f1efe5cdf9c88018c36a9c51bca419a55905b8cc111193695c52dcda738",
+      "threat_intelligence": "b9b5204c755d554696bd176bb3a4e4900f137ca5768dc45efc34eabeb0e7fb95",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
@@ -1000,12 +988,6 @@
       "cross_orchestrator_coordination_log": "ef5dcca20d4a2a51a7724bbe176f9546c5b0281590a89f8a0312bf9155547ceb",
       "retired_entries": "4ca30cab8d0e2bcc2b3d38a8775a062d2fbf3dac303dc8aac5c9ce0d4c4ea7ef"
     },
-    "references/parallelization.reference.md": {
-      "content": "0c40fc2b6afe9339099fa6ed9f15949c2d544135d0cc2ee0fb00925781ce8d6e"
-    },
-    "references/sandbox-handoff.reference.md": {
-      "sandbox_handoff": "0afffb8143ec8345110263eaf482f2584b8b961390ed1e8223b3a85f8217326d"
-    },
     "topic-scoping-expert.agent.md": {
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
       "component_spec": "6d7969c81a89d9eeb07adaa1d9f944d9f60ad9d2d6fe374e69bfd2e50e227245",
@@ -1047,6 +1029,9 @@
     },
     "references/work-summary-backfill.reference.md": {
       "content": "0169973c90979a3d733b51af4a6dc255d3fc27bc60b398dba08d63661be2f234"
+    },
+    "references/parallelization.reference.md": {
+      "content": "0c40fc2b6afe9339099fa6ed9f15949c2d544135d0cc2ee0fb00925781ce8d6e"
     },
     "references/instruction-authority.reference.md": {
       "content": "685d5590c135102bbb8ebb4bf22851f981f11a5433bd210e8eae3fb342f8df06"
@@ -1187,7 +1172,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "d60c1f1efe5cdf9c88018c36a9c51bca419a55905b8cc111193695c52dcda738",
+      "threat_intelligence": "b9b5204c755d554696bd176bb3a4e4900f137ca5768dc45efc34eabeb0e7fb95",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",

@@ -2,7 +2,7 @@
 "artifact_type":"memory-index",
 "memory_index_schema_version":"1.3",
 "index_format_version":"json-bm25-postings-v3",
-"index_build_id":"bd6b6e2b9993a106975757a50305cfa4e775832c67d54a966041eabbc1ff9323",
+"index_build_id":"1b6825d71f28410f7410ced1e0135648e9edb844ce5c06cd4f81614d42e45e2e",
 "index_write_owner":"agentteams.build_team",
 "vector_runtime_mode":"sparse-tfidf-cosine",
 "vector_model_id":null,
@@ -11,7 +11,7 @@
 "source_fingerprint":"3c506ab8b1bfe8a1de0ad939afdad06d5dbeb29942d1338a305ab947088ac05a",
 "project_name":"ResearchTeam",
 "framework":"copilot-vscode",
-"built_at":"2026-11-03T19:50:26.089105Z",
+"built_at":"2026-11-03T19:52:26.760880Z",
 "source_count":38,
 "documents":[
 {"doc_id":0,"path":"workSummaries/daily/2026-08-23.md","title":"Daily Work Summary \u2014 2026-08-23","length":266,"snippet":"- **Plan:** `tmp/by-week/2026-W34/create-healthresearch-repo.plan.md` (+ `.steps.csv`) \u2014 all steps `done`. - **Method:** plan \u2192 adversarial + conflict audit (parallel) \u2192 revise into binding R1\u2013R9 \u2192 implement \u2192 gates.","paragraphs":[
