@@ -111,7 +111,8 @@ accepted `DEFENDED`), and was excluded from the baseline then.
 
 ## Execution Policy
 
-1. **Scheduled runs are SHA-gated, not dry-run.** A scheduled run does nothing unless agentteams `main`
+1. **Scheduled runs are SHA-gated, not dry-run.** (Where the schedule is enabled; for a paused one, see
+   *Derived Repositories* below.) A scheduled run does nothing unless agentteams `main`
    has advanced past the SHA recorded in `.github/agentteams-autosync-ref`. agentteams is a git
    dependency whose version string does **not** move on every change (it stayed `1.0.0rc6` across 8
    substantive commits), and `--update --merge` refreshes threat-intel/graphs/timestamps on every run —
@@ -197,6 +198,30 @@ Under a release lock, the Execution Policy above changes as follows:
 
 Moving a pin is a security event: record each move in an `@security` row naming the tag object and the
 peeled SHA.
+
+## Derived Repositories: what an update means, and a paused schedule
+
+**An update is a refresh plus a projection to every unfrozen surface.** In a derived repository, one update
+syncs Layer 2 and then merges agent infrastructure into every agent surface the repository carries
+(copilot-vscode, then each native claude/goose surface, then Codex), skipping any surface listed in
+`brief.json` `frozen_surfaces`. `researchteam update` does all of this by itself. A repository whose roster
+includes bespoke agents with no agentteams template (adopted agents) may wrap it in its own procedure, for
+example `researchteam update`, then `researchteam materialize --adopt-orphans` for the adopted agents, then a
+render-consistency check. The rule is the same either way: the update is not finished until every unfrozen
+surface is projected and checked.
+
+**Where a derived repository states its own procedure.** This file is synced wholesale, so a local edit here is
+overwritten on the next `researchteam update`. Write the procedure in `CLAUDE.md` *after* the
+`researchteam:managed` block instead. `update` replaces only the block, and `personalize` regenerates only the
+header above it, so the text after the block is project-owned and survives both. Name the script there, and say
+whether the schedule is paused.
+
+**A paused schedule means dispatch only.** A derived repository may pause its weekly autosync: the schedule is
+disabled with `gh workflow disable`, or commented out of its own `agentteams-sync.yml`. That workflow is seeded
+at `init` and is not synced. While the schedule is paused, the scheduled runs described in *Execution Policy*
+1–2 and *Automatic Integration* 3 do not happen. Integration happens only through an operator-dispatched
+`workflow_dispatch` run, or through the repository's local procedure above. Everything else in this policy
+still applies to those runs: the gates, the evergreen PR, review by a human, rollback.
 
 ## Automatic Integration (keep the tree always integrated)
 

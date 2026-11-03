@@ -3,6 +3,14 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (on `main`)
+
+- **Managed docs, from mathAgents' 2026-10-28 handoff.**
+  - `docs/agentteams-update-policy.md` gains *Derived Repositories*: in a derived repo, an update is a refresh plus
+    a projection to every unfrozen surface; a repo can state its own procedure in `CLAUDE.md` after the managed
+    block; and a paused schedule means dispatch only.
+  - `docs/retrieval-surfaces.md` no longer names one fixed bridge pair.
+
 ## 1.1.0rc3 (tag `v1.1.0-rc.3`, on `release/1.1`)
 
 The third 1.1 release candidate. It moves agentteams to `v1.1.0-rc.11`, so derived repositories can take the
