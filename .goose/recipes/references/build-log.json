@@ -7,7 +7,7 @@
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-03T19:46:52.478882+00:00",
+  "generated_at": "2026-11-03T23:08:41.918708+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -531,13 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "f5f5a3327fa5ccfe",
+  "manifest_fingerprint": "b2ca9405480769fe",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "f02f703895a9fee7",
-    "references/security-vulnerability-watch.json": "aed9622d9b69ae37",
-    "orchestrator.yaml": "67985a9afec95080",
-    "security.yaml": "9de5cadce92356fe",
+    "references/security-vulnerability-watch.reference.md": "9eaadfb4ed9a3418",
+    "references/security-vulnerability-watch.json": "4f604d58e0d1bf75",
+    "security.yaml": "94a7280236ca3610",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -551,6 +550,7 @@
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/retrospective-remediation.reference.md": "88130ea49b12c4b5",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
+    "orchestrator.yaml": "67985a9afec95080",
     "navigator.yaml": "71228e6e0b1122f0",
     "code-hygiene.yaml": "68eaba54394c151a",
     "adversarial.yaml": "3b234b9c1c1896d2",
@@ -578,7 +578,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "4e1226f7011277a5",
+    "../../AGENTS.md": "406a84f08dab90c5",
     "team-builder.yaml": "8d447f4c66287bf1",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
@@ -701,7 +701,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "93539d224d270e7449ba1b3ae52d88b93d394aa1d8093a44adb837fbb95120e8",
+      "threat_intelligence": "f4dce605a734024cabf8325f3de3ce3d81bc4705582fb38855a880817b9f5470",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",

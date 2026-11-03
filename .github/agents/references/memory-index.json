@@ -2,7 +2,7 @@
 "artifact_type":"memory-index",
 "memory_index_schema_version":"1.3",
 "index_format_version":"json-bm25-postings-v3",
-"index_build_id":"1b6825d71f28410f7410ced1e0135648e9edb844ce5c06cd4f81614d42e45e2e",
+"index_build_id":"700deedcd7bffa0bfe27f266c1d5fc16d5e6a19bfe7d3a028d8eaa0d7ba7f138",
 "index_write_owner":"agentteams.build_team",
 "vector_runtime_mode":"sparse-tfidf-cosine",
 "vector_model_id":null,
@@ -11,7 +11,7 @@
 "source_fingerprint":"3c506ab8b1bfe8a1de0ad939afdad06d5dbeb29942d1338a305ab947088ac05a",
 "project_name":"ResearchTeam",
 "framework":"copilot-vscode",
-"built_at":"2026-11-03T19:52:26.760880Z",
+"built_at":"2026-11-03T23:11:09.746455Z",
 "source_count":38,
 "documents":[
 {"doc_id":0,"path":"workSummaries/daily/2026-08-23.md","title":"Daily Work Summary \u2014 2026-08-23","length":266,"snippet":"- **Plan:** `tmp/by-week/2026-W34/create-healthresearch-repo.plan.md` (+ `.steps.csv`) \u2014 all steps `done`. - **Method:** plan \u2192 adversarial + conflict audit (parallel) \u2192 revise into binding R1\u2013R9 \u2192 implement \u2192 gates.","paragraphs":[
@@ -304,50 +304,50 @@
 ],"source_hash":"92c1069afa1483dbd083df02209c30237543d5830f44372f2ef8f1c65deac28b","source_mtime":1793718252.2092056,"vector_norm_sq":35030.538322564506},
 {"doc_id":25,"path":"references/bridges/copilot-vscode-to-claude/agent-inventory.md","title":"Agent Team Bridge Inventory","length":725,"snippet":"Lightweight compatibility inventory generated from source canonical files.","paragraphs":[
 "Lightweight compatibility inventory generated from source canonical files."
-],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793735254.01209,"vector_norm_sq":7888.963981169256},
+],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793747365.8950686,"vector_norm_sq":7888.963981169256},
 {"doc_id":26,"path":"references/bridges/copilot-vscode-to-claude/bridge-merge.report.md","title":"Bridge Merge Report","length":88,"snippet":"- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc15; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it i","paragraphs":[
 "- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc15; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework claude --output .claude/agents --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearanc"
-],"source_hash":"226cba54ecbbe3fc36fadba3dc914fa958c4c6df390871f9c5413aca8c253bda","source_mtime":1793735254.017857,"vector_norm_sq":462.1248908958079},
+],"source_hash":"226cba54ecbbe3fc36fadba3dc914fa958c4c6df390871f9c5413aca8c253bda","source_mtime":1793747365.901114,"vector_norm_sq":462.1248908958079},
 {"doc_id":27,"path":"references/bridges/copilot-vscode-to-claude/domain-boundary.md","title":"Domain Boundary \u2014 Three Retrieval Surfaces","length":95,"snippet":"AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:","paragraphs":[
 "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
 "1. **Memory-index** (`memory_index`, `--query-index`) \u2014 a stdlib-only sparse tf-idf vector-space ranking over **durable prose** (work summaries, CHANGELOG, durable plans). `vector_runtime_mode: sparse-tfidf-cosine`. 2. **Code index** (`code_index`, `--query-code`) \u2014 a stdlib-only sparse tf-idf ranking over **code**: local scripts (`local-script`), the external API modules they import (`api-module`), and API documentation (`api-doc`), filterable with `--code-kind`. A **gitigno",
 "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
-],"source_hash":"aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f","source_mtime":1793735254.0128896,"vector_norm_sq":480.0043388543422},
+],"source_hash":"aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f","source_mtime":1793747365.8959677,"vector_norm_sq":480.0043388543422},
 {"doc_id":28,"path":"references/bridges/copilot-vscode-to-claude/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> claude","length":91,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
 "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
 "Before falling back to grep / filesystem search for thematic or cross-summary questions, query the agentteams memory-index:",
 "``` agentteams --query-index \"<the user's question>\" --query-strategy vector --query-k 5 ```",
 "The command finds the project brief itself (pass `--description PATH` when it lives elsewhere) and never rebuilds the index; run `agentteams --refresh-index` when it reports the index stale. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
 "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
-],"source_hash":"a62169d2a7f3e8bb90682d7588ef935a759b63ac80091153f04d1b30143928c2","source_mtime":1793735254.0127199,"vector_norm_sq":316.87059538208865},
+],"source_hash":"a62169d2a7f3e8bb90682d7588ef935a759b63ac80091153f04d1b30143928c2","source_mtime":1793747365.8958995,"vector_norm_sq":316.87059538208865},
 {"doc_id":29,"path":"references/bridges/copilot-vscode-to-claude/quickstart-snippet.md","title":"Bridge Quickstart Snippet","length":59,"snippet":"```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.","paragraphs":[
 "```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
 "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
-],"source_hash":"3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f","source_mtime":1793735254.0123515,"vector_norm_sq":176.92623105374693},
+],"source_hash":"3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f","source_mtime":1793747365.8958135,"vector_norm_sq":176.92623105374693},
 {"doc_id":30,"path":"references/bridges/copilot-vscode-to-goose/agent-inventory.md","title":"Agent Team Bridge Inventory","length":725,"snippet":"Lightweight compatibility inventory generated from source canonical files.","paragraphs":[
 "Lightweight compatibility inventory generated from source canonical files."
-],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793735255.392343,"vector_norm_sq":7888.963981169256},
+],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793747367.949328,"vector_norm_sq":7888.963981169256},
 {"doc_id":31,"path":"references/bridges/copilot-vscode-to-goose/bridge-merge.report.md","title":"Bridge Merge Report","length":62,"snippet":"- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc15; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in","paragraphs":[
 "- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc15; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework goose --output .goose/recipes --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearance,"
-],"source_hash":"caba6651c1cbd36918f27911f43331bae8f2235e0cf040888396a8c6dab2d650","source_mtime":1793735255.3970323,"vector_norm_sq":219.1197268389432},
+],"source_hash":"caba6651c1cbd36918f27911f43331bae8f2235e0cf040888396a8c6dab2d650","source_mtime":1793747367.9542427,"vector_norm_sq":219.1197268389432},
 {"doc_id":32,"path":"references/bridges/copilot-vscode-to-goose/domain-boundary.md","title":"Domain Boundary \u2014 Three Retrieval Surfaces","length":95,"snippet":"AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:","paragraphs":[
 "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
 "1. **Memory-index** (`memory_index`, `--query-index`) \u2014 a stdlib-only sparse tf-idf vector-space ranking over **durable prose** (work summaries, CHANGELOG, durable plans). `vector_runtime_mode: sparse-tfidf-cosine`. 2. **Code index** (`code_index`, `--query-code`) \u2014 a stdlib-only sparse tf-idf ranking over **code**: local scripts (`local-script`), the external API modules they import (`api-module`), and API documentation (`api-doc`), filterable with `--code-kind`. A **gitigno",
 "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
-],"source_hash":"87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c","source_mtime":1793735255.3929336,"vector_norm_sq":480.94437216950394},
+],"source_hash":"87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c","source_mtime":1793747367.9498744,"vector_norm_sq":480.94437216950394},
 {"doc_id":33,"path":"references/bridges/copilot-vscode-to-goose/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> goose","length":91,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
 "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
 "Before falling back to grep / filesystem search for thematic or cross-summary questions, query the agentteams memory-index:",
 "``` agentteams --query-index \"<the user's question>\" --query-strategy vector --query-k 5 ```",
 "The command finds the project brief itself (pass `--description PATH` when it lives elsewhere) and never rebuilds the index; run `agentteams --refresh-index` when it reports the index stale. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
 "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
-],"source_hash":"f381b699fc558635c9f25c03f602fdda040b6072688545424045235e76895049","source_mtime":1793735255.392822,"vector_norm_sq":317.8106286972504},
+],"source_hash":"f381b699fc558635c9f25c03f602fdda040b6072688545424045235e76895049","source_mtime":1793747367.949768,"vector_norm_sq":317.8106286972504},
 {"doc_id":34,"path":"references/bridges/copilot-vscode-to-goose/quickstart-snippet.md","title":"Bridge Quickstart Snippet","length":160,"snippet":"```text Use the copilot-vscode agent infrastructure through this goose bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.","paragraphs":[
 "```text Use the copilot-vscode agent infrastructure through this goose bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
 "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```",
 "`--bridge-check` verifies that source `.agent.md` files match their SHA-256 hashes recorded at bridge-generation time. It does NOT validate generated recipe YAML files, `.goosehints` enrichment, or AGENTS.md content. To validate recipe structure: `agentteams --framework goose --recipe-check --output <recipes-dir>` checks version string, no model: key, sub_recipe path resolution, and non-empty instructions. For full recipe generation (alternative to bridge): `agentteams --conv",
 "The bridge emits `.goose/recipes/bridge-orchestrator.yaml` \u2014 run it with `goose run --recipe .goose/recipes/bridge-orchestrator.yaml` to start the bridged team WITH the `developer` (CLI) extension by default. Pass `--target-host-features bridge:<source>-to-goose:mcp` and build the source with an MCP token first to also wire the selected (first-party, read-only, orchestrator-scoped) MCP servers into that recipe."
-],"source_hash":"66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66","source_mtime":1793735255.3926485,"vector_norm_sq":1052.0167292323727},
+],"source_hash":"66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66","source_mtime":1793747367.9496124,"vector_norm_sq":1052.0167292323727},
 {"doc_id":35,"path":"references/plans/adversarial-conflict-audit-labor-matching.plan.md","title":"Plan Summary: Adversarial and Conflict Audit for Labor Matching Project","length":90,"snippet":"- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project,","paragraphs":[
 "- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project, remediate defects, and report pass/block status - Agent sequence: @adversarial -> @technical-validator -> @reference-manager -> @conflict-auditor - Success criteria: - Every factual claim in project files is checked for overreach, ambiguit",
 "- Completion status: COMPLETE - Completion date: April 18, 2026"

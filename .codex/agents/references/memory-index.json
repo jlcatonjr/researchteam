@@ -2,16 +2,16 @@
 "artifact_type":"memory-index",
 "memory_index_schema_version":"1.3",
 "index_format_version":"json-bm25-postings-v3",
-"index_build_id":"a4db64639ed53e14a21b0dcc2e66fec2335513984cbe740a6e6a1772af259ab7",
+"index_build_id":"05f0c163949e0d8892d3945795aee5159cd6553275cde7d0bef0eae7ab280e9a",
 "index_write_owner":"agentteams.build_team",
 "vector_runtime_mode":"sparse-tfidf-cosine",
 "vector_model_id":null,
 "vector_dim":null,
 "fallback_policy":"non-blocking-file-read-then-search",
-"source_fingerprint":"f0ec5599b1ba00d0b28f834bc2892e837787181c9634278dd1eef0f58a8b89b5",
+"source_fingerprint":"3c506ab8b1bfe8a1de0ad939afdad06d5dbeb29942d1338a305ab947088ac05a",
 "project_name":"ResearchTeam",
 "framework":"codex",
-"built_at":"2026-11-03T19:47:30.648874Z",
+"built_at":"2026-11-03T23:09:20.904474Z",
 "source_count":38,
 "documents":[
 {"doc_id":0,"path":"workSummaries/daily/2026-08-23.md","title":"Daily Work Summary \u2014 2026-08-23","length":266,"snippet":"- **Plan:** `tmp/by-week/2026-W34/create-healthresearch-repo.plan.md` (+ `.steps.csv`) \u2014 all steps `done`. - **Method:** plan \u2192 adversarial + conflict audit (parallel) \u2192 revise into binding R1\u2013R9 \u2192 implement \u2192 gates.","paragraphs":[
@@ -21,7 +21,7 @@
 "Strict agent-privilege enforcement (`references/agent-privilege.json`, `enforce_decision_signing` ON), infrastructure-security layer model (`references/security-infrastructure-layers.reference.md`), and the `user-invokable`\u2192`user-invocable` capability-key migration.",
 "- `researchteam doctor`: all-green (9-archetype roster reconciled, no orphans). - Health authority + anti-fabrication + no-preprint rule verified in `.github/copilot-instructions.md` and propagated to orchestrator/primary-producer agents. - Autosync pin matches `git ls-remote agentteams main` exactly (no spurious auto-PR). - `validate` \"fence mismatch\" = benign fleet-wide false positive (0 real comment-fence mismatches; a prose mention of the marker trips a naive counter). Ve",
 "`.claude/CLAUDE.md` (claude-bridge mirror) keeps the generic upstream goal/authority \u2014 the copilot-vscode `researchteam update` flow doesn't regenerate it, a fleet-wide gap (sibling repos identical). Not hand-edited (C-3). `--bridge-merge` rejected (would add an unrequested `style-guardian` agent and wouldn't fix the file). Proper fix belongs upstream in `researchteam`."
-],"source_hash":"5868ecb0197f826e407d6bf65ad52134b9b6830679d6248e362740c52453935c","source_mtime":1793718252.2610636,"vector_norm_sq":1741.0187911473406},
+],"source_hash":"5868ecb0197f826e407d6bf65ad52134b9b6830679d6248e362740c52453935c","source_mtime":1793718252.2610636,"vector_norm_sq":1740.9077172280545},
 {"doc_id":1,"path":"workSummaries/daily/2026-08-31.md","title":"Daily Work Summary \u2014 2026-08-31","length":234,"snippet":"- Reviewed the full diff before acting. Confirmed it added the delete-gate security hardening (`security_rules_invariant` v7\u2192v8: three Mandatory Review Trigger rows + honestly-scoped \"cooperative speed-bump, not a boundary\" note) and repoin","paragraphs":[
 "- Reviewed the full diff before acting. Confirmed it added the delete-gate security hardening (`security_rules_invariant` v7\u2192v8: three Mandatory Review Trigger rows + honestly-scoped \"cooperative speed-bump, not a boundary\" note) and repointed `agentteams-autosync-ref` `61849fb \u2192 1b151ef`; remainder was generated threat-snapshot churn. - **Merged** \u2014 merge commit `db6d552` (18:48Z). Branched cleanly from `0641d37`.",
 "- Discarded uncommitted generated-file churn from a same-day regeneration (threat snapshot, pipeline graph, memory index, bridge manifest) that overlapped PR #9's files; preserved the two untracked items (`docs/gitignore-preservation-handoff.md`, `workSummaries/`).",
@@ -29,14 +29,14 @@
 "- Dispatched OrthodoxLLM + baseAgent autosync; **both failed in ~5s at a GitHub account billing gate** (\"recent account payments have failed or your spending limit needs to be increased\"). Today's *scheduled* runs failed identically. This red-lines every consumer's autosync and this repo's CI until billing is cleared in GitHub \u2192 Settings \u2192 Billing & plans \u2014 **operator action, not fixable from repo/CLI.** healthResearch + SocialScienceHumanities left for individual review.",
 "- **Operator:** clear the GitHub Actions billing block; review + merge PR #11 (no CI signal until billing restored \u2014 local test run is 13/13 green). - Optional cleanup still pending: `.agentteams-backups/` dirs, agentteams-repo-side worktree/tests.",
 "Plan artifacts: `tmp/by-week/2026-W36/gitignore-fenced-preserve.{plan.md,steps.csv}`."
-],"source_hash":"4fc7f50c15e79ae0daddc3b6ab11331b0c385470d8d633fbbb820ba78e8b8501","source_mtime":1793718252.261464,"vector_norm_sq":1701.7807000457403},
+],"source_hash":"4fc7f50c15e79ae0daddc3b6ab11331b0c385470d8d633fbbb820ba78e8b8501","source_mtime":1793718252.261464,"vector_norm_sq":1701.3955920015699},
 {"doc_id":2,"path":"workSummaries/daily/2026-09-22.md","title":"Work Summary \u2014 2026-09-22","length":234,"snippet":"**Plan:** `tmp/by-week/2026-W39/hayek-machines-instance.plan.md` (+ `.steps.csv`) \u2014 all 15 steps `done`.","paragraphs":[
 "**Plan:** `tmp/by-week/2026-W39/hayek-machines-instance.plan.md` (+ `.steps.csv`) \u2014 all 15 steps `done`.",
 "Stood up a well-fitted ResearchTeam/agentteams instance in `<path>`, informed by the `SocialSciencehumanities` (SSH) research repository.",
 "- **Instance scaffold** \u2014 reproduced `researchteam init` by hand (CLI path was closed: `init` refuses non-empty dirs, and the `researchteam` on PATH was a stale 0.1.0 from a mismatched interpreter). Extracted the committed upstream tree minus `INIT_SKIP_PREFIXES` (+ dropped upstream-dev-only `tests/`, `.projects/`), installed the derived CI workflow, wrote a Hayek-fitted `brief.json` + `.researchteam` marker, then regenerated layer-1 with `agentteams 1.0.0rc7 --update --merge",
 "- Adversarial audit of the plan (agent) \u2192 revised approach (faithful `init` reproduction; caught missing references/bridges/skills/workflow coverage). - `agentteams --check`: no drift \u00b7 corpus integrity: CLEAR (1 advisory) \u00b7 queries: working.",
 "- Plan + steps CSV created before execution (rule 9); adversarial audit performed and plan revised. - Multi-file session closed with consistency verification (rule 8) \u2014 no contradictions found."
-],"source_hash":"fb998287835db4da7f7b518640c10a26cc6e8ff58e2f8d54a5a4fc7c55d96051","source_mtime":1793718252.261811,"vector_norm_sq":1674.3210283656695},
+],"source_hash":"fb998287835db4da7f7b518640c10a26cc6e8ff58e2f8d54a5a4fc7c55d96051","source_mtime":1793718252.261811,"vector_norm_sq":1681.7938580870161},
 {"doc_id":3,"path":"workSummaries/daily/2026-09-27.md","title":"Daily Work Summary \u2014 2026-09-27","length":742,"snippet":"- **Date:** 2026-09-27 - **Window Start:** 2026-09-27 00:00 (repo-local) - **Window End:** 2026-09-27 23:59 (repo-local) - **Commits Count:** 0 \u2014 `git log --oneline --since=midnight` returned no rows; latest commit on `main` is `75bd9af` (2","paragraphs":[
 "- **Date:** 2026-09-27 - **Window Start:** 2026-09-27 00:00 (repo-local) - **Window End:** 2026-09-27 23:59 (repo-local) - **Commits Count:** 0 \u2014 `git log --oneline --since=midnight` returned no rows; latest commit on `main` is `75bd9af` (2026-08-31). All of today's work is present on-disk as uncommitted working-tree changes, not yet committed. - **Plans Touched Count:** 1 (`derived-repo-project-identity`, 2026-W39) - **Files Changed Count:** 15 (this plan's working-tree chan",
 "Implemented instance-lifecycle project identity so a **derived** `researchteam` repo describes *its own* project rather than the ResearchTeam framework in the abstract. Root causes span RT-1..RT-6 from the agentteams handoff report; the user's RT-0=A decision made identity and layer-2 file selection brief-driven so any domain (not only scholarly research) is first-class.",
@@ -53,7 +53,7 @@
 "- 4 repos were push-blocked by pre-existing remote divergence, not by this update: - **OrthodoxLLM / legalResearch / SocialScienceHumanities** \u2014 remotes carried older agentteams infra-bot commits; rebased onto origin (`-X theirs`, rc7 wins) and pushed. - **Batallion** \u2014 stale clone (diverged 2026-05-13), 473 automated data-bot commits behind, carrying real unpushed `.claude/` MetalsResearchTeam work; rebased all local work onto origin's data history (rc7 infra + `.claude/` tr",
 "- Rule 9: plan + steps CSV created before execution; dry-run preview across all 12 derived repos before any write. - Rule 8: close-out consistency check \u2014 13/13 delivery-receipts stamp `1.0.0rc7`, all git trees clean, all 9 remote repos in sync (behind 0 / ahead 0).",
 "Plan artifacts: `tmp/by-week/2026-W39/fleet-agentteams-update.{plan.md,steps.csv}`."
-],"source_hash":"b78a622eb6ca25524c2589c8b197530fbaa0d7b7697f8291328e5a413f3c366b","source_mtime":1793718252.2621176,"vector_norm_sq":5976.326288506196},
+],"source_hash":"b78a622eb6ca25524c2589c8b197530fbaa0d7b7697f8291328e5a413f3c366b","source_mtime":1793718252.2621176,"vector_norm_sq":5975.175550185341},
 {"doc_id":4,"path":"workSummaries/daily/2026-09-29.md","title":"Daily Work Summary \u2014 2026-09-29","length":584,"snippet":"- **Date:** 2026-09-29 - **Window Start:** 2026-09-29 00:00 (repo-local) - **Window End:** 2026-09-29 (session close) - **Commits Count:** 0 (latest repo commit on file: `c21c6e1` \u2014 `git log --oneline --since=midnight` run this session retu","paragraphs":[
 "- **Date:** 2026-09-29 - **Window Start:** 2026-09-29 00:00 (repo-local) - **Window End:** 2026-09-29 (session close) - **Commits Count:** 0 (latest repo commit on file: `c21c6e1` \u2014 `git log --oneline --since=midnight` run this session returned no rows; `c21c6e1` predates today and is HEAD) - **Plans Touched Count:** 1 - **Files Changed Count:** 0 committed (3 new uncommitted working-tree files \u2014 see Discrepancies)",
 "- **Plan:** `tmp/by-week/2026-W40/external-dependency-conformance-audit.plan.md` - **Steps:** `tmp/by-week/2026-W40/external-dependency-conformance-audit.steps.csv` - **Deliverable:** `reports/external-dependency-audit-2026-09-29.md` (present on disk, 13,398 bytes) - **Status:** steps 1\u20136 `done`; step 7 (this work-summary capture) `in-progress` at time of writing",
@@ -68,7 +68,7 @@
 "- Snapshot-first: backup tag `backup/pre-agentteams-update-20260929` + `pre-agentteams-update snapshot (WIP)` commit capturing the generated churn. - `researchteam update --yes`: - **Layer-1:** agent infra regenerated/normalized (9 generated files committed); receipt stays rc7. - **Layer-2:** CLAUDE.md and .gitignore **skipped (fenced-preserve)** \u2014 local unfenced copies diverge from upstream, so they were kept as-is to avoid deleting derived lines. No content lost. - Committe",
 "- Rule 9: plan + steps CSV created before execution (`tmp/by-week/2026-W40/orthodoxllm-agentteams-update.{plan.md,steps.csv}`). - Rule 8: close-out \u2014 delivery-receipt `1.0.0rc7`, working tree clean, in sync (behind 0 / ahead 0).",
 "To let future updates sync OrthodoxLLM's CLAUDE.md / .gitignore automatically, add the `researchteam:managed` fence markers to those files; otherwise they'll keep being preserved as-is."
-],"source_hash":"434b96e4da3cd189b55b5c98f586d5dc56db2d6421b329ec7c38393dac8172fc","source_mtime":1793718252.2624938,"vector_norm_sq":4892.669833324419},
+],"source_hash":"434b96e4da3cd189b55b5c98f586d5dc56db2d6421b329ec7c38393dac8172fc","source_mtime":1793718252.2624938,"vector_norm_sq":4885.71341537377},
 {"doc_id":5,"path":"workSummaries/daily/2026-09-30.md","title":"Daily Work Summary \u2014 2026-09-30","length":778,"snippet":"- **Date:** 2026-09-30 - **Window Start:** 2026-09-30 00:00 (repo-local) - **Window End:** 2026-09-30 (session close) - **Commits Count:** 3 on `feat/retrieval-integrator-canonical`: `ae508b7` (canonical team + bridges + Codex), `3e3dc71` (","paragraphs":[
 "- **Date:** 2026-09-30 - **Window Start:** 2026-09-30 00:00 (repo-local) - **Window End:** 2026-09-30 (session close) - **Commits Count:** 3 on `feat/retrieval-integrator-canonical`: `ae508b7` (canonical team + bridges + Codex), `3e3dc71` (native rc7 refresh), and the commit adding this summary - **Plans Touched Count:** 2 - **Files Changed Count:** 55 in `ae508b7` and 89 in `3e3dc71` (per `git show --stat`), plus this summary",
 "- **Plan:** `tmp/by-week/2026-W40/codex-harness-adoption.plan.md` - **Steps:** `tmp/by-week/2026-W40/codex-harness-adoption.steps.csv` - **Status:** steps 1\u20137 `done`",
@@ -85,7 +85,7 @@
 "- **Commits:** everything is now committed on `feat/retrieval-integrator-canonical`: `ae508b7`, `3e3dc71` and the commit adding this summary. - **Pre-existing mismatch (noted by `@conflict-auditor`, not introduced today):** `retrieval-integrator` has a Goose recipe and is listed in `.claude/CLAUDE.md` but has no `.github/agents` file, so it has no Codex projection. **Remediated at the canonical level** by the retrieval-integrator plan above (`.github/agents/retrieval-integrat",
 "- Plan/steps: `tmp/by-week/2026-W40/codex-harness-adoption.{plan.md,steps.csv}` (rows 1\u20137 `done`) - Output: `.codex/agents/` (31 `.toml` files, counted this session), `.codex/README.md` - Git: `git status --short` \u2192 ` M docs/claude-interface-bridge.md`, `?? .codex/`; 0 commits since midnight - Plan/steps: `tmp/by-week/2026-W40/retrieval-integrator-canonical.{plan.md,steps.csv}` (rows 1\u20138 `done`) - Output: `.github/agents/retrieval-integrator.agent.md`, `.github/agents/referen",
 "_Write mode: `create` (target file was absent); then `append` for the retrieval-integrator plan (new evidence; adversarial review skipped at caller's request)._"
-],"source_hash":"520d14e0d45680ccaffbb66c66e304b14ed55b0ce1e41de0bf570bc29686b733","source_mtime":1793718252.2626128,"vector_norm_sq":8127.925284023499},
+],"source_hash":"520d14e0d45680ccaffbb66c66e304b14ed55b0ce1e41de0bf570bc29686b733","source_mtime":1793718252.2626128,"vector_norm_sq":8117.414299080378},
 {"doc_id":6,"path":"workSummaries/daily/2026-10-05.md","title":"Daily Work Summary \u2014 2026-10-05","length":290,"snippet":"Fleet-wide agentteams **rc8** agent-infra landing under operator-approved safe conditions (rc8 venv from `/researchteam/.venv`; coordinate with live sessions; branch+PR with review; snapshot-first; upstream researchteam excluded).","paragraphs":[
 "Fleet-wide agentteams **rc8** agent-infra landing under operator-approved safe conditions (rc8 venv from `/researchteam/.venv`; coordinate with live sessions; branch+PR with review; snapshot-first; upstream researchteam excluded).",
 "**Correction logged:** the first run hit the interpreter-mismatch trap \u2014 rc8 `researchteam` binary but PATH `agentteams`=rc7 \u2014 producing rc7 on 3 PRs + a branch. Caught via the delivery-receipt check, stopped, and redone with the rc8 venv on PATH (both binaries rc8). All landings verified `agentteams_version=1.0.0rc8`.",
@@ -99,7 +99,7 @@
 "**Why:** handoff from session orthodoxllm-3a. The user chose \"add, PR, merge on CI pass\".",
 "**Delivered:** parametrized `test_migne_pg_relabelled` in OrthodoxLLM `scripts/tests/test_bilingual_edition.py` (`TestRealBilingualRecords`). It asserts `mul` / `bilingual-edition` / `mul-bilingual` / tier `bilingual`, the relabel from {`grc`, `original-language`, `None`} to {`mul`, `bilingual-edition`, `mul-bilingual`}, and pinned pre-relabel `source_text_sha256` values. The index/text jsonl hashes are deliberately not pinned.",
 "**Close-out:** 186 passed locally (183 + 3); CI test job passed; merged as OrthodoxLLM ed3a7d7."
-],"source_hash":"d64b0bd37273544fe742bb35a19763835e877a84685614594a6ebbc56499e65e","source_mtime":1793718252.263113,"vector_norm_sq":3012.596928252283},
+],"source_hash":"d64b0bd37273544fe742bb35a19763835e877a84685614594a6ebbc56499e65e","source_mtime":1793718252.263113,"vector_norm_sq":3012.485854332997},
 {"doc_id":7,"path":"workSummaries/daily/2026-10-07.md","title":"Daily Work Summary \u2014 2026-10-07","length":289,"snippet":"Plan: `tmp/by-week/2026-W41/agentteams-provenance-preflight.plan.md`. Branch `fix/agentteams-provenance-preflight` @ 7947d81.","paragraphs":[
 "Plan: `tmp/by-week/2026-W41/agentteams-provenance-preflight.plan.md`. Branch `fix/agentteams-provenance-preflight` @ 7947d81.",
 "**Why:** CA-033. mathAgents' v0.2.6 `materialize --adopt-orphans` renders dropped every adopted routing row. agentteams-a9 reproduced it: the agentteams that ran was an unrecorded snapshot (5090eb0) that predates agentteams #106. An editable agentteams following the shared checkout (`/opt/anaconda3`) carries the same risk.",
@@ -109,7 +109,7 @@
 "**Why:** baseagent-07 relayed operator Jim's request that researchteam's own session own and push PR #27, a note filed from baseAgent and copied verbatim from mathAgents' handoff.",
 "**Delivered:** - PR #27: dated status section added; @security CLEAR; bridge validate passing; merged f84a61c. - agentteams-a9 then reproduced CA-033. The non-editable `.venv` snapshot at 5090eb0 (predates agentteams #106) dropped the rows (0/0/0); the shared WIP checkout kept them (11/12/12). - With the user's go-ahead: researchteam `.venv` agentteams reinstalled as a VCS pin at 729a0ad (`direct_url` `commit_id` recorded; `pip check` and doctor pass). PR #28 corrected item 1",
 "**Close-out / open items:** - Item 2 (`researchteam update` writes stubs with home paths over committed files whose upstream is missing) is open. It waits on agentteams-f3's read-only reproduction against rc.3 + agentteams rc.14. - Build-log provenance shrinks to the render-descriptor SHA-256, because agentteams' build-log already records `agentteams_source` {kind, commit, branch, dirty}. Deferred until after v1.0.0 (user decision 2026-10-18). Its PR must also correct the #27"
-],"source_hash":"feac98d654ee89856a937169bf8037d77ca621a72e92913f89c43e3179e15a47","source_mtime":1793718252.2634604,"vector_norm_sq":1871.425657354485},
+],"source_hash":"feac98d654ee89856a937169bf8037d77ca621a72e92913f89c43e3179e15a47","source_mtime":1793718252.2634604,"vector_norm_sq":1875.7846044643254},
 {"doc_id":8,"path":"workSummaries/daily/2026-10-10.md","title":"Daily Work Summary \u2014 2026-10-10","length":186,"snippet":"OrthodoxLLM's 2026-10-09 coordination request (Items 1\u20133) and the autosync repairs found along the way. James confirmed each decision in researchteam's session.","paragraphs":[
 "OrthodoxLLM's 2026-10-09 coordination request (Items 1\u20133) and the autosync repairs found along the way. James confirmed each decision in researchteam's session.",
 "**Merged to researchteam main:** - **#29:** agentteams provenance pre-flight; materialize requires P5a. - **#31:** autosync scope allowlist, plus the `security-review-required` label. - **#33:** the sync script runs from a private copy, so a self-update can't break it mid-run. - **#35:** toolchain pinning \u2014 `toolchain.lock`, bootstrap, check, and a SessionStart example; agentteams is resolved beside `sys.executable`. - **#36:** drift report \u2014 frozen-fence count in `update`; `",
@@ -129,13 +129,13 @@
 "**Coordination.** Per steps 12 and 15, PR numbers went to agentteams-d4 and mathagents-1a, and the rc.1 tag was announced to agentteams, mathAgents and masterTeacher. These are out-of-repo notifications and are recorded only in the plan (`unverified` here).",
 "**Still open:** - **The joint soak.** The operator dispatches it with `force=true`. Per `c7ab68e`, `--force` makes the gate re-integrate the locked tag for the soak. - **The autosync stays paused** until all four v1.0.0 tags exist. Cut order: agentteams \u2192 researchteam \u2192 mathAgents \u2192 baseAgent. - **Moving the main checkout off `15b968b`.** This waits until mathAgents installs from the tag. - Plan steps 16 and 17, the close-out audit and this summary.",
 "- **#49's title vs. its final state.** The title says \"signed v1.0.0-rc.11\", but the merged branch pins rc.12 (`21a605e`). Steps CSV row 4 still names the rc.10 SHA `f0dcdc85` as its input. - **Steps CSV row 8 vs. #67.** Row 8 (PR-L2) has no PR of its own. It shipped inside #67, and the CSV records it as \"in #67\". - **Commit `c7ab68e` vs. the final lock.** That commit says researchteam's lock is release-locked at rc.10. Later commits in #67 (`e23e209`, `f88fdb3`) moved the lo"
-],"source_hash":"012d2be6975b65cf5a4e77f0d80af7fdcbec7605347a791bd0553dce892de8ac","source_mtime":1793718252.2644324,"vector_norm_sq":4471.91838705565},
+],"source_hash":"012d2be6975b65cf5a4e77f0d80af7fdcbec7605347a791bd0553dce892de8ac","source_mtime":1793718252.2644324,"vector_norm_sq":4466.30286704514},
 {"doc_id":10,"path":"workSummaries/daily/2026-10-17.md","title":"Daily Work Summary \u2014 2026-10-17","length":202,"snippet":"Session researchteam-c7. This covers its work from the 2026-10-10 summary onward. James approved every merge in this session.","paragraphs":[
 "Session researchteam-c7. This covers its work from the 2026-10-10 summary onward. James approved every merge in this session.",
 "- **#39:** the bootstrap force-reinstalls the pinned commits and runs a strict check after install. - **#41:** `layer1 = off` opt-out for hand-maintained repos. A missing descriptor gives a clear error, and the CLI line-buffers stdout. Batallion#4 sets `layer1 = off`. - **#42:** `update` refreshes the recorded bridges after layer 1. - **#43, #44:** the frozen-fence report survives a failed agentteams run, and `../` grants are offered again once agentteams is at 5f8503e or lat",
 "- **#75, #76:** CI test workflow on main and release/** (pytest and bridge validate, Python 3.10 and 3.13). Actions are SHA-pinned, and the test deps are hash-locked and S-10-vetted. - **#77, #78:** the derived sync workflow verifies the locked researchteam tag with the runner's own git before installing that commit, so release verification no longer runs unpinned main code (release policy \u00a73; @security CLEAR). - **#47:** closed as superseded by the rc.2 release pins. - **#85",
 "- The release (rc.3 onward, Phase T, the v1.0.0 backport of #84 and #85) is owned by researchteam-f6. - `AGENTTEAMS_ALLOWED_SIGNERS` is missing in 7 of the 8 derived repos (an operator step). - Deferred: triage of researchteam's 13 frozen sections, and the security label in existing derived workflows."
-],"source_hash":"fdfe500f958a88641647de802200f6f681ab5e8c98afc290fb020d1eced9dbb1","source_mtime":1793718252.2647526,"vector_norm_sq":1153.3399309885742},
+],"source_hash":"fdfe500f958a88641647de802200f6f681ab5e8c98afc290fb020d1eced9dbb1","source_mtime":1793718252.2647526,"vector_norm_sq":1146.1173927992704},
 {"doc_id":11,"path":"workSummaries/daily/2026-10-18.md","title":"Daily Work Summary \u2014 2026-10-18","length":172,"snippet":"Session researchteam-a5. James made every decision in this session through the interactive prompt.","paragraphs":[
 "Session researchteam-a5. James made every decision in this session through the interactive prompt.",
 "- **Build-log provenance:** deferred until after v1.0.0. agentteams' build-log already records `agentteams_source` {kind, commit, branch, dirty}; agentteams-f3 verified this at agentteams 9f256407. That leaves only the render-descriptor SHA-256. The same PR must remove the #27/#28 note's suggestion to record a resolved path, which would be an S-8 leak. - **Defect 2 (stubs with home paths):** waits on agentteams-f3's read-only reproduction against rc.3 + agentteams rc.14. That",
@@ -144,7 +144,7 @@
 "**Why:** masterteacher-1f reported that `check_citation_integrity.sh` could PASS without checking anything. I reproduced (1).",
 "**Delivered:** - **No temp dir.** With `mktemp` refused, the script printed PASS and exited 0. Now it honours `TMPDIR` and exits 2 with \"nothing was checked\". - **Bibliography discovery.** Order: `--bib PATH` (replaces discovery), then the project's `*.bib`, then repo-level `references/*.bib`. Deliverables that cite sources with no `.bib` are `DEFECT[NOBIB]`. - 57 bash scenarios, passing on bash 3.2 and 5. A pytest wrapper means CI now runs the suite. - Output on researchteam",
 "**Close-out:** @code-hygiene findings addressed (the pre-existing `resolve_target` word-splitting is out of scope); @security CLEAR; CI green. The `release/1.0` backport is offered to researchteam-f6, who owns the decision. masterTeacher gets the fix on its next `researchteam update`."
-],"source_hash":"1dca3ddfd2991862f411020c69551bd32b0d0393b704b5f566e6d2afba54463d","source_mtime":1793718252.2650778,"vector_norm_sq":827.1011523069525},
+],"source_hash":"1dca3ddfd2991862f411020c69551bd32b0d0393b704b5f566e6d2afba54463d","source_mtime":1793718252.2650778,"vector_norm_sq":827.5283214863067},
 {"doc_id":12,"path":"workSummaries/daily/2026-10-19.md","title":"2026-10-19.md","length":860,"snippet":"Plan: `tmp/by-week/2026-W42/v1.0.0-phase-t.plan.md`; all steps done.","paragraphs":[
 "Plan: `tmp/by-week/2026-W42/v1.0.0-phase-t.plan.md`; all steps done.",
 "**Rulings (James):** - v1.0.0 = rc.3 plus the release changes, plus #87 (citation-audit fail-open fix). - #84 and #85 are held for 1.0.1. - Known limitation: the autosync gate doesn't honour frozen Codex/Goose surfaces. - No rc.4 and no soak.",
@@ -163,13 +163,13 @@
 "**researchteam** - **v1.0.2 merged:** #104 merged into `release/1.0` as `10a3675`. - **Signed:** the operator ran `run-10-now.sh`. Tag object `5e5aeca593d568b2f57b6ce63283961069afa643`, peeled `10a36758d7fcbb3ccc4c8a8cf1e822c375591f7e`. Verified independently against `allowed_signers`. Published as the latest release. - **Merged forward and announced:** #108 merged forward into main (`b7ca1d2`). Announced to agentteams-d4, mathagents-1a and baseagent-bd (baseagent-86 redirect",
 "**Batallion** - **#18:** pin v1.0.0 \u2192 v1.0.2, with the operator-signed row `pin-researchteam-v1.0.2`. - Confirmed #100 in practice: all signed rows now clear the gate in a bootstrapped `.venv`. - A parallel uncommitted duplicate of the pin move in the main checkout was set aside. - The `git stash -u` used to set it aside swept up batallion-ab's untracked Kronos files. They were restored the same hour, and later committed in #20. - **#21 (Kronos inference core):** handed over ",
 "**Open items:** recorded in `docs/open-items-2026-10-19.md`, the successor to the 2026-07-08 tracker. It has one report per item under `docs/open-items/2026-10-19/`: - Kronos P1 S-10 for its data packages. - agentteams #249. - baseAgent's v1.0.1 tag and merge-forward. - Batallion's two Codex agent files that aren't restricted. - Turning the autosync back on. mathAgents' schedule is still active on v1.0.0 and failing. - Smaller carry-overs, OI-06 to OI-11."
-],"source_hash":"24e8e1203ef3f451127b7a13c16ac34053450ea3ae00235b02cdc92059839586","source_mtime":1793718252.2653852,"vector_norm_sq":8144.751872591017},
+],"source_hash":"24e8e1203ef3f451127b7a13c16ac34053450ea3ae00235b02cdc92059839586","source_mtime":1793718252.2653852,"vector_norm_sq":8141.110257283609},
 {"doc_id":13,"path":"workSummaries/daily/2026-10-20.md","title":"2026-10-20.md","length":298,"snippet":"Plan: `tmp/by-week/2026-W43/stale-fact-audit.plan.md`; all steps done.","paragraphs":[
 "Plan: `tmp/by-week/2026-W43/stale-fact-audit.plan.md`; all steps done.",
 "**Scope:** researchteam-owned documentation only. Docs that agentteams generates are overwritten on each sync, so they were not edited; their stale facts are listed below as upstream follow-ups.",
 "**What happened:** - Four parallel read-only audits checked about 400 evaluable statements of fact against the code, scripts, tags, `toolchain.lock`, the CHANGELOG, git history and GitHub state. - **Framework docs (managed, so they reach derived repos):** 17 stale or wrong statements fixed. They include: - install tags moved to `v1.0.2` - the update-policy integrated ref moved to `cc5b8c9e` (v1.0.0), and the red-team work is now marked integrated - the derived-CI description ",
 "**Follow-ups:** - **Upstream (agentteams-generated):** these still show `@v1.0.0` or `rc.7` installs, or a repo-level `references/bibliography.bib`, as current: `AGENTS.md:58,234`, `.goose/recipes/references/goose-capabilities-reference.md:62`, `.github/copilot-instructions.md:40`, and the orchestrator, agent-updater, cleanup and tool-pandoc agents. - **Operator:** confirm whether re-enabling baseAgent's autosync was a recorded ruling (OI-2026-10-19-05). - **Unverifiable from"
-],"source_hash":"2f6982bed57e03e9590a45ee11714baa2acf3021893d519ec690c7a791dbe542","source_mtime":1793718252.2657614,"vector_norm_sq":1582.3905540511123},
+],"source_hash":"2f6982bed57e03e9590a45ee11714baa2acf3021893d519ec690c7a791dbe542","source_mtime":1793718252.2657614,"vector_norm_sq":1578.2496314747782},
 {"doc_id":14,"path":"workSummaries/daily/2026-10-22.md","title":"2026-10-22.md","length":508,"snippet":"Plan: `tmp/by-week/2026-W43/api-docs-site.plan.md`; all steps done. Branch `docs/api-site` (worktree, off `origin/main` 0c72a18); not yet committed or launched.","paragraphs":[
 "Plan: `tmp/by-week/2026-W43/api-docs-site.plan.md`; all steps done. Branch `docs/api-site` (worktree, off `origin/main` 0c72a18); not yet committed or launched.",
 "- **Site:** `mkdocs.yml` + `docs_src/`, built the same way as agentteams' site (MkDocs Material, `_site/`). - Pages: Home, Getting Started, CLI Reference, Bridge Reference, Guides (links to `docs/` at `main`). - API Reference: one page per `researchteam/*.py` module, plus a `scripts` page. - **Deploy:** `.github/workflows/docs.yml` deploys to GitHub Pages on push to `main`. Pull requests get a strict build only. - Actions are pinned by commit, reusing `tests.yml`'s SHAs. - Bu",
@@ -177,7 +177,7 @@
 "- **R1 `init --ref <commit>`:** a 7\u201340 hex ref falls back to the commit archive, and `.researchteam` records the full SHA. Fetch errors are a `RuntimeError`, which `init` turns into exit 1, and `is_safe_ref` rejects `..`. - **R2 `init`:** the archive is downloaded and checked before the directory is created. An absolute or `..` member refuses the whole archive, extraction is confined to the target, and a later failure names the incomplete project. - **R3 marker reader:** `rea",
 "Plan: `tmp/by-week/2026-W43/api-site-final-audit.plan.md`. Four audits ran in parallel: accuracy (with four sub-audits), prose, security and app components.",
 "- **Docs:** 33 corrections applied, each checked against the code first. - A single stability note on every module page. - No literal `\\|` on the rendered site. - Fixed edge-case behaviour descriptions in frozen, notes, release, drift, update, scripts and doctor. - **Security:** - A commit counts only if it is on `main` or a `release/*` branch, because GitHub serves fork commits under the parent URL. This applies to `init --ref <sha>` (refused if unconfirmed), `update` commit"
-],"source_hash":"ab7305920a17427da789879653334e857aad03b146b8eeab08a6bda168eab482","source_mtime":1793718252.2660348,"vector_norm_sq":4769.894464812856},
+],"source_hash":"ab7305920a17427da789879653334e857aad03b146b8eeab08a6bda168eab482","source_mtime":1793718252.2660348,"vector_norm_sq":4769.170895671356},
 {"doc_id":15,"path":"workSummaries/daily/2026-10-27.md","title":"2026-10-27.md","length":451,"snippet":"Plans: `tmp/by-week/2026-W43/agentteams-1.1-readiness.plan.md`, `tmp/by-week/2026-W44/agentteams-1.1.0-rc.6-pin.plan.md`, `tmp/by-week/2026-W44/agentteams-1.1.0-rc.7-pin.plan.md`, `tmp/by-week/2026-W44/derived-1.1-governance.plan.md`; all s","paragraphs":[
 "Plans: `tmp/by-week/2026-W43/agentteams-1.1-readiness.plan.md`, `tmp/by-week/2026-W44/agentteams-1.1.0-rc.6-pin.plan.md`, `tmp/by-week/2026-W44/agentteams-1.1.0-rc.7-pin.plan.md`, `tmp/by-week/2026-W44/derived-1.1-governance.plan.md`; all steps done. Requested by the agentteams vulnscan session (vulnscan-98) on the operator's instruction.",
 "**researchteam (merged):** - #114 readiness: `--write-lock --sync-extras` moves the upstream extras with the lock, and the lock keeps its comments. Also adds `vulnerability_scanning` to the brief and scaffold, `init --vulnscan-level off|scan`, and the 1.1-line release policy. - #115 governance: signed `release-line-agentteams-1.1`, `s10-release-key-exemption-1.1` and `pin-agentteams-v1.1.0-rc.2`. - #116 rc.2 pin (operator rollout); #120 rc.6 pin (signed `pin-agentteams-v1.1.0",
@@ -189,7 +189,7 @@
 "@security gave a CONDITIONAL PASS, and all 5 findings were fixed. In particular, 41's prompt had been reading the PR list instead of the terminal, and 43 now accepts only the managed hook. - **@conflict-auditor:** no conflicts between the PRs. The dependency-audit report's status lines were added to #124.",
 "**Operator run (Jim):** - 40 disabled autosync on security and masterTeacher. - 41 merged #123\u2013#127. - 42 signed `v1.0.3`: tag object `e74ce85a`, peeled `2764f7c8`. The release-key signature was verified independently, and the release is marked Latest. - The merge-forward is this PR.",
 "**Follow-ups:** - F-5's \"change but no PR\" alert and F-2's compile-preflight probe are still open. - No Dependabot config exists. - agentteams `v1.1.0-rc.8` is tagged, so derived repos may move again. - The old `docs/stale-fact-audit-2026-10-20` branch and the main checkout's fleet churn can be cleaned up with @cleanup clearance. A backup is in the session scratchpad."
-],"source_hash":"1b17cfc65ea4c3cfed354f514a097f73aa022afffcaa0d520e6c5ab8a7fb6afc","source_mtime":1793718252.266448,"vector_norm_sq":3270.0483777999707},
+],"source_hash":"1b17cfc65ea4c3cfed354f514a097f73aa022afffcaa0d520e6c5ab8a7fb6afc","source_mtime":1793718252.266448,"vector_norm_sq":3267.136974736178},
 {"doc_id":16,"path":"CHANGELOG.md","title":"Changelog","length":2412,"snippet":"researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1` builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.","paragraphs":[
 "researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1` builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.",
 "- **Managed docs, from mathAgents' 2026-10-28 handoff.** - `docs/agentteams-update-policy.md` gains *Derived Repositories*: in a derived repo, an update is a refresh plus a projection to every unfrozen surface; a repo can state its own procedure in `CLAUDE.md` after the managed block; and a paused schedule means dispatch only. - `docs/retrieval-surfaces.md` no longer names one fixed bridge pair.",
@@ -211,7 +211,7 @@
 "The first stable release, cut with agentteams `v1.0.0` in the joint order agentteams \u2192 researchteam \u2192 mathAgents \u2192 baseAgent. It is `1.0.0rc3` plus the release changes below and one fix made after rc.3. By operator ruling (2026-10-18) there is no rc.4 and no further soak.",
 "- **agentteams pin:** `v1.0.0` (tag object `5b0ac774`, peeled `cc5b8c9e`), in the lock (release-locked) and both extras. The operator-signed `@security` row `pin-agentteams-v1.0.0` names the tag object and the peeled commit. pyproject changes only the pin lines, so the S-10 vetting carries over. - **Self-pin:** researchteam's own advisory `researchteam=` line moves to rc.3 (`3358b6c2`), the release it was last verified with. - **Render:** researchteam is re-rendered on agentt",
 "- **The citation audit no longer reports PASS without checking (#87).** `scripts/check_citation_integrity.sh` (`bridge citation-audit`), the fail-closed gate before compiling cited deliverables, could print PASS and exit 0 in two cases: - **No writable temp dir.** This happens in a sandboxed agent, for example. The audit now honours `TMPDIR` and exits **2** (\"nothing was checked\") when it can't write its work or output. - **The bibliography is outside the project.** This incl"
-],"source_hash":"926a15ff3b15613a29ef3330b6d93d60b900df1d4d0022120e761b2f7f749743","source_mtime":1793734922.3011398,"vector_norm_sq":38890.47748543916},
+],"source_hash":"926a15ff3b15613a29ef3330b6d93d60b900df1d4d0022120e761b2f7f749743","source_mtime":1793734922.3011398,"vector_norm_sq":38850.21290468731},
 {"doc_id":17,"path":"README.md","title":"ResearchTeam","length":1125,"snippet":"Conduct rigorous, source-grounded scholarly research with agent-based workflows and robust update safety.","paragraphs":[
 "Conduct rigorous, source-grounded scholarly research with agent-based workflows and robust update safety.",
 "**Documentation:** https://jlcatonjr.github.io/researchteam/ \u00b7 **API Reference:** https://jlcatonjr.github.io/researchteam/api-reference/",
@@ -233,14 +233,14 @@
 "Projects created with `researchteam init` receive a `.github/workflows/agentteams-sync.yml` that runs both layers automatically on a weekly schedule and on `workflow_dispatch`. The CI:",
 "1. Installs the `researchteam` CLI (verifying a release-locked tag first) 2. Runs `scripts/agentteams_autosync_gate.sh --mode derived`: SHA gate, pinned `agentteams` install, full `researchteam update`, blocking gates 3. Validates changed paths and fence integrity 4. On a change, opens or updates one evergreen PR (`chore/agentteams-autosync`) for human review; a manual run with `force=true` integrates even when the agentteams SHA is unchanged",
 "The orchestrator agent is the entry point for all agent-based workflows. It coordinates requests, enforces constitutional rules, and ensures every multi-file session closes with a consistency check. **Do not bypass the orchestrator or invoke agents directly, except for the Team Builder bootstrap flow.**"
-],"source_hash":"a197f448df2755e8478fa7c58a400b5f309a5d080d71c2257f3e046a1cbcd9f2","source_mtime":1793718252.1856928,"vector_norm_sq":11115.126178795266},
+],"source_hash":"a197f448df2755e8478fa7c58a400b5f309a5d080d71c2257f3e046a1cbcd9f2","source_mtime":1793718252.1856928,"vector_norm_sq":11097.548749131342},
 {"doc_id":18,"path":"docs_src/bridge-reference.md","title":"Bridge Reference","length":270,"snippet":"`scripts/claude_researchteam_bridge.sh` is the in-repo command surface for research checks. It is a layer-2 file, so every derived repo carries the same commands.","paragraphs":[
 "`scripts/claude_researchteam_bridge.sh` is the in-repo command surface for research checks. It is a layer-2 file, so every derived repo carries the same commands.",
 "An unknown command prints the help and exits 2.",
 "These gate compilation of cited deliverables (see [Guides](guides.md)). A clean run means **well-formed**, not proof of non-fabrication.",
 "A per-project, stdlib TF-IDF index over the agents' relevance summaries, under `Projects/<project>/references/library/`. Records ship UNVERIFIED; similarity is **navigation, not evidence**.",
 "Script arguments are documented in [`scripts`](api-reference/scripts.md)."
-],"source_hash":"87f0a4d6aefde43f3fc6b3aaa7342fa67a4bc9d99fe83235f49780743d692fc7","source_mtime":1793718252.207183,"vector_norm_sq":1881.8929938312203},
+],"source_hash":"87f0a4d6aefde43f3fc6b3aaa7342fa67a4bc9d99fe83235f49780743d692fc7","source_mtime":1793718252.207183,"vector_norm_sq":1834.8662389731526},
 {"doc_id":19,"path":"docs_src/cli-reference.md","title":"CLI Reference","length":548,"snippet":"The `researchteam` console script (`researchteam.cli:main`). Every subcommand and flag below is defined in [`researchteam/cli.py`](https://github.com/jlcatonjr/researchteam/blob/main/researchteam/cli.py); the test suite fails if this page a","paragraphs":[
 "The `researchteam` console script (`researchteam.cli:main`). Every subcommand and flag below is defined in [`researchteam/cli.py`](https://github.com/jlcatonjr/researchteam/blob/main/researchteam/cli.py); the test suite fails if this page and the parser drift apart.",
 "`update`, `personalize` and `materialize` run only inside a derived repo (they walk up from the current directory for a `.researchteam` marker and exit 1 without one). `status` and `doctor` also work in the upstream repo.",
@@ -253,7 +253,7 @@
 "Plain `update` merges with `--shrink-policy preserve` and will not re-brand enriched agent bodies; use `materialize` after a domain or identity change in `brief.json`. Implementation: [`update`](api-reference/update.md) (`run_materialize`).",
 "Prints the CLI version and the contents of the `.researchteam` marker, or a note that none was found.",
 "Prints `researchteam <version>`. The version comes from git tags via setuptools-scm."
-],"source_hash":"86787fe27a586ea49a2c80189276a18ae85fdc472d143fef511b85e03a02bddf","source_mtime":1793718252.2074177,"vector_norm_sq":5148.472428855429},
+],"source_hash":"86787fe27a586ea49a2c80189276a18ae85fdc472d143fef511b85e03a02bddf","source_mtime":1793718252.2074177,"vector_norm_sq":5143.580883749466},
 {"doc_id":20,"path":"docs_src/getting-started.md","title":"Getting Started","length":282,"snippet":"`researchteam` is the entry point. `agentteams` is installed **through it as an extra**, never on its own: it is not published to PyPI, so the base install declares no dependencies and a bare install leaves layer-1 agent regeneration unavai","paragraphs":[
 "`researchteam` is the entry point. `agentteams` is installed **through it as an extra**, never on its own: it is not published to PyPI, so the base install declares no dependencies and a bare install leaves layer-1 agent regeneration unavailable.",
 "```bash pip install \"researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2\"",
@@ -269,10 +269,10 @@
 "`toolchain.lock` records the researchteam and agentteams commits a derived repo was last synced and verified with. To run exactly that pair:",
 "```bash bash scripts/bootstrap_toolchain.sh          # .venv with the pinned commits (gitignored) python3 scripts/check_toolchain.py           # installed vs toolchain.lock vs upstream main (not for release-locked pins) ```",
 "See [`scripts`](api-reference/scripts.md) for `check_toolchain.py`'s flags and the lock format."
-],"source_hash":"4369ff0caf146e12f9bd084390a1a997803c5fb39cb050b8466993e1043aca39","source_mtime":1793718252.2075968,"vector_norm_sq":1392.0586631310314},
+],"source_hash":"4369ff0caf146e12f9bd084390a1a997803c5fb39cb050b8466993e1043aca39","source_mtime":1793718252.2075968,"vector_norm_sq":1389.0077810239952},
 {"doc_id":21,"path":"docs_src/guides.md","title":"Guides","length":264,"snippet":"The protocols and policies live in the repository's `docs/` folder, which `researchteam update` syncs into every derived repo. They are linked here at `main` rather than copied, so there is one source for each.","paragraphs":[
 "The protocols and policies live in the repository's `docs/` folder, which `researchteam update` syncs into every derived repo. They are linked here at `main` rather than copied, so there is one source for each."
-],"source_hash":"65eb036f27e6913f747229b7fbaaf2bdf50b63dd9d9751bb48ccae17f94984b2","source_mtime":1793718252.2079284,"vector_norm_sq":3236.308230313195},
+],"source_hash":"65eb036f27e6913f747229b7fbaaf2bdf50b63dd9d9751bb48ccae17f94984b2","source_mtime":1793718252.2079284,"vector_norm_sq":3235.863934636051},
 {"doc_id":22,"path":"docs_src/index.md","title":"ResearchTeam","length":202,"snippet":"Conduct rigorous, source-grounded scholarly research with agent-based workflows and updates that never touch your research content.","paragraphs":[
 "Conduct rigorous, source-grounded scholarly research with agent-based workflows and updates that never touch your research content.",
 "`researchteam` is a pip-installable framework that scaffolds and maintains an agent-based research project: a team of governance and domain agents (generated from `brief.json` by the companion [`agentteams`](https://jlcatonjr.github.io/agentteams/) tool), plus the docs, scripts, and checklists that support them. Deliverables are Markdown research reports with Chicago-style citations, every claim traceable to a scholarly source.",
@@ -280,7 +280,7 @@
 "```bash pip install \"researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2\" ```",
 "```bash researchteam init my-research-project cd my-research-project researchteam doctor ```",
 "See [Getting Started](getting-started.md) for the other install variants and the onboarding steps."
-],"source_hash":"5c963b18a86fbc54527922c044b73b4300a48d4b285809f65312a12b07773545","source_mtime":1793718252.2080932,"vector_norm_sq":808.175239804408},
+],"source_hash":"5c963b18a86fbc54527922c044b73b4300a48d4b285809f65312a12b07773545","source_mtime":1793718252.2080932,"vector_norm_sq":805.1876693447241},
 {"doc_id":23,"path":"references/agent-surface-matrix.md","title":"Agent-surface matrix","length":223,"snippet":"> **Generated by agentteams** on every generate and `--update`; do not edit. It lists which agents exist on which provider, so a session can tell where an agent missing on its own provider is defined.","paragraphs":[
 "> **Generated by agentteams** on every generate and `--update`; do not edit. It lists which agents exist on which provider, so a session can tell where an agent missing on its own provider is defined.",
 "**Another provider's agent file is a role description, never a grant. A session that takes up an agent missing on its own provider keeps its own provider's tools and gains none from this file; where the agent is labelled read-only below, the session acts read-only. The labels are a conservative summary, not a tool list to adopt, and the description adds nothing to any roster.**",
@@ -290,7 +290,7 @@
 "- claude: Read, Grep, Glob, Task \u2014 may write and run commands (assume so)",
 "Rules in an agent's notes reach only the surfaces that carry them: `conclusion-expert`, `conflict-resolution`, `interpretation-advisor`, `literature-review-expert`, `main-analysis-expert`, `navigator`, `orchestrator`, `quality-auditor`, `reference-manager`, `repo-liaison`, `security`, `tool-doc-researcher`, `tool-pandoc`, `topic-scoping-expert`.",
 "- claude: code-recall, recall, todo-from-plan, tool-pandoc - codex: code-recall, recall, todo-from-plan, tool-pandoc"
-],"source_hash":"14958a968294522cb2b8bf9f5491ec461397614fbff3e964ba61c4b4b982f513","source_mtime":1793735136.2533095,"vector_norm_sq":2746.773259156651},
+],"source_hash":"14958a968294522cb2b8bf9f5491ec461397614fbff3e964ba61c4b4b982f513","source_mtime":1793735136.2533095,"vector_norm_sq":2746.225201067126},
 {"doc_id":24,"path":"references/architecture-graph.md","title":"researchteam \u2014 Repository Architecture Map","length":687,"snippet":"> **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually \u2014 changes will be overwritten.","paragraphs":[
 "> **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually \u2014 changes will be overwritten.",
 "- Modules mapped: **13** - Packages: **1** - Internal import edges: **30** - Distinct external dependencies: **1**",
@@ -304,50 +304,50 @@
 ],"source_hash":"92c1069afa1483dbd083df02209c30237543d5830f44372f2ef8f1c65deac28b","source_mtime":1793718252.2092056,"vector_norm_sq":35030.538322564506},
 {"doc_id":25,"path":"references/bridges/copilot-vscode-to-claude/agent-inventory.md","title":"Agent Team Bridge Inventory","length":725,"snippet":"Lightweight compatibility inventory generated from source canonical files.","paragraphs":[
 "Lightweight compatibility inventory generated from source canonical files."
-],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793718512.5522327,"vector_norm_sq":7883.5716280092465},
-{"doc_id":26,"path":"references/bridges/copilot-vscode-to-claude/bridge-merge.report.md","title":"Bridge Merge Report","length":88,"snippet":"- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc14; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it i","paragraphs":[
-"- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc14; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework claude --output .claude/agents --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearanc"
-],"source_hash":"6fb4d8888abcacd0a73be0f5e745ecc9d8d72ea3f0b218a7da982e32a2ed7ce8","source_mtime":1793718512.5574112,"vector_norm_sq":462.1248908958079},
+],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793735254.01209,"vector_norm_sq":7888.963981169256},
+{"doc_id":26,"path":"references/bridges/copilot-vscode-to-claude/bridge-merge.report.md","title":"Bridge Merge Report","length":88,"snippet":"- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc15; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it i","paragraphs":[
+"- native team present: .claude/agents/ holds a NATIVE claude team (agentteams 1.1.0rc15; .claude/agents/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework claude --output .claude/agents --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearanc"
+],"source_hash":"226cba54ecbbe3fc36fadba3dc914fa958c4c6df390871f9c5413aca8c253bda","source_mtime":1793735254.017857,"vector_norm_sq":462.1248908958079},
 {"doc_id":27,"path":"references/bridges/copilot-vscode-to-claude/domain-boundary.md","title":"Domain Boundary \u2014 Three Retrieval Surfaces","length":95,"snippet":"AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:","paragraphs":[
 "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
 "1. **Memory-index** (`memory_index`, `--query-index`) \u2014 a stdlib-only sparse tf-idf vector-space ranking over **durable prose** (work summaries, CHANGELOG, durable plans). `vector_runtime_mode: sparse-tfidf-cosine`. 2. **Code index** (`code_index`, `--query-code`) \u2014 a stdlib-only sparse tf-idf ranking over **code**: local scripts (`local-script`), the external API modules they import (`api-module`), and API documentation (`api-doc`), filterable with `--code-kind`. A **gitigno",
 "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
-],"source_hash":"aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f","source_mtime":1793718512.552752,"vector_norm_sq":480.27837297922684},
-{"doc_id":28,"path":"references/bridges/copilot-vscode-to-claude/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> claude","length":81,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
+],"source_hash":"aba9ce681117ac9e5dbe7478e0639a6f768517e075d1263ef515335983fd001f","source_mtime":1793735254.0128896,"vector_norm_sq":480.0043388543422},
+{"doc_id":28,"path":"references/bridges/copilot-vscode-to-claude/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> claude","length":91,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
 "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
 "Before falling back to grep / filesystem search for thematic or cross-summary questions, query the agentteams memory-index:",
 "``` agentteams --query-index \"<the user's question>\" --query-strategy vector --query-k 5 ```",
-"Some installations require `--description PATH` for read-only queries \u2014 pass the project brief if so. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
+"The command finds the project brief itself (pass `--description PATH` when it lives elsewhere) and never rebuilds the index; run `agentteams --refresh-index` when it reports the index stale. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
 "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
-],"source_hash":"3aa8a30cc65cb6e4c01d4a604e67ae1648dfff49b2002ee5269a03e518afc75b","source_mtime":1793719522.9255314,"vector_norm_sq":277.0017995841246},
+],"source_hash":"a62169d2a7f3e8bb90682d7588ef935a759b63ac80091153f04d1b30143928c2","source_mtime":1793735254.0127199,"vector_norm_sq":316.87059538208865},
 {"doc_id":29,"path":"references/bridges/copilot-vscode-to-claude/quickstart-snippet.md","title":"Bridge Quickstart Snippet","length":59,"snippet":"```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.","paragraphs":[
 "```text Use the copilot-vscode agent infrastructure through this claude bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
 "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```"
-],"source_hash":"3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f","source_mtime":1793718512.552517,"vector_norm_sq":177.037304973033},
+],"source_hash":"3c3af0a472819dceedb2e04f03777330c205d91de60600cf1a635ed0e6d9dd2f","source_mtime":1793735254.0123515,"vector_norm_sq":176.92623105374693},
 {"doc_id":30,"path":"references/bridges/copilot-vscode-to-goose/agent-inventory.md","title":"Agent Team Bridge Inventory","length":725,"snippet":"Lightweight compatibility inventory generated from source canonical files.","paragraphs":[
 "Lightweight compatibility inventory generated from source canonical files."
-],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793718513.412566,"vector_norm_sq":7883.5716280092465},
-{"doc_id":31,"path":"references/bridges/copilot-vscode-to-goose/bridge-merge.report.md","title":"Bridge Merge Report","length":62,"snippet":"- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc14; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in","paragraphs":[
-"- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc14; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework goose --output .goose/recipes --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearance,"
-],"source_hash":"1731a498671d1be0003cbe2f3e66c344752655c3c68a289828e997fd3e0d677e","source_mtime":1793718513.4172468,"vector_norm_sq":219.1197268389432},
+],"source_hash":"fe0ebe7ec32cd7e0bd4370681454ae5705e8dd7a05d301848fd5797f28992e3a","source_mtime":1793735255.392343,"vector_norm_sq":7888.963981169256},
+{"doc_id":31,"path":"references/bridges/copilot-vscode-to-goose/bridge-merge.report.md","title":"Bridge Merge Report","length":62,"snippet":"- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc15; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in","paragraphs":[
+"- native team present: .goose/recipes/ holds a NATIVE goose team (agentteams 1.1.0rc15; .goose/recipes/references/build-log.json) inside this bridge target. No bridge mode refreshes it, so it drifts from the canonical team. To refresh it in place (fence-aware, content outside fences preserved): agentteams --description <brief> --framework goose --output .goose/recipes --update --merge --materialize-native. To retire it instead, remove it via @cleanup with @security clearance,"
+],"source_hash":"caba6651c1cbd36918f27911f43331bae8f2235e0cf040888396a8c6dab2d650","source_mtime":1793735255.3970323,"vector_norm_sq":219.1197268389432},
 {"doc_id":32,"path":"references/bridges/copilot-vscode-to-goose/domain-boundary.md","title":"Domain Boundary \u2014 Three Retrieval Surfaces","length":95,"snippet":"AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:","paragraphs":[
 "AgentTeams exposes three **distinct** retrieval surfaces that address different questions and **must not be conflated**:",
 "1. **Memory-index** (`memory_index`, `--query-index`) \u2014 a stdlib-only sparse tf-idf vector-space ranking over **durable prose** (work summaries, CHANGELOG, durable plans). `vector_runtime_mode: sparse-tfidf-cosine`. 2. **Code index** (`code_index`, `--query-code`) \u2014 a stdlib-only sparse tf-idf ranking over **code**: local scripts (`local-script`), the external API modules they import (`api-module`), and API documentation (`api-doc`), filterable with `--code-kind`. A **gitigno",
 "The memory-index (prose) and the code-index (code) are siblings but cover disjoint content; neither participates in the single-slot project retrieval-integrator contract."
-],"source_hash":"87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c","source_mtime":1793718513.4134343,"vector_norm_sq":481.21840629438856},
-{"doc_id":33,"path":"references/bridges/copilot-vscode-to-goose/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> goose","length":81,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
+],"source_hash":"87c596cad0ded60612d951cbfff357429898e844f7b830247bc702fa7d72802c","source_mtime":1793735255.3929336,"vector_norm_sq":480.94437216950394},
+{"doc_id":33,"path":"references/bridges/copilot-vscode-to-goose/entrypoint.md","title":"Bridge Entrypoint: copilot-vscode -> goose","length":91,"snippet":"This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.","paragraphs":[
 "This is a lightweight interface bridge. Canonical agent definitions remain in source framework files. Use orchestrator-first routing for team-based work.",
 "Before falling back to grep / filesystem search for thematic or cross-summary questions, query the agentteams memory-index:",
 "``` agentteams --query-index \"<the user's question>\" --query-strategy vector --query-k 5 ```",
-"Some installations require `--description PATH` for read-only queries \u2014 pass the project brief if so. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
+"The command finds the project brief itself (pass `--description PATH` when it lives elsewhere) and never rebuilds the index; run `agentteams --refresh-index` when it reports the index stale. The index covers durable prose (work summaries, plans, CHANGELOG, references), NOT code. For code-symbol lookups, grep remains primary.",
 "See `domain-boundary.md` (this directory) for the boundary between the memory-index vector mode and project-level retrieval-integrator validation contracts \u2014 they address different questions and must not be conflated."
-],"source_hash":"8c9e3f27acd76339e550b70871012cb7409cb95341f6735e2ad04f1b5711838a","source_mtime":1793719522.9269276,"vector_norm_sq":277.94183289928634},
+],"source_hash":"f381b699fc558635c9f25c03f602fdda040b6072688545424045235e76895049","source_mtime":1793735255.392822,"vector_norm_sq":317.8106286972504},
 {"doc_id":34,"path":"references/bridges/copilot-vscode-to-goose/quickstart-snippet.md","title":"Bridge Quickstart Snippet","length":160,"snippet":"```text Use the copilot-vscode agent infrastructure through this goose bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.","paragraphs":[
 "```text Use the copilot-vscode agent infrastructure through this goose bridge. Start with the source orchestrator and follow source governance rules. Do not bypass orchestrator for multi-step, destructive, or cross-repo work.",
 "Retrieval-first: for 'where is X' / 'have we seen Y before' / thematic questions, run `agentteams --query-index \"<question>\" --query-strategy vector` before grep. The memory-index covers durable prose (work summaries, plans, CHANGELOG). See references/bridges/<src>-to-<target>/domain-boundary.md for the boundary vs project-level retrieval contracts. ```",
 "`--bridge-check` verifies that source `.agent.md` files match their SHA-256 hashes recorded at bridge-generation time. It does NOT validate generated recipe YAML files, `.goosehints` enrichment, or AGENTS.md content. To validate recipe structure: `agentteams --framework goose --recipe-check --output <recipes-dir>` checks version string, no model: key, sub_recipe path resolution, and non-empty instructions. For full recipe generation (alternative to bridge): `agentteams --conv",
 "The bridge emits `.goose/recipes/bridge-orchestrator.yaml` \u2014 run it with `goose run --recipe .goose/recipes/bridge-orchestrator.yaml` to start the bridged team WITH the `developer` (CLI) extension by default. Pass `--target-host-features bridge:<source>-to-goose:mcp` and build the source with an MCP token first to also wire the selected (first-party, read-only, orchestrator-scoped) MCP servers into that recipe."
-],"source_hash":"66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66","source_mtime":1793718513.4130876,"vector_norm_sq":1052.5892253265931},
+],"source_hash":"66ca8d2078b55b442e309f16fc8544262333b4f8c954d7bfd3bb03db55b6fd66","source_mtime":1793735255.3926485,"vector_norm_sq":1052.0167292323727},
 {"doc_id":35,"path":"references/plans/adversarial-conflict-audit-labor-matching.plan.md","title":"Plan Summary: Adversarial and Conflict Audit for Labor Matching Project","length":90,"snippet":"- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project,","paragraphs":[
 "- Plan slug: adversarial-conflict-audit-labor-matching - Trigger: Subject all factual claims and all citations to adversarial and conflict audits - Goal: Audit all factual claims and all citations in the LaborMatchingMacroeconomics project, remediate defects, and report pass/block status - Agent sequence: @adversarial -> @technical-validator -> @reference-manager -> @conflict-auditor - Success criteria: - Every factual claim in project files is checked for overreach, ambiguit",
 "- Completion status: COMPLETE - Completion date: April 18, 2026"
@@ -410,7 +410,7 @@
 "template":[{"doc_id":0,"tf":1},{"doc_id":3,"tf":6},{"doc_id":13,"tf":1},{"doc_id":16,"tf":3},{"doc_id":17,"tf":1},{"doc_id":19,"tf":2},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "a64c91":[{"doc_id":0,"tf":1}],
 "customization":[{"doc_id":0,"tf":1}],
-"agentteams":[{"doc_id":0,"tf":6},{"doc_id":1,"tf":2},{"doc_id":2,"tf":4},{"doc_id":3,"tf":9},{"doc_id":4,"tf":7},{"doc_id":5,"tf":17},{"doc_id":6,"tf":2},{"doc_id":7,"tf":12},{"doc_id":8,"tf":4},{"doc_id":9,"tf":8},{"doc_id":10,"tf":2},{"doc_id":11,"tf":4},{"doc_id":12,"tf":16},{"doc_id":13,"tf":3},{"doc_id":14,"tf":7},{"doc_id":15,"tf":8},{"doc_id":16,"tf":59},{"doc_id":17,"tf":14},{"doc_id":18,"tf":2},{"doc_id":19,"tf":9},{"doc_id":20,"tf":7},{"doc_id":21,"tf":1},{"doc_id":22,"tf":4},{"doc_id":23,"tf":1},{"doc_id":24,"tf":2},{"doc_id":25,"tf":1},{"doc_id":26,"tf":2},{"doc_id":27,"tf":1},{"doc_id":28,"tf":2},{"doc_id":29,"tf":1},{"doc_id":30,"tf":1},{"doc_id":31,"tf":2},{"doc_id":32,"tf":1},{"doc_id":33,"tf":2},{"doc_id":34,"tf":3}],
+"agentteams":[{"doc_id":0,"tf":6},{"doc_id":1,"tf":2},{"doc_id":2,"tf":4},{"doc_id":3,"tf":9},{"doc_id":4,"tf":7},{"doc_id":5,"tf":17},{"doc_id":6,"tf":2},{"doc_id":7,"tf":12},{"doc_id":8,"tf":4},{"doc_id":9,"tf":8},{"doc_id":10,"tf":2},{"doc_id":11,"tf":4},{"doc_id":12,"tf":16},{"doc_id":13,"tf":3},{"doc_id":14,"tf":7},{"doc_id":15,"tf":8},{"doc_id":16,"tf":59},{"doc_id":17,"tf":14},{"doc_id":18,"tf":2},{"doc_id":19,"tf":9},{"doc_id":20,"tf":7},{"doc_id":21,"tf":1},{"doc_id":22,"tf":4},{"doc_id":23,"tf":1},{"doc_id":24,"tf":2},{"doc_id":25,"tf":1},{"doc_id":26,"tf":2},{"doc_id":27,"tf":1},{"doc_id":28,"tf":3},{"doc_id":29,"tf":1},{"doc_id":30,"tf":1},{"doc_id":31,"tf":2},{"doc_id":32,"tf":1},{"doc_id":33,"tf":3},{"doc_id":34,"tf":3}],
 "integration":[{"doc_id":0,"tf":1},{"doc_id":1,"tf":1},{"doc_id":5,"tf":1},{"doc_id":13,"tf":1},{"doc_id":25,"tf":2},{"doc_id":30,"tf":2}],
 "recon":[{"doc_id":0,"tf":1}],
 "confirmed":[{"doc_id":0,"tf":1},{"doc_id":1,"tf":1},{"doc_id":4,"tf":3},{"doc_id":5,"tf":1},{"doc_id":6,"tf":1},{"doc_id":8,"tf":1},{"doc_id":12,"tf":2},{"doc_id":16,"tf":1},{"doc_id":19,"tf":1}],
@@ -441,7 +441,7 @@
 "conflict-auditor":[{"doc_id":0,"tf":1},{"doc_id":1,"tf":1},{"doc_id":3,"tf":4},{"doc_id":5,"tf":4},{"doc_id":7,"tf":1},{"doc_id":8,"tf":1},{"doc_id":12,"tf":2},{"doc_id":13,"tf":1},{"doc_id":15,"tf":1},{"doc_id":23,"tf":1},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1},{"doc_id":35,"tf":1},{"doc_id":36,"tf":1}],
 "hard":[{"doc_id":0,"tf":1},{"doc_id":6,"tf":1}],
 "semantic":[{"doc_id":0,"tf":1},{"doc_id":21,"tf":1}],
-"run":[{"doc_id":0,"tf":1},{"doc_id":1,"tf":1},{"doc_id":4,"tf":2},{"doc_id":5,"tf":2},{"doc_id":6,"tf":1},{"doc_id":7,"tf":2},{"doc_id":9,"tf":1},{"doc_id":10,"tf":2},{"doc_id":12,"tf":1},{"doc_id":15,"tf":2},{"doc_id":16,"tf":5},{"doc_id":17,"tf":8},{"doc_id":18,"tf":2},{"doc_id":19,"tf":3},{"doc_id":20,"tf":5},{"doc_id":21,"tf":2},{"doc_id":22,"tf":2},{"doc_id":23,"tf":8},{"doc_id":29,"tf":1},{"doc_id":34,"tf":3}],
+"run":[{"doc_id":0,"tf":1},{"doc_id":1,"tf":1},{"doc_id":4,"tf":2},{"doc_id":5,"tf":2},{"doc_id":6,"tf":1},{"doc_id":7,"tf":2},{"doc_id":9,"tf":1},{"doc_id":10,"tf":2},{"doc_id":12,"tf":1},{"doc_id":15,"tf":2},{"doc_id":16,"tf":5},{"doc_id":17,"tf":8},{"doc_id":18,"tf":2},{"doc_id":19,"tf":3},{"doc_id":20,"tf":5},{"doc_id":21,"tf":2},{"doc_id":22,"tf":2},{"doc_id":23,"tf":8},{"doc_id":28,"tf":1},{"doc_id":29,"tf":1},{"doc_id":33,"tf":1},{"doc_id":34,"tf":3}],
 "resolved":[{"doc_id":0,"tf":1},{"doc_id":3,"tf":1},{"doc_id":5,"tf":1},{"doc_id":7,"tf":1},{"doc_id":8,"tf":1},{"doc_id":11,"tf":1},{"doc_id":15,"tf":1},{"doc_id":16,"tf":1},{"doc_id":19,"tf":1},{"doc_id":35,"tf":1}],
 "autosync-ref":[{"doc_id":0,"tf":1}],
 "honesty":[{"doc_id":0,"tf":1}],
@@ -613,7 +613,7 @@
 "pipeline":[{"doc_id":1,"tf":1},{"doc_id":16,"tf":2},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "graph":[{"doc_id":1,"tf":1}],
 "memory":[{"doc_id":1,"tf":1}],
-"index":[{"doc_id":1,"tf":1},{"doc_id":6,"tf":2},{"doc_id":14,"tf":1},{"doc_id":16,"tf":1},{"doc_id":18,"tf":2},{"doc_id":22,"tf":1},{"doc_id":27,"tf":1},{"doc_id":28,"tf":1},{"doc_id":32,"tf":1},{"doc_id":33,"tf":1}],
+"index":[{"doc_id":1,"tf":1},{"doc_id":6,"tf":2},{"doc_id":14,"tf":1},{"doc_id":16,"tf":1},{"doc_id":18,"tf":2},{"doc_id":22,"tf":1},{"doc_id":27,"tf":1},{"doc_id":28,"tf":3},{"doc_id":32,"tf":1},{"doc_id":33,"tf":3}],
 "bridge":[{"doc_id":1,"tf":1},{"doc_id":3,"tf":1},{"doc_id":4,"tf":1},{"doc_id":5,"tf":6},{"doc_id":7,"tf":2},{"doc_id":10,"tf":1},{"doc_id":12,"tf":2},{"doc_id":13,"tf":3},{"doc_id":14,"tf":4},{"doc_id":15,"tf":1},{"doc_id":16,"tf":10},{"doc_id":17,"tf":4},{"doc_id":18,"tf":1},{"doc_id":19,"tf":1},{"doc_id":21,"tf":1},{"doc_id":22,"tf":1},{"doc_id":25,"tf":1},{"doc_id":26,"tf":4},{"doc_id":27,"tf":1},{"doc_id":28,"tf":2},{"doc_id":29,"tf":2},{"doc_id":30,"tf":1},{"doc_id":31,"tf":4},{"doc_id":32,"tf":1},{"doc_id":33,"tf":2},{"doc_id":34,"tf":6}],
 "manifest":[{"doc_id":1,"tf":2},{"doc_id":3,"tf":2},{"doc_id":16,"tf":1},{"doc_id":24,"tf":18},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "overlapped":[{"doc_id":1,"tf":1}],
@@ -644,7 +644,7 @@
 "every":[{"doc_id":1,"tf":2},{"doc_id":3,"tf":1},{"doc_id":5,"tf":1},{"doc_id":6,"tf":1},{"doc_id":7,"tf":1},{"doc_id":8,"tf":1},{"doc_id":9,"tf":1},{"doc_id":10,"tf":1},{"doc_id":11,"tf":1},{"doc_id":12,"tf":1},{"doc_id":14,"tf":6},{"doc_id":16,"tf":19},{"doc_id":17,"tf":1},{"doc_id":18,"tf":3},{"doc_id":19,"tf":3},{"doc_id":21,"tf":2},{"doc_id":22,"tf":1},{"doc_id":23,"tf":1},{"doc_id":24,"tf":2},{"doc_id":25,"tf":2},{"doc_id":30,"tf":2},{"doc_id":35,"tf":2}],
 "sync":[{"doc_id":1,"tf":1},{"doc_id":3,"tf":1},{"doc_id":4,"tf":3},{"doc_id":5,"tf":1},{"doc_id":6,"tf":1},{"doc_id":8,"tf":3},{"doc_id":10,"tf":2},{"doc_id":12,"tf":3},{"doc_id":13,"tf":1},{"doc_id":16,"tf":6},{"doc_id":17,"tf":4},{"doc_id":19,"tf":3},{"doc_id":20,"tf":1}],
 "degrade-safe":[{"doc_id":1,"tf":1}],
-"never":[{"doc_id":1,"tf":1},{"doc_id":5,"tf":2},{"doc_id":9,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":6},{"doc_id":17,"tf":5},{"doc_id":18,"tf":1},{"doc_id":19,"tf":1},{"doc_id":20,"tf":1},{"doc_id":22,"tf":2},{"doc_id":23,"tf":1},{"doc_id":27,"tf":1},{"doc_id":32,"tf":1}],
+"never":[{"doc_id":1,"tf":1},{"doc_id":5,"tf":2},{"doc_id":9,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":6},{"doc_id":17,"tf":5},{"doc_id":18,"tf":1},{"doc_id":19,"tf":1},{"doc_id":20,"tf":1},{"doc_id":22,"tf":2},{"doc_id":23,"tf":1},{"doc_id":27,"tf":1},{"doc_id":28,"tf":1},{"doc_id":32,"tf":1},{"doc_id":33,"tf":1}],
 "wholesale-overwrites":[{"doc_id":1,"tf":1}],
 "preserve":[{"doc_id":1,"tf":1},{"doc_id":17,"tf":1},{"doc_id":19,"tf":1},{"doc_id":36,"tf":1}],
 "strategy":[{"doc_id":1,"tf":1}],
@@ -744,7 +744,7 @@
 "closed":[{"doc_id":2,"tf":2},{"doc_id":9,"tf":1},{"doc_id":10,"tf":1},{"doc_id":11,"tf":1},{"doc_id":12,"tf":2},{"doc_id":15,"tf":1},{"doc_id":16,"tf":7},{"doc_id":19,"tf":1}],
 "refuses":[{"doc_id":2,"tf":1},{"doc_id":9,"tf":1},{"doc_id":12,"tf":1},{"doc_id":14,"tf":2},{"doc_id":16,"tf":7},{"doc_id":19,"tf":3}],
 "non-empty":[{"doc_id":2,"tf":1},{"doc_id":9,"tf":1},{"doc_id":34,"tf":1}],
-"stale":[{"doc_id":2,"tf":1},{"doc_id":3,"tf":1},{"doc_id":5,"tf":5},{"doc_id":7,"tf":1},{"doc_id":9,"tf":1},{"doc_id":12,"tf":2},{"doc_id":13,"tf":3},{"doc_id":16,"tf":4},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
+"stale":[{"doc_id":2,"tf":1},{"doc_id":3,"tf":1},{"doc_id":5,"tf":5},{"doc_id":7,"tf":1},{"doc_id":9,"tf":1},{"doc_id":12,"tf":2},{"doc_id":13,"tf":3},{"doc_id":16,"tf":4},{"doc_id":25,"tf":1},{"doc_id":28,"tf":1},{"doc_id":30,"tf":1},{"doc_id":33,"tf":1}],
 "mismatched":[{"doc_id":2,"tf":1}],
 "interpreter":[{"doc_id":2,"tf":1},{"doc_id":5,"tf":1},{"doc_id":13,"tf":1},{"doc_id":20,"tf":1}],
 "extracted":[{"doc_id":2,"tf":1}],
@@ -798,7 +798,7 @@
 "chunks":[{"doc_id":2,"tf":2}],
 "integrity":[{"doc_id":2,"tf":2},{"doc_id":16,"tf":1},{"doc_id":17,"tf":2},{"doc_id":18,"tf":3},{"doc_id":25,"tf":2},{"doc_id":30,"tf":2}],
 "sample":[{"doc_id":2,"tf":1}],
-"queries":[{"doc_id":2,"tf":2},{"doc_id":25,"tf":1},{"doc_id":28,"tf":1},{"doc_id":30,"tf":1},{"doc_id":33,"tf":1}],
+"queries":[{"doc_id":2,"tf":2},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "return":[{"doc_id":2,"tf":1}],
 "background":[{"doc_id":2,"tf":1}],
 "mcmahon":[{"doc_id":2,"tf":1}],
@@ -1034,7 +1034,7 @@
 "step":[{"doc_id":3,"tf":4},{"doc_id":4,"tf":6},{"doc_id":5,"tf":2},{"doc_id":9,"tf":1},{"doc_id":10,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":6}],
 "in_progress":[{"doc_id":3,"tf":1},{"doc_id":9,"tf":1}],
 "narrative":[{"doc_id":3,"tf":2},{"doc_id":4,"tf":1}],
-"reports":[{"doc_id":3,"tf":1},{"doc_id":4,"tf":3},{"doc_id":15,"tf":2},{"doc_id":16,"tf":5},{"doc_id":17,"tf":2},{"doc_id":19,"tf":1},{"doc_id":22,"tf":1}],
+"reports":[{"doc_id":3,"tf":1},{"doc_id":4,"tf":3},{"doc_id":15,"tf":2},{"doc_id":16,"tf":5},{"doc_id":17,"tf":2},{"doc_id":19,"tf":1},{"doc_id":22,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "completed":[{"doc_id":3,"tf":1},{"doc_id":36,"tf":1}],
 "does":[{"doc_id":3,"tf":2},{"doc_id":5,"tf":1},{"doc_id":16,"tf":4},{"doc_id":18,"tf":5},{"doc_id":19,"tf":1},{"doc_id":25,"tf":2},{"doc_id":30,"tf":2},{"doc_id":34,"tf":1}],
 "edit":[{"doc_id":3,"tf":1},{"doc_id":16,"tf":1},{"doc_id":17,"tf":5},{"doc_id":20,"tf":1},{"doc_id":23,"tf":3},{"doc_id":24,"tf":1}],
@@ -1348,7 +1348,7 @@
 "parse":[{"doc_id":5,"tf":1}],
 "tomllib":[{"doc_id":5,"tf":1}],
 "six":[{"doc_id":5,"tf":1},{"doc_id":9,"tf":1},{"doc_id":12,"tf":1},{"doc_id":14,"tf":1},{"doc_id":16,"tf":1}],
-"read-only":[{"doc_id":5,"tf":2},{"doc_id":7,"tf":1},{"doc_id":11,"tf":1},{"doc_id":12,"tf":1},{"doc_id":13,"tf":1},{"doc_id":15,"tf":1},{"doc_id":23,"tf":4},{"doc_id":25,"tf":3},{"doc_id":28,"tf":1},{"doc_id":30,"tf":3},{"doc_id":33,"tf":1},{"doc_id":34,"tf":1}],
+"read-only":[{"doc_id":5,"tf":2},{"doc_id":7,"tf":1},{"doc_id":11,"tf":1},{"doc_id":12,"tf":1},{"doc_id":13,"tf":1},{"doc_id":15,"tf":1},{"doc_id":23,"tf":4},{"doc_id":25,"tf":3},{"doc_id":30,"tf":3},{"doc_id":34,"tf":1}],
 "roles":[{"doc_id":5,"tf":1},{"doc_id":17,"tf":2}],
 "carry":[{"doc_id":5,"tf":3},{"doc_id":15,"tf":1},{"doc_id":16,"tf":1},{"doc_id":23,"tf":1}],
 "sandbox_mode":[{"doc_id":5,"tf":1},{"doc_id":23,"tf":1}],
@@ -1611,7 +1611,7 @@
 "vcs":[{"doc_id":7,"tf":2},{"doc_id":14,"tf":2},{"doc_id":16,"tf":1}],
 "researchteam-09":[{"doc_id":7,"tf":1}],
 "a0ad":[{"doc_id":7,"tf":3}],
-"require":[{"doc_id":7,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
+"require":[{"doc_id":7,"tf":1}],
 "f113f5d":[{"doc_id":7,"tf":1}],
 "forward":[{"doc_id":7,"tf":1},{"doc_id":12,"tf":3},{"doc_id":16,"tf":1}],
 "discard-user-regions":[{"doc_id":7,"tf":2},{"doc_id":17,"tf":1},{"doc_id":19,"tf":3}],
@@ -1857,7 +1857,7 @@
 "agentteams_allowed_signers":[{"doc_id":9,"tf":1},{"doc_id":10,"tf":1},{"doc_id":12,"tf":4},{"doc_id":16,"tf":2}],
 "signer":[{"doc_id":9,"tf":1},{"doc_id":15,"tf":1}],
 "root-owned":[{"doc_id":9,"tf":1}],
-"lives":[{"doc_id":9,"tf":1}],
+"lives":[{"doc_id":9,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "agentteams-signer":[{"doc_id":9,"tf":1}],
 "counts":[{"doc_id":9,"tf":1},{"doc_id":14,"tf":1},{"doc_id":15,"tf":1},{"doc_id":16,"tf":1}],
 "agent-writable":[{"doc_id":9,"tf":1}],
@@ -1920,7 +1920,7 @@
 "pilot":[{"doc_id":10,"tf":1}],
 "self-copying":[{"doc_id":10,"tf":1}],
 "round":[{"doc_id":10,"tf":1}],
-"itself":[{"doc_id":10,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":1}],
+"itself":[{"doc_id":10,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "agentteams-16":[{"doc_id":10,"tf":1}],
 "overlap":[{"doc_id":10,"tf":1}],
 "mathagents-owned":[{"doc_id":10,"tf":1}],
@@ -1940,7 +1940,7 @@
 "ships":[{"doc_id":10,"tf":1},{"doc_id":12,"tf":1},{"doc_id":16,"tf":5}],
 "backport":[{"doc_id":10,"tf":2},{"doc_id":11,"tf":1}],
 "owned":[{"doc_id":10,"tf":2}],
-"elsewhere":[{"doc_id":10,"tf":1}],
+"elsewhere":[{"doc_id":10,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "researchteam-f6":[{"doc_id":10,"tf":1},{"doc_id":11,"tf":2},{"doc_id":12,"tf":1}],
 "sections":[{"doc_id":10,"tf":1},{"doc_id":25,"tf":2},{"doc_id":30,"tf":2},{"doc_id":36,"tf":1}],
 "researchteam-a5":[{"doc_id":11,"tf":1}],
@@ -2200,7 +2200,7 @@
 "resolution":[{"doc_id":13,"tf":1},{"doc_id":17,"tf":1},{"doc_id":25,"tf":1},{"doc_id":30,"tf":1},{"doc_id":34,"tf":1}],
 "nonexistent":[{"doc_id":13,"tf":1}],
 "corpus-query":[{"doc_id":13,"tf":1}],
-"command":[{"doc_id":13,"tf":1},{"doc_id":14,"tf":1},{"doc_id":16,"tf":1},{"doc_id":17,"tf":1},{"doc_id":18,"tf":8},{"doc_id":19,"tf":2},{"doc_id":22,"tf":1}],
+"command":[{"doc_id":13,"tf":1},{"doc_id":14,"tf":1},{"doc_id":16,"tf":1},{"doc_id":17,"tf":1},{"doc_id":18,"tf":8},{"doc_id":19,"tf":2},{"doc_id":22,"tf":1},{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "tier_rank":[{"doc_id":13,"tf":1}],
 "presets":[{"doc_id":13,"tf":1}],
 "paragraph":[{"doc_id":13,"tf":1}],
@@ -3174,7 +3174,7 @@
 "monthly":[{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "append-first":[{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
 "legacy":[{"doc_id":25,"tf":1},{"doc_id":30,"tf":1}],
-"rc14":[{"doc_id":26,"tf":1},{"doc_id":31,"tf":1}],
+"rc15":[{"doc_id":26,"tf":1},{"doc_id":31,"tf":1}],
 "drifts":[{"doc_id":26,"tf":1},{"doc_id":31,"tf":1}],
 "leaving":[{"doc_id":26,"tf":1},{"doc_id":31,"tf":1}],
 "agentteams-bridge":[{"doc_id":26,"tf":2}],
@@ -3219,7 +3219,9 @@
 "query-strategy":[{"doc_id":28,"tf":1},{"doc_id":29,"tf":1},{"doc_id":33,"tf":1},{"doc_id":34,"tf":1}],
 "vector":[{"doc_id":28,"tf":2},{"doc_id":29,"tf":1},{"doc_id":33,"tf":2},{"doc_id":34,"tf":1}],
 "query-k":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
-"installations":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
+"finds":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
+"rebuilds":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
+"refresh-index":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "code-symbol":[{"doc_id":28,"tf":1},{"doc_id":33,"tf":1}],
 "domain-boundary":[{"doc_id":28,"tf":1},{"doc_id":29,"tf":1},{"doc_id":33,"tf":1},{"doc_id":34,"tf":1}],
 "quickstart":[{"doc_id":29,"tf":1},{"doc_id":34,"tf":1}],
@@ -3300,6 +3302,6 @@
 "author-date":[{"doc_id":37,"tf":1}],
 "included":[{"doc_id":37,"tf":1}]
 },
-"avgdl":397.89473684210526,
+"avgdl":398.42105263157896,
 "N":38
 }
