@@ -13,8 +13,9 @@ cross-summary questions, query the agentteams memory-index:
 agentteams --query-index "<the user's question>" --query-strategy vector --query-k 5
 ```
 
-Some installations require `--description PATH` for read-only queries —
-pass the project brief if so. The index covers durable prose (work
+The command finds the project brief itself (pass `--description PATH`
+when it lives elsewhere) and never rebuilds the index; run
+`agentteams --refresh-index` when it reports the index stale. The index covers durable prose (work
 summaries, plans, CHANGELOG, references), NOT code. For code-symbol
 lookups, grep remains primary.
 
