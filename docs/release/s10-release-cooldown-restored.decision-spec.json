@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-03",
+  "date": "2026-11-03",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "s10-release-cooldown-restored",
+  "verdict": "PASS",
+  "scope": "s10-release-cooldown-restored",
+  "conditions": "Operator ruling 2026-11-03 (\"the 14 day cooldown period is in force with a carve out for remediation of vulnerabilities. The 14 day cooldown period should not apply to updates of local, interdependent repos (i.e., baseAgent, agentteams, researchteam, mathAgents, etc...)\"): the S-10 14-day release cooldown is in force again, reversing s10-release-cooldown-deprecated. Carve-outs: (1) a release that remediates a vulnerability found by pip-audit, npm audit, cargo audit or an OSV.dev query; (2) releases of this toolchain's own operator-owned interdependent repositories (agentteams, researchteam, baseAgent, mathAgents and the rest of the lineage), adoptable the day they are published. Still required at every adoption: the known-vulnerability search on the exact name==version and on any dependency it changes (OSV/GHSA, including MAL-* entries); for a release-key tag, the signature and remote-object checks. Third-party packages wait out the cooldown unless carve-out (1) applies.",
+  "conditions_verified": "docs/release-policy.md Pins and Release lines sections updated to match; agentteams #349 (1.1) and #350 (1.0) restore the cooldown in the rendered @security S-10 text",
+  "evidence": "Operator answer in researchteam session researchteam-25, 2026-11-03, during the baseAgent cross-surface rollout (agentteams v1.0.5 / v1.1.0-rc.14 / planned rc.15 and v1.0.6)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-deprecated",
+  "effect_grants": "",
+  "effect_targets": "docs/release-policy.md",
+  "effect_relaxes": "S-10 release cooldown, for local interdependent repositories and vulnerability remediation only",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

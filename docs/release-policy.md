@@ -31,10 +31,9 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`release-line-agentteams-1.1`), separate from the pin row. `check_toolchain.py` refuses a cross-line move under
   an existing lock, so the move drops the `agentteams.tag=` line and starts a new lock with
   `--write-lock --tag agentteams=<1.1 tag> --sync-extras`.
-- The S-10 cooldown is deprecated (see Pins). Before that ruling the 1.0 and 1.1 lines each had a release-key
-  exemption (`s10-release-key-exemption`, `s10-release-key-exemption-1.1`); a derived repository keeps its own until
-  it renders an agentteams release with S-10 fence v17 (v1.0.4+ on the 1.0 line, v1.1.0-rc.7+ on 1.1), because its rendered `@security`
-  applies the cooldown until then.
+- The S-10 cooldown is in force again, with a carve-out for this toolchain's own repositories (see Pins). The
+  release-key exemptions from before the 2026-10-26 deprecation (`s10-release-key-exemption`,
+  `s10-release-key-exemption-1.1`) stay in the log as history; the local-lineage carve-out replaces them.
 - Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag
   (`--researchteam-tag v1.1.0-rc.N`), which keeps the order agentteams → researchteam → derived.
 
@@ -51,12 +50,18 @@ How collaborators work within this policy (branches, installs, contributions, ba
   tag**, never a branch, a branch head or an unverified tag. A `<name>.tag=` line in `toolchain.lock` records
   the tag and release-locks the pin (`docs/agentteams-update-policy.md`, "Release-Locked Repositories").
 - Each pin move gets its own `@security` row naming the tag object and the peeled SHA.
-- **S-10:** the 14-day release cooldown is **deprecated** (operator ruling 2026-10-26, signed row
-  `s10-release-cooldown-deprecated`; agentteams #299, S-10 fence v17). A release may be adopted the day it is
-  published once its exact `name==version` passes the known-vulnerability search (OSV/GHSA, including MAL-*
-  entries) and, for a release-key tag, the signature and remote-object checks. Every pin move still records that
-  search in its row. The earlier exemptions (`s10-release-key-exemption`, `s10-release-key-exemption-1.1`) stay in
-  the log as history and are no longer needed (`docs/release/`).
+- **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
+  deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). Two
+  carve-outs:
+  - **Vulnerability remediation.** A release that fixes a vulnerability found by `pip-audit`, `npm audit`,
+    `cargo audit` or an OSV.dev query may be adopted inside the cooldown.
+  - **Local interdependent repositories.** The cooldown does not apply to releases of this toolchain's own
+    repositories (agentteams, researchteam, baseAgent, mathAgents and the other operator-owned repositories in the
+    lineage). Such a release-key tag may be adopted the day it is published once it passes the signature and
+    remote-object checks and its exact `name==version`, and any dependency it changes, passes the
+    known-vulnerability search (OSV/GHSA, including MAL-* entries).
+  Every pin move records that search in its row. Third-party packages wait out the cooldown unless the
+  remediation carve-out applies.
 - `check_toolchain.py` fails when an extra and the lock disagree. In researchteam itself the upstream autosync
   moves them together (`--write-lock --sync-extras`); a derived repository's `pyproject.toml` is never rewritten.
 
