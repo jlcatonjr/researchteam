@@ -16,7 +16,9 @@ set -euo pipefail
 #                                  fenced-preserve managed block
 #   Layer-1 root artifacts (exact paths only; the rest of references/ stays user-owned):
 #                                 references/architecture-{graph.md,graph.svg,modules.svg}
-#                                 (architecture-map refresh on --update), .goosehints,
+#                                 (architecture-map refresh on --update),
+#                                 references/agent-surface-matrix.md (agentteams 1.1.0rc13+),
+#                                 .goosehints,
 #                                 SETUP-REQUIRED.md, and .agentteams/bin/ (Codex role gate and
 #                                 runner server under an orchestrator-only write_policy; a security
 #                                 boundary like sandbox/)
@@ -31,7 +33,7 @@ set -euo pipefail
 # writes somewhere it should not. A stronger control would regenerate in a job that holds no write
 # token and hand the diff to a separate, privileged job.
 
-allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/|toolchain\.lock$)'
+allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|references/agent-surface-matrix\.md$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/|toolchain\.lock$)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'
 forbidden_nested_mirror_regex='^\.github/agents/\.github(/|$)'
 

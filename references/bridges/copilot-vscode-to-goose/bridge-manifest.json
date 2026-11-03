@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-10-31T03:37:52.777505+00:00",
+  "generated_at": "2026-11-03T23:09:27.947238+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "f4cdf4ff2c2e7e075a6a2cc1c8132cdb9c208c1de4d296979132a8c8c5ae1434"
+      "sha256": "bbe37bd2c9774093ee4e0247ac020be173fde29d1c45c375efc58db79881dabb"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "a088edc9e38cb07d0026d665d00e8d6be5049e2c667ec6bc4f9907e201e7033e"
+      "sha256": "060ee796c9dd3426079400c8745113de1d9b273ca39781611b5b505a7b8a25ca"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -135,7 +135,7 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "3a6216f1b5f995c23d69cbec6a079c09ceaac7a54a1cca7e004133da00480af9"
+      "sha256": "9234cb2e017bc4b88ae224b489bc02f22b51d2fd865e96a1cf39bd1c2b44646b"
     }
   ],
   "inventory_count": 32,

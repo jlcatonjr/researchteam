@@ -1,0 +1,27 @@
+{
+  "cap": {},
+  "exceptions": [
+    {
+      "action": "s10-cooldown-exempt:jlcatonjr/agentteams",
+      "decision_key_id": "op-2026",
+      "decision_sha256": "290b19898a3480325dc08a13c46bbf784800cc68f6de6484212e8da3a2f95fb3",
+      "effect": {
+        "relaxes": [
+          "s10-cooldown-exempt:jlcatonjr/agentteams"
+        ]
+      },
+      "expires": "2027-02-01T23:06:45.069302+00:00",
+      "id": "s10-cooldown-exempt:jlcatonjr/agentteams@f5d9d6208ef25045",
+      "issued": "2026-11-03T23:06:45.069302+00:00",
+      "kind": "s10-cooldown-exempt",
+      "lineage": [
+        "release-policy-1.0",
+        "s10-release-cooldown-restored"
+      ],
+      "relaxing": true,
+      "scope": "s10-cooldown-exempt:jlcatonjr/agentteams",
+      "status": "active"
+    }
+  ],
+  "version": 1
+}

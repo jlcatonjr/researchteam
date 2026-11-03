@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc12",
+  "agentteams_version": "1.1.0rc15",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "ac93628a9b875cf1049100795291f2bd5f537a4d",
+    "commit": "9900fbd3cee54d977f045b5ca0406ac5379ac541",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-10-31T03:37:43.249331+00:00",
+  "generated_at": "2026-11-03T23:09:20.838777+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -34,9 +34,9 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "1a69f80133e36dda",
+    "universal/orchestrator.template.md": "7e350d6cb17aac72",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "12f027791fe214d2",
+    "universal/security.template.md": "b738b65b9a3edecd",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -531,14 +531,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "5495a5256125941f",
+  "manifest_fingerprint": "a9ca9a1c6344e9c1",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "4ccab719bd1ed1b2",
-    "references/security-vulnerability-watch.json": "e4d6112b6f2cad02",
-    "security.toml": "581db70151058685",
+    "references/security-vulnerability-watch.reference.md": "27cbec8e1f95f86d",
+    "references/security-vulnerability-watch.json": "700239148c13a9f3",
+    "security.toml": "fa6c1053629a7efd",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
-    "orchestrator.toml": "818071a8bcd6f900",
+    "orchestrator.toml": "704b36d40ec9c116",
     "navigator.toml": "3519e944e8f26d47",
     "code-hygiene.toml": "c91429ad94b4b7d3",
     "conflict-auditor.toml": "4c67411f94889d12",
@@ -578,7 +578,7 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "fa2456574f1ac6f6",
+    "../../AGENTS.md": "406a84f08dab90c5",
     "team-builder.toml": "d3dd092c84096ecc",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
@@ -683,7 +683,7 @@
       "authority_hierarchy": "461a7ca343b3706e95d8cf54ac3307c4e790827744ca5e9200e531d1d5d4f631",
       "routing_table_rows": "b87a841af0a9df1806a26e911847f90e0f1891649cc6e7f1839ed93833f18053",
       "update_compatibility_source_pack": "24662ea1c046bf2831dfa898b937114683aa5e9ca695b243aaf3241ca6ab34ea",
-      "available_workflows": "3344908824dee3db4c7ad3f2ce80c954304594650580075334f5e2a7f0916860",
+      "available_workflows": "4cc29ace1a91b0badaa8b9553a27dbaaf5d4e0eedb1ea91c7cbe71b826eba5c6",
       "write_policy": "4209c85f8de9588e949279570922e7d0d2b36256f86ae1699d7f6d8dbc6df6ab",
       "codex_translation": "d609f110f9d4912cc32b260c5d823889f6f03d825707e2d9e55a78bcf2900b57"
     },
@@ -738,11 +738,11 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "a9aa3c73b7764ee65abb8ca494fd7437009e62c56e1e6d4d1c7ad71577203eac",
+      "threat_intelligence": "508547755051335456f6b44442e1bb98be9b60533a9ea457a02bc0fdc6f50f3c",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
-      "security_rules_invariant": "16b86048f4252a9441d88b08e80fd33de2ba2afbe9affa0a9923a760476c4144",
+      "security_rules_invariant": "4a07a6d9c929cf75a0724063b86b9217ffd8c08840014a5bca50ce344ae02a2b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "codex_translation": "fdc79aa0df18d788e75a8356d98df31622e0f4eb5788b9d0e3507e5611d8c413"
     },
