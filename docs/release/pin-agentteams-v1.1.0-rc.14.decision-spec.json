@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-03",
+  "date": "2026-11-03",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.0-rc.14",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.0-rc.14",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.0-rc.14 (tag object fd53dda8e6ad62faf96b0605c93301728361d125, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). v1.1.0-rc.13 is skipped: it peels to the rc.12 commit ac93628a. Adopted under s10-release-cooldown-deprecated (no release-age wait); agentteams' declared dependencies and extras are unchanged from v1.1.0-rc.12 (checked at the tags), constraints-2026-10-16.txt applies at install, and a fresh OSV search (which carries GHSA and MAL-* entries) ran for this pin (2026-11-03: agentteams 1.1.0rc14; signing set under constraints-2026-10-16.txt = jsonschema 4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.6.3, cryptography 50.0.0, cffi 2.1.1, pycparser 3.0, typing-extensions 4.16.0, and rpds-py 2026.9.1 as an unconstrained install resolves; research extra anyio 4.15.1, certifi 2026.10.23, h11 0.16.0, httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.4: OSV none for all).",
+  "conditions_verified": "tag v1.1.0-rc.14 object fd53dda8e6ad62faf96b0605c93301728361d125 peeled d88c53ed34e5c9170078caf76c5f727f801e1bdf; the tag object names itself v1.1.0-rc.14 and its version is 1.1.0rc14; git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; scripts/check_toolchain.py --verify-tag agentteams v1.1.0-rc.14 and --release-candidate agentteams agree; remote advertisement matches; pyproject dependencies identical to v1.1.0-rc.12",
+  "evidence": "researchteam branch chore/agentteams-1.1.0-rc.14 (baseAgent cross-surface hand-off 2026-11-03, stage researchteam; autosync gate --mode upstream run step by step; validate, detector tests 4/4, pytest 473 passed / 7 skipped; rc.13/rc.14 add Project-Specific Rules projection, references/agent-surface-matrix.md and the read-only --query-index; scripts/validate_agentteams_update.sh scope allows the matrix); Scope: toolchain.lock and the update/research extras: agentteams ac93628a9b875cf1049100795291f2bd5f537a4d (v1.1.0-rc.12) -> d88c53ed34e5c9170078caf76c5f727f801e1bdf (v1.1.0-rc.14)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-deprecated; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
