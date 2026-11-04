@@ -101,12 +101,37 @@ def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level:
     print(
         "\nNote: strict decision signing is ON (enforce_decision_signing:true, agentteams' secure "
         "default), so an agent can never clear its own destructive action. 'materialize' therefore "
-        "needs one operator-signed clearance first:\n"
+        "needs one operator-signed clearance per agent surface first:\n"
         "  export AGENTTEAMS_DECISION_SIGNING_KEY=\"$(python3 -c 'import secrets; print(secrets.token_hex(32))')\"\n"
         "      # operator-held, >= 32 bytes; keep it outside the repo and every agent environment\n"
-        "  python scripts/sign_security_decision.py --action overwrite --conditions \"first render\"\n"
-        "  researchteam materialize --yes\n"
+        + _signing_steps(target)
+        + "  researchteam materialize --yes\n"
         "See docs/researchteam-framework.md (Decision signing)."
+    )
+
+
+#: Surfaces `materialize` renders with a gated --overwrite pass, each checking its own decisions log.
+SIGNED_SURFACES: tuple[str, ...] = (".github/agents", ".claude/agents", ".goose/recipes")
+
+
+def _signing_steps(target: Path) -> str:
+    """Return one `sign_security_decision.py` line per surface the new project contains.
+
+    `materialize` re-renders copilot-vscode plus every native surface present, and each surface's
+    gated --overwrite pass reads its own `references/security-decisions.log.csv`; a single clearance in
+    `.github/agents` leaves the native surfaces uncleared and the render fails on the second one.
+
+    Args:
+        target: The initialized project root.
+
+    Returns:
+        The command lines, each ending in a newline (the `.github/agents` line when no surface is found).
+    """
+    present = [d for d in SIGNED_SURFACES if (target / d).is_dir()] or [SIGNED_SURFACES[0]]
+    return "".join(
+        f"  python scripts/sign_security_decision.py --action overwrite --conditions \"first render\" "
+        f"--log {d}/references/security-decisions.log.csv\n"
+        for d in present
     )
 
 

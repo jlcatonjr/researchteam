@@ -66,7 +66,7 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
     6. Call `run_personalize(target, force=True, quiet=False)` to render `README.md` and `CLAUDE.md`.
     7. Run `git init`, `git add -A`, and `git commit -m "chore: initialize from researchteam template"` in the target (each with `check=True`, output captured).
     8. If `remote_url` is set, run `git remote add origin <remote_url>`.
-7. Print next steps: edit `brief.json`, `researchteam personalize`, `researchteam materialize`, plus a note that strict decision signing is on and `materialize` needs one operator-signed clearance first (via [`scripts/sign_security_decision.py`](scripts.md#sign_security_decisionpy)).
+7. Print next steps: edit `brief.json`, `researchteam personalize`, `researchteam materialize`, plus a note that strict decision signing is on and `materialize` needs one operator-signed clearance **per agent surface** first: one [`scripts/sign_security_decision.py`](scripts.md#sign_security_decisionpy) `--log` line for each of `.github/agents`, `.claude/agents` and `.goose/recipes` that the project contains (`_signing_steps`, `SIGNED_SURFACES`).
 
 **Returns:** `None`.
 
