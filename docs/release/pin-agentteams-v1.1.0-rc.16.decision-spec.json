@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-04",
+  "date": "2026-11-04",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.0-rc.16",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.0-rc.16",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.0-rc.16 (tag object 75df2268e76836be0c6ae23e8dda5b03fb744772, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). Adopted the day after it was published under S-10's local interdependent-repository carve-out (s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams); a release candidate, so this row is its recorded clearance under the latest-stable rule. agentteams' declared dependencies and extras are unchanged from v1.1.0-rc.15 (checked at the tags), and differ from v1.0.0 only by the research extra's pypdf floor raise to >=6.21.2 (CVE remediation, since v1.1.0-rc.12); constraints-2026-10-16.txt applies at install; a fresh OSV search (which carries GHSA and MAL-* entries) ran for this pin (2026-11-04: agentteams 1.1.0rc16 OSV none; the dependency set is the one searched for pin-agentteams-v1.1.0-rc.15 on 2026-11-03, unchanged).",
+  "conditions_verified": "tag v1.1.0-rc.16 object 75df2268e76836be0c6ae23e8dda5b03fb744772 peeled a036d09f75cc9d6dc1961e1deb803a3436b22f35 (merge of agentteams #379 into release/1.1, second parent the reviewed head ae7c1f7c); the tag object names itself v1.1.0-rc.16 and its version is 1.1.0rc16; git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; scripts/check_toolchain.py --verify-tag agentteams v1.1.0-rc.16 and --release-candidate agentteams agree; remote advertisement matches; pyproject dependencies identical to v1.1.0-rc.15",
+  "evidence": "researchteam branch chore/agentteams-1.1.0-rc.16 (autosync gate --mode upstream run step by step; validate, detector tests 4/4, pytest 473 passed / 7 skipped; rc.16 authorizes S-10's local-repository carve-out on every surface against .github/agents (agentteams #378/#379), so the claude, goose and codex @security now name jlcatonjr/agentteams from the existing registry entry, no new row); Scope: toolchain.lock and the update/research extras: agentteams 9900fbd3cee54d977f045b5ca0406ac5379ac541 (v1.1.0-rc.15) -> a036d09f75cc9d6dc1961e1deb803a3436b22f35 (v1.1.0-rc.16)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
