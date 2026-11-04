@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc15",
+  "agentteams_version": "1.1.0rc16",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "9900fbd3cee54d977f045b5ca0406ac5379ac541",
+    "commit": "a036d09f75cc9d6dc1961e1deb803a3436b22f35",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-03T23:09:20.838777+00:00",
+  "generated_at": "2026-11-04T23:24:08.680696+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "a9ca9a1c6344e9c1",
+  "manifest_fingerprint": "30129c29291ed827",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "27cbec8e1f95f86d",
-    "references/security-vulnerability-watch.json": "700239148c13a9f3",
-    "security.toml": "fa6c1053629a7efd",
+    "references/security-vulnerability-watch.reference.md": "167ac1cb9ad0fdcb",
+    "references/security-vulnerability-watch.json": "5eafd3b2fb25deb0",
+    "security.toml": "30a0a85f41649f50",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "704b36d40ec9c116",
     "navigator.toml": "3519e944e8f26d47",
@@ -738,11 +738,11 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "508547755051335456f6b44442e1bb98be9b60533a9ea457a02bc0fdc6f50f3c",
+      "threat_intelligence": "ba381ad29f54f23b9ebe6b8459a3081585572bf2f38f6b314f07d4a1e72b0501",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
-      "security_rules_invariant": "4a07a6d9c929cf75a0724063b86b9217ffd8c08840014a5bca50ce344ae02a2b",
+      "security_rules_invariant": "feaf0b7101cce4e4e59a24faff9151641d6abe67e0cef68f951fdde2f650d2df",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "codex_translation": "fdc79aa0df18d788e75a8356d98df31622e0f4eb5788b9d0e3507e5611d8c413"
     },
