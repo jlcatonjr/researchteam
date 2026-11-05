@@ -9,6 +9,19 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   the newest release, which on 2026-11-03 was pip 26.3, published 2026-11-02 and so inside the 14-day cooldown. It now
   installs `pip==26.2.2`, the latest stable release past the cooldown, which has no OSV advisory. A test keeps the pin.
 
+## 1.1.0rc5 (tag `v1.1.0-rc.5`, on `release/1.1`)
+
+The fifth 1.1 release candidate. It moves agentteams to `v1.1.0-rc.16`, which closes the S-10 gap noted under 1.1.0rc4.
+Derived repositories take it by pinning this tag (`--researchteam-tag v1.1.0-rc.5`).
+
+- **The pin moves to the signed agentteams `v1.1.0-rc.16`** (tag object `75df2268`, peeled `a036d09f`), in
+  `toolchain.lock` and both extras. In a governed project, rc.16 authorizes S-10's local-repository carve-out against
+  `.github/agents` on every surface (agentteams #378/#379), so one signed `s10-cooldown-exempt:<owner/name>` row now
+  covers Copilot, Claude, Goose and Codex. researchteam's Claude, Goose and Codex `@security` agents now name
+  `jlcatonjr/agentteams` too. They use the registry entry the existing row created, so no new row was needed. The
+  sandbox-relaxation, WASM-widen and adopt-merge gates stay per-surface. agentteams' declared dependencies are
+  unchanged from rc.15, and OSV lists nothing for 1.1.0rc16. Rows: `pin-agentteams-v1.1.0-rc.16`.
+
 ## 1.1.0rc4 (tag `v1.1.0-rc.4`, on `release/1.1`)
 
 The fourth 1.1 release candidate. It moves agentteams to `v1.1.0-rc.15`, which brings back the S-10 release cooldown
