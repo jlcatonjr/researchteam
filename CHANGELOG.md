@@ -3,6 +3,12 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (on `main`)
+
+- **The bootstrap pins pip** (S-10; found by mathAgents, 2026-11-03). `scripts/bootstrap_toolchain.sh` upgraded pip to
+  the newest release, which on 2026-11-03 was pip 26.3, published 2026-11-02 and so inside the 14-day cooldown. It now
+  installs `pip==26.2.2`, the latest stable release past the cooldown, which has no OSV advisory. A test keeps the pin.
+
 ## 1.1.0rc5 (tag `v1.1.0-rc.5`, on `release/1.1`)
 
 The fifth 1.1 release candidate. It moves agentteams to `v1.1.0-rc.16`, which closes the S-10 gap noted under 1.1.0rc4.
