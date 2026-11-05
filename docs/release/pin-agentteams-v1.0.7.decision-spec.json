@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-04",
+  "date": "2026-11-04",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.0.7",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.0.7",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.0.7 (tag object 37531c968d3913eb9612347ec1952adeaac98068, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM). Adopted within days of publication under S-10's local interdependent-repository carve-out (s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams); a stable release, the newest on the 1.0 line. agentteams' declared dependencies and extras are unchanged from v1.0.0 (pyproject differs only in the version line); constraints-2026-10-16.txt applies at install; a fresh OSV search (which carries GHSA and MAL-* entries) ran for this pin (2026-11-04: none for the 14 packages installed with agentteams[signing] 1.0.7).",
+  "conditions_verified": "tag v1.0.7 object 37531c968d3913eb9612347ec1952adeaac98068 peeled 8b934600b554d14c1bd02adebe519a4999473c13 (merge of agentteams #380 into release/1.0); git tag -v good signature SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM; scripts/check_toolchain.py --verify-tag agentteams v1.0.7 gives the same peeled commit and --release-candidate agentteams finds nothing newer; remote advertisement matches; pyproject dependencies identical to v1.0.0",
+  "evidence": "researchteam branch release-prep/1.0.4 off release/1.0 2764f7c8 (autosync gate run step by step under agentteams 1.0.7: validate, detector tests 4/4, pytest 354 passed / 5 skipped; decisions log and exception registry taken from main, so the four @security surfaces name jlcatonjr/agentteams from the existing registry entry, no new exemption row); Scope: toolchain.lock and the update/research extras: agentteams cc5b8c9ec4efdcb479939e0c1246a0ac11913259 (v1.0.0) -> 8b934600b554d14c1bd02adebe519a4999473c13 (v1.0.7); also the advisory researchteam self-pin a21e7db7d632664253d4796444ee8b57069c05b2 (v1.0.0) -> 2764f7c8df3d538d8bce0b47ffe77051b3690532 (v1.0.3)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

@@ -3,6 +3,26 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.0.4 (tag `v1.0.4`, on `release/1.0`)
+
+A patch release on `release/1.0`. It moves agentteams to `v1.0.7` and brings the 1.0 line up to the S-10 policy the
+1.1 line adopted in 1.1.0rc4 and rc5. Derived repositories that stay on 1.0 take it by pinning this tag
+(`--researchteam-tag v1.0.4`).
+
+- **The pin moves to the signed agentteams `v1.0.7`** (tag object `37531c96`, peeled `8b934600`; was `v1.0.0`,
+  `cc5b8c9e`), in `toolchain.lock` and both extras. agentteams' declared dependencies are unchanged from `v1.0.0`,
+  and OSV lists nothing for the installed set. The advisory researchteam self-pin moves to `v1.0.3` (`2764f7c8`).
+  Rows: `pin-agentteams-v1.0.7`.
+- **S-10 cooldown restored, with the local-repository carve-out.** The 14-day release cooldown is back in force.
+  It never blocks fixing a vulnerability, and it does not apply to releases of the operator's local,
+  interdependent repositories. `brief.json` now lists `s10_cooldown_exempt_repos: ["jlcatonjr/agentteams"]`. The
+  decisions log and `exception-registry.json` now match `main`'s: the log is append-only, and it already holds
+  the signed `s10-release-cooldown-restored` and `s10-cooldown-exempt:jlcatonjr/agentteams` rows, so neither is
+  signed again. The `@security` agents on all four surfaces (Copilot, Claude, Goose, Codex) name
+  `jlcatonjr/agentteams` in Rule S-10, and a HALT in any one surface's own log still removes it there.
+- **The bootstrap pins pip** (#141). `scripts/bootstrap_toolchain.sh` installs `pip==26.2.2` in place of the
+  newest pip, which on 2026-11-03 was inside the cooldown.
+
 ## 1.0.3 (tag `v1.0.3`, on `release/1.0`)
 
 A patch release on `release/1.0` that backports two fixes from `main`. The agentteams pin is unchanged (`v1.0.0`,

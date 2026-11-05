@@ -239,5 +239,8 @@
   "write_policy_frameworks": [
     "codex"
   ],
-  "privilege_profile": "confined"
+  "privilege_profile": "confined",
+  "s10_cooldown_exempt_repos": [
+    "jlcatonjr/agentteams"
+  ]
 }
