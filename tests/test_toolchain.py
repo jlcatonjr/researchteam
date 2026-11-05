@@ -289,6 +289,22 @@ def test_bootstrap_signing_constraints_match_the_vetted_set():
     assert len(embedded) == 3
 
 
+def test_bootstrap_installs_a_pinned_pip_never_the_newest():
+    text = (ROOT / "scripts" / "bootstrap_toolchain.sh").read_text()
+    assert "--upgrade pip" not in text and "-U pip" not in text
+    vetted = text.split("PIP_VETTED='", 1)[1].split("'", 1)[0]
+    assert vetted.startswith("pip==") and vetted.count(".") >= 1, vetted
+
+
+def test_bootstrap_pip_pin_is_used(tmp_path):
+    repo, log = _fake_venv_repo(tmp_path, check_exit=0)
+    r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)
+    assert r.returncode == 0, r.stdout + r.stderr
+    calls = log.read_text().splitlines()
+    assert any(c.endswith("-m pip install -q pip==26.2.2") for c in calls), calls
+    assert not any("--upgrade" in c for c in calls), calls
+
+
 def test_bootstrap_fails_when_the_install_does_not_match_the_lock(tmp_path):
     repo, _ = _fake_venv_repo(tmp_path, check_exit=1)
     r = subprocess.run(["/bin/bash", str(repo / "scripts" / "bootstrap_toolchain.sh")], capture_output=True, text=True)

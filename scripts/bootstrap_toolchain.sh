@@ -60,7 +60,11 @@ if [[ ! -x "$VENV/bin/python" ]]; then
   echo "[bootstrap] creating $VENV"
   "$PY" -m venv "$VENV"
 fi
-"$VENV/bin/python" -m pip install -q --upgrade pip
+# pip itself is held to S-10 too: upgrading pip unpinned takes whatever release is newest, even one published
+# inside the 14-day cooldown (pip 26.3, 2026-11-02; mathAgents, 2026-11-03). 26.2.2 is the latest stable release past
+# the cooldown, with no OSV advisory (checked 2026-11-04).
+PIP_VETTED='pip==26.2.2'
+"$VENV/bin/python" -m pip install -q "$PIP_VETTED"
 
 CONSTRAINTS="$(mktemp)"
 trap 'rm -f "$CONSTRAINTS"' EXIT
