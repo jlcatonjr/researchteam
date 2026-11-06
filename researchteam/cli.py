@@ -57,6 +57,13 @@ def main() -> None:
         help="brief.json vulnerability_scanning level (default: scan, from the scaffold). 'remediate' is "
         "an operator choice: agentteams --set-vulnscan",
     )
+    init_p.add_argument(
+        "--adopt",
+        action="store_true",
+        help="Scaffold into an existing, non-empty directory without overwriting any existing file (an "
+        "unfenced CLAUDE.md / .gitignore gets the managed block appended). Runs git init only if there is no "
+        "repository and never stages or commits; prints an adopt report of added, kept and at-risk files",
+    )
 
     # ---- update --------------------------------------------------------------
     update_p = sub.add_parser(
@@ -178,7 +185,7 @@ def main() -> None:
 
     if args.command == "init":
         from ._init_cmd import run_init
-        run_init(args.name, args.ref, args.remote, vulnscan_level=args.vulnscan_level)
+        run_init(args.name, args.ref, args.remote, vulnscan_level=args.vulnscan_level, adopt=args.adopt)
 
     elif args.command == "update":
         root = _find_repo_root(require_marker=True)

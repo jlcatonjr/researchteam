@@ -28,13 +28,25 @@ is_upstream = false
 """
 
 
-def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None) -> None:
+def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None,
+             adopt: bool = False) -> None:
     from ._drift import is_safe_ref
 
     if not is_safe_ref(ref):
         print(f"Error: --ref {ref!r} is not a plain branch, tag or commit name.", file=sys.stderr)
         sys.exit(1)
-    if name:
+    if adopt:
+        # --adopt (#59): scaffold AROUND existing content. A non-empty directory is the point; an
+        # existing researchteam project is not (that is `researchteam update`'s job).
+        target = Path(name).resolve() if name else Path.cwd().resolve()
+        if target.exists() and not target.is_dir():
+            print(f"Error: '{target}' exists and is not a directory.", file=sys.stderr)
+            sys.exit(1)
+        if (target / ".researchteam").exists():
+            print(f"Error: '{target}' is already a researchteam project (.researchteam marker present); "
+                  "use `researchteam update`.", file=sys.stderr)
+            sys.exit(1)
+    elif name:
         target = Path(name).resolve()
         if target.exists() and (not target.is_dir() or any(target.iterdir())):
             print(f"Error: '{name}' already exists and is not an empty directory.", file=sys.stderr)
@@ -45,7 +57,7 @@ def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level:
         if existing:
             print(
                 "Error: current directory is not empty. "
-                "Pass a name to create a new directory.",
+                "Pass a name to create a new directory, or --adopt to scaffold around existing files.",
                 file=sys.stderr,
             )
             sys.exit(1)
@@ -75,20 +87,30 @@ def run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level:
             sys.exit(1)
 
     created = name is not None and not target.exists()
-    if name:
+    if adopt:
+        from ._adopt import run_adopt
+
+        target.mkdir(parents=True, exist_ok=True)
+        print(f"[researchteam] Adopting existing directory {target} (existing files are kept) ...")
+        run_adopt(target, tarball, members, links, ref, remote_url, vulnscan_level)
+    elif name:
         target.mkdir(parents=True, exist_ok=True)
         print(f"[researchteam] Initializing new project at {target} ...")
     else:
         print("[researchteam] Initializing project in current directory ...")
-    try:
-        _populate(target, tarball, members, links, ref, remote_url, vulnscan_level)
-    except (OSError, subprocess.CalledProcessError) as exc:
-        where = "it" if created else "the files written there"
-        print(f"[researchteam] init failed: {exc}\n"
-              f"  The project at {target} is incomplete; remove {where} before retrying.", file=sys.stderr)
-        sys.exit(1)
+    if not adopt:
+        try:
+            _populate(target, tarball, members, links, ref, remote_url, vulnscan_level)
+        except (OSError, subprocess.CalledProcessError) as exc:
+            where = "it" if created else "the files written there"
+            print(f"[researchteam] init failed: {exc}\n"
+                  f"  The project at {target} is incomplete; remove {where} before retrying.", file=sys.stderr)
+            sys.exit(1)
 
-    print(f"\n[researchteam] Done. Project initialized at {target}")
+    print(f"\n[researchteam] Done. Project {'adopted' if adopt else 'initialized'} at {target}")
+    if adopt:
+        print("  Nothing was staged or committed. Review the added files, then commit them yourself:\n"
+              "    git status && git add <paths> && git commit")
     if name:
         print(f"\nNext steps:\n  cd {name}")
     print("  1. Edit brief.json — set project_name, project_goal, deliverables, authority_sources.")
@@ -139,9 +161,7 @@ def _populate(target: Path, tarball: bytes, members: set[str], links: list[str],
               remote_url: str | None, vulnscan_level: str | None = None) -> None:
     """Write the checked archive into ``target``, then the scaffold, marker, identity files and git repo."""
     print("[researchteam] Extracting template files ...")
-    if links:
-        print(f"[researchteam] Warning: skipped {len(links)} link member(s) in the archive: "
-              f"{', '.join(links[:5])}", file=sys.stderr)
+    warn_links(links)
     _extract(tarball, target, members)
 
     # Replace selected files with bundled scaffold versions.
@@ -184,6 +204,13 @@ def _populate(target: Path, tarball: bytes, members: set[str], links: list[str],
             check=True,
             capture_output=True,
         )
+
+
+def warn_links(links: list[str]) -> None:
+    """Warn on stderr that the archive's link members (never extracted) were skipped, naming at most five."""
+    if links:
+        print(f"[researchteam] Warning: skipped {len(links)} link member(s) in the archive: "
+              f"{', '.join(links[:5])}", file=sys.stderr)
 
 
 class ArchiveError(Exception):
@@ -235,13 +262,25 @@ def _validate_archive(tarball: bytes) -> tuple[set[str], list[str], str]:
     return members, links, tops.pop()
 
 
-def _extract(tarball: bytes, target: Path, members: set[str]) -> None:
-    """Write the members :func:`_validate_archive` accepted; each destination must resolve inside ``target``."""
+def _extract(tarball: bytes, target: Path, members: set[str], adopt=None) -> None:
+    """Write the members :func:`_validate_archive` accepted; each destination must resolve inside ``target``.
+
+    With ``adopt`` (``init --adopt``), an existing path is never overwritten: each file member goes through
+    :func:`_adopt.adopt_write`, which adds it, keeps the existing file, or appends a managed block, and records it.
+    """
     root = target.resolve()
     with tarfile.open(fileobj=io.BytesIO(tarball), mode="r:gz") as tf:
         for member in tf.getmembers():
             if member.name not in members:
                 continue
+            if adopt is not None:  # an _adopt.AdoptReport
+                from ._adopt import adopt_write
+
+                if member.isfile():
+                    f = tf.extractfile(member)
+                    if f:
+                        adopt_write(target, _rel(member.name), f.read(), adopt, member.mode)
+                continue  # directories are created on demand by adopt_write
             dest = (target / _rel(member.name)).resolve()
             if root not in dest.parents:
                 raise OSError(f"archive member {member.name!r} resolves outside {root}")

@@ -17,6 +17,7 @@ Reference for the `researchteam` package and its helper scripts.
 | [`cli`](cli.md) | Argument parsing, repo-root discovery, ref resolution; dispatches to the modules below |
 | [`_update_cmd`](update.md) | `researchteam update` and `researchteam materialize`: layer-2 sync, agentteams render on every surface, Codex, bridges |
 | [`_init_cmd`](init.md) | `researchteam init`: scaffold a project from the upstream tarball |
+| [`_adopt`](adopt.md) | `researchteam init --adopt`: scaffold around an existing directory without overwriting a file |
 | [`_personalize`](personalize.md) | `researchteam personalize`: render `README.md` / `CLAUDE.md` header from `brief.json` |
 | [`_doctor_cmd`](doctor.md) | `researchteam doctor`: toolchain health and drift report |
 

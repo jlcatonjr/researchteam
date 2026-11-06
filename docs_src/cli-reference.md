@@ -25,7 +25,7 @@ for a `.researchteam` marker and exit 1 without one). `status` and `doctor` also
 ## `init`
 
 ```
-researchteam init [name] [--ref REF] [--remote URL] [--vulnscan-level off|scan]
+researchteam init [name] [--ref REF] [--remote URL] [--vulnscan-level off|scan] [--adopt]
 ```
 
 | Option | Default | Meaning |
@@ -34,6 +34,7 @@ researchteam init [name] [--ref REF] [--remote URL] [--vulnscan-level off|scan]
 | `--ref REF` | `main` | Upstream branch, tag or commit (short or full SHA) to scaffold from. A commit must be on `main` or a `release/*` branch (checked with the GitHub API; refused when it cannot be confirmed) and is recorded in full in `.researchteam` |
 | `--remote URL` | none | Git remote URL to set as `origin` after init |
 | `--vulnscan-level` | `scan` (the scaffold's) | `vulnerability_scanning.level` written into the seeded `brief.json`: `off` or `scan`. `remediate` is an operator choice, made later with `agentteams --set-vulnscan` |
+| `--adopt` | off | Scaffold into an existing, non-empty directory (default: the current one) without overwriting any existing file. Existing files, including `README.md`, `brief.json` and `docs/`, stay byte-identical. The one exception: an existing `CLAUDE.md` or `.gitignore` with no `researchteam:managed` block gets the block appended below its unchanged content. Symlinked paths are never written through. Runs `git init` only if there is no repository, and never stages or commits. Prints an adopt report: added, kept, appended and conflicting paths, with a warning for kept files on framework-managed paths, which a later `update` or `materialize` will replace. Refused when `.researchteam` already exists (use `update`) |
 
 Implementation: [`init`](api-reference/init.md).
 

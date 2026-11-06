@@ -1,6 +1,6 @@
 # `_init_cmd` — ResearchTeam
 
-Implementation of `researchteam init`. `run_init` scaffolds a new derived repository from the upstream researchteam template: it checks the requested ref, downloads and validates a GitHub archive tarball of it before creating anything, extracts it while skipping the paths that a derived repo must not inherit, replaces the CI workflow with the bundled derived-repo version, seeds a placeholder `brief.json`, writes the `.researchteam` marker, renders the project-specific `README.md` and `CLAUDE.md` through [`personalize`](personalize.md), and makes an initial git commit.
+Implementation of `researchteam init`. `run_init` scaffolds a new derived repository from the upstream researchteam template: it checks the requested ref, downloads and validates a GitHub archive tarball of it before creating anything, extracts it while skipping the paths that a derived repo must not inherit, replaces the CI workflow with the bundled derived-repo version, seeds a placeholder `brief.json`, writes the `.researchteam` marker, renders the project-specific `README.md` and `CLAUDE.md` through [`personalize`](personalize.md), and makes an initial git commit. With `adopt=True` (`init --adopt`, #59) it scaffolds around an existing directory instead, never overwriting a file and never committing ([`_adopt`](adopt.md)).
 
 > *Source: `researchteam/_init_cmd.py`*
 
@@ -29,11 +29,9 @@ Implementation of `researchteam init`. `run_init` scaffolds a new derived reposi
 
 Subclass of `Exception`. An upstream archive `init` will not extract: unreadable, a member path that could escape the target, or not exactly one top-level directory. Raised by `_validate_archive`; `run_init` turns it into exit 1 before anything is created.
 
----
-
 ## Functions
 
-### `run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None) -> None`
+### `run_init(name: str | None, ref: str, remote_url: str | None, vulnscan_level: str | None = None, adopt: bool = False) -> None`
 
 > *Source: `researchteam/_init_cmd.py`*
 
@@ -45,6 +43,7 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
 - `ref` (`str`) — Upstream git ref to scaffold from: a branch, tag, or commit (short or full SHA). It must pass [`_drift.is_safe_ref`](drift.md#is_safe_refref). It is passed to [`fetch_tarball`](fetch.md), which tries the branch archive, then the tag archive, then (for a hex `ref`) the commit archive. It is recorded as `ref = …` in the marker; a hex `ref` is recorded as the full commit SHA when the archive's top directory (`<repo>-<sha>`) ends in a 40-character SHA that starts with `ref`.
 - `remote_url` (`str | None`) — When set, added as the `origin` remote after the initial commit.
 - `vulnscan_level` (`str | None`) — `off` or `scan`: the `vulnerability_scanning.level` to seed into `brief.json` (`cli` passes `--vulnscan-level`). `None` keeps the template's `scan`.
+- `adopt` (`bool`) — `cli` passes `--adopt`. The target (`name` or the current directory) may be non-empty, and is refused only if it is not a directory or already holds a `.researchteam` marker. Step 6 then calls [`_adopt.run_adopt`](adopt.md) instead of `_populate`.
 
 **Steps, in order:**
 
@@ -57,7 +56,7 @@ Scaffold a new project. The CLI calls it as `run_init(args.name, args.ref, args.
    branch. Branch and tag names skip this step.
 5. Create the `name` directory, if given, and print where the project is being initialized.
 6. Call `_populate`, which runs the remaining steps:
-    1. Warn on stderr if the archive held link members (`skipped N link member(s) in the archive: …`, at most five named); they are not extracted.
+    1. Warn on stderr if the archive held link members (`warn_links`: `skipped N link member(s) in the archive: …`, at most five named); they are not extracted.
     2. Extract the accepted members with `_extract`.
     3. Overwrite paths listed in `INIT_SCAFFOLD_REPLACEMENTS` with bundled scaffold files (`_apply_scaffold_replacements`).
     4. Write `brief.json` from `scaffold/brief.template.json` (`_seed_brief`), with `vulnerability_scanning.level`
@@ -93,6 +92,14 @@ Write the checked archive into `target`, then the scaffold files, `brief.json`, 
 
 ---
 
+### `warn_links(links: list[str]) -> None`
+
+> *Source: `researchteam/_init_cmd.py`*
+
+Print `[researchteam] Warning: skipped N link member(s) in the archive: …` to stderr, naming at most five, when `links` is non-empty. Shared by `_populate` and `_adopt.populate_adopt`; link members are never extracted.
+
+---
+
 ### `_validate_archive(tarball: bytes) -> tuple[set[str], list[str], str]`
 
 > *Source: `researchteam/_init_cmd.py`*
@@ -111,11 +118,11 @@ It does not rely on `tarfile`'s `filter=` argument (absent before Python 3.10.12
 
 ---
 
-### `_extract(tarball: bytes, target: Path, members: set[str]) -> None`
+### `_extract(tarball: bytes, target: Path, members: set[str], adopt=None) -> None`
 
 > *Source: `researchteam/_init_cmd.py`*
 
-Write the members `_validate_archive` accepted into `target`. Members whose name is not in `members` are not written. Each destination is `target / _rel(name)`, resolved; it must lie inside the resolved `target`, or `OSError("archive member '<name>' resolves outside <root>")` is raised. Directories are created; regular files are written byte-for-byte, and if any execute bit is set on the member, execute bits are added to the written file.
+Write the members `_validate_archive` accepted into `target`. Members whose name is not in `members` are not written. Each destination is `target / _rel(name)`, resolved; it must lie inside the resolved `target`, or `OSError("archive member '<name>' resolves outside <root>")` is raised. Directories are created; regular files are written byte-for-byte, and if any execute bit is set on the member, execute bits are added to the written file. With `adopt` (an [`_adopt.AdoptReport`](adopt.md)), each file member goes through `_adopt.adopt_write` instead, and no existing path is overwritten.
 
 ---
 
@@ -134,6 +141,7 @@ Write the members `_validate_archive` accepted into `target`. Members whose name
 
 - [`index.md`](index.md) — API reference overview.
 - [`cli.md`](cli.md) — CLI entry point that dispatches `init`.
+- [`adopt.md`](adopt.md) — `init --adopt`.
 - [`personalize.md`](personalize.md) — renders `README.md` / `CLAUDE.md` during `init`.
 - [`manifest.md`](manifest.md) — `INIT_SKIP_PREFIXES`, `INIT_SCAFFOLD_REPLACEMENTS`, `UPSTREAM_REPO`.
 - [`fetch.md`](fetch.md) — `fetch_tarball`.

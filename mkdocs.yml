@@ -56,6 +56,7 @@ nav:
       - cli: api-reference/cli.md
       - update / materialize: api-reference/update.md
       - init: api-reference/init.md
+      - adopt: api-reference/adopt.md
       - personalize: api-reference/personalize.md
       - doctor: api-reference/doctor.md
       - drift: api-reference/drift.md
