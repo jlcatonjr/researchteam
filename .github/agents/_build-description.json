@@ -245,5 +245,8 @@
   },
   "s10_cooldown_exempt_repos": [
     "jlcatonjr/agentteams"
+  ],
+  "authorized_managers": [
+    "infrastructure-management"
   ]
 }
