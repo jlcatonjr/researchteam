@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-06",
+  "date": "2026-11-06",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "management-roster-enroll:infrastructure-management",
+  "verdict": "PASS",
+  "scope": "management-roster-enroll:infrastructure-management",
+  "conditions": "Operator ruling 2026-11-06 (interactive choice in researchteam session researchteam-af, \"Prepare it as a PR\"): enroll the manager team infrastructure-management in researchteam's management roster. brief.json authorized_managers = [\"infrastructure-management\"]; an agentteams render writes references/authorized-managers.txt naming exactly that team and references/management-authority.json (is_management_repo false) on the .github/agents, .claude/agents, .codex/agents and .goose/recipes surfaces, plus an empty management-directives.log.csv ledger. Effect is bounded by C-4's management-authority exception: a directive is honoured only if its HMAC signature verifies against the operator-provisioned AGENTTEAMS_MANAGEMENT_SIGNING_KEY, it is unexpired with uses remaining, and its task_scope is an exact, non-destructive, non-governance scope; C-5 destruction, C-2 HALT, C-3 capability widening and governance (including rosters and the signing key) stay auto-refused regardless of signature. The request originated with the manager team itself (read content, C-4); the authority for this row is the operator's live Tier-2 choice. The management signing key is provisioned out of band and never committed.",
+  "conditions_verified": "@security review in researchteam-af 2026-11-06: CONDITIONAL PASS (no widening beyond C-4; roster enrollment requires @security per instruction-authority.reference.md Management-authority). Trial render under agentteams v1.1.0-rc.16 (toolchain.lock a036d09f) in a discarded scratch worktree: the roster names exactly infrastructure-management on all four surfaces, is_management_repo stays false; the PR diff is limited to brief.json, .github/agents/_build-description.json and the twelve management-authority files, with all other re-render output discarded.",
+  "evidence": "researchteam branch chore/enroll-infrastructure-management off main ff1962e5; precondition for the researchteam v1.1.0 cut (coordinated release, infrastructureManagement cr-researchteam-release RT-7); roster files rendered and committed by the operator (tmp/by-week/2026-W45/operator/15-enroll-mgr-roster.sh)",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "infrastructure-management",
+  "effect_targets": "brief.json",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "true",
+  "effect_bulk": "false"
+}

@@ -1,4 +1,5 @@
 {
+  "authorized_managers": ["infrastructure-management"],
   "project_name": "ResearchTeam",
   "project_goal": "Conduct rigorous scholarly research on any user-specified topic, producing well-structured research reports with verified citations drawn exclusively from established academic repositories (JSTOR, PubMed, SSRN, arXiv, Google Scholar, CrossRef, Semantic Scholar). All claims must be grounded in peer-reviewed or reputable scholarly sources and presented with Chicago bibliography/citation formatting.",
   "deliverables": [
