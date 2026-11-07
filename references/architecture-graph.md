@@ -3,9 +3,9 @@
 
 > **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually — changes will be overwritten.
 
-- Modules mapped: **13**
+- Modules mapped: **14**
 - Packages: **1**
-- Internal import edges: **30**
+- Internal import edges: **34**
 - Distinct external dependencies: **1**
 
 ---
@@ -22,7 +22,7 @@ Inter-package import dependencies (module-level detail in the tables below).
 
 | Package | Modules | Depends on |
 | --- | --- | --- |
-| `researchteam` | 13 | — |
+| `researchteam` | 14 | — |
 
 ---
 
@@ -39,15 +39,16 @@ Every module, coloured by package (full adjacency in the table below).
 | Module | Imports (internal) | Imported by |
 | --- | --- | --- |
 | `researchteam` | — | `researchteam.cli` |
+| `researchteam._adopt` | `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize` | `researchteam._init_cmd` |
 | `researchteam._agentteams_provenance` | `researchteam._fetch` | `researchteam._frozen`, `researchteam._update_cmd` |
 | `researchteam._doctor_cmd` | `researchteam._drift`, `researchteam._fetch`, `researchteam._frozen`, `researchteam._manifest`, `researchteam._update_cmd` | `researchteam.cli` |
 | `researchteam._drift` | `researchteam._personalize`, `researchteam._release` | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._fetch` | — | `researchteam._agentteams_provenance`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._frozen` | `researchteam._agentteams_provenance` | `researchteam._doctor_cmd`, `researchteam._update_cmd` |
-| `researchteam._init_cmd` | `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam.cli` |
-| `researchteam._manifest` | — | `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
+| `researchteam._init_cmd` | `researchteam._adopt`, `researchteam._drift`, `researchteam._fetch`, `researchteam._manifest`, `researchteam._personalize` | `researchteam._adopt`, `researchteam.cli` |
+| `researchteam._manifest` | — | `researchteam._adopt`, `researchteam._doctor_cmd`, `researchteam._init_cmd`, `researchteam._personalize`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._notes` | — | `researchteam._update_cmd` |
-| `researchteam._personalize` | `researchteam._manifest` | `researchteam._drift`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
+| `researchteam._personalize` | `researchteam._manifest` | `researchteam._adopt`, `researchteam._drift`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._release` | — | `researchteam._drift`, `researchteam.cli` |
 | `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._frozen`, `researchteam._manifest`, `researchteam._notes`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
 | `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._drift`, `researchteam._fetch`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd` | — |
@@ -99,6 +100,18 @@ digraph "researchteam architecture" {
       "path": "researchteam/__init__.py",
       "is_package": true,
       "imports_internal": [],
+      "external": [],
+      "repo_local": []
+    },
+    "researchteam._adopt": {
+      "package": "researchteam",
+      "path": "researchteam/_adopt.py",
+      "is_package": false,
+      "imports_internal": [
+        "researchteam._init_cmd",
+        "researchteam._manifest",
+        "researchteam._personalize"
+      ],
       "external": [],
       "repo_local": []
     },
@@ -162,6 +175,7 @@ digraph "researchteam architecture" {
       "path": "researchteam/_init_cmd.py",
       "is_package": false,
       "imports_internal": [
+        "researchteam._adopt",
         "researchteam._drift",
         "researchteam._fetch",
         "researchteam._manifest",
@@ -242,6 +256,18 @@ digraph "researchteam architecture" {
   "package_edges": [],
   "module_edges": [
     {
+      "source": "researchteam._adopt",
+      "target": "researchteam._init_cmd"
+    },
+    {
+      "source": "researchteam._adopt",
+      "target": "researchteam._manifest"
+    },
+    {
+      "source": "researchteam._adopt",
+      "target": "researchteam._personalize"
+    },
+    {
       "source": "researchteam._agentteams_provenance",
       "target": "researchteam._fetch"
     },
@@ -276,6 +302,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam._frozen",
       "target": "researchteam._agentteams_provenance"
+    },
+    {
+      "source": "researchteam._init_cmd",
+      "target": "researchteam._adopt"
     },
     {
       "source": "researchteam._init_cmd",

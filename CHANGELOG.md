@@ -5,6 +5,25 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased (on `main`)
 
+- **`researchteam init --adopt` scaffolds into a non-empty directory** (#59; masterTeacher handoff ticket 4.6). It is
+  in 1.1.0 by operator ruling of 2026-11-06.
+  - **Never overwrites.** No existing file is changed. `README.md`, `brief.json` and everything under `docs/` stay
+    byte-identical.
+  - **One exception.** An existing `CLAUDE.md` or `.gitignore` with no `researchteam:managed` block gets the block
+    appended below its unchanged content, so the framework's rules reach Claude sessions and `update` can keep them
+    current.
+  - **Symlinks.** Paths that are symlinks are never written through. New files are created with
+    `O_EXCL | O_NOFOLLOW`, so even a dangling link is refused at the moment of the write.
+  - **Fails before writing.** A symlinked or non-regular key file, an unreadable `brief.json`, or a non-UTF-8
+    `CLAUDE.md` / `.gitignore` is refused with nothing written. The `.researchteam` marker is written last, so a
+    failed run can be retried.
+  - **Git.** It runs `git init` only when the directory is not already inside a repository, and it never stages or
+    commits, so uncommitted work is never swept into a scaffold commit. Inside an enclosing repository, `--remote`
+    is ignored.
+  - **Adopt report.** It lists the files added, kept, appended to and in conflict. It warns about kept files on paths
+    the framework manages, because `researchteam update` or `materialize` will replace those later.
+  - masterTeacher can retire `tools/bootstrap_researchteam.sh`, its move-aside workaround.
+
 - **The bootstrap pins pip** (S-10; found by mathAgents, 2026-11-03). `scripts/bootstrap_toolchain.sh` upgraded pip to
   the newest release, which on 2026-11-03 was pip 26.3, published 2026-11-02 and so inside the 14-day cooldown. It now
   installs `pip==26.2.2`, the latest stable release past the cooldown, which has no OSV advisory. A test keeps the pin.
