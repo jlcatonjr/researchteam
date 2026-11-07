@@ -3,11 +3,11 @@
   "agentteams_version": "1.1.0.dev0",
   "agentteams_source": {
     "kind": "checkout",
-    "commit": "6a4081bff08bd8948dfecc17e43a4ced8a819d20",
-    "branch": "main",
+    "commit": "227f807904fbe68e85ed6b6e84f1d69f383cff26",
+    "branch": "fix/bootstrap-pip-pin",
     "dirty": true
   },
-  "generated_at": "2026-11-07T04:11:09.791723+00:00",
+  "generated_at": "2026-11-05T03:16:53.053418+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -45,7 +45,7 @@
     "universal/agent-updater.template.md": "fceaeaa65379ff06",
     "universal/agent-refactor.template.md": "b1417e2f09b84022",
     "universal/repo-liaison.template.md": "70331bea47521df8",
-    "universal/git-operations.template.md": "e27dc56eacab56aa",
+    "universal/git-operations.template.md": "9f3fcbd9167a8833",
     "domain/work-summarizer.template.md": "4124536ef03c333d",
     "domain/primary-producer.template.md": "278ed220891ba707",
     "domain/quality-auditor.template.md": "3dd911ae905e8b28",
@@ -71,8 +71,8 @@
     "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
     "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
     "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
-    "universal/github-workflows-merge.reference.template.md": "48ecfccfbe798ecc",
-    "universal/branch-lifecycle.reference.template.md": "49d996d0d76b3fe7",
+    "universal/github-workflows-merge.reference.template.md": "aa26e7db5d333f1f",
+    "universal/branch-lifecycle.reference.template.md": "8f199043003804b3",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
@@ -91,7 +91,7 @@
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
     "copilot-instructions.template.md": "d3fcc564166c5285",
-    "builder/team-builder-copilot-vscode.template.md": "5cf6f60058533dbd",
+    "builder/team-builder-copilot-vscode.template.md": "799171f781e58676",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
   "output_files_map": [
@@ -545,13 +545,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "84fe007ed0030c55",
+  "manifest_fingerprint": "65efa2b67566e521",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "201d064b967d5ddf",
-    "references/security-vulnerability-watch.reference.md": "f69698b133676b0d",
-    "references/security-vulnerability-watch.json": "b0601f2e278261fe",
-    "team-builder.agent.md": "090803ad70e4ab78",
+    "security.agent.md": "663c2b358fe76abf",
+    "references/security-vulnerability-watch.json": "cfd52bd1d8b1ae85",
     "references/pipeline-graph.md": "468377b007e20f44",
     "references/pipeline-graph.svg": "9bc9066885357454",
     "orchestrator.agent.md": "bbe37bd2c9774093",
@@ -581,6 +579,7 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "88722160b564b4ab",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -588,12 +587,12 @@
     "references/framework-watch.reference.md": "a989bfe037c80ea3",
     "references/adjacent-repos.md": "78d20a4fde516de3",
     "references/github-workflows-merge.reference.md": "d17a1c652ba84bbd",
-    "references/branch-lifecycle.reference.md": "7ccb9b4285d79a79",
     "topic-scoping-expert.agent.md": "eaeb80e7233d05b9",
     "literature-review-expert.agent.md": "71ca0e10c7675e1c",
     "main-analysis-expert.agent.md": "accdba4997ff89b4",
     "conclusion-expert.agent.md": "dcc12e07659f143c",
     "../copilot-instructions.md": "9234cb2e017bc4b8",
+    "team-builder.agent.md": "8fb46693fb059db3",
     "SETUP-REQUIRED.md": "f314a35782ad2a8e",
     "content-enricher.agent.md": "6574a79bc3912546",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
@@ -616,12 +615,6 @@
       "tools": "['read', 'search']",
       "handoffs": "\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Security review is complete. Return to the orchestrator with findings.\"\n    send: false",
       "user-invocable": "false"
-    },
-    "team-builder.agent.md": {
-      "name": "Team Builder \u2014 Agent Teams Module",
-      "description": "\"Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline\"",
-      "tools": "['read', 'edit', 'search', 'execute', 'todo']",
-      "user-invocable": "true"
     },
     "orchestrator.agent.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
@@ -827,6 +820,12 @@
       "handoffs": "\n  - label: Vet Brief Before Drafting\n    agent: adversarial\n    prompt: \"Component Brief prepared. Review for hidden presuppositions before drafting begins.\"\n    send: false\n  - label: Send to Primary Producer\n    agent: primary-producer\n    prompt: \"Component Brief accepted. Ready for drafting.\"\n    send: false\n  - label: Verify Citations\n    agent: reference-manager\n    prompt: \"Verify citation keys in Component Brief before drafting begins.\"\n    send: false\n  - label: Return to Orchestrator\n    agent: orchestrator\n    prompt: \"Conclusion and Executive Summary has been reviewed and accepted.\"\n    send: false",
       "user-invocable": "false"
     },
+    "team-builder.agent.md": {
+      "name": "Team Builder \u2014 Agent Teams Module",
+      "description": "\"Interactively constructs a complete agent team for a new or existing VS Code Copilot project by conducting an intake interview and invoking the build_team pipeline\"",
+      "tools": "['read', 'edit', 'search', 'execute', 'todo']",
+      "user-invocable": "true"
+    },
     "content-enricher.agent.md": {
       "name": "Content Enricher \u2014 ResearchTeam",
       "description": "\"Fills in default template placeholders and underdeveloped sections in generated agent files for ResearchTeam using the project's source materials\"",
@@ -838,18 +837,11 @@
   "front_matter_baseline_version": 2,
   "fence_baseline": {
     "security.agent.md": {
-      "threat_intelligence": "20198910892184f28abcd1f9cf0000ef70c5632891eb67f951a41b8f775ac034",
+      "threat_intelligence": "788cc4a37e2f71325ccece37c2e75bd7f55ccfb24d0785be983eb60595b3f05a",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "4634ca8b60070ed259cdbc8ff3d71583ce585e258c8d3e2bbe4cd3c139e8d3f2"
-    },
-    "references/security-vulnerability-watch.reference.md": {
-      "threat_data": "885c9702140062401ecdf651c0225c055a954fc9db9ec831f7a8295f28a117da",
-      "operational_integration_process": "d0f4bee8580d904734bf5622085cd2e48005c302778e24410f92b310603e1f8a"
-    },
-    "team-builder.agent.md": {
-      "content": "92785a980712889959e9b969dfeeff47325973b799e5ca524d3ea1afa3bdb314"
     },
     "orchestrator.agent.md": {
       "constitutional_core": "f05ead693f33d316cc83453eb195d232f5ac76cd36d8cce45b3605e14747def4",
@@ -968,6 +960,10 @@
     "references/unix-philosophy-mapping.reference.md": {
       "content": "6292c05a2ffa85201d43b8e12efe1c1bafbe8eba5ac8a4137ac432a0f1ae2422"
     },
+    "references/security-vulnerability-watch.reference.md": {
+      "threat_data": "fc40699073ebdbe1cc8ec459dc882f1c9852d3bc18e0aa5bf03a658184edb62a",
+      "operational_integration_process": "d0f4bee8580d904734bf5622085cd2e48005c302778e24410f92b310603e1f8a"
+    },
     "references/security-linux-hardening.reference.md": {
       "linux_hardening": "5e21d4dda682e52b04a021fad5e3f9a2ddb244aad10afa8e5dd7c87d900c79a5",
       "operational_integration": "75dc3a601517f62f32dbe2e8522607fdd7338973847aebedd68c3bf8862cff8a"
@@ -991,9 +987,6 @@
       "registry_header": "d02144704af3d27cdc93d526731ba08706ef34d8b8c46aa0c03a0a2771aa4c2a",
       "cross_orchestrator_coordination_log": "ef5dcca20d4a2a51a7724bbe176f9546c5b0281590a89f8a0312bf9155547ceb",
       "retired_entries": "4ca30cab8d0e2bcc2b3d38a8775a062d2fbf3dac303dc8aac5c9ce0d4c4ea7ef"
-    },
-    "references/branch-lifecycle.reference.md": {
-      "branch_lifecycle": "c69ee6a1546be30d7740242bcbb916275e8fcefbac44f42a9dd406ee38cda85c"
     },
     "topic-scoping-expert.agent.md": {
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
@@ -1024,6 +1017,9 @@
       "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
       "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
       "tone_and_style": "d0b42a0c3d2c045dbbe4e980eb42023b1b31915d93e219545a8f78de1dcece24"
+    },
+    "team-builder.agent.md": {
+      "content": "227e43b27bdc041ee2feda6002a1e3dd8f32360851d32c09bb2c6951bea7dd31"
     },
     "references/work-summary-spec.reference.md": {
       "content": "96232231a1f7c6bedf5f88786a47ade3b083b9863a26df30049c8de946d6f1bc"
@@ -1176,14 +1172,14 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "20198910892184f28abcd1f9cf0000ef70c5632891eb67f951a41b8f775ac034",
+      "threat_intelligence": "788cc4a37e2f71325ccece37c2e75bd7f55ccfb24d0785be983eb60595b3f05a",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "4634ca8b60070ed259cdbc8ff3d71583ce585e258c8d3e2bbe4cd3c139e8d3f2"
     },
     ".github/agents/team-builder.agent.md": {
-      "content": "92785a980712889959e9b969dfeeff47325973b799e5ca524d3ea1afa3bdb314"
+      "content": "227e43b27bdc041ee2feda6002a1e3dd8f32360851d32c09bb2c6951bea7dd31"
     },
     ".github/agents/technical-validator.agent.md": {
       "authority_sources_list": "d14289f256b88759a9bd85994e228b7d13cd9fcd2b1c066bcbf9fdae1da38f21",
