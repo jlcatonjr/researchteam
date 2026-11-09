@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0rc16",
+  "agentteams_version": "1.1.0",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "a036d09f75cc9d6dc1961e1deb803a3436b22f35",
+    "commit": "9b16fb544c03aad636d3839c37873624f6efbd37",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-04T23:23:31.063481+00:00",
+  "generated_at": "2026-11-09T19:51:52.729245+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "38c97fa72a411892",
+  "manifest_fingerprint": "227cd797ee410e4d",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "88722160b564b4ab",
-    "references/security-vulnerability-watch.json": "dd9b4229bf1b0b43",
-    "security.yaml": "08e7feec7ac155f6",
+    "references/security-vulnerability-watch.reference.md": "dd2e5413fbb5f391",
+    "references/security-vulnerability-watch.json": "4b022a13ed2afa14",
+    "security.yaml": "3c3f12f167547ddd",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -578,7 +578,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "406a84f08dab90c5",
+    "../../AGENTS.md": "c9178825ccddd3bb",
     "team-builder.yaml": "8d447f4c66287bf1",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
@@ -701,7 +701,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "db820fff0c7f55067ea13468dd5b763204cd4552291b45868b270a08c012c255",
+      "threat_intelligence": "c53c28c37bdbc43eb127af4203e05c7299c1dcf4737e245b43a913bb4dcf57b3",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",

@@ -3,7 +3,34 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## Unreleased (on `main`)
+## 1.1.0 (tag `v1.1.0`, on `release/1.1`)
+
+The first stable 1.1 release, cut with agentteams `v1.1.0` in the coordinated order agentteams → researchteam →
+derived repositories. It is `1.1.0rc5` plus the changes below. agentteams `v1.1.0` is its `v1.1.0-rc.17` code plus
+release files only, and researchteam's checks against rc.17 (coordinated-release step RT-4) and v1.1.0 were green.
+Derived repositories take it by pinning this tag (`--researchteam-tag v1.1.0`). It also carries every 1.0.4 fix
+(merged forward, #146).
+
+- **The pin moves to the signed agentteams `v1.1.0`** (tag object `093c38fd`, peeled `9b16fb54`; was
+  `v1.1.0-rc.16`, `a036d09f`), in `toolchain.lock` (release-locked) and both extras. agentteams' declared
+  dependencies are unchanged from rc.16 and rc.17, and OSV lists nothing for agentteams 1.1.0 or the installed set.
+  The advisory researchteam self-pin moves to `903cfd1a`. Rows: `pin-agentteams-v1.1.0`.
+- **Render:** researchteam is re-rendered on agentteams `v1.1.0`. One rule text changes, in the Copilot
+  `@security` agent (`.github/agents`): the file-deletion rule no longer points to agentteams' Operator Decision
+  Query, which is on agentteams `main` only and is deferred to 1.2 by operator ruling (2026-11-09). The Claude,
+  Codex and Goose `@security` agents already lacked the pointer. Explicit operator confirmation for every
+  deletion is still required. That agent's `security_rules_invariant` fence reads `v=20` where `main`'s render
+  read `v=21`; the 1.1 line numbers that fence differently. S-10's local-repository carve-out is present on all
+  four surfaces.
+  The rest is churn: timestamps, vulnerability-watch data and build logs. Machine-path files are scrubbed (S-8).
+- **infrastructure-management is an authorized manager team** (#148). `brief.json` lists
+  `authorized_managers: ["infrastructure-management"]`, and each of the four surfaces' roster names exactly that
+  team, with `is_management_repo` false and an empty directives ledger. A management directive still needs a valid
+  HMAC signature and an exact, non-destructive task scope (C-4). The operator rendered and committed the roster.
+  Rows: `management-roster-enroll:infrastructure-management`.
+- **`researchteam init` names one signing step per agent surface** (#142). `materialize` gates each surface on
+  its own decisions log, so the next-steps note now prints one `sign_security_decision.py --log <surface>/…` line
+  for each surface the new project has, in place of a single clearance that left the others uncleared.
 
 - **`researchteam init --adopt` scaffolds into a non-empty directory** (#59; masterTeacher handoff ticket 4.6). It is
   in 1.1.0 by operator ruling of 2026-11-06.
