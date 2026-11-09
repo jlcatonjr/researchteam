@@ -155,7 +155,9 @@ Under a release lock, the Execution Policy above changes as follows:
 
 1. **The gate follows the release line, never `main`.** The SHA-gate target is the newest verified tag on
    the locked tag's `vX.Y` line that is newer than it (`check_toolchain.py --release-candidate`, then
-   `--verify-tag`). With no newer tag, the run is a no-op. A tag that fails verification fails the gate,
+   `--verify-tag`). From a final-release lock, only final releases count: a `v1.1.0` lock is never moved to
+   `v1.1.1-rc.1` (latest-stable rule; researchteam 1.1.1). From a release-candidate lock, newer candidates and
+   the final do. With no newer tag, the run is a no-op. A tag that fails verification fails the gate,
    and no PR opens. `force=true` re-integrates the locked tag, which is how an operator-dispatched soak
    run works.
 2. **The lock moves only to a verified tag.** `check_toolchain.py --write-lock` refuses to move a locked

@@ -112,10 +112,24 @@ def remote_tags(repo: str) -> dict[str, str]:
     return tags
 
 
-def newest_on_line(repo: str, current: str) -> str | None:
-    """The newest release tag on ``current``'s line that is newer than ``current``, else None."""
+def is_prerelease(tag: str) -> bool:
+    """True for a release candidate (``vX.Y.Z-rc.N``), False for a final release (``vX.Y.Z``)."""
+    return tag_key(tag)[3] == 0
+
+
+def newest_on_line(repo: str, current: str, include_prerelease: bool | None = None) -> str | None:
+    """The newest release tag on ``current``'s line that is newer than ``current``, else None.
+
+    From a final release, only final releases are candidates: adopting a release candidate takes a recorded
+    ``@security`` clearance (the latest-stable rule), never an automatic move. So a ``v1.1.0`` lock is not
+    offered ``v1.1.1-rc.1``. From a release candidate, newer candidates and the final stay eligible.
+    ``include_prerelease=True`` opts a final release in to candidates; ``False`` excludes them from any lock.
+    """
     line, floor = release_line(current), tag_key(current)
-    newer = [t for t in remote_tags(repo) if release_line(t) == line and tag_key(t) > floor]
+    if include_prerelease is None:
+        include_prerelease = is_prerelease(current)
+    newer = [t for t in remote_tags(repo)
+             if release_line(t) == line and tag_key(t) > floor and (include_prerelease or not is_prerelease(t))]
     return max(newer, key=tag_key) if newer else None
 
 

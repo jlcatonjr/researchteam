@@ -124,14 +124,33 @@ The release tags on `https://github.com/<repo>`, from `git ls-remote --tags ... 
 
 ---
 
-### `newest_on_line(repo, current)`
+### `is_prerelease(tag)`
+
+Whether a tag is a release candidate.
+
+**Args:**
+
+- `tag` (`str`) — A release tag name.
+
+**Returns:** `bool` — `True` for `vX.Y.Z-rc.N`, `False` for a final `vX.Y.Z`.
+
+**Raises:**
+
+- `ReleaseError` — If `tag` is not a release tag.
+
+---
+
+### `newest_on_line(repo, current, include_prerelease=None)`
 
 The newest release tag on `current`'s `vX.Y` line that sorts after `current`. The candidate is not verified here; call `verify_tag` before moving a pin to it.
+
+**From a final release, only final releases are candidates** (the latest-stable rule): a `v1.1.0` lock is not offered `v1.1.1-rc.1`, because adopting a release candidate takes a recorded `@security` clearance. From a release candidate, newer candidates and the final stay eligible.
 
 **Args:**
 
 - `repo` (`str`) — `owner/repo` on GitHub.
 - `current` (`str`) — The currently pinned tag.
+- `include_prerelease` (`bool | None`) — `None` (default) applies the rule above; `True` also offers candidates to a final lock; `False` offers only finals, whatever `current` is.
 
 **Returns:** `str | None` — The tag name, or `None` if there is no newer tag on the line.
 
