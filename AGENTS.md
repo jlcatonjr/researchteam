@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.0-rc.16"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.0"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -254,6 +254,8 @@ ordering, including where operator instructions and read content sit:
 
 <!-- AGENTTEAMS:BEGIN codex_write_policy v=1 -->
 ## Write Policy: You Are the Orchestrator
+
+**This section applies to Codex sessions only.** Grok and Goose sessions that read this shared `AGENTS.md` ignore it and follow their own instructions.
 
 This team runs `write_policy: "orchestrator-only"`. In this top-level session **you are the orchestrator**, the
 only agent that writes. Every other agent is read-only and returns proposals; agents granted `agentteams_runner`
