@@ -15,11 +15,13 @@ Derived repositories take it by pinning this tag (`--researchteam-tag v1.1.0`). 
   `v1.1.0-rc.16`, `a036d09f`), in `toolchain.lock` (release-locked) and both extras. agentteams' declared
   dependencies are unchanged from rc.16 and rc.17, and OSV lists nothing for agentteams 1.1.0 or the installed set.
   The advisory researchteam self-pin moves to `903cfd1a`. Rows: `pin-agentteams-v1.1.0`.
-- **Render:** researchteam is re-rendered on agentteams `v1.1.0`. One rule text changes, on all four `@security`
-  surfaces: the file-deletion rule no longer points to agentteams' Operator Decision Query, which is on
-  agentteams `main` only and is deferred to 1.2 by operator ruling (2026-11-09). Explicit operator confirmation
-  for every deletion is still required. The `security_rules_invariant` fence reads `v=20` where `main`'s render
-  read `v=21`; the 1.1 line numbers that fence differently, and S-10's local-repository carve-out is present.
+- **Render:** researchteam is re-rendered on agentteams `v1.1.0`. One rule text changes, in the Copilot
+  `@security` agent (`.github/agents`): the file-deletion rule no longer points to agentteams' Operator Decision
+  Query, which is on agentteams `main` only and is deferred to 1.2 by operator ruling (2026-11-09). The Claude,
+  Codex and Goose `@security` agents already lacked the pointer. Explicit operator confirmation for every
+  deletion is still required. That agent's `security_rules_invariant` fence reads `v=20` where `main`'s render
+  read `v=21`; the 1.1 line numbers that fence differently. S-10's local-repository carve-out is present on all
+  four surfaces.
   The rest is churn: timestamps, vulnerability-watch data and build logs. Machine-path files are scrubbed (S-8).
 - **infrastructure-management is an authorized manager team** (#148). `brief.json` lists
   `authorized_managers: ["infrastructure-management"]`, and each of the four surfaces' roster names exactly that
