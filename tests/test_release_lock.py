@@ -40,6 +40,60 @@ def test_newest_on_line_stays_on_the_line_and_moves_forward(monkeypatch):
     assert rel.newest_on_line(AT, "v1.1.0") is None
 
 
+def _line(monkeypatch, *tags):
+    monkeypatch.setattr(rel, "remote_tags", lambda repo: dict.fromkeys(tags, "x"))
+
+
+def test_stable_lock_is_not_offered_a_release_candidate(monkeypatch):
+    # agentteams row 691: a v1.1.0 lock was moved to v1.1.1-rc.1 (baseAgent #324).
+    _line(monkeypatch, "v1.1.0-rc.17", "v1.1.0", "v1.1.1-rc.1")
+    assert rel.newest_on_line(AT, "v1.1.0") is None
+
+
+def test_stable_lock_moves_to_a_newer_final_past_candidates(monkeypatch):
+    _line(monkeypatch, "v1.1.0", "v1.1.1-rc.1", "v1.1.1", "v1.1.2-rc.1")
+    assert rel.newest_on_line(AT, "v1.1.0") == "v1.1.1"
+
+
+def test_candidate_lock_moves_to_the_final_or_a_newer_candidate(monkeypatch):
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0-rc.17", "v1.1.0")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.0"
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0-rc.17")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.0-rc.17"
+
+
+def test_a_newer_final_wins_over_a_newer_patch_candidate(monkeypatch):
+    # @security follow-up: from an rc lock, prefer the published final over the next patch's rc.
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0", "v1.1.1-rc.1")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.0"
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16", include_prerelease=True) == "v1.1.0"
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0", "v1.1.1-rc.1", "v1.1.1")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.1"
+
+
+def test_include_prerelease_is_an_explicit_opt_in(monkeypatch):
+    _line(monkeypatch, "v1.1.0", "v1.1.1-rc.1")
+    assert rel.newest_on_line(AT, "v1.1.0", include_prerelease=True) == "v1.1.1-rc.1"
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0-rc.17")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16", include_prerelease=False) is None
+    assert rel.is_prerelease("v1.1.1-rc.1") and not rel.is_prerelease("v1.1.1")
+
+
+def test_check_toolchain_applies_the_rule_with_an_older_researchteam(monkeypatch):
+    # A derived repo can run a synced check_toolchain.py against an installed researchteam that predates
+    # is_prerelease; the script must not offer an rc to a final lock there either.
+    import importlib.util, types
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location(
+        "check_toolchain_under_test", Path(__file__).resolve().parents[1] / "scripts" / "check_toolchain.py")
+    ct = importlib.util.module_from_spec(spec); spec.loader.exec_module(ct)
+    old = types.SimpleNamespace(tag_key=rel.tag_key, release_line=rel.release_line,
+                                remote_tags=lambda repo: dict.fromkeys(["v1.1.0", "v1.1.1-rc.1", "v1.1.0-rc.17"], "x"))
+    assert ct._line_candidate(old, AT, "v1.1.0", False) is None
+    assert ct._line_candidate(old, AT, "v1.1.0", True) == "v1.1.1-rc.1"
+    assert ct._line_candidate(old, AT, "v1.1.0-rc.16", False) == "v1.1.0"   # a final wins over a newer rc
+
+
 def test_verify_needs_allowed_signers(tmp_path, monkeypatch):
     monkeypatch.setenv("AGENTTEAMS_ALLOWED_SIGNERS", str(tmp_path / "absent"))
     with pytest.raises(rel.ReleaseError, match="no allowed_signers"):

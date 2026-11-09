@@ -418,7 +418,23 @@ def cmd_write_lock(py, new_tags=None, sync=False):
     return 0
 
 
-def cmd_release(candidate_of, verify):
+def _line_candidate(rel, repo, current, include_prerelease):
+    """Newest tag on ``current``'s line newer than it. From a final release only finals are candidates unless
+    ``include_prerelease`` (latest-stable rule). An installed researchteam older than 1.1.1 lacks
+    ``is_prerelease`` and would offer a release candidate to a final lock, so the rule is applied here from the
+    primitives every 1.x release exports."""
+    if hasattr(rel, "is_prerelease"):
+        return rel.newest_on_line(repo, current, True if include_prerelease else None)
+    pre = lambda t: rel.tag_key(t)[3] == 0
+    allow = include_prerelease or pre(current)
+    line, floor = rel.release_line(current), rel.tag_key(current)
+    newer = [t for t in rel.remote_tags(repo)
+             if rel.release_line(t) == line and rel.tag_key(t) > floor and (allow or not pre(t))]
+    pool = [t for t in newer if not pre(t)] or newer   # a newer final wins over any candidate
+    return max(pool, key=rel.tag_key) if pool else None
+
+
+def cmd_release(candidate_of, verify, include_prerelease=False):
     """--release-candidate / --verify-tag for the autosync gate. Exit 1 when the answer cannot be trusted."""
     rel = _release()
     if rel is None:
@@ -433,7 +449,7 @@ def cmd_release(candidate_of, verify):
         if candidate_of:
             if name not in tags:
                 return 0  # not release-locked: no candidate
-            newer = rel.newest_on_line(pins[name][0], tags[name])
+            newer = _line_candidate(rel, pins[name][0], tags[name], include_prerelease)
             if newer:
                 print(newer)
             return 0
@@ -457,13 +473,17 @@ def main(argv=None):
                     help="with --write-lock: also point the repo's own pyproject agentteams extras at the new pin "
                          "(upstream researchteam only; a derived repo's pyproject.toml is project-owned)")
     ap.add_argument("--release-candidate", metavar="NAME",
-                    help="print the newest verified-able tag on NAME's locked release line, if newer; exit 0")
+                    help="print the newest verified-able tag on NAME's locked release line, if newer; exit 0. "
+                         "From a final release only finals are candidates")
+    ap.add_argument("--include-prerelease", action="store_true",
+                    help="with --release-candidate: also offer release candidates to a final-release lock "
+                         "(adopting one still needs a recorded @security clearance)")
     ap.add_argument("--verify-tag", nargs=2, metavar=("NAME", "TAG"),
                     help="verify TAG of NAME's pinned repository and print its peeled commit")
     a = ap.parse_args(argv)
 
     if a.release_candidate or a.verify_tag:
-        return cmd_release(a.release_candidate, a.verify_tag)
+        return cmd_release(a.release_candidate, a.verify_tag, a.include_prerelease)
     py = pick_python(a.python)
     if a.write_lock:
         try:

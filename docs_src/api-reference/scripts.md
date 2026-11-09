@@ -19,7 +19,7 @@ Checks whether the installed `researchteam` and `agentteams` are the commits pin
 ```text
 python3 scripts/check_toolchain.py [--python PATH] [--no-remote] [--strict]
                                    [--write-lock [--tag NAME=TAG ...] [--sync-extras]]
-                                   [--release-candidate NAME]
+                                   [--release-candidate NAME [--include-prerelease]]
                                    [--verify-tag NAME TAG]
 ```
 
@@ -31,7 +31,8 @@ python3 scripts/check_toolchain.py [--python PATH] [--no-remote] [--strict]
 | `--write-lock` | Record the installed commits in `toolchain.lock`. |
 | `--tag NAME=TAG` | With `--write-lock`: the verified release tag that the installed `NAME` commit is. Repeatable. `NAME` is `researchteam` or `agentteams`. |
 | `--sync-extras` | With `--write-lock`: also point every `agentteams … @ git+https://github.com/<lock repo>[.git]@<ref>` requirement in the repository's own `pyproject.toml` at the new agentteams commit (only the ref changes; a requirement without a ref gains one). The autosync gate passes it in `--mode upstream` only: a derived repository's `pyproject.toml` is project-owned. A requirement from another repository is never rewritten, and then the lock is not written either. |
-| `--release-candidate NAME` | Print the newest tag on `NAME`'s locked release line if it is newer than the locked tag; prints nothing when `NAME` is not release-locked. |
+| `--release-candidate NAME` | Print the newest tag on `NAME`'s locked release line if it is newer than the locked tag; prints nothing when `NAME` is not release-locked. From a final-release lock only final releases are candidates (latest-stable rule); from a release-candidate lock, newer candidates and the final are. With an installed researchteam older than 1.1.1 the script applies the same rule itself. |
+| `--include-prerelease` | With `--release-candidate`: also offer release candidates to a final-release lock. The autosync gate never passes it; adopting a candidate still needs a recorded `@security` clearance. |
 | `--verify-tag NAME TAG` | Verify `TAG` in `NAME`'s pinned repository and print its peeled commit. |
 
 `--release-candidate` and `--verify-tag` are handled first and ignore the other options. Otherwise, `--write-lock` takes precedence over the default check.

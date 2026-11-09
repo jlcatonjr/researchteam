@@ -3,6 +3,27 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.1.1 (tag `v1.1.1`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams `v1.1.0`. Derived repositories take it with
+`--researchteam-tag v1.1.1`, which also re-syncs `scripts/check_toolchain.py`.
+
+- **A final-release lock is no longer offered a release candidate** (agentteams row 691; found by
+  infrastructureManagement on 2026-11-09).
+  - **Defect:** `researchteam._release.newest_on_line` kept every tag on the line that sorted after the locked
+    one, and `v1.1.1-rc.1` sorts after `v1.1.0`. So `check_toolchain.py --release-candidate` offered a stable
+    lock a release candidate, and the autosync gate integrated it: baseAgent #324 moved `v1.1.0` to
+    `v1.1.1-rc.1`. That broke the latest-stable rule.
+  - **Fix:** from a final release, only final releases are candidates now. From a release candidate, newer
+    candidates and finals stay eligible, and a newer final always wins over a candidate.
+  - **New:** `is_prerelease(tag)`, and `newest_on_line(..., include_prerelease=None)`. The opt-in is
+    `check_toolchain.py --release-candidate NAME --include-prerelease`, which the gate never passes. A
+    deliberate rc pin (`--write-lock --tag name=<rc>`, with its own signed row) is unchanged.
+  - **Compatibility:** `check_toolchain.py` applies the same rule itself when the installed researchteam is
+    older than 1.1.1, so a re-synced script is safe on its own.
+  - **Tests:** stable→rc refused, stable→newer stable past candidates, rc→final, rc→rc, the opt-in, and the
+    older-package path.
+
 ## 1.1.0 (tag `v1.1.0`, on `release/1.1`)
 
 The first stable 1.1 release, cut with agentteams `v1.1.0` in the coordinated order agentteams → researchteam →
