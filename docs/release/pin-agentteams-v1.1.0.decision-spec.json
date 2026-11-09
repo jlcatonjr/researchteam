@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-09",
+  "date": "2026-11-09",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.0",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.0",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.0 (tag object 093c38fdae6a4e86f3814ba17796c8d82e55d9e9, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM), the stable 1.1 release, so the latest-stable rule is met. Adopted on its release day under S-10's local interdependent-repository carve-out (s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams). agentteams' declared dependencies and extras are unchanged from v1.1.0-rc.16 and v1.1.0-rc.17 (checked at the tags), and differ from v1.0.0 only by the research extra's pypdf floor raise to >=6.21.2 (CVE remediation, since v1.1.0-rc.12); constraints-2026-10-16.txt applies at install; a fresh OSV search ran for this pin (2026-11-09: agentteams 1.1.0 none; the 14 resolved packages of the installed set none). Render delta accepted by operator ruling 2026-11-09: the four @security surfaces' file-deletion rule loses its pointer to the Operator Decision Query (agentteams 95561f88, on agentteams main only, deferred to 1.2); explicit operator confirmation for every deletion is still required, and the S-10 local-repository carve-out is present.",
+  "conditions_verified": "tag v1.1.0 object 093c38fdae6a4e86f3814ba17796c8d82e55d9e9 peeled 9b16fb544c03aad636d3839c37873624f6efbd37 (release/1.1: v1.1.0-rc.17 8d0a4bc9 plus the 4 release files CHANGELOG.md, capability_hints.py, feature-inventory.md, pyproject.toml); the tag object names itself v1.1.0 and its version is 1.1.0; scripts/check_toolchain.py --verify-tag agentteams v1.1.0 and --release-candidate agentteams agree; pyproject dependencies identical to v1.1.0-rc.16 and v1.1.0-rc.17; infrastructureManagement verified the signature independently (relay P8-1)",
+  "evidence": "researchteam branch chore/agentteams-v1.1.0 (autosync gate --mode upstream with agentteams v1.1.0 installed: validate ok, detector tests 15/10/60/10, pytest 507 passed / 7 skipped; RT-4 rehearsal on v1.1.0-rc.17 green 2026-11-09); Scope: toolchain.lock and the update/research extras: agentteams a036d09f75cc9d6dc1961e1deb803a3436b22f35 (v1.1.0-rc.16) -> 9b16fb544c03aad636d3839c37873624f6efbd37 (v1.1.0)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored; s10-cooldown-exempt:jlcatonjr/agentteams; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
