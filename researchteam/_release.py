@@ -122,7 +122,8 @@ def newest_on_line(repo: str, current: str, include_prerelease: bool | None = No
 
     From a final release, only final releases are candidates: adopting a release candidate takes a recorded
     ``@security`` clearance (the latest-stable rule), never an automatic move. So a ``v1.1.0`` lock is not
-    offered ``v1.1.1-rc.1``. From a release candidate, newer candidates and the final stay eligible.
+    offered ``v1.1.1-rc.1``. From a release candidate, newer candidates and finals stay eligible, and a newer
+    final always wins over a candidate (``v1.1.0-rc.16`` moves to ``v1.1.0``, not ``v1.1.1-rc.1``).
     ``include_prerelease=True`` opts a final release in to candidates; ``False`` excludes them from any lock.
     """
     line, floor = release_line(current), tag_key(current)
@@ -130,7 +131,9 @@ def newest_on_line(repo: str, current: str, include_prerelease: bool | None = No
         include_prerelease = is_prerelease(current)
     newer = [t for t in remote_tags(repo)
              if release_line(t) == line and tag_key(t) > floor and (include_prerelease or not is_prerelease(t))]
-    return max(newer, key=tag_key) if newer else None
+    finals = [t for t in newer if not is_prerelease(t)]
+    pool = finals or newer   # latest-stable rule: a newer final wins over any candidate
+    return max(pool, key=tag_key) if pool else None
 
 
 def verify_tag(repo: str, tag: str) -> tuple[str, str]:

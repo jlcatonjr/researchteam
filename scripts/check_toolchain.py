@@ -430,7 +430,8 @@ def _line_candidate(rel, repo, current, include_prerelease):
     line, floor = rel.release_line(current), rel.tag_key(current)
     newer = [t for t in rel.remote_tags(repo)
              if rel.release_line(t) == line and rel.tag_key(t) > floor and (allow or not pre(t))]
-    return max(newer, key=rel.tag_key) if newer else None
+    pool = [t for t in newer if not pre(t)] or newer   # a newer final wins over any candidate
+    return max(pool, key=rel.tag_key) if pool else None
 
 
 def cmd_release(candidate_of, verify, include_prerelease=False):

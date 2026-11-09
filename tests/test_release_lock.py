@@ -62,6 +62,15 @@ def test_candidate_lock_moves_to_the_final_or_a_newer_candidate(monkeypatch):
     assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.0-rc.17"
 
 
+def test_a_newer_final_wins_over_a_newer_patch_candidate(monkeypatch):
+    # @security follow-up: from an rc lock, prefer the published final over the next patch's rc.
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0", "v1.1.1-rc.1")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.0"
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16", include_prerelease=True) == "v1.1.0"
+    _line(monkeypatch, "v1.1.0-rc.16", "v1.1.0", "v1.1.1-rc.1", "v1.1.1")
+    assert rel.newest_on_line(AT, "v1.1.0-rc.16") == "v1.1.1"
+
+
 def test_include_prerelease_is_an_explicit_opt_in(monkeypatch):
     _line(monkeypatch, "v1.1.0", "v1.1.1-rc.1")
     assert rel.newest_on_line(AT, "v1.1.0", include_prerelease=True) == "v1.1.1-rc.1"
@@ -82,7 +91,7 @@ def test_check_toolchain_applies_the_rule_with_an_older_researchteam(monkeypatch
                                 remote_tags=lambda repo: dict.fromkeys(["v1.1.0", "v1.1.1-rc.1", "v1.1.0-rc.17"], "x"))
     assert ct._line_candidate(old, AT, "v1.1.0", False) is None
     assert ct._line_candidate(old, AT, "v1.1.0", True) == "v1.1.1-rc.1"
-    assert ct._line_candidate(old, AT, "v1.1.0-rc.16", False) == "v1.1.1-rc.1"
+    assert ct._line_candidate(old, AT, "v1.1.0-rc.16", False) == "v1.1.0"   # a final wins over a newer rc
 
 
 def test_verify_needs_allowed_signers(tmp_path, monkeypatch):

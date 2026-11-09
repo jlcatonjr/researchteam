@@ -15,7 +15,7 @@ A patch release on `release/1.1`. It still pins agentteams `v1.1.0`. Derived rep
     lock a release candidate, and the autosync gate integrated it: baseAgent #324 moved `v1.1.0` to
     `v1.1.1-rc.1`. That broke the latest-stable rule.
   - **Fix:** from a final release, only final releases are candidates now. From a release candidate, newer
-    candidates and the final stay eligible.
+    candidates and finals stay eligible, and a newer final always wins over a candidate.
   - **New:** `is_prerelease(tag)`, and `newest_on_line(..., include_prerelease=None)`. The opt-in is
     `check_toolchain.py --release-candidate NAME --include-prerelease`, which the gate never passes. A
     deliberate rc pin (`--write-lock --tag name=<rc>`, with its own signed row) is unchanged.

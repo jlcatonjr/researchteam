@@ -144,7 +144,7 @@ Whether a tag is a release candidate.
 
 The newest release tag on `current`'s `vX.Y` line that sorts after `current`. The candidate is not verified here; call `verify_tag` before moving a pin to it.
 
-**From a final release, only final releases are candidates** (the latest-stable rule): a `v1.1.0` lock is not offered `v1.1.1-rc.1`, because adopting a release candidate takes a recorded `@security` clearance. From a release candidate, newer candidates and the final stay eligible.
+**From a final release, only final releases are candidates** (the latest-stable rule): a `v1.1.0` lock is not offered `v1.1.1-rc.1`, because adopting a release candidate takes a recorded `@security` clearance. From a release candidate, newer candidates and finals stay eligible, and a newer final always wins over a candidate: `v1.1.0-rc.16` moves to `v1.1.0`, not `v1.1.1-rc.1`.
 
 **Args:**
 
