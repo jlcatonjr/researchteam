@@ -61,3 +61,16 @@ dependencies. No unpinned transitive build dependency resolves, so `PIP_CONSTRAI
   build-backend install. CHANGELOG gets an `Unreleased (main)` entry.
 
 Verification: full suite 566 passed, 2 skipped; `claude_researchteam_bridge.sh validate` passed.
+
+## Second review (2026-11-12, session researchteam-47)
+
+Run after PR #152 was opened, at the operator's direction.
+- `@security`: PASS-WITH-NOTES. The six pins match the constraints file. `pip check` cannot be bypassed. The
+  build-system pins were vetted (recorded in the vetting doc). The rpds-py 2026.6.3 hold below latest stable is
+  now recorded with its reason. `pip==26.2.2` lacks `--only-binary`; pip ships a wheel, so this is accepted.
+- `@conflict-auditor`: BLOCKING, fixed. `researchteam update` does not sync the derived workflow
+  (`researchteam/_manifest.py` FRAMEWORK_MANAGED_FILES; INIT_SCAFFOLD_REPLACEMENTS), so the CHANGELOG, vetting
+  doc and work summary now say that existing derived repositories edit the pip line themselves. Notes fixed: the
+  typing-extensions table row and the work-summary step count. Noted, out of scope: the bootstrap's agentteams
+  install is not `--no-deps`. Adding an `update` path for the workflow would make a project-owned file
+  framework-managed; that is a policy change for the operator and is not part of this PR.
