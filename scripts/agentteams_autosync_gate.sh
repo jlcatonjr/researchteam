@@ -176,9 +176,31 @@ if [ "$MODE" = "derived" ] && [ -n "$RT_TAG" ]; then
   python -m pip install --quiet --no-deps --force-reinstall "git+https://github.com/jlcatonjr/researchteam.git@${rt_sha}" \
     || { log "pip install of researchteam@${rt_sha} FAILED"; exit 1; }
 fi
+# agentteams' runtime dependencies are held to S-10 too. The base install declares only `jsonschema>=4.20`,
+# which resolves to the six packages below on Python 3.11-3.12 (typing-extensions is unused from 3.13). These
+# are the vetted versions in upstream docs/release/constraints-2026-10-16.txt, which derived repositories do
+# not receive; tests/test_toolchain.py keeps the two equal. Everything installs --no-deps, so pip resolves no
+# runtime dependency on its own. (Building agentteams from git still installs its exact-pinned [build-system]
+# backend, setuptools, which has no dependencies.) `pip check` then fails the gate if this agentteams commit
+# needs a package or version outside the set, so a new dependency is vetted here first, never installed unvetted.
+AGENTTEAMS_DEPS='jsonschema==4.26.0
+attrs==26.1.0
+jsonschema-specifications==2025.9.1
+referencing==0.37.0
+rpds-py==2026.6.3
+typing-extensions==4.16.0'
+log "installing agentteams' vetted dependency set (no-deps)"
+# --only-binary: a missing wheel must fail, not build from source (rpds-py would fetch an unpinned maturin).
+# shellcheck disable=SC2086  # fixed literal list above; word splitting is intended
+python -m pip install --quiet --only-binary=:all: --no-deps $AGENTTEAMS_DEPS || {
+  log "pip install of agentteams' vetted dependency set FAILED"; exit 1; }
 log "installing agentteams @ ${new_sha} (pinned; closes ls-remote/pip TOCTOU)"
-python -m pip install --quiet "git+${AGENTTEAMS_GIT}@${new_sha}" || {
+python -m pip install --quiet --no-deps "git+${AGENTTEAMS_GIT}@${new_sha}" || {
   log "pip install of agentteams@${new_sha} FAILED"; exit 1; }
+python -m pip check || {
+  echo "::error::autosync-gate: agentteams@${new_sha} needs a dependency outside the S-10 vetted set (AGENTTEAMS_DEPS)"
+  log "GATE FAIL: agentteams@${new_sha} needs a dependency outside the S-10 vetted set (AGENTTEAMS_DEPS); vet it first"
+  exit 1; }
 command -v agentteams >/dev/null 2>&1 || { log "agentteams not on PATH after install"; exit 1; }
 
 log "running researchteam regen (mode=${MODE})"

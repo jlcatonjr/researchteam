@@ -18,7 +18,7 @@ ecosystem PyPI), queried 2026-10-16. The cooldown is 14 days.
 | cryptography (signing extra) | 50.0.0 | 2026-07-31 | 76d | none | adopt |
 | cffi | 2.1.1 | 2026-08-03 | 73d | none | adopt |
 | pycparser | 3.11 | 2026-10-09 | 6d | none | **inside cooldown**: constrain to 3.0 (2026-01-21, 267d, OSV none) |
-| typing-extensions | 4.16.0 | 2026-07-02 | 105d | none | adopt (Python < 3.11 only) |
+| typing-extensions | 4.16.0 | 2026-07-02 | 105d | none | adopt (Python < 3.13; corrected 2026-11-12, see below) |
 
 **Carried over to v1.0.0-rc.11** (tag object `dcb66d97`, peeled `ee09a037`): between `f0dcdc85` and
 `ee09a037`, `pyproject.toml` changes only the version line, `1.0.0rc10` → `1.0.0rc11`. There are no
@@ -68,3 +68,32 @@ httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.2) found none either.
 releases no longer wait 14 days: the known-vulnerability search is what decides. The cooldown notes above are the
 record of how each pin was vetted at the time. The `research` extra gap above therefore narrows to the vulnerability
 search: certifi 2026.10.23 and pypdf 6.21.2 had no OSV advisory on 2026-10-23, and a fresh search runs at each pin.
+
+**The cooldown is restored (2026-11-03), and the autosync gate pins this set (2026-11-12).** By operator ruling
+(`s10-release-cooldown-restored`) the 14-day cooldown is in force again for third-party packages. The base
+(non-signing) rows above are now the standing set that `scripts/agentteams_autosync_gate.sh` installs
+`--only-binary=:all: --no-deps` before agentteams (`AGENTTEAMS_DEPS`; `tests/test_toolchain.py` keeps it equal to
+`constraints-2026-10-16.txt`), followed by `pip check`; the autosync workflows pin `pip==26.2.2`. A fresh check
+on 2026-11-12 (PyPI JSON, api.osv.dev) found every pinned version past the cooldown with no advisory: jsonschema
+4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.6.3, typing-extensions
+4.16.0, pip 26.2.2 (uploaded 2026-10-20). Correction to the table: typing-extensions is needed below Python 3.13,
+not only below 3.11 (referencing 0.37.0 requires it there); on CPython 3.11 the base set resolves to exactly these
+six packages.
+
+**Second review of the autosync pins (2026-11-12, `@security` and `@conflict-auditor`, PR #152).**
+- *rpds-py hold below latest stable.* rpds-py 2026.9.1 (uploaded 2026-10-04) cleared the cooldown on 2026-10-18
+  and had no OSV advisory on 2026-11-12, so 2026.6.3 is a hold, not a cooldown constraint. Reason: the gate's set
+  is tied by test to `constraints-2026-10-16.txt`, which also builds the bootstrap venv and the operator's trusted
+  signer, and this change is scoped to applying the existing vetted set to the gate, not re-vetting it. Moving
+  rpds-py is a separate constraints-file change for the next re-vet, with its own `@security` review.
+- *Build-system pins.* Builds from git install the backends exact-pinned in each `pyproject.toml`. All were past
+  the cooldown with no OSV advisory on 2026-11-12 (PyPI JSON, api.osv.dev): agentteams `setuptools==84.2.1`
+  (2026-10-20); researchteam `setuptools==84.1.0` (2026-10-19), `setuptools-scm==10.3.4` (2026-09-23),
+  `vcs-versioning==2.5.0` (2026-09-23), `packaging==26.3` (2026-08-04). On Python 3.11, the workflows' version,
+  their declared requirements close within these exact pins (tomli and typing-extensions apply below 3.11 only).
+- *Reach.* `researchteam update` syncs `scripts/agentteams_autosync_gate.sh` but not the derived
+  `.github/workflows/agentteams-sync.yml` (copied from `scaffold/agentteams-sync-derived.yml` at init/adopt
+  only), so existing derived repositories make the `pip==26.2.2` edit themselves or re-adopt.
+- *Outside this change.* `scripts/bootstrap_toolchain.sh` installs agentteams constrained only by its embedded
+  signing set (`SIGNING_CONSTRAINTS`), so the base `jsonschema` chain resolves unpinned there. This predates the
+  change and is left for a separate review.
