@@ -3,7 +3,11 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## Unreleased (main)
+## 1.1.2 (tag `v1.1.2`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams `v1.1.0` (`9b16fb54`). Derived repositories take it with
+`--researchteam-tag v1.1.2`, which re-syncs `scripts/agentteams_autosync_gate.sh`; the derived workflow's pip line
+is a manual edit (see below).
 
 - **Autosync installs are S-10 cooldown-safe** (request from infrastructureManagement, 2026-11-12; found in
   Batallion).

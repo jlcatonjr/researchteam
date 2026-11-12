@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Retitle CHANGELOG section for v1.1.2,CHANGELOG.md; v1.1.1 precedent,CHANGELOG.md,done,,
+2,security,Review release-prep diff and target pins,diff; toolchain.lock; pyproject.toml,verdict,done,PASS-WITH-NOTES; claims verified; no decision row (grants and relaxes nothing),1
+3,orchestrator,Cross-check with researchteam-38,PR,confirmation,pending,operator asked for mutual check,2
+4,git-operations,Commit; push; open PR to main,branch,PR,done,no tag; no release/1.1 change,2
+5,orchestrator,Send PR number and head SHA to IM,PR,message,pending,,4
