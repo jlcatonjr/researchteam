@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Confirm finding and vet versions,IM request; workflow; gate; PyPI; OSV,plan.md,done,all pins clean and past cooldown,
+2,orchestrator,Pin pip in derived and upstream autosync workflows,scaffold/agentteams-sync-derived.yml; .github/workflows/agentteams-sync.yml,edited workflows,done,,1
+3,orchestrator,Install agentteams under vetted no-deps set plus pip check,scripts/agentteams_autosync_gate.sh,edited gate,done,,1
+4,orchestrator,Add tests,tests/test_toolchain.py; tests/test_release_lock.py,tests,done,,2;3
+5,security,Review diff (S-10 / supply chain),diff,verdict,done,PASS; --only-binary hardening applied,4
+6,adversarial,Challenge remaining steps,plan; diff,findings,done,4 findings addressed (see plan),4
+7,conflict-auditor,Consistency check after multi-file change,diff; docs,findings,done,"typing-extensions note, gate comment, vetting-doc cooldown status, CHANGELOG entry fixed",5;6
+8,git-operations,Commit; push branch; open PR,branch,PR,done,from a separate worktree (shared checkout was switched to another branch by another actor),7
+9,work-summarizer,Daily summary,plan,workSummaries/daily/2026-11-12.md,pending,,8

@@ -3,6 +3,20 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (main)
+
+- **Autosync installs are S-10 cooldown-safe** (request from infrastructureManagement, 2026-11-12; found in
+  Batallion).
+  - **Defect:** the autosync workflows (`.github/workflows/agentteams-sync.yml` and the derived
+    `scaffold/agentteams-sync-derived.yml`) ran `pip install --upgrade pip`, which installs the newest pip. The
+    gate also installed agentteams with its `jsonschema>=4.20` chain resolved unconstrained. In a derived
+    repository under the 14-day cooldown, either could install a release published days earlier.
+  - **Fix:** both workflows install `pip==26.2.2`. `scripts/agentteams_autosync_gate.sh` installs the vetted
+    base set from `docs/release/constraints-2026-10-16.txt` (embedded as `AGENTTEAMS_DEPS`, because derived
+    repositories do not receive that file) with `--only-binary=:all: --no-deps`. It then installs agentteams
+    `--no-deps` and runs `pip check`. If an agentteams commit needs a dependency outside the set, the gate
+    fails, so no PR opens and nothing unvetted is installed.
+
 ## 1.1.1 (tag `v1.1.1`, on `release/1.1`)
 
 A patch release on `release/1.1`. It still pins agentteams `v1.1.0`. Derived repositories take it with

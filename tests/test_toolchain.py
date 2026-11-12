@@ -426,3 +426,22 @@ def test_an_unquoted_trampoline_path_is_kept_whole(tmp_path):
     launcher = tmp_path / "researchteam"
     launcher.write_text("#!/bin/sh\n'''exec' /opt/py/bin/python \"$0\" \"$@\"\n' '''\n")
     assert ct.launcher_interpreter(str(launcher)) == "/opt/py/bin/python"
+
+
+def test_gate_agentteams_deps_match_the_vetted_set():
+    text = (ROOT / "scripts" / "agentteams_autosync_gate.sh").read_text()
+    embedded = set(text.split("AGENTTEAMS_DEPS='", 1)[1].split("'", 1)[0].split())
+    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-10-16.txt").read_text().splitlines()
+              if line.strip() and not line.startswith("#")}
+    assert embedded == {p for p in vetted if p.split("==")[0] not in {"cryptography", "cffi", "pycparser"}}
+    assert len(embedded) == 6
+
+
+@pytest.mark.parametrize("workflow", ["researchteam/scaffold/agentteams-sync-derived.yml",
+                                      ".github/workflows/agentteams-sync.yml"])
+def test_autosync_workflows_install_a_pinned_pip_never_the_newest(workflow):
+    text = (ROOT / workflow).read_text()
+    assert "--upgrade pip" not in text and "-U pip" not in text
+    boot = (ROOT / "scripts" / "bootstrap_toolchain.sh").read_text()
+    vetted = boot.split("PIP_VETTED='", 1)[1].split("'", 1)[0]
+    assert f'python -m pip install "{vetted}"' in text

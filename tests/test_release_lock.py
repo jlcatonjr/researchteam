@@ -371,3 +371,38 @@ def test_script_and_package_read_the_lock_alike(tmp_path, lock):
     for name in ("researchteam", "agentteams"):
         assert rel.read_lock_pin(tmp_path, name) == (*pins[name], tags.get(name))
     assert _drift.pinned_ref(tmp_path) == (A, "toolchain.lock pin")
+
+
+# --- the autosync gate's install: S-10 pinned, nothing resolved from PyPI on its own ----------------
+
+def _gate_install_run(tmp_path, pip_check_exit):
+    log = tmp_path / "python.log"
+    repo, env = _gate_repo(tmp_path, f'case "$*" in *--release-candidate*) echo v1.0.0;; '
+                                     f'*--verify-tag*) echo {C};; '
+                                     f'*) echo "$*" >> {log}; [ "$*" = "-m pip check" ] && exit {pip_check_exit}; exit 0;; esac\n')
+    for name, body in (("agentteams", "exit 0"), ("researchteam", "echo regen-reached; exit 1")):
+        stub = tmp_path / "bin" / name
+        stub.write_text(f"#!/usr/bin/env bash\n{body}\n")
+        stub.chmod(0o755)
+    r = _run_gate(repo, env)
+    return r, log.read_text().splitlines()
+
+
+def test_gate_installs_agentteams_under_the_vetted_no_deps_set_then_pip_check(tmp_path):
+    r, calls = _gate_install_run(tmp_path, pip_check_exit=0)
+    assert "regen-reached" in r.stdout, r.stdout + r.stderr  # the stub regen ends the run after the installs
+    installs = [c for c in calls if c.startswith("-m pip install")]
+    assert all(" --no-deps " in c for c in installs), installs
+    assert installs[0].split("--no-deps ", 1)[1].split() == [
+        "jsonschema==4.26.0", "attrs==26.1.0", "jsonschema-specifications==2025.9.1",
+        "referencing==0.37.0", "rpds-py==2026.6.3", "typing-extensions==4.16.0"]
+    assert " --only-binary=:all: " in installs[0], installs
+    assert installs[1].endswith(f"git+https://invalid.example/never-contacted.git@{C}"), installs
+    assert calls.index("-m pip check") > calls.index(installs[1]), calls
+
+
+def test_gate_fails_closed_when_agentteams_needs_an_unvetted_dependency(tmp_path):
+    r, calls = _gate_install_run(tmp_path, pip_check_exit=1)
+    assert r.returncode == 1 and "outside the S-10 vetted set" in r.stdout, r.stdout + r.stderr
+    assert "::error::" in r.stdout
+    assert "regen-reached" not in r.stdout

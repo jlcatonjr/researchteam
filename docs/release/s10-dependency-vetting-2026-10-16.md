@@ -68,3 +68,14 @@ httpcore 1.0.9, httpx 0.28.1, idna 3.20, pypdf 6.21.2) found none either.
 releases no longer wait 14 days: the known-vulnerability search is what decides. The cooldown notes above are the
 record of how each pin was vetted at the time. The `research` extra gap above therefore narrows to the vulnerability
 search: certifi 2026.10.23 and pypdf 6.21.2 had no OSV advisory on 2026-10-23, and a fresh search runs at each pin.
+
+**The cooldown is restored (2026-11-03), and the autosync gate pins this set (2026-11-12).** By operator ruling
+(`s10-release-cooldown-restored`) the 14-day cooldown is in force again for third-party packages. The base
+(non-signing) rows above are now the standing set that `scripts/agentteams_autosync_gate.sh` installs
+`--only-binary=:all: --no-deps` before agentteams (`AGENTTEAMS_DEPS`; `tests/test_toolchain.py` keeps it equal to
+`constraints-2026-10-16.txt`), followed by `pip check`; the autosync workflows pin `pip==26.2.2`. A fresh check
+on 2026-11-12 (PyPI JSON, api.osv.dev) found every pinned version past the cooldown with no advisory: jsonschema
+4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.6.3, typing-extensions
+4.16.0, pip 26.2.2 (uploaded 2026-10-20). Correction to the table: typing-extensions is needed below Python 3.13,
+not only below 3.11 (referencing 0.37.0 requires it there); on CPython 3.11 the base set resolves to exactly these
+six packages.
