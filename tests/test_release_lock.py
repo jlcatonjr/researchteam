@@ -375,11 +375,12 @@ def test_script_and_package_read_the_lock_alike(tmp_path, lock):
 
 # --- the autosync gate's install: S-10 pinned, nothing resolved from PyPI on its own ----------------
 
-def _gate_install_run(tmp_path, pip_check_exit):
+def _gate_install_run(tmp_path, pip_check_exit, crypto_exit=0):
     log = tmp_path / "python.log"
     repo, env = _gate_repo(tmp_path, f'case "$*" in *--release-candidate*) echo v1.0.0;; '
                                      f'*--verify-tag*) echo {C};; '
-                                     f'*) echo "$*" >> {log}; [ "$*" = "-m pip check" ] && exit {pip_check_exit}; exit 0;; esac\n')
+                                     f'*) echo "$*" >> {log}; [ "$*" = "-m pip check" ] && exit {pip_check_exit}; '
+                                     f'[ "$*" = "-c import cryptography" ] && exit {crypto_exit}; exit 0;; esac\n')
     for name, body in (("agentteams", "exit 0"), ("researchteam", "echo regen-reached; exit 1")):
         stub = tmp_path / "bin" / name
         stub.write_text(f"#!/usr/bin/env bash\n{body}\n")
@@ -395,10 +396,20 @@ def test_gate_installs_agentteams_under_the_vetted_no_deps_set_then_pip_check(tm
     assert all(" --no-deps " in c for c in installs), installs
     assert installs[0].split("--no-deps ", 1)[1].split() == [
         "jsonschema==4.26.0", "attrs==26.1.0", "jsonschema-specifications==2025.9.1",
-        "referencing==0.37.0", "rpds-py==2026.6.3", "typing-extensions==4.16.0"]
+        "referencing==0.37.0", "rpds-py==2026.6.3", "typing-extensions==4.16.0",
+        "cryptography==50.0.0", "cffi==2.1.1", "pycparser==3.0"]
     assert " --only-binary=:all: " in installs[0], installs
     assert installs[1].endswith(f"git+https://invalid.example/never-contacted.git@{C}"), installs
     assert calls.index("-m pip check") > calls.index(installs[1]), calls
+
+
+def test_gate_fails_when_cryptography_is_not_importable(tmp_path):
+    # Without the signing backend an operator-signed relaxation (the S-10 carve-out) fails closed and the
+    # render silently drops it, so the gate stops before the regen instead.
+    r, calls = _gate_install_run(tmp_path, pip_check_exit=0, crypto_exit=1)
+    assert r.returncode == 1 and "cryptography is not importable" in r.stdout, r.stdout + r.stderr
+    assert "regen-reached" not in r.stdout
+    assert "-c import cryptography" in calls
 
 
 def test_gate_fails_closed_when_agentteams_needs_an_unvetted_dependency(tmp_path):

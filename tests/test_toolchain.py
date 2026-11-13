@@ -433,8 +433,11 @@ def test_gate_agentteams_deps_match_the_vetted_set():
     embedded = set(text.split("AGENTTEAMS_DEPS='", 1)[1].split("'", 1)[0].split())
     vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-10-16.txt").read_text().splitlines()
               if line.strip() and not line.startswith("#")}
-    assert embedded == {p for p in vetted if p.split("==")[0] not in {"cryptography", "cffi", "pycparser"}}
-    assert len(embedded) == 6
+    # The full set, signing backend included: without cryptography an operator-signed relaxation (the S-10
+    # carve-out) fails closed in CI and the autosync render silently drops it.
+    assert embedded == vetted
+    assert len(embedded) == 9
+    assert 'python -c "import cryptography"' in text
 
 
 @pytest.mark.parametrize("workflow", ["researchteam/scaffold/agentteams-sync-derived.yml",
