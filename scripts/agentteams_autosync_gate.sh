@@ -177,7 +177,10 @@ if [ "$MODE" = "derived" ] && [ -n "$RT_TAG" ]; then
     || { log "pip install of researchteam@${rt_sha} FAILED"; exit 1; }
 fi
 # agentteams' runtime dependencies are held to S-10 too. The base install declares only `jsonschema>=4.20`,
-# which resolves to the six packages below on Python 3.11-3.12 (typing-extensions is unused from 3.13). These
+# which resolves to the first six packages below on Python 3.11-3.12 (typing-extensions is unused from 3.13). The
+# last three are agentteams' [signing] backend: without cryptography the render cannot verify an operator-signed
+# (Ed25519) decision row, fails closed, and silently drops the relaxation it authorizes (the S-10 carve-out for
+# jlcatonjr/agentteams), so a CI render would differ from a bootstrap_toolchain.sh one. These
 # are the vetted versions in upstream docs/release/constraints-2026-10-16.txt, which derived repositories do
 # not receive; tests/test_toolchain.py keeps the two equal. Everything installs --no-deps, so pip resolves no
 # runtime dependency on its own. (Building agentteams from git still installs its exact-pinned [build-system]
@@ -188,12 +191,18 @@ attrs==26.1.0
 jsonschema-specifications==2025.9.1
 referencing==0.37.0
 rpds-py==2026.6.3
-typing-extensions==4.16.0'
+typing-extensions==4.16.0
+cryptography==50.0.0
+cffi==2.1.1
+pycparser==3.0'
 log "installing agentteams' vetted dependency set (no-deps)"
 # --only-binary: a missing wheel must fail, not build from source (rpds-py would fetch an unpinned maturin).
 # shellcheck disable=SC2086  # fixed literal list above; word splitting is intended
 python -m pip install --quiet --only-binary=:all: --no-deps $AGENTTEAMS_DEPS || {
   log "pip install of agentteams' vetted dependency set FAILED"; exit 1; }
+python -c "import cryptography" 2>/dev/null || {
+  log "GATE FAIL: cryptography is not importable, so every signed-row check would fail closed and drop its relaxation"
+  exit 1; }
 log "installing agentteams @ ${new_sha} (pinned; closes ls-remote/pip TOCTOU)"
 python -m pip install --quiet --no-deps "git+${AGENTTEAMS_GIT}@${new_sha}" || {
   log "pip install of agentteams@${new_sha} FAILED"; exit 1; }

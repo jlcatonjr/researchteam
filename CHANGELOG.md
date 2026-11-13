@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased (main)
 
+- **The autosync gate installs agentteams' signing backend, so CI renders keep operator-signed relaxations**
+  (found 2026-11-12 in Autosync run 43324602697, PR #153).
+  - **Defect:** the gate's vetted set left out `cryptography`/`cffi`/`pycparser`. Without them agentteams cannot
+    verify an Ed25519-signed decision row, so it fails closed (correctly) and drops the relaxation that row
+    authorizes. The CI render of the four `@security` surfaces therefore lost the S-10 carve-out for
+    `jlcatonjr/agentteams` (registry entry active until 2027-02-01), while a `bootstrap_toolchain.sh` venv, which
+    requires `cryptography`, kept it. The two renders differed, and every autosync PR over-tightened S-10.
+  - **Fix:** `AGENTTEAMS_DEPS` is now the full vetted set from `docs/release/constraints-2026-10-16.txt`,
+    including `cryptography==50.0.0`, `cffi==2.1.1` and `pycparser==3.0` (still `--only-binary=:all: --no-deps`).
+    The gate fails before the regen if `cryptography` is not importable. Tests require the full set and cover the
+    failure.
+
 - **Autosync installs are S-10 cooldown-safe** (request from infrastructureManagement, 2026-11-12; found in
   Batallion).
   - **Defect:** the autosync workflows (`.github/workflows/agentteams-sync.yml` and the derived
