@@ -5,6 +5,7 @@ source: .github/agents/team-builder.agent.md
 source_sha256: 9dcf3f165ffd2bcebcdb47ee49151f82c740f6fef21b3dc15ea1fdb5a0a6f2c9
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Grep, Glob, Bash, TodoWrite
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 

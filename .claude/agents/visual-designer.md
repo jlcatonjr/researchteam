@@ -5,6 +5,7 @@ source: .github/agents/visual-designer.agent.md
 source_sha256: 31198e666f8e5383c91e00f5f60904322bda54517d45ec44fc43bec27ffa74eb
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Bash, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

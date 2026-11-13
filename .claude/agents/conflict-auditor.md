@@ -2,6 +2,7 @@
 name: Conflict Auditor — ResearchTeam
 description: "Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam"
 tools: Read, Grep, Glob
+model: opus
 ---
 
 <!--

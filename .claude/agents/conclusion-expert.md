@@ -2,6 +2,7 @@
 name: Conclusion and Executive Summary Expert — ResearchTeam
 description: "Component expert for Conclusion and Executive Summary in ResearchTeam — prepares Component Briefs, reviews drafts against brief checklist, approves deliverables"
 tools: Read, Grep, Glob, Task
+model: opus
 ---
 
 <!--

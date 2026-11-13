@@ -5,6 +5,7 @@ source: .github/agents/reference-manager.agent.md
 source_sha256: 6ab0e3a7ef89f611e5d2a9ca452708d3bc936618526640dcbc586e8ddfe464b6
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

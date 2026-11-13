@@ -2,6 +2,7 @@
 name: Security — ResearchTeam
 description: "Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds"
 tools: Read, Grep, Glob
+model: opus
 ---
 
 <!--

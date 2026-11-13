@@ -2,6 +2,7 @@
 name: Topic Scoping and Research Plan Expert — ResearchTeam
 description: "Component expert for Topic Scoping and Research Plan in ResearchTeam — prepares Component Briefs, reviews drafts against brief checklist, approves deliverables"
 tools: Read, Grep, Glob, Task
+model: opus
 ---
 
 <!--

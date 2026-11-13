@@ -5,6 +5,7 @@ source: .github/agents/cleanup.agent.md
 source_sha256: 7ea1a25823ff305f5f513224ec4de38e50be20d738610b5941370d8406f7e697
 bridge: copilot-vscode-to-claude
 tools: Edit, Write, Grep, Glob, Bash
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

@@ -5,6 +5,7 @@ source: .github/agents/agent-updater.agent.md
 source_sha256: d69e5774ae01ecbf177b41f9913123d2c408502650ff170367542eb3fe23eeb5
 bridge: copilot-vscode-to-claude
 tools: Edit, Write, Grep, Glob, Bash, Task
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

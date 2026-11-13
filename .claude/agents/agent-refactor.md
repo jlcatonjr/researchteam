@@ -5,6 +5,7 @@ source: .github/agents/agent-refactor.agent.md
 source_sha256: e89ed5d7214c9ebd92963f2c51fad9592a1afa2f33d813cac076887b4de4efa8
 bridge: copilot-vscode-to-claude
 tools: Edit, Write, Grep, Glob, Task
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

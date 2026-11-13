@@ -5,6 +5,7 @@ source: .github/agents/code-hygiene.agent.md
 source_sha256: 7bdaca03a2b4990066805cd5e4bebcfa7128234be7293f05e22656e185305263
 bridge: copilot-vscode-to-claude
 tools: Read, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

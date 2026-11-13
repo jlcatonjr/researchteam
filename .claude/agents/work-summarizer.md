@@ -5,6 +5,7 @@ source: .github/agents/work-summarizer.agent.md
 source_sha256: d596ef235fcd72bc76a2e57609bbfae2228c92896e3128ca03c903cdad86c655
 bridge: copilot-vscode-to-claude
 tools: Read, Grep, Glob, Bash, Edit, Write, Task
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

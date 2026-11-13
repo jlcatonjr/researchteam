@@ -5,6 +5,7 @@ source: .github/agents/adversarial.agent.md
 source_sha256: 86cab35df4972d10a45d28b33b838629676eecc75aad2b83be8987fe4ee3ce1a
 bridge: copilot-vscode-to-claude
 tools: Read, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)
