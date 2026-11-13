@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Confirm finding,docs; _manifest.py; tags,plan.md,done,also README; CONTRIBUTING; CLAUDE.md; scaffold template,
+2,primary-producer,Update install tags and line descriptions,4 docs + scaffold template,edited docs,done,,1
+3,orchestrator,Add guard test,CHANGELOG.md,tests/test_install_pins.py,done,fails on old text; passes on new,2
+4,conflict-auditor,Consistency check,diff,findings,done,1 BLOCKING (docs_src) fixed; notes fixed except release-policy main-build example (historical rc-era example kept),3
+5,git-operations,Commit; push; open PR to main,branch,PR,done,no tag; no release branch,4
+6,orchestrator,Send outcome to IM,PR,message,pending,,5

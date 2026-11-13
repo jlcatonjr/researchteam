@@ -35,7 +35,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
   release-key exemptions from before the 2026-10-26 deprecation (`s10-release-key-exemption`,
   `s10-release-key-exemption-1.1`) stay in the log as history; the local-lineage carve-out replaces them.
 - Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag
-  (`--researchteam-tag v1.1.0-rc.N`), which keeps the order agentteams → researchteam → derived.
+  (`--researchteam-tag v1.1.N`; earlier, `v1.1.0-rc.N`), which keeps the order agentteams → researchteam → derived.
 
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
