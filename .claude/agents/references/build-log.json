@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0",
+  "agentteams_version": "1.1.1",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "9b16fb544c03aad636d3839c37873624f6efbd37",
+    "commit": "2fe79c055045aadf8cff733bb2c934d21f8da3fe",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-09T19:51:09.151996+00:00",
+  "generated_at": "2026-11-13T14:27:59.142133+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -89,7 +89,7 @@
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
     "copilot-instructions.template.md": "d3fcc564166c5285",
-    "builder/team-builder-claude.template.md": "f18ed3516005d223",
+    "builder/team-builder-claude.template.md": "ad3e1bfad3e83b1e",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
   "output_files_map": [
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "4a0ccf87b7570ba3",
+  "manifest_fingerprint": "0d3b74f19f5c3784",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "9f49310db9d4fbea",
-    "references/security-vulnerability-watch.json": "b3604aaea9463082",
-    "security.md": "d858caf80c477321",
+    "references/security-vulnerability-watch.reference.md": "c3e321b2394ac4f7",
+    "references/security-vulnerability-watch.json": "96d20025cc5d05f2",
+    "security.md": "a0efa82bae98420e",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/framework-watch.reference.md": "21a796552c902998",
@@ -836,7 +836,7 @@
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "0cc7bb3dd50d8fef4c1e62125a68224265598d634248ea7987e9abc1d57862e6",
-      "threat_intelligence": "e69ee75a5818d88c7e01019752623bd8c509a60c9a7ffec76e822116c298b182",
+      "threat_intelligence": "aaf2a63e590f545602534fc79a1b3ed812ccc5d2409f442492c0e57c71d5da37",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {

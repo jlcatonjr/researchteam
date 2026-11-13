@@ -74,14 +74,14 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-11-09T19:49:32Z`
+Generated at: `2026-11-13T14:25:45Z`
 
 **Sources:**
 
-- CISA KEV: ok (catalog 2026.11.09, items 1772) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
+- CISA KEV: ok (catalog 2026.11.10, items 1779) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
-- NVD (NIST): ok (items 4) — https://services.nvd.nist.gov/rest/json/cves/2.0
+- NVD (NIST): ok (items 5) — https://services.nvd.nist.gov/rest/json/cves/2.0
 - OSV.dev: skipped — https://api.osv.dev/v1/querybatch
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - MITRE ATLAS: static — https://atlas.mitre.org/
@@ -91,21 +91,21 @@ Generated at: `2026-11-09T19:49:32Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-102895` | GPUStack GPUStack | GPUStack Improper Authentication Vulnerability | added 2026-11-09 | EPSS 0.003310000, percentile 0.264600000 | CVSS 9.8 CRITICAL
-- `CVE-2026-123158` | OpenBSD OpenSSH | OpenBSD OpenSSH Unexpected Status Code or Return Value Vulnerability | added 2026-11-09 | EPSS 0.010140000, percentile 0.634820000 | CVSS 8.1 HIGH
-- `CVE-2026-116779` | SignalWire FreeSwitch | SignalWire FreeSwitch Code Injection Vulnerability | added 2026-11-09 | EPSS 0.012990000, percentile 0.706320000 | CVSS 9.8 CRITICAL
-- `CVE-2026-19868` | SonicWall SonicOS SSLVPN | SonicWall SonicOS SSLVPN Use of Single-factor Authentication Vulnerability | added 2026-11-06 | EPSS 0.006210000, percentile 0.500630000
-- `CVE-2024-27834` | Apple Multiple Products | Apple Multiple Products Improper Authentication Vulnerability | added 2026-11-04 | EPSS 0.015020000, percentile 0.744870000 | CVSS 5.5 MEDIUM
-- `CVE-2026-119977` | WordPress WordPress Core | WordPress WordPress Core Time-of-check Time-of-use (TOCTOU) Race Condition Vulnerability | added 2026-11-03 | EPSS 0.011990000, percentile 0.683850000
-- `CVE-2026-118527` | Ivanti Connect Secure | Ivanti Connect Secure Generation of Predictable Numbers or Identifiers Vulnerability | added 2026-10-30 | EPSS 0.008220000, percentile 0.575790000
-- `CVE-2026-111357` | Ivanti Connect Secure | Ivanti Connect Secure Missing Authentication for Critical Function Vulnerability | added 2026-10-30 | EPSS 0.005330000, percentile 0.452860000
-- `CVE-2026-97229` | GitLab Community Edition and Enterprise Edition | GitLab Community Edition and Enterprise Edition Integer Overflow or Wraparound Vulnerability | added 2026-10-29 | EPSS 0.652200000, percentile 0.992600000
-- `CVE-2026-76418` | Cisco Secure Firewall ASA Software and Cisco Secure FTD Software | Cisco Secure Firewall ASA Software and Cisco Secure FTD Software Unchecked Return Value to NULL Pointer Dereference Vulnerability | added 2026-10-29 | EPSS 0.008210000, percentile 0.575550000
-- `CVE-2026-41709` | Broadcom VMware ESX | Broadcom VMWare ESX Insufficient Logging Vulnerability | added 2026-10-28 | EPSS 0.006890000, percentile 0.530140000
-- `CVE-2026-46300` | Linux Kernel | Linux Kernel Missing Initialization of a Variable Vulnerability | added 2026-10-28 | EPSS 0.161300000, percentile 0.969500000
-- `CVE-2026-48356` | Adobe Commerce and Magento | Adobe Commerce and Magento Unrestricted Upload of File with Dangerous Type Vulnerability | added 2026-10-27 | EPSS 0.474720000, percentile 0.988500000
-- `CVE-2026-111497` | Google Brotli | Google Brotli Unchecked Return Value Vulnerability | added 2026-10-27 | EPSS 0.826410000, percentile 0.996690000
-- `CVE-2026-109618` | PHP Group PHP | PHP Memory Corruption Vulnerability | added 2026-10-26 | EPSS 0.999990000, percentile 0.999990000
+- `CVE-2026-124194` | Microsoft Office | Microsoft Office Outlook Missing User Interaction for Potentially Unsafe Action Vulnerability | added 2026-11-10 | EPSS 0.016200000, percentile 0.764190000 | CVSS 6.5 MEDIUM
+- `CVE-2026-111793` | Openwave Messaging Limited Webtop Media Transcoder | Openwave Messaging Limited Webtop Media Transcoder Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-11-10 | EPSS 0.006380000, percentile 0.510660000 | CVSS 4.3 MEDIUM
+- `CVE-2026-20320` | Cisco BroadWorks | Cisco BroadWorks Improper Restriction of XML External Entity Reference Vulnerability | added 2026-11-10 | EPSS 0.008200000, percentile 0.577390000 | CVSS 7.5 HIGH
+- `CVE-2026-111560` | Barracuda Networks Multiple Products | Barracuda Networks Multiple Products OS Command Injection Vulnerability | added 2026-11-10 | EPSS 0.061960000, percentile 0.936030000 | CVSS 7.2 HIGH
+- `CVE-2026-116606` | Barracuda Networks Barracuda Email Security Gateway (ESG) | Barracuda Networks Email Security Gateway (ESG) Authentication Bypass Using an Alternate Path or Channel Vulnerability | added 2026-11-10 | EPSS 0.089340000, percentile 0.953130000 | CVSS 9.8 CRITICAL
+- `CVE-2026-125350` | Google Chromium | Google Chromium Use-After-Free Vulnerability | added 2026-11-10 | EPSS 0.009620000, percentile 0.621120000
+- `CVE-2026-102895` | GPUStack GPUStack | GPUStack Improper Authentication Vulnerability | added 2026-11-09 | EPSS 0.005170000, percentile 0.444860000
+- `CVE-2026-123158` | OpenBSD OpenSSH | OpenBSD OpenSSH Unexpected Status Code or Return Value Vulnerability | added 2026-11-09 | EPSS 0.189000000, percentile 0.973350000
+- `CVE-2026-116779` | SignalWire FreeSwitch | SignalWire FreeSwitch Code Injection Vulnerability | added 2026-11-09 | EPSS 0.024730000, percentile 0.847590000
+- `CVE-2026-123218` | IBM Aspera Faspex | IBM Aspera Faspex Incorrect Authorization Vulnerability | added 2026-11-09 | EPSS 0.005350000, percentile 0.456250000
+- `CVE-2026-19868` | SonicWall SonicOS SSLVPN | SonicWall SonicOS SSLVPN Use of Single-factor Authentication Vulnerability | added 2026-11-06 | EPSS 0.005320000, percentile 0.454570000
+- `CVE-2024-27834` | Apple Multiple Products | Apple Multiple Products Improper Authentication Vulnerability | added 2026-11-04 | EPSS 0.015020000, percentile 0.746710000
+- `CVE-2026-119977` | WordPress WordPress Core | WordPress WordPress Core Time-of-check Time-of-use (TOCTOU) Race Condition Vulnerability | added 2026-11-03 | EPSS 0.011990000, percentile 0.685990000
+- `CVE-2026-118527` | Ivanti Connect Secure | Ivanti Connect Secure Generation of Predictable Numbers or Identifiers Vulnerability | added 2026-10-30 | EPSS 0.008220000, percentile 0.577980000
+- `CVE-2026-111357` | Ivanti Connect Secure | Ivanti Connect Secure Missing Authentication for Critical Function Vulnerability | added 2026-10-30 | EPSS 0.005330000, percentile 0.455040000
 
 **Prevention and mitigation playbook:**
 

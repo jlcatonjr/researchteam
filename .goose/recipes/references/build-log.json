@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.0",
+  "agentteams_version": "1.1.1",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "9b16fb544c03aad636d3839c37873624f6efbd37",
+    "commit": "2fe79c055045aadf8cff733bb2c934d21f8da3fe",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-09T19:51:52.729245+00:00",
+  "generated_at": "2026-11-13T14:29:08.470256+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "227cd797ee410e4d",
+  "manifest_fingerprint": "321207dbd3fc3bd6",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "dd2e5413fbb5f391",
-    "references/security-vulnerability-watch.json": "4b022a13ed2afa14",
-    "security.yaml": "3c3f12f167547ddd",
+    "references/security-vulnerability-watch.reference.md": "8240ecc72d3abd2f",
+    "references/security-vulnerability-watch.json": "669ae32702092c71",
+    "security.yaml": "3126767e879510e6",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
@@ -578,7 +578,7 @@
     "literature-review-expert.yaml": "c550393954ea9a7e",
     "main-analysis-expert.yaml": "4206d051db273258",
     "conclusion-expert.yaml": "44b143415a0f73a0",
-    "../../AGENTS.md": "c9178825ccddd3bb",
+    "../../AGENTS.md": "e86194389931ace0",
     "team-builder.yaml": "8d447f4c66287bf1",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "../../.goosehints": "9b41ee738237cdd6",
@@ -701,7 +701,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "c53c28c37bdbc43eb127af4203e05c7299c1dcf4737e245b43a913bb4dcf57b3",
+      "threat_intelligence": "973a70d3d709aa71823ff43a2584cbfec2f678606b0e5ee3f55191a66fc4b9d6",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",
@@ -755,7 +755,7 @@
       "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
       "constitutional_rules_baseline": "e67ecd5fe0dbf22020a2031cc1c7f036db3f627ab62da331f239641f5048a341",
       "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
-      "codex_write_policy": "00568bf5d2a2a5d1b4c8bb9b138e932973636bee52401054c6dd10c3b8528966"
+      "codex_write_policy": "903bf63811c39668446020c28b86f4e7b145e5530d2d159f1f307ae2f3a5d11b"
     }
   }
 }
