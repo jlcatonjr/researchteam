@@ -12,8 +12,9 @@ A patch release on `release/1.1` that pins agentteams **`v1.1.1`** (`2fe79c05`).
   extras move together, and the lock records `agentteams.tag=v1.1.1`. agentteams 1.1.1 is 1.1.1-rc.2 plus release
   files: Claude teams get model defaults (orchestrator `claude-fable-5-2`, every other agent `opus`), and operator
   signing finds its key from the spec's `key_id`. Its declared dependencies are unchanged from 1.1.0. The re-render
-  (Autosync run 43442533987, `--mode upstream`) changes only data on the four `@security` surfaces (vulnerability
-  intel) and the `AGENTS.md` install line. S-10's local-repository carve-out for `jlcatonjr/agentteams` is present
+  (Autosync run 43442533987, `--mode upstream`) changes no rule text on the four `@security` surfaces (only their
+  vulnerability intel), moves the `AGENTS.md` install line, and regenerates derived data (build logs, memory index,
+  bridge-manifest hashes, delivery receipt). S-10's local-repository carve-out for `jlcatonjr/agentteams` is present
   on all four.
 - **Claude model defaults adopted.** All 33 front-mattered `.claude/agents/*.md` files gain a `model:` line
   (`orchestrator.md` → `claude-fable-5-2`, the others → `opus`) via infrastructureManagement's
