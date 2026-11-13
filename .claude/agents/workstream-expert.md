@@ -5,6 +5,7 @@ source_dir: .github/agents
 collapsed_experts: 4
 bridge: copilot-vscode-to-claude
 tools: Read, Grep, Glob, Task
+model: opus
 ---
 # Workstream Expert (parametric, bridged)
 

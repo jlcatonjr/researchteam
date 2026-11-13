@@ -5,6 +5,7 @@ source: .github/agents/output-compiler.agent.md
 source_sha256: 07897818bf0566f3fd551cd2ac70b81de798701fb6538226c566b3e2ec190cb2
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Bash
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

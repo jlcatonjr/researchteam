@@ -2,6 +2,7 @@
 name: Repo Liaison — ResearchTeam
 description: "Tracks agent documentation in repositories adjacent to ResearchTeam, communicates cross-repository impacts, maintains the adjacent-repos registry, and coordinates between orchestrators when this project's activity affects neighboring agent infrastructures."
 tools: Read, Edit, Write, Grep, Glob, Bash, Task
+model: opus
 ---
 
 <!--

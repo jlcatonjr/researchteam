@@ -2,6 +2,7 @@
 name: Navigator — ResearchTeam
 description: "Repository structure navigation, project map maintenance, file location lookups, and dependency queries for ResearchTeam"
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
 
 <!--

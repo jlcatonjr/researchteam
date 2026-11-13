@@ -5,6 +5,7 @@ source: .github/agents/format-converter.agent.md
 source_sha256: e484c886631c7e5021c67c89f2507002d75810b82f97a2010a6ac83909458b5f
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Bash
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

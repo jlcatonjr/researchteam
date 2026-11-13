@@ -2,6 +2,7 @@
 name: Research Analyst — ResearchTeam
 description: "Orchestrates the optional agentteams[research] runtime library in ResearchTeam — web search, reputable-source rating, and dual-lens claim verification"
 tools: Read, Edit, Write, Grep, Glob, Bash
+model: opus
 ---
 
 <!--

@@ -5,6 +5,7 @@ source: .github/agents/content-enricher.agent.md
 source_sha256: 2ff237a293a35cdc7430393cbefcd0af2e3d7b5ffc87aef0206f1e7f697fe7c3
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

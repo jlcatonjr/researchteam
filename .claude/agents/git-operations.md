@@ -5,6 +5,7 @@ source: .github/agents/git-operations.agent.md
 source_sha256: 9a205a22f7c7ce287349c5144d150f679020cede527b89009f2d54b171af2b5d
 bridge: copilot-vscode-to-claude
 tools: Read, Bash, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

@@ -5,6 +5,7 @@ source: .github/agents/primary-producer.agent.md
 source_sha256: 01a9c2ee57aeddf2c8b00afb4eb3e8f2eb1d73dc10a895719b48054483551e6e
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write, Grep, Glob
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

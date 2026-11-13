@@ -2,6 +2,7 @@
 name: Orchestrator — ResearchTeam
 description: "Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check."
 tools: Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task
+model: claude-fable-5-2
 ---
 
 <!--

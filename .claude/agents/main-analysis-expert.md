@@ -2,6 +2,7 @@
 name: Main Analysis Expert — ResearchTeam
 description: "Component expert for Main Analysis in ResearchTeam — prepares Component Briefs, reviews drafts against brief checklist, approves deliverables"
 tools: Read, Grep, Glob, Task
+model: opus
 ---
 
 <!--

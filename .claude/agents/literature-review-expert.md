@@ -2,6 +2,7 @@
 name: Literature Review Expert — ResearchTeam
 description: "Component expert for Literature Review in ResearchTeam — prepares Component Briefs, reviews drafts against brief checklist, approves deliverables"
 tools: Read, Grep, Glob, Task
+model: opus
 ---
 
 <!--

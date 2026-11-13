@@ -5,6 +5,7 @@ source: .github/agents/cohesion-repairer.agent.md
 source_sha256: 28cacb798ea5ea3744562d18552ef86f61aa6f1b06bdb578ae5c25afaac8a10e
 bridge: copilot-vscode-to-claude
 tools: Read, Edit, Write
+model: opus
 ---
 <!-- AGENTTEAMS:BEGIN content v=1 -->
 # Bridged agent (copilot-vscode → claude)

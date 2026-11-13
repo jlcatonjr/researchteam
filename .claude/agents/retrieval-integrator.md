@@ -2,6 +2,7 @@
 name: Retrieval Integrator — ResearchTeam
 description: "Validates retrieval integration contracts in ResearchTeam — query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations"
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
 <!--
 SECTION MANIFEST

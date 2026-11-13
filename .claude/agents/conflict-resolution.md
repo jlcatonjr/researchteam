@@ -2,6 +2,7 @@
 name: Conflict Resolution — ResearchTeam
 description: "Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam"
 tools: Edit, Write, Grep, Glob, Read
+model: opus
 ---
 <!--
 SECTION MANIFEST
