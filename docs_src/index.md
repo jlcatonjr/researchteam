@@ -44,7 +44,7 @@ update.
 
 ```bash
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 ```
 
 Then:

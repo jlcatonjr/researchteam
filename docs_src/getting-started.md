@@ -8,16 +8,16 @@ regeneration unavailable.
 
 ```bash
 # base CLI only — layer-2 file sync, no agent regeneration
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
-pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 ```
 
-These install the signed `v1.0.2` tag. For a verified install (a separate checkout of the tag, its signature
+These install the signed `v1.1.2` tag, the newest stable release. For a verified install (a separate checkout of the tag, its signature
 checked with repository config neutralised), see
 [`docs/CONTRIBUTING.md`](https://github.com/jlcatonjr/researchteam/blob/main/docs/CONTRIBUTING.md).
 

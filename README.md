@@ -17,10 +17,10 @@ ResearchTeam is a pip-installable framework for producing well-structured resear
 ## Installation
 
 ```bash
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 ```
 
-Install the latest signed `v1.0.N` tag (currently `v1.0.2`); for a verified install from a separate tag checkout, see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). `release/1.0` holds reviewed fixes queued for the next patch release: unsigned between tags, not for pinning.
+Install the latest stable signed tag (currently `v1.1.2`); for a verified install from a separate tag checkout, see [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md). `release/1.1` and `release/1.0` hold reviewed fixes queued for the next patch release: unsigned between tags, not for pinning.
 How branches, releases and contributions work: [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md).
 
 ## Quick Start
@@ -145,7 +145,7 @@ Fenced regions are blocks managed by agents. **Do not edit inside fenced regions
 
 ## Onboarding and Safety Checklist
 
-1. **Install:** `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"`
+1. **Install:** `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"`
 2. **Initialize:** `researchteam init my-project` (or clone directly)
 3. **Edit `brief.json`** with your project name and goal, then run `researchteam personalize` (regenerate `README.md` / `CLAUDE.md` header) and `researchteam materialize` (re-render the agent team from the brief).
 4. **Choose your workflow:** Claude (`CLAUDE.md`) or Copilot/agentteams (`.github/copilot-instructions.md`).
@@ -182,7 +182,7 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 ## FAQ
 
 - **Is this a pip package?**
-  - Yes. `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"` gives you the `researchteam` CLI for `init` and `update`.
+  - Yes. `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"` gives you the `researchteam` CLI for `init` and `update`.
 - **Will `researchteam update` overwrite my research?**
   - No. `brief.json`, `Projects/`, and `references/` are user-owned and never touched. Only layer-2 infrastructure files (`docs/`, `scripts/`, `.claude/`, and the fenced-preserve managed block of `CLAUDE.md`) are synced. `README.md` and `CLAUDE.md`'s project header are generated per-project from `brief.json` — `update` never overwrites them; use `researchteam personalize` to regenerate them.
 - **What is the `layer2_profile` field in `brief.json`?**
@@ -190,7 +190,7 @@ See `docs/agentteams-update-policy.md` and `scripts/validate_agentteams_update.s
 - **What are fenced regions?**
   - Agent-managed blocks delimited by `AGENTTEAMS:BEGIN/END` comments. Do not edit inside them.
 - **Where do I start?**
-  - `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"`, then `researchteam init my-project`.
+  - `pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"`, then `researchteam init my-project`.
 - **What if something goes wrong?**
   - Review logs and validation output, restore from backup if needed, and see `docs/agent-infrastructure-authority.md` for recovery steps.
 

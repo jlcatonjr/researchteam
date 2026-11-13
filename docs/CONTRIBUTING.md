@@ -22,42 +22,42 @@ and baseAgent all follow the same model, so what you learn here applies to all f
 |---|---|---|
 | `main` | Development, the next minor version | Anyone, through a pull request |
 | `release/1.0` | Reviewed fixes queued for the next patch release; unsigned between tags; not for pinning | Jim only, by backport |
-| `release/1.1` | The 1.1 line: release candidates now, `v1.1.N` later; unsigned between tags; not for pinning | Jim only, by backport |
+| `release/1.1` | The 1.1 line: `v1.1.N` releases; unsigned between tags; not for pinning | Jim only, by backport |
 | `vX.Y.Z`, `vX.Y.Z-rc.N` | One exact release, signed by Jim, never moved; what you install and pin | Jim only |
 | Your work branch (`feat/…`, `fix/…`, `docs/…`, `chore/…`) | One change, deleted after merge | Its author |
 
-researchteam takes its version from git tags (setuptools-scm), and has no version file. `release/1.0` builds the version of its latest tag (now `1.0.2` at `v1.0.2`) and `release/1.1` builds its own (now `1.1.0rc2` at `v1.1.0-rc.2`). Because each tag is merged forward, `main` builds the next `.devN` after its nearest tag (now `1.1.0rc3.devN`). That is scm's default, explained in the release policy.
+researchteam takes its version from git tags (setuptools-scm), and has no version file. `release/1.0` builds the version of its latest tag (now `1.0.4` at `v1.0.4`) and `release/1.1` builds its own (now `1.1.2` at `v1.1.2`). Because each tag is merged forward, `main` builds the next `.devN` after its nearest tag (now `1.1.3.devN`). That is scm's default, explained in the release policy.
 
-**Maintained lines:** 1.0 (`release/1.0`, `v1.0.N` backports) and 1.1 (`release/1.1`, release candidates). 1.0 is the
+**Maintained lines:** 1.0 (`release/1.0`, `v1.0.N` backports) and 1.1 (`release/1.1`, `v1.1.N` releases). 1.0 is the
 older line.
 
 The name `release/<X.Y>` is reserved for maintained lines. Never create a `release/*` branch, locally or on GitHub.
 
 ## Using researchteam
 
-Install the latest stable signed tag, currently `v1.0.2`. The `v1.1.0-rc.N` tags are release candidates for derived
-repositories moving to 1.1 (release policy, "The 1.1 line"). Installs move to `v1.1.N` at `v1.1.0`.
+Install the latest stable signed tag, currently `v1.1.2`. A repository still on the 1.0 line installs the newest `v1.0.N`
+instead (release policy, "The 1.1 line").
 
 ```bash
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.1.2"
 ```
 
 **Verified install,** for a governed team, an experiment or a paper. Clone the tag into a directory of its own, check its signature with repository config neutralised, then install from that checkout:
 
 ```bash
-git clone --branch v1.0.2 https://github.com/jlcatonjr/researchteam.git researchteam-v1.0.2
-cd researchteam-v1.0.2
+git clone --branch v1.1.2 https://github.com/jlcatonjr/researchteam.git researchteam-v1.1.2
+cd researchteam-v1.1.2
 git -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
     -c gpg.ssh.allowedSignersFile=$HOME/.config/agentteams/allowed_signers \
     -c gpg.program=/usr/bin/gpg -c core.fsmonitor=false -c core.hooksPath=/dev/null \
-    tag -v v1.0.2 && pip install .
+    tag -v v1.1.2 && pip install .
 ```
 
 The `&&` stops the install if the signature check fails. The output must also show the release key's full fingerprint, which begins `SHA256:IPdnLwlF`, not just "Good signature"; if it doesn't, stop and uninstall. "Verifying a release" below explains how to set up `allowed_signers` once. For a patch release, repeat this with the new tag in a new directory.
 
 Then run `researchteam init <project>` or `researchteam update`, as the README explains.
 
-**`release/1.0` is not an install source.** It holds reviewed fixes queued for the next patch release. Those commits are unsigned between tags, so don't install from the branch or pin it.
+**`release/1.1` and `release/1.0` are not install sources.** They hold reviewed fixes queued for the next patch release. Those commits are unsigned between tags, so don't install from these branches or pin them.
 
 **For development,** work on `main` in a clone of your fork, and install it with `pip install -e .`. "Contributing a change" below covers setting up the fork.
 
@@ -155,7 +155,7 @@ copy inside the repository you are checking, or confirm the fingerprint with Jim
    git -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
        -c gpg.ssh.allowedSignersFile=$HOME/.config/agentteams/allowed_signers \
        -c gpg.program=/usr/bin/gpg -c core.fsmonitor=false -c core.hooksPath=/dev/null \
-       tag -v v1.0.2
+       tag -v v1.1.2
    ```
 
 3. Check that the output shows the full fingerprint from `SECURITY.md`, not just "Good signature".

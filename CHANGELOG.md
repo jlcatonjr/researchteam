@@ -3,6 +3,19 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased (main)
+
+- **Install instructions name the newest stable release** (found by legalResearch; relayed by
+  infrastructureManagement, 2026-11-12).
+  - **Defect:** `docs/researchteam-framework.md`, which `researchteam update` syncs to every derived repository,
+    still installed `researchteam.git@v1.0.2` and called it the newest `v1.0.N` in v1.1.1 and v1.1.2. The same
+    stale tag was in `README.md`, `docs/CONTRIBUTING.md`, the docs site (`docs_src/`) and the managed `CLAUDE.md`
+    block (and its scaffold template), and `CONTRIBUTING.md` still described the 1.1 line as release candidates.
+  - **Fix:** they name `v1.1.2`, the newest stable release; a repository on the 1.0 line installs the newest
+    `v1.0.N`.
+  - **Guard:** `tests/test_install_pins.py` fails when these files name any tag other than the highest final
+    release heading in this file, so the release-prep PR that adds a heading must move them too.
+
 ## 1.1.2 (tag `v1.1.2`, on `release/1.1`)
 
 A patch release on `release/1.1`. It still pins agentteams `v1.1.0` (`9b16fb54`). Derived repositories take it with
