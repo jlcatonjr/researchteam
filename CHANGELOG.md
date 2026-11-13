@@ -3,12 +3,24 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
-## 1.1.2 (tag `v1.1.2`, on `release/1.1`)
+## 1.1.3 (tag `v1.1.3`, on `release/1.1`)
 
-A patch release on `release/1.1`. It still pins agentteams `v1.1.0` (`9b16fb54`). Derived repositories take it with
-`--researchteam-tag v1.1.2`, which re-syncs `scripts/agentteams_autosync_gate.sh`; the derived workflow's pip line
-is a manual edit (see below).
+A patch release on `release/1.1` that pins agentteams **`v1.1.1`** (`2fe79c05`). Derived repositories take it with
+`--researchteam-tag v1.1.3`.
 
+- **agentteams pin: `v1.1.0` (`9b16fb54`) → `v1.1.1` (`2fe79c05`).** `toolchain.lock` and the `update`/`research`
+  extras move together, and the lock records `agentteams.tag=v1.1.1`. agentteams 1.1.1 is 1.1.1-rc.2 plus release
+  files: Claude teams get model defaults (orchestrator `claude-fable-5-2`, every other agent `opus`), and operator
+  signing finds its key from the spec's `key_id`. Its declared dependencies are unchanged from 1.1.0. The re-render
+  (Autosync run 43442533987, `--mode upstream`) changes only data on the four `@security` surfaces (vulnerability
+  intel) and the `AGENTS.md` install line. S-10's local-repository carve-out for `jlcatonjr/agentteams` is present
+  on all four.
+- **Claude model defaults adopted.** All 33 front-mattered `.claude/agents/*.md` files gain a `model:` line
+  (`orchestrator.md` → `claude-fable-5-2`, the others → `opus`) via infrastructureManagement's
+  `scripts/operator/65-adopt-claude-model-lines.py`, one added line per file. `model` is a privileged key, so
+  `--update --merge` only reports it, and researchteam's `--bridge-merge` does not re-emit the 18 bridge stubs
+  (it does not pass the `bridge:copilot-vscode-to-claude:subagents` feature), so the lines are added once here and
+  kept afterwards.
 - **The autosync gate installs agentteams' signing backend, so CI renders keep operator-signed relaxations**
   (found 2026-11-12 in Autosync run 43324602697, PR #153).
   - **Defect:** the gate's vetted set left out `cryptography`/`cffi`/`pycparser`. Without them agentteams cannot
@@ -20,6 +32,12 @@ is a manual edit (see below).
     including `cryptography==50.0.0`, `cffi==2.1.1` and `pycparser==3.0` (still `--only-binary=:all: --no-deps`).
     The gate fails before the regen if `cryptography` is not importable. Tests require the full set and cover the
     failure.
+
+## 1.1.2 (tag `v1.1.2`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams `v1.1.0` (`9b16fb54`). Derived repositories take it with
+`--researchteam-tag v1.1.2`, which re-syncs `scripts/agentteams_autosync_gate.sh`; the derived workflow's pip line
+is a manual edit (see below).
 
 - **Autosync installs are S-10 cooldown-safe** (request from infrastructureManagement, 2026-11-12; found in
   Batallion).
