@@ -49,17 +49,23 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Every cross-repository pin (`toolchain.lock`, the pip extras) is the **peeled commit of a verified signed
   tag**, never a branch, a branch head or an unverified tag. A `<name>.tag=` line in `toolchain.lock` records
   the tag and release-locks the pin (`docs/agentteams-update-policy.md`, "Release-Locked Repositories").
-- Each pin move gets its own `@security` row naming the tag object and the peeled SHA.
+- Each pin move gets its own `@security` row naming the tag object and the peeled SHA. For a release of a
+  first-party toolchain group member (agentteams, researchteam, baseAgent, mathAgents; operator rulings T2 and R9,
+  2026-W46), that row records this repository's own `@security` review and the verified signed tag. It needs
+  **no operator-signed decision row per release**: the operator-signed group file
+  (`.agentteams/toolchain-group.json`) authorizes the class once, and `agentteams --verify-toolchain-pin` checks
+  every group pin against it.
 - **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
   deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). Two
   carve-outs:
   - **Vulnerability remediation.** A release that fixes a vulnerability found by `pip-audit`, `npm audit`,
     `cargo audit` or an OSV.dev query may be adopted inside the cooldown.
-  - **Local interdependent repositories.** The cooldown does not apply to releases of this toolchain's own
-    repositories (agentteams, researchteam, baseAgent, mathAgents and the other operator-owned repositories in the
-    lineage). Such a release-key tag may be adopted the day it is published once it passes the signature and
-    remote-object checks and its exact `name==version`, and any dependency it changes, passes the
-    known-vulnerability search (OSV/GHSA, including MAL-* entries).
+  - **First-party toolchain group.** The cooldown does not apply to releases of the repositories the
+    operator-signed `.agentteams/toolchain-group.json` lists (agentteams, researchteam, baseAgent, mathAgents), in
+    the workspaces it lists. Until it lapses on 2027-02-01, the legacy `s10-cooldown-exempt:jlcatonjr/agentteams`
+    entry also covers agentteams. Such a release-key tag may be adopted the day it is published once it passes the
+    signature and remote-object checks (`agentteams --verify-toolchain-pin`), and its exact `name==version`, and
+    any dependency it changes, passes the known-vulnerability search (OSV/GHSA, including MAL-* entries).
   Every pin move records that search in its row. Third-party packages wait out the cooldown unless the
   remediation carve-out applies.
 - `check_toolchain.py` fails when an extra and the lock disagree. In researchteam itself the upstream autosync

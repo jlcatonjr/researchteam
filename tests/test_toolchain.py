@@ -283,7 +283,7 @@ def test_bootstrap_fails_when_cryptography_is_missing(tmp_path):
 def test_bootstrap_signing_constraints_match_the_vetted_set():
     text = (ROOT / "scripts" / "bootstrap_toolchain.sh").read_text()
     embedded = set(text.split("SIGNING_CONSTRAINTS='", 1)[1].split("'", 1)[0].split())
-    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-10-16.txt").read_text().splitlines()
+    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-11-13.txt").read_text().splitlines()
               if line.strip() and not line.startswith("#")}
     assert embedded == {p for p in vetted if p.split("==")[0] in {"cryptography", "cffi", "pycparser"}}
     assert len(embedded) == 3
@@ -431,7 +431,7 @@ def test_an_unquoted_trampoline_path_is_kept_whole(tmp_path):
 def test_gate_agentteams_deps_match_the_vetted_set():
     text = (ROOT / "scripts" / "agentteams_autosync_gate.sh").read_text()
     embedded = set(text.split("AGENTTEAMS_DEPS='", 1)[1].split("'", 1)[0].split())
-    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-10-16.txt").read_text().splitlines()
+    vetted = {line.strip() for line in (ROOT / "docs" / "release" / "constraints-2026-11-13.txt").read_text().splitlines()
               if line.strip() and not line.startswith("#")}
     # The full set, signing backend included: without cryptography an operator-signed relaxation (the S-10
     # carve-out) fails closed in CI and the autosync render silently drops it.

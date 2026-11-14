@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-14",
+  "date": "2026-11-14",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.1.3",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.1.3",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.1.3 (tag object 1f1ffe6b845a2f9a4c790b5455a17e553ee04f50, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM), the latest stable on the locked 1.1 line, so the latest-stable rule is met. Adopted the day after its release (tag dated 2026-11-13 23:12 -0500), inside the 14-day cooldown: agentteams is a first-party toolchain group member (operator rulings T2/R9; s10-first-party-releases-2026-11 and the signed group file), and the legacy s10-cooldown-exempt:jlcatonjr/agentteams entry (active until 2027-02-01) also still covers it. Under T2 a group release needs this repository's @security review and a verified tag, and no operator-signed row. This spec is that @security record; it enters the signed log only if the operator chooses to sign it. agentteams' declared dependencies differ from v1.1.1 (the previous pin) only in the signing extra, cryptography==50.0.0 -> 50.0.2. Installs use the re-vetted set in constraints-2026-11-13.txt (rpds-py 2026.9.1, cryptography 50.0.2, pycparser 3.12; the others unchanged). A fresh OSV search ran for this pin (2026-11-13: agentteams 1.1.3 none; cryptography 50.0.2, rpds-py 2026.9.1, pycparser 3.12 none; the six unchanged packages none, per s10-dependency-vetting-2026-11-13.md). Render delta (local `researchteam update --layer1-only` with v1.1.3, 2026-11-14): every surface's constitution gains the self-contained 'First-party toolchain group' rule; @security's S-10 bullet becomes the toolchain-group form listing jlcatonjr/agentteams, baseagent and mathagents, and the 'Rule 15' citations are replaced; the exception registry records toolchain_group_sequence 1; the AGENTS.md install line moves to v1.1.3; derived data is regenerated (memory index, build logs, vulnerability intel, bridge-manifest hashes). Validation passed; --verify-integrity 60/60 OK; --verify-toolchain-pin rc 0.",
+  "conditions_verified": "tag v1.1.3 object 1f1ffe6b845a2f9a4c790b5455a17e553ee04f50 peeled cbd41a74f3e8bedd516c3a32581be47eb7d6152b (= agentteams origin/release/1.1); release-key signature verified in researchteam's session by scripts/check_toolchain.py --verify-tag agentteams v1.1.3 (2026-11-13), and independently by agentteams' and IM's sessions; pyproject diff v1.1.1 -> v1.1.3 is the version line and the cryptography pin only; `pip install -c constraints-2026-11-13.txt agentteams[signing]@cbd41a74` then `pip check` is clean on CPython 3.12 and resolves exactly the vetted set",
+  "evidence": "researchteam branch release-prep/v1.1.4 (plan tmp/by-week/2026-W46/release-prep-v1.1.4.plan.md); Scope: toolchain.lock and the update/research extras: agentteams 2fe79c055045aadf8cff733bb2c934d21f8da3fe (v1.1.1) -> cbd41a74f3e8bedd516c3a32581be47eb7d6152b (v1.1.3)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored; s10-first-party-releases-2026-11; s10-cooldown-exempt:jlcatonjr/agentteams; release-line-agentteams-1.1",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

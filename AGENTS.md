@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.1"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.3"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -251,6 +251,36 @@ ordering, including where operator instructions and read content sit:
 - `https://www.crossref.org` — DOI resolution and bibliographic metadata verification
 - `https://scholar.google.com` — broad academic literature discovery and citation counts
 <!-- AGENTTEAMS:END source_repositories -->
+
+<!-- AGENTTEAMS:BEGIN toolchain_group_rule v=2 -->
+## First-party toolchain group (a bounded constraint-relaxing authorization)
+
+In a governed workspace, the repositories listed in the toolchain-group file
+(`.agentteams/toolchain-group.json`) are its *first-party toolchain group*; their releases are cut and
+signed by the operator with the release key. The file is a constraint-relaxing authorization, and this
+rule stands on its own, whatever number the project's constraint-relaxing rule carries:
+
+- **Operator-signed.** It verifies only with the operator's Ed25519 decision key (a key in this team's
+  verify-key store) and only for the workspaces it lists, by repository and team id. No agent and no
+  brief edit can widen it; changing the group or its workspaces needs a new operator signature.
+- **Traceable.** Its signed `derives_from` names the recorded decision(s) it derives from. Each must be an
+  authentic authorizing decision in this team's log, with a recorded, acyclic lineage; an unretracted HALT on
+  it or on any ancestor ends the group (C-2).
+- **A trust root.** No decision row may target the file, and editing it by hand only stops it verifying.
+- **HALT ends it.** An unretracted HALT on the `s10-toolchain-group` family in any surface's decisions
+  log ends it at once (C-2), as does removing its key from the verify-key store. A HALT on any
+  `s10-cooldown-exempt` action (a member's exemption or that family) binds it too.
+- **No sunset and no cap slot.** Unlike every other relaxing exception, it does not expire and does not
+  count against the aggregate exception cap (operator ruling). Every other relaxing exception keeps its
+  cap and sunset, a project's own clauses included.
+- **What it lifts.** Only Rule S-10's 14-day cooldown and a pin move's per-release operator decision row,
+  for releases of group members. It never lifts the vulnerability search, Rule S-9's signed-tag check
+  (`agentteams --verify-toolchain-pin` checks it and fails closed; the project's dependency gate should run
+  it), the latest-stable rule, a `@security` review, or any other rule.
+
+agentteams ships and restores this section on every `--update --merge`; a project's own rules stay where
+they are.
+<!-- AGENTTEAMS:END toolchain_group_rule -->
 
 <!-- AGENTTEAMS:BEGIN codex_write_policy v=1 -->
 ## Write Policy: You Are the Orchestrator
