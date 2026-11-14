@@ -5,6 +5,9 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **`python -m researchteam` and `python -m researchteam.cli` run the CLI (#165).** Before this, `python -m
+  researchteam.cli` imported the module, did nothing and exited 0, so a script using it silently skipped every
+  step. This adds `researchteam/__main__.py` and a `__main__` guard in `cli.py` (`tests/test_module_entry.py`).
 - **Docs: no `--researchteam-tag` flag.** Earlier entries say derived repositories move with
   `--researchteam-tag <tag>`, but no researchteam command has that flag. The command is `researchteam update
   --ref <tag>`, followed by `python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag> --tag
