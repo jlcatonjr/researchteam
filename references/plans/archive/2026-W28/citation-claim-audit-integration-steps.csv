@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes
+1,@navigator,Map researchteam module + on-disk project/bibliography structure,Repo tree; agent docs; Projects/,Findings: 3 project roots; Chicago author-date; twin bib surfaces; methodology-detector pattern,done,"Read-only investigation; no changes"
+2,@orchestrator,Draft the integration plan,Findings; user request,docs/source-integrity-audit-integration-plan.md (draft),done,"Layered detector + doubled agent protocol + trigger surfaces"
+3,@adversarial,Adversarial audit of the plan,Draft plan; real bib/deliverables,Findings C1-C3 MAJOR M1-M3 MINOR m1-m4,done,"Found derived-CI break; false-positive blocking; in-text blind spot (Shi 1995); over-promise"
+4,@conflict-auditor,Conflict audit of the plan,Draft plan; repo design law,Verdicts: CI-symmetry CONFLICT; fuzzy-drift CONFLICT; naming SEMANTIC-CONFLICT,done,"Confirmed derived-CI + advisory-vs-block; rename off overloaded 'source'"
+5,@orchestrator,Revise plan into binding R1-R12; rename,Both audits,docs/citation-claim-audit-integration-plan.md,done,"Old draft deleted; renamed source->citation"
+6,@technical-validator,Implement + iterate detector against real repo,Revised plan; corpus,scripts/check_citation_integrity.sh,done,"Fixed @-in-field, tab-collapse, editor-vs-author, temp leak, PE/STRUCT noise; bash 3.2 clean"
+7,@technical-validator,Write bash-3.2 unit tests,Detector,scripts/tests/test_citation_integrity.sh,done,"26 tests pass under bash 3.2 and bash 5; determinism guard; valid-paren-DOI negative"
+8,@orchestrator,Wire bridge + MANAGED_FILES + CI,Detector; workflows; manifest,bridge citation-audit; _manifest.py; both workflows,done,"Upstream blocking+advisory; derived advisory-only guarded (R1)"
+9,@orchestrator,Wire protocol doc + orchestrator routing,Plan; orchestrator PSN,docs/citation-claim-audit-protocol.md; orchestrator USER-EDITABLE block,done,"No fence touched; agent-doc pointers cut per sprawl (R8)"
+10,@orchestrator,Wire Claude trigger surfaces + week plan,Managed files,CLAUDE.md; preflight; prompt; _init_cmd.py; this plan+csv,done,"Three thin managed referrers to one protocol doc"
+11,@security,Verify all gates green,All changes,detector run; unit tests; validate; update --dry-run,done,"26/26 tests bash 3.2+5; real-repo PASS; scoped validate PASSED; update --dry-run recognizes new managed files; fences 3/3 intact"

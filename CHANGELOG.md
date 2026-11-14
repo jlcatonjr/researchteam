@@ -5,6 +5,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Docs: no `--researchteam-tag` flag.** Earlier entries say derived repositories move with
+  `--researchteam-tag <tag>`, but no researchteam command has that flag. The command is `researchteam update
+  --ref <tag>`, followed by `python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag> --tag
+  agentteams=<agentteams tag>`, which records the release lock. Batallion and SocialScienceHumanities
+  reported this through infrastructuremanagement-40. The 1.1.4 entry is corrected; older entries are left as
+  released.
 - **Build requirements re-vetted (S-10, 2026-11-14).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
   `2.5.0` → `2.6.0`, both latest, past the cooldown and OSV-clean. setuptools-scm `10.3.4` and packaging
   `26.3` stay. This ends the in-cooldown setuptools 84.1.0 exception of 2026-10-24
@@ -13,7 +19,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 ## 1.1.4 (tag `v1.1.4`, on `release/1.1`)
 
 A patch release on `release/1.1` that pins agentteams **`v1.1.3`** (`cbd41a74`) and adopts the operator-signed
-first-party toolchain group. Derived repositories take it with `--researchteam-tag v1.1.4`.
+first-party toolchain group. Derived repositories take it with `researchteam update --ref v1.1.4`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.4 --tag agentteams=v1.1.3`.
 
 - **agentteams pin: `v1.1.1` (`2fe79c05`) → `v1.1.3` (`cbd41a74`, tag object `1f1ffe6b`).** `toolchain.lock` and
   the `update`/`research` extras move together. agentteams 1.1.2 introduced the first-party toolchain group

@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,navigator,Inventory and classify 151 untracked tmp/ files and 6 stashes,tmp/; git stash,classification,done,A57 B52 C27 D13 E1 + frozen-fences state; stashes all superseded or regenerable,
+2,primary-producer,Scrub and copy A and B to references/plans/archive/,classification,references/plans/archive/,done,110 files (A57 + B52 + hygiene list); key-file paths also scrubbed; README added,1
+3,security,Scan published copies; clear deletions and cross-repo copy,step 2; D list; stashes,verdict,done,item 1 and 3 CLEARED-WITH-CONDITIONS (met); item 2 HALT,2
+4,repo-liaison,Copy C (scrubbed) to infrastructureManagement via worktree; PR there,step 3,IM PR,halted,@security HALT; 27 scrubbed copies written to an uncommitted IM worktree before clearance (C-5 breach reported); left for the operator or IM's session,3
+5,cleanup,Delete D files and drop 6 stashes; record hashes and SHAs,step 3,report section,done,manifest committed in a4167b5 first; 12 files deleted after hash check; 6 stashes dropped high-to-low after SHA check; no gc,3
+6,primary-producer,Fix stale summary line; record outcome in the remediation report,repo,docs,done,also the CHANGELOG --researchteam-tag correction,5
+7,git-operations,Commit; push; PR,branch,PR,done,see the PR,6

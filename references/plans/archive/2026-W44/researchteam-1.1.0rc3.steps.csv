@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,security,verify agentteams v1.1.0-rc.11 tag and run fresh OSV search,agentteams tag; constraints-2026-10-16.txt,object 242add53 peeled 19ba0943; OSV none (16 pkgs; pypdf 6.21.4),done,deps identical to v1.0.0 and rc.7,
+2,primary-producer,write pin spec and 1.1.0rc3 CHANGELOG entry on release-prep/1.1.0rc3,step 1,docs/release/pin-agentteams-v1.1.0-rc.11.decision-spec.json; CHANGELOG.md,done,commit 00f513f; validate passed,1
+3,orchestrator,write operator scripts 15 (sign) and 16 (cut) + README,W43 scripts 14/15,tmp/by-week/2026-W44/operator/,done,diff vs precedent reviewed; syntax ok,2
+4,git-operations,open PR to main,step 2,PR #133,done,agents never merge,2
+5,operator,sign pin row (script 15),reviewed PR head,signed row in worktree,done,,4
+6,git-operations,commit and push signed row,step 5,PR head,done,,5
+7,operator,merge PR; run script 16,merged main SHA,v1.1.0-rc.3 tag + prerelease,done,object 16afaa85 peeled 6b69b999; verified,6
+8,repo-liaison,message vulnscan-98 with tag object and peeled SHA,step 7,cross-session message,done,,7
+9,work-summarizer,append daily summary,plan done,workSummaries/daily/2026-10-28.md,done,PR #134; conflict-auditor CLEAN,8

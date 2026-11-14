@@ -1,0 +1,19 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Branch fix/bootstrap-signing-extra from origin/main,origin/main 302edd1,branch,done,,
+2,primary-producer,Install agentteams[signing] under embedded S-10 constraints; verify cryptography import,scripts/bootstrap_toolchain.sh,edited script,done,,1
+3,technical-validator,Add tests (extra + constraints in sync with docs/release),tests/test_toolchain.py,tests,done,,2
+4,orchestrator,Run pytest and bridge validate,repo,results,done,,3
+5,git-operations,Commit and open PR to main (no merge without operator),branch,PR,done,PR #100,4
+6,orchestrator,CLAUDE.md managed-block fixes as a separate PR,CLAUDE.md,PR,done,PR #101,5
+7,orchestrator,validate.d hook for repo-owned checks (Batallion request),scripts/claude_researchteam_bridge.sh,PR #103,done,merged c8a2f3c,4
+8,git-operations,Merge #100 #101 #103 to main (head-pinned regular merges),PRs,main c7f1346 d81e4b3 c8a2f3c,done,sim-merge 389 passed,7
+9,git-operations,Backport #100 #101 to release/1.0 as 1.0.2 (cherry-pick -x + CHANGELOG),release/1.0 b55e230,PR #104 head 3b19d55,done,v1.0.1 already tagged so 1.0.2,8
+10,security,Derive and review 10-sign-release-1.0.2.sh from 09,09 template,10 sha256 1384cbd7…5aca,done,CLEAR-WITH-NOTES; heading fixed,9
+11,orchestrator,File agentteams AGENTS.md codex fence bug,codex.py:854,agentteams issue #249,done,6d silent,
+12,operator,Merge #104,PR #104,merge commit,done,merged 10a3675 (operator-approved),9
+13,orchestrator,Write run-10-now.sh with merge commit; @security,10 + merge commit,run-10-now.sh,done,run-10 sha256 e7b81911…; @security CLEAR-WITH-NOTES,12
+14,operator,Sign and publish v1.0.2,run-10-now.sh,tag v1.0.2,done,tag 5e5aeca5 -> 10a36758; verified,13
+15,git-operations,Merge release/1.0 forward into main,tag v1.0.2,PR,done,PR #108,14
+16,repo-liaison,Announce v1.0.2; Batallion pin move v1.0.0 -> v1.0.2,tag,messages,done,announced d4 mathagents-1a baseagent-86 a7; Batallion has no live session,14
+17,work-summarizer,Daily summary 2026-10-19 (researchteam-51 section),plan CSV + git,workSummaries PR,done,PR #106 (5d44824),11
+18,security,Delete stale origin/chore/agentteams-autosync,86ec0ea,deleted,done,@security CLEAR; restore SHA in plan.md,

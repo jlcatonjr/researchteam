@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes
+1,orchestrator,collect audit findings,"active docs/scripts paths","finding list",done,"exclude archival backups unless active conflict"
+2,orchestrator,patch path and safety issues,"audit findings","updated docs/scripts",done,"smallest-change edits only"
+3,orchestrator,patch governance consistency gaps,"audit findings","aligned policy text",done,"focus on plan path + orchestrator bootstrap clarity"
+4,orchestrator,verify script safety semantics,"audit findings","updated validation script behavior",done,"ensure fail-closed behavior unless explicit override"
+5,orchestrator,re-run adversarial and conflict audits,"updated files","post-fix findings report",done,"confirm critical issues resolved"
+6,orchestrator,close out and summarize,"final state","user-facing summary",done,"include any residual non-critical risks"

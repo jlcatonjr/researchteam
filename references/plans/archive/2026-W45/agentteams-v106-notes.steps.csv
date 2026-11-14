@@ -1,0 +1,3 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Diff the live v1.0.6 body against the corrected file (ignore trailing whitespace); confirm not a pre-release,gh release view; notes file,diff result,done,identical ignoring trailing whitespace; full release,
+2,orchestrator,If identical: record done with no edit; if different: ask Jim,diff result,CSV note or question,done,already applied; no edit made,1

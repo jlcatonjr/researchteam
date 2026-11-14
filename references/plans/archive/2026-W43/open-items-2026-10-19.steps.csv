@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Gather live status of each remaining item,GitHub + local repos,facts,done,,
+2,primary-producer,Write five item reports,facts,docs/open-items/2026-10-19/*.md,done,,1
+3,primary-producer,Dated tracker entry + back-link from 2026-07-08,reports,docs/open-items-2026-10-19.md,done,,2
+4,work-summarizer,Append closeout to daily summary,plan CSVs + git,workSummaries/daily/2026-10-19.md,done,,3
+5,conflict-auditor,Closeout consistency audit,changed files,verdict,done,3 LOW fixed; 1 historical left,4
+6,git-operations,PR + merge after CI,branch,main,done,PR #109,5

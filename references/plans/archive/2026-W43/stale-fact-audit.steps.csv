@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Classify docs into owned vs generated scope,git ls-files; researchteam/_manifest.py,plan scope,done,,
+2,technical-validator,Enumerate and verify claims in group A,group A docs,claim ledger A,done,~165 checked; 17 stale fixed (+ bridge library-check help); 6 external unverifiable,1
+3,technical-validator,Enumerate and verify claims in group B,group B docs,claim ledger B,done,~95 checked; 6 stale + 2 imprecise fixed; 5 external unverifiable,1
+4,technical-validator,Enumerate and verify claims in group C,group C docs,claim ledger C,done,~95 checked; 11 stale fixed (README; CONTRIBUTING; release-policy; CLAUDE managed block + template),1
+5,technical-validator,Check status statements in group D,group D docs,claim ledger D,done,~51 checked; 12 superseded annotated (dated status lines; bodies unchanged),1
+6,primary-producer,Revise stale statements,claim ledgers,edited docs,done,,2;3;4;5
+7,orchestrator,Run bridge validate,repo,validation output,done,validate pass; pytest 389 pass; script suites pass,6
+8,conflict-auditor,Close-out consistency check,diff,audit result,done,2 over-corrections + 2 records fixed; upstream follow-ups listed,7
+9,work-summarizer,Append daily work summary,plan,workSummaries/daily/2026-10-20.md,done,,8

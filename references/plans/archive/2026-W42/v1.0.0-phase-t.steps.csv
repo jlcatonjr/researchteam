@@ -1,0 +1,15 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Verify agentteams v1.0.0 tag (read-only),remote tag,object/peeled,done,5b0ac774 / cc5b8c9e; good sig release key,
+2,primary-producer,Main PR: lock+extras -> cc5b8c9e; self-pin rc.3; render on v1.0.0; CHANGELOG 1.0.0; decision spec,release policy,PR to main,done,#88 closed (HALT: main base + hook render); rebuilt on release/1.0 as #89,1
+3,operator,Sign pin-agentteams-v1.0.0 decision row (operator script),spec,signed row,done,signed by James via run-07-now.sh; committed 5a71513; gate clears,2
+4,code-hygiene,Review main PR,diff,findings,done,clean,3
+5,security,Review main PR (pin move),diff,verdict,done,#89 CLEAR; 07 CLEAR; 08 met all requirements,3
+6,operator,Merge main PR (head-pinned),PR,merge,done,not needed: no main-first PR; release changes reach main by merge-forward,4;5
+7,primary-producer,Release PR into release/1.0: cherry-pick -x step-2 commits + #87 f8b7523,main commits,PR to release/1.0,done,"#89: a16b5ff (-x f8b7523), e303abc, e915f49, 5a71513",6
+8,security,Review release PR,diff,verdict,done,CLEAR,7
+9,primary-producer,Write 07-sign-release.sh (final tag) + invocation for James,06-sign-rc.sh,script,done,"07 faa2c7b7…, 08 cc2a71fa…; v1.0.0-operator-commands.sh",7
+10,operator,Merge release PR (head-pinned) and sign v1.0.0,07,tag,done,#89 merged a21e7db; v1.0.0 tag object 1c042370 peeled a21e7db (run-08-now.sh),8;9
+11,git-operations,Merge-forward release/1.0 -> main (regular merge),tag,PR,done,#90 merged e998881,10
+12,repo-liaison,Report tag object + peeled to agentteams-d4,tag,message,done,sent to agentteams-d4,10
+13,conflict-auditor,Close-out consistency check,all,findings,done,tag consistent; 2 doc follow-ups for 1.0.1 (schedule-resume wording),11
+14,work-summarizer,Daily work summary,plan,summary,done,workSummaries/daily/2026-10-19.md,13

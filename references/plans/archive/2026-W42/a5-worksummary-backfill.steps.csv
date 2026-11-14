@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes
+1,work-summarizer,Append entries to 2026-10-05.md and 2026-10-07.md,plans + git,workSummaries/daily,done,
+2,orchestrator,bridge validate,worktree,result,done,
+3,git-operations,Commit + push + open PR,branch,PR,done,

@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Verify researchteam v1.1.0 tag and release,origin,verification,done,"object 4f0fb292 peeled 938dd663; check_toolchain verify-tag ok; release Latest",
+2,orchestrator,Write notices,plan facts,notices/*.md,done,"mathAgents, Batallion, baseAgent",1
+3,orchestrator,Pick recipient sessions,ListAgents,recipient map,done,"superseded: IM relayed v1.1.0 to mathagents-ab and baseagent-a4; Batallion and infrastructureManagement move via IM autosync script 38; 5 unlocked repos via IM P11-9 PRs",2
+4,orchestrator,Send notices (SendMessage),recipient map,msg_ids,done,"none sent (no duplicates, per IM scope); notices kept file-only",3
+5,orchestrator,Record deliveries,msg_ids,steps CSV,done,recorded here,4

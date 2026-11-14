@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Fix newest_on_line + --include-prerelease; tests; docs; CHANGELOG,_release.py; check_toolchain.py,branch fix/release-line-stable-only,done,"PR #151 head 245adf9c; 512 passed / 8 skipped; final-wins tightening added",
+2,security,Review the fix,diff,verdict,done,"PASS (96b712a2); follow-up applied in 245adf9c; recorded here, not in the signed decisions log",1
+3,orchestrator,PR to main; merge at CLEAN,PR,merge sha,done,"#151 merged 8f4dfd51 (head 245adf9c; build+tests green)",2
+4,operator,Cut v1.1.1 (fast-forward release/1.1; sign),operator script,tag,done,"v1.1.1 object 0683094b peeled 8f4dfd51; release Latest; verified","tmp/by-week/2026-W45/operator/19-cut-v1.1.1.sh 8f4dfd51",3
+5,orchestrator,Notify IM: tag + re-sync recipe,tag,message,done,sent,4

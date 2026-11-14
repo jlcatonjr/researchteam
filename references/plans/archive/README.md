@@ -1,0 +1,20 @@
+# Archive of earlier sessions' plans and operator scripts (published 2026-11-14)
+
+These files were kept in this repository's ignored `tmp/by-week/` from 2026-W21 to 2026-W46. They are
+published here under rule PS-1 (`.claude/CLAUDE.md`, all session work is public) on the operator's
+decision of 2026-11-14. See `references/plans/hidden-material-2026-11-14.plan.md` and
+`docs/hidden-work-remediation-2026-11-14.md`.
+
+**These are historical records. Do not run or reuse the scripts.** Every operator script under
+`<week>/operator/` has already been run. The published copies were scrubbed, so they no longer run as written:
+
+| Original | Replaced with |
+|---|---|
+| the home-directory path | `~` (inside quotes, so it does not expand) |
+| the signer install path | `<signer>` |
+| the release-key and decision-key file paths | `<release-key-file>`, `<decision-key-file>` |
+| session scratchpad paths, `user@host` prompts, email addresses | `<scratchpad>`, `user@host`, `<email>` |
+
+What these scripts did is recorded in the signed tags, the operator-signed rows in
+`.github/agents/references/security-decisions.log.csv`, and the PRs they name. Notes about other repositories
+were not published here; they belong in infrastructureManagement.
