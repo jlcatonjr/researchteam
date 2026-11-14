@@ -20,3 +20,30 @@ guard missed it: a write outside `_guarded`, a missing snapshot, or a path that 
 4. If the cause is in researchteam: a fix with a regression test, as a PR with `@code-hygiene` and `@security`.
    If it is in agentteams: the request goes to IM by message. A fix reaches derived repositories only when the
    operator cuts a tag, and the report says so.
+
+**Outcome (2026-11-14).** **Not reproduced.** Evidence: `references/plans/open-p5/repro.sh` (modes `handwritten`,
+`fenced`, `guard`) and `repro-result.md`.
+- The run used the source CLI and the pinned agentteams 1.1.3, with codex frozen. A frozen `AGENTS.md` came
+  through `update --ref v1.1.4` byte-identical, both hand-written and as the fenced Goose template with a project
+  edit.
+- `_guarded` restored it in every forced-overwrite case.
+- Every writer of `AGENTS.md` runs inside the guard. `--ref` only chooses the template, and never changes the
+  frozen set.
+- **The likeliest explanation is in baseAgent's history** (read only; private, so summarized). The last rewrite of
+  `AGENTS.md` is a CI autosync commit on a branch where baseAgent had deliberately unfrozen codex, so the
+  rewrite was intended there. baseAgent's main branch has codex frozen and a clean `AGENTS.md`, and its lock
+  pins an older researchteam 1.0.x.
+
+Two side findings:
+1. `python -m researchteam.cli` did nothing and exited 0. **Fixed** in this change: `researchteam/__main__.py`,
+   a `__main__` guard in `cli.py`, and `tests/test_module_entry.py`.
+2. The restore works only while the process is alive. A run killed mid-render, with agentteams' own frozen
+   filter also missing, could leave an unfrozen write behind. **Open, not fixed.** The proposed fix is to save
+   `AGENTS.md`'s bytes under `.git/` and restore them at the next `_frozen_begin`. Its regression test is
+   described in `repro-result.md`. It is a candidate for the next release.
+
+IM-40 is told, for baseagent-20. A fix reaches derived repositories only when the operator cuts a tag.
+
+**Closed: not a bug (2026-11-14).** baseagent-20, relayed by IM-40, withdrew the report. Codex is unfrozen on that
+branch, and the Goose render rewrites `AGENTS.md` by design. Of the two side findings, the `python -m` no-op is
+fixed here, and the kill-mid-run restore gap stays open for the next release.

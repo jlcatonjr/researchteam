@@ -323,3 +323,7 @@ def _cmd_status() -> None:
         print(marker.read_text().strip())
     else:
         print("No .researchteam marker found (upstream repo or uninitialized).")
+
+
+if __name__ == "__main__":  # ``python -m researchteam.cli`` used to import, do nothing and exit 0
+    main()
