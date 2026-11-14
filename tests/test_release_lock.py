@@ -421,7 +421,8 @@ def test_gate_fails_closed_when_agentteams_needs_an_unvetted_dependency(tmp_path
 
 # --- the autosync gate's toolchain-group pin check: 0 exempt, 2 ordinary S-10 (derived only), else fail ---
 
-def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True, mode="derived", regen="", lockless=False):
+def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True, mode="derived", regen="", lockless=False,
+                    brief=True, group_file=False):
     at_log = tmp_path / "agentteams.log"
     repo, env = _gate_repo(tmp_path, f'case "$*" in *--release-candidate*) echo v1.0.0;; '
                                      f'*--verify-tag*) echo {C};; *) exit 0;; esac\n')
@@ -429,6 +430,11 @@ def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True, mode="derive
     keys.mkdir(parents=True)
     (keys / "op-2026.pub.pem").write_text("committed key\n")
     (keys.parent / "security-decisions.log.csv").write_text("id,decision\n")
+    if brief:
+        (repo / "brief.json").write_text('{"project_name": "Derived"}\n')
+    if group_file:
+        (repo / ".agentteams").mkdir()
+        (repo / ".agentteams" / "toolchain-group.json").write_text("{}\n")
     subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
     subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@example.invalid",
                     "commit", "-qm", "base"], check=True)
@@ -459,7 +465,7 @@ def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True, mode="derive
 def test_gate_runs_the_group_pin_check_and_passes_on_exit_0(tmp_path, mode):
     r, calls, body = _gate_group_run(tmp_path, pin_exit=0, mode=mode)
     assert calls == [f"--verify-toolchain-pin toolchain.lock --allowed-signers {tmp_path / 'allowed_signers'}"
-                     " --output .github/agents"], calls
+                     " --output .github/agents --description brief.json"], calls
     assert r.returncode == 0 and "exemption applies" in r.stdout, r.stdout + r.stderr
     assert "toolchain group:** verified" in body, body
 
@@ -540,3 +546,14 @@ def test_gate_refuses_trust_root_files_hidden_by_skip_worktree(tmp_path):
              "echo forged > .github/agents/references/authorized-verify-keys/op-2026.pub.pem")
     r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, regen=regen)
     assert r.returncode == 1 and "skip-worktree" in r.stdout and calls == [], r.stdout + r.stderr
+
+
+def test_a_derived_gate_with_no_brief_and_no_group_file_claims_no_exemption(tmp_path):
+    r, calls, body = _gate_group_run(tmp_path, pin_exit=1, brief=False)
+    assert calls == [] and r.returncode == 0 and "GATE FAIL" not in r.stdout, r.stdout + r.stderr
+    assert "no S-10 exemption claimed" in body, body
+
+
+def test_a_group_file_without_a_brief_fails(tmp_path):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, brief=False, group_file=True)
+    assert calls == [] and r.returncode == 1 and "no brief.json to name" in r.stdout, r.stdout + r.stderr

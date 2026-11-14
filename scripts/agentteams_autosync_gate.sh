@@ -293,11 +293,14 @@ flags="$(git ls-files -v -- "${GROUP_TRUST_PATHS[@]}")" || group_fail "trust-roo
 hidden="$(printf '%s\n' "$flags" | grep -E '^([a-z]|S) ' || true)"
 [ -z "$hidden" ] || { printf '%s\n' "$hidden"; group_fail "trust-root files are marked skip-worktree/assume-unchanged"; }
 
-if [ ! -f toolchain.lock ]; then
-  # A lock-less derived repo pins nothing, so there is no group pin to verify and no exemption to claim.
-  [ "$MODE" = "upstream" ] && group_fail "no toolchain.lock in upstream mode"
-  log "no toolchain.lock: no group pins; no S-10 exemption claimed"
-  group_note="no toolchain.lock: no S-10 exemption claimed"
+if [ ! -f toolchain.lock ] || { [ ! -f brief.json ] && [ ! -e .agentteams/toolchain-group.json ]; }; then
+  # A lock-less derived repo pins nothing. A repo with no brief and no group file cannot be a listed workspace
+  # (the team id comes from the brief). Either way there is nothing to verify and no exemption to claim.
+  [ "$MODE" = "upstream" ] && group_fail "no toolchain.lock or brief.json in upstream mode"
+  log "no toolchain.lock, or no brief.json and no group file: no S-10 exemption claimed"
+  group_note="no toolchain.lock, or no brief.json and no group file: no S-10 exemption claimed"
+elif [ ! -f brief.json ]; then
+  group_fail ".agentteams/toolchain-group.json is present, but there is no brief.json to name this workspace's team"
 else
   group_signers="${AGENTTEAMS_ALLOWED_SIGNERS:-$HOME/.config/agentteams/allowed_signers}"
   # argparse also exits 2 on an unknown flag, so an agentteams too old for the check is reported on its own.
@@ -307,8 +310,10 @@ else
     || group_fail "this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"
   log "verifying toolchain-group pins in toolchain.lock (agentteams --verify-toolchain-pin)"
   pin_rc=0
+  # --description: agentteams derives the team id from the brief (team_id, else the project_name slug) and
+  # refuses with exit 1 without it.
   agentteams --verify-toolchain-pin toolchain.lock --allowed-signers "$group_signers" --output .github/agents \
-    || pin_rc=$?
+    --description brief.json || pin_rc=$?
   # An agentteams pin with no agentteams.tag line can never verify (it exits 1), so a 0 there is not genuine.
   if [ "$pin_rc" -eq 0 ] && grep -q '^agentteams=' toolchain.lock && [ -z "$(lock_tag agentteams)" ]; then
     group_fail "--verify-toolchain-pin exited 0 for an untagged agentteams pin, which cannot verify"
