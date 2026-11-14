@@ -6,4 +6,4 @@
 | #102 | 6e9a452 | pinned-fingerprint check in the trust-root step (scaffold + researchteam's own workflow), docs note (from f3) | f6 |
 
 Cut: cherry-pick -x each onto release/1.0. Then a CHANGELOG `## 1.0.2`, an agentteams 1.0.x pin with an operator-signed pin row,
-a 10-sign-release script derived from 09 (PREV=v1.0.1 b55e230), James signs, then merge-forward.
+a 10-sign-release script derived from 09 (PREV=v1.0.1 b55e230), the operator signs, then merge-forward.

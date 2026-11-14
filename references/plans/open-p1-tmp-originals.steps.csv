@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Placeholder-diff check per original (stop if >5 fail),tmp/ originals; archive,keep list,done,shell work; 110/110 match,
+2,orchestrator,Write originals manifest (relative paths; exclusions),step 1,archive/originals-manifest-2026-11-14.csv,done,manifest written,1
+3,security,@security + @cleanup clearance; operator S-4 confirmation (metaplan phase 2),manifest,verdicts,done,keep is default; no S-4 ask: keep (Rule 9 adversarial),2
+4,cleanup,Delete confirmed paths after hash check,step 3,manifest verdicts,skipped,nothing deleted,3
+5,git-operations,Manifest in metaplan phase-4 PR,manifest,PR,pending,,4

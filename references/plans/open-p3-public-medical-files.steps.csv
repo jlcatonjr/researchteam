@@ -1,0 +1,3 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,quality-auditor,Classify the nine files together (no quoting),working copy,classification,done,read-only; GENERIC,
+2,orchestrator,Generic: no change. Personal: freeze; operator ask,step 1,decision,done,history rewrite is operator-only; no change,1

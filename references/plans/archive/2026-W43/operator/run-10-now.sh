@@ -18,7 +18,7 @@ echo "ok: 10 is the reviewed script ($S10_SHA256)"
 head=$(GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 /usr/bin/git ls-remote https://github.com/jlcatonjr/researchteam.git refs/heads/release/1.0 | /usr/bin/cut -f1)
 [[ "$head" == "$MERGE" ]] || { echo "error: origin release/1.0 is $head, not the #104 merge $MERGE; stop" >&2; exit 1; }
 echo "ok: origin release/1.0 is the #104 merge $MERGE"
-export TAGGER_NAME="James Caton" TAGGER_EMAIL="jamescaton@users.noreply.github.com"
+export TAGGER_NAME="the operator" TAGGER_EMAIL="<noreply>"
 exec /bin/bash -p "$S10" "$MERGE" "$KEY"
 else
   printf 'STOP: run as /bin/bash -p %s (privileged mode); nothing was done.\n' "$0" >&2

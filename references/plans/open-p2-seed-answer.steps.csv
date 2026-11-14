@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Compare with security-repo copy via API (match rule fixed first),both copies,match/differ,done,no private content copied out; differ (one header line); body identical,
+2,primary-producer,Pointer line in archive/README.md,step 1,README,done,archived plan untouched; pointer in archive/README.md,1
+3,cleanup,If match: @security + @cleanup; operator S-4 (metaplan phase 2); delete by path,step 1,none,skipped,keep is default; kept (differ),1
