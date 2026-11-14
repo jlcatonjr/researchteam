@@ -84,7 +84,7 @@ infrastructureManagement is sending that request upstream.
 
 The operator decided each category in this session. The plan is `references/plans/hidden-material-2026-11-14.plan.md`.
 
-- **Published (110 files).** 57 plans and notes, 52 operator scripts, and `hygiene-removal-list.txt` are now
+- **Published (110 files; 109 in PR #162, plus `state.vars.txt` afterwards).** 57 plans and notes, 52 operator files (scripts, READMEs, diffs and `state.vars.txt`), and `hygiene-removal-list.txt` are now
   under `references/plans/archive/<week>/`, scrubbed as `references/plans/archive/README.md` describes. The
   hygiene list was first marked for deletion. It was published instead, because it holds the SHAs needed to
   recreate removed worktrees and branches. `@security` cleared the publication with conditions: scan the final
@@ -129,3 +129,6 @@ The operator decided each category in this session. The plan is `references/plan
   - The research plans and drafts that were already tracked under `tmp/` and public since the first commit,
     some of them on medical topics.
   - `tmp/frozen-fences.state.json` stays where it is, as live tool state.
+- **Originals kept.** Deleting the unscrubbed `tmp/` originals of the published files needs the operator's
+  confirmation for each deletion (S-4), and they are the only copies taken before scrubbing. They stay in ignored
+  `tmp/`, which is local only.

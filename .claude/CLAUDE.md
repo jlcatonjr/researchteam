@@ -275,3 +275,38 @@ No project-specific style rules defined.
     personal data and machine-specific details stay out, or are scrubbed first. Material that may
     be private needs the operator's review of each file before it is published.
   - Report: `docs/hidden-work-remediation-2026-11-14.md`.
+- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14).** The operator delegated
+  repository management to the agent session and does not want to be involved in it.
+  - The agent opens PRs, monitors them and merges them.
+  - Every merge names the reviewed head SHA (`--match-head-commit`), waits for green CI, and follows the
+    reviews this repository requires (`@security` for security-relevant changes, `@code-hygiene` for code
+    changes, `@conflict-auditor` after multi-file changes).
+  - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
+    all does not count as green.
+  - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
+    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
+    that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
+    is not enough there.
+  - Each delegated merge commit says "Merged under PS-2 by the agent session" in its body, so it can be told
+    apart from an operator merge made with the same token.
+  - Neither `main` nor `release/*` has branch protection (checked 2026-11-14), so these gates are enforced by
+    this rule, not by GitHub.
+  - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
+    operator.
+  - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
+    is not, the agent opens a revert PR first. After one failed fix-forward, it stops and tells the operator.
+  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
+  - Never under PS-2:
+    - force-pushes or history rewrites;
+    - `gh pr merge --admin` or any bypass of branch protection;
+    - changes to repository settings, secrets, collaborators or branch protection;
+    - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
+    - merging while a `@security` HALT or an unmet (`pending`) condition stands.
+  - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
+    operator's signed `branch-delete` grant or a recorded `@security` `--branch-cleanup` PASS. PS-2 replaces
+    neither.
+  - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
+    them and hands them over.
+  - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.
+  - Policy: `docs/release-policy.md`, "Operator-only and delegated actions". This rule (PS-2) is the authority
+    on what is delegated.
