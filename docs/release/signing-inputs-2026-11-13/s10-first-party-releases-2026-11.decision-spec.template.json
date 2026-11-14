@@ -1,0 +1,20 @@
+{
+  "date": "<the actual signing day, YYYY-MM-DD>",
+  "timestamp": "<the actual signing day, YYYY-MM-DD>",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "s10-first-party-releases-2026-11",
+  "verdict": "PASS",
+  "scope": "s10-first-party-releases-2026-11",
+  "conditions": "Operator rulings 2026-11-13: releases of jlcatonjr/agentteams, jlcatonjr/researchteam, jlcatonjr/baseAgent and jlcatonjr/mathAgents form the first-party toolchain group, exempt from the S-10 14-day cooldown in the workspaces the signed group file lists (R2, R5, R8, R9); shipped as an operator-signed, non-expiring group file (T1-T3, no sunset); the vulnerability search, the S-9 signed-tag check and the latest-stable rule still apply",
+  "conditions_verified": "<fill BEFORE signing (it is covered by text_digest): the operator's rulings confirmed in this window; the agentteams v1.1.3 tag object and peeled commit, SSH-verified against the release key SHA256:IPdnLwlF\u2026qxnzTNM; OSV/GHSA (including MAL-*) for agentteams 1.1.3 and every changed dependency; that the group file validates at v1.1.3; this workspace's repo and team pair, checked against origin and the brief>",
+  "evidence": "<fill BEFORE signing: the full sha256 of the UNSIGNED group file; the v1.1.3 tag object and commit; the plan path; the adoption PR, if it is open>",
+  "derives_from": "",
+  "effect_grants": "",
+  "effect_targets": "",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

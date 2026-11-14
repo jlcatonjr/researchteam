@@ -256,3 +256,22 @@ No project-specific style rules defined.
 > Agent persona files receive an equivalent `## Project-Specific Notes` region automatically from
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
+
+- **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
+  scripts or records only in a session scratchpad, the system root (`/private/tmp`, `/tmp`), an
+  ignored path (`tmp/`), a local `git stash`, or untracked files.
+  - Anything worth keeping is committed to a tracked path and pushed:
+    - plans to `references/plans/`;
+    - release and signing records to `docs/release/`;
+    - session records to `workSummaries/`.
+  - Rule 9 copies in `tmp/by-week/` are working copies; the tracked copy is the record, written
+    before the session closes.
+  - Superseded work is pushed to an `archive/` branch, not stashed.
+  - Scratch space outside the repository may hold only what can be rebuilt from public sources,
+    and it is deleted when the session ends.
+  - Exception: an install a tool requires to be root-owned, such as the signing install. Record
+    which tag it was built from, but not where it is installed.
+  - Publishing stays subject to `@security` S-1 and S-8. Credentials, secrets, `.env` files,
+    personal data and machine-specific details stay out, or are scrubbed first. Material that may
+    be private needs the operator's review of each file before it is published.
+  - Report: `docs/hidden-work-remediation-2026-11-14.md`.
