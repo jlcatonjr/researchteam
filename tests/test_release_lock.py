@@ -396,8 +396,8 @@ def test_gate_installs_agentteams_under_the_vetted_no_deps_set_then_pip_check(tm
     assert all(" --no-deps " in c for c in installs), installs
     assert installs[0].split("--no-deps ", 1)[1].split() == [
         "jsonschema==4.26.0", "attrs==26.1.0", "jsonschema-specifications==2025.9.1",
-        "referencing==0.37.0", "rpds-py==2026.6.3", "typing-extensions==4.16.0",
-        "cryptography==50.0.0", "cffi==2.1.1", "pycparser==3.0"]
+        "referencing==0.37.0", "rpds-py==2026.9.1", "typing-extensions==4.16.0",
+        "cryptography==50.0.2", "cffi==2.1.1", "pycparser==3.12"]
     assert " --only-binary=:all: " in installs[0], installs
     assert installs[1].endswith(f"git+https://invalid.example/never-contacted.git@{C}"), installs
     assert calls.index("-m pip check") > calls.index(installs[1]), calls
@@ -417,3 +417,61 @@ def test_gate_fails_closed_when_agentteams_needs_an_unvetted_dependency(tmp_path
     assert r.returncode == 1 and "outside the S-10 vetted set" in r.stdout, r.stdout + r.stderr
     assert "::error::" in r.stdout
     assert "regen-reached" not in r.stdout
+
+
+# --- the autosync gate's toolchain-group pin check: any non-zero exit fails ----------------------
+
+def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True):
+    at_log = tmp_path / "agentteams.log"
+    repo, env = _gate_repo(tmp_path, f'case "$*" in *--release-candidate*) echo v1.0.0;; '
+                                     f'*--verify-tag*) echo {C};; *) exit 0;; esac\n')
+    if not locked:
+        (repo / "toolchain.lock").write_text(f"researchteam={RT}@{A}\nagentteams={AT}@{B}\n")
+        git = tmp_path / "bin" / "git"  # unlocked: answer only ls-remote; real git for everything else
+        real = subprocess.run(["bash", "-c", "command -v git"], capture_output=True, text=True).stdout.strip()
+        git.write_text(f'#!/usr/bin/env bash\n[ "$1" = ls-remote ] && {{ echo "{C}\trefs/heads/main"; exit 0; }}\n'
+                       f'exec {real} "$@"\n')
+        git.chmod(0o755)
+    help_text = "  --verify-toolchain-pin LOCKFILE" if has_flag else "  --verify-toolchain-group"
+    for name, body in (("agentteams", f'[ "$1" = --help ] && {{ echo "{help_text}"; exit 0; }}; echo "$*" >> {at_log}; '
+                                      f'case "$*" in *--verify-toolchain-pin*) exit {pin_exit};; esac; exit 0'),
+                       ("researchteam", "exit 0")):
+        stub = tmp_path / "bin" / name
+        stub.write_text(f"#!/usr/bin/env bash\n{body}\n")
+        stub.chmod(0o755)
+    env = dict(env, AGENTTEAMS_ALLOWED_SIGNERS=str(tmp_path / "allowed_signers"))
+    r = _run_gate(repo, env)
+    calls = at_log.read_text().splitlines() if at_log.exists() else []
+    return r, [c for c in calls if "--verify-toolchain-pin" in c]
+
+
+def test_gate_runs_the_group_pin_check_and_passes_on_exit_0(tmp_path):
+    r, calls = _gate_group_run(tmp_path, pin_exit=0)
+    assert calls == [f"--verify-toolchain-pin toolchain.lock --allowed-signers {tmp_path / 'allowed_signers'}"
+                     " --output .github/agents"], calls
+    assert "toolchain-group pins verified" in r.stdout, r.stdout + r.stderr
+    assert "GATE FAIL" not in r.stdout, r.stdout
+
+
+@pytest.mark.parametrize("pin_exit, why", [
+    (1, "refused or did not verify"),
+    (2, "no verifiable .agentteams/toolchain-group.json"),
+    (3, "exited 3"),
+])
+def test_gate_fails_on_any_nonzero_group_pin_exit(tmp_path, pin_exit, why):
+    r, calls = _gate_group_run(tmp_path, pin_exit=pin_exit)
+    assert len(calls) == 1, calls
+    assert r.returncode == 1 and why in r.stdout and "::error::" in r.stdout, r.stdout + r.stderr
+    assert "toolchain-group pins verified" not in r.stdout
+
+
+def test_an_unlocked_gate_does_not_run_the_group_pin_check(tmp_path):
+    r, calls = _gate_group_run(tmp_path, pin_exit=2, locked=False)
+    assert calls == [], calls
+    assert "GATE FAIL" not in r.stdout, r.stdout + r.stderr
+
+
+def test_gate_reports_an_agentteams_without_the_group_pin_check(tmp_path):
+    r, calls = _gate_group_run(tmp_path, pin_exit=0, has_flag=False)
+    assert calls == [], calls
+    assert r.returncode == 1 and "has no --verify-toolchain-pin" in r.stdout and "::error::" in r.stdout, r.stdout

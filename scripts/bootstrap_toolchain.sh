@@ -21,12 +21,12 @@ LOCK="$ROOT/toolchain.lock"
 VENV="$ROOT/.venv"
 PY="${PYTHON:-python3}"
 
-# S-10 vetted versions for the [signing] chain (upstream docs/release/constraints-2026-10-16.txt, which derived
+# S-10 vetted versions for the [signing] chain (upstream docs/release/constraints-2026-11-13.txt, which derived
 # repositories do not receive; tests/test_toolchain.py keeps these lines equal to it). agentteams pins only
 # cryptography itself; cffi and pycparser would otherwise resolve to whatever is newest at install time.
-SIGNING_CONSTRAINTS='cryptography==50.0.0
+SIGNING_CONSTRAINTS='cryptography==50.0.2
 cffi==2.1.1
-pycparser==3.0'
+pycparser==3.12'
 
 pin() {  # pin <name> -> owner/repo@sha
   grep -E "^$1=" "$LOCK" | head -1 | cut -d= -f2-

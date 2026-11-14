@@ -49,7 +49,12 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Every cross-repository pin (`toolchain.lock`, the pip extras) is the **peeled commit of a verified signed
   tag**, never a branch, a branch head or an unverified tag. A `<name>.tag=` line in `toolchain.lock` records
   the tag and release-locks the pin (`docs/agentteams-update-policy.md`, "Release-Locked Repositories").
-- Each pin move gets its own `@security` row naming the tag object and the peeled SHA.
+- Each pin move gets its own `@security` row naming the tag object and the peeled SHA. For a release of a
+  first-party toolchain group member (agentteams, researchteam, baseAgent, mathAgents; operator rulings T2 and R9,
+  2026-W46), that row records this repository's own `@security` review and the verified signed tag. It needs
+  **no operator-signed decision row per release**: the operator-signed group file
+  (`.agentteams/toolchain-group.json`) authorizes the class once, and `agentteams --verify-toolchain-pin` checks
+  every group pin against it.
 - **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
   deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). Two
   carve-outs:

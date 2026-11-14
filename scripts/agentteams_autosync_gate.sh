@@ -181,7 +181,7 @@ fi
 # last three are agentteams' [signing] backend: without cryptography the render cannot verify an operator-signed
 # (Ed25519) decision row, fails closed, and silently drops the relaxation it authorizes (the S-10 carve-out for
 # jlcatonjr/agentteams), so a CI render would differ from a bootstrap_toolchain.sh one. These
-# are the vetted versions in upstream docs/release/constraints-2026-10-16.txt, which derived repositories do
+# are the vetted versions in upstream docs/release/constraints-2026-11-13.txt, which derived repositories do
 # not receive; tests/test_toolchain.py keeps the two equal. Everything installs --no-deps, so pip resolves no
 # runtime dependency on its own. (Building agentteams from git still installs its exact-pinned [build-system]
 # backend, setuptools, which has no dependencies.) `pip check` then fails the gate if this agentteams commit
@@ -190,11 +190,11 @@ AGENTTEAMS_DEPS='jsonschema==4.26.0
 attrs==26.1.0
 jsonschema-specifications==2025.9.1
 referencing==0.37.0
-rpds-py==2026.6.3
+rpds-py==2026.9.1
 typing-extensions==4.16.0
-cryptography==50.0.0
+cryptography==50.0.2
 cffi==2.1.1
-pycparser==3.0'
+pycparser==3.12'
 log "installing agentteams' vetted dependency set (no-deps)"
 # --only-binary: a missing wheel must fail, not build from source (rpds-py would fetch an unpinned maturin).
 # shellcheck disable=SC2086  # fixed literal list above; word splitting is intended
@@ -258,6 +258,36 @@ if [ -f scripts/check_toolchain.py ]; then
   fi
 elif [ -n "$TARGET_TAG" ]; then
   log "GATE FAIL: release-locked, but scripts/check_toolchain.py is missing"; exit 1
+fi
+
+# First-party toolchain group (operator rulings T2/R9): every pin in the just-written release-locked lock to a
+# group member must verify against the operator-signed .agentteams/toolchain-group.json and the release key.
+# ANY non-zero exit fails the gate: 1 = refused / bad pin / no group pin, 2 = no group file. An agentteams
+# without --verify-toolchain-pin fails first, on its own message. Never `|| true`, never a special case for 1.
+# An unlocked lock (no agentteams.tag) follows agentteams main and has no tag lines to verify, so the check
+# cannot apply there.
+if [ -n "$TARGET_TAG" ]; then
+  group_signers="${AGENTTEAMS_ALLOWED_SIGNERS:-$HOME/.config/agentteams/allowed_signers}"
+  # argparse also exits 2 on an unknown flag, so an agentteams too old for the check is reported on its own.
+  # The help text is captured first: under pipefail, `--help | grep -q` can fail on SIGPIPE after a match.
+  at_help="$(agentteams --help 2>/dev/null || true)"
+  case "$at_help" in *--verify-toolchain-pin*) ;; *) false ;; esac || {
+    echo "::error::autosync-gate: this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"
+    log "GATE FAIL: this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"; exit 1; }
+  log "verifying toolchain-group pins in toolchain.lock (agentteams --verify-toolchain-pin)"
+  pin_rc=0
+  agentteams --verify-toolchain-pin toolchain.lock --allowed-signers "$group_signers" --output .github/agents \
+    || pin_rc=$?
+  if [ "$pin_rc" -ne 0 ]; then
+    case "$pin_rc" in
+      1) why="a toolchain-group pin was refused or did not verify, or the lock pins no group member" ;;
+      2) why="no verifiable .agentteams/toolchain-group.json" ;;
+      *) why="agentteams --verify-toolchain-pin exited ${pin_rc}" ;;
+    esac
+    echo "::error::autosync-gate: ${why}"
+    log "GATE FAIL: ${why} (exit ${pin_rc})"; exit 1
+  fi
+  log "toolchain-group pins verified"
 fi
 
 git add -A >/dev/null 2>&1 || true
