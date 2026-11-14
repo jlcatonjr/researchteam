@@ -3,5 +3,5 @@
 # sync (scripts/check_toolchain.py --write-lock); read by scripts/bootstrap_toolchain.sh (builds .venv)
 # and scripts/check_toolchain.py (SessionStart hook, researchteam doctor). Bump only after a green sync.
 researchteam=jlcatonjr/researchteam@9a85439156bec8a63cb1c423d4b9266d9f17b3ec
-agentteams=jlcatonjr/agentteams@2fe79c055045aadf8cff733bb2c934d21f8da3fe
-agentteams.tag=v1.1.1
+agentteams=jlcatonjr/agentteams@cbd41a74f3e8bedd516c3a32581be47eb7d6152b
+agentteams.tag=v1.1.3
