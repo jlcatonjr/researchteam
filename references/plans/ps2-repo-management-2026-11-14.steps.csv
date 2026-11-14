@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,primary-producer,Add PS-2 and the release-policy delegation,operator ruling,.claude/CLAUDE.md; docs/release-policy.md,done,,
+2,security,Review PS-2 and the originals deletion,diff,verdict,done,PS-2 CLEARED-WITH-CONDITIONS (written into PS-2); deletion needs S-4 operator confirmation so originals are kept,1
+3,primary-producer,Publish state.env as state.vars.txt; correct the count,archive,archive; report,done,it was never tracked (the *.env ignore rule); step 3a: @security retracted the S-1 HALT (false premise) and gave a CONDITIONAL PASS; condition met (common.sh still names state.env),2
+3a,security,Clear state.vars.txt; retract the S-1 HALT,state.vars.txt,verdict,done,HALT retracted (false premise: never tracked); CONDITIONAL PASS met (common.sh names state.env); recorded in this PR,3
+4,cleanup,Keep the tmp/ originals,tmp/,none,open,kept (S-4 needs operator confirmation per deletion); pending an operator decision; tmp/ is local and ignored,2
+5,conflict-auditor,Audit; adversarial; commit; PR; merge; check main CI,branch,PR,in-progress,conflict-auditor 7 fixed; adversarial conditions 1/3/4/7 met,3;3a

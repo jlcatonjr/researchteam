@@ -102,7 +102,21 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Codex and Codex `AGENTS.md` are **orchestrator-only**, recorded in an Ed25519-signed decision row. A
   cooperative opt-in is not part of 1.0.
 
-## Operator-only actions
-Signing tags; installing `allowed_signers` and verify keys; the signed decision rows; merges that name the
-head SHA; the go/no-go. The scripts in `tmp/by-week/2026-W42/operator/` (local, not committed) carry these
-out for the 1.0 cut.
+## Operator-only and delegated actions
+Signing tags; installing `allowed_signers` and verify keys; the signed decision rows; the go/no-go. The
+scripts that carried these out for the 1.0 cut are archived as records in
+`references/plans/archive/2026-W42/operator/`.
+
+**Merges are delegated (rule PS-2, operator ruling 2026-11-14).** The agent session merges PRs, as long as:
+- the merge names the reviewed head SHA (`gh pr merge --match-head-commit <sha>`);
+- CI is green on that head;
+- every review the change needs (`@security`, `@code-hygiene` for code, `@conflict-auditor`) is recorded in the
+  PR;
+- no HALT or unmet condition stands.
+
+PS-2 in `.claude/CLAUDE.md` is the authority on what is delegated and what is excluded. It excludes force-pushes
+and history rewrites, `--admin` merges, changes to settings, secrets, collaborators or branch protection,
+executor-opened remediation PRs (S-VM), and writes to other repositories. Its deletion rules (S-4,
+`branch-delete`) also apply.
+
+Releases still need an operator-signed tag, so the agent prepares the tag command and the operator signs it.
