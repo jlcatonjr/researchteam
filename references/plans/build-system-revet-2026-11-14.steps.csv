@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,research-analyst,Re-vet build requirements (PyPI + OSV),pyproject.toml,docs/release/build-requirements-2026-11-14.md; .query.py,done,setuptools 84.2.1 (24d) and vcs-versioning 2.6.0 (38d); OSV none for all four,
+2,primary-producer,Move pins and comment,step 1,pyproject.toml,done,,1
+3,technical-validator,Isolated wheel build + pytest,repo,results,done,builds 1.1.5.dev0 from the v1.1.4 tag; 590 passed 1 skipped,2
+4,primary-producer,CHANGELOG Unreleased entry,step 1,CHANGELOG.md,done,,2
+5,security,Review; commit; push; PR,diff,PR,done,security PASS-WITH-NOTES; verdict row left to the operator (the log is operator-signed),3;4
