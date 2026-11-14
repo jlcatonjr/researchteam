@@ -212,6 +212,8 @@ python -m pip check || {
   exit 1; }
 command -v agentteams >/dev/null 2>&1 || { log "agentteams not on PATH after install"; exit 1; }
 
+# Recorded before the regen: the toolchain-group trust-root guard (section 4) refuses a regen that moves HEAD.
+pre_regen_head="$(git rev-parse HEAD 2>/dev/null || true)"
 log "running researchteam regen (mode=${MODE})"
 if [ "$MODE" = "derived" ]; then
   researchteam update --yes || { log "researchteam update FAILED"; exit 1; }
@@ -260,34 +262,67 @@ elif [ -n "$TARGET_TAG" ]; then
   log "GATE FAIL: release-locked, but scripts/check_toolchain.py is missing"; exit 1
 fi
 
-# First-party toolchain group (operator rulings T2/R9): every pin in the just-written release-locked lock to a
-# group member must verify against the operator-signed .agentteams/toolchain-group.json and the release key.
-# ANY non-zero exit fails the gate: 1 = refused / bad pin / no group pin, 2 = no group file. An agentteams
-# without --verify-toolchain-pin fails first, on its own message. Never `|| true`, never a special case for 1.
-# An unlocked lock (no agentteams.tag) follows agentteams main and has no tag lines to verify, so the check
-# cannot apply there.
-if [ -n "$TARGET_TAG" ]; then
+# First-party toolchain group (operator rulings T2/R9). Runs on every integrating run, after the lock is written.
+# 1. Trust-root guard: the candidate agentteams has just run (the regen), so it could have altered what the check
+#    trusts. HEAD must not have moved, and the group file, the operator verify keys and the signed decision log
+#    must be exactly as committed (untracked, gitignored, skip-worktree and assume-unchanged entries count too).
+#    An autosync run never changes them legitimately. This stops accidents and a careless regen, not a hostile
+#    candidate: the check runs that candidate's code. On release-locked runs the signed-tag check (section 1)
+#    is what makes the candidate trustworthy, and an exit 0 for an untagged agentteams pin is refused below.
+# 2. `agentteams --verify-toolchain-pin` (read-only, agentteams >= v1.1.2; an agentteams without it fails on its
+#    own message) maps its exit code as follows:
+#      0  every group pin verified: the S-10 toolchain-group exemption applies.
+#      2  no group file, so no exemption is claimed and the ordinary S-10 rules apply (the 14-day cooldown, plus a
+#         pin row where policy needs one). Never "verified". In upstream mode it fails: researchteam is a group
+#         member and must carry the file. In derived mode it passes with a ::warning:: and a PR-body notice.
+#      1  a present group file or a group pin failed (refused, bad pin, a group pin without NAME.tag): hard fail.
+#      *  anything else: hard fail.
+GROUP_TRUST_PATHS=(.agentteams/toolchain-group.json .github/agents/references/authorized-verify-keys
+                   .github/agents/references/security-decisions.log.csv)
+group_note=""
+group_fail() { echo "::error::autosync-gate: $1"; log "GATE FAIL: $1"; exit 1; }
+# Fail closed: a git error must never read as "nothing changed".
+head_now="$(git rev-parse HEAD 2>/dev/null)" || group_fail "trust-root guard: cannot read HEAD"
+[ -n "$pre_regen_head" ] && [ "$head_now" = "$pre_regen_head" ] \
+  || group_fail "the regen moved HEAD (${pre_regen_head:-<none>} -> ${head_now}); a regen never commits"
+tampered="$(git status --porcelain --ignored -- "${GROUP_TRUST_PATHS[@]}")" \
+  || group_fail "trust-root guard: git status failed"
+[ -z "$tampered" ] || { printf '%s\n' "$tampered"; group_fail "the regen changed the toolchain-group trust root"; }
+# Skip-worktree (S) and assume-unchanged (lowercase) entries are invisible to `git status`.
+flags="$(git ls-files -v -- "${GROUP_TRUST_PATHS[@]}")" || group_fail "trust-root guard: git ls-files failed"
+hidden="$(printf '%s\n' "$flags" | grep -E '^([a-z]|S) ' || true)"
+[ -z "$hidden" ] || { printf '%s\n' "$hidden"; group_fail "trust-root files are marked skip-worktree/assume-unchanged"; }
+
+if [ ! -f toolchain.lock ]; then
+  # A lock-less derived repo pins nothing, so there is no group pin to verify and no exemption to claim.
+  [ "$MODE" = "upstream" ] && group_fail "no toolchain.lock in upstream mode"
+  log "no toolchain.lock: no group pins; no S-10 exemption claimed"
+  group_note="no toolchain.lock: no S-10 exemption claimed"
+else
   group_signers="${AGENTTEAMS_ALLOWED_SIGNERS:-$HOME/.config/agentteams/allowed_signers}"
   # argparse also exits 2 on an unknown flag, so an agentteams too old for the check is reported on its own.
   # The help text is captured first: under pipefail, `--help | grep -q` can fail on SIGPIPE after a match.
   at_help="$(agentteams --help 2>/dev/null || true)"
-  case "$at_help" in *--verify-toolchain-pin*) ;; *) false ;; esac || {
-    echo "::error::autosync-gate: this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"
-    log "GATE FAIL: this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"; exit 1; }
+  case "$at_help" in *--verify-toolchain-pin*) ;; *) false ;; esac \
+    || group_fail "this agentteams has no --verify-toolchain-pin (added in agentteams v1.1.2)"
   log "verifying toolchain-group pins in toolchain.lock (agentteams --verify-toolchain-pin)"
   pin_rc=0
   agentteams --verify-toolchain-pin toolchain.lock --allowed-signers "$group_signers" --output .github/agents \
     || pin_rc=$?
-  if [ "$pin_rc" -ne 0 ]; then
-    case "$pin_rc" in
-      1) why="a toolchain-group pin was refused or did not verify, or the lock pins no group member" ;;
-      2) why="no verifiable .agentteams/toolchain-group.json" ;;
-      *) why="agentteams --verify-toolchain-pin exited ${pin_rc}" ;;
-    esac
-    echo "::error::autosync-gate: ${why}"
-    log "GATE FAIL: ${why} (exit ${pin_rc})"; exit 1
+  # An agentteams pin with no agentteams.tag line can never verify (it exits 1), so a 0 there is not genuine.
+  if [ "$pin_rc" -eq 0 ] && grep -q '^agentteams=' toolchain.lock && [ -z "$(lock_tag agentteams)" ]; then
+    group_fail "--verify-toolchain-pin exited 0 for an untagged agentteams pin, which cannot verify"
   fi
-  log "toolchain-group pins verified"
+  case "$pin_rc" in
+    0) log "toolchain-group pins verified: the S-10 toolchain-group exemption applies"
+       group_note="verified (the S-10 toolchain-group exemption applies)" ;;
+    2) [ "$MODE" = "upstream" ] && group_fail "no .agentteams/toolchain-group.json, but researchteam is a group member (exit 2)"
+       echo "::warning::autosync-gate: no toolchain-group file: no exemption claimed; ordinary S-10 rules apply"
+       log "no toolchain-group file (exit 2): no exemption claimed; the ordinary S-10 rules apply"
+       group_note="**no group file: no toolchain-group exemption claimed.** The ordinary S-10 rules apply at review: each pinned release clears the 14-day cooldown unless another recorded carve-out covers it, and carries a pin row where policy needs one" ;;
+    1) group_fail "a toolchain-group pin or the group file did not verify (exit 1)" ;;
+    *) group_fail "agentteams --verify-toolchain-pin exited ${pin_rc}" ;;
+  esac
 fi
 
 git add -A >/dev/null 2>&1 || true
@@ -330,6 +365,7 @@ if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false";
     echo "- **toolchain.lock:** $(grep -E '^(researchteam|agentteams)=' toolchain.lock | sed 's/=.*@\(.\{7\}\).*/ \1/' | paste -sd, - | sed 's/,/, /g')"
   fi
   [ -n "$lock_note" ] && echo "- **toolchain.lock not updated:** ${lock_note}"
+  [ -n "$group_note" ] && echo "- **toolchain group:** ${group_note}"
   echo
   if [ -n "$substantive" ]; then
     echo "**Substantive changed paths** (regen state-churn — graphs / threat-intel / build-log /"

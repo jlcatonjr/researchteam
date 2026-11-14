@@ -419,12 +419,19 @@ def test_gate_fails_closed_when_agentteams_needs_an_unvetted_dependency(tmp_path
     assert "regen-reached" not in r.stdout
 
 
-# --- the autosync gate's toolchain-group pin check: any non-zero exit fails ----------------------
+# --- the autosync gate's toolchain-group pin check: 0 exempt, 2 ordinary S-10 (derived only), else fail ---
 
-def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True):
+def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True, mode="derived", regen="", lockless=False):
     at_log = tmp_path / "agentteams.log"
     repo, env = _gate_repo(tmp_path, f'case "$*" in *--release-candidate*) echo v1.0.0;; '
                                      f'*--verify-tag*) echo {C};; *) exit 0;; esac\n')
+    keys = repo / ".github" / "agents" / "references" / "authorized-verify-keys"
+    keys.mkdir(parents=True)
+    (keys / "op-2026.pub.pem").write_text("committed key\n")
+    (keys.parent / "security-decisions.log.csv").write_text("id,decision\n")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    subprocess.run(["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@example.invalid",
+                    "commit", "-qm", "base"], check=True)
     if not locked:
         (repo / "toolchain.lock").write_text(f"researchteam={RT}@{A}\nagentteams={AT}@{B}\n")
         git = tmp_path / "bin" / "git"  # unlocked: answer only ls-remote; real git for everything else
@@ -432,46 +439,104 @@ def _gate_group_run(tmp_path, pin_exit, locked=True, has_flag=True):
         git.write_text(f'#!/usr/bin/env bash\n[ "$1" = ls-remote ] && {{ echo "{C}\trefs/heads/main"; exit 0; }}\n'
                        f'exec {real} "$@"\n')
         git.chmod(0o755)
+    if lockless:
+        (repo / "toolchain.lock").unlink()
     help_text = "  --verify-toolchain-pin LOCKFILE" if has_flag else "  --verify-toolchain-group"
     for name, body in (("agentteams", f'[ "$1" = --help ] && {{ echo "{help_text}"; exit 0; }}; echo "$*" >> {at_log}; '
                                       f'case "$*" in *--verify-toolchain-pin*) exit {pin_exit};; esac; exit 0'),
-                       ("researchteam", "exit 0")):
+                       ("researchteam", f"{regen}\nexit 0")):
         stub = tmp_path / "bin" / name
         stub.write_text(f"#!/usr/bin/env bash\n{body}\n")
         stub.chmod(0o755)
     env = dict(env, AGENTTEAMS_ALLOWED_SIGNERS=str(tmp_path / "allowed_signers"))
-    r = _run_gate(repo, env)
+    r = _run_gate(repo, env, "--mode", mode)
     calls = at_log.read_text().splitlines() if at_log.exists() else []
-    return r, [c for c in calls if "--verify-toolchain-pin" in c]
+    body = repo / ".autosync-pr-body.md"
+    return r, [c for c in calls if "--verify-toolchain-pin" in c], body.read_text() if body.exists() else ""
 
 
-def test_gate_runs_the_group_pin_check_and_passes_on_exit_0(tmp_path):
-    r, calls = _gate_group_run(tmp_path, pin_exit=0)
+@pytest.mark.parametrize("mode", ["derived", "upstream"])
+def test_gate_runs_the_group_pin_check_and_passes_on_exit_0(tmp_path, mode):
+    r, calls, body = _gate_group_run(tmp_path, pin_exit=0, mode=mode)
     assert calls == [f"--verify-toolchain-pin toolchain.lock --allowed-signers {tmp_path / 'allowed_signers'}"
                      " --output .github/agents"], calls
-    assert "toolchain-group pins verified" in r.stdout, r.stdout + r.stderr
-    assert "GATE FAIL" not in r.stdout, r.stdout
+    assert r.returncode == 0 and "exemption applies" in r.stdout, r.stdout + r.stderr
+    assert "toolchain group:** verified" in body, body
 
 
-@pytest.mark.parametrize("pin_exit, why", [
-    (1, "refused or did not verify"),
-    (2, "no verifiable .agentteams/toolchain-group.json"),
-    (3, "exited 3"),
-])
-def test_gate_fails_on_any_nonzero_group_pin_exit(tmp_path, pin_exit, why):
-    r, calls = _gate_group_run(tmp_path, pin_exit=pin_exit)
+def test_a_derived_gate_without_a_group_file_claims_no_exemption(tmp_path):
+    r, calls, body = _gate_group_run(tmp_path, pin_exit=2)
+    assert len(calls) == 1 and r.returncode == 0, r.stdout + r.stderr
+    assert "::warning::" in r.stdout and "GATE FAIL" not in r.stdout
+    assert "exemption applies" not in r.stdout
+    assert "no toolchain-group exemption claimed" in body and "14-day cooldown" in body, body
+
+
+def test_the_upstream_gate_fails_without_a_group_file(tmp_path):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=2, mode="upstream")
+    assert r.returncode == 1 and "researchteam is a group member" in r.stdout and "::error::" in r.stdout, r.stdout
+
+
+@pytest.mark.parametrize("mode", ["derived", "upstream"])
+@pytest.mark.parametrize("pin_exit, why", [(1, "did not verify (exit 1)"), (3, "exited 3")])
+def test_gate_fails_on_exit_1_and_any_other_code(tmp_path, mode, pin_exit, why):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=pin_exit, mode=mode)
     assert len(calls) == 1, calls
     assert r.returncode == 1 and why in r.stdout and "::error::" in r.stdout, r.stdout + r.stderr
-    assert "toolchain-group pins verified" not in r.stdout
-
-
-def test_an_unlocked_gate_does_not_run_the_group_pin_check(tmp_path):
-    r, calls = _gate_group_run(tmp_path, pin_exit=2, locked=False)
-    assert calls == [], calls
-    assert "GATE FAIL" not in r.stdout, r.stdout + r.stderr
+    assert "exemption applies" not in r.stdout
 
 
 def test_gate_reports_an_agentteams_without_the_group_pin_check(tmp_path):
-    r, calls = _gate_group_run(tmp_path, pin_exit=0, has_flag=False)
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, has_flag=False)
     assert calls == [], calls
     assert r.returncode == 1 and "has no --verify-toolchain-pin" in r.stdout and "::error::" in r.stdout, r.stdout
+
+
+def test_an_unlocked_gate_still_runs_the_group_pin_check(tmp_path):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=1, locked=False)
+    assert len(calls) == 1 and r.returncode == 1, r.stdout + r.stderr
+
+
+def test_an_exit_0_for_an_untagged_agentteams_pin_is_refused(tmp_path):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, locked=False)
+    assert len(calls) == 1 and r.returncode == 1 and "cannot verify" in r.stdout, r.stdout + r.stderr
+    assert "exemption applies" not in r.stdout
+
+
+def test_a_lockless_derived_gate_claims_no_exemption(tmp_path):
+    r, calls, body = _gate_group_run(tmp_path, pin_exit=1, locked=False, lockless=True)
+    assert calls == [] and "GATE FAIL" not in r.stdout, r.stdout + r.stderr
+    assert "no S-10 exemption claimed" in body, body
+
+
+@pytest.mark.parametrize("regen", [
+    "echo forged > .github/agents/references/authorized-verify-keys/op-2026.pub.pem",
+    "echo planted > .github/agents/references/authorized-verify-keys/attacker.pub.pem",
+    "mkdir -p .agentteams && echo '{}' > .agentteams/toolchain-group.json",
+    "echo row >> .github/agents/references/security-decisions.log.csv",
+    "rm .github/agents/references/authorized-verify-keys/op-2026.pub.pem",
+])
+def test_gate_refuses_a_regen_that_touches_the_group_trust_root(tmp_path, regen):
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, regen=regen)
+    assert r.returncode == 1 and "changed the toolchain-group trust root" in r.stdout, r.stdout + r.stderr
+    assert calls == [], calls  # refused before the check could vouch for a forged root
+
+
+def test_the_trust_root_guard_sees_gitignored_additions(tmp_path):
+    regen = "echo .agentteams/ > .gitignore; mkdir -p .agentteams && echo '{}' > .agentteams/toolchain-group.json"
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, regen=regen)
+    assert r.returncode == 1 and "trust root" in r.stdout, r.stdout + r.stderr
+
+
+def test_gate_refuses_a_regen_that_commits_a_forged_key(tmp_path):
+    regen = ("echo forged > .github/agents/references/authorized-verify-keys/op-2026.pub.pem; "
+             "git -c user.name=x -c user.email=x@example.invalid commit -qam forged")
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, regen=regen)
+    assert r.returncode == 1 and "moved HEAD" in r.stdout and calls == [], r.stdout + r.stderr
+
+
+def test_gate_refuses_trust_root_files_hidden_by_skip_worktree(tmp_path):
+    regen = ("git update-index --skip-worktree .github/agents/references/authorized-verify-keys/op-2026.pub.pem; "
+             "echo forged > .github/agents/references/authorized-verify-keys/op-2026.pub.pem")
+    r, calls, _ = _gate_group_run(tmp_path, pin_exit=0, regen=regen)
+    assert r.returncode == 1 and "skip-worktree" in r.stdout and calls == [], r.stdout + r.stderr
