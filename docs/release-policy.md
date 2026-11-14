@@ -49,12 +49,23 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Every cross-repository pin (`toolchain.lock`, the pip extras) is the **peeled commit of a verified signed
   tag**, never a branch, a branch head or an unverified tag. A `<name>.tag=` line in `toolchain.lock` records
   the tag and release-locks the pin (`docs/agentteams-update-policy.md`, "Release-Locked Repositories").
-- Each pin move gets its own `@security` row naming the tag object and the peeled SHA. For a release of a
-  first-party toolchain group member (agentteams, researchteam, baseAgent, mathAgents; operator rulings T2 and R9,
-  2026-W46), that row records this repository's own `@security` review and the verified signed tag. It needs
-  **no operator-signed decision row per release**: the operator-signed group file
-  (`.agentteams/toolchain-group.json`) authorizes the class once, and `agentteams --verify-toolchain-pin` checks
-  every group pin against it.
+- Each pin move gets its own `@security` row naming the tag object and the peeled SHA, except for the moves
+  below.
+- **Exception: first-party toolchain group members** (operator rulings T2 and R9, 2026-W46, and R16, confirmed
+  by the operator in this repository's session on 2026-11-14). It covers only the repositories listed in
+  `.agentteams/toolchain-group.json`, which today are agentteams, researchteam, baseAgent and mathAgents, and only
+  while that operator-signed file verifies. A pin move to a member's release needs no decision-log row. Instead it
+  needs:
+  - a verified signed tag;
+  - this repository's own `@security` review, recorded in the pin-move PR, naming the tag object and the peeled
+    SHA and recording the S-10 known-vulnerability search;
+  - the latest-stable rule, which still applies.
+
+  The exception ends when the group file stops verifying, when its key is removed from the verify-key store, or
+  on an unretracted HALT on `s10-toolchain-group`. Member moves then need their own rows again.
+  `agentteams --verify-toolchain-pin` checks every group pin against the file. A tracked decision spec in
+  `docs/release/` (for example `pin-agentteams-v1.1.3.decision-spec.json`) is the lasting copy of the review,
+  because a PR body can be edited after the fact.
 - **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
   deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). Two
   carve-outs:
@@ -66,7 +77,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
     entry also covers agentteams. Such a release-key tag may be adopted the day it is published once it passes the
     signature and remote-object checks (`agentteams --verify-toolchain-pin`), and its exact `name==version`, and
     any dependency it changes, passes the known-vulnerability search (OSV/GHSA, including MAL-* entries).
-  Every pin move records that search in its row. Third-party packages wait out the cooldown unless the
+  Every pin move records that search in its row or, for a group-member move, in the PR's `@security` review. Third-party packages wait out the cooldown unless the
   remediation carve-out applies.
 - `check_toolchain.py` fails when an extra and the lock disagree. In researchteam itself the upstream autosync
   moves them together (`--write-lock --sync-extras`); a derived repository's `pyproject.toml` is never rewritten.

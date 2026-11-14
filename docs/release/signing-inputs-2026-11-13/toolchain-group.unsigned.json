@@ -1,0 +1,76 @@
+{
+  "version": 2,
+  "scope": "s10-cooldown",
+  "group": [
+    "jlcatonjr/agentteams",
+    "jlcatonjr/researchteam",
+    "jlcatonjr/baseagent",
+    "jlcatonjr/mathagents"
+  ],
+  "workspaces": [
+    {
+      "repo": "repo:jlcatonjr/researchteam",
+      "team": "team:researchteam"
+    },
+    {
+      "repo": "repo:jlcatonjr/baseagent",
+      "team": "team:baseagent"
+    },
+    {
+      "repo": "repo:jlcatonjr/mathagents",
+      "team": "team:mathagents"
+    },
+    {
+      "repo": "repo:jlcatonjr/infrastructuremanagement",
+      "team": "team:infrastructure-management"
+    },
+    {
+      "repo": "repo:jlcatonjr/batallion",
+      "team": "team:metalsresearchteam"
+    },
+    {
+      "repo": "repo:jlcatonjr/masterteacher",
+      "team": "team:masterteacher"
+    },
+    {
+      "repo": "repo:jlcatonjr/gameairesearch",
+      "team": "team:gameairesearch"
+    },
+    {
+      "repo": "repo:jlcatonjr/legalresearch",
+      "team": "team:legalresearch"
+    },
+    {
+      "repo": "repo:jlcatonjr/security",
+      "team": "team:security-research"
+    },
+    {
+      "repo": "repo:jlcatonjr/biographies",
+      "team": "team:biographies"
+    },
+    {
+      "repo": "repo:jlcatonjr/socialsciencehumanities",
+      "team": "team:socialsciencehumanities"
+    },
+    {
+      "repo": "repo:jlcatonjr/copilotagentdocumentation",
+      "team": "team:copilotagentdocumentation"
+    },
+    {
+      "repo": "repo:jlcatonjr/lingofriend",
+      "team": "team:lingofriend"
+    },
+    {
+      "repo": "repo:jlcatonjr/musicmaker",
+      "team": "team:musicmaker"
+    },
+    {
+      "repo": "repo:jlcatonjr/agent-security",
+      "team": "team:agent-security"
+    }
+  ],
+  "purpose": "agentteams-toolchain-group-v1",
+  "sequence": 1,
+  "key_id": "op-2026",
+  "derives_from": "s10-first-party-releases-2026-11"
+}

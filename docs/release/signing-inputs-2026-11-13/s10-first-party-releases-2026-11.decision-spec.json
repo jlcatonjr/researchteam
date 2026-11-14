@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-13",
+  "timestamp": "2026-11-13",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "s10-first-party-releases-2026-11",
+  "verdict": "PASS",
+  "scope": "s10-first-party-releases-2026-11",
+  "conditions": "Operator rulings 2026-11-13: releases of jlcatonjr/agentteams, jlcatonjr/researchteam, jlcatonjr/baseAgent and jlcatonjr/mathAgents form the first-party toolchain group, exempt from the S-10 14-day cooldown in the workspaces the signed group file lists (R2, R5, R8, R9); shipped as an operator-signed, non-expiring group file (T1-T3, no sunset); the vulnerability search, the S-9 signed-tag check and the latest-stable rule still apply",
+  "conditions_verified": "Operator confirmed R9 (one fleet-wide toolchain group: agentteams, researchteam, baseAgent, mathAgents; no sunset) and R12 (start researchteam v1.1.4) in researchteam's session on 2026-11-13; R2, R5, R8 and T1-T3 are confirmed by this signature. agentteams v1.1.3: tag object 1f1ffe6b845a2f9a4c790b5455a17e553ee04f50, peeled cbd41a74f3e8bedd516c3a32581be47eb7d6152b (= agentteams origin/release/1.1; verified by scripts/check_toolchain.py --verify-tag agentteams v1.1.3 in researchteam's session), SSH signature verified against release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM. OSV/GHSA (including MAL-*) for agentteams==1.1.3 and its changed dependency cryptography==50.0.2: none (2026-11-13); pyproject v1.1.1 -> v1.1.3 changes only the version line and that pin. The group file validates at v1.1.3 (agentteams.cli.toolchain_group.validate(doc, signed=False) at v1.1.3 cbd41a74: OK; workspace_repo() = jlcatonjr/researchteam; the pair is listed). Workspace pair repo:jlcatonjr/researchteam / team:researchteam: origin git@github.com:jlcatonjr/researchteam.git; brief.json has no team_id, and _slugify('ResearchTeam').strip('-') = researchteam.",
+  "evidence": "Unsigned group file sha256 3b4a6925e30a8ec700f5df3de15895e20d6c24e0e15493208068101472008955 (IM fleet/runs/2026-11-13-toolchain-group/toolchain-group.unsigned.json); agentteams v1.1.3 tag 1f1ffe6b845a2f9a4c790b5455a17e553ee04f50 -> cbd41a74f3e8bedd516c3a32581be47eb7d6152b; plan tmp/by-week/2026-W46/release-prep-v1.1.4.plan.md; researchteam branch release-prep/v1.1.4.",
+  "derives_from": "",
+  "effect_grants": "",
+  "effect_targets": "",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

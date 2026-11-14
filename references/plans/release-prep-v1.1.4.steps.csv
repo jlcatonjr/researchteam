@@ -1,0 +1,15 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,research-analyst,S-10 re-vet of the nine constraint packages (PyPI dates + OSV),constraints-2026-10-16.txt; PyPI JSON; OSV API,s10-dependency-vetting-2026-11-13.md; constraints-2026-11-13.txt,done,"2026-11-13; 3 adopt (rpds-py 2026.9.1, cryptography 50.0.2, pycparser 3.12), 6 keep; OSV none for all",
+2,primary-producer,Mirror new set into gate AGENTTEAMS_DEPS + bootstrap SIGNING_CONSTRAINTS + tests,step 1 outputs,scripts/agentteams_autosync_gate.sh; scripts/bootstrap_toolchain.sh; tests/test_toolchain.py,done,"gate, bootstrap, test_toolchain.py, test_release_lock.py",1
+3,technical-validator,Scratch-venv --only-binary --no-deps install + pip check,constraints-2026-11-13.txt,log,done,clean on 3.12/3.13/3.14 (+agentteams 1.1.2 --no-deps); 3.11 not local. BLOCKER: agentteams[signing] pins cryptography==50.0.0 -> ResolutionImpossible; asked agentteams-2d (via IM-40) to raise in v1.1.3,2
+4,primary-producer,Update check_toolchain.py lock-format example,scripts/check_toolchain.py,scripts/check_toolchain.py,done,v1.0.0 -> v1.1.3,
+5,primary-producer,Reword release-policy pin-move line for T2,docs/release-policy.md,docs/release-policy.md,done,T2/R9 wording; no new policy beyond the rulings,
+6,technical-validator,pytest + bridge validate,repo,results,done,"568 passed, 1 skipped; validate passed",2;4;5
+7,security,Verify agentteams v1.1.3 tag + OSV search,tag objects from IM,verdict,done,tag 1f1ffe6b -> cbd41a74 verified (check_toolchain --verify-tag); OSV agentteams 1.1.3 none,
+8,primary-producer,Move pin in toolchain.lock + extras; pin-agentteams-v1.1.3 spec,step 7,toolchain.lock; pyproject.toml; decision spec,done,7578ff4; spec wording fixed after final @security,7
+9,primary-producer,Wire --verify-toolchain-pin into gate (exit 0 required) + tests,agentteams v1.1.3,gate; workflows; tests,done,5dfe822/dbf7297/c3863d8; --description brief.json required,8
+10,security,Commit operator-signed .agentteams/toolchain-group.json,group file from operator,.agentteams/toolchain-group.json,done,0b94783; operator-signed via the root-owned signing install; sha256 a38d0484 verified at HEAD,9
+11,orchestrator,Regenerate; CHANGELOG 1.1.4,repo,CHANGELOG.md; generated docs,done,1f3da2a; CHANGELOG 1.1.4,10
+12,security,Review full diff,diff,verdict,done,"final PASS-WITH-NOTES; cleared push+PR, not tag/merge",6;11
+13,conflict-auditor,Close-out consistency check,diff,report,done,"7 items; 6 fixed, 1 upstream (template wording)",12
+14,git-operations,Commit; push; open PR (no tag); notify infrastructuremanagement-4d,branch,PR,done,pushed; PR #159 to main (no tag); link sent to infrastructuremanagement-4d and IM-40,13
