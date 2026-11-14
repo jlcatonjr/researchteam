@@ -9,9 +9,10 @@ A patch release on `release/1.1` that pins agentteams **`v1.1.3`** (`cbd41a74`) 
 first-party toolchain group. Derived repositories take it with `--researchteam-tag v1.1.4`.
 
 - **agentteams pin: `v1.1.1` (`2fe79c05`) → `v1.1.3` (`cbd41a74`, tag object `1f1ffe6b`).** `toolchain.lock` and
-  the `update`/`research` extras move together. agentteams 1.1.3 adds the first-party toolchain group
-  (`--verify-toolchain-pin`, `--verify-toolchain-group`, `--sign-toolchain-group`) and its lineage check. Its
-  declared dependencies differ from 1.1.1 only in the `signing` extra: `cryptography==50.0.0` → `50.0.2`.
+  the `update`/`research` extras move together. agentteams 1.1.2 introduced the first-party toolchain group
+  (`--verify-toolchain-pin`, `--verify-toolchain-group`, `--sign-toolchain-group`), and 1.1.3 adds its lineage
+  check. researchteam skips 1.1.2. 1.1.3's declared dependencies differ from 1.1.1 only in the `signing` extra:
+  `cryptography==50.0.0` → `50.0.2`.
 - **First-party toolchain group (operator rulings R9, T1-T3).** `.agentteams/toolchain-group.json` is the fleet's
   operator-signed group file: sequence 1, key `op-2026`, sha256 `a38d0484…a80a`. It covers agentteams, researchteam,
   baseAgent and mathAgents across 15 workspaces. It derives from the new root row `s10-first-party-releases-2026-11`

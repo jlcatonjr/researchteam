@@ -30,8 +30,12 @@ confirmed none was intended.
 **Depends on agentteams v1.1.3.** agentteams v1.1.2 (`bbf5920f`) declares `signing = ["cryptography==50.0.0"]`.
 Under this file, `pip install -c constraints-2026-11-13.txt "agentteams[signing] @ git+…@bbf5920f"` fails with
 `ResolutionImpossible` (reproduced on Python 3.12). The autosync gate installs `--no-deps`, and `pip check` does
-not evaluate extras, so the gate alone would not catch this. agentteams has been asked to raise the pin to 50.0.2
-in v1.1.3. This set is adopted only together with that pin move.
+not evaluate extras, so the gate alone would not catch this. This set is adopted only together with that pin move.
+
+**Resolved by agentteams v1.1.3** (tag object `1f1ffe6b`, peeled `cbd41a74`; verified 2026-11-13). It declares
+`signing = ["cryptography==50.0.2"]`, its only dependency change from v1.1.1. `pip install -c
+constraints-2026-11-13.txt "agentteams[signing] @ git+…@cbd41a74"` then `pip check` is clean on CPython 3.12 and
+resolves exactly this set. OSV: agentteams 1.1.3 none.
 
 **Install check (2026-11-13):** `pip install --only-binary=:all: --no-deps` of this set, then `pip check`, is clean
 on CPython 3.12, 3.13 and 3.14 (macOS arm64), and still clean with agentteams 1.1.2 added `--no-deps`. CPython
