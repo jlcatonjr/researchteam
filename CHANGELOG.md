@@ -3,6 +3,13 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## Unreleased
+
+- **Build requirements re-vetted (S-10, 2026-11-14).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
+  `2.5.0` → `2.6.0`, both latest, past the cooldown and OSV-clean. setuptools-scm `10.3.4` and packaging
+  `26.3` stay. This ends the in-cooldown setuptools 84.1.0 exception of 2026-10-24
+  (`docs/release/build-requirements-2026-11-14.md`).
+
 ## 1.1.4 (tag `v1.1.4`, on `release/1.1`)
 
 A patch release on `release/1.1` that pins agentteams **`v1.1.3`** (`cbd41a74`) and adopts the operator-signed
