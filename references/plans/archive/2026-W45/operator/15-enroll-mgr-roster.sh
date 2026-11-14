@@ -50,7 +50,7 @@ SURFACES=(.github/agents .claude/agents .codex/agents .goose/recipes)
 RT="$WT/.venv/bin/researchteam"                       # pinned toolchain (scripts/bootstrap_toolchain.sh)
 SIGNER="<signer>"     # root-owned (2026-W42/01b)
 KEYFILE="<decision-key-file>"
-AUTHOR="James Caton <jamescaton@users.noreply.github.com>"
+AUTHOR="the operator <<noreply>>"
 [[ "$HEAD_REVIEWED" =~ ^[0-9a-f]{40}$ ]] || die "the head must be a full 40-hex SHA"
 [[ -x "$SIGNER" ]] || die "no root-owned signer at $SIGNER (2026-W42/01b)"
 [[ "$(/usr/bin/stat -f %Su "$SIGNER")" == root ]] || die "$SIGNER is not root-owned"

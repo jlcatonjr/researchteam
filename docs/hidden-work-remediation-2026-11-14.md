@@ -129,6 +129,10 @@ The operator decided each category in this session. The plan is `references/plan
   - The research plans and drafts that were already tracked under `tmp/` and public since the first commit,
     some of them on medical topics.
   - `tmp/frozen-fences.state.json` stays where it is, as live tool state.
-- **Originals kept.** Deleting the unscrubbed `tmp/` originals of the published files needs the operator's
-  confirmation for each deletion (S-4), and they are the only copies taken before scrubbing. They stay in ignored
-  `tmp/`, which is local only.
+- **Originals kept.** Deleting the unscrubbed `tmp/` originals of the published files would need the operator's
+  S-4 confirmation of the listed paths (`references/plans/archive/originals-manifest-2026-11-14.csv`). They are
+  kept by default: the tracked scrubbed copy is the record (PS-1), and the originals are the only copies taken
+  before scrubbing. See `references/plans/open-p1-tmp-originals.plan.md`.
+- **Update: the 27 notes about other repositories.** infrastructureManagement adopted them in its own session,
+  as commit `60f872e`. researchteam's originals match them (`references/plans/open-p4/compare_im_copies.py`)
+  and are kept.

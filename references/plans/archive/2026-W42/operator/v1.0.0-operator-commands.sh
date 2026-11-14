@@ -14,4 +14,4 @@ shasum -a 256 ~/githubrepositories/researchteam/tmp/by-week/2026-W42/operator/07
 # 2. (session) commits the row, CI goes green, you approve the merge of #89; the session reports the merge commit.
 
 # 3. Sign, verify, push and publish v1.0.0 at that merge commit (replace <MERGE_SHA> with the 40-hex the session gives):
-TAGGER_NAME="James Caton" TAGGER_EMAIL=jamescaton@users.noreply.github.com /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W42/operator/08-sign-release.sh <MERGE_SHA> "<release-key-file>"
+TAGGER_NAME="the operator" TAGGER_EMAIL=<noreply> /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W42/operator/08-sign-release.sh <MERGE_SHA> "<release-key-file>"
