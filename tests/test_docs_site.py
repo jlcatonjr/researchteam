@@ -40,7 +40,7 @@ def test_every_module_has_an_api_page_in_the_nav():
     """researchteam/_update_cmd.py -> api-reference/update.md, _agentteams_provenance -> agentteams-provenance."""
     pages = {f for f in NAV if f.startswith("api-reference/")}
     for mod in sorted((ROOT / "researchteam").glob("*.py")):
-        if mod.name == "__init__.py":
+        if mod.name in ("__init__.py", "__main__.py"):  # package dunders: no public API of their own
             continue
         slug = mod.stem.lstrip("_").removesuffix("_cmd").replace("_", "-")
         assert f"api-reference/{slug}.md" in pages, f"{mod.name} has no API reference page in mkdocs.yml"
@@ -103,7 +103,7 @@ def test_every_public_name_is_on_its_module_page():
     """A renamed or removed function, class or constant leaves its page stale; a new one goes undocumented."""
     missing = []
     for mod in sorted((ROOT / "researchteam").glob("*.py")):
-        if mod.name == "__init__.py":
+        if mod.name in ("__init__.py", "__main__.py"):  # package dunders: no public API of their own
             continue
         tree = ast.parse(mod.read_text(encoding="utf-8"))
         names = [n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))]

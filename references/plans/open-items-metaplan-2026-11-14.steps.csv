@@ -1,9 +1,9 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-1,orchestrator,Phase 1 tracks T1-T5 in parallel (no deletions/PRs/foreign writes),target plans,outputs,partial,T1-T4 done; T5 running,
+1,orchestrator,Phase 1 tracks T1-T5 in parallel (no deletions/PRs/foreign writes),target plans,outputs,done,T1-T5 done,
 2,adversarial,Rule 9 pass on remaining steps before Phase 3,Phase 1 outputs,verdict,done,with conflict-auditor; security/adversarial/conflict-auditor; fixes applied,1
 3,orchestrator,Phase 2 operator ask only if a deletion is proposed; keep is default,manifest,confirmation,skipped,no ask needed,2
 4,cleanup,Phase 3 deletions of confirmed paths after @security + @cleanup,step 3,manifest verdicts,skipped,nothing deleted,3
-5,primary-producer,P5 fix PR or upstream message,T5,PR or message,pending,independent of 2-4,1
+5,primary-producer,P5 fix PR or upstream message,T5,PR or message,done,independent of 2-4; P5 PR (python -m fix + evidence),1
 6,git-operations,Phase 4 PR(s); merge under PS-2; check main CI,branch,merged PRs,pending,,4;5
 7,work-summarizer,2026-11-14 summary,plans; git,workSummaries/daily/2026-11-14.md,pending,,6
 8,conflict-auditor,Close-out audit,all,report,pending,,7
