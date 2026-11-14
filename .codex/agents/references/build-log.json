@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.1",
+  "agentteams_version": "1.1.3",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "2fe79c055045aadf8cff733bb2c934d21f8da3fe",
+    "commit": "cbd41a74f3e8bedd516c3a32581be47eb7d6152b",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-13T14:30:09.810931+00:00",
+  "generated_at": "2026-11-14T05:07:39.700171+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -36,7 +36,7 @@
   "template_hashes": {
     "universal/orchestrator.template.md": "7e350d6cb17aac72",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "b738b65b9a3edecd",
+    "universal/security.template.md": "de2479d7357a9450",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -78,7 +78,7 @@
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "universal/parallelization.reference.template.md": "12111b7bb9a9aa10",
     "universal/sandbox-handoff.reference.template.md": "fe27b3ca2d7de60d",
-    "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
+    "universal/instruction-authority.reference.template.md": "795f8448cc6435d3",
     "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
@@ -88,7 +88,7 @@
     "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
-    "copilot-instructions.template.md": "d3fcc564166c5285",
+    "copilot-instructions.template.md": "aec170fecb546317",
     "builder/team-builder-copilot-vscode.template.md": "799171f781e58676",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
@@ -531,12 +531,13 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "c84258a364835f68",
+  "manifest_fingerprint": "4f3db69106cc76c1",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "4a703b3b2f10626c",
-    "references/security-vulnerability-watch.json": "7e5a2b1a9f50afa6",
-    "security.toml": "f0898669701ef16b",
+    "references/security-vulnerability-watch.reference.md": "677f7bf49987f3a3",
+    "references/security-vulnerability-watch.json": "55fef2f7708c09ce",
+    "references/instruction-authority.reference.md": "a2ce2880524eeaac",
+    "security.toml": "314281b820db8052",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "704b36d40ec9c116",
     "navigator.toml": "3519e944e8f26d47",
@@ -567,7 +568,6 @@
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
     "references/parallelization.reference.md": "fbd84bddbf5f6c13",
-    "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/retrospective-remediation.reference.md": "a0945ac134972385",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/skill-generation.reference.md": "f844fd262e0967e3",
@@ -578,7 +578,7 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "e86194389931ace0",
+    "../../AGENTS.md": "5fa66bcf805fdb44",
     "team-builder.toml": "d3dd092c84096ecc",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
@@ -738,11 +738,11 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "f41fc4d9c50aa84edb6db8e6d323d39192d50b765a139e61da6992d375b19580",
+      "threat_intelligence": "057f0d1975d032d245b6e0b511ac9f796f5e85bec43e28727979e61838dd1f1c",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
-      "security_rules_invariant": "feaf0b7101cce4e4e59a24faff9151641d6abe67e0cef68f951fdde2f650d2df",
+      "security_rules_invariant": "14ded95fdde2844023000dfd95dd44a2d600ff8c58f0c884daf2ce3acf6ddfbc",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "codex_translation": "fdc79aa0df18d788e75a8356d98df31622e0f4eb5788b9d0e3507e5611d8c413"
     },
@@ -797,6 +797,7 @@
       "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
       "constitutional_rules_baseline": "e67ecd5fe0dbf22020a2031cc1c7f036db3f627ab62da331f239641f5048a341",
       "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
+      "toolchain_group_rule": "4555e58798afd30feeab9190a62dd54fec914d1a2d1c8f8ae93a37464235c95d",
       "codex_write_policy": "903bf63811c39668446020c28b86f4e7b145e5530d2d159f1f307ae2f3a5d11b"
     }
   }

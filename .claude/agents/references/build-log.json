@@ -1,13 +1,13 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.1.1",
+  "agentteams_version": "1.1.3",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "2fe79c055045aadf8cff733bb2c934d21f8da3fe",
+    "commit": "cbd41a74f3e8bedd516c3a32581be47eb7d6152b",
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-13T14:27:59.142133+00:00",
+  "generated_at": "2026-11-14T05:05:11.498185+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -36,7 +36,7 @@
   "template_hashes": {
     "universal/orchestrator.template.md": "7e350d6cb17aac72",
     "universal/navigator.template.md": "3d28148430bddfdf",
-    "universal/security.template.md": "b738b65b9a3edecd",
+    "universal/security.template.md": "de2479d7357a9450",
     "universal/code-hygiene.template.md": "8c53882027a0aa40",
     "universal/adversarial.template.md": "0c7b7cb909b089a0",
     "universal/conflict-auditor.template.md": "a6199323e4d1add3",
@@ -78,7 +78,7 @@
     "universal/work-summary-backfill.reference.template.md": "5730bac043dc2874",
     "universal/parallelization.reference.template.md": "12111b7bb9a9aa10",
     "universal/sandbox-handoff.reference.template.md": "fe27b3ca2d7de60d",
-    "universal/instruction-authority.reference.template.md": "a73a355a8da0c15f",
+    "universal/instruction-authority.reference.template.md": "795f8448cc6435d3",
     "universal/orchestrator-spawn-authority.reference.template.md": "221ebb904e4f4e48",
     "universal/redteam-methodology.reference.template.md": "a0443337a9796294",
     "universal/retrospective-remediation.reference.template.md": "1965ac5f52cf72f0",
@@ -88,7 +88,7 @@
     "universal/retrieval-integration.reference.template.md": "71cbf701c97a6e22",
     "universal/retrieval-trigger-contract.reference.template.md": "b5934b1f48552945",
     "workstream-expert.template.md": "19e099ff5eaf447b",
-    "copilot-instructions.template.md": "d3fcc564166c5285",
+    "copilot-instructions.template.md": "aec170fecb546317",
     "builder/team-builder-claude.template.md": "ad3e1bfad3e83b1e",
     "domain/content-enricher.template.md": "25b7c467ae7a8978"
   },
@@ -531,12 +531,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "0d3b74f19f5c3784",
+  "manifest_fingerprint": "e2e29546c8570060",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "c3e321b2394ac4f7",
-    "references/security-vulnerability-watch.json": "96d20025cc5d05f2",
-    "security.md": "a0efa82bae98420e",
+    "references/security-vulnerability-watch.reference.md": "e60a2f65421355bb",
+    "references/security-vulnerability-watch.json": "ca73f3a11c3d04e9",
+    "references/instruction-authority.reference.md": "a2ce2880524eeaac",
+    "../CLAUDE.md": "f678e0eee15faf74",
+    "security.md": "686c8faaac7ea54c",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
     "references/framework-watch.reference.md": "21a796552c902998",
@@ -544,48 +546,46 @@
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
     "references/retrospective-remediation.reference.md": "a2d6dd32503117dd",
     "references/skill-generation.reference.md": "7fde17640c5bc1eb",
-    "../CLAUDE.md": "a71478ec4a029f26",
     "SETUP-REQUIRED.md": "ec5cc6c80bcbe2ea",
     "references/runtime-handoffs.json": "1037771f1e7155d3",
-    "orchestrator.md": "bd3a69fe92a3a61c",
-    "navigator.md": "6dc7292dcd345c62",
-    "code-hygiene.md": "a68e2d09066eb158",
-    "adversarial.md": "f776459b9a0df2b0",
-    "conflict-auditor.md": "daf67896a205a589",
-    "conflict-resolution.md": "150a916c9579b08e",
-    "cleanup.md": "2951e558c9eff9d8",
-    "agent-updater.md": "204a91c77a70374e",
-    "agent-refactor.md": "34d2e83a96b9c343",
-    "repo-liaison.md": "ea9e9f6746bf7449",
-    "git-operations.md": "64908e70f6d913a9",
-    "work-summarizer.md": "e818101c78123786",
-    "primary-producer.md": "73f30e956688fe45",
-    "quality-auditor.md": "d559680e6898d7a2",
-    "cohesion-repairer.md": "ed9fd173360f0451",
-    "technical-validator.md": "0291ff8436853bd2",
-    "format-converter.md": "34853e19e02ad4ac",
-    "reference-manager.md": "df2c57ef48f2d951",
-    "output-compiler.md": "b93eae7fb0e09abb",
-    "visual-designer.md": "91bbb1e7f15d8b5a",
-    "retrieval-integrator.md": "27de2f6882ba95df",
-    "research-analyst.md": "8b773dd643582a43",
-    "tool-doc-researcher.md": "46021a907baad7fd",
+    "orchestrator.md": "6eca2da3f58e6b6a",
+    "navigator.md": "723c418bb092c99f",
+    "code-hygiene.md": "767f6d8084896d21",
+    "adversarial.md": "cbc30e263c2eef91",
+    "conflict-auditor.md": "1c260c663434c19b",
+    "conflict-resolution.md": "c656239e991a1777",
+    "cleanup.md": "48921de80fb719d3",
+    "agent-updater.md": "3ef90db45a6a5435",
+    "agent-refactor.md": "456184da3abe64f8",
+    "repo-liaison.md": "2b1eddc5463bc32f",
+    "git-operations.md": "b7bfc4e904e783c3",
+    "work-summarizer.md": "7f6ac1b7f2a6e96d",
+    "primary-producer.md": "72d4694fd5529984",
+    "quality-auditor.md": "cfa06a128e5343f7",
+    "cohesion-repairer.md": "766b62abbb83fb31",
+    "technical-validator.md": "132ddca49c818b65",
+    "format-converter.md": "a2fc620973e83c83",
+    "reference-manager.md": "4418c32828f43560",
+    "output-compiler.md": "f5c1fd89d81f324e",
+    "visual-designer.md": "524df903a7eef040",
+    "retrieval-integrator.md": "8ee420e354b28888",
+    "research-analyst.md": "d72e2448a7f8316f",
+    "tool-doc-researcher.md": "9962b71664598b3d",
     "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
     "references/parallelization.reference.md": "fbd84bddbf5f6c13",
-    "references/instruction-authority.reference.md": "685d5590c135102b",
     "references/cli-tool-discovery.reference.md": "5a5b553acd907c93",
     "references/external-retrieval-quality-gate.reference.md": "b235cfffb74fd0f3",
     "references/retrieval-integration.reference.md": "64287ba420232229",
     "references/retrieval-trigger-contract.reference.md": "5d7c73c524a48061",
-    "topic-scoping-expert.md": "ab4ff3d24e41a9ab",
-    "literature-review-expert.md": "6078fe1565d55834",
-    "main-analysis-expert.md": "33991ae5d1b8c38c",
-    "conclusion-expert.md": "da468961a1e77c6a",
-    "team-builder.md": "f0b988b6f1e45233",
-    "content-enricher.md": "726ca63431fbea48",
+    "topic-scoping-expert.md": "5b2466b5b32ccbc0",
+    "literature-review-expert.md": "9fe339212c8e836a",
+    "main-analysis-expert.md": "b16293f54ccabc8b",
+    "conclusion-expert.md": "501e600b3dd13239",
+    "team-builder.md": "4cce66ad5a631c75",
+    "content-enricher.md": "b5a3e83e3b2c946a",
     "references/authorized-verify-keys/README.md": "badf32b421079acf",
     "references/pipeline-graph.md": "8ceca1ec14af245a"
   },
@@ -593,116 +593,150 @@
     "security.md": {
       "name": "Security \u2014 ResearchTeam",
       "description": "\"Top-priority security sentinel: reviews actions for credential exposure, destructive operations, sensitive content leakage, and reference integrity before any sensitive action proceeds\"",
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "orchestrator.md": {
       "name": "Orchestrator \u2014 ResearchTeam",
       "description": "\"Coordinates all agent operations for ResearchTeam: routes work to domain agents, enforces constitutional rules, and closes every multi-file session with a consistency check.\"",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task"
+      "tools": "Read, Edit, Write, Grep, Glob, Bash, TodoWrite, Task",
+      "model": "claude-fable-5-2"
     },
     "navigator.md": {
       "name": "Navigator \u2014 ResearchTeam",
       "description": "\"Repository structure navigation, project map maintenance, file location lookups, and dependency queries for ResearchTeam\"",
-      "tools": "Read, Grep, Glob, Bash"
+      "tools": "Read, Grep, Glob, Bash",
+      "model": "opus"
     },
     "code-hygiene.md": {
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "adversarial.md": {
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "conflict-auditor.md": {
       "name": "Conflict Auditor \u2014 ResearchTeam",
       "description": "\"Detects logical conflicts across deliverables, agent documentation, reference files, and source material in ResearchTeam\"",
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "conflict-resolution.md": {
       "name": "Conflict Resolution \u2014 ResearchTeam",
       "description": "\"Makes ACCEPT/REJECT/REVISE decisions on conflicts flagged by the conflict auditor in ResearchTeam\"",
-      "tools": "Edit, Write, Grep, Glob, Read"
+      "tools": "Edit, Write, Grep, Glob, Read",
+      "model": "opus"
     },
     "cleanup.md": {
-      "tools": "Edit, Write, Grep, Glob, Bash"
+      "tools": "Edit, Write, Grep, Glob, Bash",
+      "model": "opus"
     },
     "agent-updater.md": {
-      "tools": "Edit, Write, Grep, Glob, Bash, Task"
+      "tools": "Edit, Write, Grep, Glob, Bash, Task",
+      "model": "opus"
     },
     "agent-refactor.md": {
-      "tools": "Edit, Write, Grep, Glob, Task"
+      "tools": "Edit, Write, Grep, Glob, Task",
+      "model": "opus"
     },
     "repo-liaison.md": {
       "name": "Repo Liaison \u2014 ResearchTeam",
       "description": "\"Tracks agent documentation in repositories adjacent to ResearchTeam, communicates cross-repository impacts, maintains the adjacent-repos registry, and coordinates between orchestrators when this project's activity affects neighboring agent infrastructures.\"",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash, Task"
+      "tools": "Read, Edit, Write, Grep, Glob, Bash, Task",
+      "model": "opus"
     },
     "git-operations.md": {
-      "tools": "Read, Bash, Grep, Glob"
+      "tools": "Read, Bash, Grep, Glob",
+      "model": "opus"
     },
     "work-summarizer.md": {
-      "tools": "Read, Grep, Glob, Bash, Edit, Write, Task"
+      "tools": "Read, Grep, Glob, Bash, Edit, Write, Task",
+      "model": "opus"
     },
     "primary-producer.md": {
-      "tools": "Read, Edit, Write, Grep, Glob"
+      "tools": "Read, Edit, Write, Grep, Glob",
+      "model": "opus"
     },
     "quality-auditor.md": {
       "name": "Quality Auditor \u2014 ResearchTeam",
       "description": "\"Read-only audit agent that inspects deliverables in ResearchTeam for structural defects, logical inconsistencies, and LLM-generated prose patterns; does not rewrite\"",
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "cohesion-repairer.md": {
-      "tools": "Read, Edit, Write"
+      "tools": "Read, Edit, Write",
+      "model": "opus"
     },
     "technical-validator.md": {
       "name": "Technical Validator \u2014 ResearchTeam",
       "description": "\"Read-only audit agent that verifies technical accuracy in ResearchTeam \u2014 code examples, file excerpts, API references, and tool invocations match what exists on disk\"",
-      "tools": "Read, Grep, Glob"
+      "tools": "Read, Grep, Glob",
+      "model": "opus"
     },
     "format-converter.md": {
-      "tools": "Read, Edit, Write, Bash"
+      "tools": "Read, Edit, Write, Bash",
+      "model": "opus"
+    },
+    "reference-manager.md": {
+      "model": "opus"
     },
     "output-compiler.md": {
-      "tools": "Read, Edit, Write, Bash"
+      "tools": "Read, Edit, Write, Bash",
+      "model": "opus"
     },
     "visual-designer.md": {
-      "tools": "Read, Edit, Write, Bash, Grep, Glob"
+      "tools": "Read, Edit, Write, Bash, Grep, Glob",
+      "model": "opus"
     },
     "retrieval-integrator.md": {
       "name": "Retrieval Integrator \u2014 ResearchTeam",
       "description": "\"Validates retrieval integration contracts in ResearchTeam \u2014 query entrypoints, maintenance entrypoints, trigger channels, and freshness obligations\"",
-      "tools": "Read, Grep, Glob, Bash"
+      "tools": "Read, Grep, Glob, Bash",
+      "model": "opus"
     },
     "research-analyst.md": {
       "name": "Research Analyst \u2014 ResearchTeam",
       "description": "\"Orchestrates the optional agentteams[research] runtime library in ResearchTeam \u2014 web search, reputable-source rating, and dual-lens claim verification\"",
-      "tools": "Read, Edit, Write, Grep, Glob, Bash"
+      "tools": "Read, Edit, Write, Grep, Glob, Bash",
+      "model": "opus"
     },
     "tool-doc-researcher.md": {
       "name": "Tool Documentation Researcher \u2014 ResearchTeam",
       "description": "\"Locates and verifies official documentation, API surfaces, and usage patterns for tools in ResearchTeam that are missing metadata\"",
-      "tools": "Read, Grep, Glob, Bash(python -m agentteams.research:*)"
+      "tools": "Read, Grep, Glob, Bash(python -m agentteams.research:*)",
+      "model": "opus"
     },
     "topic-scoping-expert.md": {
       "name": "Topic Scoping and Research Plan Expert \u2014 ResearchTeam",
       "description": "\"Component expert for Topic Scoping and Research Plan in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
+      "tools": "Read, Grep, Glob, Task",
+      "model": "opus"
     },
     "literature-review-expert.md": {
       "name": "Literature Review Expert \u2014 ResearchTeam",
       "description": "\"Component expert for Literature Review in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
+      "tools": "Read, Grep, Glob, Task",
+      "model": "opus"
     },
     "main-analysis-expert.md": {
       "name": "Main Analysis Expert \u2014 ResearchTeam",
       "description": "\"Component expert for Main Analysis in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
+      "tools": "Read, Grep, Glob, Task",
+      "model": "opus"
     },
     "conclusion-expert.md": {
       "name": "Conclusion and Executive Summary Expert \u2014 ResearchTeam",
       "description": "\"Component expert for Conclusion and Executive Summary in ResearchTeam \u2014 prepares Component Briefs, reviews drafts against brief checklist, approves deliverables\"",
-      "tools": "Read, Grep, Glob, Task"
+      "tools": "Read, Grep, Glob, Task",
+      "model": "opus"
+    },
+    "team-builder.md": {
+      "model": "opus"
     },
     "content-enricher.md": {
-      "tools": "Read, Edit, Write, Grep, Glob"
+      "tools": "Read, Edit, Write, Grep, Glob",
+      "model": "opus"
     }
   },
   "front_matter_baseline_version": 2,
@@ -715,7 +749,8 @@
       "tone_and_style": "d0b42a0c3d2c045dbbe4e980eb42023b1b31915d93e219545a8f78de1dcece24",
       "authority_hierarchy": "5ca16ab8402b9373f111ec96d2e4eb4324ea82c36aa4b5fafeb806921ed3aa01",
       "constitutional_core": "98565878445aea43e27456f8cb1384afc511b17016cada4de5b28fb756937289",
-      "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb"
+      "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
+      "toolchain_group_rule": "4555e58798afd30feeab9190a62dd54fec914d1a2d1c8f8ae93a37464235c95d"
     },
     ".claude/agents/SETUP-REQUIRED.md": {
       "content": "ec5cc6c80bcbe2ea370870910cdcd7b39130bdba6facdd9300603643368462c9"
@@ -768,7 +803,7 @@
       "content": "35f50ff830f699d687119e22f4088d6c8956a7520e58234da59df9d9aedc0d31"
     },
     ".claude/agents/interpretation-advisor.md": {
-      "*": "dd28efb6c35bdadeee2cf861422486a4e5cd5cc0fa33d55bf0896ee6c5699a7d"
+      "*": "d773b1932de923fc8c8fd3b64ee3baa602d843d41c6117787843076d99f8fe6e"
     },
     ".claude/agents/literature-review-expert.md": {
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
@@ -835,8 +870,8 @@
     ".claude/agents/security.md": {
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
-      "security_rules_invariant": "0cc7bb3dd50d8fef4c1e62125a68224265598d634248ea7987e9abc1d57862e6",
-      "threat_intelligence": "aaf2a63e590f545602534fc79a1b3ed812ccc5d2409f442492c0e57c71d5da37",
+      "security_rules_invariant": "c91aae66fc4c166bc858a8a66d5b8faa087372249d47d911db57fc8f6c284e69",
+      "threat_intelligence": "88ab49d8d3c071b30b70a73011c7c23abaa94721f1e99a5bdd1df30e0452e429",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {
@@ -861,7 +896,7 @@
       "external_retrieval_quality_gate": "86ea12930fbd72607c3f26ded370da4ff1ec1b164c379d948f7d64025adf6cdd"
     },
     ".claude/agents/tool-pandoc.md": {
-      "*": "399b644c994aeefc47e26cd7b796df6669281ed6e2e0b0dfc8cdf807a9ebd4bc"
+      "*": "efbf1d786bb6433752b6f7fc897e3d19ac0da93f528e3fe4133f3203d0894ad5"
     },
     ".claude/agents/topic-scoping-expert.md": {
       "invariant_core": "22865343d5410a5b9f6bf746260ff712d050e3ef8c1427a60abd7f94bc5ec18e",
@@ -875,7 +910,7 @@
       "content": "d7983f4b4cafbdf7d0548b0885134bb353de53feffa95e79d7cad0c9d9994d07"
     },
     ".claude/agents/workstream-expert.md": {
-      "*": "0acb3dc51743bad4a118ac5a6dc543364f576097f539dea0ab017d1c454aad11"
+      "*": "6c1c38311a03e3a0316418eb729babcd985a0580d35f5e3c30ff65957e12168b"
     }
   }
 }

@@ -3,6 +3,44 @@
 researchteam follows SemVer. The version comes from signed git release tags (setuptools-scm): `v1.0.0-rc.1`
 builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
+## 1.1.4 (tag `v1.1.4`, on `release/1.1`)
+
+A patch release on `release/1.1` that pins agentteams **`v1.1.3`** (`cbd41a74`) and adopts the operator-signed
+first-party toolchain group. Derived repositories take it with `--researchteam-tag v1.1.4`.
+
+- **agentteams pin: `v1.1.1` (`2fe79c05`) → `v1.1.3` (`cbd41a74`, tag object `1f1ffe6b`).** `toolchain.lock` and
+  the `update`/`research` extras move together. agentteams 1.1.3 adds the first-party toolchain group
+  (`--verify-toolchain-pin`, `--verify-toolchain-group`, `--sign-toolchain-group`) and its lineage check. Its
+  declared dependencies differ from 1.1.1 only in the `signing` extra: `cryptography==50.0.0` → `50.0.2`.
+- **First-party toolchain group (operator rulings R9, T1-T3).** `.agentteams/toolchain-group.json` is the fleet's
+  operator-signed group file: sequence 1, key `op-2026`, sha256 `a38d0484…a80a`. It covers agentteams, researchteam,
+  baseAgent and mathAgents across 15 workspaces. It derives from the new root row `s10-first-party-releases-2026-11`
+  in `security-decisions.log.csv`. Releases of group members skip S-10's 14-day cooldown. A pin move to one needs
+  this repository's own `@security` review and a verified signed tag, with no per-release operator row
+  (`docs/release-policy.md`). The vulnerability search, the S-9 tag check and the latest-stable rule still apply.
+  The legacy `s10-cooldown-exempt:jlcatonjr/agentteams` entry stays until it lapses on 2027-02-01.
+- **The autosync gate checks group pins.** After it writes the lock, the gate runs
+  `agentteams --verify-toolchain-pin toolchain.lock --allowed-signers … --output .github/agents --description brief.json`:
+  - exit 0: the group exemption applies;
+  - exit 2 (no group file): no exemption is claimed and ordinary S-10 applies at review. This fails in upstream
+    mode (researchteam is a group member) and passes in derived mode with a `::warning::` and a PR-body notice;
+  - exit 1 and any other code fail, and so does an exit 0 for an untagged agentteams pin;
+  - an agentteams without the flag fails with its own message.
+
+  Before the check, a trust-root guard refuses a regen that moves `HEAD` or touches the group file, the verify
+  keys or the decision log (untracked, ignored, skip-worktree and assume-unchanged entries count too). The guard
+  stops accidents, not a hostile candidate; on release-locked runs the signed-tag check is the trust anchor.
+- **S-10 re-vet (2026-11-13), `docs/release/constraints-2026-11-13.txt`:** rpds-py `2026.6.3` → `2026.9.1` (the
+  cooldown hold lifts), cryptography `50.0.0` → `50.0.2` (50.0.0 was an oversight, not a hold), and pycparser `3.0` →
+  `3.12`. The other six are unchanged and already latest, and OSV is clean for all nine. The gate and
+  `bootstrap_toolchain.sh` use the new set, and the 2026-10-16 files stay because signed rows cite them.
+- **Re-render with v1.1.3.** The constitution gains the self-contained "First-party toolchain group" rule on every
+  surface. `@security`'s S-10 bullet becomes the toolchain-group form (`jlcatonjr/agentteams`, `baseagent`,
+  `mathagents`), and the dangling "Rule 15" citations are gone. The exception registry records
+  `toolchain_group_sequence: 1`, and the `AGENTS.md` install line moves to v1.1.3. Derived data is regenerated
+  (memory index, build logs, vulnerability intel, bridge-manifest hashes).
+- `scripts/check_toolchain.py`: the lock-format example now reads `v1.1.3`.
+
 ## 1.1.3 (tag `v1.1.3`, on `release/1.1`)
 
 A patch release on `release/1.1` that pins agentteams **`v1.1.1`** (`2fe79c05`). Derived repositories take it with
