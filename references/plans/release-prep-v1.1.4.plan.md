@@ -94,9 +94,10 @@ Still open:
   `e789cd17f89e25744375ecdd6b7527023b5b26ee`, and it peels to `5fd8ec3b`. The signature is Good for
   `SHA256:IPdnLwlF…qxnzTNM`, checked with both `git verify-tag` and `check_toolchain.py --verify-tag`.
   infrastructuremanagement-4d verified it independently and made it the fleet target.
-- Gap: `docs/release-policy.md` requires a `@security` row for every pin move. The log has no
-  `pin-agentteams-v1.1.3` row. Its spec, `docs/release/pin-agentteams-v1.1.3.decision-spec.json`, is ready
-  for the operator to sign.
+- Gap, now resolved: `docs/release-policy.md` required a `@security` row for every pin move, and the log has no
+  `pin-agentteams-v1.1.3` row. Ruling R16, confirmed by the operator on 2026-11-14, exempts group-member pin
+  moves from that row; they need a verified tag and a `@security` review recorded in the PR instead. The policy
+  now says so, and no row will be signed.
 
 ## Close
 Done on 2026-11-14: the `@security` review of the diff, `@conflict-auditor`, PR #159, and the PR link to

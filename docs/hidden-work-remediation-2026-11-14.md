@@ -59,16 +59,23 @@ These were not published here, for two reasons:
 
 The operator should decide on each one: publish, move, or delete with `@cleanup` clearance.
 
-## A gap found during the review
+## A gap found during the review, and how it was resolved
 
-`docs/release-policy.md` requires a `@security` row for every pin move. Every earlier pin move in
-`security-decisions.log.csv` has an operator-signed row, but the move to agentteams v1.1.3 does not.
-Its spec, `docs/release/pin-agentteams-v1.1.3.decision-spec.json`, is ready. v1.1.4 was released
-without the row. Until the operator signs the spec, this is an open item. No agent signs decision rows.
+At the time of v1.1.4, `docs/release-policy.md` required a `@security` row for every pin move. Every
+earlier pin move in `security-decisions.log.csv` has an operator-signed row, but the move to agentteams
+v1.1.3 does not.
+
+**Resolved by ruling R16 (2026-11-14).** The operator confirmed R16 in this repository's session. Under
+R16, a pin move to a first-party group member needs a verified signed tag and this repository's
+`@security` review, recorded in the PR, but no decision-log row. `docs/release-policy.md` now says so.
+For v1.1.3, PR #159 records that review: tag object `1f1ffe6b` peels to `cbd41a74`, and the signature
+was verified against the release key. So no `pin-agentteams-v1.1.3` row will be signed. The spec
+`docs/release/pin-agentteams-v1.1.3.decision-spec.json` stays as the written `@security` record.
 
 ## Upstream
 
 Rule 9's plan location and the template's `tmp/` ignore conflict with this rule in every derived
-repository. A durable fix is upstream: track `tmp/by-week/`, or move plans to a tracked path and
-state the rule in the agentteams template. That is a change to another repository, so it goes to
-infrastructureManagement for routing.
+repository. Under ruling R15 (2026-11-14, relayed by infrastructuremanagement-40), the operator chose to
+move Rule 9's plans to a tracked path such as `references/plans/`, which matches PS-1. researchteam's
+managed `.gitignore` block stays as it is. The change goes into the agentteams template, and
+infrastructureManagement is sending that request upstream.
