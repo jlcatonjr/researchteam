@@ -99,5 +99,6 @@ Still open:
   for the operator to sign.
 
 ## Close
-`@security` review of the diff, `@conflict-auditor`, PR (no tag), PR link to infrastructuremanagement-4d, and
-the tag object plus peeled SHA when the operator cuts it.
+Done on 2026-11-14: the `@security` review of the diff, `@conflict-auditor`, PR #159, and the PR link to
+infrastructuremanagement-4d; then the merge, the tag, and the GitHub release (Latest). The tag object and peeled SHA
+went to infrastructuremanagement-4d and IM-40.
