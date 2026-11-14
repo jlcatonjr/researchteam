@@ -3,4 +3,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 2,orchestrator,Write originals manifest (relative paths; exclusions),step 1,archive/originals-manifest-2026-11-14.csv,done,manifest written,1
 3,security,@security + @cleanup clearance; operator S-4 confirmation (metaplan phase 2),manifest,verdicts,done,keep is default; no S-4 ask: keep (Rule 9 adversarial),2
 4,cleanup,Delete confirmed paths after hash check,step 3,manifest verdicts,skipped,nothing deleted,3
-5,git-operations,Manifest in metaplan phase-4 PR,manifest,PR,pending,,4
+5,git-operations,Manifest in metaplan phase-4 PR,manifest,PR,done,manifest merged in #164 (e42a036),4

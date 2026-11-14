@@ -42,14 +42,19 @@ session advised against repeating where the signer lives.
 
 ## Hidden work left from earlier sessions (not published by this change)
 
-`tmp/` holds about 229 ignored files from earlier sessions. Among them:
+*Status update: this section describes the state when the change was written. The operator later decided every
+category, and the result is in "Follow-up" below: the stashes were dropped and the W42 operator scripts were
+archived.*
+
+`tmp/` holds 224 files from earlier sessions, not counting this session's own working copies. Of these, 151 are
+untracked. Among them:
 
 - W46 handoffs, notices and operator scripts;
 - the 1.0-cut operator scripts in `tmp/by-week/2026-W42/operator/`, which `docs/release-policy.md`
   cites as "local, not committed";
 - root-level plans and drafts for research projects.
 
-Six older `git stash` entries (2026-09-22 to 2026-10-19) also remain. Most of them are
+Six older `git stash` entries (2026-07-20 to 2026-10-19) also remained. Most of them are
 regenerable re-render churn.
 
 These were not published here, for two reasons:

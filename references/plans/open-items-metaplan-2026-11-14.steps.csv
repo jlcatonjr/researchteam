@@ -4,6 +4,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 3,orchestrator,Phase 2 operator ask only if a deletion is proposed; keep is default,manifest,confirmation,skipped,no ask needed,2
 4,cleanup,Phase 3 deletions of confirmed paths after @security + @cleanup,step 3,manifest verdicts,skipped,nothing deleted,3
 5,primary-producer,P5 fix PR or upstream message,T5,PR or message,done,independent of 2-4; P5 PR (python -m fix + evidence),1
-6,git-operations,Phase 4 PR(s); merge under PS-2; check main CI,branch,merged PRs,pending,,4;5
-7,work-summarizer,2026-11-14 summary,plans; git,workSummaries/daily/2026-11-14.md,pending,,6
-8,conflict-auditor,Close-out audit,all,report,pending,,7
+6,git-operations,Phase 4 PR(s); merge under PS-2; check main CI,branch,merged PRs,done,#164 79f4bc69 and #165 20242025 merged under PS-2,4;5
+7,work-summarizer,2026-11-14 summary,plans; git,workSummaries/daily/2026-11-14.md,done,workSummaries/daily/2026-11-14.md appended,6
+8,conflict-auditor,Close-out audit,all,report,done,close-out audit: 9 items, all fixed in the summary PR,7

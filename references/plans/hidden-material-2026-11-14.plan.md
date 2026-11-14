@@ -24,3 +24,14 @@ Also fixed here: the stale "PRs #160 and #161 are open" line in `workSummaries/d
 
 Branches: `docs/hidden-material-2026-11-14` in researchteam, and a worktree branch in infrastructureManagement
 (its main checkout is in use by infrastructuremanagement-40 and is left alone).
+
+## Outcome (2026-11-14)
+
+- Published: 110 records. #162 carried 109; the 110th, `state.vars.txt`, came in #163, because the `*.env` ignore
+  rule had held back `state.env`. `hygiene-removal-list.txt` was moved from D to the published set, since it holds
+  recreate-SHAs.
+- Deleted: **12** D files, not 13, plus the 6 stashes, after a manifest committed first (`a4167b5`).
+- Category C: `@security` HALTed this session's write to another repository. The notes reached infrastructureManagement
+  through IM's own commit `60f872e`, not through a worktree branch or PR from this session. Writing to the worktree
+  before clearance was a C-5 breach, and it is recorded.
+- Follow-ups: `open-items-metaplan-2026-11-14` (P1 originals kept; P4 originals match IM's copies and are kept).

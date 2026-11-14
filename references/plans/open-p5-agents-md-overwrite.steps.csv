@@ -2,4 +2,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Trace every AGENTS.md writer vs _guarded,_frozen.py; _update_cmd.py,diagnosis,done,every writer inside _guarded,
 2,orchestrator,Isolated repro (source CLI + pinned .venv agentteams; frozen codex),scratch,diff; script,done,commit script+diff under references/plans/open-p5/; not reproduced; evidence in open-p5/,1
 3,repo-liaison,If no repro: ask baseAgent via IM message for .researchteam/lock/diff,step 2,message,done,no repository write; not needed: baseAgent history (read-only) explains it,2
-4,primary-producer,Fix + regression test PR (@code-hygiene + @security) or upstream message,step 2,PR or message,done,tag cut by operator; side fix: python -m entry; kill-mid-run gap left open,2
+4,primary-producer,Fix + regression test PR (@code-hygiene + @security) or upstream message,step 2,PR or message,done,a release needs an operator-cut tag; side fix: python -m entry; kill-mid-run gap left open,2
