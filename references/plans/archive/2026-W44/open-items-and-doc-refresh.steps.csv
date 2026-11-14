@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Back up and rebuild doc-audit edits on a branch from origin/main,old branch + patch,docs/stale-fact-audit-1.1,done,3 conflicts resolved to main's newer text,
+2,technical-validator,Re-audit docs against the 1.1 state,worktree,findings,done,17 findings applied; PR #124,1
+3,orchestrator,Refresh open-items status across repos,GitHub + docs,classified table,done,17 items classified; docs/open-items-2026-10-27.md,
+4,primary-producer,Apply doc findings and update open-items record,findings,branch commits,done,PR #124 (CI green),2;3
+5,primary-producer,Implement DEV-RESEARCHTEAM items,classified table,branches + PRs,done,"#125 plans (security CONDITIONAL, met), #126 1.0.3 backport, #127 hardening (7 items)",3
+6,orchestrator,Write operator scripts for OPERATOR items,classified table,.sh scripts,done,W44/operator 40-43,3;4;5
+7,security,Review operator scripts,scripts,verdict,done,CONDITIONAL PASS; 5 findings fixed,6
+8,conflict-auditor,Closeout consistency check,diffs,result,done,no conflicts; audit-report status lines added to #124,4;5
+9,work-summarizer,Daily summary,plan,workSummaries/daily/2026-10-27.md,done,appended in merge-forward PR #128,8

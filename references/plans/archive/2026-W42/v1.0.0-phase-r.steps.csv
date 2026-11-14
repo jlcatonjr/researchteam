@@ -1,0 +1,34 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Pause weekly agentteams-sync cron (gh workflow disable),operator approval 2026-10-15,workflow 280306095 disabled_manually,done,no file edit; re-enable after all four v1.0.0 tags,
+2,security,Verify agentteams v1.0.0-rc.10 signature and peeled SHA,allowed_signers; SECURITY.md,Good sig IPdnLwlF; peeled f0dcdc85,done,,
+3,operator,Decide fate of 13 uncommitted files in main checkout,git status,keep/commit or discard,done,discarded with backup ~/researchteam-backups/rc8-regen-20261016T144710Z (operator approved),
+4,primary-producer,PR-pin: toolchain.lock + extras to f0dcdc85; check_toolchain extras-vs-lock check,toolchain.lock; pyproject.toml; scripts/check_toolchain.py,PR,done,PR #49 merged (rc.12 pin),2
+5,security,Record pin-move decision row,PR-pin diff,security-decisions.log.csv row,done,"PR #65 merged: 6 Ed25519 rows, all clear the gate",4
+6,orchestrator,Run agentteams --verify-integrity and --migrate-decision-log on pinned .venv,bootstrap_toolchain.sh,reports; HALT review,done,migrated (text_digest); verify-integrity clean,4
+7,primary-producer,PR-B1: gate release-line tracking + refuse lock rewrite + policy doc section,scripts/agentteams_autosync_gate.sh; check_toolchain.py; docs/agentteams-update-policy.md,PR,done,PR #67 (replaces #52) merged,4
+8,primary-producer,PR-L2: Layer-2 sync from verified researchteam release tag,researchteam/_manifest.py; _fetch.py; _update_cmd.py,PR,done,in #67,7
+9,primary-producer,PR-B2: above-notes skip-and-warn when local differs from pinned template,researchteam/_update_cmd.py; _drift.py,PR,done,PR #50 merged e39cf00 (+ #54 hygiene follow-up merged),
+10,primary-producer,PR-B3: projection path fails with clear #210 message; brief write_policy orchestrator-only codex,researchteam/_update_cmd.py; brief.json,PR,done,"PR #51 merged 3d3b771; smoke test passed on rc.10, re-run on rc.11",
+11,code-hygiene,Audit PRs 4/7/8/9/10,PR diffs,audit notes,done,done,4;7;8;9;10
+12,orchestrator,Report PR numbers to agentteams-d4 and mathagents-1a,PR URLs,messages,done,PR numbers sent to agentteams-d4 and mathagents-1a,11
+13,operator,Merge PRs (head SHA named),PRs,main,done,"#65 -> #49 -> #67 -> #66 -> #53 merged, SHA-pinned",11
+14,primary-producer,Bump to 1.0.0rc1 + CHANGELOG; cut release/1.0,main,release/1.0,done,PR #53 merged; release/1.0 cut by operator script 05,3;13
+15,operator,Sign and push v1.0.0-rc.1 (SSH release key; plain terminal),release/1.0,signed tag,done,"v1.0.0-rc.1 signed by operator: tag db7b017c -> ed57c334; release/1.0 cut; GitHub pre-release; verified; announced to agentteams, mathAgents, masterTeacher",14
+16,conflict-auditor,Close session consistency check,all changed files,report,done,no blocking conflicts; 2 medium + 6 low fixed on main in PR #69 (backport with next RC),15
+17,work-summarizer,Daily summary,plan artifacts,workSummaries/daily,done,"workSummaries/daily/2026-10-16.md, PR #68",16
+18,orchestrator,On rc.11: verify tag; re-point #49/#52 lock+extras; re-run tests; fill common.sh; re-run #51 smoke test,agentteams rc.11 announcement,updated PRs + scripts,done,rc.11 verified (dcb66d97 -> ee09a037); #49/#52 re-pointed (209/240 tests); smoke re-run passed; found stale tool-pandoc.toml -> #56 merged; scripts filled,
+19,orchestrator,CI secret AGENTTEAMS_ALLOWED_SIGNERS on researchteam + mathAgents; CODEOWNERS (#55),operator approval,secrets; PR #55 merged,done,,
+20,orchestrator,"After operator 02: bootstrap .venv (researchteam local + agentteams rc.12), render on rc.12, remove .codex/agents/tool-pandoc.toml, open render PR stacked on #52",signed S-10 row,render PR (state RENDER_PR),done,"PR #66 merged (render on rc.12, signing ON)",5
+21,orchestrator,"HOLD for agentteams rc.12 (operator-approved): re-point #49/#52, re-run smoke, fill scripts",rc.12 announcement,,done,rc.12 verified 8bc1cd17 -> 69fe9447; #49 (263) / #52 (294) re-pointed; smoke passed; #63 merged (leftover false positive),
+22,primary-producer,masterTeacher 4.3: expert handles from brief components,handoff 4.3,PR #58 merged,done,background agent; branch fix/experts-from-brief,
+23,orchestrator,masterTeacher 4.5: version from git tags (setuptools-scm),handoff 4.5,PR #57 merged,done,S-10-pinned build reqs; #53 reduced to CHANGELOG+policy,
+24,orchestrator,masterTeacher 4.6: init --adopt,handoff 4.6,1.1 issue,pending,deferred to 1.1 by operator,
+25,orchestrator,masterTeacher 4.1 (rc.12): HMAC key >=32 bytes in sign_security_decision.py,agentteams rc.12 change,PR #60 merged,done,researchteam flow is Ed25519-only; no rows to re-sign,
+26,orchestrator,masterTeacher 4.4: warn + docs for rc.1; one scan rule in 1.0.1,agentteams analysis,PR #62 merged; issue #61,done,operator ruling: known 1.0 limitation,
+27,orchestrator,masterTeacher 4.6 recorded for 1.1,handoff 4.6,issue #59,done,,
+28,orchestrator,Joint soak: local forced gate run on release/1.0 (operator choice) + suite/validate/detectors,release/1.0 ed57c33; agentteams rc.12,PASS; 2 findings fixed in PR #70,done,egg-info probe shadowing (write-lock fail-closed); upstream workflow installed main,
+29,orchestrator,"rc.2 on agentteams rc.13: pin #71, signed pin row #72, backport #73, soak re-check",operator ruling 2026-10-17,release/1.0 a515fce; soak PASS,done,v1.0.0-rc.2 signed: tag 862645ba -> a515fce; verified; merged forward (#74); announced,
+30,orchestrator,"rc.3 on agentteams rc.14: #80 pin+render, #81 signed pin row, #79 notes opt-out, #82 backport, soak",policy §6 2b; operator approvals 2026-10-17,release/1.0 3358b6c; soak PASS; CI 3.10/3.13 pass,done,"v1.0.0-rc.3 signed: tag fc292b50 -> 3358b6c; verified; merged forward (#83); announced to agentteams-d4, mathagents-1a, baseagent-86, masterTeacher",
+31,researchteam-a7 + operator,Phase T: researchteam v1.0.0 = rc.3 + #87 + agentteams v1.0.0 pin (#89),operator rulings 2026-10-18,v1.0.0 tag 1c042370 -> a21e7db; verified by f6,done,no rc.4; #84/#85 held for 1.0.1; known limitation in CHANGELOG,
+32,"researchteam-a7 (owner), researchteam-f6 (review/test)",v1.0.1: frozen_surfaces gate fix + #84 + #85 (+ #92 candidate),mathAgents soak run 39173598260; operator 2026-10-19,PR pending from a7,done,"v1.0.1 signed f0dcddcc -> b55e2307 (a7 + operator); f6 reviewed #94/#95/#96 and verified; merged forward (#96, f964e54); announced by a7",
+33,researchteam-f6,Session close-out (2026-10-19),all of the above,"v1.0.0 + v1.0.1 shipped; #98/#102 wait for the patch alongside agentteams 1.0.x (NOT in #104); #104 (1.0.2: #100, #101, CHANGELOG) belongs to another session (researchteam-51?) - owner for Jim to assign",done,"only open item: step 24 init --adopt (#59, 1.1)",

@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,cherry-pick -x #84 #85 #92(partial docs+tests) #94 onto release/1.0,origin/release/1.0 a21e7db,release-prep/1.0.1 fb155ad dcc16e2 54deab2 2beb8eb,done,359 passed 1 skipped; validate ok,
+2,primary-producer,CHANGELOG ## 1.0.1; advisory self-pin to a21e7db,CHANGELOG.md toolchain.lock,d7483f4,done,agentteams pin unchanged (v1.0.0 cc5b8c9e); no pin row,1
+3,git-operations,push; open PR into release/1.0,release-prep/1.0.1,PR #95,done,,2
+4,security,review PR #95 and 09 signing script,PR #95; 09-sign-release-1.0.1.sh,verdict,done,"PASS, no blocking findings",3
+5,orchestrator,CI green; researchteam-f6 review,PR #95,approval,done,"CI green 3.10/3.13; f6 approved, no findings",3
+6,orchestrator,operator approves merge; merge head-pinned,PR #95,release/1.0 merge commit,done,James approved; merged b55e230 at head d7483f4,4;5
+7,orchestrator,filled run-09-now.sh with merge SHA and 09 sha256,merge commit,run-09-now.sh,done,09 sha256 370a9152; MERGE b55e230,6
+8,operator,sign/verify/push/publish v1.0.1,run-09-now.sh,tag v1.0.1,done,tag f0dcddcc peeled b55e230; published,7
+9,git-operations,independent tag verification; merge-forward release/1.0 into main,v1.0.1,PR to main,done,"verified (good sig, allowed_signers; describe v1.0.1); merge-forward PR #96 open; #96 merged f964e54",8
+10,repo-liaison,report tag object + peeled to agentteams-d4 and researchteam-f6; autosync resume note,v1.0.1,messages,done,"sent to agentteams-d4 and researchteam-f6; also mathagents-1a, baseagent-bd (86 redirected)",9
+11,work-summarizer,daily work summary and closeout; conflict-auditor,plan,workSummaries/daily/2026-10-19.md,done,summary PR #97,10

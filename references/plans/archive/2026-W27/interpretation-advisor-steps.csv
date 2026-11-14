@@ -1,0 +1,18 @@
+step,description,artifact,status
+1,Draft plan v1,scratchpad/interpretation-expert-plan.md,done
+2,Adversarial audit round 1,audit report,done
+3,Conflict audit round 1,audit report,done
+4,Revise to plan v2,scratchpad/interpretation-expert-plan.md,done
+5,Adversarial audit round 2,audit report,done
+6,Conflict audit round 2,audit report,done
+7,Revise to plan v3 (final),scratchpad/interpretation-plan-v3.md,done
+8,Register archetype,_build-description.json,done
+9,Author canonical agent,.github/agents/interpretation-advisor.agent.md,done
+10,Author guide library,.github/agents/references/methodology/{README,_TEMPLATE,economics-business-cycles},done
+11,Wire orchestrator roster+notes,orchestrator.agent.md,done
+12,Wire consumers,topic-scoping/literature-review/main-analysis Project-Specific Notes,done
+13,Wire conflict-auditor cross-checks,conflict-auditor.agent.md,done
+14,Update authority map,docs/agent-infrastructure-authority.md,done
+15,Author bridge stub (sha last),.claude/agents/interpretation-advisor.md,done
+16,Update bridge inventory + manifest,references/bridges/copilot-vscode-to-claude/*,done
+17,Validate end-to-end,validate scripts + dry-run trace,in-progress

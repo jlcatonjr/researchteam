@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Re-verify both tags against origin (signature; object; peeled; lock pin),v1.0.4; v1.1.0-rc.5,verification output,done,"both tags verified: signature, objects, peeled, lock pins, branch tips, GitHub flags",
+2,orchestrator,Write the three notice texts to tmp/by-week/2026-W45/notices/,plan facts,notices/*.md,done,"notices/baseAgent.md, Batallion.md, mathAgents.md (revised after audit)",1
+3,operator,Pick recipient sessions (AskUserQuestion),ListAgents rows,recipient map,done,Jim: mathAgents -> mathagents-ab; baseAgent file only; Batallion -> batallion-b3,2
+4,orchestrator,Send each picked session its notice (SendMessage),recipient map; notices,msg_ids,done,sent mathagents-ab msg 39743f72; batallion-b3 msg b60a490e,3
+5,orchestrator,Record deliveries; leave file-only notices for unpicked repos,msg_ids,steps CSV notes,done,baseAgent: file only at notices/baseAgent.md (paste after Experiment 1),4

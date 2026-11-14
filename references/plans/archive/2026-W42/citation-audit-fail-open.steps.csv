@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes
+1,primary-producer,Patch detector + tests + protocol doc,report,3 files + pytest wrapper,done,
+2,code-hygiene,Audit diff,diff,findings,done,
+3,security,Clear push/PR/merge,diff,clearance,done,
+4,git-operations,PR to main; merge on CI,branch,merge commit,done,
+5,repo-liaison,Offer backport to researchteam-f6; reply masterteacher-1f,merge commit,messages,done,

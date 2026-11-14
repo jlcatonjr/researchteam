@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,navigator,Inventory and classify 151 untracked tmp/ files and 6 stashes,tmp/; git stash,classification,done,A57 B52 C27 D13 E1 + frozen-fences state; stashes all superseded or regenerable,
+2,primary-producer,Scrub and copy A and B to references/plans/archive/,classification,references/plans/archive/,pending,home path -> ~; signer path -> <signer>,1
+3,security,Scan published copies; clear deletions and cross-repo copy,step 2; D list; stashes,verdict,pending,,2
+4,repo-liaison,Copy C (scrubbed) to infrastructureManagement via worktree; PR there,step 3,IM PR,pending,cross-repo write approved by operator 2026-11-14,3
+5,cleanup,Delete D files and drop 6 stashes; record hashes and SHAs,step 3,report section,pending,,3
+6,primary-producer,Fix stale summary line; record outcome in the remediation report,repo,docs,pending,,5
+7,git-operations,Commit; push; PR,branch,PR,pending,,6

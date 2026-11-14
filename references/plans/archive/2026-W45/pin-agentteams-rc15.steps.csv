@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,git-operations,branch from origin/main and cherry-pick a60fd11,origin/main;a60fd11,chore/agentteams-1.1.0-rc.15,done,66b6f1a,
+2,security,verify tag and write lock + extras,v1.1.0-rc.15,toolchain.lock;pyproject.toml,done,263f641,1
+3,orchestrator,install rc.15 and run autosync gate steps + pytest,.venv,regen commit,done,876056a; validate ok; detectors 4/4; pytest 473/7,2
+4,security,OSV search for changed packages,pyproject at tags,spec conditions,done,none for all; deps = rc.14; pypdf floor raise vs v1.0.0,2
+4b,orchestrator,brief s10_cooldown_exempt_repos = jlcatonjr/agentteams (operator answer),brief.json,brief.json;exempt spec,done,da36bf6,3
+5,security,write unsigned decision specs and operator scripts 04/05,steps 2-4,docs/release specs;04-sign-rc15-pin.sh;05-merge-rc15-pin.sh,done,8032d28,3;4
+6,git-operations,push branch and open draft PR; comment on #137,branch,PR #139,done,,5
+7,git-operations,after #138 merges: merge main into branch,origin/main,branch head,done,4037af3,6
+8,operator,sign exempt + pin rows (04),branch head,log rows,done,87f3ec4,7
+9,orchestrator,commit rows; re-render; gates; push; mark ready,rows,head for 05,done,d78df229; claude/goose/codex not exempted (agentteams gap; fail-safe; operator: merge now),8
+10,operator,merge #139 (05),head,main,done,8edaae5; then #140 4af46b7 and v1.1.0-rc.4 dfcc6ad1,9

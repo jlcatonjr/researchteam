@@ -1,0 +1,80 @@
+# researchteam hygiene removal list, 2026-11-09 (operator-approved; recreate any entry with its SHA)
+## worktrees to remove (path | branch | HEAD)
+~/githubrepositories/researchteam-1.0.4 | release-prep/1.0.4 | 8bbeaf8a173dd35988e573fc5aee2b935c33d91f
+~/githubrepositories/researchteam-pip | fix/bootstrap-pip-pin | 6881b99d62008fa226b37499b87a010ea809cc26
+~/githubrepositories/researchteam-rc14 | chore/agentteams-1.1.0-rc.16 | 8b4752921b2635391163b3953a74a18dd2c15e8f
+~/githubrepositories/researchteam-wt-api-site | HEAD | efd7dd4542fb3718dd42162bc58c3eefa364f819
+~/githubrepositories/researchteam-wt-at11 | chore/agentteams-1.1-readiness | cf061314deadd334a3ce155f84e1692c334bf201
+~/githubrepositories/researchteam-wt-init-signing | fix/init-per-surface-signing | 746b0736bbb2fea56588dc16442dfcf7c709c968
+~/githubrepositories/researchteam-wt-mgdocs | docs/managed-docs-mathagents-handoff | 75a78998509420e82d1a68179291ff1ec09d941b
+~/githubrepositories/researchteam-wt-oi04 | docs/close-oi-2026-10-19-04 | 68bf6c973983b01a0d6931b9d931ac92977b1c49
+~/githubrepositories/researchteam-wt-quote | fix/toolchain-single-quoted-trampoline | c3c16fdc964b86ff4787a11d9f09b4484da35e9d
+~/githubrepositories/researchteam-wt-rc1 | release-prep/1.1.0rc1 | d6c8c4788a920ddf25b7b86909ffe132fff0b104
+~/githubrepositories/researchteam-wt-rc3 | release-prep/1.1.0rc3 | d99b1d60b2923cc7452cef4711fb732cd9d87b4e
+~/githubrepositories/researchteam-wt-rc6 | chore/agentteams-1.1.0-rc.6 | cb50483e991e58a705f0b8ad9c271ba8bcede4dd
+~/githubrepositories/researchteam-wt-rc7 | chore/agentteams-1.1.0-rc.7 | f93d8a531e11ba482cfc8d433bdc1fb56c456504
+~/githubrepositories/researchteam-wt-summary | docs/work-summary-2026-10-27 | fa9620f6842683f3c33f39b075d8460af4d8ec4e
+~/githubrepositories/researchteam-wt-summary-1028 | docs/work-summary-2026-10-28 | 268cf206c9d1503ba68eb40d4c6306e7cd13bfb1
+## remote branches to delete (branch | SHA)
+backport/ci-test-workflow | 93a1a972ca59f0327fd2c2cfc37f21231b7c5cf3
+backport/derived-workflow-pinned-researchteam | b94b2234833198c3092103dbd99196bb240187f8
+chore/agentteams-1.1-readiness | cf061314deadd334a3ce155f84e1692c334bf201
+chore/agentteams-1.1.0-rc.11 | 01c748d22f677ee53889641fdacc47b7752dbe79
+chore/agentteams-1.1.0-rc.15 | d78df229520e01908c788f19308bfc1dbde700ac
+chore/agentteams-1.1.0-rc.16 | 8b4752921b2635391163b3953a74a18dd2c15e8f
+chore/agentteams-1.1.0-rc.6 | cb50483e991e58a705f0b8ad9c271ba8bcede4dd
+chore/agentteams-1.1.0-rc.7 | f93d8a531e11ba482cfc8d433bdc1fb56c456504
+chore/agentteams-integrate-2026-10-04 | 8cd773333814346883c88fa5db065d03fab94e8c
+chore/agentteams-integrate-67655da | fd1fc3d47705098f4bc6864cd396f1a13faffbdd
+chore/agentteams-v1.1.0 | f9e8479c0116e5470118fbf946c8253fb6b30c33
+chore/brief-signing-off-2026-10-11 | 7d1e9da62cdcb0066b6ac34c68e6aca71c84fb77
+chore/enroll-infrastructure-management | f2a08e5813166882b174d7f2960016d0171afdf2
+chore/refresh-bridges | 1718dacd26cb20fe62999bc979d4ae55c43b5de7
+ci/test-workflow | dc04b263eed95c54447fd1e4ea1b3451199cccbf
+docs/agentteams-baseline-refresh | 292b1144d240275c01c2ee26d4ffc365fd813121
+docs/api-site | be992209c42b9f28d0a38d058ce6566f3a5616dc
+docs/close-oi-2026-10-19-04 | 68bf6c973983b01a0d6931b9d931ac92977b1c49
+docs/managed-docs-mathagents-handoff | 6f45277a8fb3e1fd0e0b588d967ad9c80f8849d5
+docs/policy-release-accuracy | 9b44472b893c74703a29e5ff80154c911a106184
+docs/release-branching-guide | 339c2466d558d0275dbcd573cc38b98faba9c735
+docs/s10-cooldown-restored | ed04e3adf26c796579529be773d4ff02877511e6
+docs/tag-first-install | d26aa8723e0bc5f864fd8c414002d43e06e9b600
+docs/work-summaries-2026-11-04-05 | 51ef5a9a6d3eac10f4d36b22120279d24ad03df2
+docs/work-summary-2026-10-27 | fa9620f6842683f3c33f39b075d8460af4d8ec4e
+docs/work-summary-2026-10-28 | 268cf206c9d1503ba68eb40d4c6306e7cd13bfb1
+docs/work-summary-2026-11-09 | 321e1d728f72ac0f51a955b785eabe822b4b64d3
+docs/worksummary-a7-closeout | fa08c3205a1636602ab2bef89a819a9bdd273fed
+docs/worksummary-a7-v101 | 0188d2008f6235524ffeb28964cef4d9e9a8f195
+feat/drift-report | f4a8c756a6c4deface5ca11af73bc2f7a5e81abe
+feat/gitignore-fenced-preserve | 47541b8531de39bacc16260c826f149fe506f167
+feat/historical-context-protocol | f47063a79ae4b9ce1706bb69a4462d10677dd6ae
+feat/init-adopt | bf4f4930ff51860a51572d8e1cffcaa60f57299c
+feat/layer1-opt-out | b37eca38c91c403f5137bc1eed6d21c624caff67
+feat/managed-advisor-notes | f12272a09251b943d8bffad2d9cb99a806f07a81
+feat/toolchain-pinning | 2e5102704479094f1f470d1dd7330da8a6023631
+feat/update-merges-bridges | 5564fe5578456a6c6e3ab698d49756428a4d5ce7
+fix/agentteams-provenance-preflight | 60cf97c2e7e384c244bc83d74ce23e801ece269c
+fix/autosync-gate-self-copy | 8450732057dc9d10bc21687d7245502d5a702f1a
+fix/autosync-scope-allowlist | ce9d7b16dee67ef6c579af739d5cb9b851bdfb66
+fix/bootstrap-force-reinstall | aafd58acd69354b677bda708f187a61f4328c994
+fix/bootstrap-pip-pin | 6881b99d62008fa226b37499b87a010ea809cc26
+fix/bridges-respect-write-policy | a2fa2b2c27446201389c884234ab2fd96064705d
+fix/derived-workflow-pinned-researchteam | 81b334be29dd53f50fae1cc7d777cab9f796d659
+fix/doctor-parent-grants | c49c93d3b30ae35580e10ace42a89bd5484b3007
+fix/frozen-goose-extras | d7690d53d4e6e0b543cf889e0e2b01734f12b916
+fix/gitignore-env-files | 137351399d72c822e641f7b9ab8e067189c73100
+fix/init-per-surface-signing | 746b0736bbb2fea56588dc16442dfcf7c709c968
+fix/keep-shrink-report-on-failure | 600a0e9426e6668ccd195123acc25b1bde6da145
+fix/native-render-under-write-policy | 9a2e9084a1839ab9cad0c647067cab6a4e090f80
+fix/toolchain-single-quoted-trampoline | c3c16fdc964b86ff4787a11d9f09b4484da35e9d
+fix/update-native-surfaces | e9000c481bf0d00e78fd4700a4104def4a086e55
+governance/agentteams-1.1 | 498c07eefaf5490b74e2fc86788a518d78679c4b
+merge-forward/v1.0.1 | 6fce28c332140eaf0390bef56ad57cfc0ed48029
+merge-forward/v1.0.4 | a6ce263c69423886e2b89d69210478124b36b2e1
+release-prep/1.0.1 | d7483f4fff78b99eb1d80e879667b4bb3b6b5067
+release-prep/1.0.4 | 8bbeaf8a173dd35988e573fc5aee2b935c33d91f
+release-prep/1.1.0rc1 | d6c8c4788a920ddf25b7b86909ffe132fff0b104
+release-prep/1.1.0rc3 | d99b1d60b2923cc7452cef4711fb732cd9d87b4e
+release-prep/1.1.0rc4 | a84ce3e9f68881c47c6f91312c856a0e4503eb98
+sandbox-launch-2026-W40 | c21c6e16530c25bb9d97cf48865e6480a1bb5fe0
+chore/agentteams-1.1.0-rc.14 | 5e683a85b0dc0a1fc3e97501f77057ec9e80effe (unmerged; PR #137 closed)

@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Create plan + steps artifacts,docs/gitignore-preservation-handoff.md,tmp/by-week/2026-W36/*.plan.md;*.steps.csv,done,Rule 9,
+2,primary-producer,Add MERGE_STRATEGIES + fence sentinels to manifest,researchteam/_manifest.py,researchteam/_manifest.py,done,default overwrite preserves current behavior,1
+3,primary-producer,Implement fenced-preserve reconcile in update loop,researchteam/_update_cmd.py,researchteam/_update_cmd.py,done,_split_fence/_reconcile_fenced helpers; per-strategy branch,2
+4,primary-producer,Wrap upstream .gitignore body in fence markers,.gitignore,.gitignore,done,adds derived-owned trailer region,2
+5,primary-producer,Add unit tests for reconcile helpers,researchteam/_update_cmd.py;_manifest.py,tests/test_update_gitignore_preserve.py,done,covers acceptance criteria 1-7,3;4
+6,orchestrator,Run test suite,tests/test_update_gitignore_preserve.py,pytest result,done,fail-closed on red,5
+7,primary-producer,Doc touch-up in update policy,docs/agentteams-update-policy.md,docs/agentteams-update-policy.md,done,note .gitignore now merge-preserved,3
+8,git-operations,Commit fix on feature branch,working tree,git commit,done,branch off main; no push unless asked,6;7
+9,git-operations,Merge PR #9 into main,PR #9,merged main,done,human-reviewed diff; --merge,
+10,conflict-auditor,Closeout consistency check,changed files,audit report,done,Rule 8,8;9
+11,work-summarizer,Append daily work summary,plan artifacts;git,workSummaries/daily/2026-08-31.md,done,Rule 10,10

@@ -1,0 +1,20 @@
+2c2
+< # 09 — Sign, verify, push and publish researchteam's PATCH release tag (v1.0.1) at the head of release/1.0.
+---
+> # 10 — Sign, verify, push and publish researchteam's PATCH release tag (v1.0.2) at the head of release/1.0.
+4c4
+< #   TAGGER_EMAIL=<e-mail> /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W43/operator/09-sign-release-1.0.1.sh \
+---
+> #   TAGGER_EMAIL=<e-mail> /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W43/operator/10-sign-release-1.0.2.sh \
+52c52
+< TAG="v1.0.1"; VERSION="1.0.1"; LINE="release/1.0"
+---
+> TAG="v1.0.2"; VERSION="1.0.2"; LINE="release/1.0"
+86c86
+< PREV="v1.0.0"; PREV_PEELED="a21e7db7d632664253d4796444ee8b57069c05b2"
+---
+> PREV="v1.0.1"; PREV_PEELED="b55e2307a95a2db92fe971d867a8453871183e8d"
+122c122
+< # setuptools-scm takes the version from the tag: with this tag, describe must give exactly v1.0.1 at the commit.
+---
+> # setuptools-scm takes the version from the tag: with this tag, describe must give exactly v1.0.2 at the commit.

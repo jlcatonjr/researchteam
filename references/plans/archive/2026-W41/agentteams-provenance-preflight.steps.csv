@@ -1,0 +1,11 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Write plan + steps; create branch,operator decisions,plan files; branch,done,,
+2,primary-producer,Port provenance guard as researchteam/_agentteams_provenance.py,mathAgents f6205a7,new module,done,stdlib only,1
+3,primary-producer,Wire guard into _preflight_agentteams,_update_cmd.py,edited preflight,done,,2
+4,primary-producer,Require P5a on overwrite path + forward --discard-user-regions,_update_cmd.py; cli.py,edited files,done,capability probe via agentteams --help,3
+5,technical-validator,Add/adjust tests; run pytest,tests/,green suite,done,,4
+6,orchestrator,Repin .venv agentteams to origin/main VCS commit,agentteams origin/main,.venv reinstall,done,done by researchteam-09 (VCS @ 729a0ad); verified,1
+7,orchestrator,Run bridge validate + guard against real installs,repo,validation output,done,,5;6
+8,conflict-auditor,Close-out consistency check,changed files,findings,done,conflict-auditor + code-hygiene; build_team coverage, editable-first, record validation, docs fixed,7
+9,git-operations,Commit; push branch; open PR,branch,PR,done,PR #29,8
+10,work-summarizer,Append daily work summary,plan,workSummaries/daily/2026-10-07.md,done,,9

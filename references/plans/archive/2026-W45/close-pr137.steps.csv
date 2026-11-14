@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Check #137 state/head and main's pin; list commits on #137 not on main and confirm none is needed,gh; git,check output,done,OPEN at 5e683a85; only needed change a60fd11 already on main,
+2,orchestrator,Close #137 with the superseded comment (branch kept),gh pr close,closed PR,done,closed with superseded comment; branch kept,1
+3,orchestrator,Confirm state CLOSED,gh pr view,state,done,CLOSED,2
