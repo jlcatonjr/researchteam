@@ -77,7 +77,9 @@ jobs:
 
       - name: Install ResearchTeam CLI
         run: |
-          python -m pip install --upgrade pip
+          # pip itself is held to S-10: an unpinned self-upgrade takes whatever release is newest, even one inside the
+          # 14-day cooldown. 26.2.2 is the pin scripts/bootstrap_toolchain.sh uses (OSV none; re-checked 2026-11-12).
+          python -m pip install "pip==26.2.2"
           # A release-locked repo (toolchain.lock has `researchteam.tag=`) installs researchteam at the
           # lock's PR-reviewed commit, so the code that verifies release tags in the gate below is the
           # pinned release, not whatever is on researchteam main (release policy §3). The gate re-verifies
