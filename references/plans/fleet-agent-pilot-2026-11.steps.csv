@@ -1,0 +1,9 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,security,Review the fleet-agent App pilot proposal,IM-40 message; IM scripts/agent_gh.sh; workflows; release policy,verdict,done,CONDITIONAL PASS with six conditions; conditions_verified pending,
+2,orchestrator,Relay researchteam's answer to IM-40,operator choice "Agree with all six",cross-session message,done,sent 2026-11-14,1
+3,primary-producer,Add PS-3 and name rulesets in PS-2's bypass exclusion,operator choice "Save as PS-3"; condition 3,.claude/CLAUDE.md; docs/release-policy.md,done,PR #170; @conflict-auditor: no BLOCKING and 4 notes (2 fixed here; 2 carried to step 7),1
+4,primary-producer,Write the decision spec and the signing script,@security verdict,docs/release/fleet-agent-pilot-2026-11.decision-spec.json; operator script,pending,,1
+5,operator,Sign the fleet-agent-pilot-2026-11 row,spec at the reviewed head,one row in security-decisions.log.csv,blocked,handoff: tmp/by-week/2026-W46/operator/04-sign-fleet-agent-pilot.sh (a signing script in the operator/ series like 2026-W45/16; not a generated .handoff.sh because it must refuse agent sessions),4
+6,git-operations,Commit the signed row; PR; merge under PS-2,signed row,merged PR,pending,,5
+7,security,Verify conditions 1-6 once IM-40 reports them in place,rulesets; wrapper; IM report,second spec with conditions_verified verified,pending,waits on IM-40 and the operator's rulesets; then also date PS-2's "no branch protection" line and record condition 5 (draft-only release pages) where the pilot's rules live,6
+8,conflict-auditor,Consistency check; work summary,changed files,workSummaries/daily/2026-11-14.md,pending,,3;4
