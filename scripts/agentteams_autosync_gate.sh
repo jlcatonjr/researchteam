@@ -9,7 +9,7 @@
 #
 # What it does (in order):
 #   1. SHA-GATE FIRST (before any install/regen): compare agentteams main HEAD to the ref recorded on
-#      the evergreen PR branch (if open) or on the current branch. If unchanged -> emit changed=false
+#      the evergreen branch (only while an open PR has it as head) or on the current branch. If unchanged -> emit changed=false
 #      and exit 0 with ZERO writes. This is the whole "evergreen, not weekly spam" guarantee.
 #      RELEASE-LOCKED repos (toolchain.lock has `agentteams.tag=`): the target is instead the newest
 #      VERIFIED signed tag on that tag's vX.Y line (scripts/check_toolchain.py --release-candidate /
@@ -29,6 +29,9 @@
 #                            (a mirror or fork is not github.com/jlcatonjr/agentteams, so the layer-1
 #                            provenance guard refuses it unless RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1)
 #   AUTOSYNC_PR_BODY_FILE    where to write the PR body (default: ./.autosync-pr-body.md, gitignored)
+#   AUTOSYNC_EVERGREEN_PR_OPEN  true|false: whether an open PR has the evergreen branch as head. The workflow
+#                            looks it up in its own step, so no token reaches this script; when unset, the
+#                            gate tries `gh pr list` itself (a local run).
 # GitHub outputs (when $GITHUB_OUTPUT is set): changed=<bool>, new_sha=<sha>, old_sha=<sha>
 # Exit: 0 = success (check `changed`); non-zero = a blocking gate failed (workflow must NOT open a PR).
 
@@ -142,12 +145,43 @@ else
     exit 1
   fi
 fi
-# Baseline = the ref recorded on the OPEN evergreen PR branch if it exists (so an already-integrated
-# SHA does not re-fire weekly while the PR waits to be merged), else the ref on the current branch.
+# Baseline = the ref recorded on the evergreen branch, but ONLY while an open PR has that branch as its
+# head (so an already-integrated SHA does not re-fire weekly while the PR waits to be merged). Otherwise
+# the ref on the current branch. A branch with no open PR -- left by a failed PR step, or by a PR closed
+# without merging -- is not "already integrated": trusting it would report up-to-date forever and never
+# open the PR (#172). When the lookup cannot run, use the current branch: that errs toward detecting the
+# change (at worst an open PR is refreshed), never toward stranding it.
+# evergreen_pr_state -> "open" | "none" | "unknown". AUTOSYNC_EVERGREEN_PR_OPEN=true|false overrides the
+# lookup (the workflow's own step, or tests); otherwise `gh pr list` with whatever auth gh has (a local run).
+evergreen_pr_state() {
+  case "${AUTOSYNC_EVERGREEN_PR_OPEN:-}" in
+    true) echo open; return ;;
+    false) echo none; return ;;
+  esac
+  command -v gh >/dev/null 2>&1 || { echo unknown; return; }
+  local n
+  n="$(gh pr list --head "$EVERGREEN_BRANCH" --state open --json number --jq 'length' 2>/dev/null)" \
+    || { echo unknown; return; }
+  case "$n" in
+    0) echo none ;;
+    ''|*[!0-9]*) echo unknown ;;
+    *) echo open ;;
+  esac
+}
 old_sha=""
 if git show "origin/${EVERGREEN_BRANCH}:${REF_FILE}" >/dev/null 2>&1; then
-  old_sha="$(git show "origin/${EVERGREEN_BRANCH}:${REF_FILE}" 2>/dev/null | tr -d '[:space:]')"
-elif [ -f "$REF_FILE" ]; then
+  pr_state="$(evergreen_pr_state)"
+  case "$pr_state" in
+    open)
+      old_sha="$(git show "origin/${EVERGREEN_BRANCH}:${REF_FILE}" 2>/dev/null | tr -d '[:space:]')" ;;
+    none)
+      log "${EVERGREEN_BRANCH} exists but no open PR has it as head; baseline from the current branch" ;;
+    *)
+      echo "::warning::autosync-gate: cannot tell whether ${EVERGREEN_BRANCH} has an open PR (no AUTOSYNC_EVERGREEN_PR_OPEN, and gh could not answer); baseline from the current branch"
+      log "cannot tell whether ${EVERGREEN_BRANCH} has an open PR; baseline from the current branch" ;;
+  esac
+fi
+if [ -z "$old_sha" ] && [ -f "$REF_FILE" ]; then
   old_sha="$(tr -d '[:space:]' < "$REF_FILE")"
 fi
 emit "new_sha=$new_sha"

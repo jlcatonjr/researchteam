@@ -10,6 +10,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   whole upstream file over it, behind a diff preview cut at 50 lines. Adopting repositories lost their own
   `CLAUDE.md` this way. Approving now appends the fenced managed block below the unchanged content, as
   `researchteam adopt` does; `--yes` still keeps the file as it is. Reported through infrastructuremanagement-40.
+- **The autosync gate no longer strands an update on a branch with no PR (#172).** The gate took its baseline
+  from `chore/agentteams-autosync` whenever that branch existed. After a failed PR step, or a PR closed without
+  merging, a re-run reported "nothing to integrate" and finished green, and no PR was ever opened. The branch's
+  ref now counts only while an open PR has the branch as its head. Both workflows look that up in a step of
+  its own (`AUTOSYNC_EVERGREEN_PR_OPEN`), so no token reaches the gate step; if the lookup fails, the gate warns
+  and uses the current branch's ref (`tests/test_autosync_evergreen_baseline.py`). Reported through
+  infrastructuremanagement-40.
 - **`python -m researchteam` and `python -m researchteam.cli` run the CLI (#165).** Before this, `python -m
   researchteam.cli` imported the module, did nothing and exited 0, so a script using it silently skipped every
   step. This adds `researchteam/__main__.py` and a `__main__` guard in `cli.py` (`tests/test_module_entry.py`).
