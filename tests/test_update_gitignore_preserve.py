@@ -97,12 +97,23 @@ def test_unfenced_divergent_local_kept_under_yes():
     assert warn  # operator is told why
 
 
-def test_unfenced_divergent_local_offered_overwrite_interactively():
+def test_unfenced_divergent_local_gets_the_block_appended_interactively():
+    # #173: approving never replaces the file; the managed block goes below the unchanged content.
     local = "tmp/\n.venv/\nProjects/.HiddenManuscript/\n"
     write, diff, warn = _reconcile_fenced(".gitignore", local, UPSTREAM, yes=False)
-    assert write == UPSTREAM  # interactive path may replace, but only after showing the diff...
-    assert "-Projects/.HiddenManuscript/" in "".join(diff)  # ...with the loss made visible
-    assert warn
+    _, managed, _ = _split_fence(UPSTREAM)
+    assert write == local + "\n" + managed
+    assert not any(line.startswith("-") and not line.startswith("---") for line in diff)  # nothing removed
+    assert "APPENDS" in warn and "REPLACES" not in warn
+
+
+def test_unfenced_claude_md_keeps_its_own_content_interactively():
+    upstream = "# Upstream title\n\n" + _fenced("managed rules\n") + "## Notes\n"
+    local = "# My project\n\nOur own rules, no trailing newline"
+    write, _diff, _warn = _reconcile_fenced("CLAUDE.md", local, upstream, yes=False)
+    assert write.startswith(local + "\n\n" + FENCE_BEGIN)
+    assert "# Upstream title" not in write and "## Notes" not in write  # only the managed block is added
+    assert _split_fence(write) is not None  # the next update reconciles it as a fenced file
 
 
 def test_unfenced_local_equal_to_upstream_body_is_wrapped():
