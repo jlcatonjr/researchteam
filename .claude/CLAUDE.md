@@ -300,7 +300,7 @@ No project-specific style rules defined.
     - force-pushes or history rewrites;
     - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
       bypass on the tag ruleset (once tags are ruleset-protected, the operator pushes them);
-    - changes to repository settings, secrets, collaborators or branch protection;
+    - changes to repository settings, secrets, collaborators, branch protection or rulesets;
     - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
     - merging while a `@security` HALT or an unmet (`pending`) condition stands.
   - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
