@@ -298,8 +298,9 @@ No project-specific style rules defined.
   - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
   - Never under PS-2:
     - force-pushes or history rewrites;
-    - `gh pr merge --admin` or any bypass of branch protection;
-    - changes to repository settings, secrets, collaborators or branch protection;
+    - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
+      bypass on the tag ruleset (once tags are ruleset-protected, the operator pushes them);
+    - changes to repository settings, secrets, collaborators, branch protection or rulesets;
     - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
     - merging while a `@security` HALT or an unmet (`pending`) condition stands.
   - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
@@ -310,3 +311,12 @@ No project-specific style rules defined.
   - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.
   - Policy: `docs/release-policy.md`, "Operator-only and delegated actions". This rule (PS-2) is the authority
     on what is delegated.
+- **PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).**
+  - A decision that needs the operator goes through the host's interactive selection interface
+    (`AskUserQuestion` in Claude Code), with the options the agent judges best and the recommended one first.
+    The agent does not ask in prose and wait for a typed answer. Shape:
+    `.github/agents/references/operator-decision.reference.md`.
+  - Anything the operator must run outside the agent sandbox is delivered as a `.sh` file plus one complete
+    command that works from any directory (an absolute or `~`-rooted path, with no `cd` first and every
+    argument filled in). Shape: `.github/agents/references/sandbox-handoff.reference.md`.
+  - PS-3 adds no authority: running a handoff script is the operator's approval of that script only.
