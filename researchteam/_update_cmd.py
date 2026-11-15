@@ -200,24 +200,29 @@ def _reconcile_fenced(
         )
         return remote_content, diff, ""
 
-    # Local is unfenced AND diverges from upstream — it may carry derived-only lines. Never wipe
-    # it under the blind path; require an explicit interactive approval that shows the full diff.
+    # Local is unfenced AND diverges from upstream — it may carry derived-only lines (a project's own
+    # CLAUDE.md, for one). It is never replaced (#173). Under the blind path it is kept as-is; an
+    # interactive approval appends the fenced managed block below the unchanged content, as
+    # `researchteam adopt` does (_adopt._append_fenced), so every existing line survives.
     if yes:
         return None, [], (
             "local copy is unfenced and diverges from upstream; kept as-is so derived lines are "
-            "not deleted. Add the researchteam:managed fence markers to opt this file into sync."
+            "not deleted. Run `researchteam update` interactively to append the managed block, or add "
+            "the researchteam:managed fence markers yourself."
         )
+    sep = "" if local_content.endswith("\n") or not local_content else "\n"
+    appended = local_content + sep + "\n" + remote_managed
     diff = list(
         difflib.unified_diff(
             local_content.splitlines(keepends=True),
-            remote_content.splitlines(keepends=True),
+            appended.splitlines(keepends=True),
             fromfile=f"local/{rel_path}",
-            tofile=f"upstream/{rel_path} (fenced)",
+            tofile=f"local/{rel_path} (managed block appended)",
         )
     )
-    return remote_content, diff, (
-        "local copy is unfenced and diverges from upstream — approving REPLACES it wholesale "
-        "(any derived lines shown as deletions below will be lost)."
+    return appended, diff, (
+        "local copy is unfenced and diverges from upstream; approving APPENDS the researchteam:managed "
+        "block below it (every existing line is kept; nothing is replaced)."
     )
 
 

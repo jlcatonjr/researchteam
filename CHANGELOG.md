@@ -5,6 +5,11 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **`researchteam update` never replaces an unfenced `CLAUDE.md` or `.gitignore` (#173).** When the local file
+  had no `researchteam:managed` fence and differed from upstream, approving the interactive prompt wrote the
+  whole upstream file over it, behind a diff preview cut at 50 lines. Adopting repositories lost their own
+  `CLAUDE.md` this way. Approving now appends the fenced managed block below the unchanged content, as
+  `researchteam adopt` does; `--yes` still keeps the file as it is. Reported through infrastructuremanagement-40.
 - **`python -m researchteam` and `python -m researchteam.cli` run the CLI (#165).** Before this, `python -m
   researchteam.cli` imported the module, did nothing and exited 0, so a script using it silently skipped every
   step. This adds `researchteam/__main__.py` and a `__main__` guard in `cli.py` (`tests/test_module_entry.py`).
