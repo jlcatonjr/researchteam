@@ -5,6 +5,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.1.5 (tag `v1.1.5`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams **`v1.1.3`** (`cbd41a74`); moving to agentteams v1.1.4
+is a separate step. Derived repositories take it with `researchteam update --ref v1.1.5`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.5 --tag agentteams=v1.1.3`.
+
 - **`researchteam update` never replaces an unfenced `CLAUDE.md` or `.gitignore` (#173).** When the local file
   had no `researchteam:managed` fence and differed from upstream, approving the interactive prompt wrote the
   whole upstream file over it, behind a diff preview cut at 50 lines. Adopting repositories lost their own
@@ -26,7 +32,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   agentteams=<agentteams tag>`, which records the release lock. Batallion and SocialScienceHumanities
   reported this through infrastructuremanagement-40. The 1.1.4 entry is corrected; older entries are left as
   released.
-- **Build requirements re-vetted (S-10, 2026-11-14).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
+- **Build requirements re-vetted (S-10, 2026-11-14; #161).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
   `2.5.0` → `2.6.0`, both latest, past the cooldown and OSV-clean. setuptools-scm `10.3.4` and packaging
   `26.3` stay. This ends the in-cooldown setuptools 84.1.0 exception of 2026-10-24
   (`docs/release/build-requirements-2026-11-14.md`).

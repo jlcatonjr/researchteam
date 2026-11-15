@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,primary-producer,CHANGELOG 1.1.5; release notes; plan,main,branch release-prep/v1.1.5,done,,
+2,primary-producer,Operator cut script (tmp copy and scrubbed tracked copy),archived 19-cut-v1.1.1.sh,05-cut-v1.1.5.sh,done,,1
+3,security,Review the release-prep diff and the cut script,diff,verdict,pending,,2
+4,conflict-auditor,Consistency check,diff,findings,pending,,2
+5,git-operations,PR; merge under PS-2 on green CI,reviewed head,merge commit,pending,,3;4
+6,operator,Fast-forward release/1.1; sign and push v1.1.5; GitHub release,merge commit,tag v1.1.5,pending,handoff: tmp/by-week/2026-W46/operator/05-cut-v1.1.5.sh,5
+7,orchestrator,Verify the tag; tell IM-40; work summary,tag,workSummaries/daily/2026-11-15.md,pending,,6
