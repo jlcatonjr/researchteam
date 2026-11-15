@@ -1,8 +1,8 @@
 #!/bin/bash -p
-# 04 — Sign researchteam's fleet-agent-pilot-2026-11 row (CONDITIONAL PASS, conditions pending) into the
+# 04 — Sign researchteam's fleet-agent-pilot-2026-11 row (CONDITIONAL PASS, conditions verified) into the
 # docs/fleet-agent-pilot-decision worktree. OPERATOR ONLY. Same hardened preamble as 2026-W45/16-sign-v110-pin.sh.
-# The row records researchteam's conditional agreement to the fleet-agent GitHub App pilot. While its conditions
-# are pending it clears nothing; the gate check below expects exactly that refusal.
+# The row records researchteam's agreement to the fleet-agent GitHub App pilot with its six conditions verified.
+# The gate check below expects the row to clear.
 # Usage (plain Terminal, from any directory; ALWAYS `/bin/bash -p <path>`, never `bash <path>`):
 #   /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W46/operator/04-sign-fleet-agent-pilot.sh <40-hex head the session reports>
 # It COMMITS NOTHING: the researchteam session commits the row, pushes, opens the PR and merges it under PS-2.
@@ -62,26 +62,25 @@ if /usr/bin/grep -qF ",$ACTION," "$log"; then echo "  already in $log; nothing t
 /usr/bin/grep -qF "\"action_reviewed\": \"$ACTION\"" "$TMP/spec.json" || die "$SPEC is not for $ACTION"
 /usr/bin/grep -qF "\"scope\": \"$ACTION\"" "$TMP/spec.json" || die "$SPEC scope is not $ACTION"
 /usr/bin/grep -qF '"verdict": "CONDITIONAL PASS"' "$TMP/spec.json" || die "$SPEC verdict is not CONDITIONAL PASS"
-/usr/bin/grep -qF '"conditions_verified": "pending"' "$TMP/spec.json" || die "$SPEC conditions_verified is not pending"
+/usr/bin/grep -qF '"conditions_verified": "verified"' "$TMP/spec.json" || die "$SPEC conditions_verified is not verified"
 /usr/bin/grep -qF '"derives_from": "release-policy-1.0"' "$TMP/spec.json" || die "$SPEC does not derive from release-policy-1.0 alone"
 /usr/bin/grep -qF ",release-policy-1.0,PASS," "$log" || die "release-policy-1.0 is not signed in $log"
 /bin/cat "$TMP/spec.json"
-read -r -p "Sign $ACTION (CONDITIONAL PASS, conditions pending) into $TEAM with key op-2026? [y/N] " ok
+read -r -p "Sign $ACTION (CONDITIONAL PASS, conditions verified) into $TEAM with key op-2026? [y/N] " ok
 [[ "$ok" == "y" ]] || { echo "  not signed; nothing changed"; exit 0; }
 n0=$(/usr/bin/wc -l < "$log")
 (cd "$EMPTY" && AGENTTEAMS_DECISION_ED25519_KEYFILE="$KEYFILE" "$SIGNER" --sign-decision "$TMP/spec.json" --output "$WT/$TEAM")
 n1=$(/usr/bin/wc -l < "$log")
 echo "  log lines: before sign $n0, after sign $n1"
 [[ $((n1 - n0)) -eq 1 ]] || die "the signer changed the log by $((n1 - n0)) lines (expected 1); stop, do not commit; tell the researchteam session"
-# Expected gate result: REFUSED for unverified conditions, and for no other reason (a signature or lineage
-# failure would give a different reason).
+# Expected gate result: the row clears (signature, lineage and verified conditions all good).
 (cd "$EMPTY" && "${SIGNER%/agentteams}/python" -I -P - "$WT/$TEAM" "$ACTION") <<'PY' || die "unexpected gate result for $ACTION; do not commit; tell the researchteam session"
 import sys
 from pathlib import Path
 from agentteams.cli.security_gate import check_clearance
 ok, why = check_clearance(Path(sys.argv[1]), action=sys.argv[2], consume=False) if "consume" in check_clearance.__code__.co_varnames else check_clearance(Path(sys.argv[1]), action=sys.argv[2])
-print(f"  {sys.argv[2]}: {'CLEARS (not expected while pending)' if ok else 'refused: ' + str(why)[:200]}")
-sys.exit(0 if (not ok and "unverified conditions" in str(why)) else 1)
+print(f"  {sys.argv[2]}: {'clears' if ok else 'REFUSED: ' + str(why)[:200]}")
+sys.exit(0 if ok else 1)
 PY
 n2=$(/usr/bin/wc -l < "$log")
 [[ "$n2" -eq "$n1" ]] || die "the post-sign gate check changed the log ($n1 -> $n2 lines); stop, do not commit; tell the researchteam session"

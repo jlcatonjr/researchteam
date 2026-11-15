@@ -67,3 +67,14 @@ Findings from this pass, none blocking:
 2. **`archive/**` can still be force-pushed.** Its ruleset blocks deletion only. Asked IM to add
    `non_fast_forward`.
 3. The wrapper is policy, not a barrier; the App's installation permissions are the real limit.
+
+## Condition 6 closed (2026-11-14)
+
+Operator ruling (interactive choice in researchteam-59): "One verified row". The operator created the App
+(`fleet-agent-jlcatonjr`, id 5764992) with IM script 109. Its read-back, relayed by IM-40: installation 182085350;
+permissions actions read, checks read, contents write, issues write, metadata read, pull_requests write;
+repositories exactly `jlcatonjr/researchteam`. The session's token cannot read a private App's installation, so
+condition 6 rests on the operator's run of that script. The row is signed once, as CONDITIONAL PASS with
+`conditions_verified` `verified`; there is no separate pending row.
+
+`agents-pilot-archive` now blocks `non_fast_forward` as well (IM script 113; read back by the session).
