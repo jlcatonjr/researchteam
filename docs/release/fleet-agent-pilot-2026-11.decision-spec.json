@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-14",
+  "date": "2026-11-14",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "fleet-agent-pilot-2026-11",
+  "verdict": "CONDITIONAL PASS",
+  "scope": "fleet-agent-pilot-2026-11",
+  "conditions": "Operator ruling 2026-11-14 (interactive choice in researchteam session researchteam-59, \"Agree with all six\"): researchteam agrees to a one-week pilot, for researchteam only, of the private GitHub App fleet-agent-jlcatonjr as a separate agent identity, used only through infrastructureManagement's wrapper scripts/agent_gh.sh. Wrapper tier 1: read; create, edit and comment on issues; create PRs (only with --head), edit and comment on them; push non-default branches; release pages for tags that already exist. Refused: merges and approvals; pushes to main, dev, release branches or tags; force pushes; secrets, rulesets, workflows, settings; GraphQL and non-GET API calls. App permissions as proposed: Contents, Issues and Pull requests write; Checks, Actions and Metadata read; nothing else. Nothing is cleared until all six conditions are met and a later row records them as verified: (1) ruleset on main: PR required; required checks tests (3.10) and tests (3.13), source GitHub Actions; no force pushes; no deletion; 0 required approvals; no bypass actors. (2) release branches: pattern refs/heads/release/** (not release*); deletion and non-fast-forward pushes blocked; before a PR rule goes on release/**, the operator decides how the fast-forward to a to-be-tagged commit still happens. (3) tag ruleset over all tags: creation, update and deletion restricted, the admin role the only bypass; PS-2 says the agent session never uses that bypass. (4) wrapper fixes: allow release-prep/*; refuse pushes and deletes on archive/* and chore/agentteams-autosync; a ruleset blocking deletion of archive/** if supported. (5) release pages are --draft only during the pilot; the operator publishes. (6) the pilot is attribution, not a security boundary (the App key is readable by the agent's OS user and the wrapper's write token is not downscoped); before going live, gh api repos/jlcatonjr/researchteam/rules/branches/release/1.0 shows the release rules applying. The pilot runs for one week from first use; continuing after that needs a new row. The request came from infrastructureManagement session IM-40 (read content, C-4); the authority for this row is the operator's live choice. The row changes no PS-2 delegation, signs nothing, and grants no write to another repository.",
+  "conditions_verified": "pending",
+  "evidence": "@security review in researchteam-59, 2026-11-14: CONDITIONAL PASS. Read: infrastructureManagement scripts/agent_gh.sh; docs/release-policy.md, Operator-only and delegated actions; the triggers of tests.yml, docs.yml and agentteams-sync.yml. Checked by the session: gh api repos/jlcatonjr/researchteam/rulesets returned [] and the repository is public (2026-11-14). Not verified: the App's real permissions, IM's review SEC-IM-AGENTGH-2026-11-14, live ruleset pattern behaviour. Plan: references/plans/fleet-agent-pilot-2026-11.plan.md. Answer relayed to IM-40 on 2026-11-14.",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "fleet-agent-jlcatonjr",
+  "effect_targets": "",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "true",
+  "effect_bulk": "false"
+}
