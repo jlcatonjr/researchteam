@@ -32,7 +32,7 @@ is a separate step. Derived repositories take it with `researchteam update --ref
   agentteams=<agentteams tag>`, which records the release lock. Batallion and SocialScienceHumanities
   reported this through infrastructuremanagement-40. The 1.1.4 entry is corrected; older entries are left as
   released.
-- **Build requirements re-vetted (S-10, 2026-11-14).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
+- **Build requirements re-vetted (S-10, 2026-11-14; #161).** setuptools `84.1.0` → `84.2.1` and vcs-versioning
   `2.5.0` → `2.6.0`, both latest, past the cooldown and OSV-clean. setuptools-scm `10.3.4` and packaging
   `26.3` stay. This ends the in-cooldown setuptools 84.1.0 exception of 2026-10-24
   (`docs/release/build-requirements-2026-11-14.md`).

@@ -12,8 +12,9 @@ As for v1.1.4, `release/1.1` (`5fd8ec3b`) is an ancestor of `main`, so the relea
 `release/1.1` to the merge commit of this PR, and no merge-forward is needed afterwards.
 
 1. Branch `release-prep/v1.1.5` from `main`: CHANGELOG `## 1.1.5`, `docs/release/release-notes-v1.1.5.md`, this plan.
-2. Operator script `05-cut-v1.1.5.sh` (tracked copy, paths scrubbed, in `references/plans/archive/2026-W46/operator/`).
-   It checks the pin, the group file and the CHANGELOG at the given commit, requires a fast-forward, asks twice,
+2. Operator script `05-cut-v1.1.5.sh` (tracked copy, signer and key paths scrubbed, in `references/plans/archive/2026-W46/operator/`).
+   It checks the pin, the CHANGELOG and that the toolchain-group pin verifies (`agentteams --verify-toolchain-pin`,
+   from the root-owned v1.1.3 install; `@security` condition) at the given commit, requires a fast-forward, asks twice,
    fast-forwards `release/1.1`, signs and pushes the tag, verifies it as consumers do, and offers the GitHub release.
 3. `@security` and `@conflict-auditor` on the PR; merge under PS-2; CI green on `main`.
 4. The operator runs the script with the merge commit. The agent session does not fast-forward `release/1.1` or tag.

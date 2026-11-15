@@ -3,7 +3,7 @@
 # Patch release: #172 (autosync stranded branch), #173 (unfenced CLAUDE.md append), #165, #161. Copied from
 # 2026-W45/19-cut-v1.1.1.sh. The agentteams pin stays v1.1.3.
 # OPERATOR ONLY, plain Terminal, from any directory:
-#   bash ~/githubrepositories/researchteam/tmp/by-week/2026-W46/operator/05-cut-v1.1.5.sh <40-hex reviewed main SHA>
+#   bash <checkout>/tmp/by-week/2026-W46/operator/05-cut-v1.1.5.sh <40-hex reviewed main SHA>
 # Run it after the release-prep PR has merged, with that merge commit. It checks the pin, the toolchain-group file and
 # the CHANGELOG AT the given commit, requires a fast-forward of release/1.1, asks before each push, verifies the new tag
 # exactly as consumers will, and offers the GitHub release. release/1.1 then equals main at that commit, so no
@@ -36,13 +36,23 @@ ngit show "$SHA:toolchain.lock" | grep -x "agentteams=jlcatonjr/agentteams@$AT_P
 ngit show "$SHA:toolchain.lock" | grep -x "agentteams.tag=$AT_TAG" >/dev/null || die "lock at $SHA is not release-locked at $AT_TAG"
 [ "$(ngit show "$SHA:pyproject.toml" | grep -c "jlcatonjr/agentteams@$AT_PEELED")" = 2 ] || die "the update/research extras at $SHA do not both pin $AT_PEELED"
 LOG="$(ngit show "$SHA:.github/agents/references/security-decisions.log.csv")"
-# A group-member pin move needs no per-release row (ruling R16, 2026-11-14); the rows it rests on must be signed.
+# A group-member pin move needs no per-release row (ruling R16, 2026-11-14). The rows it rests on must be present as
+# PASS rows (a text check; their signatures are checked by the gate and by --verify-toolchain-pin below).
 for a in release-line-agentteams-1.1 s10-release-cooldown-restored s10-first-party-releases-2026-11 management-roster-enroll:infrastructure-management; do
   printf '%s\n' "$LOG" | grep -F ",$a,PASS," >/dev/null || die "no signed $a row at $SHA"
 done
 ngit cat-file -e "$SHA:.agentteams/toolchain-group.json" || die "no .agentteams/toolchain-group.json at $SHA"
 ngit show "$SHA:CHANGELOG.md" | grep '^## 1.1.5 ' >/dev/null || die "no '## 1.1.5' CHANGELOG entry at $SHA"
 NOTES="$(ngit show "$SHA:docs/release/release-notes-v1.1.5.md")" || die "no docs/release/release-notes-v1.1.5.md at $SHA"
+# The group file is what lets the pin move without a per-release row, so it must VERIFY at $SHA (signature,
+# workspace binding, no HALT on s10-toolchain-group), not merely exist (@security, 2026-11-15). Run from the
+# root-owned agentteams v1.1.3 install, in a detached worktree of $SHA so the workspace binding sees origin.
+AGENTTEAMS_BIN="<signer>"   # root-owned install built from agentteams tag v1.1.3
+[[ -x "$AGENTTEAMS_BIN" && "$(/usr/bin/stat -f %Su "$AGENTTEAMS_BIN")" == root ]] || die "no root-owned agentteams at $AGENTTEAMS_BIN"
+ngit worktree add -q --detach "$TMP/rt" "$SHA" || die "cannot check out $SHA for the group-file check"
+trap 'ngit worktree remove --force "$TMP/rt" 2>/dev/null; rm -rf "$TMP"' EXIT
+( cd "$TMP/rt" && "$AGENTTEAMS_BIN" --verify-toolchain-pin toolchain.lock --allowed-signers "$ALLOWED_SIGNERS" \
+    --output .github/agents --description brief.json ) || die "the toolchain-group pin does not verify at $SHA (must exit 0)"
 ngit rev-parse -q --verify "refs/tags/$TAG" >/dev/null && die "$TAG already exists; tags are immutable"
 existing="$(ngit ls-remote "$RT_URL" refs/heads/release/1.1 | cut -f1)"
 [ -n "$existing" ] || die "release/1.1 does not exist (rc.1 cut it)"
