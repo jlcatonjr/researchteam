@@ -101,11 +101,11 @@ def test_gh_lookup_when_the_caller_does_not_say(setup, answer, expect):
     assert expect in r.stdout
 
 
-@pytest.mark.parametrize("stub", ["exit 1\n", "echo not-a-number\n", None])
+@pytest.mark.parametrize("stub", ["exit 1\n", "echo not-a-number\n", "exit 127\n"],
+                         ids=["gh-fails", "gh-garbage", "gh-missing"])
 def test_unknown_pr_state_errs_toward_detecting_the_change(setup, stub):
     repo, env, bin_dir, old, new = setup
-    if stub is not None:
-        _gh_stub(bin_dir, stub)
+    _gh_stub(bin_dir, stub)  # always stubbed, so a gh on the runner's PATH is never called
     r = _run(repo, env)
     assert r.returncode == 0, r.stderr
     assert "::warning::" in r.stdout
