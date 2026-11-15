@@ -128,13 +128,28 @@ jobs:
           python -m pip install "git+${RT_GIT}${RT_REF}"
           researchteam --version
 
-      - name: Fetch evergreen branch (SHA-gate baseline while a PR is open)
+      - name: Fetch evergreen branch (SHA-gate baseline, used only while its PR is open)
         run: git fetch origin "chore/agentteams-autosync" || true
+
+      # The gate trusts the evergreen branch's ref only while an open PR has that branch as its head (#172).
+      # The lookup runs here, so the token never enters the gate step, which runs the integrated code.
+      - name: Is the evergreen PR open?
+        id: evergreen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if n="$(gh pr list --head chore/agentteams-autosync --state open --json number --jq 'length')"; then
+            if [ "$n" = 0 ]; then echo "open=false" >> "$GITHUB_OUTPUT"; else echo "open=true" >> "$GITHUB_OUTPUT"; fi
+          else
+            echo "::warning::could not list open PRs for chore/agentteams-autosync; the gate will use the current branch's ref"
+          fi
 
       - name: Autosync gate — SHA-gate → pinned install → full update → BLOCKING gates
         id: gate
         env:
           AUTOSYNC_PR_BODY_FILE: ${{ runner.temp }}/autosync-pr-body.md
+          AUTOSYNC_EVERGREEN_PR_OPEN: ${{ steps.evergreen.outputs.open }}
         run: |
           # If the managed gate script has not synced into this repo yet, do a one-time layer-2 sync
           # to fetch it, then run it.
