@@ -7,6 +7,9 @@ researchteam agrees to a one-week pilot of a separate agent GitHub identity, the
 Operator rulings, given through the interactive selection interface in session researchteam-59 on 2026-11-14:
 "Agree with all six", "Prepare it, I sign", "Save as PS-3", and later "One verified row".
 
+Steps 4 and 5 and the "not verified" list below describe the plan as first written. The two closing sections
+supersede them: one row was signed, with its conditions verified, and the rulesets now exist.
+
 1. `@security` review: CONDITIONAL PASS, six conditions (below). Nothing is cleared before they are met.
 2. Relay the answer to IM-40 (done after the operator's choice).
 3. Add PS-3 to `.claude/CLAUDE.md` (decisions through the interactive interface; out-of-sandbox work as a `.sh`
@@ -78,3 +81,6 @@ condition 6 rests on the operator's run of that script. The row is signed once, 
 `conditions_verified` `verified`; there is no separate pending row.
 
 `agents-pilot-archive` now blocks `non_fast_forward` as well (IM script 113; read back by the session).
+
+The signed row, the PS-2 ruleset text and this plan's closing sections are in PR #171. The tracked copy of the
+signing script is `references/plans/archive/2026-W46/operator/04-sign-fleet-agent-pilot.sh`.

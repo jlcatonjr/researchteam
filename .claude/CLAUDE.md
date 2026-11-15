@@ -295,7 +295,8 @@ No project-specific style rules defined.
     The rulesets do not check the reviewed head SHA or the required reviews, so those gates are still enforced
     by this rule.
   - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
-    green, the agent closes and reopens it so `tests.yml` runs on its head.
+    green, the agent closes and reopens it with the session's own `gh` token (the operator's) so `tests.yml` runs
+    on its head.
   - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
     operator.
   - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
@@ -304,7 +305,7 @@ No project-specific style rules defined.
   - Never under PS-2:
     - force-pushes or history rewrites;
     - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
-      bypass on the tag ruleset (once tags are ruleset-protected, the operator pushes them);
+      bypass on the tag ruleset (tags are ruleset-protected, so the operator pushes them);
     - changes to repository settings, secrets, collaborators, branch protection or rulesets;
     - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
     - merging while a `@security` HALT or an unmet (`pending`) condition stands.
