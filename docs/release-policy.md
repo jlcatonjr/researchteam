@@ -115,7 +115,7 @@ scripts that carried these out for the 1.0 cut are archived as records in
 - no HALT or unmet condition stands.
 
 PS-2 in `.claude/CLAUDE.md` is the authority on what is delegated and what is excluded. It excludes force-pushes
-and history rewrites, `--admin` merges, changes to settings, secrets, collaborators or branch protection,
+and history rewrites, `--admin` merges and ruleset bypasses, changes to settings, secrets, collaborators or branch protection,
 executor-opened remediation PRs (S-VM), and writes to other repositories. Its deletion rules (S-4,
 `branch-delete`) also apply.
 
