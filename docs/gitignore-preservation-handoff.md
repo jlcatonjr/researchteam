@@ -130,7 +130,8 @@ workSummaries/
   4. **Migration (local has no fence yet):** treat the whole local file as the managed region for a
      first-time wrap **only if** it is byte-equal to the last-known upstream; otherwise do **not**
      silently discard — emit the diff and (interactive) prompt, (`--yes`) keep local + warn, so a
-     pre-fence derived file is never wiped by the very update meant to protect it.
+     pre-fence derived file is never wiped by the very update meant to protect it. Approving the prompt
+     appends the fenced managed block below the unchanged local content; it never replaces the file (#173).
   5. **Diff preview + `--yes`:** compute the shown diff against the **fenced region only**, so
      local-only lines never render as spurious deletions in `_update_cmd.py:55-74`.
 
