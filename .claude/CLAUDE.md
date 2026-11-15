@@ -289,8 +289,13 @@ No project-specific style rules defined.
     is not enough there.
   - Each delegated merge commit says "Merged under PS-2 by the agent session" in its body, so it can be told
     apart from an operator merge made with the same token.
-  - Neither `main` nor `release/*` has branch protection (checked 2026-11-14), so these gates are enforced by
-    this rule, not by GitHub.
+  - Rulesets protect the repository since 2026-11-14 (read back that day): `main` (PR required, both test
+    checks required, no force push, no deletion, no bypass), `release/**` and `archive/**` (no force push, no
+    deletion, no bypass) and all tags (creation, update and deletion restricted; admin role the only bypass).
+    The rulesets do not check the reviewed head SHA or the required reviews, so those gates are still enforced
+    by this rule.
+  - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
+    green, the agent closes and reopens it so `tests.yml` runs on its head.
   - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
     operator.
   - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it

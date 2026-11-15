@@ -5,7 +5,7 @@ researchteam agrees to a one-week pilot of a separate agent GitHub identity, the
 `fleet-agent-jlcatonjr`, used only through IM's wrapper `scripts/agent_gh.sh`. The pilot covers researchteam only.
 
 Operator rulings, given through the interactive selection interface in session researchteam-59 on 2026-11-14:
-"Agree with all six", "Prepare it, I sign", "Save as PS-3".
+"Agree with all six", "Prepare it, I sign", "Save as PS-3", and later "One verified row".
 
 1. `@security` review: CONDITIONAL PASS, six conditions (below). Nothing is cleared before they are met.
 2. Relay the answer to IM-40 (done after the operator's choice).
