@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.1.7 (tag `v1.1.7`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). Derived repositories take it
+with `researchteam update --ref v1.1.7`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.7 --tag agentteams=v1.1.4`. To take the
+workflow change, run `researchteam workflow-sync` (it keeps the repository's own `on:` block) and give the result the
+repository's own `@security` review.
+
 - **Derived autosync schedule off by default; `researchteam workflow-sync` (#186).** Operator ruling, 2026-11-16.
   The derived scaffold (`researchteam/scaffold/agentteams-sync-derived.yml`) now ships with its weekly
   `schedule:` commented out, so a new derived repository runs autosync only when dispatched, and turning the weekly
