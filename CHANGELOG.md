@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.1.6 (tag `v1.1.6`, on `release/1.1`)
+
+A patch release on `release/1.1`. It pins agentteams **`v1.1.4`** (`b82d78e7`). Derived repositories take it with
+`researchteam update --ref v1.1.6`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.6 --tag agentteams=v1.1.4`.
+
+- **agentteams pin v1.1.3 -> v1.1.4 (#180).** agentteams 1.1.4 pins its isolated build to `setuptools==84.2.1`
+  (Rule S-10). Its installed code is 1.1.3's; only the version strings and the build requirements change. The
+  `update` and `research` extras and `toolchain.lock` move together. The move rests on the first-party toolchain
+  group (`agentteams --verify-toolchain-pin` passes). The same sync regenerated the agent surfaces with the PS-1 to
+  PS-3 rules projection. `@security` passed it, with five conditions, all verified (OSV: no advisory on the vetted
+  dependency set).
 - **Autosync token scope (#179).** Both autosync workflows (`.github/workflows/agentteams-sync.yml` and the
   derived scaffold) now grant nothing at workflow level. The evergreen-PR lookup from #172 runs in its own job,
   `evergreen_pr`, with `contents: read` / `pull-requests: read`, and passes `open` to the `autosync` job as a job
