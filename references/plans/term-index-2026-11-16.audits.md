@@ -1,6 +1,6 @@
 # Audit findings — term register and synced term index (2026-11-16)
 
-This file records, finding by finding, the two rounds of review behind
+This file records, finding by finding, the rounds of review behind
 `term-index-2026-11-16.design.md`: the audit of the draft plan, and the review of the first implementation
 (commit 761c938). Each finding has the reviewer's identifier, a one-line statement and its disposition.
 The design's sections 0 and 0a give the resolutions in prose. The audit of the research project is a
@@ -321,8 +321,14 @@ Because these changes followed the security PASS, `@security` was asked to confi
 
 `@conflict-auditor` at ae775aa: CLEAN AFTER LISTED FIXES. Two blocking items, both wording in the protocol
 and the hook example: the quotation rule (A1) and what the hook reports for a register just edited (A2).
-Fixed in 144799e, with A3 to A6 and A9 to A12. `@security` confirmed PASS at ae775aa and at 144799e, and
-`@conflict-auditor` confirmed CLEAN at 144799e.
+Fixed in 144799e, with A3 to A6 and A9 to A12.
+
+Confirmations after the part 5 fixes: `@security` confirmed PASS at 4cc228c (the two new validation rules
+only refuse more input), at ae775aa and at 144799e (documentation-only changes). `@code-hygiene`, at
+4cc228c, confirmed its items closed and gave PASS WITH CHANGES with one must-fix, a sentence in the
+protocol that said "three ways" where four are listed; that is fixed in ae775aa. That was its fifth
+verdict on the code (761c938, 500d3cc, 2f5c99f, 95cc967, 4cc228c). `@conflict-auditor` confirmed CLEAN at
+144799e. The local suite at the merged head: 775 passed, 1 skipped.
 
 PR #193 was merged under PS-2 as 8938f9e, with `--match-head-commit 144799e`, on green `tests (3.10)` and
 `tests (3.13)`. The merge commit's tree equals the reviewed head.
