@@ -4,6 +4,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 3,conflict-auditor,Check records PR #183; merge,PR #183,merge commit,done,#183 merged as e4c0d7bd; stale plan line fixed first,
 4,primary-producer,CHANGELOG 1.1.6; release notes; 08-cut-v1.1.6.sh (tmp and scrubbed copy),main after 2,branch release-prep/v1.1.6,done,branch release-prep/v1.1.6; 08 adds drain() before prompts (typed-ahead input stopped 05),2;3
 5,security,Review the release-prep diff and cut script,diff,verdict,done,PASS at 785de288; recorded in the PR #184 comment,4
-6,git-operations,PR; merge under PS-2 on green CI,reviewed head,merge commit,pending,,5
-7,operator,Fast-forward release/1.1; sign and push v1.1.6; GitHub release,merge commit,tag v1.1.6,pending,handoff 08-cut-v1.1.6.sh,6
-8,orchestrator,Verify the tag; tell IM-4d; work summary,tag,workSummaries/daily,pending,,7
+6,git-operations,PR; merge under PS-2 on green CI,reviewed head,merge commit,done,PR #184 merged under PS-2 as 8224d881 on green CI; main CI green,5
+7,operator,Fast-forward release/1.1; sign and push v1.1.6; GitHub release,merge commit,tag v1.1.6,done,operator ran 08-cut-v1.1.6.sh: release/1.1 24605ba1 -> 8224d881; tag object 92b6f9cc peels to 8224d881; GitHub release Latest; no restarts,6
+8,orchestrator,Verify the tag; tell IM-4d; work summary,tag,workSummaries/daily,done,verified on remote (ls-remote; check_toolchain.py --verify-tag); sent to IM-4d; summary workSummaries/daily/2026-11-16.md,7
