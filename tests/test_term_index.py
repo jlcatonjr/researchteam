@@ -152,7 +152,8 @@ def test_check_never_writes(tmp_path):
 # --------------------------------------------------------------------------- matching
 def forms_found(tmp_path, text, terms=None):
     proj = make(tmp_path, {"a.md": text}, register(terms))
-    assert build(tmp_path).returncode == 0, build(tmp_path).stdout
+    built = build(tmp_path)
+    assert built.returncode == 0, built.stdout
     return [(o["line"], o["form"], o["quoted"]) for o in occurrences(proj, "a.md")]
 
 
@@ -288,7 +289,14 @@ BAD_REGISTERS = {
                                        {"id": "b", "label": "snake case", "definition": "d"}]), "AMBIG"),
     "crowded first word": (register([{"id": f"t{n}", "label": f"alpha x{n}", "definition": "d"}
                                      for n in range(33)]), "SCHEMA"),
+    "crowded first word across offsets": (register([{"id": f"t{n}", "label": "." * n + f"alpha x{n}",
+                                                     "definition": "d"} for n in range(33)]), "SCHEMA"),
     "long form": (register([{"id": "a", "label": " ".join(["w"] * 17), "definition": "d"}]), "SCHEMA"),
+    "form ending in a separator": (register([{"id": "a", "label": "foo*", "definition": "d"},
+                                             {"id": "b", "label": "foo s", "definition": "d"}]), "SCHEMA"),
+    "form ending in a hyphen": (register([{"id": "a", "label": "foo-", "definition": "d"}]), "SCHEMA"),
+    "plural of one is another": (register([{"id": "a", "label": "foo bar", "definition": "d"},
+                                           {"id": "b", "label": "foo_bars", "definition": "d"}]), "AMBIG"),
     "too many scope patterns": (register(scope={"include": [f"d{n}/*.md" for n in range(65)]}), "SCOPE"),
     "plural collision": (register([{"id": "a", "label": "code", "definition": "d"},
                                    {"id": "b", "label": "z", "definition": "d", "variants": ["codes"]}]), "AMBIG"),
@@ -683,13 +691,17 @@ HOSTILE = {  # each shape once made a pattern or a loop rescan its input (review
     "emphasis runs": lambda n: "___ " * n,
     "quote prefixes": lambda n: "a\n" + "> " * n + "b",
     "shared first word": lambda n: "alpha " * n,
-    "symbol-led forms": lambda n: ".net " * n,
+    "symbol-led forms": lambda n: ".NET " * n,
+    "several offsets under one word": lambda n: "..beta " * n,
+    "plural stems": lambda n: "aes " * n,
+    "a long run of spaces": lambda n: "a" + " " * n + "b",
     "front matter never closed": lambda n: "---\n" + "a: b\n" * n,
     "reference definitions": lambda n: "[a]: b\n" * n,
 }
 HOSTILE_TERMS = ([{"id": "a", "label": "a", "definition": "d"}, {"id": "net", "label": ".NET runtime", "definition": "d"},
                   {"id": "long", "label": " ".join(["a"] * 15) + " b", "definition": "d"}]
-                 + [{"id": f"t{n}", "label": f"alpha x{n}", "definition": "d"} for n in range(31)])
+                 + [{"id": f"t{n}", "label": f"alpha x{n}", "definition": "d"} for n in range(31)]
+                 + [{"id": f"b{n}", "label": "." * n + f"beta y{n}", "definition": "d"} for n in range(8)])
 
 
 @pytest.mark.parametrize("shape", sorted(HOSTILE))
@@ -707,11 +719,11 @@ def test_matching_time_grows_no_faster_than_the_input(shape):
             best = min(best, time.perf_counter() - started)
         return best
 
-    small, large = seconds(20_000), seconds(40_000)
-    assert large < 3 * small + 0.5, (shape, small, large)
+    small, large = seconds(100_000), seconds(200_000)
+    assert large < 2.8 * small + 0.1, (shape, small, large)
 
 
-def test_bib_keys_and_register_limits_are_linear_too(tmp_path):
+def test_bib_keys_are_linear(tmp_path):
     check_term_index = load("check_term_index")
     proj = make(tmp_path, {"a.md": "x\n"})
     (proj / "refs.bib").write_text("\n" * 400_000 + "@book{Key2020,\n title = {T}\n}\n")
@@ -760,12 +772,20 @@ def test_init_refuses_links_and_folders_inside_a_project(tmp_path):
     make(tmp_path, {"a.md": "A term register.\n", "notes/b.md": "x\n"})
     r = run(BUILD, tmp_path, "init", "Demo/notes")
     assert r.returncode == 2 and not (tmp_path / "Projects" / "Demo" / "notes" / "terminology").exists()
+    for never_searched in ("plans", "Demo/terminology", "node_modules/pkg"):
+        (tmp_path / "Projects" / never_searched).mkdir(parents=True, exist_ok=True)
+        assert run(BUILD, tmp_path, "init", never_searched).returncode == 2, never_searched
     outside = tmp_path / "outside"
     (outside / "sub").mkdir(parents=True)
     if hasattr(os, "symlink"):
         (tmp_path / "Projects" / "alias").symlink_to(outside, target_is_directory=True)
         for target in ("alias", "alias/sub"):
             assert run(BUILD, tmp_path, "init", target).returncode == 2, target
+        assert not list(outside.rglob("terms.json"))
+        linked_root = tmp_path / "linked-root"  # a repository whose Projects/ is itself a link
+        linked_root.mkdir()
+        (linked_root / "Projects").symlink_to(outside, target_is_directory=True)
+        assert run(BUILD, linked_root, "init", "sub").returncode == 2
         assert not list(outside.rglob("terms.json"))
         build(tmp_path)
         (tmp_path / "Projects" / "Demo" / "terminology" / "index" / "linked").symlink_to(outside, target_is_directory=True)
@@ -785,10 +805,17 @@ def test_project_discovery_agrees_with_the_citation_detector(tmp_path):
         path = tmp_path / "Projects" / rel
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("x\n")
+    layout_local = tmp_path / ".projects" / "Scratch" / "00-research-plan.md"  # searched by the detector only
+    layout_local.parent.mkdir(parents=True)
+    layout_local.write_text("x\n")
+    (tmp_path / "Projects" / "terminology").mkdir()  # a project that happens to be called terminology
+    (tmp_path / "Projects" / "terminology" / "00-research-plan.md").write_text("x\n")
     mine = {p.relative_to(tmp_path).as_posix() for p in load("term_index_engine").discover(tmp_path)}
     detector = subprocess.run(["bash", str(ROOT / "scripts" / "check_citation_integrity.sh")], capture_output=True,
                               text=True, env={**os.environ, "RT_ROOT": str(tmp_path), "CITATION_INTEGRITY_ADVISORY": "1"})
-    theirs = set(re.findall(r"^=== (Projects/\S+)$", detector.stdout, re.M))
+    theirs = set(re.findall(r"^=== (\.?[Pp]rojects/\S+)$", detector.stdout, re.M))
+    assert ".projects/Scratch" in theirs and "Projects/terminology" in mine  # the documented difference
+    theirs.discard(".projects/Scratch")
     assert mine == theirs and "Projects/.drafts/Hidden" in mine and "Projects/plans/NotAProject" not in mine, (mine, theirs)
 
 
@@ -816,7 +843,8 @@ def test_documents_created_in_another_order_give_the_same_bytes(tmp_path):
     assert snapshots[0] == snapshots[1]
 
 
-SCRIPTS = {ENGINE: 650, BUILD: 300, CHECK: 250, QUERY: 100}
+# The engine's limit was 650; the third review raised it to 700 so that the section dividers could stay.
+SCRIPTS = {ENGINE: 700, BUILD: 300, CHECK: 250, QUERY: 100}
 ALLOWED_IMPORTS = {"__future__", "bisect", "dataclasses", "hashlib", "json", "os", "re", "stat", "sys",
                    "tempfile", "pathlib", "fcntl", "term_index_engine"}
 BANNED_CALLS = {"system", "popen", "fork", "eval", "exec", "__import__", "execv", "execve",
@@ -866,7 +894,7 @@ def test_reference_headings_and_project_markers_match_the_citation_detector():
     assert heading in detector and heading in engine
     for marker in ('"$d/00-research-plan.md"', '"$d/references"', '"$d"/[0-9][0-9]-*.md'):
         assert marker in detector, marker
-    for marker in ('"00-research-plan.md"', '"references"', r"\d\d-.*\.md$"):
+    for marker in ('"00-research-plan.md"', '"references"', r"[0-9][0-9]-.*\.md$"):
         assert marker in engine, marker
     for pruned in ("JSModules", "cssfiles", "node_modules", "plans", ".agentteams-backups"):
         assert f"'{pruned}'" in detector and f'"{pruned}"' in engine, pruned

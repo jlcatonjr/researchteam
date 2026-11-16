@@ -67,7 +67,7 @@ def required(root: Path) -> bool:
 
 
 def bib_keys(proj: Path) -> set[str]:
-    """Citation keys in the project's own .bib files. A repository-level bibliography is not consulted."""
+    """Citation keys in every .bib file under the project. A repository-level bibliography is not consulted."""
     keys: set[str] = set()
     for bib in sorted(proj.rglob("*.bib")):
         if bib.is_file() and not bib.is_symlink():
@@ -171,7 +171,7 @@ def run(argv: list[str]) -> int:
     if argv:
         proj = engine.resolve(root, argv[0])
         if proj is None:
-            print(f"ERROR: no project under Projects/ matches: {argv[0]}", file=sys.stderr)
+            print(f"ERROR: no project under Projects/ matches: {engine.shown(argv[0])}", file=sys.stderr)
             return 2
         targets = [proj]
     require = required(root)

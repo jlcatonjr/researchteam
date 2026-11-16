@@ -15,7 +15,7 @@ Usage:
   python3 scripts/build_term_index.py build [project]   rebuild one project, or every registered one
   python3 scripts/build_term_index.py init <project>    write a starter register (never overwrites)
   python3 scripts/build_term_index.py hook              Claude Code hook: payload on stdin
-Exit codes: build/init 0 ok, 1 defect, 2 usage error. hook: 0 done or nothing to do, 2 feedback for the
+Exit codes: build/init 0 ok, 1 defect, 2 usage or environment error. hook: 0 done or nothing to do, 2 feedback for the
 agent about the file just edited. Env: RT_ROOT=<path> overrides the repository root (test harness).
 
 The register is read and the text is matched by term_index_engine.py, which the gate and the query also
@@ -34,7 +34,6 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import term_index_engine as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
-from term_index_engine import Assessment, shown  # noqa: E402
 
 try:
     import fcntl
@@ -44,8 +43,8 @@ except ImportError:  # non-POSIX: no lock; the atomic replace still keeps every 
 MAX_STDIN = 1_000_000
 
 
-class RefusedWrite(OSError):
-    """A write this script will not make: the path goes through a symbolic link."""
+class RefusedWrite(Exception):
+    """A write this script will not make: the path goes through a symbolic link. A decision, not an OS error."""
 
 STARTER = {"schema": engine.REGISTER_SCHEMA, "schema_version": engine.SCHEMA_VERSION,
            "scope": {"include": ["**/*.md"], "exclude": []}, "terms": [], "allow": []}
@@ -67,11 +66,12 @@ def write_files(proj: Path, files: dict[str, bytes]) -> list[str]:
     tdir, changed = proj / "terminology", []
     if tdir.is_symlink():
         raise RefusedWrite("refusing to write through a symbolic link: terminology/")
+    for rel in sorted(files):  # check every target before writing any, so a refusal leaves nothing half done
+        _make_dirs(tdir, tdir / rel)
+        if (tdir / rel).is_symlink():
+            raise RefusedWrite("refusing to write through a symbolic link under terminology/")
     for rel, data in sorted(files.items()):
         target = tdir / rel
-        _make_dirs(tdir, target)
-        if target.is_symlink():
-            raise RefusedWrite("refusing to write through a symbolic link under terminology/")
         if target.is_file() and target.read_bytes() == data:
             continue
         fd, tmp = tempfile.mkstemp(dir=target.parent, prefix=".term-index-", suffix=".tmp")
@@ -93,7 +93,7 @@ def write_files(proj: Path, files: dict[str, bytes]) -> list[str]:
     return changed
 
 
-def rebuild(proj: Path, reuse: bool = False) -> tuple[Assessment, list[str] | None]:
+def rebuild(proj: Path, reuse: bool = False) -> tuple[engine.Assessment, list[str] | None]:
     """Assess and write under one lock. Returns the assessment and what was written.
 
     What was written is None exactly when the assessment is not usable (no register, or a defect in it).
@@ -120,7 +120,7 @@ def cmd_build(args: list[str]) -> int:
     if args:
         proj = engine.resolve(root, args[0])
         if proj is None:
-            print(f"ERROR: no project under Projects/ matches: {args[0]}", file=sys.stderr)
+            print(f"ERROR: no project under Projects/ matches: {engine.shown(args[0])}", file=sys.stderr)
             return 2
         targets = [proj]
     else:
@@ -131,15 +131,15 @@ def cmd_build(args: list[str]) -> int:
         try:
             a, written = rebuild(proj)
         except RefusedWrite as exc:
-            print(f"{shown(name)}: not written ({exc})")
+            print(f"{engine.shown(name)}: not written ({exc})")
             worst = 1
             continue
         if written is None:
             worst = 1
             for code, msg in a.problems or [("NOREG", "no term register here")]:
-                print(f"{shown(name)}: DEFECT[{code}] {msg}")
+                print(f"{engine.shown(name)}: DEFECT[{code}] {msg}")
         else:
-            print(f"{shown(name)}: {len(a.docs)} documents indexed, {len(written)} generated files written")
+            print(f"{engine.shown(name)}: {len(a.docs)} documents indexed, {len(written)} generated files written")
     if not targets:
         print("No project has a term register; nothing was built.")
     return worst
@@ -151,10 +151,14 @@ def cmd_init(args: list[str]) -> int:
     proj = root / "Projects" / wanted
     base = os.path.realpath(root / "Projects")
     # No symbolic link anywhere on the way: the real path must be the path as written, inside Projects/.
-    safe = (wanted and ".." not in wanted.split("/") and proj.is_dir()
+    safe = (wanted and ".." not in wanted.split("/") and proj.is_dir() and not (root / "Projects").is_symlink()
             and os.path.realpath(proj) == os.path.join(base, *wanted.split("/")))
     if not safe:
         print("usage: build_term_index.py init <project>   (an existing directory under Projects/)", file=sys.stderr)
+        return 2
+    parts = wanted.split("/")
+    if len(parts) > engine.MAX_DEPTH or any(part in engine.PRUNED_DIRS or part == "terminology" for part in parts):
+        print("ERROR: that directory is one the term index never searches; nothing written.", file=sys.stderr)
         return 2
     projects = engine.discover(root)
     if not engine.is_research_project(proj):
@@ -170,7 +174,7 @@ def cmd_init(args: list[str]) -> int:
         return 1
     tdir.mkdir(exist_ok=True)
     (tdir / "terms.json").write_text(json.dumps(STARTER, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote Projects/{shown(wanted)}/terminology/terms.json. Add terms, then run term-build.")
+    print(f"Wrote Projects/{engine.shown(wanted)}/terminology/terms.json. Add terms, then run term-build.")
     return 0
 
 
@@ -206,7 +210,7 @@ def _run_hook(root: Path) -> int:
         return 0
     feedback: list[str] = []
     for target in ([proj] if proj else engine.discover(root)):
-        name = shown(target.relative_to(root).as_posix())
+        name = engine.shown(target.relative_to(root).as_posix())
         if mode == "all" and engine.manifest_is_current(target):
             continue
         a, written = rebuild(target, reuse=True)
@@ -214,7 +218,7 @@ def _run_hook(root: Path) -> int:
             if rel == "terminology/terms.json":
                 feedback += [f"{name}: DEFECT[{code}] {msg}" for code, msg in a.problems]
         elif rel in a.docs:
-            feedback += [f"{name}/{shown(rel)}:{o['line']}:{o['column']} DEFECT[DISC] term '{o['term']}'"
+            feedback += [f"{name}/{engine.shown(rel)}:{o['line']}:{o['column']} DEFECT[DISC] term '{o['term']}'"
                          for o in engine.disc_violations(a.register, rel, a.docs[rel][1])]
     if not feedback:
         return 0
@@ -245,6 +249,9 @@ def main(argv: list[str]) -> int:
         return cmd_hook(argv[1:])
     try:
         return COMMANDS[argv[0]](argv[1:])
+    except RefusedWrite as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
     except OSError as exc:  # the I/O boundary: an unreadable or unwritable path is an environment error
         print(f"ERROR: could not run ({type(exc).__name__})", file=sys.stderr)
         return 2

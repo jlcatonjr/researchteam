@@ -68,7 +68,7 @@ def run(argv: list[str]) -> int:
         for o in occs:
             if o["term"] == term["id"]:
                 flags = o["kind"] + (", quoted" if o["quoted"] else "")
-                print(f"  {rel}:{o['line']}:{o['column']}  {o['form']}  ({flags})")
+                print(f"  {engine.shown(rel)}:{o['line']}:{o['column']}  {o['form']}  ({flags})")
     return 0
 
 

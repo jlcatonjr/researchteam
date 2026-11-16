@@ -144,3 +144,11 @@ def test_term_commands_dispatch(tmp_path):
     assert query.returncode == 0 and "01-review.md:1:3" in query.stdout
     again = subprocess.run(bridge + ["term-init", "Demo"], capture_output=True, text=True)
     assert again.returncode == 1
+
+
+def test_validate_fails_when_the_gate_is_present_without_its_engine(tmp_path):
+    repo = _repo(tmp_path)
+    shutil.copy(ROOT / "scripts" / "check_term_index.py", repo / "scripts")
+    r = _validate(repo)
+    assert r.returncode == 1 and "cannot run" in r.stderr and "Validation completed." not in r.stdout
+

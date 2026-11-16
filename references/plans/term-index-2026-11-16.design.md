@@ -142,6 +142,15 @@ The first implementation (commit 761c938) was reviewed by `@security`, `@code-hy
   An empty `term_index_require` is an error. The timing tests no longer depend on the clock: they
   compare the time for an input with the time for twice that input.
 
+- **I12. Third review (commit 2f5c99f).** `@security` found that the cap on forms per first word was
+  counted per offset and so could be multiplied, and that `term-init` passed when `Projects/` was itself
+  a symbolic link. `@code-hygiene` found the same cap problem, that plural keys were still built two
+  ways (so a form ending in a separator could take another term's matches), and that the protocol
+  called the project search "the detector's" while it differed in three ways. All fixed: the cap counts
+  across offsets; one function builds every key a form answers to, and a form may not begin or end with
+  a separator; the differences are stated. The engine's limit was raised to 700 lines so the section
+  dividers could be restored.
+
 Corrections to this record, found by the same review: acceptance criterion 13 said the hook exits 2 only
 for a broken register; it also exits 2 for a discouraged form in the file just edited. An oversized
 document is a `[SCOPE]` defect, not `[SCHEMA]`. A wrapped form continues after a blockquote prefix or
@@ -220,8 +229,8 @@ relative to the project.
   `discouraged`, `source`, `notes`, `plural` (default `true`).
 - An unknown key is a `[SCHEMA]` defect, so a misspelt key is not silently ignored.
 - `allow` records a deliberate use of a term's discouraged forms in one file, with a reason.
-- Limits, enforced as `[SCHEMA]`: 5,000 terms, 50 forms per term, 200 characters per form, a 1 MB
-  register, 5 MB per document.
+- Limits bound the size of a register and the work of matching. They are listed in
+  `docs/term-index-protocol.md` ("The register") and are not repeated here.
 - An empty `terms` list is valid. `term-init` writes one.
 
 ### 2.3 Matching

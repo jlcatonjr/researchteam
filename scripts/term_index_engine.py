@@ -74,6 +74,7 @@ class Assessment:
         return self.status == OK and not self.problems
 
 
+# ----------------------------------------------------------------------------- locating projects
 def repo_root() -> Path:
     return Path(os.environ.get("RT_ROOT") or Path(__file__).parent.parent).resolve()
 
@@ -82,7 +83,7 @@ def is_research_project(d: Path) -> bool:
     """The citation detector's predicate: a research plan, a references/ directory, or an NN-*.md file."""
     if (d / "00-research-plan.md").is_file() or (d / "references").is_dir():
         return True
-    return any(re.match(r"\d\d-.*\.md$", p.name) for p in d.iterdir() if p.is_file())
+    return any(re.match(r"[0-9][0-9]-.*\.md$", p.name) for p in d.iterdir() if p.is_file())
 
 
 def is_project(d: Path) -> bool:
@@ -90,13 +91,17 @@ def is_project(d: Path) -> bool:
 
 
 def discover(root: Path) -> list[Path]:
-    """Every project under Projects/, nested ones included, to MAX_DEPTH levels: the citation detector's
-    search (all directories but the pruned names). A register's own `terminology` folder is never one."""
+    """Every project under Projects/, nested ones included, down to MAX_DEPTH levels.
+
+    The search follows the citation detector's: every directory but the pruned names. It differs in
+    three ways, stated in the protocol: only Projects/ is searched, it stops at MAX_DEPTH, and a
+    project's own `terminology` folder (its register) is not searched.
+    """
     found: list[Path] = []
 
     def walk(d: Path, depth: int) -> None:
         for child in sorted(p for p in d.iterdir() if p.is_dir() and not p.is_symlink()):
-            if child.name in PRUNED_DIRS or child.name == "terminology":
+            if child.name in PRUNED_DIRS or (child.name == "terminology" and is_project(d)):
                 continue
             if is_project(child):
                 found.append(child)
@@ -127,11 +132,17 @@ def shown(path: str) -> str:
     return path if SAFE_PATH.match(path) else "<path withheld: unusual characters>"
 
 
+# ----------------------------------------------------------------------------- the register
 def form_key(text: str, folds: bool = True) -> str:
     """The one test of whether two forms, or a form and matched text, are the same. Whatever the matcher
     lets stand between words (spaces, a line break, hyphens, emphasis, a blockquote prefix) is one space."""
     flat = " ".join(w for w in re.split(r"[\s>*_-]+", text) if w)
     return flat.casefold() if folds else flat
+
+
+def form_keys(form: str, plural: bool, folds: bool = True) -> set[str]:
+    """Every key a form answers to: itself and, with the automatic plural, its `s` and `es` forms."""
+    return {form_key(form + suffix, folds) for suffix in (("", "s", "es") if plural else ("",))}
 
 
 def match_words(form: str) -> list[str]:
@@ -171,6 +182,8 @@ def _check_term(term, n: int, seen: set, problems: list) -> int:
     if len(forms) > MAX_FORMS or any(len(f) > MAX_FORM_CHARS or len(match_words(f)) > MAX_FORM_WORDS for f in forms):
         problems.append(("SCHEMA", f"{where}: at most {MAX_FORMS} forms, each at most {MAX_FORM_CHARS} characters "
                                    f"and {MAX_FORM_WORDS} words"))
+    if any(f != f.strip(" \t\n>*_-") for f in forms):
+        problems.append(("SCHEMA", f"{where}: a form may not begin or end with a space, hyphen, underscore, > or *"))
     # Every word needs a letter or digit: a word of only markup characters could match almost anywhere.
     if any(not match_words(f) or not all(WORD.search(w) for w in match_words(f)) for f in forms):
         problems.append(("SCHEMA", f"{where}: every word of a form must contain a letter or a digit"))
@@ -255,10 +268,7 @@ def _ambiguities(terms: list) -> list:
     out = []
     for term in terms:
         for form, kind in term_forms(term):
-            keys = {form_key(form)}
-            if term.get("plural", True):
-                keys |= {form_key(form) + "s", form_key(form) + "es"}
-            for key in keys:
+            for key in form_keys(form, term.get("plural", True)):
                 prev = owner.setdefault(key, (term["id"], kind == "discouraged"))
                 if prev[0] != term["id"]:
                     out.append(("AMBIG", f"terms '{prev[0]}' and '{term['id']}' claim the same form"))
@@ -269,23 +279,24 @@ def _ambiguities(terms: list) -> list:
 
 def lead_key(form: str) -> tuple[bool, str, int]:
     """How the matcher files a form: case mode, the first run of letters and digits in its first word,
-    and where that run starts in the word. ".NET runtime" is filed under "net", offset 1: a form can
-    only begin where its leading run begins, less the offset. Every word of a valid form has such a run.
+    and the offset of that run in the word. ".NET runtime" is filed under "NET" with offset 1: in text,
+    the form starts `offset` characters before the word the scan is visiting. Every word of a valid form
+    has such a run (checked when the register is loaded).
     """
     folds, run = form == form.lower(), WORD.search(match_words(form)[0])
-    lead, offset = (run.group(), run.start()) if run else ("", 0)
-    return folds, (lead.casefold() if folds else lead), offset
+    return folds, (run.group().casefold() if folds else run.group()), run.start()
 
 
 def _crowded_leads(terms: list) -> list:
     counts: dict[tuple, int] = {}
     for term in terms:
         for form, _ in term_forms(term):
-            counts[lead_key(form)] = counts.get(lead_key(form), 0) + 1
+            counts[lead_key(form)[:2]] = counts.get(lead_key(form)[:2], 0) + 1  # counted across offsets
     return [("SCHEMA", f"more than {MAX_FORMS_PER_LEAD} forms begin with the same word (one group has {n})")
             for n in sorted(set(counts.values())) if n > MAX_FORMS_PER_LEAD][-1:]
 
 
+# ----------------------------------------------------------------------------- which documents
 def glob_match(pattern: str, path: str) -> bool:
     """Match a scope glob (`**/`, `**`, `*`, `?`) against a POSIX relative path. Own matcher: pathlib's
     differs across Python versions, and a compiled glob could backtrack. This keeps the positions
@@ -339,6 +350,7 @@ def read_document(path: Path) -> bytes | None:
     return path.read_bytes()
 
 
+# ----------------------------------------------------------------------------- masking what is not prose
 def _blank(chars: list, start: int, end: int) -> None:
     for i in range(start, end):
         if chars[i] != "\n":
@@ -444,9 +456,11 @@ def _paragraph_quotes(masked: str, start: int, end: int) -> list[tuple[int, int]
     return spans
 
 
+# ----------------------------------------------------------------------------- matching
 class Matcher:
     """Every form of a register, filed by lead_key. The scan visits each word of a document once and
-    tries only the forms filed under it: at most MAX_FORMS_PER_LEAD, each at most MAX_FORM_WORDS words.
+    tries the forms filed under the word and under its singular, in each case mode: at most
+    MAX_FORMS_PER_LEAD per word and case mode, whatever their offsets, each at most MAX_FORM_WORDS words.
     Lower-case forms match without regard to case; a form with a capital letter matches exactly.
     """
 
@@ -460,8 +474,8 @@ class Matcher:
             for form, kind in term_forms(term):
                 key = lead_key(form)
                 words = match_words(form)
-                for suffix in ("", "s", "es") if plural else ("",):
-                    self.lookup.setdefault((key[0], form_key(form + suffix, key[0])), (term["id"], form, kind))
+                for form_id in form_keys(form, plural, key[0]):
+                    self.lookup.setdefault((key[0], form_id), (term["id"], form, kind))
                 body = SEP.join(re.escape(w) for w in words) + ("(?:e?s)?" if plural else "")
                 self.bodies.setdefault(key, []).append((len(form), body))
                 self.offsets.setdefault(key[:2], set()).add(key[2])
@@ -474,6 +488,11 @@ class Matcher:
         return self.compiled[key]
 
     def _hits(self, searchable: str) -> list[tuple[int, int, tuple[str, str, str]]]:
+        """Candidate (start, end, (term, form, kind)) matches; the caller resolves overlaps.
+
+        For each word, and for its singular, try the forms filed under it in each case mode, starting
+        `offset` characters before the word. The matched text is mapped back to its form by form_key.
+        """
         hits = []
         for word in WORD.finditer(searchable):
             token, start = word.group(), word.start()
@@ -520,6 +539,7 @@ def disc_violations(reg: dict, rel: str, occs: list[dict]) -> list[dict]:
     return [o for o in occs if o["kind"] == "discouraged" and not o["quoted"] and o["term"] not in allowed]
 
 
+# ----------------------------------------------------------------------------- rendering
 def escape(value: str) -> str:
     """Register text is data. Neutralise markup so the glossary cannot carry links, HTML or fences."""
     flat = " ".join(str(value).split()).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -558,6 +578,7 @@ def _glossary(proj: Path, reg: dict) -> bytes:
     return "\n".join(lines).encode()
 
 
+# ----------------------------------------------------------------------------- the committed manifest, and assessing a project
 def _read_json(path: Path):
     """A committed generated file as parsed JSON, or None when it is absent, a link, or not JSON."""
     try:

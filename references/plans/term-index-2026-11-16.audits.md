@@ -261,3 +261,32 @@ first two are bounded by the 5 MB document limit; the third reads only files the
 | H2-14 | low | `[SRC]` does not fall back to a repository-level bibliography | documented in the protocol |
 | H-14 | low | Documents map to a positional pair | not done: a named pair would add lines the engine's limit has no room for |
 
+## Part 4. Review of the second fix commit (2f5c99f)
+
+### 4.1 `@security` — CONDITIONAL PASS, two required changes
+
+| ID | Severity | Finding | Disposition |
+|---|---|---|---|
+| N1 / RC-1 | medium | The cap of 32 forms per first word was counted per offset, so forms such as `.a x`, `..a x` could put thousands of forms under one word | done: counted across offsets; tests for the register and for the offset path |
+| N2 / RC-2 | low | `term-init` passed when `Projects/` was itself a symbolic link | done: refused, with a test |
+| N3 | low | The "symbol-led forms" test shape missed the offset path | done: corrected, and shapes added for several offsets, plural stems and a long run of spaces |
+| T1 | recommendation | The scaling test's slack could hide a fast quadratic | done: n of 100,000 and 200,000, with `large < 2.8 × small + 0.1` |
+| G1, D1, B1 | recommendations | Collapse runs of `*` in globs; prune `.venv` and similar from discovery; cap `.bib` size | not done: G1 is bounded by the pattern caps; D1 would have to change the citation detector as well, to keep the two searches the same; B1 reads only the project's own files |
+
+### 4.2 `@code-hygiene` — PASS WITH CHANGES
+
+| ID | Severity | Finding | Disposition |
+|---|---|---|---|
+| N3-01 | high | Plural keys built two ways; a form ending in `*`, `_`, `>` or `-` could take another term's matches | done: one function builds every key; a form may not begin or end with a separator |
+| N3-02 | high | Same as N1 | done |
+| N3-03 | medium | The protocol said the project search "is the detector's" although it differs in three ways; every `terminology` directory was skipped | done: differences stated; only a project's own `terminology/` is skipped |
+| ceiling | — | Raise the engine's limit to 700 and restore the section dividers | done |
+| N3-04 | medium | A refused write could leave some files already written | done: every target is checked before any is written |
+| N3-05 to N3-10 | low | Unsanitised paths in three messages; two import styles; a docstring's exit codes; `[SCOPE]` row incomplete; dead branch in `lead_key`; `_hits` undocumented | done |
+| N3-11 | low | The gate walks the tree even when a project is named | not done: one extra directory walk per run |
+| N3-12 | low | `init` accepted a directory discovery never finds | done |
+| N3-13 to N3-15, N3-18 | low | Stale limits in the design; test names and an untested bridge branch; a digit class wider than the detector's | done |
+| N3-16, N3-17 | low | `.bib` files of nested projects are read; an unreadable register is a defect, not an environment error | documented in the code; both fail the gate |
+| H-14 | low | Documents map to a positional pair | not done in this change |
+| `RefusedWrite` | optional | A refusal is a decision, not an OS error | done: no longer a subclass of `OSError` |
+
