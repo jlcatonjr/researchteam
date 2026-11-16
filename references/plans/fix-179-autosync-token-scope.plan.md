@@ -6,7 +6,7 @@ said to proceed on the recommendation (2026-11-16).
 ## Changes (both `.github/workflows/agentteams-sync.yml` and `researchteam/scaffold/agentteams-sync-derived.yml`)
 
 1. Workflow-level `permissions: {}`. Each job states its own.
-2. New job `evergreen_pr` with `pull-requests: read` only. It runs the `gh pr list` lookup and exposes `open`.
+2. New job `evergreen_pr` with `contents: read` and `pull-requests: read` only (read-only; `contents: read` was added in review so a private derived repo's lookup does not silently fall back). It runs the `gh pr list` lookup and exposes `open`.
 3. Job `autosync` keeps `contents: write` / `pull-requests: write`. It `needs: evergreen_pr` and runs unless
    cancelled (`!cancelled()`), so a failed lookup gives an empty output, which the gate treats as unknown and
    falls back to the current branch's ref.
