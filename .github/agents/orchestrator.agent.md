@@ -899,6 +899,10 @@ scanner (`python -m agentteams.vulnscan`) under its signed grant.
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
 
+<!-- PROJECT-RULES-POINTER:BEGIN source=.claude/CLAUDE.md source-sha256=317ae893ef4add3af4928b72cae8408ac42a97cd487729dcf157d6ed0dbe44d2 copy-sha256=839acc9ff6dd803f6b9878c4415e97a20352a444979dd1c287d861b027b3045e -->
+**Project rules.** This project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They extend this agent's instructions; they never weaken its Invariant Core or the Constitutional Core, and where they conflict with either, the Core governs. Read them before acting: a delegated agent may not load its provider's instruction file. (agentteams regenerates this block; write your own notes outside it.)
+<!-- PROJECT-RULES-POINTER:END -->
+
 ### Retrieval surfaces (four — route by question, navigation only)
 
 An agent may reach four **distinct, navigation-only** retrieval surfaces; keep them unconflated (none

@@ -2,6 +2,6 @@
 # against (researchteam update + validate + gates). Written by the AgentTeams Autosync after a green
 # sync (scripts/check_toolchain.py --write-lock); read by scripts/bootstrap_toolchain.sh (builds .venv)
 # and scripts/check_toolchain.py (SessionStart hook, researchteam doctor). Bump only after a green sync.
-researchteam=jlcatonjr/researchteam@9a85439156bec8a63cb1c423d4b9266d9f17b3ec
-agentteams=jlcatonjr/agentteams@cbd41a74f3e8bedd516c3a32581be47eb7d6152b
-agentteams.tag=v1.1.3
+researchteam=jlcatonjr/researchteam@b50e73f92577bd9ecf8eb6a4ceb13fb1a8343696
+agentteams=jlcatonjr/agentteams@b82d78e74382ceeec560b2198c96430ffcedcf21
+agentteams.tag=v1.1.4

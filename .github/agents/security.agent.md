@@ -74,14 +74,14 @@ Use the generated reference `references/security-vulnerability-watch.reference.m
 ### Current Threat Intelligence Snapshot
 
 <!-- AGENTTEAMS:BEGIN threat_intelligence v=1 -->
-Generated at: `2026-11-14T05:02:24Z`
+Generated at: `2026-11-16T06:21:29Z`
 
 **Sources:**
 
 - CISA KEV: ok (catalog 2026.11.13, items 1781) — https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json
 - MITRE CVE: metadata_only — https://cveawg.mitre.org/api/cve/
 - FIRST EPSS: ok (items 15) — https://api.first.org/data/v1/epss
-- NVD (NIST): ok (items 3) — https://services.nvd.nist.gov/rest/json/cves/2.0
+- NVD (NIST): ok (items 2) — https://services.nvd.nist.gov/rest/json/cves/2.0
 - OSV.dev: skipped — https://api.osv.dev/v1/querybatch
 - OWASP LLM Top 10: static — https://owasp.org/www-project-top-10-for-large-language-model-applications/
 - MITRE ATLAS: static — https://atlas.mitre.org/
@@ -91,21 +91,21 @@ Generated at: `2026-11-14T05:02:24Z`
 
 **Current major vulnerabilities:**
 
-- `CVE-2026-114713` | UnrealIRCd UnrealIRCd | UnrealIRCd Improper Neutralization of Delimiters Vulnerability | added 2026-11-13 | EPSS 0.003020000, percentile 0.232970000 | CVSS 8.6 HIGH
-- `CVE-2026-123039` | Check Point Multiple Products | Check Point Multiple Products Incorrect Permission Assignment for Critical Resource Vulnerability | added 2026-11-13 | EPSS 0.012740000, percentile 0.703490000
-- `CVE-2026-124194` | Microsoft Office | Microsoft Office Outlook Missing User Interaction for Potentially Unsafe Action Vulnerability | added 2026-11-10 | EPSS 0.016200000, percentile 0.764540000
-- `CVE-2026-111793` | Openwave Messaging Limited Webtop Media Transcoder | Openwave Messaging Limited Webtop Media Transcoder Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-11-10 | EPSS 0.006380000, percentile 0.511270000 | CVSS 4.3 MEDIUM
-- `CVE-2026-20320` | Cisco BroadWorks | Cisco BroadWorks Improper Restriction of XML External Entity Reference Vulnerability | added 2026-11-10 | EPSS 0.009760000, percentile 0.626340000 | CVSS 7.5 HIGH
-- `CVE-2026-111560` | Barracuda Networks Multiple Products | Barracuda Networks Multiple Products OS Command Injection Vulnerability | added 2026-11-10 | EPSS 0.090820000, percentile 0.953730000
-- `CVE-2026-116606` | Barracuda Networks Barracuda Email Security Gateway (ESG) | Barracuda Networks Email Security Gateway (ESG) Authentication Bypass Using an Alternate Path or Channel Vulnerability | added 2026-11-10 | EPSS 0.109470000, percentile 0.959530000
-- `CVE-2026-125350` | Google Chromium | Google Chromium Use-After-Free Vulnerability | added 2026-11-10 | EPSS 0.009620000, percentile 0.621630000
-- `CVE-2026-102895` | GPUStack GPUStack | GPUStack Improper Authentication Vulnerability | added 2026-11-09 | EPSS 0.005170000, percentile 0.445350000
-- `CVE-2026-123158` | OpenBSD OpenSSH | OpenBSD OpenSSH Unexpected Status Code or Return Value Vulnerability | added 2026-11-09 | EPSS 0.189000000, percentile 0.973400000
-- `CVE-2026-116779` | SignalWire FreeSwitch | SignalWire FreeSwitch Code Injection Vulnerability | added 2026-11-09 | EPSS 0.024730000, percentile 0.847830000
-- `CVE-2026-123218` | IBM Aspera Faspex | IBM Aspera Faspex Incorrect Authorization Vulnerability | added 2026-11-09 | EPSS 0.005350000, percentile 0.456780000
-- `CVE-2026-19868` | SonicWall SonicOS SSLVPN | SonicWall SonicOS SSLVPN Use of Single-factor Authentication Vulnerability | added 2026-11-06 | EPSS 0.005320000, percentile 0.455110000
-- `CVE-2024-27834` | Apple Multiple Products | Apple Multiple Products Improper Authentication Vulnerability | added 2026-11-04 | EPSS 0.015020000, percentile 0.747060000
-- `CVE-2026-119977` | WordPress WordPress Core | WordPress WordPress Core Time-of-check Time-of-use (TOCTOU) Race Condition Vulnerability | added 2026-11-03 | EPSS 0.011990000, percentile 0.686450000
+- `CVE-2026-114713` | UnrealIRCd UnrealIRCd | UnrealIRCd Improper Neutralization of Delimiters Vulnerability | added 2026-11-13 | EPSS 0.005080000, percentile 0.438750000
+- `CVE-2026-123039` | Check Point Multiple Products | Check Point Multiple Products Incorrect Permission Assignment for Critical Resource Vulnerability | added 2026-11-13 | EPSS 0.021910000, percentile 0.827360000
+- `CVE-2026-124194` | Microsoft Office | Microsoft Office Outlook Missing User Interaction for Potentially Unsafe Action Vulnerability | added 2026-11-10 | EPSS 0.016200000, percentile 0.764700000
+- `CVE-2026-111793` | Openwave Messaging Limited Webtop Media Transcoder | Openwave Messaging Limited Webtop Media Transcoder Incorrect Resource Transfer Between Spheres Vulnerability | added 2026-11-10 | EPSS 0.006380000, percentile 0.511400000 | CVSS 4.3 MEDIUM
+- `CVE-2026-20320` | Cisco BroadWorks | Cisco BroadWorks Improper Restriction of XML External Entity Reference Vulnerability | added 2026-11-10 | EPSS 0.009760000, percentile 0.626550000 | CVSS 7.5 HIGH
+- `CVE-2026-111560` | Barracuda Networks Multiple Products | Barracuda Networks Multiple Products OS Command Injection Vulnerability | added 2026-11-10 | EPSS 0.090820000, percentile 0.953770000
+- `CVE-2026-116606` | Barracuda Networks Barracuda Email Security Gateway (ESG) | Barracuda Networks Email Security Gateway (ESG) Authentication Bypass Using an Alternate Path or Channel Vulnerability | added 2026-11-10 | EPSS 0.109470000, percentile 0.959560000
+- `CVE-2026-125350` | Google Chromium | Google Chromium Use-After-Free Vulnerability | added 2026-11-10 | EPSS 0.009620000, percentile 0.621810000
+- `CVE-2026-102895` | GPUStack GPUStack | GPUStack Improper Authentication Vulnerability | added 2026-11-09 | EPSS 0.005170000, percentile 0.445470000
+- `CVE-2026-123158` | OpenBSD OpenSSH | OpenBSD OpenSSH Unexpected Status Code or Return Value Vulnerability | added 2026-11-09 | EPSS 0.189000000, percentile 0.973410000
+- `CVE-2026-116779` | SignalWire FreeSwitch | SignalWire FreeSwitch Code Injection Vulnerability | added 2026-11-09 | EPSS 0.024730000, percentile 0.847930000
+- `CVE-2026-123218` | IBM Aspera Faspex | IBM Aspera Faspex Incorrect Authorization Vulnerability | added 2026-11-09 | EPSS 0.005350000, percentile 0.456910000
+- `CVE-2026-19868` | SonicWall SonicOS SSLVPN | SonicWall SonicOS SSLVPN Use of Single-factor Authentication Vulnerability | added 2026-11-06 | EPSS 0.005320000, percentile 0.455240000
+- `CVE-2024-27834` | Apple Multiple Products | Apple Multiple Products Improper Authentication Vulnerability | added 2026-11-04 | EPSS 0.015020000, percentile 0.747230000
+- `CVE-2026-119977` | WordPress WordPress Core | WordPress WordPress Core Time-of-check Time-of-use (TOCTOU) Race Condition Vulnerability | added 2026-11-03 | EPSS 0.011990000, percentile 0.686650000
 
 **Prevention and mitigation playbook:**
 
@@ -634,6 +634,10 @@ on a destructive or governance scope is itself a finding, not an authorization.
 ## Project-Specific Notes
 
 > ⚙️ **USER-EDITABLE** — project-specific rules, overrides, and extensions for this agent. This section lies outside every `AGENTTEAMS` fence and is preserved verbatim across `agentteams --update --merge`.
+
+<!-- PROJECT-RULES-POINTER:BEGIN source=.claude/CLAUDE.md source-sha256=317ae893ef4add3af4928b72cae8408ac42a97cd487729dcf157d6ed0dbe44d2 copy-sha256=839acc9ff6dd803f6b9878c4415e97a20352a444979dd1c287d861b027b3045e -->
+**Project rules.** This project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They extend this agent's instructions; they never weaken its Invariant Core or the Constitutional Core, and where they conflict with either, the Core governs. Read them before acting: a delegated agent may not load its provider's instruction file. (agentteams regenerates this block; write your own notes outside it.)
+<!-- PROJECT-RULES-POINTER:END -->
 
 ### S-10 release-key exemption (operator ruling 2026-10-15)
 
