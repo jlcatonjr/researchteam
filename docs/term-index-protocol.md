@@ -171,7 +171,7 @@ error.
 
 | Class | Code | Meaning | Exit effect |
 |---|---|---|---|
-| `DEFECT` | `[SCHEMA]` | The register cannot be read or parsed, breaks a limit, has a wrong type or an unknown key, or repeats an `id` | blocks |
+| `DEFECT` | `[SCHEMA]` | The register cannot be read or parsed, breaks a limit, has a form of a shape the rules above refuse, has a wrong type or an unknown key, or repeats an `id` | blocks |
 | `DEFECT` | `[AMBIG]` | One form is claimed by two terms, or is both accepted and discouraged. Automatic plurals count | blocks |
 | `DEFECT` | `[SRC]` | A `source` key is in no `.bib` file under the project's folder (those of a nested project included). A repository-level bibliography is not consulted | blocks |
 | `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project, holds a backslash or is too long, a list has more than 64 patterns, or a document is not a regular file or is too large | blocks |
@@ -201,7 +201,7 @@ a repository red: when only the builder changed, the check asks for a rebuild an
   so a misspelling cannot switch the requirement off unnoticed. A research project is a directory under
   `Projects/` that holds a research plan, a `references/` folder or a numbered deliverable. The search
   follows the citation detector's: hidden directories are searched, and folders named `plans`,
-  `JSModules`, `cssfiles`, `node_modules`, `.git` and `.agentteams-backups` are not. It differs in three
+  `JSModules`, `cssfiles`, `node_modules`, `.git` and `.agentteams-backups` are not. It differs in four
   ways: only `Projects/` is searched (the detector also searches `.projects/`), it stops at twelve
   levels, a project's own `terminology/` folder is not searched, and a directory that holds a term
   register is a project even without one of those markers.
