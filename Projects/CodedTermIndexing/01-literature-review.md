@@ -19,8 +19,8 @@ what that text states.
 Four terms are used in one sense throughout. Their canonical definitions are in
 `terminology/terms.json`. A **coded definition** is a term definition held as structured data that a
 program can read. A **term register** is the set of coded definitions a project maintains. An
-**occurrence index** is a derived record of every place a registered term, or one of its listed variants,
-appears in the project's documents. An index is **synced** when automatic triggers regenerate it as the
+**occurrence index** is a derived record of every place a given form appears in a body of documents; in
+this project's design the forms are a registered term and its listed variants. An index is **synced** when automatic triggers regenerate it as the
 documents or the register change, and any remaining staleness can be detected by a check.
 
 # Part I. The scholarly literature

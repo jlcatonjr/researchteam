@@ -78,6 +78,11 @@ agentteams descriptor (`brief.json` / `.github/agents/_build-description.json`).
 only, `materialize` refuses, and `doctor` says so. Without that line, a missing descriptor is an
 error that names both ways out: describe the project in `brief.json`, or add `layer1 = off`.
 
+**Term registers.** `term_index_require = true` in `.researchteam` makes a term register compulsory for
+every research project (`docs/term-index-protocol.md`). Accepted values are `true`/`yes`/`on`/`1` and
+`false`/`no`/`off`/`0`. `scripts/check_term_index.py` reads it. Upstream sets it; a derived repository
+decides for itself.
+
 **Project identity — generated, not synced:** `README.md` and the title + *Project Purpose* header
 of `CLAUDE.md` are generated from `brief.json` and are **not** part of layer-2 sync. `update` will
 never re-impose the framework's identity on them. Re-render them with `researchteam personalize`.

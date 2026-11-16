@@ -6,35 +6,58 @@
       "id": "downfall-timeline",
       "label": "Downfall Timeline",
       "definition": "The branch in which the Hero of Time is defeated.",
-      "variants": ["Downfall branch", "Downfall"],
-      "discouraged": ["Fallen Hero Timeline", "Defeat Timeline"],
-      "source": ["Nintendo2011"],
+      "variants": [
+        "Downfall branch",
+        "Downfall"
+      ],
+      "discouraged": [
+        "Fallen Hero Timeline",
+        "Defeat Timeline"
+      ],
+      "source": [
+        "Nintendo2011",
+        "Nintendo2018"
+      ],
       "plural": false,
-      "notes": "Wording of 01-literature-review.md, section 1."
+      "notes": "How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model."
     },
     {
       "id": "child-timeline",
       "label": "Child Timeline",
       "definition": "The branch in which Link returns and warns Zelda.",
-      "variants": ["Child branch"],
-      "source": ["Nintendo2011"],
+      "variants": [
+        "Child branch"
+      ],
+      "source": [
+        "Nintendo2011",
+        "Nintendo2018"
+      ],
       "plural": false,
-      "notes": "Wording of 01-literature-review.md, section 1."
+      "notes": "How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model."
     },
     {
       "id": "adult-timeline",
       "label": "Adult Timeline",
       "definition": "The branch left behind after Link disappears from that era.",
-      "variants": ["Adult branch"],
-      "source": ["Nintendo2011"],
+      "variants": [
+        "Adult branch"
+      ],
+      "source": [
+        "Nintendo2011",
+        "Nintendo2018"
+      ],
       "plural": false,
-      "notes": "Wording of 01-literature-review.md, section 1."
+      "notes": "How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model."
     },
     {
       "id": "timeline-split",
       "label": "timeline split",
       "definition": "The three-way division of the chronology after Ocarina of Time into the Downfall, Child and Adult branches.",
-      "variants": ["three-branch model", "three-branch structure", "three-way Zelda timeline split"],
+      "variants": [
+        "three-branch model",
+        "three-branch structure",
+        "three-way Zelda timeline split"
+      ],
       "source": "project definition"
     }
   ]

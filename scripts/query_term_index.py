@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """List where a registered term occurs in a project's documents.
 
-Purpose: the lookup for docs/term-index-protocol.md. It scans the documents afresh with the engine in
-    build_term_index.py, so its answer is current even when the committed index is stale. Read-only.
+Purpose: the lookup for docs/term-index-protocol.md. It scans the documents afresh with term_index_engine.py, so its answer is current even when the committed index is stale. Read-only.
 Lifecycle: UTILITY
 Created: 2026-11-16
 
@@ -23,30 +22,31 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import build_term_index as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
+import term_index_engine as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
 
 
 def find_term(reg: dict, query: str) -> dict | None:
+    """A term by its id, or else by one of its forms. An id always wins over another term's form."""
     wanted = engine.norm(query)
-    for term in reg["terms"]:
-        if term["id"] == query or any(engine.norm(form) == wanted for form, _ in engine.term_forms(term)):
-            return term
-    return None
+    by_id = [t for t in reg["terms"] if t["id"] == query]
+    by_form = [t for t in reg["terms"] if any(engine.norm(f) == wanted for f, _ in engine.term_forms(t))]
+    return (by_id or by_form or [None])[0]
 
 
-def main(argv: list[str]) -> int:
+def run(argv: list[str]) -> int:
     if len(argv) != 2:
         print('usage: query_term_index.py <project> "<label, variant or id>" | --list', file=sys.stderr)
         return 2
     root = engine.repo_root()
     proj = engine.resolve(root, argv[0])
     if proj is None:
-        print(f"ERROR: project not found under Projects/: {argv[0]}", file=sys.stderr)
+        print(f"ERROR: no project under Projects/ matches: {argv[0]}", file=sys.stderr)
         return 2
-    status, reg, problems, docs, _ = engine.inspect(proj)
-    if status != "ok":
-        print("No usable term register: " + ("; ".join(msg for _, msg in problems) or "run term-init"), file=sys.stderr)
+    a = engine.assess(proj)
+    if not a.usable:
+        print("No usable term register: " + ("; ".join(msg for _, msg in a.problems) or "run term-init"), file=sys.stderr)
         return 1
+    reg, docs = a.register, a.docs
     counts: dict[str, int] = {}
     for _, occs in docs.values():
         for o in occs:
@@ -68,6 +68,14 @@ def main(argv: list[str]) -> int:
                 flags = o["kind"] + (", quoted" if o["quoted"] else "")
                 print(f"  {rel}:{o['line']}:{o['column']}  {o['form']}  ({flags})")
     return 0
+
+
+def main(argv: list[str]) -> int:
+    try:
+        return run(argv)
+    except OSError as exc:  # the I/O boundary: an unreadable file is an environment error
+        print(f"ERROR: the query could not run ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

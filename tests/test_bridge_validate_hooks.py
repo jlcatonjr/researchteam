@@ -1,4 +1,5 @@
 """`claude_researchteam_bridge.sh validate` runs repo-owned checks from scripts/validate.d/."""
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -84,7 +85,7 @@ def test_the_example_project_commands_are_gone(cmd):
 
 # --------------------------------------------------------------------------- term-index step
 def _with_term_check(repo: Path) -> Path:
-    for name in ("build_term_index.py", "check_term_index.py"):
+    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py"):
         shutil.copy(ROOT / "scripts" / name, repo / "scripts")
     return repo
 
@@ -122,14 +123,13 @@ def test_validate_passes_with_no_register_and_fails_on_a_stale_index(tmp_path):
     assert _validate(repo).returncode == 1
 
 
-def test_validate_ignores_the_advisory_switch(tmp_path):
-    import os
-
+def test_validate_ignores_the_advisory_switch_and_a_foreign_root(tmp_path):
     repo = _with_term_check(_repo(tmp_path))
     _project(repo, "A term register.\n")
     r = subprocess.run(["bash", str(repo / "scripts" / "claude_researchteam_bridge.sh"), "validate"],
-                       capture_output=True, text=True, env={**os.environ, "TERM_INDEX_ADVISORY": "1"})
-    assert r.returncode == 1 and "ADVISORY MODE" not in r.stdout
+                       capture_output=True, text=True,
+                       env={**os.environ, "TERM_INDEX_ADVISORY": "1", "RT_ROOT": str(tmp_path / "elsewhere")})
+    assert r.returncode == 1 and "ADVISORY MODE" not in r.stdout and "DEFECT[STALE]" in r.stdout
 
 
 def test_term_commands_dispatch(tmp_path):

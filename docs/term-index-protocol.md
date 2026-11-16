@@ -61,7 +61,7 @@ where a form appears. It is not evidence, and the index is not a retrieval surfa
 | Field | Required | Meaning |
 |---|---|---|
 | `schema` | yes | Must be `researchteam-term-register`. A `terms.json` without it is not treated as a register |
-| `terms[].id` | yes | A lower-case slug: letters, digits and hyphens |
+| `terms[].id` | yes | A lower-case slug of 1 to 64 letters, digits and hyphens, starting with a letter or digit |
 | `terms[].label` | yes | The preferred form |
 | `terms[].definition` | yes | The definition, in the project's own words or a source's |
 | `terms[].variants` | no | Other accepted forms |
@@ -72,8 +72,10 @@ where a form appears. It is not evidence, and the index is not a retrieval surfa
 | `scope` | no | Which files are indexed. Default: every `.md` file in the project. `terminology/` is never indexed |
 | `allow` | no | A recorded exception: this term's discouraged forms may be used in this file, for this reason |
 
-An unknown key is a defect, so a misspelt key is not silently ignored. Limits: 5,000 terms, 50 forms per
-term, 200 characters per form, a 1 MB register, 5 MB per document. An empty `terms` list is valid.
+An unknown key is a defect, so a misspelt key is not silently ignored. `schema_version`, when present,
+must be `"1.0"`. Every word of a form must contain a letter or a digit. Limits: 5,000 terms, 50 forms per
+term, 20,000 forms in all, 200 characters per form, a 1 MB register, 5 MB per document. An empty `terms`
+list is valid.
 
 Rules for writing a register:
 
@@ -81,9 +83,12 @@ Rules for writing a register:
    accepts as variants.
 2. **One form, one concept.** A form may not belong to two terms. A word with two senses in the project
    is registered once per sense, each with a qualified label, such as "virtue (Stoic)" and "virtue
-   (Christian)".
+   (Christian)". A qualified label matches only that literal text, so list as variants the phrases the
+   documents really use for each sense, such as "Stoic virtue". The bare word cannot belong to both
+   terms, and its uses are then not indexed. This is a limit of matching by form.
 3. **Record where a definition comes from.** Use `"project definition"` for the project's own, or the
-   `.bib` keys of the sources it follows.
+   `.bib` keys of the sources it follows. A definition with no `source` is reported for review and does
+   not block: a project may register a term before it has settled where the definition comes from.
 4. **Do not register common words.** A label that is also an ordinary word will match its ordinary uses.
 5. **Record deliberate departures.** Where a document must use a discouraged form outside a quotation,
    add an `allow` entry with the reason.
@@ -97,9 +102,16 @@ Rules for writing a register:
   ignored. A match never crosses a blank line or leaves a heading.
 - The last word also matches with `s` or `es`, unless `plural` is `false`. List irregular plurals as
   variants.
-- Where forms overlap, the longest match wins.
-- Not searched: fenced code blocks, inline code, link targets, bare URLs, HTML comments, YAML front
-  matter, and any section headed References, Bibliography, Works Cited or Sources.
+- Where two forms could start at the same place, the longest wins. Where they overlap otherwise, the
+  one that starts first wins, so an accepted form can hide a discouraged form that begins inside it.
+- Not searched: fenced code blocks, inline code, link targets, reference-link definitions, bare URLs,
+  HTML comments, YAML front matter at the top of a file, and any section whose heading begins with
+  References, Bibliography, Works Cited or Sources (the citation detector's rule). Such a section ends
+  at the next heading.
+- Not indexed: `terminology/` itself, hidden directories, symbolic links, and a nested project, which has
+  its own register.
+- Scope patterns use `**/`, `**`, `*` and `?`. Other characters, brackets and braces included, are
+  literal.
 - An occurrence counts as quoted when it is in a blockquote, or between balanced double quotation marks,
   straight or curly, in the same paragraph. A paragraph with an odd number of straight marks exempts
   nothing. Single quotation marks do not count.
@@ -122,7 +134,7 @@ Component experts are the project's own: `@<component-slug>-expert`, one per `br
 
 | Agent | Role under this protocol |
 |---|---|
-| Expert of the scoping / research-plan component | Starts the register with the terms the research question depends on. The research plan points to the register and does not keep a second copy of the definitions |
+| Expert of the scoping / research-plan component | Starts the register with the terms the research question depends on. The research plan points to the register. Where a deliverable restates a definition for its reader, the register governs |
 | `@interpretation-advisor` | Says which terms have period or school senses, so they are registered once per sense |
 | Experts of the literature-review and analysis components | Propose terms and variants as the sources introduce them |
 | `@primary-producer` | Uses the preferred labels. Adds an `allow` entry, with a reason, for a deliberate departure |
@@ -139,6 +151,7 @@ bash scripts/claude_researchteam_bridge.sh term-build [project]                #
 bash scripts/claude_researchteam_bridge.sh term-check [project]                # the gate
 bash scripts/claude_researchteam_bridge.sh term-query <project> "<label or id>"  # where a term occurs
 # direct: python3 scripts/build_term_index.py build|init|hook ; scripts/check_term_index.py ; scripts/query_term_index.py
+# all three import scripts/term_index_engine.py, so they read a register and match text the same way
 ```
 
 `<project>` is a project's path under `Projects/`, or its directory name when that is unique.
@@ -155,7 +168,7 @@ error.
 | `DEFECT` | `[AMBIG]` | One form is claimed by two terms, or is both accepted and discouraged. Automatic plurals count | blocks |
 | `DEFECT` | `[SRC]` | A `source` key is not in the project's `.bib` | blocks |
 | `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project, or a document is too large | blocks |
-| `DEFECT` | `[STALE]` | No index was built, a document or the register changed since it was built, or a generated file was edited by hand | blocks |
+| `DEFECT` | `[STALE]` | No index was built, a document or the register changed since it was built, or a generated file is missing, was edited by hand, or is not one the builder writes | blocks |
 | `DEFECT` | `[DISC]` | A discouraged form is used outside a quotation with no `allow` entry | blocks |
 | `DEFECT` | `[ORPHAN]` | Generated index files exist and the register does not | blocks |
 | `DEFECT` | `[NOREG]` | The project has no register (see "Which projects need a register") | blocks |
@@ -176,7 +189,10 @@ a repository red: when only the builder changed, the check asks for a rebuild an
 
 - A project named on the command line must have one. `term-check <project>` is the pre-compile check.
 - A repository that sets `term_index_require = true` in `.researchteam` requires one for every research
-  project, and a scan reports `[NOREG]` for each that lacks it.
+  project, and a scan reports `[NOREG]` for each that lacks it. The value is `true`, `yes`, `on` or `1`,
+  or `false`, `no`, `off` or `0`. Any other value stops the check with an error, so a misspelling cannot
+  switch the requirement off unnoticed. A research project is a directory under `Projects/`, at any
+  depth, that holds a research plan, a `references/` folder or a numbered deliverable.
 - Otherwise a scan reports `NEEDS-REGISTER` and does not block.
 
 A run that found no register to check says `NOTHING CHECKED` and prints no pass line.
@@ -185,7 +201,7 @@ A run that found no register to check says `NOTHING CHECKED` and prints no pass 
 
 | Layer | Trigger | What it does | What it misses |
 |---|---|---|---|
-| 1 | Claude Code hooks: after `Write`, `Edit`, `MultiEdit`, `NotebookEdit` and `Bash`, and at `SessionStart` | Rebuilds the edited file's project, or every project whose inputs changed. Reports a discouraged form left in the file just edited | Sessions where the operator has not merged the example. Other harnesses. Edits made while no session runs, until the next one starts |
+| 1 | Claude Code hooks: after `Write`, `Edit`, `MultiEdit`, `NotebookEdit` and `Bash`, and at `SessionStart` | Rebuilds the edited file's project, or every project whose inputs changed. Reports a discouraged form left in the file just edited, or a defect in a register that was just edited | Sessions where the operator has not merged the example. Other harnesses. Edits made while no session runs, until the next one starts |
 | 2 | `term-build` | Rebuilds on request | Being forgotten |
 | 3 | An optional Git `pre-commit` check | Refuses a commit while the check fails | `--no-verify`. Clones that have not installed it |
 | 4 | `claude_researchteam_bridge.sh validate` | Runs the check over every project | Repositories whose CI does not run `validate` |
@@ -206,8 +222,10 @@ Merge the `hooks` entries of `.claude/settings.terms.example.json` into `.claude
 researchteam never edits `settings.json`. Hooks run outside the sandbox, and the command runs a script
 under `scripts/`, which agents can edit. Merging the example gives that script the same trust as the
 toolchain check. The builder writes only under `<project>/terminology/`, refuses symbolic links, makes no
-network call and starts no process. Its report to the agent carries term identifiers and positions, never
-document or register text.
+network call and starts no process. Its report to the agent carries finding codes, term identifiers,
+file paths and positions, never document or register text. A path with unusual characters is withheld.
+The hook skips a project whose files have not changed, and after an edit it rescans only the documents
+that changed. `term-build` and the gate always rescan everything.
 
 ### Optional Git hook (opt-in, per clone)
 
@@ -234,6 +252,9 @@ Give a new workflow the repository's own security review.
 - `researchteam update` syncs the scripts and this document. It never writes `Projects/`, so it cannot
   rebuild an index. After an update that changes the builder, `term-check` reports `[REBUILD]`. Run
   `term-build` and commit the result.
+- The builder carries a generator version, and it must change whenever the generated bytes would change
+  for the same inputs. That is how the gate tells an upgrade (advisory `[REBUILD]`) from a hand edit
+  (blocking `[STALE]`). A test upstream pins the output to the version.
 - Commit a project's `terminology/` files before running `researchteam update`. The update validator
   reports changed files outside its own scope.
 - A pull request that changes the builder's output should also rebuild the upstream projects' indexes.

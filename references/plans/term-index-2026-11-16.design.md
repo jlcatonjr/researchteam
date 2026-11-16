@@ -5,8 +5,11 @@
 that consistent usage can be enforced; every appearance of a listed term across project documentation
 should be indexed; and the index should be kept in sync by a hook or a similarly reliable trigger.
 **Research basis:** `Projects/CodedTermIndexing/` (literature review, analysis section 7, conclusion).
-**Status:** REVISED after audit. Section 0 records what the audit changed. Sections 1 to 6 are the plan
-that is implemented.
+**Status:** REVISED after audit and IMPLEMENTED. Section 0 records what the plan audit changed, and
+section 0a what the review of the implementation changed. Sections 1 to 6 describe what was built.
+`docs/term-index-protocol.md` is the authority for behaviour; where this record and the protocol differ,
+the protocol governs.
+**Audit findings in full:** `term-index-2026-11-16.audits.md`.
 **Tracking:** `term-index-2026-11-16.plan.md` and `.steps.csv` in this folder.
 
 ---
@@ -18,8 +21,8 @@ adversarial verdict was RETHINK. The resolutions below are binding.
 
 - **R1. The draft did not enforce usage (adversarial F-1, F-17).** Every blocking check in the draft
   concerned the register or the index. The one check on usage, a discouraged form in prose, was
-  advisory. The research itself reports that a register nothing checks usage against should not be
-  expected to produce consistent usage.
+  advisory. The research infers, as a judgement and not an established finding, that a register nothing
+  checks usage against should not be expected to produce consistent usage.
   → A discouraged form outside a quotation, with no recorded exception, is a blocking `DEFECT[DISC]`.
   A deliberate use is recorded in the register's `allow` list with a reason. The exception is the audit
   trail.
@@ -28,6 +31,8 @@ adversarial verdict was RETHINK. The resolutions below are binding.
   → A repository sets `term_index_require = true` in `.researchteam`. Every research project without a
   register is then a blocking `DEFECT[NOREG]`. Upstream sets it. Without the switch, a missing register
   blocks only when the project is named, which is the pre-compile check of Working Rule 8.
+  → This is a decision: the research recommends a register for every project, and a derived repository
+  is left to switch the requirement on for itself, so that an update cannot turn its validation red.
   → A project that has generated index files and no register is always a `DEFECT[ORPHAN]`.
   → A run that checked no register says so and does not print a pass line.
 - **R3. The "unavoidable" gate exists only upstream (F-18, conflict C01, hygiene 5).** Derived
@@ -60,7 +65,7 @@ adversarial verdict was RETHINK. The resolutions below are binding.
   not in the `.bib` is a blocking `DEFECT[SRC]`.
 - **R9. Code structure (hygiene 1, 2; C26).** One engine, no copied logic, no shell wrapper:
   `build_term_index.py` (engine and the commands that write), `check_term_index.py` (the gate, never
-  writes) and `query_term_index.py`. Each stays under 550 lines.
+  writes) and `query_term_index.py`. Each stays under 550 lines. (Changed in section 0a, I4.)
 - **R10. `validate` would break generic-profile repositories (C03, hygiene 5).** The bridge goes to
   every repository and the scripts only to scholarly ones.
   → The `validate` step is skipped when the check script is absent.
@@ -79,6 +84,60 @@ adversarial verdict was RETHINK. The resolutions below are binding.
 - **R15. Demonstrate on other projects before propagating (F-24).** Registers are added for
   `Projects/Matching/LaborMatchingMacroeconomics` and `Projects/ZeldaTimeline`, so the tool runs on a
   nested project and on two other subject areas.
+
+## 0a. What the review of the implementation changed
+
+The first implementation (commit 761c938) was reviewed by `@security`, `@code-hygiene` and
+`@conflict-auditor`, and an independent reviewer hunted for defects by experiment. The findings are in
+`term-index-2026-11-16.audits.md`. The resolutions:
+
+- **I1. A crafted register or document could stall the builder (security N1 to N3a).** A form made only
+  of markup characters, a scope pattern compiled to a backtracking expression, and three masking
+  patterns could each take hours.
+  → Every word of a form must hold a letter or a digit. Scope patterns are matched by a bounded matcher
+  and never compiled. The masking patterns cannot rescan. Tests run hostile inputs under a time limit.
+- **I2. The matcher was too slow for a hook (defect D1).** One run took minutes on a 200-document
+  project against a 30-second hook timeout.
+  → Forms are grouped by their first word and each document is scanned once. The hook skips a project
+  whose hashes match its manifest, and after an edit rescans only the changed documents. `term-build`
+  and the gate always rescan everything, so the gate still catches a hand-edited index file.
+- **I3. Fail-open paths (hygiene H-01 to H-03; defects D3 to D5, D13).** A misspelt or commented
+  `term_index_require`, a project the citation detector sees and this tool did not, a register placed in
+  a folder of projects, a nested project, a project name with a space, and a changed generator version
+  could each leave something unchecked.
+  → The switch follows the marker reader's grammar and an invalid value stops the check. Project
+  discovery uses the citation detector's markers and finds nested projects. Only a discovered project
+  can be named. A different generator version no longer hides a missing or stray generated file.
+- **I4. Size and readability (hygiene H-08).** The engine had been compressed to fit 550 lines at the
+  cost of readability, and the hardening above needed more room.
+  → The engine is its own module, `scripts/term_index_engine.py`, which only reads. The builder keeps
+  the commands that write. Limits: engine 650 lines, builder 300, gate 250, query 100. Six files are
+  managed, not five. The result of a pass over a project is a small dataclass.
+- **I5. Markdown handling (defects D6 to D9, D14, D15).** Fence length and info strings, code spans with
+  several backticks, reference-link definitions, a heading's last line, and front matter were handled
+  wrongly. All fixed, each with a test.
+- **I6. Robustness (defects D2, D10 to D12; hygiene H-04 to H-07; security N3b to N7).** A form of only
+  hyphens; leftover temporary files; a traceback on deeply nested input; `init` on a file; an unreadable
+  file reported as a defect and not as an error; the discouraged-form rule written twice; paths with
+  unusual characters in hook messages; `validate` honouring a caller's `RT_ROOT`. All fixed.
+- **I7. Overlapping forms.** The rule is now: at one starting position the longest form wins, and
+  otherwise the form that starts first. The protocol says so.
+- **I8. Upgrades (consistency K07).** The generator version must change whenever the generated bytes
+  change. A test pins the output of a fixture to the version.
+- **I9. Sense in the registers (consistency K11, K15 to K19).** The demonstration register's definition of
+  "occurrence index" was narrower than the project's own use of the term for concordances. It was
+  widened. Two definitions in the Matching register and three source attributions in the Zelda register
+  were corrected to match those projects' texts.
+- **I10. Records (consistency K22).** The full findings of the plan audit and of this review are in a
+  tracked file.
+
+Corrections to this record, found by the same review: acceptance criterion 13 said the hook exits 2 only
+for a broken register; it also exits 2 for a discouraged form in the file just edited. An oversized
+document is a `[SCOPE]` defect, not `[SCHEMA]`. A wrapped form continues after a blockquote prefix or
+indentation; a list marker on the next line is not skipped. No cases were added to
+`tests/test_init_personalization.py`; the managed-block test is in `tests/test_term_index.py`.
+`[NOSRC]` is advisory although the research recommends recording a source for every definition: a
+project may register a term before it has settled where the definition comes from.
 
 Not adopted, with reasons:
 
@@ -159,12 +218,12 @@ relative to the project.
 - A form matches whole words. A letter, a digit or a hyphen on either side prevents a match.
 - A form written in lower case matches without regard to case. A form containing a capital letter
   matches exactly.
-- Between the words of a form: spaces, or one line break (with a blockquote or list prefix on the next
-  line), or a hyphen. Emphasis markers around a word are ignored. A match never crosses a blank line or
+- Between the words of a form: spaces, or one line break (with a blockquote prefix or indentation on the
+  next line), or a hyphen. Emphasis markers around a word are ignored. A match never crosses a blank line or
   leaves a heading.
 - With `plural` on, the last word also matches with `s` or `es`. Generated plurals count when forms are
   compared for `[AMBIG]`.
-- Where forms overlap, the longest match wins.
+- Where two forms could start at one place, the longest wins; otherwise the one that starts first.
 - Not searched: fenced code blocks, inline code, link targets, bare URLs, HTML comments, YAML front
   matter, and any section headed References, Bibliography, Works Cited or Sources (the citation
   detector's headings).
@@ -230,7 +289,7 @@ New, managed (scholarly profile): `docs/term-index-protocol.md`, `scripts/build_
 Changed:
 
 - `scripts/claude_researchteam_bridge.sh` — four commands; the guarded `validate` step.
-- `researchteam/_manifest.py` — five files join `SCHOLARLY_MANAGED_FILES`.
+- `researchteam/_manifest.py` — six files join `SCHOLARLY_MANAGED_FILES` (with `scripts/term_index_engine.py`).
 - `CLAUDE.md` and `researchteam/scaffold/CLAUDE.template.md` — Working Rule 8, identical in both, worded
   for a project that keeps a register.
 - `.researchteam` — `term_index_require = true`.
@@ -245,8 +304,7 @@ Changed:
 Project-owned: `terminology/` in `Projects/CodedTermIndexing`,
 `Projects/Matching/LaborMatchingMacroeconomics` and `Projects/ZeldaTimeline`.
 
-Tests: `tests/test_term_index.py`, and cases added to `tests/test_bridge_validate_hooks.py` and
-`tests/test_init_personalization.py`.
+Tests: `tests/test_term_index.py`, and cases added to `tests/test_bridge_validate_hooks.py`.
 
 Not changed: generated agent files, `.claude/settings.json`, `toolchain.lock`, workflows, `brief.json`,
 the scaffold brief, the autosync gate.
@@ -275,14 +333,14 @@ the scaffold brief, the autosync gate.
 11. A run with no register says that nothing was checked and prints no pass line.
 12. The check writes nothing. A snapshot of the tree is unchanged after it runs.
 13. The hook rebuilds the right project for a file in a nested project, rebuilds stale projects for a
-    payload with no file path, does nothing for a path outside the repository or through a symlink,
-    survives malformed input, and exits 2 only for a broken register that was itself just edited. Its
-    message carries no register text.
+    payload with no file path, does nothing for a path outside every project, ignores malformed input,
+    and exits 2 only for a discouraged form in the file just edited or a broken register that was itself
+    just edited. Its message carries no register or document text.
 14. Two builds run at once leave valid files.
 15. A definition holding markup or instruction-shaped text is escaped in the glossary.
 16. `validate` passes when the check script is absent, passes when no project has a register and the
     switch is off, and fails on a stale index.
-17. The five files are in `SCHOLARLY_MANAGED_FILES` and exist, and the `CLAUDE.md` managed block matches
+17. The six files are in `SCHOLARLY_MANAGED_FILES` and exist, and the `CLAUDE.md` managed block matches
     the scaffold's.
 18. All three projects pass `term-check`, and a discouraged form seeded into a deliverable makes it
     fail.

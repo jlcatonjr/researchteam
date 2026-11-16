@@ -8,10 +8,10 @@
 ## directed search
 
 - Identifier: `directed-search`
-- Definition: Search in which workers and firms sort into submarkets with different posted terms, in contrast to random search with one aggregate market tightness.
+- Definition: Search in which workers and firms sort into submarkets with different posted terms, in contrast to random search, which treats market tightness as largely aggregate.
 - Also written: directed-search
-- Source: Moen1997; AcemogluShimer1999
-- Notes: Wording of 01-literature-review.md, section 4.
+- Source: project definition
+- Notes: Wording of 01-literature-review.md, section 4, which cites Moen \(1997\) and Acemoglu and Shimer \(1999\) for equilibrium across posted-wage submarkets.
 
 ## DMP framework
 
@@ -39,7 +39,6 @@
 
 - Identifier: `volatility-puzzle`
 - Definition: The finding that the standard calibrated DMP model with Nash wages implies much smaller unemployment and vacancy fluctuations than observed in U.S. data.
-- Also written: volatility debate
 - Discouraged: Shimer puzzle
 - Source: Shimer2005
-- Notes: Wording of 01-literature-review.md, section 5. 'Shimer puzzle' is common elsewhere; this project does not use it.
+- Notes: Wording of 01-literature-review.md, section 5. The deliverables write 'the Shimer volatility puzzle' once; the bare 'Shimer puzzle' is not used. The 'volatility debate' is the literature that responded to the finding and is not this term.

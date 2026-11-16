@@ -10,16 +10,16 @@
 - Identifier: `adult-timeline`
 - Definition: The branch left behind after Link disappears from that era.
 - Also written: Adult branch
-- Source: Nintendo2011
-- Notes: Wording of 01-literature-review.md, section 1.
+- Source: Nintendo2011; Nintendo2018
+- Notes: How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model.
 
 ## Child Timeline
 
 - Identifier: `child-timeline`
 - Definition: The branch in which Link returns and warns Zelda.
 - Also written: Child branch
-- Source: Nintendo2011
-- Notes: Wording of 01-literature-review.md, section 1.
+- Source: Nintendo2011; Nintendo2018
+- Notes: How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model.
 
 ## Downfall Timeline
 
@@ -27,8 +27,8 @@
 - Definition: The branch in which the Hero of Time is defeated.
 - Also written: Downfall branch; Downfall
 - Discouraged: Fallen Hero Timeline; Defeat Timeline
-- Source: Nintendo2011
-- Notes: Wording of 01-literature-review.md, section 1.
+- Source: Nintendo2011; Nintendo2018
+- Notes: How the branch label is usually treated, in the wording of 01-literature-review.md, section 1, which cites both works for the three-branch model.
 
 ## timeline split
 

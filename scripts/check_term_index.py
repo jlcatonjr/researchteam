@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Gate for docs/term-index-protocol.md: is each project's term register sound and its index current?
 
-Purpose: the read-only check. It builds the index in memory with the engine in build_term_index.py and
+Purpose: the read-only check. It builds the index in memory with term_index_engine.py and
     compares it with the committed files. It never writes a file.
 Lifecycle: UTILITY
 Created: 2026-11-16
@@ -23,7 +23,6 @@ for every research project. Without it, a missing register is a DEFECT only for 
 """
 from __future__ import annotations
 
-import json
 import os
 import re
 import sys
@@ -32,85 +31,109 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import build_term_index as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
+import term_index_engine as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
+
+REQUIRE_KEY = "term_index_require"
+TRUE_VALUES, FALSE_VALUES = {"true", "yes", "on", "1"}, {"false", "no", "off", "0", ""}
 
 
 def required(root: Path) -> bool:
-    """Whether .researchteam makes a term register compulsory for every research project."""
-    try:
-        text = (root / ".researchteam").read_text(encoding="utf-8")
-    except OSError:
+    """Whether .researchteam makes a term register compulsory for every research project.
+
+    Follows the grammar of researchteam's own marker reader (_personalize.read_marker): the first
+    occurrence of a key wins, a trailing ` #comment` is dropped, one pair of surrounding quotes is
+    stripped. A missing marker or key means no. A value that is neither yes nor no raises ValueError,
+    and an unreadable marker raises OSError, so a mistake cannot switch the requirement off unnoticed.
+    """
+    marker = root / ".researchteam"
+    if not marker.exists():
         return False
-    return re.search(r"^\s*term_index_require\s*=\s*(true|yes|on|1)\s*$", text, re.M | re.I) is not None
+    for line in marker.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if "=" not in s or s.startswith(("[", "#")):
+            continue
+        key, _, value = s.partition("=")
+        if key.strip() != REQUIRE_KEY:
+            continue
+        value = re.split(r"\s+#", value, maxsplit=1)[0].strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if value.lower() in TRUE_VALUES:
+            return True
+        if value.lower() in FALSE_VALUES:
+            return False
+        raise ValueError(f"{REQUIRE_KEY} in .researchteam must be true or false")
+    return False
 
 
 def bib_keys(proj: Path) -> set[str]:
     keys: set[str] = set()
     for bib in sorted(proj.rglob("*.bib")):
         if bib.is_file() and not bib.is_symlink():
-            keys |= set(re.findall(r"^\s*@\w+\s*\{\s*([^,\s{}]+)\s*,", bib.read_text(encoding="utf-8", errors="replace"), re.M))
+            text = bib.read_text(encoding="utf-8", errors="replace")
+            keys |= set(re.findall(r"^\s*@\w+\s*\{\s*([^,\s{}]+)\s*,", text, re.M))
     return keys
 
 
-def freshness(proj: Path, files: dict[str, bytes]) -> tuple[list, list]:
-    """Compare the committed index with a fresh one. Returns (defects, reviews)."""
-    tdir = proj / "terminology"
-    try:
-        on_disk = json.loads((tdir / "term-index.json").read_text(encoding="utf-8"))
-        fresh = json.loads(files["term-index.json"])
-        old_docs = on_disk["documents"]
-        if not isinstance(old_docs, dict):
-            raise ValueError("documents")
-    except OSError:
-        return [("STALE", "no index has been built (run: term-build)")], []
-    except (ValueError, KeyError, TypeError):
-        return [("STALE", "term-index.json cannot be read as an index manifest (run: term-build)")], []
-    changes = []
-    if on_disk.get("register_sha256") != fresh["register_sha256"]:
-        changes.append("the register changed")
-    new_docs = fresh["documents"]
-    for rel in sorted(set(old_docs) | set(new_docs)):
+def _generated_file_problems(proj: Path, files: dict[str, bytes], compare_bytes: bool) -> list[str]:
+    """Generated files that are missing, are not regular files, or (optionally) differ from a fresh build."""
+    tdir, out = proj / "terminology", []
+    for rel, data in sorted(files.items()):
+        path = tdir / rel
+        if path.is_symlink() or not path.is_file():
+            out.append(f"terminology/{engine.shown(rel)}: missing")
+        elif compare_bytes and path.read_bytes() != data:
+            out.append(f"terminology/{engine.shown(rel)}: differs from a fresh build although the inputs are unchanged")
+    out += [f"terminology/{engine.shown(rel)}: not a file the builder writes"
+            for rel in sorted(engine.stray_index_files(proj, files))]
+    return out
+
+
+def freshness(proj: Path, a: engine.Assessment) -> tuple[list, list]:
+    """Compare the committed index with the fresh one in `a`. Returns (defects, reviews)."""
+    old = engine.read_manifest(proj)
+    if old is None:
+        return [("STALE", "no usable index manifest (run: term-build)")], []
+    changes = [] if old.get("register_sha256") == a.register_sha256 else ["the register changed"]
+    old_docs, new_docs = old["documents"], a.manifest["documents"]
+    for rel in sorted(set(old_docs) | set(new_docs), key=str):
+        name = engine.shown(str(rel))
         if rel not in old_docs:
-            changes.append(f"{rel}: entered the scope")
+            changes.append(f"{name}: entered the scope")
         elif rel not in new_docs:
-            changes.append(f"{rel}: left the scope")
+            changes.append(f"{name}: left the scope")
         elif old_docs[rel] != new_docs[rel]:
-            changes.append(f"{rel}: changed")
+            changes.append(f"{name}: changed")
     if changes:
         return [("STALE", f"{c} since the index was built (run: term-build)") for c in changes], []
-    if on_disk.get("generator") != fresh["generator"]:
-        return [], [("REBUILD", "the inputs are unchanged but the index was built by another generator "
-                                "version (run: term-build)")]
-    differing = sorted(rel for rel, data in files.items()
-                       if not (tdir / rel).is_file() or (tdir / rel).read_bytes() != data)
-    differing += sorted(engine.extra_index_files(proj, files))
-    return [("STALE", f"terminology/{rel}: differs from a fresh build although the inputs are unchanged "
-                      "(edited by hand, or missing; run: term-build)") for rel in differing], []
+    same_generator = old.get("generator") == a.manifest["generator"]
+    # A different generator may write different bytes for the same inputs, so only then is the byte
+    # comparison skipped. A missing or stray generated file is a defect either way.
+    defects = [("STALE", f"{msg} (edited by hand, or incomplete; run: term-build)")
+               for msg in _generated_file_problems(proj, a.files, compare_bytes=same_generator)]
+    reviews = [] if same_generator else [
+        ("REBUILD", "the inputs are unchanged but the index was built by another generator version (run: term-build)")]
+    return defects, reviews
 
 
-def usage(proj: Path, reg: dict, docs: dict) -> tuple[list, list]:
+def usage(proj: Path, a: engine.Assessment) -> tuple[list, list]:
     defects, reviews = [], []
-    allowed = {(a["term"], a["file"]) for a in reg.get("allow", [])}
     used: set[str] = set()
     quoted = 0
-    for rel, (_, occs) in sorted(docs.items()):
-        for o in occs:
-            if o["kind"] != "discouraged":
-                used.add(o["term"])
-            elif o["quoted"]:
-                quoted += 1
-            elif (o["term"], rel) not in allowed:
-                defects.append(("DISC", f"{rel}:{o['line']}:{o['column']} term '{o['term']}': a discouraged form "
-                                        "outside a quotation, with no 'allow' entry"))
+    for rel, (_, occs) in sorted(a.docs.items()):
+        used |= {o["term"] for o in occs if o["kind"] != "discouraged"}
+        quoted += sum(1 for o in occs if o["kind"] == "discouraged" and o["quoted"])
+        for o in engine.disc_violations(a.register, rel, occs):
+            defects.append(("DISC", f"{engine.shown(rel)}:{o['line']}:{o['column']} term '{o['term']}': a "
+                                    "discouraged form outside a quotation, with no 'allow' entry"))
     known = bib_keys(proj)
-    for term in reg["terms"]:
+    for term in a.register["terms"]:
         src = term.get("source")
         if src is None:
             reviews.append(("NOSRC", f"term '{term['id']}': the definition has no 'source'"))
         elif isinstance(src, list):
-            for n, key in enumerate(src, 1):
-                if key not in known:
-                    defects.append(("SRC", f"term '{term['id']}': source key {n} is not in the project's .bib"))
+            defects += [("SRC", f"term '{term['id']}': source key {n} is not in the project's .bib")
+                        for n, key in enumerate(src, 1) if key not in known]
         if term["id"] not in used:
             reviews.append(("UNUSED", f"term '{term['id']}': no occurrence of the label or a variant"))
     if quoted:
@@ -118,51 +141,48 @@ def usage(proj: Path, reg: dict, docs: dict) -> tuple[list, list]:
     return defects, reviews
 
 
-def check_project(proj: Path, named: bool, require: bool):
-    """Return (state, defects, reviews). state: checked | no-register."""
-    status, reg, problems, docs, files = engine.inspect(proj)
-    if status in ("missing", "foreign"):
+def check_project(proj: Path, named: bool, require: bool) -> tuple[bool, list, list]:
+    """Return (a register was checked, defects, reviews)."""
+    a = engine.assess(proj)
+    if a.status in (engine.MISSING, engine.FOREIGN):
         tdir = proj / "terminology"
         if (tdir / "term-index.json").exists() or (tdir / "index").exists():
-            return "no-register", [("ORPHAN", "generated index files exist but there is no term register")], []
+            return False, [("ORPHAN", "generated index files exist but there is no term register")], []
         if named or (require and engine.is_research_project(proj)):
-            return "no-register", [("NOREG", "the project has no term register (run: term-init)")], []
-        return "no-register", [], []
-    if status == "bad":
-        return "checked", problems, []
-    defects, reviews = list(problems), []
-    for part in (freshness(proj, files), usage(proj, reg, docs)):
-        defects += part[0]
-        reviews += part[1]
-    return "checked", defects, reviews
+            return False, [("NOREG", "the project has no term register (run: term-init)")], []
+        return False, [], []
+    if a.status == engine.BAD:
+        return True, a.problems, []
+    fresh_defects, fresh_reviews = freshness(proj, a)
+    usage_defects, usage_reviews = usage(proj, a)
+    return True, a.problems + fresh_defects + usage_defects, fresh_reviews + usage_reviews
 
 
-def main(argv: list[str]) -> int:
+def run(argv: list[str]) -> int:
     if len(argv) > 1 or (argv and argv[0].startswith("-")):
         print("usage: check_term_index.py [project]", file=sys.stderr)
         return 2
     root = engine.repo_root()
     advisory = os.environ.get("TERM_INDEX_ADVISORY") == "1"
+    targets = engine.discover(root)
     if argv:
         proj = engine.resolve(root, argv[0])
         if proj is None:
-            print(f"ERROR: project not found under Projects/: {argv[0]}", file=sys.stderr)
+            print(f"ERROR: no project under Projects/ matches: {argv[0]}", file=sys.stderr)
             return 2
         targets = [proj]
-    else:
-        targets = engine.discover(root)
     require = required(root)
-    print(f"Term-index check (root: {root})")
+    print("Term-index check")
     print("NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their")
     print("      defined sense. Matching finds forms, not meanings.")
     checked = n_defects = n_reviews = 0
     for proj in targets:
-        state, defects, reviews = check_project(proj, bool(argv), require)
-        name = proj.relative_to(root).as_posix()
-        checked += state == "checked"
+        was_checked, defects, reviews = check_project(proj, bool(argv), require)
+        name = engine.shown(proj.relative_to(root).as_posix())
+        checked += was_checked
         n_defects += len(defects)
         n_reviews += len(reviews)
-        if state == "no-register" and not defects:
+        if not was_checked and not defects:
             if engine.is_research_project(proj):
                 print(f"\n=== {name}\n  NEEDS-REGISTER   no term register (run: term-init)")
             continue
@@ -186,6 +206,14 @@ def main(argv: list[str]) -> int:
         return 0
     print("PASS (no DEFECT). NEEDS-REVIEW items are advisory.")
     return 0
+
+
+def main(argv: list[str]) -> int:
+    try:
+        return run(argv)
+    except (OSError, ValueError) as exc:  # the I/O boundary: an unreadable file is an environment error
+        print(f"ERROR: the check could not run ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

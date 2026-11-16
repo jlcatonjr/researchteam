@@ -55,7 +55,7 @@ Commands:
                 Gate for the term register and its index: a DEFECT exits 1. A clean run means
                 WELL-FORMED AND CURRENT, not that terms are used in their defined sense. Codes
                 and the honest ceiling are in docs/term-index-protocol.md.
-  term-query <project> "<label, variant or id>"
+  term-query <project> "<label, variant or id>" | --list
                 List where a registered term occurs (places a form appears, NOT evidence of sense).
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
@@ -98,12 +98,13 @@ run_local_validators() {
 
 # Term registers and their indexes (docs/term-index-protocol.md). The check script is synced only to
 # scholarly-profile repositories, and this bridge goes to every repository, so its absence is a skip.
-# Exit 1 (a DEFECT) and exit 2 (nothing could be checked) both fail validate. TERM_INDEX_ADVISORY is
-# cleared: a caller's advisory switch must not turn the gate off here.
+# Exit 1 (a DEFECT) and exit 2 (a usage or environment error) both fail validate. TERM_INDEX_ADVISORY
+# and RT_ROOT are cleared: a caller's advisory switch, or a root pointing elsewhere, must not turn the
+# gate off here.
 run_term_index_check() {
-  [[ -f "scripts/check_term_index.py" ]] || return 0
+  [[ -f "scripts/check_term_index.py" && -f "scripts/term_index_engine.py" ]] || return 0
   echo "Running scripts/check_term_index.py ..."
-  if ! env -u TERM_INDEX_ADVISORY python3 -B scripts/check_term_index.py; then
+  if ! env -u TERM_INDEX_ADVISORY -u RT_ROOT python3 -B scripts/check_term_index.py; then
     echo "Term-index check failed: see docs/term-index-protocol.md" >&2
     exit 1
   fi
@@ -189,15 +190,15 @@ command_library_check() {
   fi
 }
 
-# Term register and occurrence index (docs/term-index-protocol.md). $1 is the script, $2 its
-# subcommand ("" for none); the rest are the caller's arguments.
+# Term register and occurrence index (docs/term-index-protocol.md). $1 is the script; the rest are
+# passed to it.
 command_term() {
-  local script="$1" sub="$2"; shift 2
+  local script="$1"; shift
   if [[ ! -f "$script" ]]; then
     echo "Term-index script not found at $script" >&2
     exit 1
   fi
-  if [[ -n "$sub" ]]; then python3 -B "$script" "$sub" "$@"; else python3 -B "$script" "$@"; fi
+  python3 -B "$script" "$@"
 }
 
 command_code_query() {
@@ -276,11 +277,11 @@ case "$cmd" in
     ;;
   term-check)
     shift
-    command_term scripts/check_term_index.py "" "$@"
+    command_term scripts/check_term_index.py "$@"
     ;;
   term-query)
     shift
-    command_term scripts/query_term_index.py "" "$@"
+    command_term scripts/query_term_index.py "$@"
     ;;
   code-query)
     shift

@@ -7,7 +7,6 @@
   {"column": 242, "form": "Diamond-Mortensen-Pissarides", "kind": "variant", "line": 9, "quoted": false, "term": "dmp-framework"},
   {"column": 4, "form": "DMP", "kind": "variant", "line": 18, "quoted": false, "term": "dmp-framework"},
   {"column": 19, "form": "DMP", "kind": "variant", "line": 19, "quoted": false, "term": "dmp-framework"},
-  {"column": 1, "form": "directed search", "kind": "label", "line": 22, "quoted": false, "term": "directed-search"},
-  {"column": 26, "form": "volatility debate", "kind": "variant", "line": 25, "quoted": false, "term": "volatility-puzzle"}
+  {"column": 1, "form": "directed search", "kind": "label", "line": 22, "quoted": false, "term": "directed-search"}
  ]
 }

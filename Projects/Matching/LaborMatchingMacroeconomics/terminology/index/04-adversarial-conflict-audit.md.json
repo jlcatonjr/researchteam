@@ -4,7 +4,6 @@
  "document": "04-adversarial-conflict-audit.md",
  "sha256": "29aaf25ab2e4f87e1d3f4d610c0ecf6f8336fefc622acd6472a361292ff99e2e",
  "occurrences": [
-  {"column": 40, "form": "directed search", "kind": "label", "line": 43, "quoted": false, "term": "directed-search"},
-  {"column": 60, "form": "volatility debate", "kind": "variant", "line": 43, "quoted": false, "term": "volatility-puzzle"}
+  {"column": 40, "form": "directed search", "kind": "label", "line": 43, "quoted": false, "term": "directed-search"}
  ]
 }

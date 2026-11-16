@@ -9,8 +9,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   coded definitions, every appearance of a registered term is indexed, and the index is kept in sync by a
   reliable trigger.
   - Each project keeps a register at `Projects/<project>/terminology/terms.json` (one record per concept:
-    preferred label, definition, accepted variants, discouraged forms, source). `scripts/build_term_index.py`
-    finds every occurrence in the project's documents by matching plain prose and writes a manifest of
+    preferred label, definition, accepted variants, discouraged forms, source). `scripts/build_term_index.py`,
+    using the engine in `scripts/term_index_engine.py`, finds every occurrence in the project's documents by matching plain prose and writes a manifest of
     content hashes, one index file per document and a glossary beside the register.
   - `scripts/check_term_index.py` is the gate. It blocks on a malformed register, a form claimed by two
     terms, a `source` key missing from the `.bib`, a stale or hand-edited index, a missing register where
@@ -23,7 +23,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     makes a register compulsory for every research project; upstream sets it.
   - `.claude/settings.terms.example.json` holds optional Claude Code hooks that rebuild the index after
     edits and at session start. The operator merges them by hand. Hooks run outside the sandbox.
-  - `CLAUDE.md` gains Working Rule 8. Protocol: `docs/term-index-protocol.md`. Five files join the
+  - `CLAUDE.md` gains Working Rule 8. Protocol: `docs/term-index-protocol.md`. Six files join the
     scholarly managed set. After a later update changes the builder, `term-check` reports an advisory
     `[REBUILD]`; run `term-build` and commit.
   - A derived repository's CI does not run `validate` unless its owner adds the step, so there the gate is

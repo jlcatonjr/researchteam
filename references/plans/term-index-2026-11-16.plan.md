@@ -10,8 +10,9 @@ The work has three parts, in this order.
    academic literature and in existing infrastructures and field guides. It follows the standard protocols:
    interpretive map with a Historical setting register, the mechanical citation audit, the doubled semantic
    audit, and an audit ledger.
-2. **Feature plan** `docs/terminology-index-integration-plan.md`, derived from the research. It is audited by
-   `@adversarial`, `@conflict-auditor`, `@security` and `@code-hygiene`, then revised.
+2. **Feature plan** `references/plans/term-index-2026-11-16.design.md`, derived from the research. It is
+   audited by `@adversarial`, `@conflict-auditor`, `@security` and `@code-hygiene`, then revised. The
+   audit findings are in `term-index-2026-11-16.audits.md`.
 3. **Implementation** of the revised plan, with tests, on branch `feat/term-index`, merged under PS-2.
 
 Scope notes.

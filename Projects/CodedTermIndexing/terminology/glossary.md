@@ -23,10 +23,11 @@
 ## occurrence index
 
 - Identifier: `occurrence-index`
-- Definition: A derived record of every place a registered term, or one of its listed variants, appears in the project's documents.
+- Definition: A derived record of every place a given form appears in a body of documents. In this project's design, the forms are a registered term and its listed variants, and the documents are the project's own.
 - Also written: term-occurrence index; occurrence indexing; term-occurrence indexing; index of every occurrence
 - Discouraged: term concordance; usage index
 - Source: project definition
+- Notes: The wider first sentence covers the concordance and the keyword-in-context index, which record occurrences of word forms and have no register.
 
 ## preferred term
 
@@ -34,7 +35,7 @@
 - Definition: The one form chosen to designate a concept in a controlled vocabulary; its synonyms and variants are listed as non-preferred terms that refer to it.
 - Also written: preferred label
 - Source: NISO2010
-- Notes: After ANSI/NISO Z39.19, section 5.3.2. 'Preferred label' is the SKOS and register-record wording for the same role.
+- Notes: After ANSI/NISO Z39.19, section 5.3.2. 'Preferred label' is the SKOS and register-record wording for a related role.
 
 ## sync trigger
 

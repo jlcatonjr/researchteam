@@ -55,8 +55,10 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/query_literature_library.py",
     "scripts/check_literature_library_integrity.sh",
     # Term register + synced occurrence index (docs/term-index-protocol.md). One engine
-    # (build_term_index.py) that the gate and the query import; the hook example is merged by hand.
+    # (term_index_engine.py) that the builder, the gate and the query import; the hook example is
+    # merged by hand.
     "docs/term-index-protocol.md",
+    "scripts/term_index_engine.py",
     "scripts/build_term_index.py",
     "scripts/check_term_index.py",
     "scripts/query_term_index.py",

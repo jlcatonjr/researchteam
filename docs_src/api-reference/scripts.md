@@ -1,8 +1,8 @@
 # Helper scripts — ResearchTeam
 
-Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py`, `query_literature_library.py` and the three term-index scripts are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
+Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py`, `query_literature_library.py` and the four term-index scripts are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
 
-> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
+> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`, `scripts/term_index_engine.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
 
 > **Stability.** The supported interface is each script's command line ([Bridge reference](../bridge-reference.md)); internals may change between releases.
 
@@ -186,11 +186,11 @@ Prints a header with the query and project, a navigation-only notice, then one l
 
 ---
 
-## `build_term_index.py`, `check_term_index.py`, `query_term_index.py`
+## `term_index_engine.py`, `build_term_index.py`, `check_term_index.py`, `query_term_index.py`
 
-> *Sources: `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
+> *Sources: `scripts/term_index_engine.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
 
-The term register and its occurrence index. `build_term_index.py` holds the engine (register validation, matching, rendering) and the commands that write. The other two import it, so all three match text the same way. Standard library only; no network calls and no child processes. The finding codes, the register format and the ceiling are defined in the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) and are not repeated here.
+The term register and its occurrence index. `term_index_engine.py` is the engine (register validation, document scope, matching, rendering). It is imported, not run, and it writes nothing. `build_term_index.py` holds the commands that write. All three commands import the engine, so they read a register and match text the same way. Standard library only; no network calls and no child processes. The finding codes, the register format and the ceiling are defined in the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) and are not repeated here.
 
 ### Usage
 
@@ -205,8 +205,8 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 | Argument | Meaning |
 |----------|---------|
 | `project` | A project's path under `Projects/`, or its directory name when that is unique. Omitted: every project (`build` takes every project that has a register). |
-| `init <project>` | Writes a starter `terminology/terms.json`. Refuses when `terminology/` already holds files. |
-| `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. With no usable path it rebuilds every project whose files changed. A path outside `Projects/` does nothing. |
+| `init <project>` | Writes a starter `terminology/terms.json` in an existing directory under `Projects/`. Refuses when `terminology/` already holds files, and refuses a directory that only holds other projects. |
+| `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. A payload with no path (a shell command, a session start) rebuilds every project whose files changed. A malformed payload, or a path outside every project, does nothing. |
 | `--list` | Lists every registered term with its occurrence count. |
 
 ### Environment
@@ -224,8 +224,8 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 |--------|---|---|---|
 | `build_term_index.py build` / `init` | Done | A register defect, or nothing written | Usage error, or project not found |
 | `build_term_index.py hook` | Done, or nothing to do | — | Feedback for the agent on stderr: a defect in the file just edited |
-| `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect | Usage error, or project not found |
-| `query_term_index.py` | Found | No such term, or no usable register | Usage error, or project not found |
+| `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect | Usage error, project not found, an unreadable file, or an invalid `term_index_require` value |
+| `query_term_index.py` | Found | No such term, or no usable register | Usage error, project not found, or an unreadable file |
 
 ### Output files
 
