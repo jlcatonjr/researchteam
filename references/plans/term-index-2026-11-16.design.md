@@ -313,7 +313,7 @@ Changed:
   `docs_src/api-reference/scripts.md`.
 - `CHANGELOG.md`.
 
-Project-owned: `terminology/` in `Projects/CodedTermIndexing`,
+Project-owned: the research project `Projects/CodedTermIndexing/` itself, and `terminology/` in `Projects/CodedTermIndexing`,
 `Projects/Matching/LaborMatchingMacroeconomics` and `Projects/ZeldaTimeline`.
 
 Tests: `tests/test_term_index.py`, and cases added to `tests/test_bridge_validate_hooks.py`.
@@ -339,7 +339,7 @@ the scaffold brief, the autosync gate.
 8. `[AMBIG]` fires for a form shared by two terms, for a collision created by the plural rule, and for a
    form both accepted and discouraged.
 9. `[SCHEMA]` fires for bad JSON, a missing field, a repeated id, a wrong type, an unknown key and a
-   broken limit. `[SRC]` fires for a key missing from the `.bib`. `[SCOPE]` fires for an empty scope.
+   broken limit (the limit on scope patterns is reported as `[SCOPE]`). `[SRC]` fires for a key missing from the `.bib`. `[SCOPE]` fires for an empty scope.
 10. `[NOREG]` blocks a named project, and blocks in a scan when the switch is set. Without the switch a
     scan reports `NEEDS-REGISTER` and exits 0. `[ORPHAN]` fires when the register is deleted.
 11. A run with no register says that nothing was checked and prints no pass line.

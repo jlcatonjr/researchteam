@@ -37,7 +37,7 @@
     {
       "id": "directed-search",
       "label": "directed search",
-      "definition": "Search in which workers and firms sort into submarkets with different posted terms, in contrast to random search, which treats market tightness as largely aggregate.",
+      "definition": "Search that allows workers and firms to sort into submarkets with different posted terms, in contrast to random search, which treats market tightness as largely aggregate.",
       "variants": [
         "directed-search"
       ],

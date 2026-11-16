@@ -91,13 +91,13 @@ bash scripts/claude_researchteam_bridge.sh term-query <project> "<label>"  # whe
 bash scripts/claude_researchteam_bridge.sh code-query "<terms>"          # retrieval surface #2 (needs agentteams)
 ```
 
-With no project argument, `methodology-check`, `history-check`, `citation-audit`, `term-build` and
-`term-check` cover every research project. A clean run means well-formed, not verified. The protocols are in
+With no project argument, `methodology-check`, `history-check`, `citation-audit` and `term-check` cover
+every research project, and `term-build` rebuilds every project that has a register. A clean run means well-formed, not verified. The protocols are in
 `docs/historical-context-protocol.md`, `docs/citation-claim-audit-protocol.md`,
 `docs/literature-library-protocol.md`, `docs/term-index-protocol.md` and `docs/retrieval-surfaces.md`.
 
-`validate` also runs the term-index check when `scripts/check_term_index.py` is present, so a stale term
-index fails validation.
+`validate` also runs the term-index check when `scripts/check_term_index.py` and its engine are present,
+so a stale term index fails validation. One of the two without the other is an error.
 
 ### Weekly Plan Directory
 
