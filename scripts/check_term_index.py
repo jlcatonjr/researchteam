@@ -167,8 +167,9 @@ def run(argv: list[str]) -> int:
         return 2
     root = engine.repo_root()
     advisory = os.environ.get("TERM_INDEX_ADVISORY") == "1"
-    targets = engine.discover(root)
-    if argv:
+    if not argv:
+        targets = engine.discover(root)
+    else:
         proj = engine.resolve(root, argv[0])
         if proj is None:
             print(f"ERROR: no project under Projects/ matches: {engine.shown(argv[0])}", file=sys.stderr)

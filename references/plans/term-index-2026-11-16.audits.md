@@ -290,3 +290,30 @@ first two are bounded by the 5 MB document limit; the third reads only files the
 | H-14 | low | Documents map to a positional pair | not done in this change |
 | `RefusedWrite` | optional | A refusal is a decision, not an OS error | done: no longer a subclass of `OSError` |
 
+## Part 5. Final review (95cc967)
+
+`@security`: **PASS** for 95cc967, naming `scripts/term_index_engine.py`, `scripts/build_term_index.py`,
+`scripts/check_term_index.py`, `scripts/query_term_index.py`, `scripts/claude_researchteam_bridge.sh`,
+`.claude/settings.terms.example.json`, `researchteam/_manifest.py`, `CLAUDE.md`,
+`researchteam/scaffold/CLAUDE.template.md`, `.researchteam`, `.claude/README.md`,
+`.claude/checklists/research-task-preflight.md` and `.claude/prompts/research-report.prompt.md`. Residual
+risks accepted: a hostile register the project commits itself can cost up to 192 match attempts per word
+(linear and bounded); the scaling test cannot see a quadratic with a very small constant; a refused build
+can leave empty directories under `terminology/index/`; the check of a path and the write that follows
+can race.
+
+`@code-hygiene`: PASS WITH CHANGES.
+
+| ID | Severity | Finding | Disposition |
+|---|---|---|---|
+| NF-01 | medium | A form ending in a no-break space or a carriage return passed validation and could never match its plural | done: any leading or trailing white space is refused |
+| NF-02 | low | `a - b` or `a--b` passed validation but can never match, since one separator is allowed between words | done: refused |
+| NF-03 | low | A fourth difference from the citation detector: a directory holding only a register is a project | done: stated in the engine and the protocol |
+| NF-04 | low | `init` refused any path part named `terminology`, although such a project can be discovered | done: only a project's own register folder is refused |
+| NF-05 to NF-09 | low | One long line; an unreachable handler; spacing; a stale sentence in the design; two omissions in the protocol | done |
+| NF-10 | low | `cmd_init` has several refusal branches | not done |
+| N3-11 | low | The gate walked the tree when a project was named | done |
+| N3-16, N3-17 | low | The protocol and the code disagreed on which `.bib` files are read; an unreadable register undocumented | done: the protocol states both |
+
+Because these changes followed the security PASS, `@security` was asked to confirm the new head.
+

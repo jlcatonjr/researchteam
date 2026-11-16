@@ -46,6 +46,7 @@ MAX_STDIN = 1_000_000
 class RefusedWrite(Exception):
     """A write this script will not make: the path goes through a symbolic link. A decision, not an OS error."""
 
+
 STARTER = {"schema": engine.REGISTER_SCHEMA, "schema_version": engine.SCHEMA_VERSION,
            "scope": {"include": ["**/*.md"], "exclude": []}, "terms": [], "allow": []}
 
@@ -157,7 +158,9 @@ def cmd_init(args: list[str]) -> int:
         print("usage: build_term_index.py init <project>   (an existing directory under Projects/)", file=sys.stderr)
         return 2
     parts = wanted.split("/")
-    if len(parts) > engine.MAX_DEPTH or any(part in engine.PRUNED_DIRS or part == "terminology" for part in parts):
+    own_register_folder = any(parts[i] == "terminology" and engine.is_project(root.joinpath("Projects", *parts[:i]))
+                              for i in range(1, len(parts)))
+    if len(parts) > engine.MAX_DEPTH or own_register_folder or any(part in engine.PRUNED_DIRS for part in parts):
         print("ERROR: that directory is one the term index never searches; nothing written.", file=sys.stderr)
         return 2
     projects = engine.discover(root)
@@ -249,9 +252,6 @@ def main(argv: list[str]) -> int:
         return cmd_hook(argv[1:])
     try:
         return COMMANDS[argv[0]](argv[1:])
-    except RefusedWrite as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        return 1
     except OSError as exc:  # the I/O boundary: an unreadable or unwritable path is an environment error
         print(f"ERROR: could not run ({type(exc).__name__})", file=sys.stderr)
         return 2

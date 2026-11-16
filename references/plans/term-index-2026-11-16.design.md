@@ -149,7 +149,11 @@ The first implementation (commit 761c938) was reviewed by `@security`, `@code-hy
   called the project search "the detector's" while it differed in three ways. All fixed: the cap counts
   across offsets; one function builds every key a form answers to, and a form may not begin or end with
   a separator; the differences are stated. The engine's limit was raised to 700 lines so the section
-  dividers could be restored.
+  dividers could be restored. The timing test now compares an input with one four times as long.
+- **I13. Final review (commit 95cc967).** `@security` passed the head. `@code-hygiene` asked for two more
+  validation rules, because a form that passed validation could still never match: a form may not begin
+  or end with any white space (a no-break space included), and a hyphen in a form may not touch a space
+  or another hyphen. Both added, with the fourth difference from the citation detector stated.
 
 Corrections to this record, found by the same review: acceptance criterion 13 said the hook exits 2 only
 for a broken register; it also exits 2 for a discouraged form in the file just edited. An oversized

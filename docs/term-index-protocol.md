@@ -73,14 +73,16 @@ where a form appears. It is not evidence, and the index is not a retrieval surfa
 | `allow` | no | A recorded exception: this term's discouraged forms may be used in this file, for this reason |
 
 An unknown key is a defect, so a misspelt key is not silently ignored. `schema_version`, when present,
-must be `"1.0"`. Every word of a form must contain a letter or a digit, and a form may not begin or end
-with a space, a hyphen, an underscore, `>` or `*`. Limits: 5,000 terms, 50 forms per
+must be `"1.0"`. Every word of a form must contain a letter or a digit. A form may not begin or end with
+white space, a hyphen, an underscore, `>` or `*`, and inside a form a hyphen may not touch a space or
+another hyphen. Limits: 5,000 terms, 50 forms per
 term, 20,000 forms in all, 200 characters and 16 words per form, 32 forms beginning with the same word,
 64 scope patterns in each list, a 1 MB register, 5 MB per document. The limits bound the work of
 matching, so that no register or document can stall the hook or the gate. An empty `terms` list is valid.
 
 Two forms are the same form when they differ only in case, or in what stands between their words: a
-space, a hyphen, an underscore or an emphasis marker. "snake_case" and "snake case" are one form.
+space, a line break, a hyphen, an underscore, an emphasis marker or a blockquote prefix. "snake_case"
+and "snake case" are one form.
 
 Rules for writing a register:
 
@@ -169,10 +171,10 @@ error.
 
 | Class | Code | Meaning | Exit effect |
 |---|---|---|---|
-| `DEFECT` | `[SCHEMA]` | The register cannot be parsed, breaks a limit, has a wrong type or an unknown key, or repeats an `id` | blocks |
+| `DEFECT` | `[SCHEMA]` | The register cannot be read or parsed, breaks a limit, has a wrong type or an unknown key, or repeats an `id` | blocks |
 | `DEFECT` | `[AMBIG]` | One form is claimed by two terms, or is both accepted and discouraged. Automatic plurals count | blocks |
-| `DEFECT` | `[SRC]` | A `source` key is not in one of the project's own `.bib` files. A repository-level bibliography is not consulted | blocks |
-| `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project or is too long, a list has more than 64 patterns, or a document is not a regular file or is too large | blocks |
+| `DEFECT` | `[SRC]` | A `source` key is in no `.bib` file under the project's folder (those of a nested project included). A repository-level bibliography is not consulted | blocks |
+| `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project, holds a backslash or is too long, a list has more than 64 patterns, or a document is not a regular file or is too large | blocks |
 | `DEFECT` | `[STALE]` | No index was built, a document or the register changed since it was built, or a generated file is missing, was edited by hand, or is not one the builder writes | blocks |
 | `DEFECT` | `[DISC]` | A discouraged form is used outside a quotation with no `allow` entry | blocks |
 | `DEFECT` | `[ORPHAN]` | Generated index files exist and the register does not | blocks |
@@ -201,7 +203,8 @@ a repository red: when only the builder changed, the check asks for a rebuild an
   follows the citation detector's: hidden directories are searched, and folders named `plans`,
   `JSModules`, `cssfiles`, `node_modules`, `.git` and `.agentteams-backups` are not. It differs in three
   ways: only `Projects/` is searched (the detector also searches `.projects/`), it stops at twelve
-  levels, and a project's own `terminology/` folder is not searched.
+  levels, a project's own `terminology/` folder is not searched, and a directory that holds a term
+  register is a project even without one of those markers.
 - Otherwise a scan reports `NEEDS-REGISTER` and does not block.
 
 A run that found no register to check says `NOTHING CHECKED` and prints no pass line.

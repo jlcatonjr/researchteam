@@ -94,8 +94,9 @@ def discover(root: Path) -> list[Path]:
     """Every project under Projects/, nested ones included, down to MAX_DEPTH levels.
 
     The search follows the citation detector's: every directory but the pruned names. It differs in
-    three ways, stated in the protocol: only Projects/ is searched, it stops at MAX_DEPTH, and a
-    project's own `terminology` folder (its register) is not searched.
+    four ways, stated in the protocol: only Projects/ is searched, it stops at MAX_DEPTH, a project's
+    own `terminology` folder (its register) is not searched, and a directory that holds a register is
+    a project even without a research marker.
     """
     found: list[Path] = []
 
@@ -182,8 +183,10 @@ def _check_term(term, n: int, seen: set, problems: list) -> int:
     if len(forms) > MAX_FORMS or any(len(f) > MAX_FORM_CHARS or len(match_words(f)) > MAX_FORM_WORDS for f in forms):
         problems.append(("SCHEMA", f"{where}: at most {MAX_FORMS} forms, each at most {MAX_FORM_CHARS} characters "
                                    f"and {MAX_FORM_WORDS} words"))
-    if any(f != f.strip(" \t\n>*_-") for f in forms):
+    if any(f != f.strip() or f != f.strip(">*_-") for f in forms):
         problems.append(("SCHEMA", f"{where}: a form may not begin or end with a space, hyphen, underscore, > or *"))
+    if any(re.search(r"\s-|-\s|--", f) for f in forms):  # the matcher allows one separator between words
+        problems.append(("SCHEMA", f"{where}: in a form, a hyphen may not touch a space or another hyphen"))
     # Every word needs a letter or digit: a word of only markup characters could match almost anywhere.
     if any(not match_words(f) or not all(WORD.search(w) for w in match_words(f)) for f in forms):
         problems.append(("SCHEMA", f"{where}: every word of a form must contain a letter or a digit"))
@@ -578,7 +581,7 @@ def _glossary(proj: Path, reg: dict) -> bytes:
     return "\n".join(lines).encode()
 
 
-# ----------------------------------------------------------------------------- the committed manifest, and assessing a project
+# ----------------------------------------------------------------------------- manifest and assessment
 def _read_json(path: Path):
     """A committed generated file as parsed JSON, or None when it is absent, a link, or not JSON."""
     try:
