@@ -20,8 +20,10 @@ on:
         required: false
         type: boolean
         default: false
-  schedule:
-    - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC — SHA-gated, so a no-change week does nothing
+  # Weekly autosync is OFF by default (#186): turning it on is a deliberate edit in this repository. To turn it
+  # on, uncomment the two lines below. `researchteam workflow-sync` keeps this `on:` block as you leave it.
+  # schedule:
+  #   - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC — SHA-gated, so a no-change week does nothing
 
 # No workflow-wide grant: each job states the least it needs (#179).
 permissions: {}

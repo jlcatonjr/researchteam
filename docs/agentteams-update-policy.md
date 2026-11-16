@@ -241,19 +241,21 @@ generate, so the "latest agentteams update" is integrated without a manual step.
    with **no** layer-2 file sync — safe on the upstream repo (a full `researchteam update` there would
    overwrite local managed-file edits with the older upstream versions).
 3. **CI autosync (remote, SHA-gated) — the durable, always-propagating layer.** The `agentteams-sync`
-   workflow (upstream) and the scaffold-emitted `agentteams-sync` (derived) run weekly + on
-   `workflow_dispatch`. Both are thin shells over the managed `scripts/agentteams_autosync_gate.sh`,
+   workflow (upstream) runs weekly + on `workflow_dispatch`. The scaffold-emitted `agentteams-sync` (derived)
+   ships with its weekly schedule commented out (#186), so it runs on `workflow_dispatch` until the repository
+   turns the schedule on, which is a deliberate edit there. Both are thin shells over the managed `scripts/agentteams_autosync_gate.sh`,
    which SHA-gates on agentteams `main`, and on a real change installs that pinned SHA, runs the regen
    (upstream `--layer1-only`; derived full), scrubs machine-path churn, runs the blocking gates, records
    the SHA in `.github/agentteams-autosync-ref`, and lets the workflow open/update the evergreen PR (see
    Execution Policy). Because the gate is a **managed** file, fixes to the logic propagate to every
    derived repo via `researchteam update` — the four workflow copies (upstream, scaffold, each derived)
    stay thin and rarely change.
-   **Taking a scaffold change into an existing derived repo (#186).** The workflow is written only at `init`; no
-   command updates it later. Port the changed `permissions:` / `jobs:` parts into the repo's own
-   `.github/workflows/agentteams-sync.yml` and keep its `on:` block as it is. Copying the whole scaffold over the
-   file brings back `schedule:` (weekly, Monday 06:00 UTC) in a repo that removed or commented it out, which
-   silently turns autosync back on. A workflow disabled in GitHub (`gh workflow disable`) stays disabled either
+   **Taking a scaffold change into an existing derived repo (#186).** The workflow is written at `init` and
+   otherwise only by `researchteam workflow-sync`, which rewrites `.github/workflows/agentteams-sync.yml` from
+   the installed scaffold but keeps the repository's own top-level `on:` block as it is. It shows a diff and asks
+   first (`--yes`, `--dry-run`). Without that command, port the changed `permissions:` / `jobs:` parts by hand
+   and keep the `on:` block. Do not copy the whole scaffold over the file: before 1.1.7 the scaffold carried a
+   live weekly `schedule:`, and a whole-file copy changes the trigger section either way. A workflow disabled in GitHub (`gh workflow disable`) stays disabled either
    way. A workflow edit gets the repo's own `@security` review.
 
 **Division of labor (hook vs CI — they do not fight).** The local pre-commit hook fires on *staged agent

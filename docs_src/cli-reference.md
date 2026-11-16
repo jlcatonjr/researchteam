@@ -107,6 +107,23 @@ Plain `update` merges with `--shrink-policy preserve` and will not re-brand enri
 
 ---
 
+## `workflow-sync`
+
+```
+researchteam workflow-sync [--yes] [--dry-run]
+```
+
+Rewrites `.github/workflows/agentteams-sync.yml` from the installed researchteam's derived scaffold and keeps this repository's own top-level `on:` block, so its schedule stays as it is (#186). With no workflow present it writes the scaffold as shipped, whose weekly schedule is commented out. It prints a diff and asks before writing.
+
+| Option | Effect |
+|--------|--------|
+| `--yes` | Write without asking. |
+| `--dry-run` | Show the diff only; write nothing. |
+
+It refuses a symlinked path, a non-regular file, and a workflow without a block-style top-level `on:` key. A workflow change gets the repository's own `@security` review.
+
+---
+
 ## `status`
 
 ```

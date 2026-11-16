@@ -5,6 +5,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Derived autosync schedule off by default; `researchteam workflow-sync` (#186).** Operator ruling, 2026-11-16.
+  The derived scaffold (`researchteam/scaffold/agentteams-sync-derived.yml`) now ships with its weekly
+  `schedule:` commented out, so a new derived repository runs autosync only when dispatched, and turning the weekly
+  run on is a deliberate edit there. The upstream researchteam workflow keeps its schedule. The new command
+  `researchteam workflow-sync [--yes] [--dry-run]` rewrites an existing repository's
+  `.github/workflows/agentteams-sync.yml` from the installed scaffold but keeps that repository's own top-level
+  `on:` block, so a repository running autosync keeps its schedule and one without it stays off. It shows a
+  diff, asks before writing, refuses a symlinked path or a file without a block-style `on:`, and never writes
+  through a link (`tests/test_workflow_sync.py`).
+
 - **Docs: taking a scaffold change keeps the repo's `on:` block (#186).** The 1.1.5 and 1.1.6 entries and the
   v1.1.6 release notes tell an existing derived repository to copy `researchteam/scaffold/agentteams-sync-derived.yml`
   over its workflow. The scaffold always ships the weekly `schedule:`, so a whole-file copy turns autosync back on
