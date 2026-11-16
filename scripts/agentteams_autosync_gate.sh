@@ -30,8 +30,9 @@
 #                            provenance guard refuses it unless RESEARCHTEAM_ALLOW_UNVERIFIED_AGENTTEAMS=1)
 #   AUTOSYNC_PR_BODY_FILE    where to write the PR body (default: ./.autosync-pr-body.md, gitignored)
 #   AUTOSYNC_EVERGREEN_PR_OPEN  true|false: whether an open PR has the evergreen branch as head. The workflow
-#                            looks it up in its own step, so no token reaches this script; when unset, the
-#                            gate tries `gh pr list` itself (a local run).
+#                            looks it up in its own read-only job (`evergreen_pr`), so no token reaches this
+#                            script; when unset, the gate tries `gh pr list` itself (a local run; in CI it has
+#                            no token there, so the state is unknown and the current branch's ref is used).
 # GitHub outputs (when $GITHUB_OUTPUT is set): changed=<bool>, new_sha=<sha>, old_sha=<sha>
 # Exit: 0 = success (check `changed`); non-zero = a blocking gate failed (workflow must NOT open a PR).
 
@@ -152,7 +153,7 @@ fi
 # open the PR (#172). When the lookup cannot run, use the current branch: that errs toward detecting the
 # change (at worst an open PR is refreshed), never toward stranding it.
 # evergreen_pr_state -> "open" | "none" | "unknown". AUTOSYNC_EVERGREEN_PR_OPEN=true|false overrides the
-# lookup (the workflow's own step, or tests); otherwise `gh pr list` with whatever auth gh has (a local run).
+# lookup (the workflow's `evergreen_pr` job, or tests); otherwise `gh pr list` with whatever auth gh has (a local run).
 evergreen_pr_state() {
   case "${AUTOSYNC_EVERGREEN_PR_OPEN:-}" in
     true) echo open; return ;;

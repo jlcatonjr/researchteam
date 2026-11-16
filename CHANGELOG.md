@@ -5,6 +5,17 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Autosync token scope (#179).** Both autosync workflows (`.github/workflows/agentteams-sync.yml` and the
+  derived scaffold) now grant nothing at workflow level. The evergreen-PR lookup from #172 runs in its own job,
+  `evergreen_pr`, with `contents: read` / `pull-requests: read`, and passes `open` to the `autosync` job as a job
+  output. If the lookup fails, the gate still treats the state as unknown and uses the current branch's ref.
+  `actions/checkout` now runs with `persist-credentials: false`, so the job's write token is not left in
+  `.git/config` while the gate runs integrated code; the PR step authenticates with its own token input. The
+  separate evergreen fetch step is gone, since `fetch-depth: 0` already fetches that branch. Derived repositories
+  get the scaffold only at `init`, so an existing one copies `researchteam/scaffold/agentteams-sync-derived.yml`
+  to `.github/workflows/agentteams-sync.yml` itself (a workflow change: its own `@security` review applies).
+  Reported by Batallion's `@security`.
+
 ## 1.1.5 (tag `v1.1.5`, on `release/1.1`)
 
 A patch release on `release/1.1`. It still pins agentteams **`v1.1.3`** (`cbd41a74`); moving to agentteams v1.1.4
