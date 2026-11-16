@@ -2,3 +2,6 @@
 upstream = https://github.com/jlcatonjr/researchteam
 ref = main
 is_upstream = true
+# Every research project under Projects/ must have a term register (docs/term-index-protocol.md).
+# Read by scripts/check_term_index.py; without it a missing register blocks only a named project.
+term_index_require = true

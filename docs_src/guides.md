@@ -9,6 +9,7 @@ derived repo. They are linked here at `main` rather than copied, so there is one
 |---|---|
 | [2-Fold Citation & Claim Audit](https://github.com/jlcatonjr/researchteam/blob/main/docs/citation-claim-audit-protocol.md) | Before compiling any cited deliverable. Run `citation-audit` first (the mechanical layer), then the doubled semantic audit. Unresolved findings block compilation |
 | [Historical Context](https://github.com/jlcatonjr/researchteam/blob/main/docs/historical-context-protocol.md) | Placing every load-bearing source in its own time: date, place, audience, text version, anachronism guarded both ways. Run `history-check` before compiling |
+| [Term Register and Index](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) | Defining a project's terms as coded definitions, indexing every occurrence, and keeping the index in sync. Run `term-check` before compiling |
 | [Literature Library](https://github.com/jlcatonjr/researchteam/blob/main/docs/literature-library-protocol.md) | Building and querying the per-project literature library, and its honest ceiling |
 | [Retrieval Surfaces](https://github.com/jlcatonjr/researchteam/blob/main/docs/retrieval-surfaces.md) | Which navigation surfaces an agent may reach, and why none of them is evidence |
 | [On-the-Fly Retrieval](https://github.com/jlcatonjr/researchteam/blob/main/docs/on-the-fly-retrieval-profile.md) | The optional web-grounded profile (not the corpus of record) |

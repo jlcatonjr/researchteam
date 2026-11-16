@@ -80,3 +80,67 @@ def test_the_example_project_commands_are_gone(cmd):
     bridge = ROOT / "scripts" / "claude_researchteam_bridge.sh"
     assert cmd not in subprocess.run(["bash", str(bridge), "help"], capture_output=True, text=True).stdout
     assert subprocess.run(["bash", str(bridge), cmd], capture_output=True, text=True).returncode == 2
+
+
+# --------------------------------------------------------------------------- term-index step
+def _with_term_check(repo: Path) -> Path:
+    for name in ("build_term_index.py", "check_term_index.py"):
+        shutil.copy(ROOT / "scripts" / name, repo / "scripts")
+    return repo
+
+
+def _project(repo: Path, text: str) -> Path:
+    proj = repo / "Projects" / "Demo"
+    (proj / "terminology").mkdir(parents=True)
+    (proj / "01-review.md").write_text(text)
+    (proj / "terminology" / "terms.json").write_text(
+        '{"schema": "researchteam-term-register", "terms": '
+        '[{"id": "t", "label": "term register", "definition": "d", "source": "project definition"}]}')
+    return proj
+
+
+def test_term_check_is_skipped_when_the_script_is_absent(tmp_path):
+    repo = _repo(tmp_path)
+    _project(repo, "A term register.\n")  # generic-profile repository: no check script
+    r = _validate(repo)
+    assert r.returncode == 0 and "check_term_index" not in r.stdout and "Validation completed." in r.stdout
+
+
+def test_validate_passes_with_no_register_and_fails_on_a_stale_index(tmp_path):
+    repo = _with_term_check(_repo(tmp_path))
+    r = _validate(repo)
+    assert r.returncode == 0 and "NOTHING CHECKED" in r.stdout and "Validation completed." in r.stdout
+    proj = _project(repo, "A term register.\n")
+    stale = _validate(repo)
+    assert stale.returncode == 1 and "DEFECT[STALE]" in stale.stdout
+    assert "Term-index check failed" in stale.stderr and "Validation completed." not in stale.stdout
+    built = subprocess.run(["bash", str(repo / "scripts" / "claude_researchteam_bridge.sh"), "term-build", "Demo"],
+                           capture_output=True, text=True)
+    assert built.returncode == 0, built.stdout + built.stderr
+    assert _validate(repo).returncode == 0
+    (proj / "01-review.md").write_text("A term register, edited.\n")
+    assert _validate(repo).returncode == 1
+
+
+def test_validate_ignores_the_advisory_switch(tmp_path):
+    import os
+
+    repo = _with_term_check(_repo(tmp_path))
+    _project(repo, "A term register.\n")
+    r = subprocess.run(["bash", str(repo / "scripts" / "claude_researchteam_bridge.sh"), "validate"],
+                       capture_output=True, text=True, env={**os.environ, "TERM_INDEX_ADVISORY": "1"})
+    assert r.returncode == 1 and "ADVISORY MODE" not in r.stdout
+
+
+def test_term_commands_dispatch(tmp_path):
+    repo = _with_term_check(_repo(tmp_path))
+    shutil.copy(ROOT / "scripts" / "query_term_index.py", repo / "scripts")
+    _project(repo, "A term register.\n")
+    bridge = ["bash", str(repo / "scripts" / "claude_researchteam_bridge.sh")]
+    assert subprocess.run(bridge + ["term-build"], capture_output=True, text=True).returncode == 0
+    check = subprocess.run(bridge + ["term-check", "Demo"], capture_output=True, text=True)
+    assert check.returncode == 0 and "PASS (no DEFECT)" in check.stdout
+    query = subprocess.run(bridge + ["term-query", "Demo", "term register"], capture_output=True, text=True)
+    assert query.returncode == 0 and "01-review.md:1:3" in query.stdout
+    again = subprocess.run(bridge + ["term-init", "Demo"], capture_output=True, text=True)
+    assert again.returncode == 1

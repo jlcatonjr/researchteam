@@ -23,6 +23,10 @@ Citation style:
   audit in `docs/citation-claim-audit-protocol.md`). Unresolved citation/claim findings block
   release; a clean run is WELL-FORMED, not proof of non-fabrication.
 
+- Use the preferred labels in the project's term register (`terminology/terms.json`), and run
+  `bash scripts/claude_researchteam_bridge.sh term-check <project>` before finalizing
+  (`docs/term-index-protocol.md`).
+
 ## Output Expectations
 
 - Clear section headings.

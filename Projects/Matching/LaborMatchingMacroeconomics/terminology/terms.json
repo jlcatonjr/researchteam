@@ -1,0 +1,46 @@
+{
+  "schema": "researchteam-term-register",
+  "schema_version": "1.0",
+  "terms": [
+    {
+      "id": "matching-function",
+      "label": "matching function",
+      "definition": "The function linking vacancies and unemployment to job-finding and vacancy-filling rates.",
+      "source": "project definition",
+      "notes": "Wording of 01-literature-review.md, section 2."
+    },
+    {
+      "id": "dmp-framework",
+      "label": "DMP framework",
+      "definition": "The Diamond-Mortensen-Pissarides search-and-matching framework: a matching function, endogenous job creation from free entry and expected surplus, wage determination (typically Nash bargaining), and job destruction.",
+      "variants": ["DMP", "DMP core", "DMP-style", "Diamond-Mortensen-Pissarides"],
+      "source": ["Pissarides2000"],
+      "plural": false,
+      "notes": "The project's summary in 01-literature-review.md, section 2, which cites Pissarides (2000) as the synthesis."
+    },
+    {
+      "id": "hosios-condition",
+      "label": "Hosios condition",
+      "definition": "The condition that constrained efficiency in decentralized search equilibria requires bargaining shares to equal matching elasticities.",
+      "source": ["Hosios1990"],
+      "notes": "Wording of 01-literature-review.md, section 3."
+    },
+    {
+      "id": "directed-search",
+      "label": "directed search",
+      "definition": "Search in which workers and firms sort into submarkets with different posted terms, in contrast to random search with one aggregate market tightness.",
+      "variants": ["directed-search"],
+      "source": ["Moen1997", "AcemogluShimer1999"],
+      "notes": "Wording of 01-literature-review.md, section 4."
+    },
+    {
+      "id": "volatility-puzzle",
+      "label": "volatility puzzle",
+      "definition": "The finding that the standard calibrated DMP model with Nash wages implies much smaller unemployment and vacancy fluctuations than observed in U.S. data.",
+      "variants": ["volatility debate"],
+      "discouraged": ["Shimer puzzle"],
+      "source": ["Shimer2005"],
+      "notes": "Wording of 01-literature-review.md, section 5. 'Shimer puzzle' is common elsewhere; this project does not use it."
+    }
+  ]
+}

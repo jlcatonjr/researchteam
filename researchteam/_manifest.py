@@ -54,6 +54,13 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/build_literature_library.py",
     "scripts/query_literature_library.py",
     "scripts/check_literature_library_integrity.sh",
+    # Term register + synced occurrence index (docs/term-index-protocol.md). One engine
+    # (build_term_index.py) that the gate and the query import; the hook example is merged by hand.
+    "docs/term-index-protocol.md",
+    "scripts/build_term_index.py",
+    "scripts/check_term_index.py",
+    "scripts/query_term_index.py",
+    ".claude/settings.terms.example.json",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",

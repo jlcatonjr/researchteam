@@ -166,7 +166,8 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
 - **`layer2_profile`** (`"scholarly"` | `"generic"`; default when absent: `"scholarly"`). A
   `generic` project receives only the framework-neutral layer-2 files; the scholarly tooling
   (citation-claim audit protocol, literature-library scripts, news-perspective protocol,
-  historical-context protocol, methodology/historical-context/citation-integrity checks) is not
+  historical-context protocol, term-index protocol and scripts,
+  methodology/historical-context/citation-integrity checks) is not
   synced. Switching an already-scaffolded instance to
   `generic` stops those files being re-synced; any copies placed at `init` remain on disk and can be
   removed by hand.

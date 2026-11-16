@@ -111,6 +111,13 @@ the spec below; the reference implementation lives in a sibling researchReposito
 - **Disjoint from surfaces #2 (code) and #4 (relevance summaries).** Different corpora, different questions.
   Do not merge them.
 
+## Not a retrieval surface: the term index
+
+A project's term index (`docs/term-index-protocol.md`, `term-query`) is not one of the five surfaces. It
+does not rank candidates and it does not find sources. It lists, by exact matching, where a form in the
+project's own term register appears in the project's own documents, so that usage can be checked for
+consistency. An occurrence is a place where a form appears. It is not evidence and never anchors a claim.
+
 ## The shared ceiling (applies to ALL five surfaces)
 
 Every surface here is a **navigation aid over a local index** (lexical for #1–#4; a real *local* dense

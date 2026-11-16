@@ -17,7 +17,8 @@ Commands:
   help          Show this help message
   status        Show git status and current branch
   validate      Run repository validator (if available), then each executable
-                in scripts/validate.d/ (repo-owned local checks, in name order)
+                in scripts/validate.d/ (repo-owned local checks, in name order),
+                then the term-index check when scripts/check_term_index.py is present
   open-claude-dir Print path to Claude support folder
   plan-path     Print current ISO-week plan directory path
   methodology-check [project]
@@ -44,6 +45,18 @@ Commands:
   library-check <project>
                 Integrity gate for the library: a DEFECT exits 1; no library yet (NEEDS-BUILD) exits 0.
                 See docs/literature-library-protocol.md for the full protocol + honest ceiling.
+  term-init <project>
+                Write a starter term register (Projects/<project>/terminology/terms.json).
+                Never overwrites one.
+  term-build [project]
+                (Re)build the term-occurrence index and glossary from the register. No arg
+                rebuilds every project that has a register.
+  term-check [project]
+                Gate for the term register and its index: a DEFECT exits 1. A clean run means
+                WELL-FORMED AND CURRENT, not that terms are used in their defined sense. Codes
+                and the honest ceiling are in docs/term-index-protocol.md.
+  term-query <project> "<label, variant or id>"
+                List where a registered term occurs (places a form appears, NOT evidence of sense).
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -83,6 +96,19 @@ run_local_validators() {
   fi
 }
 
+# Term registers and their indexes (docs/term-index-protocol.md). The check script is synced only to
+# scholarly-profile repositories, and this bridge goes to every repository, so its absence is a skip.
+# Exit 1 (a DEFECT) and exit 2 (nothing could be checked) both fail validate. TERM_INDEX_ADVISORY is
+# cleared: a caller's advisory switch must not turn the gate off here.
+run_term_index_check() {
+  [[ -f "scripts/check_term_index.py" ]] || return 0
+  echo "Running scripts/check_term_index.py ..."
+  if ! env -u TERM_INDEX_ADVISORY python3 -B scripts/check_term_index.py; then
+    echo "Term-index check failed: see docs/term-index-protocol.md" >&2
+    exit 1
+  fi
+}
+
 command_validate() {
   if [[ -x "scripts/validate_agentteams_update.sh" ]]; then
     echo "Running scripts/validate_agentteams_update.sh ..."
@@ -90,6 +116,7 @@ command_validate() {
     # outside it). After an update run, call scripts/validate_agentteams_update.sh directly.
     VALIDATION_SKIP_SCOPE=1 bash scripts/validate_agentteams_update.sh
     run_local_validators
+    run_term_index_check
     echo "Validation completed."
   else
     echo "Validator not found at scripts/validate_agentteams_update.sh"
@@ -162,6 +189,17 @@ command_library_check() {
   fi
 }
 
+# Term register and occurrence index (docs/term-index-protocol.md). $1 is the script, $2 its
+# subcommand ("" for none); the rest are the caller's arguments.
+command_term() {
+  local script="$1" sub="$2"; shift 2
+  if [[ ! -f "$script" ]]; then
+    echo "Term-index script not found at $script" >&2
+    exit 1
+  fi
+  if [[ -n "$sub" ]]; then python3 -B "$script" "$sub" "$@"; else python3 -B "$script" "$@"; fi
+}
+
 command_code_query() {
   # Surface #2 (code index) — thin convenience over `agentteams --query-code`. NAVIGATION ONLY:
   # a hit is a candidate to open, never evidence and never a claim/link anchor. See
@@ -227,6 +265,22 @@ case "$cmd" in
   library-check)
     shift
     command_library_check "$@"
+    ;;
+  term-init)
+    shift
+    command_term scripts/build_term_index.py init "$@"
+    ;;
+  term-build)
+    shift
+    command_term scripts/build_term_index.py build "$@"
+    ;;
+  term-check)
+    shift
+    command_term scripts/check_term_index.py "" "$@"
+    ;;
+  term-query)
+    shift
+    command_term scripts/query_term_index.py "" "$@"
     ;;
   code-query)
     shift

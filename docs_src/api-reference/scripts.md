@@ -1,8 +1,8 @@
 # Helper scripts — ResearchTeam
 
-Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py` and `query_literature_library.py` are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
+Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py`, `query_literature_library.py` and the three term-index scripts are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
 
-> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`*
+> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
 
 > **Stability.** The supported interface is each script's command line ([Bridge reference](../bridge-reference.md)); internals may change between releases.
 
@@ -183,6 +183,53 @@ Prints a header with the query and project, a navigation-only notice, then one l
 | `query(libdir: Path, q: str, k: int) -> tuple[list[tuple[str, float]], dict]` | `(hits, lit)`: up to `k` `(key, score)` pairs with a positive score, best first, and the loaded literature records keyed by citation key. |
 | `USAGE` | `'usage: query_literature_library.py <project> "<query>" [-k N]'`. |
 | `_usage(msg: str = "") -> None` | Print `msg` (when given) and `USAGE` to stderr, then `sys.exit(2)`. |
+
+---
+
+## `build_term_index.py`, `check_term_index.py`, `query_term_index.py`
+
+> *Sources: `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
+
+The term register and its occurrence index. `build_term_index.py` holds the engine (register validation, matching, rendering) and the commands that write. The other two import it, so all three match text the same way. Standard library only; no network calls and no child processes. The finding codes, the register format and the ceiling are defined in the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) and are not repeated here.
+
+### Usage
+
+```text
+python3 scripts/build_term_index.py build [project]
+python3 scripts/build_term_index.py init <project>
+python3 scripts/build_term_index.py hook            # Claude Code hook; JSON payload on stdin
+python3 scripts/check_term_index.py [project]
+python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
+```
+
+| Argument | Meaning |
+|----------|---------|
+| `project` | A project's path under `Projects/`, or its directory name when that is unique. Omitted: every project (`build` takes every project that has a register). |
+| `init <project>` | Writes a starter `terminology/terms.json`. Refuses when `terminology/` already holds files. |
+| `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. With no usable path it rebuilds every project whose files changed. A path outside `Projects/` does nothing. |
+| `--list` | Lists every registered term with its occurrence count. |
+
+### Environment
+
+| Variable | Meaning |
+|----------|---------|
+| `RT_ROOT` | Repository root to use in place of the one inferred from the script's location (test harness). |
+| `TERM_INDEX_ADVISORY=1` | `check_term_index.py` reports defects and exits 0, printing an `ADVISORY MODE` line. The bridge `validate` command clears it. |
+
+`check_term_index.py` also reads `term_index_require` from `.researchteam`.
+
+### Exit codes
+
+| Script | 0 | 1 | 2 |
+|--------|---|---|---|
+| `build_term_index.py build` / `init` | Done | A register defect, or nothing written | Usage error, or project not found |
+| `build_term_index.py hook` | Done, or nothing to do | — | Feedback for the agent on stderr: a defect in the file just edited |
+| `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect | Usage error, or project not found |
+| `query_term_index.py` | Found | No such term, or no usable register | Usage error, or project not found |
+
+### Output files
+
+All under `<project>/terminology/`: `term-index.json` (manifest: generator version, SHA-256 of the register and of each indexed document), `index/<document path>.json` (that document's occurrences, one per line) and `glossary.md` (a reading view of the register). They hold no timestamps and no absolute paths, so the same inputs give the same bytes. `check_term_index.py` and `query_term_index.py` write nothing.
 
 ---
 

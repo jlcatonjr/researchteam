@@ -1,0 +1,15 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,topic-scoping-expert,Research plan and scope,operator request,Projects/CodedTermIndexing/00-research-plan.md,done,,
+2,research-analyst,Gather and verify sources (three evidence notes; DOIs checked against CrossRef),candidate source list,Projects/CodedTermIndexing/references/evidence/*.md,done,"Three evidence notes; ISO standards and three other sources unreachable and left uncited",1
+3,reference-manager,Bibliography with a source link on every record,evidence notes,Projects/CodedTermIndexing/references/bibliography.bib,done,69 records; 36 DOIs confirmed against CrossRef,2
+4,interpretation-advisor,Interpretive map with Historical setting register,evidence notes,Projects/CodedTermIndexing/interpretation/interpretive-map.md,done,history-check passes; no domain methodology guide (recorded as a deliberate gap),2
+5,primary-producer,Literature review; analysis; conclusion and executive summary,evidence notes; map,01-literature-review.md; 02-analysis.md; 03-conclusion.md,done,Revised after both audit rounds and the closure check,3;4
+6,technical-validator,Mechanical gates: citation-audit; history-check; methodology-check,deliverables,gate output,done,citation-audit no DEFECT; history-check pass; methodology-check advisory gap,5
+7,conflict-auditor,Doubled semantic audit (round 1; adversarial round 2; diff) and audit ledger,deliverables; evidence notes,04-adversarial-conflict-audit.md,done,"Round 1 (34 citation and 55 claim findings); round 2 against live sources; closure check; all remediated; two findings changed the argument",6
+8,primary-producer,Feature plan derived from the research,project deliverables,references/plans/term-index-2026-11-16.design.md,done,Drafted in parallel with step 7 and revised after it; moved from docs/ to references/plans/,7
+9,adversarial,Audit the feature plan (with conflict-auditor; security; code-hygiene) and revise,feature plan,revised plan with audit record,done,"Adversarial verdict RETHINK; conflict audit 31 findings; security CONDITIONAL PASS with 18 conditions; code-hygiene 6 changes. Resolutions R1 to R15 in the design, section 0",8
+10,primary-producer,Implement the revised plan: builder; gate; query; hook example; bridge commands; protocol doc; manifest; tests; registers for three projects,revised plan,scripts; docs; tests; .claude example; Projects/*/terminology,done,706 tests pass locally; validate passes,9
+11,code-hygiene,Review the diff (with security for the hook example; the scripts; the bridge; the manifest; CLAUDE.md),diff,verdicts,pending,,10
+12,conflict-auditor,Closing consistency check across changed files,diff,verdict,pending,,11
+13,git-operations,PR; merge under PS-2 on green CI,reviewed head,merge commit,pending,,12
+14,work-summarizer,Daily work summary,plan; git history,workSummaries/daily/2026-11-16.md,pending,,13

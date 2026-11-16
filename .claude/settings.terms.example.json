@@ -1,0 +1,44 @@
+{
+  "_comment": [
+    "Managed by researchteam. Term-index hooks: merge the `hooks` entries below into .claude/settings.json",
+    "(an operator step; researchteam never edits settings.json). Protocol: docs/term-index-protocol.md.",
+    "",
+    "What they do: after Claude writes or edits a file, or runs a shell command, and when a session starts,",
+    "they rebuild the term-occurrence index of any project whose documents or register changed. After an",
+    "edit to a project document they also report, back to Claude, a discouraged form the edit left in that",
+    "file. The report carries term identifiers and positions only, never document or register text.",
+    "",
+    "What to know before merging: hooks run OUTSIDE the sandbox, on every matching tool call. The command",
+    "runs scripts/build_term_index.py, a file an agent can edit, so merging this gives that script the same",
+    "trust as the toolchain SessionStart check. The script writes only under Projects/<project>/terminology/,",
+    "makes no network call and starts no process. To remove the hooks, delete these entries.",
+    "",
+    "What they do not cover: edits made while no Claude session is running, and other harnesses. Those are",
+    "picked up at the next SessionStart, by `term-build`, and by the check inside `validate`."
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/build_term_index.py\" hook",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/build_term_index.py\" hook",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -30,6 +30,13 @@ Primary outputs:
 7. Place every load-bearing source in its own time: date, place, audience and text version, with
    anachronism guarded in both directions. Follow `docs/historical-context-protocol.md`, and run
    `bash scripts/claude_researchteam_bridge.sh history-check <project>` before compiling.
+8. Define each project's key terms in its term register (`Projects/<project>/terminology/terms.json`)
+   and use the preferred labels. Rebuild the term index after editing
+   (`bash scripts/claude_researchteam_bridge.sh term-build <project>`, or the optional hooks the operator
+   merges), and run `bash scripts/claude_researchteam_bridge.sh term-check <project>` before compiling.
+   Follow `docs/term-index-protocol.md`. A clean check means WELL-FORMED AND CURRENT, not that terms
+   are used in their defined sense. This rule applies where the repository carries the term-index
+   scripts (the scholarly profile).
 
 ## Quick Start
 
