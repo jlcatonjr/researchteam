@@ -3,9 +3,9 @@
 
 > **Auto-generated.** Regenerated on every commit that touches the `researchteam` package. Do not edit manually — changes will be overwritten.
 
-- Modules mapped: **15**
+- Modules mapped: **16**
 - Packages: **1**
-- Internal import edges: **35**
+- Internal import edges: **36**
 - Distinct external dependencies: **1**
 
 ---
@@ -22,7 +22,7 @@ Inter-package import dependencies (module-level detail in the tables below).
 
 | Package | Modules | Depends on |
 | --- | --- | --- |
-| `researchteam` | 15 | — |
+| `researchteam` | 16 | — |
 
 ---
 
@@ -52,7 +52,8 @@ Every module, coloured by package (full adjacency in the table below).
 | `researchteam._personalize` | `researchteam._manifest` | `researchteam._adopt`, `researchteam._drift`, `researchteam._init_cmd`, `researchteam._update_cmd`, `researchteam.cli` |
 | `researchteam._release` | — | `researchteam._drift`, `researchteam.cli` |
 | `researchteam._update_cmd` | `researchteam._agentteams_provenance`, `researchteam._drift`, `researchteam._fetch`, `researchteam._frozen`, `researchteam._manifest`, `researchteam._notes`, `researchteam._personalize` | `researchteam._doctor_cmd`, `researchteam.cli` |
-| `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._drift`, `researchteam._fetch`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd` | `researchteam.__main__` |
+| `researchteam._workflow_sync` | — | `researchteam.cli` |
+| `researchteam.cli` | `researchteam`, `researchteam._doctor_cmd`, `researchteam._drift`, `researchteam._fetch`, `researchteam._init_cmd`, `researchteam._manifest`, `researchteam._personalize`, `researchteam._release`, `researchteam._update_cmd`, `researchteam._workflow_sync` | `researchteam.__main__` |
 
 ---
 
@@ -245,6 +246,14 @@ digraph "researchteam architecture" {
       "external": [],
       "repo_local": []
     },
+    "researchteam._workflow_sync": {
+      "package": "researchteam",
+      "path": "researchteam/_workflow_sync.py",
+      "is_package": false,
+      "imports_internal": [],
+      "external": [],
+      "repo_local": []
+    },
     "researchteam.cli": {
       "package": "researchteam",
       "path": "researchteam/cli.py",
@@ -258,7 +267,8 @@ digraph "researchteam architecture" {
         "researchteam._manifest",
         "researchteam._personalize",
         "researchteam._release",
-        "researchteam._update_cmd"
+        "researchteam._update_cmd",
+        "researchteam._workflow_sync"
       ],
       "external": [],
       "repo_local": []
@@ -405,6 +415,10 @@ digraph "researchteam architecture" {
     {
       "source": "researchteam.cli",
       "target": "researchteam._update_cmd"
+    },
+    {
+      "source": "researchteam.cli",
+      "target": "researchteam._workflow_sync"
     }
   ],
   "external_dependencies": [

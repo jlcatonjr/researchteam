@@ -167,6 +167,14 @@ def main() -> None:
     )
 
     # ---- status --------------------------------------------------------------
+    wfsync_p = sub.add_parser(
+        "workflow-sync",
+        help="Rewrite .github/workflows/agentteams-sync.yml from the installed scaffold, keeping this "
+        "repository's own `on:` block (its schedule stays as you have it)",
+    )
+    wfsync_p.add_argument("--yes", action="store_true", help="Write without asking")
+    wfsync_p.add_argument("--dry-run", action="store_true", help="Show the diff only; write nothing")
+
     sub.add_parser("status", help="Show marker info and CLI version")
 
     doctor_p = sub.add_parser(
@@ -220,6 +228,11 @@ def main() -> None:
         run_materialize(root, yes=args.yes, dry_run=args.dry_run, copilot_only=args.copilot_only,
                         adopt_orphans=args.adopt_orphans, codex=not args.no_codex,
                         discard_user_regions=args.discard_user_regions)
+
+    elif args.command == "workflow-sync":
+        root = _find_repo_root(require_marker=True)
+        from ._workflow_sync import run_workflow_sync
+        sys.exit(run_workflow_sync(root, yes=args.yes, dry_run=args.dry_run))
 
     elif args.command == "status":
         _cmd_status()
