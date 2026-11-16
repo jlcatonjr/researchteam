@@ -1,4 +1,4 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
 1,security,--branch-cleanup review of 10-delete-merged-branches.sh and its 28 branches,script,verdict,done,@security --branch-cleanup PASS at e640e4fc (28 branches; three guards per branch); recorded in a PR #190 comment,
-2,operator,Run 10-delete-merged-branches.sh,reviewed script,deleted branches,pending,,1
-3,orchestrator,Read back remote branches; record in the work summary,ls-remote,workSummaries/daily,pending,,2
+2,operator,Run 10-delete-merged-branches.sh,reviewed script,deleted branches,done,"operator ran 10-delete-merged-branches.sh: deleted 28 of 28, none skipped",1
+3,orchestrator,Read back remote branches; record in the work summary,ls-remote,workSummaries/daily,done,"readback after prune: 10 heads remain (main; release/1.0; release/1.1; one archive/ branch; chore/agentteams-autosync; open PR heads docs/install-pins-v1.1.2 (#156) and feat/briefing-records (#135); unmerged docs/framework-install-pin-v1.1.2; release-prep/v1.1.7 and records/v1.1.7-cut, merged after the list was made)",2
