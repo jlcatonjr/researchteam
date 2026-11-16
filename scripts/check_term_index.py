@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import term_index_engine as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
 
 REQUIRE_KEY = "term_index_require"
-TRUE_VALUES, FALSE_VALUES = {"true", "yes", "on", "1"}, {"false", "no", "off", "0", ""}
+TRUE_VALUES, FALSE_VALUES = {"true", "yes", "on", "1"}, {"false", "no", "off", "0"}
 
 
 def required(root: Path) -> bool:
@@ -67,11 +67,12 @@ def required(root: Path) -> bool:
 
 
 def bib_keys(proj: Path) -> set[str]:
+    """Citation keys in the project's own .bib files. A repository-level bibliography is not consulted."""
     keys: set[str] = set()
     for bib in sorted(proj.rglob("*.bib")):
         if bib.is_file() and not bib.is_symlink():
             text = bib.read_text(encoding="utf-8", errors="replace")
-            keys |= set(re.findall(r"^\s*@\w+\s*\{\s*([^,\s{}]+)\s*,", text, re.M))
+            keys |= set(re.findall(r"^[ \t]*@\w+[ \t]*\{[ \t]*([^,\s{}]+)[ \t]*,", text, re.M))
     return keys
 
 
@@ -96,8 +97,8 @@ def freshness(proj: Path, a: engine.Assessment) -> tuple[list, list]:
         return [("STALE", "no usable index manifest (run: term-build)")], []
     changes = [] if old.get("register_sha256") == a.register_sha256 else ["the register changed"]
     old_docs, new_docs = old["documents"], a.manifest["documents"]
-    for rel in sorted(set(old_docs) | set(new_docs), key=str):
-        name = engine.shown(str(rel))
+    for rel in sorted(set(old_docs) | set(new_docs)):
+        name = engine.shown(rel)
         if rel not in old_docs:
             changes.append(f"{name}: entered the scope")
         elif rel not in new_docs:
@@ -116,7 +117,7 @@ def freshness(proj: Path, a: engine.Assessment) -> tuple[list, list]:
     return defects, reviews
 
 
-def usage(proj: Path, a: engine.Assessment) -> tuple[list, list]:
+def usage_findings(proj: Path, a: engine.Assessment) -> tuple[list, list]:
     defects, reviews = [], []
     used: set[str] = set()
     quoted = 0
@@ -137,7 +138,8 @@ def usage(proj: Path, a: engine.Assessment) -> tuple[list, list]:
         if term["id"] not in used:
             reviews.append(("UNUSED", f"term '{term['id']}': no occurrence of the label or a variant"))
     if quoted:
-        reviews.append(("QUOTED", f"{quoted} discouraged form(s) inside quotations (exempt; listed so quoting stays visible)"))
+        reviews.append(("QUOTED", f"{quoted} discouraged form(s) inside quotations (exempt; listed so that "
+                                  "quoting stays visible)"))
     return defects, reviews
 
 
@@ -149,12 +151,13 @@ def check_project(proj: Path, named: bool, require: bool) -> tuple[bool, list, l
         if (tdir / "term-index.json").exists() or (tdir / "index").exists():
             return False, [("ORPHAN", "generated index files exist but there is no term register")], []
         if named or (require and engine.is_research_project(proj)):
-            return False, [("NOREG", "the project has no term register (run: term-init)")], []
+            hint = "its terms.json is not a researchteam register" if a.status == engine.FOREIGN else "run: term-init"
+            return False, [("NOREG", f"the project has no term register ({hint})")], []
         return False, [], []
     if a.status == engine.BAD:
         return True, a.problems, []
     fresh_defects, fresh_reviews = freshness(proj, a)
-    usage_defects, usage_reviews = usage(proj, a)
+    usage_defects, usage_reviews = usage_findings(proj, a)
     return True, a.problems + fresh_defects + usage_defects, fresh_reviews + usage_reviews
 
 
@@ -194,7 +197,8 @@ def run(argv: list[str]) -> int:
         if not defects and not reviews:
             print("  OK")
     print("\n---")
-    print(f"Projects seen: {len(targets)}  |  registers checked: {checked}  |  DEFECT: {n_defects}  |  NEEDS-REVIEW: {n_reviews}")
+    print(f"Projects seen: {len(targets)}  |  registers checked: {checked}  |  DEFECT: {n_defects}  |  "
+          f"NEEDS-REVIEW: {n_reviews}")
     if n_defects:
         if advisory:
             print("ADVISORY MODE (TERM_INDEX_ADVISORY=1): defects found but not blocking (exit 0).")

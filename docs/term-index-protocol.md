@@ -74,8 +74,12 @@ where a form appears. It is not evidence, and the index is not a retrieval surfa
 
 An unknown key is a defect, so a misspelt key is not silently ignored. `schema_version`, when present,
 must be `"1.0"`. Every word of a form must contain a letter or a digit. Limits: 5,000 terms, 50 forms per
-term, 20,000 forms in all, 200 characters per form, a 1 MB register, 5 MB per document. An empty `terms`
-list is valid.
+term, 20,000 forms in all, 200 characters and 16 words per form, 32 forms beginning with the same word,
+64 scope patterns in each list, a 1 MB register, 5 MB per document. The limits bound the work of
+matching, so that no register or document can stall the hook or the gate. An empty `terms` list is valid.
+
+Two forms are the same form when they differ only in case, or in what stands between their words: a
+space, a hyphen, an underscore or an emphasis marker. "snake_case" and "snake case" are one form.
 
 Rules for writing a register:
 
@@ -105,9 +109,9 @@ Rules for writing a register:
 - Where two forms could start at the same place, the longest wins. Where they overlap otherwise, the
   one that starts first wins, so an accepted form can hide a discouraged form that begins inside it.
 - Not searched: fenced code blocks, inline code, link targets, reference-link definitions, bare URLs,
-  HTML comments, YAML front matter at the top of a file, and any section whose heading begins with
-  References, Bibliography, Works Cited or Sources (the citation detector's rule). Such a section ends
-  at the next heading.
+  HTML comments, YAML front matter at the top of a file, and any section whose heading is References,
+  Bibliography, Works Cited or Sources, alone or followed by a space and more words (the citation
+  detector's rule). Such a section ends at the next heading.
 - Not indexed: `terminology/` itself, hidden directories, symbolic links, and a nested project, which has
   its own register.
 - Scope patterns use `**/`, `**`, `*` and `?`. Other characters, brackets and braces included, are
@@ -166,7 +170,7 @@ error.
 |---|---|---|---|
 | `DEFECT` | `[SCHEMA]` | The register cannot be parsed, breaks a limit, has a wrong type or an unknown key, or repeats an `id` | blocks |
 | `DEFECT` | `[AMBIG]` | One form is claimed by two terms, or is both accepted and discouraged. Automatic plurals count | blocks |
-| `DEFECT` | `[SRC]` | A `source` key is not in the project's `.bib` | blocks |
+| `DEFECT` | `[SRC]` | A `source` key is not in one of the project's own `.bib` files. A repository-level bibliography is not consulted | blocks |
 | `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project, or a document is too large | blocks |
 | `DEFECT` | `[STALE]` | No index was built, a document or the register changed since it was built, or a generated file is missing, was edited by hand, or is not one the builder writes | blocks |
 | `DEFECT` | `[DISC]` | A discouraged form is used outside a quotation with no `allow` entry | blocks |
@@ -190,9 +194,11 @@ a repository red: when only the builder changed, the check asks for a rebuild an
 - A project named on the command line must have one. `term-check <project>` is the pre-compile check.
 - A repository that sets `term_index_require = true` in `.researchteam` requires one for every research
   project, and a scan reports `[NOREG]` for each that lacks it. The value is `true`, `yes`, `on` or `1`,
-  or `false`, `no`, `off` or `0`. Any other value stops the check with an error, so a misspelling cannot
-  switch the requirement off unnoticed. A research project is a directory under `Projects/`, at any
-  depth, that holds a research plan, a `references/` folder or a numbered deliverable.
+  or `false`, `no`, `off` or `0`. Any other value, an empty one included, stops the check with an error,
+  so a misspelling cannot switch the requirement off unnoticed. A research project is a directory under
+  `Projects/`, down to twelve levels, that holds a research plan, a `references/` folder or a numbered
+  deliverable. The search is the citation detector's: hidden directories are searched, and folders named
+  `plans`, `JSModules`, `cssfiles`, `node_modules`, `.git` and `.agentteams-backups` are not.
 - Otherwise a scan reports `NEEDS-REGISTER` and does not block.
 
 A run that found no register to check says `NOTHING CHECKED` and prints no pass line.

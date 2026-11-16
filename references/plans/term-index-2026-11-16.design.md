@@ -131,6 +131,17 @@ The first implementation (commit 761c938) was reviewed by `@security`, `@code-hy
 - **I10. Records (consistency K22).** The full findings of the plan audit and of this review are in a
   tracked file.
 
+- **I11. Second review of the fixes (commit 500d3cc).** `@security` and `@code-hygiene` reviewed the fix
+  commit and found more. The matcher's work still grew with the number of forms sharing a first word,
+  and the code-span pattern and the glob matcher were still super-linear: forms are now capped at 16
+  words and 32 per first word, scope lists at 64 patterns, code spans are paired in one pass, and the
+  glob matcher makes one pass per token. A committed index file reused by the hook is checked record by
+  record against the register before it is trusted. `term-init` refuses a path through a symbolic link
+  and a folder inside a project. Two different tests of "the same form" became one. Project discovery
+  now matches the citation detector's, hidden directories included, and a test runs both on one tree.
+  An empty `term_index_require` is an error. The timing tests no longer depend on the clock: they
+  compare the time for an input with the time for twice that input.
+
 Corrections to this record, found by the same review: acceptance criterion 13 said the hook exits 2 only
 for a broken register; it also exits 2 for a discouraged form in the file just edited. An oversized
 document is a `[SCOPE]` defect, not `[SCHEMA]`. A wrapped form continues after a blockquote prefix or
@@ -234,26 +245,13 @@ relative to the project.
 ### 2.4 The checks
 
 `python3 scripts/check_term_index.py [project]`. Exit 0 clean, 1 defect, 2 usage or environment error.
-
-| Class | Code | Meaning |
-|---|---|---|
-| `DEFECT` | `[SCHEMA]` | The register cannot be parsed, breaks a limit, has a wrong type or an unknown key, or repeats an `id` |
-| `DEFECT` | `[AMBIG]` | One form is claimed by two terms, or is both accepted and discouraged |
-| `DEFECT` | `[SRC]` | A `source` key is not in the project's `.bib` |
-| `DEFECT` | `[SCOPE]` | The scope matches no document, or a pattern is absolute or contains `..` |
-| `DEFECT` | `[STALE]` | An index file is missing, an input hash differs, or the files were edited by hand |
-| `DEFECT` | `[DISC]` | A discouraged form is used outside a quotation with no `allow` entry |
-| `DEFECT` | `[ORPHAN]` | Generated index files exist and the register does not |
-| `DEFECT` | `[NOREG]` | No register: when the project is named, or everywhere when `term_index_require = true` |
-| `NEEDS-REVIEW` | `[REBUILD]` | The inputs are unchanged and the generator version differs |
-| `NEEDS-REVIEW` | `[UNUSED]` | A registered term never occurs |
-| `NEEDS-REVIEW` | `[NOSRC]` | A definition has no `source` |
-| `NEEDS-REVIEW` | `[QUOTED]` | A count of discouraged forms inside quotations, so that quoting is visible |
-| `NEEDS-REGISTER` | — | In a scan without the switch, a research project has no register |
-
-`TERM_INDEX_ADVISORY=1` downgrades defects to exit 0 and prints an advisory-mode line. The check never
-writes a file. The codes map onto the conflict-auditor taxonomy: `[AMBIG]` and `[DISC]` to
-`TERM_MISMATCH`, `[STALE]` to source drift.
+The finding codes, with which block and which are advisory, are defined in `docs/term-index-protocol.md`
+("The gate") and are not repeated here. In outline: a malformed or ambiguous register, a `source` key
+missing from the `.bib`, an empty or unsafe scope, a stale or hand-edited index, a discouraged form used
+without a recorded exception, an orphaned index and a missing register all block. A changed generator
+version, an unused term, a definition without a source and a count of quoted discouraged forms are
+advisory. The check never writes a file. The codes map onto the conflict-auditor taxonomy: `[AMBIG]` and
+`[DISC]` to `TERM_MISMATCH`, `[STALE]` to source drift.
 
 ### 2.5 The triggers
 
@@ -283,8 +281,9 @@ bash scripts/claude_researchteam_bridge.sh term-query <project> "<label or id>"
 
 ## 3. Files changed
 
-New, managed (scholarly profile): `docs/term-index-protocol.md`, `scripts/build_term_index.py`,
-`scripts/check_term_index.py`, `scripts/query_term_index.py`, `.claude/settings.terms.example.json`.
+New, managed (scholarly profile): `docs/term-index-protocol.md`, `scripts/term_index_engine.py`,
+`scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`,
+`.claude/settings.terms.example.json`.
 
 Changed:
 

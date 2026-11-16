@@ -220,3 +220,44 @@ overlaps it (now stated in the protocol); duplicate JSON keys are accepted, the 
 the query matched an id against another term's label (fixed: an id wins); hidden directories were indexed
 (now skipped); glob brackets and braces are literal (now stated); a commented-out References heading
 masks what follows (unchanged: it matches the citation detector).
+
+## Part 3. Review of the fix commit (500d3cc)
+
+### 3.1 `@security` — CONDITIONAL PASS, seven required changes
+
+| ID | Severity | Finding | Disposition |
+|---|---|---|---|
+| F1 / R1 | medium | The matcher tried every form sharing a first word at each occurrence of that word; forms starting with a symbol were scanned at every position | done: at most 16 words per form and 32 forms per first word, refused at load; symbol-led forms are filed under their first run of letters and looked up like the rest |
+| F2 / R2 | medium | The code-span pattern was polynomial on a long line | done: backtick runs are paired in two linear passes |
+| F3 / R3 | low-medium | The glob matcher did quadratic work per `**`; the number of patterns was unbounded | done: one pass per token; 64 patterns per list |
+| F4 / R4 | low | A committed index file reused by the hook could put chosen text into the hook's message | done: each reused record must have exactly the expected keys, name a registered term and one of its forms, and carry integer positions; otherwise the document is rescanned |
+| F5 / R5 | low | `term-init` followed a symbolic link in a parent directory | done: the real path must equal the path as written, inside `Projects/` |
+| F6 / R6 | low-medium | The `.bib` key pattern was quadratic on blank lines | done |
+| F7 | low | The documents said the hook never carries register or document text, which F4 made false | done by R4 |
+| R7 | — | Tests did not reach the shapes that mattered | done: thirteen hostile shapes, each timed at n and 2n |
+
+Recommended and done: the bridge fails when only one of the gate and the engine is present; paths are
+sanitised in the builder's output. Recommended and not done: reading documents through a no-follow file
+descriptor, a more compact masking buffer, and a size cap on committed index files before parsing. The
+first two are bounded by the 5 MB document limit; the third reads only files the builder wrote.
+
+### 3.2 `@code-hygiene` — PASS WITH CHANGES; the engine split accepted
+
+| ID | Severity | Finding | Disposition |
+|---|---|---|---|
+| H2-01 | critical (latent) | Two tests of "the same form" disagreed, so "snake_case" and "snake case" passed validation and one term took the other's matches | done: one function, used by validation, the matcher and the query |
+| H2-02 | high | `term-init` on a folder inside a project carved it out of that project's scope | done: refused |
+| H2-03 | medium | Discovery skipped hidden directories and stopped at depth 6, unlike the citation detector | done: same search; depth 12, documented; a test runs both on one tree |
+| H2-04 | low | An empty switch value meant "off" | done: an error |
+| H2-05 | medium | Wall-clock thresholds that could not fail or would be flaky | done: time for 2n compared with time for n, and in-process counts of what the hook scans |
+| H2-06 | low | A missing engine was treated as nothing to check | done |
+| H2-07 | low | The builder had no I/O boundary | done: exit 2; a refused write stays exit 1 |
+| H2-08 | medium | `init` through a linked parent; a linked directory inside `index/` not reported | done (with F5); reported as a stray file |
+| H2-09 | low | The read-only guard was a text search | done: syntax-tree check of calls |
+| H2-10 | low | Remaining contortions and inconsistencies (set-union trick, string surgery on JSON, an invisible character, duplicated guarded reads, import style, long lines, a misleading function name, unsanitised paths, a wrong hint) | done |
+| H2-11 | low | The project argument normalised in two places | done: one function |
+| H2-12 | low | "The manifest matches" encoded twice | done: in the engine |
+| H2-13 | low | Test hygiene | done |
+| H2-14 | low | `[SRC]` does not fall back to a repository-level bibliography | documented in the protocol |
+| H-14 | low | Documents map to a positional pair | not done: a named pair would add lines the engine's limit has no room for |
+

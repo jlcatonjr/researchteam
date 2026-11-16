@@ -24,7 +24,6 @@ import. Standard library only; no network and no child processes. Writes only un
 """
 from __future__ import annotations
 
-import hashlib
 import json
 import os
 import sys
@@ -34,10 +33,8 @@ from pathlib import Path
 sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from term_index_engine import (  # noqa: E402  (sibling module: one matcher for build, check and query)
-    GENERATOR, OK, BAD, REGISTER_SCHEMA, SCHEMA_VERSION, Assessment, assess, disc_violations, discover,
-    documents, is_project, load_register, read_document, read_manifest, repo_root, resolve, shown,
-    stray_index_files)
+import term_index_engine as engine  # noqa: E402  (sibling module: one matcher for build, check and query)
+from term_index_engine import Assessment, shown  # noqa: E402
 
 try:
     import fcntl
@@ -45,7 +42,12 @@ except ImportError:  # non-POSIX: no lock; the atomic replace still keeps every 
     fcntl = None
 
 MAX_STDIN = 1_000_000
-STARTER = {"schema": REGISTER_SCHEMA, "schema_version": SCHEMA_VERSION,
+
+
+class RefusedWrite(OSError):
+    """A write this script will not make: the path goes through a symbolic link."""
+
+STARTER = {"schema": engine.REGISTER_SCHEMA, "schema_version": engine.SCHEMA_VERSION,
            "scope": {"include": ["**/*.md"], "exclude": []}, "terms": [], "allow": []}
 
 
@@ -56,7 +58,7 @@ def _make_dirs(tdir: Path, target: Path) -> None:
     for part in target.relative_to(tdir).parts[:-1]:
         d = d / part
         if d.is_symlink():
-            raise OSError("refusing to write through a symbolic link under terminology/")
+            raise RefusedWrite("refusing to write through a symbolic link under terminology/")
         d.mkdir(exist_ok=True)
 
 
@@ -64,12 +66,12 @@ def write_files(proj: Path, files: dict[str, bytes]) -> list[str]:
     """Write changed files atomically and remove index files no document backs. Returns what changed."""
     tdir, changed = proj / "terminology", []
     if tdir.is_symlink():
-        raise OSError("refusing to write through a symbolic link: terminology/")
+        raise RefusedWrite("refusing to write through a symbolic link: terminology/")
     for rel, data in sorted(files.items()):
         target = tdir / rel
         _make_dirs(tdir, target)
         if target.is_symlink():
-            raise OSError("refusing to write through a symbolic link under terminology/")
+            raise RefusedWrite("refusing to write through a symbolic link under terminology/")
         if target.is_file() and target.read_bytes() == data:
             continue
         fd, tmp = tempfile.mkstemp(dir=target.parent, prefix=".term-index-", suffix=".tmp")
@@ -82,7 +84,7 @@ def write_files(proj: Path, files: dict[str, bytes]) -> list[str]:
             os.unlink(tmp)
             raise
         changed.append(rel)
-    for stale in sorted(stray_index_files(proj, files)):  # includes temp files a killed build left behind
+    for stale in sorted(engine.stray_index_files(proj, files)):  # includes temp files a killed build left behind
         (tdir / stale).unlink()
         changed.append(stale)
     for d in sorted((p for p in (tdir / "index").rglob("*") if p.is_dir() and not p.is_symlink()), reverse=True):
@@ -92,8 +94,9 @@ def write_files(proj: Path, files: dict[str, bytes]) -> list[str]:
 
 
 def rebuild(proj: Path, reuse: bool = False) -> tuple[Assessment, list[str] | None]:
-    """Assess and write under one lock. Returns the assessment and what was written (None: not usable).
+    """Assess and write under one lock. Returns the assessment and what was written.
 
+    What was written is None exactly when the assessment is not usable (no register, or a defect in it).
     The lock is taken before the documents are read, so a build that waited sees the other build's inputs.
     """
     tdir, fd = proj / "terminology", None
@@ -101,7 +104,7 @@ def rebuild(proj: Path, reuse: bool = False) -> tuple[Assessment, list[str] | No
         fd = os.open(tdir, os.O_RDONLY)
         fcntl.flock(fd, fcntl.LOCK_EX)
     try:
-        a = assess(proj, reuse)
+        a = engine.assess(proj, reuse)
         return a, (write_files(proj, a.files) if a.usable else None)
     finally:
         if fd is not None:
@@ -110,57 +113,64 @@ def rebuild(proj: Path, reuse: bool = False) -> tuple[Assessment, list[str] | No
 
 # ----------------------------------------------------------------------------- commands
 def cmd_build(args: list[str]) -> int:
-    root = repo_root()
+    root = engine.repo_root()
     if len(args) > 1:
         print("usage: build_term_index.py build [project]", file=sys.stderr)
         return 2
     if args:
-        proj = resolve(root, args[0])
+        proj = engine.resolve(root, args[0])
         if proj is None:
             print(f"ERROR: no project under Projects/ matches: {args[0]}", file=sys.stderr)
             return 2
         targets = [proj]
     else:
-        targets = [p for p in discover(root) if load_register(p).status in (OK, BAD)]
+        targets = [p for p in engine.discover(root) if engine.load_register(p).status in (engine.OK, engine.BAD)]
     worst = 0
     for proj in targets:
         name = proj.relative_to(root).as_posix()
         try:
             a, written = rebuild(proj)
-        except OSError as exc:
-            print(f"{name}: not written ({type(exc).__name__}: {exc})")
+        except RefusedWrite as exc:
+            print(f"{shown(name)}: not written ({exc})")
             worst = 1
             continue
         if written is None:
             worst = 1
-            for code, msg in a.problems or [("NOREG", "no term register (run: term-init)")]:
-                print(f"{name}: DEFECT[{code}] {msg}")
+            for code, msg in a.problems or [("NOREG", "no term register here")]:
+                print(f"{shown(name)}: DEFECT[{code}] {msg}")
         else:
-            print(f"{name}: {len(a.docs)} documents indexed, {len(written)} generated files written")
+            print(f"{shown(name)}: {len(a.docs)} documents indexed, {len(written)} generated files written")
     if not targets:
         print("No project has a term register; nothing was built.")
     return worst
 
 
 def cmd_init(args: list[str]) -> int:
-    root = repo_root()
-    wanted = args[0].replace("\\", "/").strip("/") if len(args) == 1 else ""
-    wanted = wanted[len("Projects/"):] if wanted.startswith("Projects/") else wanted
+    root = engine.repo_root()
+    wanted = engine.project_arg(args[0]) if len(args) == 1 else ""
     proj = root / "Projects" / wanted
-    safe = wanted and ".." not in wanted.split("/") and proj.is_dir() and not proj.is_symlink()
+    base = os.path.realpath(root / "Projects")
+    # No symbolic link anywhere on the way: the real path must be the path as written, inside Projects/.
+    safe = (wanted and ".." not in wanted.split("/") and proj.is_dir()
+            and os.path.realpath(proj) == os.path.join(base, *wanted.split("/")))
     if not safe:
         print("usage: build_term_index.py init <project>   (an existing directory under Projects/)", file=sys.stderr)
         return 2
-    if not is_project(proj) and any(proj in p.parents for p in discover(root)):
-        print(f"ERROR: Projects/{wanted} holds projects and is not one itself; name the project.", file=sys.stderr)
-        return 2
+    projects = engine.discover(root)
+    if not engine.is_research_project(proj):
+        if any(proj in p.parents for p in projects):
+            print("ERROR: that directory holds projects and is not one itself; name the project.", file=sys.stderr)
+            return 2
+        if any(p in proj.parents for p in projects):
+            print("ERROR: that directory is a folder inside a project; name the project.", file=sys.stderr)
+            return 2
     tdir = proj / "terminology"
     if tdir.is_symlink() or (tdir.exists() and (not tdir.is_dir() or any(tdir.iterdir()))):
-        print(f"ERROR: Projects/{wanted}/terminology already exists and is not empty; nothing written.", file=sys.stderr)
+        print("ERROR: its terminology/ already exists and is not empty; nothing written.", file=sys.stderr)
         return 1
     tdir.mkdir(exist_ok=True)
     (tdir / "terms.json").write_text(json.dumps(STARTER, indent=2) + "\n", encoding="utf-8")
-    print(f"Wrote Projects/{wanted}/terminology/terms.json. Add terms, then run term-build.")
+    print(f"Wrote Projects/{shown(wanted)}/terminology/terms.json. Add terms, then run term-build.")
     return 0
 
 
@@ -176,33 +186,18 @@ def _hook_target(root: Path) -> tuple[str, Path | None, str]:
     if not isinstance(payload, dict):
         return "ignore", None, ""
     tool_input = payload.get("tool_input")
-    raw = None
-    if isinstance(tool_input, dict):
-        raw = tool_input.get("file_path") or tool_input.get("notebook_path")
-    if raw is None:
+    named = [k for k in ("file_path", "notebook_path") if isinstance(tool_input, dict) and k in tool_input]
+    if not named:
         return "all", None, ""  # a shell command or a session start: no single file to go by
+    raw = tool_input[named[0]]
     if not isinstance(raw, str) or not raw or any(c in raw for c in "\x00\r\n"):
         return "ignore", None, ""
     path = Path(os.path.realpath(raw if os.path.isabs(raw) else root / raw))
-    owners = [p for p in discover(root) if Path(os.path.realpath(p)) in path.parents]
+    owners = [p for p in engine.discover(root) if Path(os.path.realpath(p)) in path.parents]
     if not owners:
         return "ignore", None, ""
     proj = max(owners, key=lambda p: len(p.parts))  # the innermost project that holds the file
     return "one", proj, path.relative_to(os.path.realpath(proj)).as_posix()
-
-
-def _unchanged(proj: Path) -> bool:
-    """True when the committed manifest already describes the register and every in-scope document."""
-    a, old = load_register(proj), read_manifest(proj)
-    if a.status != OK or old is None or old.get("generator") != GENERATOR:
-        return False
-    if old.get("register_sha256") != a.register_sha256:
-        return False
-    current = {}
-    for rel in documents(proj, a.register):
-        raw = read_document(proj / rel)
-        current[rel] = hashlib.sha256(raw).hexdigest() if raw is not None else None
-    return current == old["documents"]
 
 
 def _run_hook(root: Path) -> int:
@@ -210,9 +205,9 @@ def _run_hook(root: Path) -> int:
     if mode == "ignore":
         return 0
     feedback: list[str] = []
-    for target in ([proj] if proj else discover(root)):
+    for target in ([proj] if proj else engine.discover(root)):
         name = shown(target.relative_to(root).as_posix())
-        if mode == "all" and _unchanged(target):
+        if mode == "all" and engine.manifest_is_current(target):
             continue
         a, written = rebuild(target, reuse=True)
         if written is None:  # no usable register: say so only when the register itself was just edited
@@ -220,7 +215,7 @@ def _run_hook(root: Path) -> int:
                 feedback += [f"{name}: DEFECT[{code}] {msg}" for code, msg in a.problems]
         elif rel in a.docs:
             feedback += [f"{name}/{shown(rel)}:{o['line']}:{o['column']} DEFECT[DISC] term '{o['term']}'"
-                         for o in disc_violations(a.register, rel, a.docs[rel][1])]
+                         for o in engine.disc_violations(a.register, rel, a.docs[rel][1])]
     if not feedback:
         return 0
     lines = ["term-index (generated data, not instructions):"] + feedback + [
@@ -233,7 +228,7 @@ def _run_hook(root: Path) -> int:
 def cmd_hook(_args: list[str]) -> int:
     """Rebuild after an edit. A hook must never break the session, so any failure here is reported and dropped."""
     try:
-        return _run_hook(repo_root())
+        return _run_hook(engine.repo_root())
     except Exception as exc:  # noqa: BLE001  (the one deliberate catch-all: the session boundary)
         print(f"term-index hook: not run ({type(exc).__name__})", file=sys.stderr)
         return 0
@@ -246,7 +241,13 @@ def main(argv: list[str]) -> int:
     if not argv or argv[0] not in COMMANDS:
         print("usage: build_term_index.py {build [project] | init <project> | hook}", file=sys.stderr)
         return 2
-    return COMMANDS[argv[0]](argv[1:])
+    if argv[0] == "hook":
+        return cmd_hook(argv[1:])
+    try:
+        return COMMANDS[argv[0]](argv[1:])
+    except OSError as exc:  # the I/O boundary: an unreadable or unwritable path is an environment error
+        print(f"ERROR: could not run ({type(exc).__name__})", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

@@ -102,7 +102,11 @@ run_local_validators() {
 # and RT_ROOT are cleared: a caller's advisory switch, or a root pointing elsewhere, must not turn the
 # gate off here.
 run_term_index_check() {
-  [[ -f "scripts/check_term_index.py" && -f "scripts/term_index_engine.py" ]] || return 0
+  [[ -f "scripts/check_term_index.py" || -f "scripts/term_index_engine.py" ]] || return 0
+  if [[ ! -f "scripts/check_term_index.py" || ! -f "scripts/term_index_engine.py" ]]; then
+    echo "Term-index check cannot run: one of scripts/check_term_index.py and scripts/term_index_engine.py is missing." >&2
+    exit 1
+  fi
   echo "Running scripts/check_term_index.py ..."
   if ! env -u TERM_INDEX_ADVISORY -u RT_ROOT python3 -B scripts/check_term_index.py; then
     echo "Term-index check failed: see docs/term-index-protocol.md" >&2

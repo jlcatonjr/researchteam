@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """List where a registered term occurs in a project's documents.
 
-Purpose: the lookup for docs/term-index-protocol.md. It scans the documents afresh with term_index_engine.py, so its answer is current even when the committed index is stale. Read-only.
+Purpose: the lookup for docs/term-index-protocol.md. It scans the documents afresh with
+    term_index_engine.py, so its answer is current even when the committed index is stale. Read-only.
 Lifecycle: UTILITY
 Created: 2026-11-16
 
@@ -27,9 +28,9 @@ import term_index_engine as engine  # noqa: E402  (sibling module: one matcher f
 
 def find_term(reg: dict, query: str) -> dict | None:
     """A term by its id, or else by one of its forms. An id always wins over another term's form."""
-    wanted = engine.norm(query)
+    wanted = engine.form_key(query)
     by_id = [t for t in reg["terms"] if t["id"] == query]
-    by_form = [t for t in reg["terms"] if any(engine.norm(f) == wanted for f, _ in engine.term_forms(t))]
+    by_form = [t for t in reg["terms"] if any(engine.form_key(f) == wanted for f, _ in engine.term_forms(t))]
     return (by_id or by_form or [None])[0]
 
 
@@ -40,11 +41,12 @@ def run(argv: list[str]) -> int:
     root = engine.repo_root()
     proj = engine.resolve(root, argv[0])
     if proj is None:
-        print(f"ERROR: no project under Projects/ matches: {argv[0]}", file=sys.stderr)
+        print(f"ERROR: no project under Projects/ matches: {engine.shown(argv[0])}", file=sys.stderr)
         return 2
     a = engine.assess(proj)
     if not a.usable:
-        print("No usable term register: " + ("; ".join(msg for _, msg in a.problems) or "run term-init"), file=sys.stderr)
+        reasons = "; ".join(msg for _, msg in a.problems) or "the project has none"
+        print(f"No usable term register: {reasons}", file=sys.stderr)
         return 1
     reg, docs = a.register, a.docs
     counts: dict[str, int] = {}
@@ -52,7 +54,7 @@ def run(argv: list[str]) -> int:
         for o in occs:
             counts[o["term"]] = counts.get(o["term"], 0) + 1
     if argv[1] == "--list":
-        for term in sorted(reg["terms"], key=lambda t: engine.norm(t["label"])):
+        for term in sorted(reg["terms"], key=lambda t: engine.form_key(t["label"])):
             print(f"{counts.get(term['id'], 0):5d}  {term['id']}  ({term['label']})")
         return 0
     term = find_term(reg, argv[1])
@@ -61,7 +63,7 @@ def run(argv: list[str]) -> int:
         return 1
     print(f"{term['label']}  [{term['id']}]")
     print(f"  {term['definition']}")
-    print(f"  {counts.get(term['id'], 0)} occurrence(s). Places where a registered form appears, not evidence of sense.")
+    print(f"  {counts.get(term['id'], 0)} occurrence(s). Places where a form appears, not evidence of sense.")
     for rel, (_, occs) in sorted(docs.items()):
         for o in occs:
             if o["term"] == term["id"]:
