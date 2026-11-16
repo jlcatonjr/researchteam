@@ -409,7 +409,8 @@ Drift findings are warnings and never fail `doctor`, with one exception: under
 ## Derived-repo CI
 
 Projects created with `researchteam init` receive `.github/workflows/agentteams-sync.yml`, which
-runs weekly (Monday 06:00 UTC) and on `workflow_dispatch`: it installs the CLI and runs the managed
+runs on `workflow_dispatch`, and weekly (Monday 06:00 UTC) once the project uncomments its schedule, which ships
+off (#186); `researchteam workflow-sync` updates the workflow and keeps the project's `on:` block: it installs the CLI and runs the managed
 `scripts/agentteams_autosync_gate.sh --mode derived`. The gate SHA-gates on agentteams, installs the
 pinned commit, runs a full `researchteam update --yes` and the blocking validation gates, and the
 workflow then opens or updates one evergreen PR (`chore/agentteams-autosync`). See

@@ -105,7 +105,7 @@ ResearchTeam infrastructure is split into two independently updatable layers:
 
 ### Derived-repo CI
 
-Projects created with `researchteam init` receive a `.github/workflows/agentteams-sync.yml` that runs both layers automatically on a weekly schedule and on `workflow_dispatch`. The CI:
+Projects created with `researchteam init` receive a `.github/workflows/agentteams-sync.yml` that runs both layers on `workflow_dispatch`. Its weekly schedule ships commented out (#186): turning it on is a deliberate edit in the project, and `researchteam workflow-sync` keeps that choice when it updates the workflow. The CI:
 
 1. Installs the `researchteam` CLI (verifying a release-locked tag first)
 2. Runs `scripts/agentteams_autosync_gate.sh --mode derived`: SHA gate, pinned `agentteams` install, full `researchteam update`, blocking gates

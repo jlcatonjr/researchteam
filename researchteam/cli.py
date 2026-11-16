@@ -166,7 +166,7 @@ def main() -> None:
         help="Show what would change without writing any files",
     )
 
-    # ---- status --------------------------------------------------------------
+    # ---- workflow-sync -------------------------------------------------------
     wfsync_p = sub.add_parser(
         "workflow-sync",
         help="Rewrite .github/workflows/agentteams-sync.yml from the installed scaffold, keeping this "
@@ -175,6 +175,7 @@ def main() -> None:
     wfsync_p.add_argument("--yes", action="store_true", help="Write without asking")
     wfsync_p.add_argument("--dry-run", action="store_true", help="Show the diff only; write nothing")
 
+    # ---- status --------------------------------------------------------------
     sub.add_parser("status", help="Show marker info and CLI version")
 
     doctor_p = sub.add_parser(

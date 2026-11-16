@@ -51,6 +51,12 @@ def on_block(text: str) -> tuple[int, int]:
             break
     while end > start + 1 and (not lines[end - 1].strip() or lines[end - 1].startswith("#")):
         end -= 1
+    # Inside the block, only blank lines, indented lines and column-0 comments belong to `on:`. Anything else at
+    # column 0 (a `- ` item, a `---` document marker, ...) would be carried into the merged file, so refuse.
+    stray = [i + 1 for i in range(start + 1, end)
+             if lines[i].strip() and not lines[i][0].isspace() and not lines[i].startswith("#")]
+    if stray:
+        raise WorkflowSyncError(f"unexpected column-0 content inside the `on:` block (line {stray[0]})")
     return start, end
 
 
@@ -95,18 +101,28 @@ def plan(root: Path, scaffold: str | None = None) -> tuple[str | None, str]:
 
 
 def _write(path: Path, content: str) -> None:
-    """Write without following a link: replace a regular file atomically, or create a new one exclusively."""
+    """Write without following a link: a new temp file (``O_EXCL | O_NOFOLLOW``), then ``os.replace``.
+
+    A regular temp file left by an interrupted run is removed first; a temp path that is a link or a directory is
+    refused. An existing workflow's permission bits are kept.
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(f".{path.name}.workflow-sync.tmp")
-    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o644)
+    if tmp.is_symlink() or (tmp.exists() and not tmp.is_file()):
+        raise WorkflowSyncError(f"{tmp.name} beside the workflow is a link or a directory; remove it and retry.")
+    if tmp.exists():
+        tmp.unlink()  # left by an interrupted run
+    mode = (path.stat().st_mode & 0o777) if path.is_file() and not path.is_symlink() else 0o644
+    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, mode)
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
+            os.fchmod(f.fileno(), mode)  # the umask may have narrowed the O_CREAT mode
             f.write(content)
         if path.is_symlink():
             raise WorkflowSyncError(f"{WORKFLOW} became a symlink during the run; nothing written.")
         os.replace(tmp, path)
     finally:
-        if tmp.exists():
+        if tmp.is_file() and not tmp.is_symlink():
             tmp.unlink()
 
 

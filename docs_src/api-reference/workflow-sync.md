@@ -12,7 +12,8 @@ Implementation of `researchteam workflow-sync` (#186). It brings a derived repos
 - Everything except the top-level `on:` block comes from the scaffold. The `on:` block is kept: schedule present, absent or commented out.
 - With no workflow present, the scaffold is written as shipped. Its weekly schedule is commented out, so autosync runs only when dispatched until the repository turns it on.
 - A unified diff is shown first; the command asks before writing unless `--yes` is given, and `--dry-run` writes nothing.
-- It refuses a symlinked workflow or parent directory, a non-regular file, a non-UTF-8 file, and a file without exactly one block-style top-level `on:` key (for example `on: [push]`). The write goes through a new temporary file (`O_EXCL | O_NOFOLLOW`) and `os.replace`, so it never follows a link.
+- It refuses a symlinked workflow or parent directory, a non-regular file, a non-UTF-8 file, a file without exactly one block-style top-level `on:` key (for example `on: [push]`), and any column-0 content inside the `on:` block other than comments (a `---` marker, a `- ` item, a `?` key), which would otherwise be carried into the merged file.
+- The write goes through a new temporary file (`O_EXCL | O_NOFOLLOW`) and `os.replace`, so it never follows a link. A regular temp file left by an interrupted run is removed first; a temp path that is a link or directory is refused. An existing workflow's permission bits are kept.
 
 ---
 
@@ -37,7 +38,7 @@ A condition under which `workflow-sync` refuses before writing anything.
 
 ### `on_block(text)`
 
-Returns the `(start, end)` line indexes of the top-level `on:` block: from the `on:` line to the next top-level key, leaving out the blank lines and column-0 comments just before that key. Raises `WorkflowSyncError` unless there is exactly one block-style `on:` key (`on:`, `"on":` or `'on':`).
+Returns the `(start, end)` line indexes of the top-level `on:` block: from the `on:` line to the next top-level key, leaving out the blank lines and column-0 comments just before that key. Raises `WorkflowSyncError` unless there is exactly one block-style `on:` key (`on:`, `"on":` or `'on':`), or when non-comment column-0 content sits inside the block.
 
 ### `merge(scaffold, existing)`
 

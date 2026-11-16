@@ -52,8 +52,9 @@ researchteam update --yes      # non-interactive (CI)
 researchteam update --dry-run  # preview only
 ```
 
-Projects created with `init` also receive `.github/workflows/agentteams-sync.yml`, which checks weekly (Monday
-06:00 UTC) and on `workflow_dispatch`, gated on the agentteams commit, and opens one evergreen PR running both
+Projects created with `init` also receive `.github/workflows/agentteams-sync.yml`, which runs on
+`workflow_dispatch` (its weekly Monday 06:00 UTC schedule ships commented out; uncommenting it is a deliberate
+choice, #186), gated on the agentteams commit, and opens one evergreen PR running both
 layers when agentteams changed (a manual run with `force` skips the gate).
 
 ## Pinned toolchain

@@ -88,7 +88,10 @@ def test_merge_is_idempotent():
 
 
 @pytest.mark.parametrize("bad", ["name: x\non: [push]\njobs: {}\n", "name: x\njobs: {}\n",
-                                 "on:\n  push:\non:\n  pull_request:\n"])
+                                 "on:\n  push:\non:\n  pull_request:\n",
+                                 "on:\n  push:\n---\npermissions: write-all\n",
+                                 "on:\n  push:\n- stray\njobs: {}\n",
+                                 "on:\n  push:\n? permissions\n: write-all\njobs: {}\n"])
 def test_no_single_block_on_key_is_refused(bad):
     with pytest.raises(WorkflowSyncError):
         merge(load_scaffold(), bad)
@@ -157,3 +160,68 @@ def test_unparseable_on_block_is_refused_and_untouched(tmp_path):
     root = _repo(tmp_path, old)
     assert run_workflow_sync(root, yes=True) == 1
     assert (root / WORKFLOW).read_text() == old
+
+
+def test_stale_temp_file_is_cleared(tmp_path):
+    root = _repo(tmp_path, _old_workflow(ON_SCHEDULED))
+    stale = root / ".github/workflows/.agentteams-sync.yml.workflow-sync.tmp"
+    stale.write_text("left over")
+    assert run_workflow_sync(root, yes=True) == 0
+    assert not stale.exists() and "evergreen_pr" in (root / WORKFLOW).read_text()
+
+
+def test_symlinked_temp_path_is_refused(tmp_path):
+    root = _repo(tmp_path, _old_workflow(ON_SCHEDULED))
+    victim = tmp_path / "victim"
+    victim.write_text("keep")
+    os.symlink(victim, root / ".github/workflows/.agentteams-sync.yml.workflow-sync.tmp")
+    assert run_workflow_sync(root, yes=True) == 1
+    assert victim.read_text() == "keep" and "echo old" in (root / WORKFLOW).read_text()
+
+
+def test_existing_mode_is_kept(tmp_path):
+    root = _repo(tmp_path, _old_workflow(ON_SCHEDULED))
+    os.chmod(root / WORKFLOW, 0o600)
+    assert run_workflow_sync(root, yes=True) == 0
+    assert (root / WORKFLOW).stat().st_mode & 0o777 == 0o600
+
+
+def test_directory_at_the_workflow_path_is_refused(tmp_path):
+    (tmp_path / WORKFLOW).mkdir(parents=True)
+    assert run_workflow_sync(tmp_path, yes=True) == 1
+
+
+def test_non_utf8_workflow_is_refused(tmp_path):
+    root = _repo(tmp_path, "")
+    (root / WORKFLOW).write_bytes(b"on:\n  push:\n\xff\xfe\n")
+    assert run_workflow_sync(root, yes=True) == 1
+
+
+def test_crlf_workflow_keeps_its_on_block(tmp_path):
+    root = _repo(tmp_path, "")
+    (root / WORKFLOW).write_bytes(_old_workflow(ON_SCHEDULED).replace("\n", "\r\n").encode())
+    assert run_workflow_sync(root, yes=True) == 0
+    assert 'cron: "0 6 * * 1"' in (root / WORKFLOW).read_text()
+
+
+def test_eof_at_the_prompt_writes_nothing(tmp_path, monkeypatch):
+    old = _old_workflow(ON_SCHEDULED)
+    root = _repo(tmp_path, old)
+    def eof(_prompt):
+        raise EOFError
+    monkeypatch.setattr("builtins.input", eof)
+    assert run_workflow_sync(root) == 1
+    assert (root / WORKFLOW).read_text() == old
+
+
+def test_cli_wires_the_subcommand(tmp_path, monkeypatch):
+    import sys
+    from researchteam import cli
+    root = _repo(tmp_path, _old_workflow(ON_DISPATCH_ONLY))
+    (root / ".researchteam").write_text("")
+    monkeypatch.chdir(root)
+    monkeypatch.setattr(sys, "argv", ["researchteam", "workflow-sync", "--yes"])
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code == 0
+    assert "schedule" not in _yaml((root / WORKFLOW).read_text())
