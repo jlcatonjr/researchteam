@@ -84,6 +84,7 @@ bash scripts/claude_researchteam_bridge.sh citation-audit [project] [--bib PATH]
 bash scripts/claude_researchteam_bridge.sh library-build <project>       # (re)build the literature library
 bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"  # navigation candidates, not evidence
 bash scripts/claude_researchteam_bridge.sh library-check <project>       # library integrity gate
+bash scripts/claude_researchteam_bridge.sh term-init <project>           # write a starter term register
 bash scripts/claude_researchteam_bridge.sh term-build [project]          # rebuild the term index and glossary
 bash scripts/claude_researchteam_bridge.sh term-check [project]          # term register and index gate
 bash scripts/claude_researchteam_bridge.sh term-query <project> "<label>"  # where a registered term occurs

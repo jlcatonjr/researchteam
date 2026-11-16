@@ -13,8 +13,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     using the engine in `scripts/term_index_engine.py`, finds every occurrence in the project's documents by matching plain prose and writes a manifest of
     content hashes, one index file per document and a glossary beside the register.
   - `scripts/check_term_index.py` is the gate. It blocks on a malformed register, a form claimed by two
-    terms, a `source` key missing from the `.bib`, a stale or hand-edited index, a missing register where
-    one is required, and a discouraged form used outside a quotation with no recorded exception. A clean
+    terms, a `source` key missing from the `.bib`, an empty or unsafe scope, a stale or hand-edited index,
+    index files left without a register, a missing register where one is required, and a discouraged form used outside a quotation with no recorded exception. A clean
     run means well-formed and current, not that terms are used in their defined sense.
     `scripts/query_term_index.py` lists where a term occurs.
   - New bridge commands: `term-init`, `term-build`, `term-check`, `term-query`. **`validate` now runs the

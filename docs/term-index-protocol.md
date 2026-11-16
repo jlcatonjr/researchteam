@@ -120,8 +120,9 @@ Rules for writing a register:
 - Scope patterns use `**/`, `**`, `*` and `?`. Other characters, brackets and braces included, are
   literal.
 - An occurrence counts as quoted when it is in a blockquote, or between balanced double quotation marks,
-  straight or curly, in the same paragraph. A paragraph with an odd number of straight marks exempts
-  nothing. Single quotation marks do not count.
+  straight or curly, in the same paragraph. In a paragraph with an odd number of straight marks, the
+  straight marks exempt nothing; curly pairs and blockquotes still do. Single quotation marks do not
+  count.
 
 ## Relation to the historical-context protocol
 
@@ -156,7 +157,7 @@ Component experts are the project's own: `@<component-slug>-expert`, one per `br
 bash scripts/claude_researchteam_bridge.sh term-init <project>                 # write a starter register
 bash scripts/claude_researchteam_bridge.sh term-build [project]                # rebuild index and glossary
 bash scripts/claude_researchteam_bridge.sh term-check [project]                # the gate
-bash scripts/claude_researchteam_bridge.sh term-query <project> "<label or id>"  # where a term occurs
+bash scripts/claude_researchteam_bridge.sh term-query <project> "<label, variant or id>"  # where a term occurs; or --list
 # direct: python3 scripts/build_term_index.py build|init|hook ; scripts/check_term_index.py ; scripts/query_term_index.py
 # all three import scripts/term_index_engine.py, so they read a register and match text the same way
 ```
@@ -177,7 +178,7 @@ error.
 | `DEFECT` | `[SCOPE]` | The scope matches no document, a pattern leaves the project, holds a backslash or is too long, a list has more than 64 patterns, or a document is not a regular file or is too large | blocks |
 | `DEFECT` | `[STALE]` | No index was built, a document or the register changed since it was built, or a generated file is missing, was edited by hand, or is not one the builder writes | blocks |
 | `DEFECT` | `[DISC]` | A discouraged form is used outside a quotation with no `allow` entry | blocks |
-| `DEFECT` | `[ORPHAN]` | Generated index files exist and the register does not | blocks |
+| `DEFECT` | `[ORPHAN]` | Files exist at the generated paths (`terminology/term-index.json` or `terminology/index/`) and there is no register | blocks |
 | `DEFECT` | `[NOREG]` | The project has no register (see "Which projects need a register") | blocks |
 | `NEEDS-REVIEW` | `[REBUILD]` | The inputs are unchanged, and the index was built by another version of the builder | advisory |
 | `NEEDS-REVIEW` | `[UNUSED]` | A registered term never occurs | advisory |
@@ -213,7 +214,7 @@ A run that found no register to check says `NOTHING CHECKED` and prints no pass 
 
 | Layer | Trigger | What it does | What it misses |
 |---|---|---|---|
-| 1 | Claude Code hooks: after `Write`, `Edit`, `MultiEdit`, `NotebookEdit` and `Bash`, and at `SessionStart` | Rebuilds the edited file's project, or every project whose inputs changed. Reports a discouraged form left in the file just edited, or a defect in a register that was just edited | Sessions where the operator has not merged the example. Other harnesses. Edits made while no session runs, until the next one starts |
+| 1 | Claude Code hooks: after `Write`, `Edit`, `MultiEdit`, `NotebookEdit` and `Bash`, and at `SessionStart` | Rebuilds the edited file's project, or every project whose inputs changed. Reports a discouraged form left in the file just edited, or, for a register that was just edited, what stops it loading (`[SCHEMA]`, `[AMBIG]`, `[SCOPE]`). Other findings, `[SRC]` among them, come from the gate | Sessions where the operator has not merged the example. Other harnesses. Edits made while no session runs, until the next one starts |
 | 2 | `term-build` | Rebuilds on request | Being forgotten |
 | 3 | An optional Git `pre-commit` check | Refuses a commit while the check fails | `--no-verify`. Clones that have not installed it |
 | 4 | `claude_researchteam_bridge.sh validate` | Runs the check over every project | Repositories whose CI does not run `validate` |

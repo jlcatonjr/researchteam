@@ -205,7 +205,7 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 | Argument | Meaning |
 |----------|---------|
 | `project` | A project's path under `Projects/`, or its directory name when that is unique. Omitted: every project (`build` takes every project that has a register). |
-| `init <project>` | Writes a starter `terminology/terms.json` in an existing directory under `Projects/`. Refuses when `terminology/` already holds files, and refuses a directory that only holds other projects. |
+| `init <project>` | Writes a starter `terminology/terms.json` in an existing directory under `Projects/`. Refuses when `terminology/` already holds files, and refuses a directory the index never searches: one that only holds other projects, a folder inside a project, a path through a symbolic link, a pruned name, or one more than twelve levels down. |
 | `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. A payload with no path (a shell command, a session start) rebuilds every project whose files changed. A malformed payload, or a path outside every project, does nothing. |
 | `--list` | Lists every registered term with its occurrence count. |
 
@@ -222,10 +222,10 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 
 | Script | 0 | 1 | 2 |
 |--------|---|---|---|
-| `build_term_index.py build` / `init` | Done | A register defect, or nothing written | Usage error, or project not found |
+| `build_term_index.py build` / `init` | Done | A register defect, or nothing written | Usage error, project not found, or an unreadable or unwritable path |
 | `build_term_index.py hook` | Done, or nothing to do | — | Feedback for the agent on stderr: a defect in the file just edited |
-| `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect | Usage error, project not found, an unreadable file, or an invalid `term_index_require` value |
-| `query_term_index.py` | Found | No such term, or no usable register | Usage error, project not found, or an unreadable file |
+| `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect (an unreadable register is one) | Usage error, project not found, an unreadable document or `.bib`, or an invalid `term_index_require` value |
+| `query_term_index.py` | Found | No such term, or no usable register | Usage error, project not found, or an unreadable document |
 
 ### Output files
 

@@ -6,7 +6,7 @@
     "What they do: after Claude writes or edits a file, or runs a shell command, and when a session starts,",
     "they rebuild the term-occurrence index of any project whose documents or register changed. After an",
     "edit to a project document they also report, back to Claude, a discouraged form the edit left in that",
-    "file, or a defect in a term register that was just edited. The report carries finding codes, term",
+    "file, or what stops a term register that was just edited from loading. The report carries finding codes, term",
     "identifiers, file paths and positions, never document or register text.",
     "",
     "What to know before merging: hooks run OUTSIDE the sandbox, on every matching tool call. The command",
