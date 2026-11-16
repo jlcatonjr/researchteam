@@ -1,14 +1,14 @@
 """``researchteam workflow-sync`` (#186): bring a derived repo's autosync workflow up to the installed scaffold.
 
-The workflow is written only at ``init``; no other command touches ``.github/workflows/``. A whole-file copy of the
+The workflow is written at ``init`` and otherwise only by this command; ``update`` never touches ``.github/workflows/``. A whole-file copy of the
 scaffold would also replace the repository's trigger section, which can turn a weekly schedule on (or off) without
 anyone deciding to. This command takes everything from the scaffold **except the top-level** ``on:`` **block**,
 which it keeps exactly as the repository has it: schedule present, absent or commented out.
 
 With no workflow present it writes the scaffold as shipped (schedule commented out, so autosync runs only when
 dispatched). It shows a unified diff and asks before writing unless ``--yes`` is given; ``--dry-run`` writes
-nothing. It refuses a symlink, a non-regular file, and a file without a top-level ``on:`` block, and it never
-writes through a link.
+nothing. It refuses a symlink, a non-regular or non-UTF-8 file, a file without exactly one block-style top-level
+``on:`` key, and column-0 content other than comments inside that block. It never writes through a link.
 """
 
 import difflib

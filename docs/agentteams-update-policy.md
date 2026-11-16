@@ -220,7 +220,7 @@ whether the schedule is paused.
 
 **A paused schedule means dispatch only.** A derived repository may pause its weekly autosync: the schedule is
 disabled with `gh workflow disable`, or commented out of its own `agentteams-sync.yml`. That workflow is seeded
-at `init` and is not synced. While the schedule is paused, the scheduled runs described in *Execution Policy*
+at `init` and is not synced; `researchteam workflow-sync` updates it but keeps its `on:` block, so a pause stays. While the schedule is paused, the scheduled runs described in *Execution Policy*
 1–2 and *Automatic Integration* 3 do not happen. Integration happens only through an operator-dispatched
 `workflow_dispatch` run, or through the repository's local procedure above. Everything else in this policy
 still applies to those runs: the gates, the evergreen PR, review by a human, rollback.
