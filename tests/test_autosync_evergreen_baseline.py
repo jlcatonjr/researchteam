@@ -125,12 +125,24 @@ def test_no_evergreen_branch_needs_no_lookup(setup):
 @pytest.mark.parametrize("path", [ROOT / ".github" / "workflows" / "agentteams-sync.yml",
                                   ROOT / "researchteam" / "scaffold" / "agentteams-sync-derived.yml"],
                          ids=lambda p: p.name)
-def test_workflows_look_up_the_pr_outside_the_gate_step(path):
+def test_workflows_look_up_the_pr_in_a_read_only_job(path):
+    """#172 lookup, #179 scope: a separate read-only job answers; the gate job holds no token in env or .git/config."""
     yaml = pytest.importorskip("yaml")
-    steps = [s for job in yaml.safe_load(path.read_text())["jobs"].values() for s in job["steps"]]
-    lookup = next(s for s in steps if s.get("id") == "evergreen")
-    gate = next(s for s in steps if s.get("id") == "gate")
+    doc = yaml.safe_load(path.read_text())
+    assert doc["permissions"] == {}, "no workflow-wide grant; each job states its own"
+    jobs = doc["jobs"]
+    lookup_job, autosync = jobs["evergreen_pr"], jobs["autosync"]
+    assert lookup_job["permissions"] == {"contents": "read", "pull-requests": "read"}
+    lookup = next(s for s in lookup_job["steps"] if s.get("id") == "evergreen")
     assert "GH_TOKEN" in lookup["env"] and "gh pr list --head chore/agentteams-autosync" in lookup["run"]
-    assert gate["env"]["AUTOSYNC_EVERGREEN_PR_OPEN"] == "${{ steps.evergreen.outputs.open }}"
+    assert lookup_job["outputs"]["open"] == "${{ steps.evergreen.outputs.open }}"
+    # The autosync job waits for the lookup but still runs when it fails (empty output = unknown, fail-safe).
+    assert autosync["needs"] == "evergreen_pr" and autosync["if"] == "${{ !cancelled() }}"
+    assert autosync["permissions"] == {"contents": "write", "pull-requests": "write"}
+    steps = autosync["steps"]
+    checkout = next(s for s in steps if s.get("uses", "").startswith("actions/checkout@"))
+    assert checkout["with"]["persist-credentials"] is False and checkout["with"]["fetch-depth"] == 0
+    gate = next(s for s in steps if s.get("id") == "gate")
+    assert gate["env"]["AUTOSYNC_EVERGREEN_PR_OPEN"] == "${{ needs.evergreen_pr.outputs.open }}"
     assert not {"GH_TOKEN", "GITHUB_TOKEN"} & set(gate["env"]), "no token may reach the gate step"
-    assert steps.index(lookup) < steps.index(gate)
+    assert "github.token" not in gate["run"] and "secrets." not in gate["run"]

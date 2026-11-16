@@ -17,22 +17,54 @@ on:
   schedule:
     - cron: "0 6 * * 1"   # weekly Monday 06:00 UTC — SHA-gated, so a no-change week does nothing
 
-permissions:
-  contents: write
-  pull-requests: write
+# No workflow-wide grant: each job states the least it needs (#179).
+permissions: {}
 
 concurrency:
   group: agentteams-autosync
   cancel-in-progress: false
 
 jobs:
-  autosync:
+  # The gate trusts the evergreen branch's ref only while an open PR has that branch as its head (#172). The
+  # lookup runs in its own job with a read-only token (#179), so the gate step, which runs the integrated code,
+  # never holds a token. A failed lookup leaves `open` empty: the gate treats that as unknown and uses the
+  # current branch's ref.
+  evergreen_pr:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      open: ${{ steps.evergreen.outputs.open }}
     steps:
+      - name: Is the evergreen PR open?
+        id: evergreen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if n="$(gh pr list --head chore/agentteams-autosync --state open --json number --jq 'length')"; then
+            if [ "$n" = 0 ]; then echo "open=false" >> "$GITHUB_OUTPUT"; else echo "open=true" >> "$GITHUB_OUTPUT"; fi
+          else
+            echo "::warning::could not list open PRs for chore/agentteams-autosync; the gate will use the current branch's ref"
+          fi
+
+  autosync:
+    needs: evergreen_pr
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # fetch-depth 0 fetches every branch, so origin/chore/agentteams-autosync (the SHA-gate baseline) is here.
+      # persist-credentials false: the write token is not left in .git/config while the gate runs integrated
+      # code (#179). The PR step authenticates with its own token input.
       - name: Checkout (full history for the SHA-gate baseline)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup Python
         uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
@@ -48,23 +80,6 @@ jobs:
           # code, and a VCS install records the commit that --write-lock needs.
           python -m pip install "git+https://github.com/${{ github.repository }}.git@${{ github.sha }}"
           researchteam --version
-
-      - name: Fetch evergreen branch (SHA-gate baseline, used only while its PR is open)
-        run: git fetch origin "chore/agentteams-autosync" || true
-
-      # The gate trusts the evergreen branch's ref only while an open PR has that branch as its head (#172).
-      # The lookup runs here, so the token never enters the gate step, which runs the integrated code.
-      - name: Is the evergreen PR open?
-        id: evergreen
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          if n="$(gh pr list --head chore/agentteams-autosync --state open --json number --jq 'length')"; then
-            if [ "$n" = 0 ]; then echo "open=false" >> "$GITHUB_OUTPUT"; else echo "open=true" >> "$GITHUB_OUTPUT"; fi
-          else
-            echo "::warning::could not list open PRs for chore/agentteams-autosync; the gate will use the current branch's ref"
-          fi
 
       - name: Release trust root (release-locked repos; operator-provisioned secret)
         env:
@@ -100,7 +115,7 @@ jobs:
         id: gate
         env:
           AUTOSYNC_PR_BODY_FILE: ${{ runner.temp }}/autosync-pr-body.md
-          AUTOSYNC_EVERGREEN_PR_OPEN: ${{ steps.evergreen.outputs.open }}
+          AUTOSYNC_EVERGREEN_PR_OPEN: ${{ needs.evergreen_pr.outputs.open }}
         run: |
           FORCE_FLAG=""
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
