@@ -249,6 +249,12 @@ generate, so the "latest agentteams update" is integrated without a manual step.
    Execution Policy). Because the gate is a **managed** file, fixes to the logic propagate to every
    derived repo via `researchteam update` — the four workflow copies (upstream, scaffold, each derived)
    stay thin and rarely change.
+   **Taking a scaffold change into an existing derived repo (#186).** The workflow is written only at `init`; no
+   command updates it later. Port the changed `permissions:` / `jobs:` parts into the repo's own
+   `.github/workflows/agentteams-sync.yml` and keep its `on:` block as it is. Copying the whole scaffold over the
+   file brings back `schedule:` (weekly, Monday 06:00 UTC) in a repo that removed or commented it out, which
+   silently turns autosync back on. A workflow disabled in GitHub (`gh workflow disable`) stays disabled either
+   way. A workflow edit gets the repo's own `@security` review.
 
 **Division of labor (hook vs CI — they do not fight).** The local pre-commit hook fires on *staged agent
 files* and re-integrates at whatever agentteams version is *installed locally*; the CI autosync fires on
