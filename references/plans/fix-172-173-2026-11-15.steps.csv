@@ -1,8 +1,8 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,File the findings as issues,IM-40 report; code,#172; #173,done,issue numbers sent to IM-40,
-2,primary-producer,Fix #172: open-PR check in the gate; GH_TOKEN and GH_REPO in both workflows; tests,scripts/agentteams_autosync_gate.sh; both workflows,branch fix/autosync-stranded-branch,pending,,1
-3,primary-producer,Fix #173: append the fenced block interactively instead of replacing; tests,researchteam/_update_cmd.py,branch fix/update-unfenced-append,pending,,1
-4,code-hygiene,Review both fixes,diffs,verdicts,pending,,2;3
-5,security,Review both fixes; PASS must name .github/workflows/ for #172,diffs,verdicts,pending,,2;3
-6,git-operations,Open both PRs; merge under PS-2 on green CI,reviewed heads,merged PRs,pending,,4;5
-7,conflict-auditor,Consistency check; work summary; tell IM-40 the PR numbers,changed files,workSummaries/daily/2026-11-15.md,pending,,6
+2,primary-producer,Fix #172: open-PR check in the gate; GH_TOKEN and GH_REPO in both workflows; tests,scripts/agentteams_autosync_gate.sh; both workflows,branch fix/autosync-stranded-branch,done,PR #174 (merge b97f9c56); the PR lookup runs in its own workflow step so the gate step gets no token,1
+3,primary-producer,Fix #173: append the fenced block interactively instead of replacing; tests,researchteam/_update_cmd.py,branch fix/update-unfenced-append,done,PR #175 (merge 34a164e4); --yes still keeps the file unchanged,1
+4,code-hygiene,Review both fixes,diffs,verdicts,done,PASS on both,2;3
+5,security,Review both fixes; PASS must name .github/workflows/ for #172,diffs,verdicts,done,PASS on both; the #174 PASS names .github/workflows/agentteams-sync.yml and the derived scaffold,2;3
+6,git-operations,Open both PRs; merge under PS-2 on green CI,reviewed heads,merged PRs,done,#174 and #175 merged under PS-2 with --match-head-commit on green CI,4;5
+7,conflict-auditor,Consistency check; work summary; tell IM-40 the PR numbers,changed files,workSummaries/daily/2026-11-15.md,done,no blocking findings; IM-40 told the PR numbers; shipped in v1.1.5,6
