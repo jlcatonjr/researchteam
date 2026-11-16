@@ -69,8 +69,9 @@ The `.claude/` folder contains:
 - `prompts/research-report.prompt.md` starter prompt template
 - `checklists/research-task-preflight.md` checklist for multi-step work
 - `settings.toolchain.example.json`, a SessionStart toolchain check to merge into `settings.json` by hand
+- `settings.terms.example.json`, term-index hooks to merge into `settings.json` by hand (scholarly profile only)
 
-These four are researchteam-managed. agentteams generates the rest (`agents/`, `skills/`, `hooks/`,
+These five are researchteam-managed. agentteams generates the rest (`agents/`, `skills/`, `hooks/`,
 `hook-guard.sh`, `agent-team.md`, `quickstart-snippet.md`, `CLAUDE.md`, `schedules.agentteams.json`,
 `settings.agentteams.example.json`, `settings.hooks.example.json`); do not hand-edit them.
 
@@ -83,13 +84,20 @@ bash scripts/claude_researchteam_bridge.sh citation-audit [project] [--bib PATH]
 bash scripts/claude_researchteam_bridge.sh library-build <project>       # (re)build the literature library
 bash scripts/claude_researchteam_bridge.sh library-query <project> "<terms>"  # navigation candidates, not evidence
 bash scripts/claude_researchteam_bridge.sh library-check <project>       # library integrity gate
+bash scripts/claude_researchteam_bridge.sh term-init <project>           # write a starter term register
+bash scripts/claude_researchteam_bridge.sh term-build [project]          # rebuild the term index and glossary
+bash scripts/claude_researchteam_bridge.sh term-check [project]          # term register and index gate
+bash scripts/claude_researchteam_bridge.sh term-query <project> "<label>"  # where a registered term occurs
 bash scripts/claude_researchteam_bridge.sh code-query "<terms>"          # retrieval surface #2 (needs agentteams)
 ```
 
-With no project argument, `methodology-check`, `history-check` and `citation-audit` scan every
-research project. A clean run means well-formed, not verified. The protocols are in
+With no project argument, `methodology-check`, `history-check`, `citation-audit`, `term-build` and
+`term-check` cover every research project. A clean run means well-formed, not verified. The protocols are in
 `docs/historical-context-protocol.md`, `docs/citation-claim-audit-protocol.md`,
-`docs/literature-library-protocol.md` and `docs/retrieval-surfaces.md`.
+`docs/literature-library-protocol.md`, `docs/term-index-protocol.md` and `docs/retrieval-surfaces.md`.
+
+`validate` also runs the term-index check when `scripts/check_term_index.py` is present, so a stale term
+index fails validation.
 
 ### Weekly Plan Directory
 

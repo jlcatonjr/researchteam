@@ -48,7 +48,8 @@ is maximal *detection* plus honest *escalation*, not proof.
   (orchestrator Constitutional **Rule 12**; `@conflict-auditor` Rule 6).
 - **No automatic CI surface.** CI does not run the mechanical layer: the sync-workflow advisory scan
   was removed in `f7065cf`, and `.github/workflows/tests.yml` runs pytest and `validate` only. Run it
-  yourself; `CITATION_INTEGRITY_ADVISORY=1` gives a warn-only scan — visibility, not a gate.
+  yourself; `CITATION_INTEGRITY_ADVISORY=1` gives a warn-only scan — visibility, not a gate. (The one
+  research check `validate` does run is the term-index gate, `docs/term-index-protocol.md`.)
 
 ## Layer 1 — the mechanical detector (deterministic)
 

@@ -18,4 +18,11 @@ Use this checklist before multi-step edits.
    ```
    Route `NEEDS-REVIEW` items and the doubled semantic audit per
    `docs/citation-claim-audit-protocol.md`.
-8. Summarize assumptions and residual risks in the plan artifact for this task.
+8. Where the repository carries the term-index scripts (the scholarly profile): if the task touched a
+   project's deliverables or its term register, rebuild the term index and run the gate
+   (`docs/term-index-protocol.md`):
+   ```bash
+   bash scripts/claude_researchteam_bridge.sh term-build <project>
+   bash scripts/claude_researchteam_bridge.sh term-check <project>
+   ```
+9. Summarize assumptions and residual risks in the plan artifact for this task.

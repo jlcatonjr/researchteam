@@ -12,10 +12,13 @@ Design intent:
 - `prompts/research-report.prompt.md`: Prompt template for creating a new report draft.
 - `checklists/research-task-preflight.md`: Preflight checklist before editing deliverables.
 - `settings.toolchain.example.json`: SessionStart toolchain check; merge it into `settings.json` by hand.
+- `settings.terms.example.json`: term-index hooks (scholarly profile); merge them into `settings.json` by
+  hand. See `docs/term-index-protocol.md`.
 
 agentteams generates the rest of this folder (`agents/`, `skills/`, `hooks/`, `hook-guard.sh`,
 `agent-team.md`, `quickstart-snippet.md`, `CLAUDE.md`, `schedules.agentteams.json`, and the other
-`settings.*.example.json` files). Do not hand-edit those; the next sync overwrites them.
+`settings.*.example.json` files: `settings.agentteams.example.json` and `settings.hooks.example.json`).
+Do not hand-edit those; the next sync overwrites them.
 
 ## Usage
 

@@ -15,7 +15,7 @@ An unknown command prints the help and exits 2.
 |---|---|
 | `help` | Show the command list |
 | `status` | Show git status and the current branch |
-| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order. Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
+| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order, then the term-index check when `scripts/check_term_index.py` is present. Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
 | `plan-path` | Print the absolute path of the current ISO-week plan directory, `<repo>/tmp/by-week/YYYY-Www` |
 | `open-claude-dir` | Print the path to `.claude/` |
 
@@ -29,6 +29,19 @@ proof of non-fabrication.
 | `citation-audit [project] [--bib PATH]` | The 2-fold citation & claim integrity detector (`scripts/check_citation_integrity.sh`): bibliography / URL structural integrity plus an in-text citation-backing signal. A DEFECT (duplicate key, missing title or author/editor, no link, reference without URL, no `.bib`) blocks; NEEDS-REVIEW is advisory. No argument scans all projects |
 | `history-check [project]` | The historical-context detector (`scripts/check_historical_context.sh`): every interpretive map needs a `## Historical setting` register whose rows give a date and a basis. Structural only |
 | `methodology-check [project]` | The interpretation-advisor methodology-coverage detector (`scripts/check_methodology_coverage.sh`). Exits 1 when a project lacks an interpretive map or a guide it references (warn-only with `METHODOLOGY_COVERAGE_ADVISORY=1`) |
+
+## Term register and index
+
+Coded term definitions per project under `Projects/<project>/terminology/`, with a generated index of
+every occurrence. A clean check means **well-formed and current**, not that terms are used in their defined
+sense. Codes and the ceiling: the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md).
+
+| Command | What it does |
+|---|---|
+| `term-init <project>` | Write a starter register (`scripts/build_term_index.py init`). Never overwrites one |
+| `term-build [project]` | (Re)build the index and glossary (`scripts/build_term_index.py build`). No argument rebuilds every project that has a register |
+| `term-check [project]` | The gate (`scripts/check_term_index.py`): a DEFECT exits 1. Read-only |
+| `term-query <project> "<label, variant or id>"` | List where a registered term occurs (`scripts/query_term_index.py`) |
 
 ## Literature library
 

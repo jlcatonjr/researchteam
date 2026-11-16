@@ -119,6 +119,13 @@ Component experts are the project's own: `@<component-slug>-expert`, one per `br
 
 `HISTORICAL_CONTEXT_ADVISORY=1` downgrades a block to exit 0.
 
+## Relation to the term register
+
+A project's term register (`docs/term-index-protocol.md`) lists discouraged forms, and its gate reports
+one used outside a quotation. Rule 2 above overrides that report. Where a discouraged form is the
+source's own word, quote the source or record an exception in the register. Do not replace the source's
+term. A term with period senses is registered once per sense.
+
 ## What this protocol does not do
 
 - It does not verify dates. That is the claim audit's job, ending with human resolution where needed.

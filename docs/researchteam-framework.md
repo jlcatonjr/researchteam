@@ -78,6 +78,11 @@ agentteams descriptor (`brief.json` / `.github/agents/_build-description.json`).
 only, `materialize` refuses, and `doctor` says so. Without that line, a missing descriptor is an
 error that names both ways out: describe the project in `brief.json`, or add `layer1 = off`.
 
+**Term registers.** `term_index_require = true` in `.researchteam` makes a term register compulsory for
+every research project (`docs/term-index-protocol.md`). Accepted values are `true`/`yes`/`on`/`1` and
+`false`/`no`/`off`/`0`. `scripts/check_term_index.py` reads it. Upstream sets it; a derived repository
+decides for itself.
+
 **Project identity — generated, not synced:** `README.md` and the title + *Project Purpose* header
 of `CLAUDE.md` are generated from `brief.json` and are **not** part of layer-2 sync. `update` will
 never re-impose the framework's identity on them. Re-render them with `researchteam personalize`.
@@ -166,7 +171,8 @@ For example, a bridge-generated `.claude` advisor stub has none, so it is skippe
 - **`layer2_profile`** (`"scholarly"` | `"generic"`; default when absent: `"scholarly"`). A
   `generic` project receives only the framework-neutral layer-2 files; the scholarly tooling
   (citation-claim audit protocol, literature-library scripts, news-perspective protocol,
-  historical-context protocol, methodology/historical-context/citation-integrity checks) is not
+  historical-context protocol, term-index protocol and scripts,
+  methodology/historical-context/citation-integrity checks) is not
   synced. Switching an already-scaffolded instance to
   `generic` stops those files being re-synced; any copies placed at `init` remain on disk and can be
   removed by hand.

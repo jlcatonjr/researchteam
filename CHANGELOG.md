@@ -5,6 +5,32 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Term register and synced term index.** Operator ruling, 2026-11-16: every project defines its terms as
+  coded definitions, every appearance of a registered term is indexed, and the index is kept in sync by a
+  reliable trigger.
+  - Each project keeps a register at `Projects/<project>/terminology/terms.json` (one record per concept:
+    preferred label, definition, accepted variants, discouraged forms, source). `scripts/build_term_index.py`,
+    using the engine in `scripts/term_index_engine.py`, finds every occurrence in the project's documents by matching plain prose and writes a manifest of
+    content hashes, one index file per document and a glossary beside the register.
+  - `scripts/check_term_index.py` is the gate. It blocks on a malformed register, a form claimed by two
+    terms, a `source` key missing from the `.bib`, an empty or unsafe scope, a stale or hand-edited index,
+    index files left without a register, a missing register where one is required, and a discouraged form used outside a quotation with no recorded exception. A clean
+    run means well-formed and current, not that terms are used in their defined sense.
+    `scripts/query_term_index.py` lists where a term occurs.
+  - New bridge commands: `term-init`, `term-build`, `term-check`, `term-query`. **`validate` now runs the
+    term check** when `scripts/check_term_index.py` is present, so a stale index fails validation. A
+    repository with no register is unaffected. Setting `term_index_require = true` in `.researchteam`
+    makes a register compulsory for every research project; upstream sets it.
+  - `.claude/settings.terms.example.json` holds optional Claude Code hooks that rebuild the index after
+    edits and at session start. The operator merges them by hand. Hooks run outside the sandbox.
+  - `CLAUDE.md` gains Working Rule 8. Protocol: `docs/term-index-protocol.md`. Six files join the
+    scholarly managed set. After a later update changes the builder, `term-check` reports an advisory
+    `[REBUILD]`; run `term-build` and commit.
+  - A derived repository's CI does not run `validate` unless its owner adds the step, so there the gate is
+    local. The protocol says how to add it.
+  - Research basis and audit record: `Projects/CodedTermIndexing/` and
+    `references/plans/term-index-2026-11-16.design.md` (`tests/test_term_index.py`).
+
 ## 1.1.7 (tag `v1.1.7`, on `release/1.1`)
 
 A patch release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). Derived repositories take it
