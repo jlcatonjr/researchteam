@@ -11,6 +11,8 @@ Contents: #181 (#179, autosync token scope) and the agentteams pin move v1.1.3 -
    - CHANGELOG 1.1.6 (from Unreleased, plus the pin move);
    - `docs/release/release-notes-v1.1.6.md`;
    - cut script `08-cut-v1.1.6.sh`, copied from 05 with TAG=v1.1.6 and AT_TAG=v1.1.4, plus a scrubbed tracked copy.
+     Its `common.sh` adds `drain()`, called before every confirm and before the GitHub-release prompt, so keys
+     typed ahead during signing or pushing are discarded.
    `@security` and `@conflict-auditor` review it; it is merged under PS-2.
 4. The operator runs the cut: fast-forward `release/1.1`, sign and push v1.1.6, create the GitHub release.
 5. Verify the tag; send IM-4d the tag object and the peeled SHA; work summary.

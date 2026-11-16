@@ -1,4 +1,4 @@
-# Shared settings for the 2026-W46 researchteam operator scripts (copied from 2026-W45/operator). Sourced, not run.
+# Shared settings for the 2026-W47 researchteam operator scripts (copied from 2026-W46/operator; adds drain()). Sourced, not run.
 set -euo pipefail
 
 REPO="jlcatonjr/researchteam"
