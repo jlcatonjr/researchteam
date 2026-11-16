@@ -136,6 +136,7 @@ def test_workflows_look_up_the_pr_in_a_read_only_job(path):
     lookup = next(s for s in lookup_job["steps"] if s.get("id") == "evergreen")
     assert "GH_TOKEN" in lookup["env"] and "gh pr list --head chore/agentteams-autosync" in lookup["run"]
     assert lookup_job["outputs"]["open"] == "${{ steps.evergreen.outputs.open }}"
+    assert "*[!0-9]*)" in lookup["run"], "a non-numeric answer must leave `open` unset (unknown), never true"
     # The autosync job waits for the lookup but still runs when it fails (empty output = unknown, fail-safe).
     assert autosync["needs"] == "evergreen_pr" and autosync["if"] == "${{ !cancelled() }}"
     assert autosync["permissions"] == {"contents": "write", "pull-requests": "write"}

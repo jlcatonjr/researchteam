@@ -44,7 +44,12 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           if n="$(gh pr list --head chore/agentteams-autosync --state open --json number --jq 'length')"; then
-            if [ "$n" = 0 ]; then echo "open=false" >> "$GITHUB_OUTPUT"; else echo "open=true" >> "$GITHUB_OUTPUT"; fi
+            # Only a count is an answer; anything else leaves `open` empty (unknown), as the gate does.
+            case "$n" in
+              0) echo "open=false" >> "$GITHUB_OUTPUT" ;;
+              ''|*[!0-9]*) echo "::warning::unexpected PR count '$n'; the gate will use the current branch's ref" ;;
+              *) echo "open=true" >> "$GITHUB_OUTPUT" ;;
+            esac
           else
             echo "::warning::could not list open PRs for chore/agentteams-autosync; the gate will use the current branch's ref"
           fi
