@@ -76,13 +76,17 @@ An unknown key is a defect, so a misspelt key is not silently ignored. `schema_v
 must be `"1.0"`. Every word of a form must contain a letter or a digit. A form may not begin or end with
 white space, a hyphen, an underscore, `>` or `*`, and inside a form a hyphen may not touch a space or
 another hyphen. Limits: 5,000 terms, 50 forms per
-term, 20,000 forms in all, 200 characters and 16 words per form, 32 forms beginning with the same word,
-64 scope patterns in each list, a 1 MB register, 5 MB per document. The limits bound the work of
+term, 20,000 forms in all, 200 characters and 16 words per form, 32 forms beginning with the same word
+(counted separately for lower-case forms and for forms with a capital, by the first run of letters and
+digits in the word), 64 scope patterns in each list and 200 characters per pattern, a 1 MB register,
+5 MB per document. The limits bound the work of
 matching, so that no register or document can stall the hook or the gate. An empty `terms` list is valid.
 
 Two forms are the same form when they differ only in case, or in what stands between their words: a
 space, a line break, a hyphen, an underscore, an emphasis marker or a blockquote prefix. "snake_case"
-and "snake case" are one form.
+and "snake case" are one form, so two terms may not claim them. That is a rule about who owns a form.
+It does not widen matching: a form written with an underscore matches text written with an
+underscore.
 
 Rules for writing a register:
 

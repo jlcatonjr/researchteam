@@ -317,3 +317,22 @@ can race.
 
 Because these changes followed the security PASS, `@security` was asked to confirm the new head.
 
+## Part 6. Closing consistency check and merge
+
+`@conflict-auditor` at ae775aa: CLEAN AFTER LISTED FIXES. Two blocking items, both wording in the protocol
+and the hook example: the quotation rule (A1) and what the hook reports for a register just edited (A2).
+Fixed in 144799e, with A3 to A6 and A9 to A12. `@security` confirmed PASS at ae775aa and at 144799e, and
+`@conflict-auditor` confirmed CLEAN at 144799e.
+
+PR #193 was merged under PS-2 as 8938f9e, with `--match-head-commit 144799e`, on green `tests (3.10)` and
+`tests (3.13)`. The merge commit's tree equals the reviewed head.
+
+Taken in the records PR that followed: A8 (the gate needs its engine), A13 (how the per-word cap is
+counted; "same form" is about ownership, not matching; the pattern length limit), A14, A15, A16, A17 and
+A18. A7 is documented, not changed: a hook payload whose `tool_input` is not an object counts as having
+no path.
+
+Not done by the agent session: rows in `.github/agents/references/security-decisions.log.csv` and
+`conflict-log.csv`. Those files sit under `.github/agents/`, and decision rows need the operator's keys.
+The verdicts are in the PR #193 comment and in this file.
+

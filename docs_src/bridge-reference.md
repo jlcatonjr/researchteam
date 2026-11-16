@@ -15,7 +15,7 @@ An unknown command prints the help and exits 2.
 |---|---|
 | `help` | Show the command list |
 | `status` | Show git status and the current branch |
-| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order, then the term-index check when `scripts/check_term_index.py` is present. Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
+| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order, then the term-index check when `scripts/check_term_index.py` and `scripts/term_index_engine.py` are present (one without the other is an error). Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
 | `plan-path` | Print the absolute path of the current ISO-week plan directory, `<repo>/tmp/by-week/YYYY-Www` |
 | `open-claude-dir` | Print the path to `.claude/` |
 

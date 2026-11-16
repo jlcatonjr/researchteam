@@ -96,8 +96,8 @@ With no project argument, `methodology-check`, `history-check`, `citation-audit`
 `docs/historical-context-protocol.md`, `docs/citation-claim-audit-protocol.md`,
 `docs/literature-library-protocol.md`, `docs/term-index-protocol.md` and `docs/retrieval-surfaces.md`.
 
-`validate` also runs the term-index check when `scripts/check_term_index.py` is present, so a stale term
-index fails validation.
+`validate` also runs the term-index check when `scripts/check_term_index.py` and its engine are present,
+so a stale term index fails validation. One of the two without the other is an error.
 
 ### Weekly Plan Directory
 

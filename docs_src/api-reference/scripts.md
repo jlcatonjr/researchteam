@@ -205,8 +205,8 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 | Argument | Meaning |
 |----------|---------|
 | `project` | A project's path under `Projects/`, or its directory name when that is unique. Omitted: every project (`build` takes every project that has a register). |
-| `init <project>` | Writes a starter `terminology/terms.json` in an existing directory under `Projects/`. Refuses when `terminology/` already holds files, and refuses a directory the index never searches: one that only holds other projects, a folder inside a project, a path through a symbolic link, a pruned name, or one more than twelve levels down. |
-| `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. A payload with no path (a shell command, a session start) rebuilds every project whose files changed. A malformed payload, or a path outside every project, does nothing. |
+| `init <project>` | Writes a starter `terminology/terms.json` in an existing directory under `Projects/`. Refuses when `terminology/` already holds files or is not a plain directory, and refuses a directory the index never searches: one that only holds other projects, a folder inside a project, a path through a symbolic link, a pruned name, or one more than twelve levels down. |
+| `hook` | Reads `tool_input.file_path` or `tool_input.notebook_path` from the payload, only to choose which project to rebuild. A payload with no path (a shell command, a session start) rebuilds every project whose files changed. A malformed payload, or a path outside every project, does nothing. A payload whose `tool_input` is not an object counts as having no path. |
 | `--list` | Lists every registered term with its occurrence count. |
 
 ### Environment

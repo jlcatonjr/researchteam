@@ -8,7 +8,7 @@
 ## directed search
 
 - Identifier: `directed-search`
-- Definition: Search in which workers and firms sort into submarkets with different posted terms, in contrast to random search, which treats market tightness as largely aggregate.
+- Definition: Search that allows workers and firms to sort into submarkets with different posted terms, in contrast to random search, which treats market tightness as largely aggregate.
 - Also written: directed-search
 - Source: project definition
 - Notes: Wording of 01-literature-review.md, section 4, which cites Moen \(1997\) and Acemoglu and Shimer \(1999\) for equilibrium across posted-wage submarkets.
