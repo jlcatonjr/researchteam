@@ -2,7 +2,7 @@
 # 07 — Create the GitHub release page for the already-pushed v1.1.5 tag (06's release prompt got "h", not "y").
 # Creates no tag: --verify-tag refuses unless v1.1.5 already exists on origin. Checks the remote tag is the one 05 signed.
 # OPERATOR ONLY, plain Terminal, from any directory:
-#   bash ~/githubrepositories/researchteam/tmp/by-week/2026-W46/operator/07-release-page-v1.1.5.sh
+#   bash <checkout>/tmp/by-week/2026-W46/operator/07-release-page-v1.1.5.sh
 source "$(dirname "$0")/common.sh"
 refuse_agent
 TAG="v1.1.5"

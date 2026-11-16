@@ -3,7 +3,7 @@
 # 05 already fast-forwarded release/1.1 to 24605ba1 and signed v1.1.5 locally (object e7aed53a). This script only
 # re-verifies that local tag exactly as 05 did, pushes it, and offers the GitHub release. It never re-signs.
 # OPERATOR ONLY, plain Terminal, from any directory:
-#   bash ~/githubrepositories/researchteam/tmp/by-week/2026-W46/operator/06-push-v1.1.5.sh
+#   bash <checkout>/tmp/by-week/2026-W46/operator/06-push-v1.1.5.sh
 source "$(dirname "$0")/common.sh"
 refuse_agent
 TAG="v1.1.5"
