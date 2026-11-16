@@ -270,7 +270,7 @@ first two are bounded by the 5 MB document limit; the third reads only files the
 | N1 / RC-1 | medium | The cap of 32 forms per first word was counted per offset, so forms such as `.a x`, `..a x` could put thousands of forms under one word | done: counted across offsets; tests for the register and for the offset path |
 | N2 / RC-2 | low | `term-init` passed when `Projects/` was itself a symbolic link | done: refused, with a test |
 | N3 | low | The "symbol-led forms" test shape missed the offset path | done: corrected, and shapes added for several offsets, plural stems and a long run of spaces |
-| T1 | recommendation | The scaling test's slack could hide a fast quadratic | done: n of 100,000 and 200,000, with `large < 2.8 × small + 0.1` |
+| T1 | recommendation | The scaling test's slack could hide a fast quadratic | done, then adjusted: a bound of 2.8 times at n and 2n failed once under load, so the test now compares n = 50,000 with n = 200,000 and requires less than 8 times (linear growth is 4 times, quadratic 16) |
 | G1, D1, B1 | recommendations | Collapse runs of `*` in globs; prune `.venv` and similar from discovery; cap `.bib` size | not done: G1 is bounded by the pattern caps; D1 would have to change the citation detector as well, to keep the two searches the same; B1 reads only the project's own files |
 
 ### 4.2 `@code-hygiene` — PASS WITH CHANGES

@@ -706,21 +706,25 @@ HOSTILE_TERMS = ([{"id": "a", "label": "a", "definition": "d"}, {"id": "net", "l
 
 @pytest.mark.parametrize("shape", sorted(HOSTILE))
 def test_matching_time_grows_no_faster_than_the_input(shape):
-    """Doubling a hostile input must not much more than double the time: no pattern may rescan."""
+    """Four times a hostile input must take about four times as long, not sixteen: no pattern may rescan.
+
+    The sizes are far apart so that the test separates linear from quadratic growth by a wide margin
+    (4x against 16x) and stays steady on a busy machine.
+    """
     engine = load("term_index_engine")
     matcher = engine.Matcher({"terms": HOSTILE_TERMS})
 
     def seconds(n):
         text = HOSTILE[shape](n)
         best = float("inf")
-        for _ in range(2):
+        for _ in range(3):
             started = time.perf_counter()
             matcher.occurrences(text)
             best = min(best, time.perf_counter() - started)
         return best
 
-    small, large = seconds(100_000), seconds(200_000)
-    assert large < 2.8 * small + 0.1, (shape, small, large)
+    small, large = seconds(50_000), seconds(200_000)
+    assert large < 8 * small + 0.25, (shape, small, large)
 
 
 def test_bib_keys_are_linear(tmp_path):
