@@ -17,7 +17,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 - **Docs: taking a scaffold change keeps the repo's `on:` block (#186).** The 1.1.5 and 1.1.6 entries and the
   v1.1.6 release notes tell an existing derived repository to copy `researchteam/scaffold/agentteams-sync-derived.yml`
-  over its workflow. The scaffold always ships the weekly `schedule:`, so a whole-file copy turns autosync back on
+  over its workflow. The scaffold up to 1.1.6 ships the weekly `schedule:` live, so a whole-file copy turns autosync back on
   in a repo that had removed it (reported by mathagents-2e through infrastructuremanagement-65). Port only the
   `permissions:` / `jobs:` changes and keep the repo's own `on:` block; `docs/agentteams-update-policy.md` now says
   so. The released entries are left as released.
