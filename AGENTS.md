@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.3"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.4"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -329,3 +329,77 @@ Reference: the team's `references/write-policy.reference.md`.
 > Agent persona files receive an equivalent `## Project-Specific Notes` region automatically from
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
+
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=d7ea983f8578c72343f36c23713c7c459a1951add0c2ad874ccb51b1c38eb110 copy-sha256=9a10d0f94bfcb5aeae552654fced7c9075acb5c3219ea89c68c077119addf471 mode=copy -->
+> **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
+
+- **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
+  scripts or records only in a session scratchpad, the system root (`/private/tmp`, `/tmp`), an
+  ignored path (`tmp/`), a local `git stash`, or untracked files.
+  - Anything worth keeping is committed to a tracked path and pushed:
+    - plans to `references/plans/`;
+    - release and signing records to `docs/release/`;
+    - session records to `workSummaries/`.
+  - Rule 9 copies in `tmp/by-week/` are working copies; the tracked copy is the record, written
+    before the session closes.
+  - Superseded work is pushed to an `archive/` branch, not stashed.
+  - Scratch space outside the repository may hold only what can be rebuilt from public sources,
+    and it is deleted when the session ends.
+  - Exception: an install a tool requires to be root-owned, such as the signing install. Record
+    which tag it was built from, but not where it is installed.
+  - Publishing stays subject to `@security` S-1 and S-8. Credentials, secrets, `.env` files,
+    personal data and machine-specific details stay out, or are scrubbed first. Material that may
+    be private needs the operator's review of each file before it is published.
+  - Report: `docs/hidden-work-remediation-2026-11-14.md`.
+- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14).** The operator delegated
+  repository management to the agent session and does not want to be involved in it.
+  - The agent opens PRs, monitors them and merges them.
+  - Every merge names the reviewed head SHA (`--match-head-commit`), waits for green CI, and follows the
+    reviews this repository requires (`@security` for security-relevant changes, `@code-hygiene` for code
+    changes, `@conflict-auditor` after multi-file changes).
+  - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
+    all does not count as green.
+  - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
+    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
+    that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
+    is not enough there.
+  - Each delegated merge commit says "Merged under PS-2 by the agent session" in its body, so it can be told
+    apart from an operator merge made with the same token.
+  - Rulesets protect the repository since 2026-11-14 (read back that day): `main` (PR required, both test
+    checks required, no force push, no deletion, no bypass), `release/**` and `archive/**` (no force push, no
+    deletion, no bypass) and all tags (creation, update and deletion restricted; admin role the only bypass).
+    The rulesets do not check the reviewed head SHA or the required reviews, so those gates are still enforced
+    by this rule.
+  - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
+    green, the agent closes and reopens it with the session's own `gh` token (the operator's) so `tests.yml` runs
+    on its head.
+  - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
+    operator.
+  - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
+    is not, the agent opens a revert PR first. After one failed fix-forward, it stops and tells the operator.
+  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
+  - Never under PS-2:
+    - force-pushes or history rewrites;
+    - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
+      bypass on the tag ruleset (tags are ruleset-protected, so the operator pushes them);
+    - changes to repository settings, secrets, collaborators, branch protection or rulesets;
+    - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
+    - merging while a `@security` HALT or an unmet (`pending`) condition stands.
+  - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
+    operator's signed `branch-delete` grant or a recorded `@security` `--branch-cleanup` PASS. PS-2 replaces
+    neither.
+  - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
+    them and hands them over.
+  - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.
+  - Policy: `docs/release-policy.md`, "Operator-only and delegated actions". This rule (PS-2) is the authority
+    on what is delegated.
+- **PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).**
+  - A decision that needs the operator goes through the host's interactive selection interface
+    (`AskUserQuestion` in Claude Code), with the options the agent judges best and the recommended one first.
+    The agent does not ask in prose and wait for a typed answer. Shape:
+    `.github/agents/references/operator-decision.reference.md`.
+  - Anything the operator must run outside the agent sandbox is delivered as a `.sh` file plus one complete
+    command that works from any directory (an absolute or `~`-rooted path, with no `cd` first and every
+    argument filled in). Shape: `.github/agents/references/sandbox-handoff.reference.md`.
+  - PS-3 adds no authority: running a handoff script is the operator's approval of that script only.
+<!-- PROJECTED-RULES:END -->
