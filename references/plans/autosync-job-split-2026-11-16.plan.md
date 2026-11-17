@@ -82,6 +82,14 @@ output. The check is now a whole-string match, with a test.
   step also requires HEAD to be on a branch; a changed path with a line break in its name is treated as
   sensitive; three wording notes from the closing check. The run is repeated after that merge.
 
+- **PR #200**, merged as `262eea1`: `@security` PASS and `@conflict-auditor` CLEAN at `d9f7f23`.
+- **Second run, 44020103834 (`force=true`): passed.** All three jobs succeeded. `open_pr` opened the
+  evergreen PR #201 with both labels. Its body starts with the write job's own warning and path list,
+  which matches the gate job's list below it.
+- **Left for later** (`@security` advisories at `d9f7f23`, not required): count the names with
+  `tr | wc -l`, since a name that ends in line breaks is trimmed before the count; if the branch moves
+  between the two jobs, create-pull-request rebases onto its newer tip.
+
 ## Not changed
 
 The gate script's logic (one line of its PR text and one comment in `validate_agentteams_update.sh` were reworded), the `on:` block that `workflow-sync` preserves, and what a derived repository must do to
