@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-16",
+  "date": "2026-11-16",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "term-index-2026-11",
+  "verdict": "PASS",
+  "scope": "term-index-2026-11",
+  "conditions": "Operator ruling 2026-11-16 (request in researchteam's session, then an interactive choice of all four follow-ups): every researchteam project defines its terms in a coded register, every appearance of a registered term is indexed, and the index is kept in sync by a reliable trigger. Recorded here: the @security reviews of that work, each a PASS on the head that was merged under PS-2. PR #193 (term register, engine, builder, gate, query, bridge commands, hook example, Working Rule 8, six managed files; merged as 8938f9ed83f278f4ce371f0fc697465ebb5dfaff, reviewed head 144799e435f2914afc87ba2722f73e7bb2164287). PR #195 (opt-in validate workflow scaffold for derived repositories, workflow-sync --workflow, doctor check, update reminder; merged as 3dbd47d0b486ec790fc7b6f8e9dc5da3cf4afafd, reviewed head c74f90c4eb8c4c4a140de7510ba1cb9d47d50f46). PR #196 (two small fixes from the #195 reviews, with the records; merged as 5beca9fa299c57be0c5d19fd1d37aa659b686f2a, reviewed head d6b5db30c5b4b8fa4c08d4c11e6679f736dcaebf). Conditions the reviews set, all met before each merge: hook payload paths confined to a project and never opened; symbolic links refused; atomic writes only under a project's terminology folder; register and document text never placed in a hook message; bounded matching work (16 words per form, 32 forms per first word, 64 scope patterns, 5 MB per document); a check mode that never writes; the hook wiring shipped as an example the operator merges, with no code path writing .claude/settings.json; the validate workflow read-only (contents: read, no secrets, pull_request and push only) with a refusal of pull_request_target and workflow_run; validate ignoring a caller's advisory switch and root. No constraint is relaxed and nothing is granted.",
+  "conditions_verified": "verified",
+  "evidence": "@security verdicts in researchteam's session, 2026-11-16, recorded in PR comments: #193 CONDITIONAL PASS at 761c938, 500d3cc and 2f5c99f, then PASS at 95cc967, confirmed at 4cc228c, ae775aa and 144799e, naming thirteen paths; #195 PASS at 8303c34 and c74f90c, naming five paths; #196 PASS at d6b5db3, naming two paths. Every finding of every review round and its disposition: references/plans/term-index-2026-11-16.audits.md (parts 1 to 6); the #195 and #196 reviews: the PR comments and references/plans/term-index-followups-2026-11-16.steps.csv. Required checks tests (3.10) and tests (3.13) were green on each reviewed head, and each merge commit's tree equals its reviewed head. Residual risks the reviews accepted: a register the project commits itself can cost up to 192 match attempts per word (linear and bounded); the trigger refusal in workflow-sync is a guard against a mistake, not a YAML analysis; hooks run outside the sandbox once the operator merges them. One operator instruction is recorded for completeness: the session merged the two term-index hook entries into this repository's gitignored .claude/settings.json on 2026-11-16, once, when the operator chose that option. Not verified by the session: nothing was run against a derived repository.",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "",
+  "effect_targets": "scripts/term_index_engine.py; scripts/build_term_index.py; scripts/check_term_index.py; scripts/query_term_index.py; scripts/claude_researchteam_bridge.sh; .claude/settings.terms.example.json; researchteam/_manifest.py; researchteam/_workflow_sync.py; researchteam/_doctor_cmd.py; researchteam/_update_cmd.py; researchteam/cli.py; researchteam/scaffold/researchteam-validate-derived.yml; CLAUDE.md; researchteam/scaffold/CLAUDE.template.md; .researchteam",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "true"
+}
