@@ -2,8 +2,8 @@ name: ResearchTeam + AgentTeams Autosync (SHA-gated evergreen PR)
 
 # Automatically integrate agentteams (layer-1) + researchteam-managed (layer-2) updates into this
 # derived repo. The logic lives in scripts/agentteams_autosync_gate.sh — a researchteam-MANAGED file
-# that arrives via `researchteam update`, so this workflow stays a thin shell and fixes propagate
-# from upstream. Auto-PR ONLY: a real agentteams update opens/updates ONE evergreen PR
+# that arrives via `researchteam update`, so fixes to it propagate from upstream. This workflow adds only
+# the two-job handover (#182): the gate job packages its result, and the open_pr job checks it and opens the PR. Auto-PR ONLY: a real agentteams update opens/updates ONE evergreen PR
 # (chore/agentteams-autosync) that a human reviews and merges. `--mode derived` runs the full
 # `researchteam update` (layer-2 managed-file sync + layer-1 agentteams merge).
 #
@@ -274,19 +274,25 @@ jobs:
           if [ -s "$patch" ]; then
             git apply --index --whitespace=nowarn "$patch" || fail "the patch does not apply to the checkout"
           fi
-          # Backstops: git apply already refuses .git paths and writes through symbolic links. No `grep -q`
-          # after a pipe here: under pipefail, an early exit can kill the writer and hide a match.
-          if git diff --cached --name-only -z HEAD | grep -ziE '(^|/)\.git(/|$)' >/dev/null; then
+          # Each listing goes to a file first, so a git failure stops the step here and cannot pass as "no match".
+          listing="$RUNNER_TEMP/autosync-staged"
+          git diff --cached --name-only -z HEAD > "$listing.names"
+          git diff --cached --raw HEAD > "$listing.raw"
+          git diff --cached HEAD -- ':(glob)**/.gitattributes' > "$listing.attributes"
+          # Backstops: git apply already refuses .git paths and writes through symbolic links.
+          if grep -ziE '(^|/)\.git(/|$)' "$listing.names" >/dev/null; then
             fail "the patch touches a .git path"
           fi
-          if git diff --cached --raw HEAD | awk '$2 == "120000" || $2 == "160000" { hit = 1 } END { exit !hit }'; then
+          if awk '$2 == "120000" || $2 == "160000" { hit = 1 } END { exit !hit }' "$listing.raw"; then
             fail "the patch adds a symbolic link or a submodule entry, or turns a file into one"
           fi
-          if git diff --cached HEAD -- ':(glob)**/.gitattributes' | grep -E '^\+.*filter=' >/dev/null; then
+          if grep -E '^\+.*filter=' "$listing.attributes" >/dev/null; then
             fail "the patch adds a filter in .gitattributes"
           fi
           # The label is decided here, from the staged paths; the gate job's own answer can only add to it.
-          staged="$(git -c core.quotePath=false diff --cached --name-only HEAD)"
+          # The names come from the NUL-separated listing: git never quotes those, so a name with a quote or
+          # a backslash in it still starts with its real directory.
+          staged="$(tr '\0' '\n' < "$listing.names")"
           sensitive="$GATE_SENSITIVE"; found=""
           if [ -f "$rule" ] && grep -q -- '--classify-sensitive)' "$rule"; then
             found="$(printf '%s\n' "$staged" | bash "$rule" --classify-sensitive)" \

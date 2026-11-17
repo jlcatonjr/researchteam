@@ -119,7 +119,7 @@ accepted `DEFENDED`), and was excluded from the baseline then.
    so the git **SHA**, not the version and not raw file-drift, is the only sound trigger. The gate lives
    in the managed `scripts/agentteams_autosync_gate.sh` (shared by the upstream + derived workflows).
 2. **On a real update, the scheduled run auto-opens/updates ONE evergreen PR** (`chore/agentteams-autosync`)
-   after every blocking gate passes in-job (validate + forbidden-path + detector unit tests upstream).
+   after every blocking gate passes in the gate job (validate + forbidden-path + detector unit tests upstream).
    It compares against the ref on the open evergreen branch, so an already-integrated SHA never re-fires
    while the PR waits — no weekly spam. A manual `workflow_dispatch` (optionally `force=true`) does the
    same on demand. Machine-path files (`delivery-receipt.json`, `memory-index.json`) are scrubbed so no

@@ -303,7 +303,7 @@ quotation rule, the matcher and the hash manifest) is planned to move into agent
 module. researchteam keeps the research adapters: `Projects/` discovery, the `.bib` `[SRC]` check, the
 reference-section skip, the bridge commands and the `doctor` check. It will later carry a sha256-pinned copy
 of the core, so the base install keeps working without agentteams. Until then, the term index on
-researchteam 1.1.x takes bug fixes only, with no renames.
+researchteam 1.1.x takes bug fixes only; the placement report adds that nothing is renamed yet.
 
 Two conditions hold until that work is done. The copy's integrity check (a sha256 constant per
 researchteam release, compared locally) is not built yet, so a copy is unverified until it exists. Moving

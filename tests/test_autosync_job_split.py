@@ -109,9 +109,22 @@ def test_the_pr_is_built_from_the_check_steps_own_outputs(path):
     assert "needs.autosync" not in str(cpr)
 
 
-def test_both_workflows_share_the_two_step_scripts():
-    for job, name in (("autosync", PACKAGE), ("open_pr", APPLY)):
-        assert _run_of(WORKFLOWS[0], job, name) == _run_of(WORKFLOWS[1], job, name)
+def _handover(path):
+    """The steps this change added, without the PR title text, which differs between the two workflows."""
+    jobs = _jobs(path)
+    names = [s.get("name") for s in jobs["autosync"]["steps"]]
+    write = jobs["open_pr"]
+    for step in write["steps"]:
+        if step.get("id") == "cpr":
+            title = step["with"].pop("title")
+            assert step["with"].pop("commit-message") == title
+    return jobs["autosync"]["steps"][names.index(PACKAGE):], write, {k: v for k, v in jobs["autosync"].items() if k != "steps"}
+
+
+def test_both_workflows_share_the_handover():
+    """The scaffold must be self-contained, so the steps are written twice. This keeps the copies equal."""
+    assert _handover(WORKFLOWS[0]) == _handover(WORKFLOWS[1])
+    assert len(_handover(WORKFLOWS[0])[0]) == 2, "the package step and the upload step end the gate job"
 
 
 # ----------------------------------------------------------------------------- behaviour
@@ -121,7 +134,9 @@ def test_a_change_round_trips_from_the_gate_job_to_the_write_job(path, repos):
     (gate / "docs" / "a.md").write_text("two\n")
     (gate / "docs" / "new.bin").write_bytes(bytes(range(256)))
     (gate / "docs" / "gone.md").write_text("x\n")
-    git(gate, "add", "-A"); git(gate, "commit", "-q", "-m", "more"); git(fresh, "pull", "-q")
+    git(gate, "add", "-A")
+    git(gate, "commit", "-q", "-m", "more")
+    git(fresh, "pull", "-q")
     (gate / "docs" / "gone.md").unlink()
     (gate / "docs" / "a.md").write_text("three\n")
     r, out = apply(path, repos, package(path, repos))
@@ -141,6 +156,17 @@ def test_the_write_job_decides_the_label_itself(path, repos):
     assert r.returncode == 0, r.stdout + r.stderr
     assert out["sensitive"] == "true"
     assert "> - scripts/extra.sh" in Path(out["body"]).read_text()
+
+
+@both
+@pytest.mark.parametrize("name", ['a"b.sh', "a\\b.sh", "a\tb.sh", "caf\u00e9.sh"])
+def test_a_name_git_would_quote_is_still_classified(path, repos, name):
+    """git wraps such a name in quotes in its plain listing, which would hide the leading `scripts/`."""
+    gate, _fresh, _tmp = repos
+    (gate / "scripts" / name).write_text("echo\n")
+    r, out = apply(path, repos, package(path, repos), sensitive="false")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert out["sensitive"] == "true"
 
 
 @both
@@ -172,7 +198,9 @@ def test_a_moved_pin_alone_is_routine(path, repos):
 @both
 def test_without_a_committed_gate_script_everything_is_sensitive(path, repos):
     gate, fresh, _tmp = repos
-    git(gate, "rm", "-q", "scripts/" + GATE.name); git(gate, "commit", "-q", "-m", "no gate"); git(fresh, "pull", "-q")
+    git(gate, "rm", "-q", "scripts/" + GATE.name)
+    git(gate, "commit", "-q", "-m", "no gate")
+    git(fresh, "pull", "-q")
     (gate / "docs" / "a.md").write_text("two\n")
     r, out = apply(path, repos, package(path, repos))
     assert r.returncode == 0 and out["sensitive"] == "true"
@@ -221,7 +249,7 @@ def test_an_artifact_that_is_not_exactly_two_regular_files_is_refused(path, repo
         (out_dir / "pr-body.md").unlink()
     else:
         (out_dir / "pr-body.md").unlink()
-        (out_dir / "pr-body.md").symlink_to("/etc/hostname")
+        (out_dir / "pr-body.md").symlink_to(repos[2] / "body.md")
     r, _out = apply(path, repos, out_dir)
     assert r.returncode == 1 and "the artifact" in r.stdout
 
@@ -259,7 +287,8 @@ def test_a_patch_for_a_git_path_is_refused(path, repos):
         "index 0000000000000000000000000000000000000000..8b137891791fe96927ad78e64b0aad7bded08bdc\n"
         "--- /dev/null\n+++ b/.git/hooks/pre-commit\n@@ -0,0 +1 @@\n+\n")
     r, _out = apply(path, repos, out_dir)
-    assert r.returncode == 1 and "::error::autosync open_pr:" in r.stdout
+    # git apply itself refuses the path, so the step's own `.git` check is a backstop this test cannot reach.
+    assert r.returncode == 1 and "the patch does not apply" in r.stdout
     assert not (repos[1] / ".git" / "hooks" / "pre-commit").exists()
 
 

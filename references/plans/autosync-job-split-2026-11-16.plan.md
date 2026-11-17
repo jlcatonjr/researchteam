@@ -50,9 +50,31 @@ Verdict: cleared on conditions. Each finding and what was done:
 Found while testing: a `new_sha` with a second line passed a line-based check and could have set a step
 output. The check is now a whole-string match, with a test.
 
+## Reviews of the implementation (PR #199, head 8706884)
+
+- **`@security`: CONDITIONAL PASS.**
+  - Medium, fixed: git quotes a name that holds a quote, a backslash or a control character, so such a name
+    under `scripts/` escaped the label rule. The names now come from the NUL-separated listing; tested.
+  - Low, fixed: three checks read `git diff` through a pipe and would pass if git failed. Each listing now
+    goes to a file first.
+  - Low, recorded: the gate job's text in the PR body can imitate the write job's banner (the real banner
+    comes first); a `toolchain.lock` change that only moves a commit is not labelled, as before (in this
+    repository PS-2 asks for `@security` on any `toolchain.lock` change by path, whatever the label).
+  - Action pins: evidence sufficient; no pin row or operator decision is needed for a GitHub Action pin.
+  - Condition for after the merge: run the workflow once by `workflow_dispatch` and confirm the artifact
+    handover and the label.
+  - The verdict is recorded in the PR comments. A row in the decisions log needs the operator's key.
+- **`@code-hygiene`: PASS.** Should-fix, all done: the equality test now compares the whole handover (both
+  jobs' added steps, not only the two scripts); the header comments no longer call the workflow a thin
+  shell; the `.git` path test says which refusal fires. Notes taken: a symlink target under the test's
+  folder; no chained statements.
+- **`@conflict-auditor`: no blocking conflict.** Four non-blocking, all done: a stale comment in
+  `scripts/validate_agentteams_update.sh`; the summary's open item for #182; "in-job" wording in the gate's
+  PR text and the policy; the "no renames" wording in the term-index protocol.
+
 ## Not changed
 
-The gate script, the `on:` block that `workflow-sync` preserves, and what a derived repository must do to
+The gate script's logic (one line of its PR text and one comment in `validate_agentteams_update.sh` were reworded), the `on:` block that `workflow-sync` preserves, and what a derived repository must do to
 receive the new workflow (`researchteam workflow-sync`).
 
 ## Reviews
