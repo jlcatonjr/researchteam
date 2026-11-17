@@ -425,5 +425,5 @@ workflow then opens or updates one evergreen PR (`chore/agentteams-autosync`). S
 A second workflow is opt-in: `researchteam workflow-sync --workflow validate` writes
 `.github/workflows/researchteam-validate.yml`, which runs the bridge validator on pull requests and on
 pushes to `main` with a read-only token. `init` does not install it and `update` never touches it. With it,
-the checks inside `validate`, the term-index gate among them, cannot be skipped
-(`docs/term-index-protocol.md`).
+the checks inside `validate`, the term-index gate among them, run on every pull request
+(`docs/term-index-protocol.md`). Whether a failure blocks a merge is the repository's own branch rule.

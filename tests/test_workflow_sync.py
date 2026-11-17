@@ -313,6 +313,8 @@ UNSAFE_ON_BLOCKS = [
     "on:\n  [push, pull_request_target]\n",                   # flow collections under a block key
     "on:\n  {pull_request_target: {}}\n",
     "on:\n  [push,\n   workflow_run]\n",
+    'on:\n  {push: {branches: ["a#b"]}, pull_request_target: {}}\n',   # a `#` inside a word is not a comment
+    "on:\n  push: {branches: [a#b]}\n  pull_request_target:\n",
 ]
 
 
