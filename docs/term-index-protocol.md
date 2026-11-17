@@ -296,6 +296,16 @@ not look at the session-start hook. `doctor` and the gate are the ones to trust.
 - It does not stem words beyond the simple plural.
 - It does not install a CI workflow in a derived repository. The validate workflow is opt-in.
 
+## Planned placement
+
+The generic core of the term index (register validation, form keys, the ambiguity check, masking, the
+quotation rule, the matcher and the hash manifest) is planned to move into agentteams 1.3.0 as a public
+module. researchteam keeps the research adapters: `Projects/` discovery, the `.bib` `[SRC]` check, the
+reference-section skip, the bridge commands and the `doctor` check. It will later carry a sha256-pinned copy
+of the core, so the base install keeps working without agentteams. Until then, the term index on
+researchteam 1.1.x takes bug fixes only, with no renames. Source: an operator ruling of 2026-11-16, as
+reported to this repository by the fleet coordinator.
+
 ## Origin
 
 Operator ruling, 2026-11-16: every project defines its terms in a coded register, every appearance of a
