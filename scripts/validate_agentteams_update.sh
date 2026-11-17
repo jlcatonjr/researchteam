@@ -27,11 +27,11 @@ set -euo pipefail
 #                                  project header (generated from brief.json by personalize),
 #                                  brief.json, .researchteam
 #
-# This is a DRIFT check, not a control against a compromised upstream: in the autosync job,
-# agentteams code has already run (with the job's write token) before this script runs, so a
-# malicious upstream could alter this script or the tree first. Its job is to catch an update that
-# writes somewhere it should not. A stronger control would regenerate in a job that holds no write
-# token and hand the diff to a separate, privileged job.
+# This is a DRIFT check, not a control against a compromised upstream: in the autosync gate job,
+# agentteams code has already run before this script runs, so a malicious upstream could alter this
+# script or the tree first. Its job is to catch an update that writes somewhere it should not. The
+# stronger control is in the workflow (#182): the gate job holds no write token and hands its diff to
+# a separate job that runs no integrated code and opens the PR.
 
 allowed_paths_regex='^(\.github/|\.vscode/tasks\.json$|brief\.json$|CLAUDE\.md$|README\.md$|\.gitignore$|\.researchteam$|docs/|scripts/|\.claude/|\.goose/|\.codex/|\.agents/|AGENTS\.md$|references/bridges/|references/architecture-graph\.(md|svg)$|references/architecture-modules\.svg$|references/agent-surface-matrix\.md$|\.goosehints$|SETUP-REQUIRED\.md$|\.agentteams/bin/|sandbox/|toolchain\.lock$)'
 legacy_exclude_regex='^\.github/agents/\.agentteams-backups/'

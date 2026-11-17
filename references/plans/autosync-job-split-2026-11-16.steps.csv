@@ -1,0 +1,11 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Plan and steps,issue #182; operator ruling,this plan,done,,
+2,adversarial,Challenge the design before the edit,plan,findings,done,,1
+3,primary-producer,Split both workflows into a gate job and a write job,plan; findings,.github/workflows/agentteams-sync.yml; researchteam/scaffold/agentteams-sync-derived.yml,done,,2
+4,primary-producer,Tests for the split and the apply step; update the tests that fix the old shape,workflows,tests/test_autosync_job_split.py; tests/test_autosync_no_pr_alert.py; tests/test_autosync_evergreen_baseline.py,done,,3
+5,primary-producer,Docs and changelog,workflows,docs/agentteams-update-policy.md; CHANGELOG.md,done,,3
+6,security,Review naming both workflow paths and the two new action pins,PR head,verdict,done,"CONDITIONAL PASS at 8706884; two required fixes made; re-check on the final head; post-merge dispatch run still to do",4;5
+7,code-hygiene,Review the tests,PR head,verdict,done,"PASS at 8706884; should-fix items done",4
+8,conflict-auditor,Closing consistency check,PR head,verdict,done,"No blocking conflict at 8706884; four non-blocking items done",5
+9,git-operations,PR; green CI; merge under PS-2; check main,verdicts,merge commit,pending,,6;7;8
+10,work-summarizer,Daily summary,plan,workSummaries/daily/2026-11-16.md,done,"Section added in this PR",9

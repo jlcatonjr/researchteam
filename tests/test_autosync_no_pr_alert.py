@@ -25,7 +25,8 @@ def test_alert_follows_create_pull_request(path):
     i = names.index(STEP)
     cpr = steps[i - 1]
     assert cpr.get("id") == "cpr" and "create-pull-request" in cpr["uses"]
-    assert steps[i]["if"] == "steps.gate.outputs.changed == 'true' && steps.cpr.outputs.pull-request-number == ''"
+    # #182: the step lives in the open_pr job, which runs only when the gate reported a change.
+    assert steps[i]["if"] == "steps.cpr.outputs.pull-request-number == ''"
 
 
 @pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)

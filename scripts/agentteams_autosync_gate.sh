@@ -416,7 +416,7 @@ if [ -n "$sensitive" ]; then emit "sensitive=true"; else emit "sensitive=false";
     echo "_No substantive (non-churn) paths changed — this is a churn-only refresh._"
   fi
   echo
-  echo "Gates passed in-job (validate + forbidden-path$( [ "$MODE" = upstream ] && echo ' + detector tests')). "
+  echo "Gates passed in the gate job (validate + forbidden-path$( [ "$MODE" = upstream ] && echo ' + detector tests')). "
   echo "Auto-PR only — review and merge to integrate. Machine-path files (delivery-receipt, memory-index)"
   echo "were scrubbed so no runner path is proposed."
 } > "$PR_BODY_FILE"
