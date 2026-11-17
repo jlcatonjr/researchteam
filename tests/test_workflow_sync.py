@@ -204,7 +204,7 @@ def test_crlf_workflow_keeps_its_on_block(tmp_path):
     assert 'cron: "0 6 * * 1"' in (root / WORKFLOW).read_text()
 
 
-def test_eof_at_the_prompt_writes_nothing(tmp_path, monkeypatch):
+def test_eof_at_the_prompt_writes_nothing_and_says_why(tmp_path, monkeypatch, capsys):
     old = _old_workflow(ON_SCHEDULED)
     root = _repo(tmp_path, old)
     def eof(_prompt):
@@ -212,6 +212,8 @@ def test_eof_at_the_prompt_writes_nothing(tmp_path, monkeypatch):
     monkeypatch.setattr("builtins.input", eof)
     assert run_workflow_sync(root) == 1
     assert (root / WORKFLOW).read_text() == old
+    err = capsys.readouterr().err
+    assert "no answer on standard input" in err and "--yes" in err
 
 
 def test_cli_wires_the_subcommand(tmp_path, monkeypatch):

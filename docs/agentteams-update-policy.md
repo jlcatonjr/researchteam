@@ -127,14 +127,24 @@ accepted `DEFENDED`), and was excluded from the baseline then.
    - **Two jobs (#182).** The gate runs in the `autosync` job, which has `contents: read` and so cannot
      push or open a PR. It hands its result to the `open_pr` job as an artifact: one patch and the PR body.
    - `open_pr` holds the write token and runs no integrated code. It checks out the run's branch, confirms it is the gate's commit, refuses
-     gate outputs that are not a commit id and `true`/`false`, applies the patch with `git apply`, and
+     gate outputs that are not a full commit id (40 hex characters) and `true`/`false`, applies the patch with `git apply`, and
      refuses a `.git` path, a symbolic link, a submodule entry or a `.gitattributes` filter.
    - `open_pr` decides the `security-review-required` label itself, from the changed paths, with the
      repository's committed gate script (`--classify-sensitive`). The gate job's own answer can only add
      the label, never remove it. The PR body starts with what `open_pr` found; the gate job's text follows.
    - **Limits.** The patch and the PR body are still written by the job that runs integrated code, so the
-     review of the PR's diff remains the control on its content. That job can also write Actions caches and
-     artifacts, so a workflow that holds a write token should not restore a cache (`open_pr` restores none).
+     review of the PR's diff remains the control on its content.
+   - **Rule for every repository that runs autosync: a workflow that holds a write token or a secret restores
+     no cache.** The gate job is read-only, but GitHub gives every job a runtime token that can write Actions
+     caches and artifacts, and a job cannot give that token up. Integrated code could therefore save a cache
+     entry under a key another workflow restores. So in any workflow with `contents: write`, another write
+     permission, or a secret: no `actions/cache`, and no `cache:` input on a `setup-*` action. `open_pr`
+     restores none. A read-only workflow may keep its cache only if nothing relies on its result for a merge,
+     a release or a publication: a required check or a docs build that restores a poisoned cache is misled
+     just the same.
+   - If the branch moves between the two jobs, create-pull-request puts the commit on the branch's newer
+     tip. `open_pr` checked the patch against the gate's commit, so the PR's own diff, which GitHub shows
+     against the real base, is what the reviewer goes by.
      The artifact is kept for 3 days; after that, "Re-run failed jobs" on `open_pr` fails and the workflow
      must be run again.
 3. **Auto-merge is disabled — the evergreen PR is reviewed and merged by a human.** The autosync is

@@ -5,6 +5,26 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Autosync and `workflow-sync`: small hardening (#205).** From this repository's `@security` reviews of #182
+  and from derived repositories that took v1.1.8. No behaviour changes for a normal run.
+  - `open_pr` now requires the gate's `new_sha` to be a full commit id (40 hex characters). The gate always
+    emitted one; 7 to 40 was accepted.
+  - `open_pr` counts changed names from the listing itself, so a name that ends in line breaks is also treated
+    as sensitive.
+  - The gate step reads the `force` input and the event name from `env:`; no expression is expanded inside its
+    script.
+  - `researchteam workflow-sync` with no answer on standard input (a script, a pipe, CI) now says that nothing
+    was written and that `--yes` applies without asking. It still exits 1.
+  - `scripts/check_toolchain.py --release-candidate` / `--verify-tag` (which the autosync gate's `--check-only`
+    uses) now names the interpreter that cannot import researchteam and says to run with the project
+    environment.
+  - `docs/agentteams-update-policy.md` states a rule for every repository that runs autosync: a workflow that
+    holds a write token or a secret restores no cache, and neither does a read-only one whose result gates a
+    merge, a release or a publication. The read-only gate job can still write Actions caches, and no code
+    change here can take that away.
+  - A derived repository takes the workflow change with `researchteam workflow-sync` and its own `@security`
+    review.
+
 ## 1.1.8 (tag `v1.1.8`, on `release/1.1`)
 
 A release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). It is numbered as a patch release

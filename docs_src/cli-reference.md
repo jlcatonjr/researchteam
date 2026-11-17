@@ -113,7 +113,7 @@ Plain `update` merges with `--shrink-policy preserve` and will not re-brand enri
 researchteam workflow-sync [--workflow autosync|validate] [--yes] [--dry-run]
 ```
 
-Rewrites a workflow from the installed researchteam's scaffold and keeps this repository's own top-level `on:` block. It prints a diff and asks before writing.
+Rewrites a workflow from the installed researchteam's scaffold and keeps this repository's own top-level `on:` block. It prints a diff and asks before writing. With no answer on standard input (a script, a pipe, CI) it writes nothing, says so and exits 1; pass `--yes` there.
 
 - `autosync` (the default) is `.github/workflows/agentteams-sync.yml`. Its schedule stays as the repository has it (#186). With no workflow present it writes the scaffold as shipped, whose weekly schedule is commented out.
 - `validate` is `.github/workflows/researchteam-validate.yml`, a read-only workflow that runs `bash scripts/claude_researchteam_bridge.sh validate` on pull requests and on pushes to `main`. It is opt-in: `init` does not install it and `update` never touches it. With it, the checks inside `validate`, the term-index gate among them, cannot be skipped.

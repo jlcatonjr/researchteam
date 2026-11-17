@@ -438,7 +438,9 @@ def cmd_release(candidate_of, verify, include_prerelease=False):
     """--release-candidate / --verify-tag for the autosync gate. Exit 1 when the answer cannot be trusted."""
     rel = _release()
     if rel is None:
-        print("[toolchain] researchteam._release is unavailable (install researchteam >= 1.0)", file=sys.stderr)
+        print(f"[toolchain] researchteam._release is unavailable: {sys.executable} cannot import researchteam "
+              "(>= 1.0). Run this with the project environment, for example with .venv/bin first on PATH "
+              "(bash scripts/bootstrap_toolchain.sh builds .venv).", file=sys.stderr)
         return 1
     pins, tags = read_lock(), read_tags()
     name = candidate_of or verify[0]
