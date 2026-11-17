@@ -112,12 +112,16 @@ def _known(which: str) -> Workflow:
 
 
 def _refuse_privileged_triggers(existing: str) -> None:
-    """Refuse an ``on:`` block that would run the validate job with more than a read-only token."""
-    lines = existing.splitlines()
+    """Refuse an ``on:`` block that would run the validate job with more than a read-only token.
+
+    Any mention of a privileged trigger in the block, outside a comment, is refused: as a key, a list item or
+    inside a flow collection. That can refuse a harmless mention (a branch named after a trigger); the
+    message says what to remove. It is a guard on what this command keeps, not a YAML analysis: an alias or
+    an anchor defined elsewhere is not followed, and the diff is always shown.
+    """
     start, end = on_block(existing)
-    used = [t for t in PRIVILEGED_TRIGGERS
-            if any(re.match(rf"\s+['\"]?{t}['\"]?\s*:", ln) or re.fullmatch(rf"\s*-\s*['\"]?{t}['\"]?\s*", ln)
-                   for ln in lines[start:end])]
+    block = [ln.split("#", 1)[0] for ln in existing.splitlines()[start:end]]
+    used = [t for t in PRIVILEGED_TRIGGERS if any(re.search(rf"\b{re.escape(t)}\b", ln) for ln in block)]
     if used:
         raise WorkflowSyncError(f"its `on:` block uses {', '.join(used)}, which would run the scripts of an "
                                 "untrusted commit with a privileged token; remove that trigger first")

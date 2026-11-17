@@ -252,7 +252,8 @@ def test_validate_workflow_is_opt_in():
 
     assert list(WORKFLOWS) == ["autosync", "validate"] and WORKFLOWS["autosync"].path == WORKFLOW
     assert WORKFLOWS["validate"].path == VALIDATE
-    assert VALIDATE not in INIT_SCAFFOLD_REPLACEMENTS and VALIDATE not in MANAGED_FILES  # init and update leave it alone
+    # init and update leave it alone
+    assert VALIDATE not in INIT_SCAFFOLD_REPLACEMENTS and VALIDATE not in MANAGED_FILES
 
 
 def test_validate_workflow_is_written_only_when_asked_and_keeps_its_on_block(tmp_path, capsys):
@@ -302,8 +303,20 @@ def test_an_unknown_workflow_name_is_a_clear_error(tmp_path):
     assert not (tmp_path / ".github").exists()
 
 
-@pytest.mark.parametrize("on_text", ["on: [push]\n", "on:\n  pull_request_target:\n", "on:\n  workflow_run:\n    workflows: [x]\n",
-                                     "on:\n  - pull_request\n  - pull_request_target\n", 'on:\n  "pull_request_target":\n'])
+UNSAFE_ON_BLOCKS = [
+    "on: [push]\n",                                           # not a block-style `on:` at all
+    "on:\n  pull_request_target:\n",
+    "on:\n  workflow_run:\n    workflows: [x]\n",
+    "on:\n  - pull_request\n  - pull_request_target\n",
+    "on:\n  - pull_request_target  # for forks\n",
+    'on:\n  "pull_request_target":\n',
+    "on:\n  [push, pull_request_target]\n",                   # flow collections under a block key
+    "on:\n  {pull_request_target: {}}\n",
+    "on:\n  [push,\n   workflow_run]\n",
+]
+
+
+@pytest.mark.parametrize("on_text", UNSAFE_ON_BLOCKS)
 def test_validate_workflow_refuses_an_on_block_it_cannot_keep_safely(tmp_path, on_text):
     (tmp_path / ".github/workflows").mkdir(parents=True)
     existing = "name: mine\n\n" + on_text + "\npermissions:\n  contents: write\n\njobs: {}\n"
@@ -316,7 +329,7 @@ def test_validate_workflow_refuses_an_on_block_it_cannot_keep_safely(tmp_path, o
 
 def test_privileged_trigger_names_in_comments_or_job_text_are_not_refused(tmp_path):
     (tmp_path / ".github/workflows").mkdir(parents=True)
-    existing = ("name: mine\n\non:\n  # never pull_request_target here\n  pull_request:\n\n"
+    existing = ("name: mine\n\non:\n  # never pull_request_target here\n  pull_request:  # not workflow_run\n\n"
                 "jobs:\n  x:\n    steps:\n      - run: echo workflow_run\n")
     (tmp_path / VALIDATE).write_text(existing)
     current, proposed = plan(tmp_path, which="validate")

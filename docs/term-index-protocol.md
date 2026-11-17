@@ -269,8 +269,11 @@ A repository that already has a test workflow can add one step to it instead:
   run: bash scripts/claude_researchteam_bridge.sh validate
 ```
 
-`researchteam doctor` says whether a workflow runs the validator and whether the hooks are wired, and
-`researchteam update` prints a reminder while a project has a register and the hooks are not wired.
+`researchteam doctor` relays the gate's summary and says whether a workflow runs the validator and
+whether the hooks are wired, after edits and at session start. `researchteam update` prints a reminder
+while a `terminology/terms.json` exists under `Projects/` and no hook runs the builder after edits. The
+reminder is a prompt and not a check: it does not look at whether that file is a register, and it does
+not look at the session-start hook. `doctor` and the gate are the ones to trust.
 
 ## Upgrades and updates
 

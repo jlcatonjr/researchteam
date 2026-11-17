@@ -338,6 +338,10 @@ counted; "same form" is about ownership, not matching; the pattern length limit)
 A18. A7 is documented, not changed: a hook payload whose `tool_input` is not an object counts as having
 no path.
 
+Later, in #195 (plan `term-index-followups-2026-11-16`): the workflow for derived repositories (F-18), and
+the `doctor` check and `update` reminder for the hook (F-20, C31), which parts 1 and 2 above record as
+deferred.
+
 Not done by the agent session: rows in `.github/agents/references/security-decisions.log.csv` and
 `conflict-log.csv`. Those files sit under `.github/agents/`, and decision rows need the operator's keys.
 The verdicts are in the PR #193 comment and in this file.
