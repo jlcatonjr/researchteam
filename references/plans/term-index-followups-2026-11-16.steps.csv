@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Merge the term-index hooks into .claude/settings.json (operator instruction),.claude/settings.terms.example.json,.claude/settings.json (gitignored),done,Two entries added beside the toolchain check; the hook command exits 0,
+2,primary-producer,doctor check and update nudge for the term index; tests; docs,researchteam/_doctor_cmd.py; researchteam/_update_cmd.py,code; tests; docs,pending,,
+3,primary-producer,Opt-in validate workflow for derived repositories; workflow-sync --workflow; tests; docs,researchteam/_workflow_sync.py; researchteam/cli.py; scaffold,scaffold; code; tests; docs,pending,,
+4,code-hygiene,Review the diff (with security naming the scaffold and the changed modules),diff,verdicts,pending,,2;3
+5,conflict-auditor,Closing consistency check,diff,verdict,pending,,4
+6,git-operations,PR; merge under PS-2 on green CI,reviewed head,merge commit,pending,,5
+7,security,Decision spec for the #193 review and the operator signing script,review verdicts,docs/release/term-index-2026-11.decision-spec.json; operator script,pending,,
+8,git-operations,Commit the signed row; PR; merge under PS-2 (after the operator signs),signed row,merge commit,pending,Waits for the operator,7
+9,work-summarizer,Daily work summary,plan; git history,workSummaries/daily/2026-11-16.md,pending,,6

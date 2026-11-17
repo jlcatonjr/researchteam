@@ -1,4 +1,8 @@
-"""``researchteam workflow-sync`` (#186): bring a derived repo's autosync workflow up to the installed scaffold.
+"""``researchteam workflow-sync`` (#186): bring a derived repo's workflow up to the installed scaffold.
+
+Two workflows are known (``WORKFLOWS``). ``autosync`` is the one ``init`` installs and the default.
+``validate`` is opt-in: a read-only workflow that runs the bridge validator on pull requests, so the checks
+inside ``validate`` (the term-index gate among them) cannot be skipped. What follows describes both.
 
 The workflow is written at ``init`` and otherwise only by this command; ``update`` never touches ``.github/workflows/``. A whole-file copy of the
 scaffold would also replace the repository's trigger section, which can turn a weekly schedule on (or off) without
@@ -20,6 +24,14 @@ from pathlib import Path
 
 WORKFLOW = ".github/workflows/agentteams-sync.yml"
 SCAFFOLD = "agentteams-sync-derived.yml"
+# name -> (path in the repository, packaged scaffold, what an absent workflow gets). The first is the default.
+WORKFLOWS = {
+    "autosync": (WORKFLOW, SCAFFOLD,
+                 "Its weekly schedule is commented out, so autosync runs only when dispatched until you enable it."),
+    "validate": (".github/workflows/researchteam-validate.yml", "researchteam-validate-derived.yml",
+                 "It is read-only and runs `bash scripts/claude_researchteam_bridge.sh validate` on pull requests "
+                 "and on pushes to main."),
+}
 
 # A top-level ``on`` key: ``on:``, ``"on":`` or ``'on':``, optionally followed by a comment.
 _ON_KEY = re.compile(r"""^(on|"on"|'on')\s*:\s*(#.*)?$""")
@@ -72,35 +84,36 @@ def merge(scaffold: str, existing: str) -> str:
     return "".join(s_lines[:s0] + kept + s_lines[s1:])
 
 
-def load_scaffold() -> str:
-    return (importlib.resources.files("researchteam") / "scaffold" / SCAFFOLD).read_text(encoding="utf-8")
+def load_scaffold(name: str = SCAFFOLD) -> str:
+    return (importlib.resources.files("researchteam") / "scaffold" / name).read_text(encoding="utf-8")
 
 
-def plan(root: Path, scaffold: str | None = None) -> tuple[str | None, str]:
+def plan(root: Path, scaffold: str | None = None, which: str = "autosync") -> tuple[str | None, str]:
     """``(current, proposed)`` for ``root``; ``current`` is None when no workflow exists yet."""
-    scaffold = load_scaffold() if scaffold is None else scaffold
-    path = root / WORKFLOW
+    workflow, scaffold_name, _ = WORKFLOWS[which]
+    scaffold = load_scaffold(scaffold_name) if scaffold is None else scaffold
+    path = root / workflow
     if path.is_symlink():
-        raise WorkflowSyncError(f"{WORKFLOW} is a symlink; replace it with a regular file and retry.")
+        raise WorkflowSyncError(f"{workflow} is a symlink; replace it with a regular file and retry.")
     for parent in path.relative_to(root).parents:
         p = root / parent
         if parent != Path(".") and p.is_symlink():
             raise WorkflowSyncError(f"{parent}/ is a symlink; workflow-sync never writes through a link.")
     if path.exists() and not path.is_file():
-        raise WorkflowSyncError(f"{WORKFLOW} exists and is not a regular file.")
+        raise WorkflowSyncError(f"{workflow} exists and is not a regular file.")
     if not path.exists():
         return None, scaffold
     try:
         current = path.read_text(encoding="utf-8")
     except UnicodeDecodeError as exc:
-        raise WorkflowSyncError(f"{WORKFLOW} is not UTF-8 text ({exc.reason}).") from exc
+        raise WorkflowSyncError(f"{workflow} is not UTF-8 text ({exc.reason}).") from exc
     try:
         return current, merge(scaffold, current)
     except WorkflowSyncError as exc:
-        raise WorkflowSyncError(f"{WORKFLOW}: {exc}; port the scaffold's changes by hand.") from exc
+        raise WorkflowSyncError(f"{workflow}: {exc}; port the scaffold's changes by hand.") from exc
 
 
-def _write(path: Path, content: str) -> None:
+def _write(path: Path, content: str, workflow: str = WORKFLOW) -> None:
     """Write without following a link: a new temp file (``O_EXCL | O_NOFOLLOW``), then ``os.replace``.
 
     A regular temp file left by an interrupted run is removed first; a temp path that is a link or a directory is
@@ -119,31 +132,32 @@ def _write(path: Path, content: str) -> None:
             os.fchmod(f.fileno(), mode)  # the umask may have narrowed the O_CREAT mode
             f.write(content)
         if path.is_symlink():
-            raise WorkflowSyncError(f"{WORKFLOW} became a symlink during the run; nothing written.")
+            raise WorkflowSyncError(f"{workflow} became a symlink during the run; nothing written.")
         os.replace(tmp, path)
     finally:
         if tmp.is_file() and not tmp.is_symlink():
             tmp.unlink()
 
 
-def run_workflow_sync(root: Path, yes: bool = False, dry_run: bool = False) -> int:
+def run_workflow_sync(root: Path, yes: bool = False, dry_run: bool = False, which: str = "autosync") -> int:
+    workflow, _, when_absent = WORKFLOWS[which]
     try:
-        current, proposed = plan(root)
+        current, proposed = plan(root, which=which)
     except WorkflowSyncError as exc:
         print(f"[researchteam] workflow-sync: {exc} Nothing was written.", file=sys.stderr)
         return 1
     if current == proposed:
-        print(f"[researchteam] {WORKFLOW} already matches the scaffold (its own `on:` block kept). Nothing to do.")
+        print(f"[researchteam] {workflow} already matches the scaffold (its own `on:` block kept). Nothing to do.")
         return 0
     diff = difflib.unified_diff((current or "").splitlines(keepends=True), proposed.splitlines(keepends=True),
-                                fromfile=f"a/{WORKFLOW}", tofile=f"b/{WORKFLOW}")
+                                fromfile=f"a/{workflow}", tofile=f"b/{workflow}")
     sys.stdout.writelines(diff)
     if current is None:
-        print(f"\n[researchteam] {WORKFLOW} does not exist; this writes the scaffold as shipped. Its weekly "
-              "schedule is commented out, so autosync runs only when dispatched until you enable it.")
+        print(f"\n[researchteam] {workflow} does not exist; this writes the scaffold as shipped. {when_absent}")
     else:
-        print(f"\n[researchteam] Your `on:` block in {WORKFLOW} is kept as it is; everything else comes from the "
-              "scaffold. A workflow change gets this repository's own @security review.")
+        print(f"\n[researchteam] Your `on:` block in {workflow} is kept as it is; everything else comes from the "
+              "scaffold.")
+    print("[researchteam] A workflow change gets this repository's own @security review.")
     if dry_run:
         print("[researchteam] --dry-run: nothing written.")
         return 0
@@ -156,9 +170,9 @@ def run_workflow_sync(root: Path, yes: bool = False, dry_run: bool = False) -> i
             print("[researchteam] Not applied.")
             return 1
     try:
-        _write(root / WORKFLOW, proposed)
+        _write(root / workflow, proposed, workflow)
     except (OSError, WorkflowSyncError) as exc:
         print(f"[researchteam] workflow-sync failed: {exc}", file=sys.stderr)
         return 1
-    print(f"[researchteam] Wrote {WORKFLOW}.")
+    print(f"[researchteam] Wrote {workflow}.")
     return 0

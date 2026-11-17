@@ -225,3 +225,71 @@ def test_cli_wires_the_subcommand(tmp_path, monkeypatch):
         cli.main()
     assert exc.value.code == 0
     assert "schedule" not in _yaml((root / WORKFLOW).read_text())
+
+
+# --- the opt-in validate workflow ----------------------------------------------------------------
+VALIDATE = ".github/workflows/researchteam-validate.yml"
+
+
+def test_validate_scaffold_is_read_only_and_runs_the_bridge_validator():
+    text = load_scaffold("researchteam-validate-derived.yml")
+    doc = pytest.importorskip("yaml").safe_load(text)
+    assert doc["permissions"] == {"contents": "read"}
+    triggers = doc.get("on", doc.get(True))
+    assert set(triggers) == {"pull_request", "push"} and "pull_request_target" not in text
+    job = doc["jobs"]["validate"]
+    assert "permissions" not in job and job["timeout-minutes"] <= 15
+    assert [s.get("run") for s in job["steps"] if "run" in s] == ["bash scripts/claude_researchteam_bridge.sh validate"]
+    assert job["steps"][0]["with"] == {"persist-credentials": False}
+    code = "\n".join(ln for ln in text.splitlines() if not ln.lstrip().startswith("#"))
+    assert "secrets." not in code and "GITHUB_TOKEN" not in code and "write" not in code
+    assert (ROOT / "researchteam/scaffold/researchteam-validate-derived.yml").read_text() == text
+
+
+def test_validate_workflow_is_opt_in():
+    from researchteam._manifest import INIT_SCAFFOLD_REPLACEMENTS, MANAGED_FILES
+    from researchteam._workflow_sync import WORKFLOWS
+
+    assert list(WORKFLOWS) == ["autosync", "validate"] and WORKFLOWS["autosync"][0] == WORKFLOW
+    assert WORKFLOWS["validate"][0] == VALIDATE
+    assert VALIDATE not in INIT_SCAFFOLD_REPLACEMENTS and VALIDATE not in MANAGED_FILES  # init and update leave it alone
+
+
+def test_validate_workflow_is_written_only_when_asked_and_keeps_its_on_block(tmp_path, capsys):
+    assert run_workflow_sync(tmp_path, yes=True) == 0  # the default writes the autosync workflow only
+    assert (tmp_path / WORKFLOW).is_file() and not (tmp_path / VALIDATE).exists()
+    assert run_workflow_sync(tmp_path, dry_run=True, which="validate") == 0
+    assert not (tmp_path / VALIDATE).exists() and "read-only" in capsys.readouterr().out
+    assert run_workflow_sync(tmp_path, yes=True, which="validate") == 0
+    written = (tmp_path / VALIDATE).read_text()
+    assert written == load_scaffold("researchteam-validate-derived.yml")
+    assert run_workflow_sync(tmp_path, yes=True, which="validate") == 0  # idempotent
+    narrowed = written.replace("on:\n  pull_request:\n  push:\n    branches: [main]\n", "on:\n  pull_request:\n")
+    assert narrowed != written
+    (tmp_path / VALIDATE).write_text(narrowed.replace("timeout-minutes: 10", "timeout-minutes: 99"))
+    assert run_workflow_sync(tmp_path, yes=True, which="validate") == 0
+    merged = (tmp_path / VALIDATE).read_text()
+    assert merged == narrowed  # the repository's own triggers kept; everything else from the scaffold
+    assert (tmp_path / WORKFLOW).read_text() == load_scaffold()  # the other workflow is untouched
+
+
+def test_validate_workflow_refuses_links_too(tmp_path):
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    target = tmp_path / "elsewhere.yml"
+    target.write_text("untouched")
+    os.symlink(target, tmp_path / VALIDATE)
+    with pytest.raises(WorkflowSyncError, match="researchteam-validate.yml is a symlink"):
+        plan(tmp_path, which="validate")
+    assert run_workflow_sync(tmp_path, yes=True, which="validate") == 1 and target.read_text() == "untouched"
+
+
+def test_cli_wires_the_workflow_choice(tmp_path, monkeypatch):
+    import sys
+    from researchteam import cli
+    (tmp_path / ".researchteam").write_text("")
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sys, "argv", ["researchteam", "workflow-sync", "--workflow", "validate", "--yes"])
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code == 0 and (tmp_path / VALIDATE).is_file() and not (tmp_path / WORKFLOW).exists()
+

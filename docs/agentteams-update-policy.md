@@ -251,8 +251,9 @@ generate, so the "latest agentteams update" is integrated without a manual step.
    derived repo via `researchteam update` — the four workflow copies (upstream, scaffold, each derived)
    stay thin and rarely change.
    **Taking a scaffold change into an existing derived repo (#186).** The workflow is written at `init` and
-   otherwise only by `researchteam workflow-sync`, which rewrites `.github/workflows/agentteams-sync.yml` from
-   the installed scaffold but keeps the repository's own top-level `on:` block as it is. It shows a diff and asks
+   otherwise only by `researchteam workflow-sync`. That command rewrites `.github/workflows/agentteams-sync.yml`
+   from the installed scaffold but keeps the repository's own top-level `on:` block as it is. With
+   `--workflow validate` it writes the opt-in validate workflow in the same way. It shows a diff and asks
    first (`--yes`, `--dry-run`). Without that command, port the changed `permissions:` / `jobs:` parts by hand
    and keep the `on:` block. Do not copy the whole scaffold over the file: before 1.1.7 the scaffold carried a
    live weekly `schedule:`, and a whole-file copy changes the trigger section either way. A workflow disabled in GitHub (`gh workflow disable`) stays disabled either

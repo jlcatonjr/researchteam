@@ -448,9 +448,9 @@ def _run_update_body(
         f"{len(updated)} {verb}, {len(skipped)} skipped, {len(errors)} errors."
     )
 
-    note = _toolchain_hook_note(root)
-    if note:
-        print(note)
+    for note in (_toolchain_hook_note(root), _term_index_hook_note(root)):
+        if note:
+            print(note)
 
     if layer2_only or not layer1:
         return
@@ -742,21 +742,64 @@ TOOLCHAIN_HOOK_SCRIPT = "scripts/check_toolchain.py"
 TOOLCHAIN_HOOK_EXAMPLE = ".claude/settings.toolchain.example.json"
 
 
-def _toolchain_hook_installed(root: Path) -> bool:
-    """Whether .claude/settings(.local).json runs the toolchain check at SessionStart."""
+TERM_INDEX_HOOK_SCRIPT = "scripts/build_term_index.py"
+TERM_INDEX_HOOK_EXAMPLE = ".claude/settings.terms.example.json"
+TERM_INDEX_PROTOCOL = "docs/term-index-protocol.md"
+
+
+def _hook_installed(root: Path, event: str, script: str) -> bool:
+    """Whether .claude/settings(.local).json has a hook for ``event`` whose command names ``script``."""
     for name in ("settings.json", "settings.local.json"):
         try:
             data = json.loads((root / ".claude" / name).read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
         hooks = data.get("hooks") if isinstance(data, dict) else None
-        entries = hooks.get("SessionStart") if isinstance(hooks, dict) else None
+        entries = hooks.get(event) if isinstance(hooks, dict) else None
         for entry in entries if isinstance(entries, list) else []:
             inner = entry.get("hooks") if isinstance(entry, dict) else None
             for hook in inner if isinstance(inner, list) else []:
-                if isinstance(hook, dict) and TOOLCHAIN_HOOK_SCRIPT in str(hook.get("command", "")):
+                if isinstance(hook, dict) and script in str(hook.get("command", "")):
                     return True
     return False
+
+
+def _toolchain_hook_installed(root: Path) -> bool:
+    """Whether .claude/settings(.local).json runs the toolchain check at SessionStart."""
+    return _hook_installed(root, "SessionStart", TOOLCHAIN_HOOK_SCRIPT)
+
+
+def term_registers(root: Path) -> list[Path]:
+    """Every ``terminology/terms.json`` under ``Projects/`` (links not followed), sorted.
+
+    A count for messages only. Which of them is a real register is the gate's business
+    (``scripts/check_term_index.py``), not this function's.
+    """
+    base = root / "Projects"
+    if not base.is_dir() or base.is_symlink():
+        return []
+    return sorted(p for p in base.rglob("terminology/terms.json") if p.is_file() and not p.is_symlink())
+
+
+def _term_index_hook_installed(root: Path) -> bool:
+    """Whether the term-index rebuild runs after edits (the PostToolUse entry of the example)."""
+    return _hook_installed(root, "PostToolUse", TERM_INDEX_HOOK_SCRIPT)
+
+
+def _term_index_hook_note(root: Path) -> str:
+    """A nudge while a project has a term register and the rebuild hooks are not wired.
+
+    Silent where the scripts are absent (a generic-profile repository) or no project has a register yet.
+    researchteam never edits ``.claude/settings.json``, so it only says what to merge.
+    """
+    if not (root / TERM_INDEX_HOOK_SCRIPT).exists() or _term_index_hook_installed(root) or not term_registers(root):
+        return ""
+    return (
+        "[researchteam] note: a project has a term register and the term-index hooks are not wired. To have\n"
+        "  the index rebuilt after each edit and at session start, merge the `hooks` entries from\n"
+        f"  {TERM_INDEX_HOOK_EXAMPLE} into .claude/settings.json (hooks run outside the sandbox; see\n"
+        f"  {TERM_INDEX_PROTOCOL}). Until then, run: bash scripts/claude_researchteam_bridge.sh term-build"
+    )
 
 
 def _toolchain_hook_note(root: Path) -> str:

@@ -1,7 +1,10 @@
 """Informational doctor lines: they report, and never fail doctor."""
 from __future__ import annotations
 
+import json
+import shutil
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -57,7 +60,7 @@ def test_generic_profile_is_not_warned(tmp_path):
     (tmp_path / "brief.json").write_text('{"layer2_profile": "generic"}')
     lines, ok, warn = _collect()
     _doctor_cmd._check_scholarly_tooling(tmp_path, ok, warn)
-    assert [kind for kind, _ in lines] == ["ok", "ok"] and all("not expected" in m for _, m in lines)
+    assert [kind for kind, _ in lines] == ["ok"] * len(SCRIPTS) and all("not expected" in m for _, m in lines)
 
 
 def test_doctor_does_not_fail_without_scholarly_tooling(tmp_path, monkeypatch, capsys):
@@ -66,3 +69,102 @@ def test_doctor_does_not_fail_without_scholarly_tooling(tmp_path, monkeypatch, c
     _doctor_cmd.run_doctor(tmp_path)  # must not raise SystemExit
     out = capsys.readouterr()
     assert f"{SCRIPTS[0]} missing" in out.out and "[FAIL]" not in out.err
+
+
+# --------------------------------------------------------------------------- term index
+ROOT = Path(__file__).resolve().parent.parent
+HOOK = {"type": "command", "command": 'python3 "$CLAUDE_PROJECT_DIR/scripts/build_term_index.py" hook'}
+
+
+def _term_repo(tmp_path, register=True, text="A term register.\n"):
+    (tmp_path / "scripts").mkdir()
+    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py"):
+        shutil.copy(ROOT / "scripts" / name, tmp_path / "scripts")
+    if register:
+        proj = tmp_path / "Projects" / "Demo"
+        (proj / "terminology").mkdir(parents=True)
+        (proj / "01-review.md").write_text(text)
+        (proj / "terminology" / "terms.json").write_text(json.dumps({
+            "schema": "researchteam-term-register",
+            "terms": [{"id": "t", "label": "term register", "definition": "d", "source": "project definition"}]}))
+    return tmp_path
+
+
+def _settings(root, **events):
+    (root / ".claude").mkdir(exist_ok=True)
+    (root / ".claude" / "settings.json").write_text(json.dumps(
+        {"hooks": {event: [{"hooks": [HOOK]}] for event, on in events.items() if on}}))
+
+
+def _term_lines(root):
+    lines, ok, warn = _collect()
+    _doctor_cmd._check_term_index(root, ok, warn)
+    return lines
+
+
+def test_term_index_check_is_silent_without_the_scripts_and_brief_without_registers(tmp_path):
+    assert _term_lines(tmp_path) == []  # a generic-profile repository
+    lines = _term_lines(_term_repo(tmp_path, register=False))
+    assert lines == [("ok", "term index: no project has a term register yet (docs/term-index-protocol.md).")]
+
+
+def test_term_index_check_reports_the_gate_the_hooks_and_ci(tmp_path):
+    root = _term_repo(tmp_path)
+    lines = _term_lines(root)  # no index built, no hooks, no workflow
+    assert [kind for kind, _ in lines] == ["warn", "warn", "warn"]
+    assert "DEFECT: 1" in lines[0][1] and "term-check" in lines[0][1]
+    assert "settings.terms.example.json" in lines[1][1]
+    assert "workflow-sync --workflow validate" in lines[2][1]
+
+    built = subprocess.run(["python3", "-B", str(root / "scripts" / "build_term_index.py"), "build"],
+                           capture_output=True, text=True, env={"RT_ROOT": str(root), "PATH": "/usr/bin:/bin"})
+    assert built.returncode == 0, built.stdout + built.stderr
+    _settings(root, PostToolUse=True)
+    lines = _term_lines(root)
+    assert lines[0][0] == "ok" and "1 register file(s)" in lines[0][1] and "DEFECT: 0" in lines[0][1]
+    assert lines[1][0] == "warn" and "not at SessionStart" in lines[1][1]
+
+    _settings(root, PostToolUse=True, SessionStart=True)
+    workflows = root / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "ci.yml").write_text("steps:\n  # run: bash scripts/claude_researchteam_bridge.sh validate\n")
+    lines = _term_lines(root)
+    assert [kind for kind, _ in lines] == ["ok", "ok", "warn"]  # a commented-out step does not count
+    (workflows / "ci.yml").write_text("steps:\n  - run: bash scripts/claude_researchteam_bridge.sh validate\n")
+    assert [kind for kind, _ in _term_lines(root)] == ["ok", "ok", "ok"]
+
+
+def test_term_index_check_ignores_a_callers_root_and_advisory_switch(tmp_path, monkeypatch):
+    root = _term_repo(tmp_path)
+    monkeypatch.setenv("RT_ROOT", str(tmp_path / "elsewhere"))
+    monkeypatch.setenv("TERM_INDEX_ADVISORY", "1")
+    lines = _term_lines(root)
+    assert lines[0][0] == "warn" and "DEFECT: 1" in lines[0][1]
+
+
+def test_update_nudges_only_while_a_register_exists_and_the_hooks_are_not_wired(tmp_path):
+    assert _update_cmd._term_index_hook_note(tmp_path) == ""                       # no scripts
+    root = _term_repo(tmp_path, register=False)
+    assert _update_cmd._term_index_hook_note(root) == ""                           # no register yet
+    proj = root / "Projects" / "Group" / "Nested" / "terminology"
+    proj.mkdir(parents=True)
+    (proj / "terms.json").write_text("{}")
+    note = _update_cmd._term_index_hook_note(root)
+    assert "settings.terms.example.json" in note and "term-build" in note and "outside the sandbox" in note
+    _settings(root, SessionStart=True)
+    assert _update_cmd._term_index_hook_note(root) != ""                           # SessionStart alone is not enough
+    _settings(root, PostToolUse=True)
+    assert _update_cmd._term_index_hook_note(root) == ""
+    assert _update_cmd._toolchain_hook_installed(root) is False                    # a different script
+    (root / ".claude" / "settings.json").write_text("not json")
+    assert _update_cmd._term_index_hook_note(root) != ""                           # unreadable settings never raise
+
+
+def test_doctor_runs_with_a_term_register_and_never_fails_on_it(tmp_path, monkeypatch, capsys):
+    root = _term_repo(tmp_path)
+    (root / ".researchteam").write_text("layer1 = off\n")
+    monkeypatch.setattr(_update_cmd, "_resolve_agentteams", lambda: (None, "nowhere"))
+    _doctor_cmd.run_doctor(root)  # a stale index is a warning here, never a SystemExit
+    out = capsys.readouterr()
+    assert "term index: 1 register file(s)" in out.out and "[FAIL]" not in out.err
+

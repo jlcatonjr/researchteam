@@ -28,6 +28,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     `[REBUILD]`; run `term-build` and commit.
   - A derived repository's CI does not run `validate` unless its owner adds the step, so there the gate is
     local. The protocol says how to add it.
+  - **Follow-ups.** `researchteam workflow-sync --workflow validate` writes an opt-in, read-only workflow
+    (`.github/workflows/researchteam-validate.yml`) that runs the bridge validator on pull requests and on
+    pushes to `main`; `init` does not install it and `update` never touches it. `researchteam doctor`
+    reports on the term index: the gate's summary, whether the rebuild hooks are wired, and whether a
+    workflow runs the validator. `researchteam update` prints a reminder while a project has a register
+    and the hooks are not wired. All three are advisory.
   - Research basis and audit record: `Projects/CodedTermIndexing/` and
     `references/plans/term-index-2026-11-16.design.md` (`tests/test_term_index.py`).
 

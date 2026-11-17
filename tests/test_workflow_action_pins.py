@@ -9,7 +9,8 @@ import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
 WORKFLOWS = sorted((ROOT / ".github" / "workflows").glob("*.y*ml")) + [
-    ROOT / "researchteam" / "scaffold" / "agentteams-sync-derived.yml"]
+    ROOT / "researchteam" / "scaffold" / "agentteams-sync-derived.yml",
+    ROOT / "researchteam" / "scaffold" / "researchteam-validate-derived.yml"]
 USES = re.compile(r"^\s*(?:-\s+)?uses:\s*(\S+)(.*)$")
 PINNED = re.compile(r"^[\w.-]+/[\w./-]+@[0-9a-f]{40}$")
 
