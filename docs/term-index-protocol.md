@@ -309,9 +309,9 @@ Two conditions hold until that work is done. The copy's integrity check (a sha25
 researchteam release, compared locally) is not built yet, so a copy is unverified until it exists. Moving
 this repository's pin to agentteams 1.3 is a cross-line move and needs its own operator ruling.
 
-Source: the fleet coordinator's recommendation of 2026-11-16 (option C in its term-index placement report).
-The coordinator told this repository that the operator chose it that day; the report itself records the
-recommendation, not the ruling.
+Source: operator ruling of 2026-11-16, "Core in agentteams 1.3", recorded by the fleet coordinator in its
+operator-preferences register, on option C of its term-index placement report. The agentteams work is
+tracked in agentteams issue #548.
 
 ## Origin
 

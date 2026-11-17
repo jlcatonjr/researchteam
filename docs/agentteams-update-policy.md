@@ -124,6 +124,19 @@ accepted `DEFENDED`), and was excluded from the baseline then.
    while the PR waits — no weekly spam. A manual `workflow_dispatch` (optionally `force=true`) does the
    same on demand. Machine-path files (`delivery-receipt.json`, `memory-index.json`) are scrubbed so no
    CI-runner path is ever proposed.
+   - **Two jobs (#182).** The gate runs in the `autosync` job, which has `contents: read` and so cannot
+     push or open a PR. It hands its result to the `open_pr` job as an artifact: one patch and the PR body.
+   - `open_pr` holds the write token and runs no integrated code. It checks out the same commit, refuses
+     gate outputs that are not a commit id and `true`/`false`, applies the patch with `git apply`, and
+     refuses a `.git` path, a symbolic link, a submodule entry or a `.gitattributes` filter.
+   - `open_pr` decides the `security-review-required` label itself, from the changed paths, with the
+     repository's committed gate script (`--classify-sensitive`). The gate job's own answer can only add
+     the label, never remove it. The PR body starts with what `open_pr` found; the gate job's text follows.
+   - **Limits.** The patch and the PR body are still written by the job that runs integrated code, so the
+     review of the PR's diff remains the control on its content. That job can also write Actions caches and
+     artifacts, so a workflow that holds a write token should not restore a cache (`open_pr` restores none).
+     The artifact is kept for 3 days; after that, "Re-run failed jobs" on `open_pr` fails and the workflow
+     must be run again.
 3. **Auto-merge is disabled — the evergreen PR is reviewed and merged by a human.** The autosync is
    automatic *proposal*, not automatic merge; blocking gates run before the PR opens, and the reviewer
    gate below is the final word. (To opt into auto-merge-on-green later, enable `gh pr merge --auto` on

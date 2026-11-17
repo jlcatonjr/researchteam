@@ -139,7 +139,7 @@ def test_workflows_look_up_the_pr_in_a_read_only_job(path):
     assert "*[!0-9]*)" in lookup["run"], "a non-numeric answer must leave `open` unset (unknown), never true"
     # The autosync job waits for the lookup but still runs when it fails (empty output = unknown, fail-safe).
     assert autosync["needs"] == "evergreen_pr" and autosync["if"] == "${{ !cancelled() }}"
-    assert autosync["permissions"] == {"contents": "write", "pull-requests": "write"}
+    assert autosync["permissions"] == {"contents": "read"}, "#182: the job that runs the gate cannot write"
     steps = autosync["steps"]
     checkout = next(s for s in steps if s.get("uses", "").startswith("actions/checkout@"))
     assert checkout["with"]["persist-credentials"] is False and checkout["with"]["fetch-depth"] == 0

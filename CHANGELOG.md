@@ -5,6 +5,21 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Autosync: the gate job cannot write (#182).** In both autosync workflows the gate, which runs integrated
+  agentteams and researchteam code, now runs in a job with `contents: read`. A new job, `open_pr`, holds the
+  write token and runs no integrated code.
+  - The gate job uploads one patch and the PR body as an artifact. `open_pr` checks out the same commit, checks
+    the gate's outputs, applies the patch with `git apply`, and opens the evergreen PR.
+  - `open_pr` refuses a `.git` path, a symbolic link, a submodule entry and a `.gitattributes` filter. It decides
+    the `security-review-required` label itself, with the repository's committed gate script; the gate job's
+    answer can only add the label.
+  - The PR body is passed by path, so its text no longer goes through a step output.
+  - New pinned actions: `actions/upload-artifact` v7.0.2 and `actions/download-artifact` v8.0.2 (both released
+    2026-10-07; OSV search 2026-11-16 found no advisory for either version).
+  - Residual: the patch and the body still come from the job that runs integrated code, so the review of the
+    PR's diff remains the control on its content.
+  - A derived repository receives the new workflow with `researchteam workflow-sync`, which keeps its `on:`
+    block. That is a workflow change, so the repository's own `@security` review applies.
 - **Term register and synced term index.** Operator ruling, 2026-11-16: every project defines its terms as
   coded definitions, every appearance of a registered term is indexed, and the index is kept in sync by a
   reliable trigger.
