@@ -8,8 +8,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 - **Autosync: the gate job cannot write (#182).** In both autosync workflows the gate, which runs integrated
   agentteams and researchteam code, now runs in a job with `contents: read`. A new job, `open_pr`, holds the
   write token and runs no integrated code.
-  - The gate job uploads one patch and the PR body as an artifact. `open_pr` checks out the same commit, checks
-    the gate's outputs, applies the patch with `git apply`, and opens the evergreen PR.
+  - The gate job uploads one patch and the PR body as an artifact. `open_pr` checks out the run's branch, confirms it is the gate's
+    commit, checks the gate's outputs, applies the patch with `git apply`, and opens the evergreen PR.
   - `open_pr` refuses a `.git` path, a symbolic link, a submodule entry and a `.gitattributes` filter. It decides
     the `security-review-required` label itself, with the repository's committed gate script; the gate job's
     answer can only add the label.

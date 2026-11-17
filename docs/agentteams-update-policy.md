@@ -126,7 +126,7 @@ accepted `DEFENDED`), and was excluded from the baseline then.
    CI-runner path is ever proposed.
    - **Two jobs (#182).** The gate runs in the `autosync` job, which has `contents: read` and so cannot
      push or open a PR. It hands its result to the `open_pr` job as an artifact: one patch and the PR body.
-   - `open_pr` holds the write token and runs no integrated code. It checks out the same commit, refuses
+   - `open_pr` holds the write token and runs no integrated code. It checks out the run's branch, confirms it is the gate's commit, refuses
      gate outputs that are not a commit id and `true`/`false`, applies the patch with `git apply`, and
      refuses a `.git` path, a symbolic link, a submodule entry or a `.gitattributes` filter.
    - `open_pr` decides the `security-review-required` label itself, from the changed paths, with the
