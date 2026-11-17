@@ -56,7 +56,7 @@ The packaged scaffold text for `name`, read through `importlib.resources`, so it
 
 ### `plan(root, scaffold=None, which="autosync")`
 
-Returns `(current, proposed)` for the workflow `which` in the repository at `root`; `current` is `None` when no workflow exists. Raises `WorkflowSyncError` for a symlinked path, a non-regular file, a non-UTF-8 file or an unusable `on:` block, and, for `validate`, for an `on:` block that names one of `PRIVILEGED_TRIGGERS`. Raises `ValueError` for a name that is not in `WORKFLOWS`.
+Returns `(current, proposed)` for the workflow `which` in the repository at `root`; `current` is `None` when no workflow exists. Raises `WorkflowSyncError` for a symlinked path, a non-regular file, a non-UTF-8 file or an unusable `on:` block, and, for `validate`, for an `on:` block that mentions one of `PRIVILEGED_TRIGGERS` outside a comment (as a key, a list item or inside a flow collection). Raises `ValueError` for a name that is not in `WORKFLOWS`.
 
 ### `run_workflow_sync(root, yes=False, dry_run=False, which="autosync")`
 

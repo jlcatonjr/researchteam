@@ -295,9 +295,9 @@ def _check_term_index(root: Path, ok, warn) -> None:
         summary, code = f"the gate could not run ({type(exc).__name__})", 2
     summary = _printable(summary)
     counted = re.search(r"registers checked: (\d+)", summary)
-    if code != 0:
+    if code != 0 or not counted:  # a gate that exits 0 without its summary line has not done its job
         warn(f"term index: gate: {summary} — run: bash scripts/claude_researchteam_bridge.sh term-check")
-    elif counted and counted.group(1) == "0":
+    elif counted.group(1) == "0":
         ok(f"term index: no project has a term register yet ({TERM_INDEX_PROTOCOL}).")
         return
     else:

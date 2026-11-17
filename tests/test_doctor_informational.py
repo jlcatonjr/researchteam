@@ -184,7 +184,8 @@ def test_term_index_check_takes_its_count_from_the_gate_not_from_a_glob(tmp_path
     foreign = root / "Projects" / "Paper" / "terminology"
     foreign.mkdir()
     (foreign / "terms.json").write_text('{"words": []}')  # not a researchteam register
-    assert _term_lines(root)[0] == ("ok", "term index: no project has a term register yet (docs/term-index-protocol.md).")
+    none_yet = ("ok", "term index: no project has a term register yet (docs/term-index-protocol.md).")
+    assert _term_lines(root)[0] == none_yet
 
 
 def test_term_index_check_survives_a_gate_that_cannot_run(tmp_path, monkeypatch):
@@ -198,6 +199,14 @@ def test_term_index_check_survives_a_gate_that_cannot_run(tmp_path, monkeypatch)
         monkeypatch.setattr(_doctor_cmd.subprocess, "run", boom)
         lines = _term_lines(root)
         assert lines[0][0] == "warn" and "could not run" in lines[0][1] and type(exc).__name__ in lines[0][1]
+
+
+def test_a_gate_that_exits_zero_without_its_summary_is_a_warning(tmp_path):
+    root = _term_repo(tmp_path)
+    for body in ('print("all good")\n', "", 'print("Projects seen: 1  |  DEFECT: 0")\n'):
+        (root / "scripts" / "check_term_index.py").write_text(body)
+        kind, message = _term_lines(root)[0]
+        assert kind == "warn" and "term-check" in message, body
 
 
 def test_relayed_lines_lose_control_characters(tmp_path):

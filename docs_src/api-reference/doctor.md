@@ -67,7 +67,7 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 
 **5. Toolchain pin** (`_check_toolchain`, always runs).
 - WARN: `scripts/check_toolchain.py` is missing (run `researchteam update` to receive it); nothing else in this check runs.
-- Otherwise runs `check_toolchain.py --python <sys.executable>` with a 60-second timeout. Each non-blank stdout line is reported (stderr and the exit status are ignored; empty stdout gives one WARN `(no output)`) with its `[toolchain] ` prefix removed: OK if the line starts with `[toolchain] OK`, WARN for every other line (including "no toolchain.lock yet", `BEHIND`, `MISMATCH` and `note` lines, and a failure to run the script).
+- Otherwise runs `check_toolchain.py --python <sys.executable>` with a 60-second timeout. Each non-blank stdout line is reported with control characters removed (stderr and the exit status are ignored; empty stdout gives one WARN `(no output)`) with its `[toolchain] ` prefix removed: OK if the line starts with `[toolchain] OK`, WARN for every other line (including "no toolchain.lock yet", `BEHIND`, `MISMATCH` and `note` lines, and a failure to run the script).
 - OK / WARN: whether `.claude/settings.json` or `.claude/settings.local.json` has a SessionStart hook whose command contains `scripts/check_toolchain.py`. WARN asks the operator to merge `.claude/settings.toolchain.example.json`.
 
 **5a. Pandoc** (`_check_pandoc`, always runs, informational).
@@ -80,7 +80,7 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 
 **5c. Term index** (`_check_term_index`, always runs, informational). Silent when `scripts/check_term_index.py` is absent (check 5b says whether it is expected).
 - Runs the gate (`scripts/check_term_index.py`, 120-second timeout, with `RT_ROOT` and `TERM_INDEX_ADVISORY` cleared) and relays its `Projects seen: …` summary with control characters removed. The gate, not doctor, decides how many registers there are and whether one is required.
-- WARN: the gate exits non-zero, or could not run; names the command to run for details. The remaining lines are still reported.
+- WARN: the gate exits non-zero, could not run, or exits 0 without a summary line that gives a register count; names the command to run for details. The remaining lines are still reported.
 - OK: the gate exits 0 and reports `registers checked: 0` ("no project has a term register yet"); nothing else in this check runs.
 - OK: the gate exits 0 with at least one register.
 - OK / WARN: whether `.claude/settings.json` or `.claude/settings.local.json` runs `scripts/build_term_index.py` after edits (`PostToolUse`) and at `SessionStart`. WARN asks the operator to merge `.claude/settings.terms.example.json`.
@@ -146,6 +146,9 @@ Check 9 above. When `fail` is `None`, the leftover-bridge-agent finding is repor
 | `_agentteams_source(interp: str) -> Optional[str]` | Runs `interp -c` to print the directory of `build_team.__file__`; `None` on failure or empty output. |
 | `_check_pandoc(ok, warn) -> None` | Check 5a. Never reports FAIL. |
 | `_check_scholarly_tooling(root, ok, warn) -> None` | Check 5b. Never reports FAIL. |
+| `_check_term_index(root, ok, warn) -> None` | Check 5c. Never reports FAIL. |
+| `_workflow_runs_validate(root) -> bool` | Whether a file under `.github/workflows/` has a line, not a comment, containing `VALIDATE_COMMAND`. A file that is not UTF-8 text does not count. |
+| `_printable(text) -> str` | `text` without control characters, for a line relayed from a repository's own script. |
 | `_check_frozen_surfaces(root, ok, warn, fail) -> None` | Check 6. |
 | `_check_frozen_fences(root, ok, warn) -> None` | Check 7. |
 | `_check_seeded_files(root, ok, warn) -> None` | Check 8. |

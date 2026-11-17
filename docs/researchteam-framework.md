@@ -61,7 +61,7 @@ researchteam never edits `settings.json`). `researchteam doctor` reports both.
 | `researchteam materialize [--yes] [--dry-run] [--copilot-only] [--adopt-orphans] [--discard-user-regions] [--no-codex]` | Re-render the agent team on every surface (copilot-vscode plus native claude/goose teams) from `brief.json` after a domain/identity change (cleared `--overwrite` pass per surface), then re-personalize the identity files. |
 | `researchteam update [--yes] [--dry-run] [--layer2-only] [--layer1-only] [--ref REF] [--accept-upstream PATH] [--no-codex]` | Sync framework files from upstream, then merge agent infrastructure: copilot-vscode, then each native claude/goose surface the instance already carries (merge mode, never overwrite), then Codex (native, orchestrator-only; refused otherwise; `--no-codex` leaves Codex unchanged). |
 | `researchteam status` | Show marker info and CLI version. |
-| `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
+| `researchteam doctor [--drift]` | Diagnose the researchteam ↔ agentteams toolchain, the toolchain pin, the term index (its gate, hooks and CI) and frozen fences; `--drift` also checks seeded files and bridges (see *Drift report*). |
 
 ## The two-layer update model
 
@@ -421,3 +421,9 @@ off (#186); `researchteam workflow-sync` updates the workflow and keeps the proj
 pinned commit, runs a full `researchteam update --yes` and the blocking validation gates, and the
 workflow then opens or updates one evergreen PR (`chore/agentteams-autosync`). See
 `docs/agentteams-update-policy.md`.
+
+A second workflow is opt-in: `researchteam workflow-sync --workflow validate` writes
+`.github/workflows/researchteam-validate.yml`, which runs the bridge validator on pull requests and on
+pushes to `main` with a read-only token. `init` does not install it and `update` never touches it. With it,
+the checks inside `validate`, the term-index gate among them, run on every pull request
+(`docs/term-index-protocol.md`). Whether a failure blocks a merge is the repository's own branch rule.
