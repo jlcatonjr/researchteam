@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.1.8 (tag `v1.1.8`, on `release/1.1`)
+
+A release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). It is numbered as a patch release
+by operator ruling (2026-11-17), but it also carries a new feature, the term register and term index; the
+feature is additive and changes nothing for a repository that has no term register. Derived repositories take it
+with `researchteam update --ref v1.1.8`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.8 --tag agentteams=v1.1.4`. To take the
+autosync workflow change (#182), run `researchteam workflow-sync` (it keeps the repository's own `on:` block) and
+give the result the repository's own `@security` review; the new workflow uses two more pinned actions.
+On researchteam 1.1.x the term index now takes bug fixes only (see `docs/term-index-protocol.md`, "Planned
+placement").
+
 - **Autosync: the gate job cannot write (#182).** In both autosync workflows the gate, which runs integrated
   agentteams and researchteam code, now runs in a job with `contents: read`. A new job, `open_pr`, holds the
   write token and runs no integrated code.
