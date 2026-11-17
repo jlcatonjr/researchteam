@@ -276,8 +276,8 @@ generate, so the "latest agentteams update" is integrated without a manual step.
 files* and re-integrates at whatever agentteams version is *installed locally*; the CI autosync fires on
 an *agentteams `main` SHA change* and integrates the *pinned upstream* SHA. Disjoint triggers; any overlap
 is self-healing (the `preserve` shrink policy protects enriched fences; `researchteam doctor` flags a stale
-local install). The blocking gates run **in-job before** the PR is created — a `GITHUB_TOKEN`-authored PR
-does not fire `pull_request` checks, so in-job gating (not PR-status checks) is what guarantees a bad regen
+local install). The blocking gates run **in the gate job, before** the PR is created — a `GITHUB_TOKEN`-authored PR
+does not fire `pull_request` checks, so gating in the gate job (not PR-status checks) is what guarantees a bad regen
 never becomes a mergeable PR.
 
 **Follow-up ([RT]).** The SHA-gate keys on the agentteams commit only; a researchteam-managed-only change

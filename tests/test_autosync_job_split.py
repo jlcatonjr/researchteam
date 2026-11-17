@@ -97,7 +97,9 @@ def test_the_gate_job_cannot_write_and_the_write_job_runs_no_integrated_code(pat
         assert word not in scripts, f"the write job must not run integrated code: {word!r}"
     assert "${{" not in scripts, "values reach the write job's scripts through env, never by expression"
     checkout = write["steps"][0]["with"]
-    assert checkout == {"ref": "${{ github.sha }}", "fetch-depth": 0, "persist-credentials": False}
+    # No `ref`: a named commit leaves a detached HEAD, and create-pull-request then refuses to run (found by
+    # the first real run, 2026-11-16). The check step confirms the commit and the branch instead.
+    assert checkout == {"fetch-depth": 0, "persist-credentials": False}
 
 
 @both
@@ -167,6 +169,23 @@ def test_a_name_git_would_quote_is_still_classified(path, repos, name):
     r, out = apply(path, repos, package(path, repos), sensitive="false")
     assert r.returncode == 0, r.stdout + r.stderr
     assert out["sensitive"] == "true"
+
+
+@both
+def test_a_name_with_a_line_break_is_sensitive(path, repos):
+    gate, _fresh, _tmp = repos
+    (gate / "docs" / "a\nb.md").write_text("x\n")
+    r, out = apply(path, repos, package(path, repos), sensitive="false")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert out["sensitive"] == "true" and "line break in its name" in Path(out["body"]).read_text()
+
+
+@both
+def test_a_detached_checkout_is_refused(path, repos):
+    out_dir = package(path, repos)
+    git(repos[1], "checkout", "-q", "--detach")
+    r, _out = apply(path, repos, out_dir)
+    assert r.returncode == 1 and "not on a branch" in r.stdout
 
 
 @both

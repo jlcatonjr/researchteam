@@ -7,5 +7,8 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 6,security,Review naming both workflow paths and the two new action pins,PR head,verdict,done,"CONDITIONAL PASS at 8706884; two required fixes made; re-check on the final head; post-merge dispatch run still to do",4;5
 7,code-hygiene,Review the tests,PR head,verdict,done,"PASS at 8706884; should-fix items done",4
 8,conflict-auditor,Closing consistency check,PR head,verdict,done,"No blocking conflict at 8706884; four non-blocking items done",5
-9,git-operations,PR; green CI; merge under PS-2; check main,verdicts,merge commit,pending,,6;7;8
-10,work-summarizer,Daily summary,plan,workSummaries/daily/2026-11-16.md,done,"Section added in this PR",9
+9,git-operations,PR; green CI; merge under PS-2; check main,verdicts,merge commit,done,"PR #199 merged as 6c718bd at reviewed head 08275eb; CI on main green",6;7;8
+10,work-summarizer,Daily summary,plan,workSummaries/daily/2026-11-16.md,done,"Section drafted in PR #199, before the merge; completed in the follow-up PR",8
+11,git-operations,Run the workflow once by workflow_dispatch (the @security condition),merged workflow,run result,done,"Run 44018857918 failed closed in open_pr: create-pull-request refuses a detached HEAD. Nothing was pushed",9
+12,primary-producer,Follow-up: default checkout ref; branch check; line-break rule; wording notes,run result,workflows; tests; docs,pending,,11
+13,git-operations,Review; merge the follow-up under PS-2; repeat the run,follow-up PR,run result,pending,,12

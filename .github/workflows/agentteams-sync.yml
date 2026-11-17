@@ -171,10 +171,11 @@ jobs:
       pull-requests: write
     steps:
       # No cache is restored in this job (no actions/cache, no setup-* cache): the gate job can write caches.
-      - name: Checkout (the commit the gate ran on)
+      # No `ref:` here. The default checks out the run's branch at the run's commit; naming the commit would
+      # leave a detached HEAD, which create-pull-request refuses. The check step confirms the commit.
+      - name: Checkout (the branch the gate ran on, at the same commit)
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
         with:
-          ref: ${{ github.sha }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -199,6 +200,7 @@ jobs:
           [[ "$NEW_SHA" =~ ^[0-9a-f]{7,40}$ ]] || fail "new_sha is not 7 to 40 hex characters"
           case "$GATE_SENSITIVE" in true|false) ;; *) fail "sensitive is neither true nor false" ;; esac
           [ "$(git rev-parse HEAD)" = "$EXPECTED_HEAD" ] || fail "the checkout is not the commit the gate ran on"
+          git symbolic-ref -q HEAD >/dev/null || fail "the checkout is not on a branch, so no PR can be opened from it"
           patch="$CHANGE_DIR/change.patch"; body="$CHANGE_DIR/pr-body.md"
           for f in "$patch" "$body"; do
             if [ ! -f "$f" ] || [ -L "$f" ]; then fail "the artifact lacks a regular file: ${f##*/}"; fi
@@ -250,6 +252,11 @@ jobs:
             if [ "$before" != "$after" ]; then
               found="$(printf '%s\n%s\n' "$found" "toolchain.lock (pinned repository or release tag changed)" | sed '/^$/d')"
             fi
+          fi
+          # A name with a line break in it splits into two lines above, and a rule that matches the end of a
+          # name could then miss it. No update needs such a name, so it is treated as sensitive.
+          if [ "$(tr -cd '\0' < "$listing.names" | wc -c | tr -d ' ')" != "$(printf '%s' "$staged" | grep -c '' || true)" ]; then
+            found="$(printf '%s\n%s\n' "$found" "(a changed path has a line break in its name)" | sed '/^$/d')"
           fi
           if [ -n "$found" ]; then sensitive=true; fi
           final="$RUNNER_TEMP/autosync-pr-body-final.md"
