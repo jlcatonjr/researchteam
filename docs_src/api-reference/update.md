@@ -15,6 +15,9 @@ Implementation of `researchteam update` and `researchteam materialize`. `update`
 | `NATIVE_SURFACES` | `(("claude", ".claude/agents"), ("goose", ".goose/recipes"))`: native agent surfaces besides copilot-vscode (`.github/agents`) that a repo may carry. Each is a separate agentteams render target. |
 | `TOOLCHAIN_HOOK_SCRIPT` | `"scripts/check_toolchain.py"`: the toolchain check looked for in `.claude/settings(.local).json` SessionStart hooks. |
 | `TOOLCHAIN_HOOK_EXAMPLE` | `".claude/settings.toolchain.example.json"`: the file the operator is told to merge from. |
+| `TERM_INDEX_HOOK_SCRIPT` | `"scripts/build_term_index.py"`: the term-index builder looked for in `.claude/settings(.local).json` hooks. |
+| `TERM_INDEX_HOOK_EXAMPLE` | `".claude/settings.terms.example.json"`: the term-index hook example the operator is told to merge from. |
+| `TERM_INDEX_PROTOCOL` | `"docs/term-index-protocol.md"`: the document the term-index messages point to. |
 | `_P5A_FLAG` | `"--discard-user-regions"`: the agentteams flag that opts out of carrying user-editable regions across `--overwrite`. Its presence in `agentteams --help` is also the capability check for P5a. |
 | `_LAYER1_OFF` | `{"off", "false", "no", "0"}`: values of `layer1 =` in `.researchteam` that disable layer 1. |
 | `_GRANT_KEYS` | `("tools", "agents")`: front-matter list keys read as capability grants (plus `handoffs`). |
@@ -69,7 +72,7 @@ Merge strategies come from `_manifest.MERGE_STRATEGIES` (see [`manifest`](manife
    - **`overwrite`:** replaced wholesale when it differs.
    - With a change pending: under dry run prints `Would update`. Interactively it shows up to 50 diff lines and asks `Apply? [y/N]`. Otherwise it writes the file and adds the execute bits to `.sh` files.
 5. **Notes sync.** Unless the profile is `generic`, runs `_sync_notes(root, ref, yes, dry_run)`.
-6. Prints a `Fetch errors:` header (stdout) and each fetch error (stderr), a summary (`N updated, N skipped, N errors`), and `_toolchain_hook_note` when the toolchain check exists but is not wired to SessionStart.
+6. Prints a `Fetch errors:` header (stdout) and each fetch error (stderr), a summary (`N updated, N skipped, N errors`), `_toolchain_hook_note` when the toolchain check exists but is not wired to SessionStart, and `_term_index_hook_note` when a project has a term register and the term-index hooks are not wired.
 7. Returns here if `layer2_only` or layer 1 is off.
 8. **Layer 1:** `_run_agentteams` (copilot-vscode merge), `_render_native_surfaces(overwrite=False)`, `_refresh_codex_unless_frozen`, `_merge_bridges`, `_print_frozen_summary`.
 
@@ -327,6 +330,10 @@ It warns (stderr) for each covered framework other than codex that has no native
 | `_brief_has_placeholder(root)` | `True` when `brief.json` contains `BRIEF_PLACEHOLDER` (`"<YOUR PROJECT NAME>"`). |
 | `_toolchain_hook_installed(root)` | `True` when a SessionStart hook command in `.claude/settings.json` or `settings.local.json` mentions `TOOLCHAIN_HOOK_SCRIPT`. |
 | `_toolchain_hook_note(root)` | A note to merge `TOOLCHAIN_HOOK_EXAMPLE` when the script exists but the hook is not installed; otherwise `""`. researchteam never edits `settings.json`. |
+| `_hook_installed(root, event, script)` | `True` when a hook for `event` in `.claude/settings.json` or `settings.local.json` has a command that mentions `script`. Unreadable settings count as not installed. |
+| `term_registers(root)` | Every `terminology/terms.json` under `Projects/`, links not followed. A count for messages; the gate decides which is a real register. |
+| `_term_index_hook_installed(root)` | `True` when a `PostToolUse` hook command mentions `scripts/build_term_index.py`. |
+| `_term_index_hook_note(root)` | A note to merge `.claude/settings.terms.example.json` while the script exists, a register exists and the hook is not installed; otherwise `""`. |
 | `_scan_divergence(root)` / `_warn_scan_divergence(root)` | Lists (and warns on stderr about) brief fields whose absence lets native surfaces' repo scan give a different roster from copilot-vscode: `retrieval_integration` when it is missing, and `tools` when it is missing and a `_SCANNED_MANIFESTS` file exists. |
 | `_print_frozen_summary(root, dry_run)` | Prints `_drift.frozen_summary(root)`, the sections agentteams' shrink guard kept unchanged, per surface report. Skipped on a dry run. This is unrelated to frozen surfaces. |
 

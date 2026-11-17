@@ -1,6 +1,6 @@
 # `_doctor_cmd` — ResearchTeam
 
-Implementation of `researchteam doctor`, a health check for the researchteam ↔ agentteams toolchain. It checks that `agentteams` resolves, runs, and is not installed from a temporary path; reports the `toolchain.lock` pin and SessionStart wiring; reports whether `pandoc` and the scholarly integrity scripts are present; reports frozen surfaces and frozen fences; optionally checks seeded files and bridges; and checks that `brief.json` and `_build-description.json` together give `update` a complete descriptor. It was written to catch, before it causes an outage, a stale editable `agentteams` install whose finder points at a deleted temporary path.
+Implementation of `researchteam doctor`, a health check for the researchteam ↔ agentteams toolchain. It checks that `agentteams` resolves, runs, and is not installed from a temporary path; reports the `toolchain.lock` pin and SessionStart wiring; reports whether `pandoc` and the scholarly integrity scripts are present; reports on the term registers and their index; reports frozen surfaces and frozen fences; optionally checks seeded files and bridges; and checks that `brief.json` and `_build-description.json` together give `update` a complete descriptor. It was written to catch, before it causes an outage, a stale editable `agentteams` install whose finder points at a deleted temporary path.
 
 > *Source: `researchteam/_doctor_cmd.py`*
 
@@ -12,7 +12,9 @@ Implementation of `researchteam doctor`, a health check for the researchteam ↔
 
 | Name | Value | Purpose |
 |------|-------|---------|
-| `SCHOLARLY_CAPABILITY_SCRIPTS` | `("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh")` | Scholarly tooling check 5b reports on. |
+| `SCHOLARLY_CAPABILITY_SCRIPTS` | `("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh", TERM_INDEX_GATE)` | Scholarly tooling check 5b reports on. |
+| `TERM_INDEX_GATE` | `"scripts/check_term_index.py"` | The term-index gate that check 5c runs. |
+| `VALIDATE_COMMAND` | `"claude_researchteam_bridge.sh validate"` | The text check 5c looks for in a workflow to decide whether CI runs the bridge validator. |
 | `_EPHEMERAL_MARKERS` | `("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")` | Substrings that mark an `agentteams` source path as ephemeral. |
 
 ---
@@ -75,6 +77,14 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 **5b. Scholarly tooling** (`_check_scholarly_tooling`, always runs, informational). For each of `SCHOLARLY_CAPABILITY_SCRIPTS`, decided by `managed_files_for(<brief layer2_profile>)`:
 - OK: the script is present; or the profile does not manage it (`layer2_profile: "generic"`), so it is not expected.
 - WARN: the profile manages it but it is missing; run `researchteam update` to receive it.
+
+**5c. Term index** (`_check_term_index`, always runs, informational). Silent when `scripts/check_term_index.py` is absent (check 5b says whether it is expected).
+- Runs the gate (`scripts/check_term_index.py`, 120-second timeout, with `RT_ROOT` and `TERM_INDEX_ADVISORY` cleared) and relays its `Projects seen: …` summary with control characters removed. The gate, not doctor, decides how many registers there are and whether one is required.
+- WARN: the gate exits non-zero, or could not run; names the command to run for details. The remaining lines are still reported.
+- OK: the gate exits 0 and reports `registers checked: 0` ("no project has a term register yet"); nothing else in this check runs.
+- OK: the gate exits 0 with at least one register.
+- OK / WARN: whether `.claude/settings.json` or `.claude/settings.local.json` runs `scripts/build_term_index.py` after edits (`PostToolUse`) and at `SessionStart`. WARN asks the operator to merge `.claude/settings.terms.example.json`.
+- OK / WARN: whether a file under `.github/workflows/` runs `claude_researchteam_bridge.sh validate` on a line that is not a comment. WARN names `researchteam workflow-sync --workflow validate`.
 
 **6. Frozen surfaces** (`_check_frozen_surfaces`, always runs). Reads `frozen_surfaces` from `brief.json` and the set recorded in `.researchteam`.
 - FAIL: `brief.json` is unreadable, or `frozen_surfaces` is invalid; `researchteam update` refuses to run until it is fixed. The rest of this check is skipped.

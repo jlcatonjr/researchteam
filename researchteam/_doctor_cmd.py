@@ -7,6 +7,8 @@ a deleted temporary path.
 """
 
 import json
+import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -103,6 +105,9 @@ def run_doctor(root: Path, drift: bool = False) -> None:
 
     # --- 3c''. scholarly tooling capability (informational; profile-aware) ---------------
     _check_scholarly_tooling(root, ok, warn)
+
+    # --- term registers and their index (informational; never fails doctor) -------------
+    _check_term_index(root, ok, warn)
 
     # --- frozen surfaces (brief.json frozen_surfaces) -----------------------------------
     _check_frozen_surfaces(root, ok, warn, fail)
@@ -214,7 +219,7 @@ def _check_toolchain(root: Path, ok, warn) -> None:
     try:
         r = subprocess.run([sys.executable, str(script), "--python", sys.executable],
                            capture_output=True, text=True, timeout=60)
-        lines = [ln for ln in (r.stdout or "").splitlines() if ln.strip()]
+        lines = [_printable(ln) for ln in (r.stdout or "").splitlines() if ln.strip()]
     except (OSError, subprocess.TimeoutExpired) as exc:
         lines = [f"[toolchain] check could not run: {exc}"]
     for line in lines or ["[toolchain] (no output)"]:
@@ -241,8 +246,80 @@ def _check_pandoc(ok, warn) -> None:
     ok(f"{version} ({exe})")
 
 
+TERM_INDEX_GATE = "scripts/check_term_index.py"
+VALIDATE_COMMAND = "claude_researchteam_bridge.sh validate"
+
+
+def _workflow_runs_validate(root: Path) -> bool:
+    """Whether a workflow under .github/workflows/ runs the bridge validator (a line that is not a comment)."""
+    workflows = root / ".github" / "workflows"
+    if not workflows.is_dir():
+        return False
+    for path in sorted(workflows.glob("*.y*ml")):
+        try:
+            lines = path.read_text(encoding="utf-8").splitlines()
+        except (OSError, UnicodeDecodeError):
+            continue
+        if any(VALIDATE_COMMAND in line and not line.lstrip().startswith("#") for line in lines):
+            return True
+    return False
+
+
+def _printable(text: str) -> str:
+    """A line from a repository's own script, safe to show: control characters dropped."""
+    return "".join(c for c in text if c.isprintable())
+
+
+def _check_term_index(root: Path, ok, warn) -> None:
+    """Report on the term registers and their index. Informational: never fails doctor.
+
+    Silent where the gate script is absent: ``_check_scholarly_tooling`` already says whether it is expected.
+    The gate is the authority, on defects and on how many registers there are; this relays its summary line
+    and says whether the two triggers that keep an index current (the hooks, and a workflow that runs
+    ``validate``) are in place.
+    """
+    from ._update_cmd import (TERM_INDEX_HOOK_EXAMPLE, TERM_INDEX_HOOK_SCRIPT, TERM_INDEX_PROTOCOL,
+                              _hook_installed, _term_index_hook_installed)
+
+    gate = root / TERM_INDEX_GATE
+    if not gate.is_file():
+        return
+    env = {k: v for k, v in os.environ.items() if k not in ("RT_ROOT", "TERM_INDEX_ADVISORY")}
+    try:
+        r = subprocess.run([sys.executable, "-B", str(gate)], capture_output=True, text=True, timeout=120,
+                           cwd=root, env=env)
+        summary = next((ln for ln in (r.stdout or "").splitlines() if ln.startswith("Projects seen:")),
+                       "(no summary line)")
+        code = r.returncode
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        summary, code = f"the gate could not run ({type(exc).__name__})", 2
+    summary = _printable(summary)
+    counted = re.search(r"registers checked: (\d+)", summary)
+    if code != 0:
+        warn(f"term index: gate: {summary} — run: bash scripts/claude_researchteam_bridge.sh term-check")
+    elif counted and counted.group(1) == "0":
+        ok(f"term index: no project has a term register yet ({TERM_INDEX_PROTOCOL}).")
+        return
+    else:
+        ok(f"term index: gate: {summary}")
+    if not _term_index_hook_installed(root):
+        warn(f"term index: the rebuild hooks are not wired — merge {TERM_INDEX_HOOK_EXAMPLE} into "
+             ".claude/settings.json (operator step), or run term-build after editing.")
+    elif not _hook_installed(root, "SessionStart", TERM_INDEX_HOOK_SCRIPT):
+        warn("term index: the rebuild hook runs after edits but not at SessionStart, so edits made outside a "
+             f"session are not picked up when the next one starts (see {TERM_INDEX_HOOK_EXAMPLE}).")
+    else:
+        ok("term index: the rebuild hooks are wired (.claude/settings.json).")
+    if _workflow_runs_validate(root):
+        ok("term index: a workflow runs the bridge validator, so a stale index fails CI.")
+    else:
+        warn("term index: no workflow runs the bridge validator, so the gate depends on being run by hand — "
+             "`researchteam workflow-sync --workflow validate` adds a read-only one (opt-in).")
+
+
 # Capability scripts doctor reports on; they are expected only where the layer2_profile manages them.
-SCHOLARLY_CAPABILITY_SCRIPTS = ("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh")
+SCHOLARLY_CAPABILITY_SCRIPTS = ("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh",
+                                TERM_INDEX_GATE)
 
 
 def _check_scholarly_tooling(root: Path, ok, warn) -> None:

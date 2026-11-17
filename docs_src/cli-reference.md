@@ -110,17 +110,21 @@ Plain `update` merges with `--shrink-policy preserve` and will not re-brand enri
 ## `workflow-sync`
 
 ```
-researchteam workflow-sync [--yes] [--dry-run]
+researchteam workflow-sync [--workflow autosync|validate] [--yes] [--dry-run]
 ```
 
-Rewrites `.github/workflows/agentteams-sync.yml` from the installed researchteam's derived scaffold and keeps this repository's own top-level `on:` block, so its schedule stays as it is (#186). With no workflow present it writes the scaffold as shipped, whose weekly schedule is commented out. It prints a diff and asks before writing.
+Rewrites a workflow from the installed researchteam's scaffold and keeps this repository's own top-level `on:` block. It prints a diff and asks before writing.
+
+- `autosync` (the default) is `.github/workflows/agentteams-sync.yml`. Its schedule stays as the repository has it (#186). With no workflow present it writes the scaffold as shipped, whose weekly schedule is commented out.
+- `validate` is `.github/workflows/researchteam-validate.yml`, a read-only workflow that runs `bash scripts/claude_researchteam_bridge.sh validate` on pull requests and on pushes to `main`. It is opt-in: `init` does not install it and `update` never touches it. With it, the checks inside `validate`, the term-index gate among them, cannot be skipped.
 
 | Option | Effect |
 |--------|--------|
+| `--workflow autosync\|validate` | Which workflow. Default `autosync`. |
 | `--yes` | Write without asking. |
 | `--dry-run` | Show the diff only; write nothing. |
 
-It refuses a symlinked path, a non-regular file, and a workflow without a block-style top-level `on:` key. A workflow change gets the repository's own `@security` review.
+It refuses a symlinked path, a non-regular file, and a workflow without a block-style top-level `on:` key. For `validate` it also refuses an `on:` block that names `pull_request_target` or `workflow_run`. A workflow change gets the repository's own `@security` review.
 
 ---
 

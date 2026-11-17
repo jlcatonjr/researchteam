@@ -169,9 +169,13 @@ def main() -> None:
     # ---- workflow-sync -------------------------------------------------------
     wfsync_p = sub.add_parser(
         "workflow-sync",
-        help="Rewrite .github/workflows/agentteams-sync.yml from the installed scaffold, keeping this "
-        "repository's own `on:` block (its schedule stays as you have it)",
+        help="Rewrite a workflow from the installed scaffold, keeping this repository's own `on:` block: "
+        "the autosync workflow (default), or the opt-in validate workflow that runs the bridge validator "
+        "on pull requests",
     )
+    wfsync_p.add_argument("--workflow", choices=("autosync", "validate"), default="autosync",
+                          help="Which workflow: autosync (.github/workflows/agentteams-sync.yml, default) or "
+                          "validate (.github/workflows/researchteam-validate.yml, opt-in, read-only)")
     wfsync_p.add_argument("--yes", action="store_true", help="Write without asking")
     wfsync_p.add_argument("--dry-run", action="store_true", help="Show the diff only; write nothing")
 
@@ -233,7 +237,7 @@ def main() -> None:
     elif args.command == "workflow-sync":
         root = _find_repo_root(require_marker=True)
         from ._workflow_sync import run_workflow_sync
-        sys.exit(run_workflow_sync(root, yes=args.yes, dry_run=args.dry_run))
+        sys.exit(run_workflow_sync(root, yes=args.yes, dry_run=args.dry_run, which=args.workflow))
 
     elif args.command == "status":
         _cmd_status()

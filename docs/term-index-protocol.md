@@ -225,8 +225,9 @@ A run that found no register to check says `NOTHING CHECKED` and prints no pass 
 
 No layer is both immediate and impossible to skip, so they are layered. Layer 4 cannot be skipped where
 continuous integration runs `validate`. The upstream repository's test workflow does. **A derived
-repository has no such workflow unless its owner adds one.** There the gate is the local `validate` and
-the pre-compile `term-check`, both of which depend on being run.
+repository has no such workflow unless its owner adds one** (see "Adding the gate to a derived
+repository's CI"). Without it the gate is the local `validate` and the pre-compile `term-check`, both of
+which depend on being run.
 
 - **At initiate / develop.** Start the register with the research plan. Run `term-build` after editing
   when the hooks are not installed.
@@ -255,14 +256,21 @@ python3 -B scripts/check_term_index.py || exit 1
 
 ### Adding the gate to a derived repository's CI
 
-Add one step to a workflow that runs on pull requests, with a read-only token:
+`researchteam workflow-sync --workflow validate` writes `.github/workflows/researchteam-validate.yml`: a
+read-only workflow that runs the bridge validator on pull requests and on pushes to `main`. It is opt-in.
+`researchteam init` does not install it and `researchteam update` never touches it. Run again later, the
+command keeps the workflow's `on:` block as the repository has it. Give a new workflow the repository's
+own security review.
+
+A repository that already has a test workflow can add one step to it instead:
 
 ```yaml
 - name: Bridge validate
   run: bash scripts/claude_researchteam_bridge.sh validate
 ```
 
-Give a new workflow the repository's own security review.
+`researchteam doctor` says whether a workflow runs the validator and whether the hooks are wired, and
+`researchteam update` prints a reminder while a project has a register and the hooks are not wired.
 
 ## Upgrades and updates
 
@@ -283,7 +291,7 @@ Give a new workflow the repository's own security review.
 - It does not rewrite prose.
 - It does not share a register between projects.
 - It does not stem words beyond the simple plural.
-- It does not ship a CI workflow to derived repositories.
+- It does not install a CI workflow in a derived repository. The validate workflow is opt-in.
 
 ## Origin
 
