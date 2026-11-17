@@ -64,7 +64,10 @@ def package(path, repos):
     return out
 
 
-def apply(path, repos, change_dir, new_sha="abc1234", sensitive="false", head=None):
+SHA = "ab12ab12ab12ab12ab12ab12ab12ab12ab12ab12"
+
+
+def apply(path, repos, change_dir, new_sha=SHA, sensitive="false", head=None):
     _gate, fresh, tmp = repos
     output = tmp / "output"
     output.write_text("")
@@ -145,7 +148,7 @@ def test_a_change_round_trips_from_the_gate_job_to_the_write_job(path, repos):
     assert r.returncode == 0, r.stdout + r.stderr
     assert (fresh / "docs" / "a.md").read_text() == "three\n" and not (fresh / "docs" / "gone.md").exists()
     assert (fresh / "docs" / "new.bin").read_bytes() == bytes(range(256))
-    assert out["new_sha"] == "abc1234" and out["sensitive"] == "false"
+    assert out["new_sha"] == SHA and out["sensitive"] == "false"
     body = Path(out["body"]).read_text()
     assert "ran no integrated code" in body and body.rstrip().endswith("gate text") and "[!WARNING]" not in body
 
@@ -178,6 +181,25 @@ def test_a_name_with_a_line_break_is_sensitive(path, repos):
     r, out = apply(path, repos, package(path, repos), sensitive="false")
     assert r.returncode == 0, r.stdout + r.stderr
     assert out["sensitive"] == "true" and "line break in its name" in Path(out["body"]).read_text()
+
+
+@both
+def test_a_name_ending_in_line_breaks_is_sensitive(path, repos):
+    """The names are counted from the listing itself: `$(...)` drops trailing line breaks."""
+    gate, _fresh, _tmp = repos
+    (gate / "docs" / "a.md\n\n").write_text("x\n")
+    r, out = apply(path, repos, package(path, repos), sensitive="false")
+    assert r.returncode == 0, r.stdout + r.stderr
+    assert out["sensitive"] == "true"
+
+
+@both
+def test_no_expression_is_expanded_inside_a_gate_job_script(path):
+    for step in _jobs(path)["autosync"]["steps"]:
+        if step.get("id") in ("gate",) or step.get("name") == PACKAGE:
+            assert "${{" not in step["run"], step.get("name")
+    gate = next(s for s in _jobs(path)["autosync"]["steps"] if s.get("id") == "gate")
+    assert gate["env"]["FORCE_INPUT"] == "${{ inputs.force }}" and gate["env"]["EVENT_NAME"] == "${{ github.event_name }}"
 
 
 @both
@@ -244,9 +266,10 @@ def test_a_long_body_is_cut_not_refused(path, repos):
 
 
 @both
-@pytest.mark.parametrize("new_sha,sensitive", [("abc123", "false"), ("abc1234; id", "false"), ("ABC1234", "false"),
-                                               ("", "false"), ("abc1234", ""), ("abc1234", "TRUE"),
-                                               ("abc1234\nx=1", "false")])
+@pytest.mark.parametrize("new_sha,sensitive", [("abc1234", "false"), (SHA[:39], "false"), (SHA + "a", "false"),
+                                               (SHA[:33] + "; id", "false"), (SHA.upper(), "false"), ("", "false"),
+                                               (SHA, ""), (SHA, "TRUE"), (SHA + "\nx=1", "false")],
+                         ids=["short", "39", "41", "shell", "upper", "empty", "no-flag", "TRUE", "second-line"])
 def test_bad_gate_outputs_are_refused(path, repos, new_sha, sensitive):
     r, out = apply(path, repos, package(path, repos), new_sha=new_sha, sensitive=sensitive)
     assert r.returncode == 1 and "::error::autosync open_pr:" in r.stdout and out == {}

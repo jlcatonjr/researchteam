@@ -209,7 +209,10 @@ def run_workflow_sync(root: Path, yes: bool = False, dry_run: bool = False, whic
         try:
             answer = input("Apply? [y/N] ").strip().lower()
         except EOFError:
-            answer = ""
+            # No terminal to answer from (a script, a pipe, CI). Say so: "Not applied." alone reads as a choice.
+            print(f"\n[researchteam] workflow-sync: no answer on standard input, so {workflow} was not "
+                  "written. Run it in a terminal, or pass --yes to apply without asking.", file=sys.stderr)
+            return 1
         if answer != "y":
             print("[researchteam] Not applied.")
             return 1

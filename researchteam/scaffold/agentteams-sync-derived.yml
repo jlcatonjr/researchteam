@@ -176,6 +176,9 @@ jobs:
         env:
           AUTOSYNC_PR_BODY_FILE: ${{ runner.temp }}/autosync-pr-body.md
           AUTOSYNC_EVERGREEN_PR_OPEN: ${{ needs.evergreen_pr.outputs.open }}
+          # Through env, not written into the script: no expression is expanded inside a shell line (#205).
+          EVENT_NAME: ${{ github.event_name }}
+          FORCE_INPUT: ${{ inputs.force }}
         run: |
           # If the managed gate script has not synced into this repo yet, do a one-time layer-2 sync
           # to fetch it, then run it.
@@ -187,7 +190,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
           FORCE_FLAG=""
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.force }}" = "true" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$FORCE_INPUT" = "true" ]; then
             FORCE_FLAG="--force"
           fi
           bash scripts/agentteams_autosync_gate.sh --mode derived $FORCE_FLAG
@@ -256,7 +259,7 @@ jobs:
           fail() { echo "::error::autosync open_pr: $1"; exit 1; }
           export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1
           # A whole-string match: a line-based grep would pass a value with a second line, which could set an output.
-          [[ "$NEW_SHA" =~ ^[0-9a-f]{7,40}$ ]] || fail "new_sha is not 7 to 40 hex characters"
+          [[ "$NEW_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "new_sha is not a full commit id (40 hex characters)"
           case "$GATE_SENSITIVE" in true|false) ;; *) fail "sensitive is neither true nor false" ;; esac
           [ "$(git rev-parse HEAD)" = "$EXPECTED_HEAD" ] || fail "the checkout is not the commit the gate ran on"
           git symbolic-ref -q HEAD >/dev/null || fail "the checkout is not on a branch, so no PR can be opened from it"
@@ -314,7 +317,7 @@ jobs:
           fi
           # A name with a line break in it splits into two lines above, and a rule that matches the end of a
           # name could then miss it. No update needs such a name, so it is treated as sensitive.
-          if [ "$(tr -cd '\0' < "$listing.names" | wc -c | tr -d ' ')" != "$(printf '%s' "$staged" | grep -c '' || true)" ]; then
+          if [ "$(tr -cd '\0' < "$listing.names" | wc -c | tr -d ' ')" != "$(tr '\0' '\n' < "$listing.names" | wc -l | tr -d ' ')" ]; then
             found="$(printf '%s\n%s\n' "$found" "(a changed path has a line break in its name)" | sed '/^$/d')"
           fi
           if [ -n "$found" ]; then sensitive=true; fi
