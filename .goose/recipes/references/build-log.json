@@ -7,7 +7,7 @@
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-17T04:54:34.112654+00:00",
+  "generated_at": "2026-11-17T12:02:51.290530+00:00",
   "project_name": "ResearchTeam",
   "framework": "goose",
   "project_type": "research",
@@ -531,16 +531,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "594dfffe9d3b72e5",
+  "manifest_fingerprint": "c96d2d3bd43baaf0",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "c81ec5bf1bdb7967",
-    "references/security-vulnerability-watch.json": "be38de1b4766372a",
-    "security.yaml": "e14e2c25e62b85b9",
+    "references/security-vulnerability-watch.json": "7d32a70fd49c01e8",
+    "security.yaml": "03e49018e5cd9a5b",
     "references/ref-pandoc-reference.md": "441afe924858a440",
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "c81ec5bf1bdb7967",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -701,7 +701,7 @@
       "output_format": "a15951d79a700a498c1ce3eeda68c4c05e62937869a967a89387eda544c66474"
     },
     ".goose/recipes/security.yaml": {
-      "threat_intelligence": "af942b04cced56c9173f938be763c1c1f3a2cb1a6f9aa3709fb74b05474cec13",
+      "threat_intelligence": "d31e818c7badbc4c600c23d9d63f7bae2c347f891672d1bb01346dca28ea0d9d",
       "security_verdict_contract": "fb08967379300b925085e84ba199f412171139dc5df667b53c4783b54bb3c8e5",
       "security_authority": "0531270524aaf3b4e9b6391a6e4cd30b804e96fa610419b9d820f1d0a70d1ae2",
       "invariant_core": "261698fd146e5c0234b49d1cdc195a7025cae1b1190fbe47cd80cc40f0492a37",

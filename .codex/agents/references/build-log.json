@@ -7,7 +7,7 @@
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-17T04:55:12.139416+00:00",
+  "generated_at": "2026-11-17T12:03:34.677126+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -531,12 +531,12 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "17b50b002dd0b39d",
+  "manifest_fingerprint": "f40577e3243e4fb9",
   "fingerprint_algo_version": 1,
   "file_hashes": {
+    "references/security-vulnerability-watch.json": "b1c4bbe5ec87e61b",
+    "security.toml": "386bd68a8ca099a7",
     "references/security-vulnerability-watch.reference.md": "9c761430af8d697a",
-    "references/security-vulnerability-watch.json": "ae729216a47b299e",
-    "security.toml": "6e1a2a7ff54cb2c0",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "704b36d40ec9c116",
     "navigator.toml": "3519e944e8f26d47",
@@ -738,7 +738,7 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "8506bb58c350e4ae1ff36be23cac11923f31be02c6b7c0d7dd7f6b8ff559ebbf",
+      "threat_intelligence": "ca133fff41a6dc0812ca53347d3d930d9a617186e319f853fd052a5f812f9de0",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
