@@ -139,7 +139,9 @@ accepted `DEFENDED`), and was excluded from the baseline then.
      caches and artifacts, and a job cannot give that token up. Integrated code could therefore save a cache
      entry under a key another workflow restores. So in any workflow with `contents: write`, another write
      permission, or a secret: no `actions/cache`, and no `cache:` input on a `setup-*` action. `open_pr`
-     restores none. A read-only workflow may keep its cache.
+     restores none. A read-only workflow may keep its cache only if nothing relies on its result for a merge,
+     a release or a publication: a required check or a docs build that restores a poisoned cache is misled
+     just the same.
    - If the branch moves between the two jobs, create-pull-request puts the commit on the branch's newer
      tip. `open_pr` checked the patch against the gate's commit, so the PR's own diff, which GitHub shows
      against the real base, is what the reviewer goes by.

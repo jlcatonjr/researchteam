@@ -19,8 +19,9 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     uses) now names the interpreter that cannot import researchteam and says to run with the project
     environment.
   - `docs/agentteams-update-policy.md` states a rule for every repository that runs autosync: a workflow that
-    holds a write token or a secret restores no cache. The read-only gate job can still write Actions caches,
-    and no code change here can take that away.
+    holds a write token or a secret restores no cache, and neither does a read-only one whose result gates a
+    merge, a release or a publication. The read-only gate job can still write Actions caches, and no code
+    change here can take that away.
   - A derived repository takes the workflow change with `researchteam workflow-sync` and its own `@security`
     review.
 

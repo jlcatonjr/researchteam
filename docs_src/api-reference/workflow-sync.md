@@ -11,7 +11,7 @@ Implementation of `researchteam workflow-sync` (#186). It brings one of a derive
 - The autosync workflow is written at `init` and otherwise only by this command. The validate workflow is written only by this command, when asked for. `researchteam update` and the autosync gate never touch `.github/workflows/`.
 - Everything except the top-level `on:` block comes from the scaffold. The `on:` block is kept: schedule present, absent or commented out.
 - With no workflow present, the scaffold is written as shipped. For autosync, its weekly schedule is commented out, so autosync runs only when dispatched until the repository turns it on.
-- A unified diff is shown first; the command asks before writing unless `--yes` is given, and `--dry-run` writes nothing.
+- A unified diff is shown first; the command asks before writing unless `--yes` is given, and `--dry-run` writes nothing. With no answer on standard input (a script, a pipe, CI) it writes nothing, says so on stderr and exits 1.
 - It refuses a symlinked workflow or parent directory, a non-regular file, a non-UTF-8 file, a file without exactly one block-style top-level `on:` key (for example `on: [push]`), and any column-0 content inside the `on:` block other than comments (a `---` marker, a `- ` item, a `?` key), which would otherwise be carried into the merged file.
 - The write goes through a new temporary file (`O_EXCL | O_NOFOLLOW`) and `os.replace`, so it never follows a link. A regular temp file left by an interrupted run is removed first; a temp path that is a link or directory is refused. An existing workflow's permission bits are kept.
 

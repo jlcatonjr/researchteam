@@ -196,10 +196,16 @@ def test_a_name_ending_in_line_breaks_is_sensitive(path, repos):
 @both
 def test_no_expression_is_expanded_inside_a_gate_job_script(path):
     for step in _jobs(path)["autosync"]["steps"]:
-        if step.get("id") in ("gate",) or step.get("name") == PACKAGE:
+        if step.get("id") == "gate" or step.get("name") == PACKAGE:
             assert "${{" not in step["run"], step.get("name")
+
+
+@both
+def test_the_gate_step_reads_force_and_the_event_from_env(path):
     gate = next(s for s in _jobs(path)["autosync"]["steps"] if s.get("id") == "gate")
-    assert gate["env"]["FORCE_INPUT"] == "${{ inputs.force }}" and gate["env"]["EVENT_NAME"] == "${{ github.event_name }}"
+    assert gate["env"]["FORCE_INPUT"] == "${{ inputs.force }}"
+    assert gate["env"]["EVENT_NAME"] == "${{ github.event_name }}"
+    assert '[ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$FORCE_INPUT" = "true" ]' in gate["run"]
 
 
 @both
