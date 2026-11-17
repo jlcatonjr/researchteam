@@ -342,10 +342,10 @@ Later, in #195 (plan `term-index-followups-2026-11-16`): the workflow for derive
 the `doctor` check and `update` reminder for the hook (F-20, C31), which parts 1 and 2 above record as
 deferred.
 
-Added afterwards, on the branch `docs/term-index-decision`: six rows in
-`.github/agents/references/conflict-log.csv`, and a decision spec
-(`docs/release/term-index-2026-11.decision-spec.json`) that the operator signs into
-`security-decisions.log.csv` with their own key. The signer refuses a row that names `CLAUDE.md` as a
-target, so the signed row leaves the Working Rule 8 edit out; that verdict is recorded in the PR #193
-comment, and part 6 records the PASS at 144799e.
+Added afterwards, in PR #197: a decision spec (`docs/release/term-index-2026-11.decision-spec.json`), which
+the operator signed into `security-decisions.log.csv` with their own key at 8548636. The signer refuses a
+row that names `CLAUDE.md` as a target, so the signed row leaves the Working Rule 8 edit out; that verdict
+is recorded in the PR #193 comments, and part 6 records the PASS at 144799e. No rows were added to
+`conflict-log.csv`: `tests/test_conflict_log.py` requires that file to hold only its header, so the
+consistency-check findings stay in this file.
 

@@ -12,7 +12,7 @@ Operator choice (2026-11-16, picker in this session): proceed with all four next
    `validate` on pull requests and on pushes to `main`, read-only. Opt-in: written only by
    `researchteam workflow-sync --workflow validate`. `init` does not install it and `update` never
    touches it.
-4. **Decision-log handoff.** A decision spec for the #193 review and an operator script that signs the row,
+4. **Decision-log handoff.** A decision spec for the #193, #195 and #196 reviews and an operator script that signs the row,
    on its own branch, following the earlier signed rows. The session commits the signed row and merges it.
 
 Steps 2 and 3 go in one PR. It touches the workflow scaffold, so `@security` names
