@@ -342,7 +342,10 @@ Later, in #195 (plan `term-index-followups-2026-11-16`): the workflow for derive
 the `doctor` check and `update` reminder for the hook (F-20, C31), which parts 1 and 2 above record as
 deferred.
 
-Not done by the agent session: rows in `.github/agents/references/security-decisions.log.csv` and
-`conflict-log.csv`. Those files sit under `.github/agents/`, and decision rows need the operator's keys.
-The verdicts are in the PR #193 comment and in this file.
+Added afterwards, on the branch `docs/term-index-decision`: six rows in
+`.github/agents/references/conflict-log.csv`, and a decision spec
+(`docs/release/term-index-2026-11.decision-spec.json`) that the operator signs into
+`security-decisions.log.csv` with their own key. The signer refuses a row that names `CLAUDE.md` as a
+target, so the signed row leaves the Working Rule 8 edit out; that verdict is in the PR #193 comment and in
+this file.
 
