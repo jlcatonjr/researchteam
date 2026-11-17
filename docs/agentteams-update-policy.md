@@ -227,9 +227,11 @@ record goes depends on the release (`docs/release-policy.md`, "Pins"):
 - **A release of a first-party toolchain-group member** (agentteams, researchteam, baseAgent, mathAgents, in a
   workspace the operator-signed group file lists): no decision-log row. The record is the repository's own
   `@security` review in the pin-move PR, which names the tag object and the peeled SHA and records the
-  known-vulnerability search. It is a record of a review, not an authorization, and nothing is signed for it.
-- **Any other pin move**, or a member move once the group file no longer verifies: a row in the decisions
-  log. In a repository with decision signing on, that row is an authorization and the operator signs it.
+  known-vulnerability search. It is a record of a review, not an authorization: no decision row is signed for
+  it, but the tag must still verify as the operator's signed release (`agentteams --verify-toolchain-pin`) and
+  the latest-stable rule still applies.
+- **Any other pin move**, or a member move once the group file no longer verifies or an unretracted HALT on
+  `s10-toolchain-group` stands: a row in the decisions log. In a repository with decision signing on, that row is an authorization and the operator signs it.
 
 ## Derived Repositories: what an update means, and a paused schedule
 
