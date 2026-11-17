@@ -34,6 +34,15 @@ workflows.
   - A derived repository takes the workflow change with `researchteam workflow-sync` and its own `@security`
     review.
 
+- **Docs: where a pin move is recorded; Working Rule 8 without a managed block.** Two points raised by derived
+  repositories moving to v1.1.8. No rule changes.
+  - `docs/agentteams-update-policy.md` now says where the record of a pin move goes. For a release of a
+    first-party toolchain-group member it is the repository's own `@security` review in the pin-move PR: no
+    decision-log row, and no decision row is signed; the signed-tag check still applies. For any other move it is a row in the decisions log, which the
+    operator signs where decision signing is on. This restates `docs/release-policy.md`, "Pins".
+  - `docs/term-index-protocol.md` now says that a repository whose root `CLAUDE.md` has no `researchteam:managed`
+    block does not receive Working Rule 8, and how to add it.
+
 ## 1.1.8 (tag `v1.1.8`, on `release/1.1`)
 
 A release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). It is numbered as a patch release
