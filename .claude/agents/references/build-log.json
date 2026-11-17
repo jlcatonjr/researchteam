@@ -7,7 +7,7 @@
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-17T04:53:56.126288+00:00",
+  "generated_at": "2026-11-17T12:02:05.227407+00:00",
   "project_name": "ResearchTeam",
   "framework": "claude",
   "project_type": "research",
@@ -531,14 +531,14 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "5d030ed2eb97fa02",
+  "manifest_fingerprint": "acdd2be0450c069d",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.reference.md": "c97517b761a689ad",
-    "references/security-vulnerability-watch.json": "1921026d12ccc48c",
-    "security.md": "73b52484303302f9",
+    "references/security-vulnerability-watch.json": "6674e9ea851da784",
+    "security.md": "0800e2672bb423f3",
     "references/code-hygiene-rules.reference.md": "e3b2626d4ecd06f5",
     "references/unix-philosophy-mapping.reference.md": "1c17df4a08712e1a",
+    "references/security-vulnerability-watch.reference.md": "c97517b761a689ad",
     "references/framework-watch.reference.md": "21a796552c902998",
     "references/adjacent-repos.md": "9b88cb119c4a99e6",
     "references/github-workflows-merge.reference.md": "0f4f56c13205baf5",
@@ -871,7 +871,7 @@
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
       "security_rules_invariant": "c91aae66fc4c166bc858a8a66d5b8faa087372249d47d911db57fc8f6c284e69",
-      "threat_intelligence": "36cb01ec9d124ff3ec0667e9992809d24737a68abe609010e038d4547fa0626d",
+      "threat_intelligence": "0dbfb2e6b5d4f2417d7d3628ad52c16a49b85ebf6f143bde3bfb47e576a944d8",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501"
     },
     ".claude/agents/team-builder.md": {

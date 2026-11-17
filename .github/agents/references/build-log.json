@@ -7,7 +7,7 @@
     "branch": null,
     "dirty": false
   },
-  "generated_at": "2026-11-17T04:53:18.072419+00:00",
+  "generated_at": "2026-11-17T12:01:22.213076+00:00",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
   "project_type": "research",
@@ -531,12 +531,11 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "3c0001be6a3d74d3",
+  "manifest_fingerprint": "978fa19ffe67da55",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "security.agent.md": "867ccacd61415ebc",
-    "references/security-vulnerability-watch.reference.md": "c81ec5bf1bdb7967",
-    "references/security-vulnerability-watch.json": "b03b9330af089840",
+    "security.agent.md": "6fabdd31d5fa5177",
+    "references/security-vulnerability-watch.json": "0570f163391ce801",
     "references/pipeline-graph.md": "468377b007e20f44",
     "references/pipeline-graph.svg": "9bc9066885357454",
     "orchestrator.agent.md": "bc74447f3e7840c0",
@@ -566,6 +565,7 @@
     "references/ref-bibtex-reference.md": "1579b6fb438fcdae",
     "references/code-hygiene-rules.reference.md": "6e6215782f3c0ef3",
     "references/unix-philosophy-mapping.reference.md": "6292c05a2ffa8520",
+    "references/security-vulnerability-watch.reference.md": "c81ec5bf1bdb7967",
     "references/security-linux-hardening.reference.md": "0c87bb8f0ab668a3",
     "references/security-macos-hardening.reference.md": "4bdbb597120dd7d0",
     "references/security-windows-hardening.reference.md": "3163dae31f352fbc",
@@ -936,7 +936,7 @@
       "output_format": "e4df9c1a28d1b6e98e6b5f32314f029582dbc702862314bac792b4a4b998dfab"
     },
     ".github/agents/security.agent.md": {
-      "threat_intelligence": "7137114b851b32e130176b914338c1b0198c6b67d3c1d7cf63e1a4fe9287b2fc",
+      "threat_intelligence": "98b7f52bc6c162e1910780503002f848924b0d02958e1b1546d2aa5a51baf712",
       "security_verdict_contract": "e17bc133696fef7e7aaa86af1023b9ad979f3f6cd87d853af62c8e019efff501",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
       "invariant_core": "ff22ac3ecdf1e94935ebec4ef2960946be13a0362b416ada020c97065d6e8f87",
