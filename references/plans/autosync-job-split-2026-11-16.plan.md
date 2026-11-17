@@ -72,6 +72,16 @@ output. The check is now a whole-string match, with a test.
   `scripts/validate_agentteams_update.sh`; the summary's open item for #182; "in-job" wording in the gate's
   PR text and the policy; the "no renames" wording in the term-index protocol.
 
+## After the merge (PR #199, `6c718bd`)
+
+- `@security` PASS at `08275eb` (both required fixes confirmed), then the merge.
+- **First real run, 44018857918 (`workflow_dispatch`, `force=true`): failed closed.** `evergreen_pr` and
+  `autosync` passed, the artifact was handed over and `open_pr`'s check step passed. create-pull-request
+  refused to run on a detached HEAD, because the checkout named `github.sha`. Nothing was pushed.
+- **Follow-up PR.** The checkout takes the default ref (the run's branch at the run's commit); the check
+  step also requires HEAD to be on a branch; a changed path with a line break in its name is treated as
+  sensitive; three wording notes from the closing check. The run is repeated after that merge.
+
 ## Not changed
 
 The gate script's logic (one line of its PR text and one comment in `validate_agentteams_update.sh` were reworded), the `on:` block that `workflow-sync` preserves, and what a derived repository must do to
