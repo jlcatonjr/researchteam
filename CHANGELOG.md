@@ -5,6 +5,15 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.1.9 (tag `v1.1.9`, on `release/1.1`)
+
+A patch release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). Derived repositories take it
+with `researchteam update --ref v1.1.9`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.1.9 --tag agentteams=v1.1.4`. To take the
+workflow change, run `researchteam workflow-sync` (it keeps the repository's own `on:` block; add `--yes` where
+there is no terminal to answer from) and give the result the repository's own `@security` review. Read the cache rule below against the repository's other
+workflows.
+
 - **Autosync and `workflow-sync`: small hardening (#205).** From this repository's `@security` reviews of #182
   and from derived repositories that took v1.1.8. No behaviour changes for a normal run.
   - `open_pr` now requires the gate's `new_sha` to be a full commit id (40 hex characters). The gate always
