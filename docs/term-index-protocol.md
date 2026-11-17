@@ -4,6 +4,12 @@ This is the single authoritative procedure for defining a project's terms and in
 `CLAUDE.md`, the preflight checklist, the research-report prompt and the bridge reference point here. The
 finding codes are defined in this document and nowhere else.
 
+The pointer in `CLAUDE.md` is Working Rule 8, which sits in that file's `researchteam:managed` block. A
+repository whose root `CLAUDE.md` has no such block does not receive the rule: `researchteam update --yes`
+keeps an unmarked `CLAUDE.md` as it is. Run `researchteam update` interactively there and approve appending
+the managed block (every existing line is kept), or copy Working Rule 8 into the file by hand. Until then
+this protocol still applies in full; only the reminder in `CLAUDE.md` is missing.
+
 ## What it is
 
 Each research project keeps three things under `<project>/terminology/`:
