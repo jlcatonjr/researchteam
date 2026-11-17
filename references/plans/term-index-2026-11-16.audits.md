@@ -346,6 +346,6 @@ Added afterwards, on the branch `docs/term-index-decision`: six rows in
 `.github/agents/references/conflict-log.csv`, and a decision spec
 (`docs/release/term-index-2026-11.decision-spec.json`) that the operator signs into
 `security-decisions.log.csv` with their own key. The signer refuses a row that names `CLAUDE.md` as a
-target, so the signed row leaves the Working Rule 8 edit out; that verdict is in the PR #193 comment and in
-this file.
+target, so the signed row leaves the Working Rule 8 edit out; that verdict is recorded in the PR #193
+comment, and part 6 records the PASS at 144799e.
 
