@@ -8,6 +8,7 @@ a deleted temporary path.
 
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -218,7 +219,7 @@ def _check_toolchain(root: Path, ok, warn) -> None:
     try:
         r = subprocess.run([sys.executable, str(script), "--python", sys.executable],
                            capture_output=True, text=True, timeout=60)
-        lines = [ln for ln in (r.stdout or "").splitlines() if ln.strip()]
+        lines = [_printable(ln) for ln in (r.stdout or "").splitlines() if ln.strip()]
     except (OSError, subprocess.TimeoutExpired) as exc:
         lines = [f"[toolchain] check could not run: {exc}"]
     for line in lines or ["[toolchain] (no output)"]:
@@ -264,22 +265,24 @@ def _workflow_runs_validate(root: Path) -> bool:
     return False
 
 
+def _printable(text: str) -> str:
+    """A line from a repository's own script, safe to show: control characters dropped."""
+    return "".join(c for c in text if c.isprintable())
+
+
 def _check_term_index(root: Path, ok, warn) -> None:
     """Report on the term registers and their index. Informational: never fails doctor.
 
     Silent where the gate script is absent: ``_check_scholarly_tooling`` already says whether it is expected.
-    The gate itself is the authority on defects; this only relays its summary and says whether the two
-    triggers that keep an index current (the hooks, and a workflow that runs ``validate``) are in place.
+    The gate is the authority, on defects and on how many registers there are; this relays its summary line
+    and says whether the two triggers that keep an index current (the hooks, and a workflow that runs
+    ``validate``) are in place.
     """
     from ._update_cmd import (TERM_INDEX_HOOK_EXAMPLE, TERM_INDEX_HOOK_SCRIPT, TERM_INDEX_PROTOCOL,
-                              _hook_installed, _term_index_hook_installed, term_registers)
+                              _hook_installed, _term_index_hook_installed)
 
     gate = root / TERM_INDEX_GATE
     if not gate.is_file():
-        return
-    count = len(term_registers(root))
-    if not count:
-        ok(f"term index: no project has a term register yet ({TERM_INDEX_PROTOCOL}).")
         return
     env = {k: v for k, v in os.environ.items() if k not in ("RT_ROOT", "TERM_INDEX_ADVISORY")}
     try:
@@ -290,11 +293,15 @@ def _check_term_index(root: Path, ok, warn) -> None:
         code = r.returncode
     except (OSError, subprocess.TimeoutExpired) as exc:
         summary, code = f"the gate could not run ({type(exc).__name__})", 2
-    if code == 0:
-        ok(f"term index: {count} register file(s); gate: {summary}")
+    summary = _printable(summary)
+    counted = re.search(r"registers checked: (\d+)", summary)
+    if code != 0:
+        warn(f"term index: gate: {summary} — run: bash scripts/claude_researchteam_bridge.sh term-check")
+    elif counted and counted.group(1) == "0":
+        ok(f"term index: no project has a term register yet ({TERM_INDEX_PROTOCOL}).")
+        return
     else:
-        warn(f"term index: {count} register file(s); gate: {summary} — run: "
-             "bash scripts/claude_researchteam_bridge.sh term-check")
+        ok(f"term index: gate: {summary}")
     if not _term_index_hook_installed(root):
         warn(f"term index: the rebuild hooks are not wired — merge {TERM_INDEX_HOOK_EXAMPLE} into "
              ".claude/settings.json (operator step), or run term-build after editing.")

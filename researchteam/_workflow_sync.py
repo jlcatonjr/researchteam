@@ -2,15 +2,19 @@
 
 Two workflows are known (``WORKFLOWS``). ``autosync`` is the one ``init`` installs and the default.
 ``validate`` is opt-in: a read-only workflow that runs the bridge validator on pull requests, so the checks
-inside ``validate`` (the term-index gate among them) cannot be skipped. What follows describes both.
+inside ``validate`` (the term-index gate among them) cannot be skipped. What follows describes both, except
+where it names one.
 
-The workflow is written at ``init`` and otherwise only by this command; ``update`` never touches ``.github/workflows/``. A whole-file copy of the
-scaffold would also replace the repository's trigger section, which can turn a weekly schedule on (or off) without
-anyone deciding to. This command takes everything from the scaffold **except the top-level** ``on:`` **block**,
-which it keeps exactly as the repository has it: schedule present, absent or commented out.
+The autosync workflow is written at ``init`` and otherwise only by this command; the validate workflow is
+written only by this command. ``update`` never touches ``.github/workflows/``. A whole-file copy of a scaffold
+would also replace the repository's trigger section, which for autosync can turn a weekly schedule on (or off)
+without anyone deciding to. This command takes everything from the scaffold **except the top-level** ``on:``
+**block**, which it keeps exactly as the repository has it.
 
-With no workflow present it writes the scaffold as shipped (schedule commented out, so autosync runs only when
-dispatched). It shows a unified diff and asks before writing unless ``--yes`` is given; ``--dry-run`` writes
+With no workflow present it writes the scaffold as shipped (for autosync, the schedule is commented out, so it
+runs only when dispatched). For the validate workflow it refuses to keep an ``on:`` block that names
+``pull_request_target`` or ``workflow_run``: either would run a fork's scripts with more than a read-only token.
+It shows a unified diff and asks before writing unless ``--yes`` is given; ``--dry-run`` writes
 nothing. It refuses a symlink, a non-regular or non-UTF-8 file, a file without exactly one block-style top-level
 ``on:`` key, and column-0 content other than comments inside that block. It never writes through a link.
 """
@@ -21,17 +25,30 @@ import os
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 WORKFLOW = ".github/workflows/agentteams-sync.yml"
 SCAFFOLD = "agentteams-sync-derived.yml"
-# name -> (path in the repository, packaged scaffold, what an absent workflow gets). The first is the default.
+
+
+class Workflow(NamedTuple):
+    """One workflow this command knows: where it lives, its packaged scaffold, and what an absent one gets."""
+    path: str
+    scaffold: str
+    when_absent: str
+
+
+# The first entry is the default.
 WORKFLOWS = {
-    "autosync": (WORKFLOW, SCAFFOLD,
-                 "Its weekly schedule is commented out, so autosync runs only when dispatched until you enable it."),
-    "validate": (".github/workflows/researchteam-validate.yml", "researchteam-validate-derived.yml",
-                 "It is read-only and runs `bash scripts/claude_researchteam_bridge.sh validate` on pull requests "
-                 "and on pushes to main."),
+    "autosync": Workflow(WORKFLOW, SCAFFOLD, "Its weekly schedule is commented out, so autosync runs only when "
+                         "dispatched until you enable it."),
+    "validate": Workflow(".github/workflows/researchteam-validate.yml", "researchteam-validate-derived.yml",
+                         "It is read-only and runs `bash scripts/claude_researchteam_bridge.sh validate` on pull "
+                         "requests and on pushes to main."),
 }
+# Triggers that hand a workflow more than a fork's read-only token. The validate workflow runs the scripts of
+# the commit under test, so it must never run on one of these.
+PRIVILEGED_TRIGGERS = ("pull_request_target", "workflow_run")
 
 # A top-level ``on`` key: ``on:``, ``"on":`` or ``'on':``, optionally followed by a comment.
 _ON_KEY = re.compile(r"""^(on|"on"|'on')\s*:\s*(#.*)?$""")
@@ -88,9 +105,27 @@ def load_scaffold(name: str = SCAFFOLD) -> str:
     return (importlib.resources.files("researchteam") / "scaffold" / name).read_text(encoding="utf-8")
 
 
+def _known(which: str) -> Workflow:
+    if which not in WORKFLOWS:
+        raise ValueError(f"unknown workflow {which!r}; one of: {', '.join(WORKFLOWS)}")
+    return WORKFLOWS[which]
+
+
+def _refuse_privileged_triggers(existing: str) -> None:
+    """Refuse an ``on:`` block that would run the validate job with more than a read-only token."""
+    lines = existing.splitlines()
+    start, end = on_block(existing)
+    used = [t for t in PRIVILEGED_TRIGGERS
+            if any(re.match(rf"\s+['\"]?{t}['\"]?\s*:", ln) or re.fullmatch(rf"\s*-\s*['\"]?{t}['\"]?\s*", ln)
+                   for ln in lines[start:end])]
+    if used:
+        raise WorkflowSyncError(f"its `on:` block uses {', '.join(used)}, which would run the scripts of an "
+                                "untrusted commit with a privileged token; remove that trigger first")
+
+
 def plan(root: Path, scaffold: str | None = None, which: str = "autosync") -> tuple[str | None, str]:
     """``(current, proposed)`` for ``root``; ``current`` is None when no workflow exists yet."""
-    workflow, scaffold_name, _ = WORKFLOWS[which]
+    workflow, scaffold_name, _ = _known(which)
     scaffold = load_scaffold(scaffold_name) if scaffold is None else scaffold
     path = root / workflow
     if path.is_symlink():
@@ -108,12 +143,14 @@ def plan(root: Path, scaffold: str | None = None, which: str = "autosync") -> tu
     except UnicodeDecodeError as exc:
         raise WorkflowSyncError(f"{workflow} is not UTF-8 text ({exc.reason}).") from exc
     try:
+        if which == "validate":
+            _refuse_privileged_triggers(current)
         return current, merge(scaffold, current)
     except WorkflowSyncError as exc:
         raise WorkflowSyncError(f"{workflow}: {exc}; port the scaffold's changes by hand.") from exc
 
 
-def _write(path: Path, content: str, workflow: str = WORKFLOW) -> None:
+def _write(path: Path, content: str, workflow: str) -> None:
     """Write without following a link: a new temp file (``O_EXCL | O_NOFOLLOW``), then ``os.replace``.
 
     A regular temp file left by an interrupted run is removed first; a temp path that is a link or a directory is
@@ -140,7 +177,7 @@ def _write(path: Path, content: str, workflow: str = WORKFLOW) -> None:
 
 
 def run_workflow_sync(root: Path, yes: bool = False, dry_run: bool = False, which: str = "autosync") -> int:
-    workflow, _, when_absent = WORKFLOWS[which]
+    workflow, _, when_absent = _known(which)
     try:
         current, proposed = plan(root, which=which)
     except WorkflowSyncError as exc:

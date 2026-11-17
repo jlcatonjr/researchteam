@@ -124,7 +124,7 @@ Rewrites a workflow from the installed researchteam's scaffold and keeps this re
 | `--yes` | Write without asking. |
 | `--dry-run` | Show the diff only; write nothing. |
 
-It refuses a symlinked path, a non-regular file, and a workflow without a block-style top-level `on:` key. A workflow change gets the repository's own `@security` review.
+It refuses a symlinked path, a non-regular file, and a workflow without a block-style top-level `on:` key. For `validate` it also refuses an `on:` block that names `pull_request_target` or `workflow_run`. A workflow change gets the repository's own `@security` review.
 
 ---
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -116,12 +117,12 @@ def test_term_index_check_reports_the_gate_the_hooks_and_ci(tmp_path):
     assert "settings.terms.example.json" in lines[1][1]
     assert "workflow-sync --workflow validate" in lines[2][1]
 
-    built = subprocess.run(["python3", "-B", str(root / "scripts" / "build_term_index.py"), "build"],
-                           capture_output=True, text=True, env={"RT_ROOT": str(root), "PATH": "/usr/bin:/bin"})
+    built = subprocess.run([sys.executable, "-B", str(root / "scripts" / "build_term_index.py"), "build"],
+                           capture_output=True, text=True, env={"RT_ROOT": str(root)})
     assert built.returncode == 0, built.stdout + built.stderr
     _settings(root, PostToolUse=True)
     lines = _term_lines(root)
-    assert lines[0][0] == "ok" and "1 register file(s)" in lines[0][1] and "DEFECT: 0" in lines[0][1]
+    assert lines[0][0] == "ok" and "registers checked: 1" in lines[0][1] and "DEFECT: 0" in lines[0][1]
     assert lines[1][0] == "warn" and "not at SessionStart" in lines[1][1]
 
     _settings(root, PostToolUse=True, SessionStart=True)
@@ -166,5 +167,52 @@ def test_doctor_runs_with_a_term_register_and_never_fails_on_it(tmp_path, monkey
     monkeypatch.setattr(_update_cmd, "_resolve_agentteams", lambda: (None, "nowhere"))
     _doctor_cmd.run_doctor(root)  # a stale index is a warning here, never a SystemExit
     out = capsys.readouterr()
-    assert "term index: 1 register file(s)" in out.out and "[FAIL]" not in out.err
+    assert "term index: gate: Projects seen: 1" in out.out and "[FAIL]" not in out.err
+
+
+def test_term_index_check_takes_its_count_from_the_gate_not_from_a_glob(tmp_path):
+    """A required register that is missing fails the gate, so doctor must not say "none yet"."""
+    root = _term_repo(tmp_path, register=False)
+    (root / "Projects" / "Paper").mkdir(parents=True)
+    (root / "Projects" / "Paper" / "01-review.md").write_text("text\n")
+    lines = _term_lines(root)
+    assert lines == [("ok", "term index: no project has a term register yet (docs/term-index-protocol.md).")]
+    (root / ".researchteam").write_text("term_index_require = true\n")
+    lines = _term_lines(root)
+    assert lines[0][0] == "warn" and "DEFECT: 1" in lines[0][1] and "registers checked: 0" in lines[0][1]
+    (root / ".researchteam").unlink()
+    foreign = root / "Projects" / "Paper" / "terminology"
+    foreign.mkdir()
+    (foreign / "terms.json").write_text('{"words": []}')  # not a researchteam register
+    assert _term_lines(root)[0] == ("ok", "term index: no project has a term register yet (docs/term-index-protocol.md).")
+
+
+def test_term_index_check_survives_a_gate_that_cannot_run(tmp_path, monkeypatch):
+    root = _term_repo(tmp_path)
+    (root / "scripts" / "term_index_engine.py").unlink()  # a broken install
+    lines = _term_lines(root)
+    assert lines[0][0] == "warn" and "(no summary line)" in lines[0][1]
+    for exc in (subprocess.TimeoutExpired("gate", 120), OSError("no interpreter")):
+        def boom(*a, _exc=exc, **k):
+            raise _exc
+        monkeypatch.setattr(_doctor_cmd.subprocess, "run", boom)
+        lines = _term_lines(root)
+        assert lines[0][0] == "warn" and "could not run" in lines[0][1] and type(exc).__name__ in lines[0][1]
+
+
+def test_relayed_lines_lose_control_characters(tmp_path):
+    root = _term_repo(tmp_path)
+    (root / "scripts" / "check_term_index.py").write_text(
+        'print("Projects seen: 1  |  registers checked: 1  |  \\x1b[31mDEFECT\\x1b[0m: 0\\x07")\n')
+    message = _term_lines(root)[0][1]
+    assert "\x1b" not in message and "\x07" not in message and "registers checked: 1" in message
+
+
+def test_a_workflow_that_is_not_text_does_not_count(tmp_path):
+    workflows = tmp_path / ".github" / "workflows"
+    workflows.mkdir(parents=True)
+    (workflows / "a.yml").write_bytes(b"\xff\xfe run: bash scripts/claude_researchteam_bridge.sh validate")
+    assert _doctor_cmd._workflow_runs_validate(tmp_path) is False
+    (workflows / "b.yaml").write_text("      - run: bash scripts/claude_researchteam_bridge.sh validate\n")
+    assert _doctor_cmd._workflow_runs_validate(tmp_path) is True
 

@@ -79,8 +79,10 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 - WARN: the profile manages it but it is missing; run `researchteam update` to receive it.
 
 **5c. Term index** (`_check_term_index`, always runs, informational). Silent when `scripts/check_term_index.py` is absent (check 5b says whether it is expected).
-- OK: no file `Projects/**/terminology/terms.json` exists yet.
-- Otherwise runs the gate (`scripts/check_term_index.py`, 120-second timeout, with `RT_ROOT` and `TERM_INDEX_ADVISORY` cleared) and relays its `Projects seen: …` summary: OK when it exits 0, WARN otherwise, with the command to run for details.
+- Runs the gate (`scripts/check_term_index.py`, 120-second timeout, with `RT_ROOT` and `TERM_INDEX_ADVISORY` cleared) and relays its `Projects seen: …` summary with control characters removed. The gate, not doctor, decides how many registers there are and whether one is required.
+- WARN: the gate exits non-zero, or could not run; names the command to run for details. The remaining lines are still reported.
+- OK: the gate exits 0 and reports `registers checked: 0` ("no project has a term register yet"); nothing else in this check runs.
+- OK: the gate exits 0 with at least one register.
 - OK / WARN: whether `.claude/settings.json` or `.claude/settings.local.json` runs `scripts/build_term_index.py` after edits (`PostToolUse`) and at `SessionStart`. WARN asks the operator to merge `.claude/settings.terms.example.json`.
 - OK / WARN: whether a file under `.github/workflows/` runs `claude_researchteam_bridge.sh validate` on a line that is not a comment. WARN names `researchteam workflow-sync --workflow validate`.
 

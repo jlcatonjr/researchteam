@@ -250,8 +250,8 @@ def test_validate_workflow_is_opt_in():
     from researchteam._manifest import INIT_SCAFFOLD_REPLACEMENTS, MANAGED_FILES
     from researchteam._workflow_sync import WORKFLOWS
 
-    assert list(WORKFLOWS) == ["autosync", "validate"] and WORKFLOWS["autosync"][0] == WORKFLOW
-    assert WORKFLOWS["validate"][0] == VALIDATE
+    assert list(WORKFLOWS) == ["autosync", "validate"] and WORKFLOWS["autosync"].path == WORKFLOW
+    assert WORKFLOWS["validate"].path == VALIDATE
     assert VALIDATE not in INIT_SCAFFOLD_REPLACEMENTS and VALIDATE not in MANAGED_FILES  # init and update leave it alone
 
 
@@ -292,4 +292,49 @@ def test_cli_wires_the_workflow_choice(tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as exc:
         cli.main()
     assert exc.value.code == 0 and (tmp_path / VALIDATE).is_file() and not (tmp_path / WORKFLOW).exists()
+
+
+def test_an_unknown_workflow_name_is_a_clear_error(tmp_path):
+    with pytest.raises(ValueError, match="unknown workflow 'deploy'; one of: autosync, validate"):
+        plan(tmp_path, which="deploy")
+    with pytest.raises(ValueError):
+        run_workflow_sync(tmp_path, yes=True, which="deploy")
+    assert not (tmp_path / ".github").exists()
+
+
+@pytest.mark.parametrize("on_text", ["on: [push]\n", "on:\n  pull_request_target:\n", "on:\n  workflow_run:\n    workflows: [x]\n",
+                                     "on:\n  - pull_request\n  - pull_request_target\n", 'on:\n  "pull_request_target":\n'])
+def test_validate_workflow_refuses_an_on_block_it_cannot_keep_safely(tmp_path, on_text):
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    existing = "name: mine\n\n" + on_text + "\npermissions:\n  contents: write\n\njobs: {}\n"
+    (tmp_path / VALIDATE).write_text(existing)
+    with pytest.raises(WorkflowSyncError):
+        plan(tmp_path, which="validate")
+    assert run_workflow_sync(tmp_path, yes=True, which="validate") == 1
+    assert (tmp_path / VALIDATE).read_text() == existing  # untouched
+
+
+def test_privileged_trigger_names_in_comments_or_job_text_are_not_refused(tmp_path):
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    existing = ("name: mine\n\non:\n  # never pull_request_target here\n  pull_request:\n\n"
+                "jobs:\n  x:\n    steps:\n      - run: echo workflow_run\n")
+    (tmp_path / VALIDATE).write_text(existing)
+    current, proposed = plan(tmp_path, which="validate")
+    assert "# never pull_request_target here" in proposed and "echo workflow_run" not in proposed
+
+
+def test_autosync_keeps_whatever_triggers_the_repository_chose(tmp_path):
+    """The privileged-trigger refusal is for the validate workflow only; autosync is unchanged."""
+    (tmp_path / ".github/workflows").mkdir(parents=True)
+    (tmp_path / WORKFLOW).write_text(_old_workflow("on:\n  workflow_run:\n    workflows: [x]\n"))
+    current, proposed = plan(tmp_path)
+    assert "workflow_run" in proposed
+
+
+def test_validate_scaffold_uses_the_action_pins_of_this_repositorys_tests():
+    import re
+    uses = re.compile(r"uses:\s*(\S+)")
+    mine = set(uses.findall(load_scaffold("researchteam-validate-derived.yml")))
+    theirs = set(uses.findall((ROOT / ".github/workflows/tests.yml").read_text()))
+    assert mine and mine <= theirs, mine - theirs
 
