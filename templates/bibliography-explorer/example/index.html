@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bibliography explorer: invented example</title>
+<link rel="stylesheet" href="../explorer.css">
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, sans-serif; margin: 0; padding: 16px; background: Canvas; color: CanvasText; }
+  main { max-width: 46rem; margin: 0 auto; }
+</style>
+</head>
+<body>
+<main id="explorer"><p>Loading the example. Serve this folder over HTTP: a browser will not load modules from a file.</p></main>
+<script type="module">
+  import { mount } from "../explorer.js";
+  const host = document.getElementById("explorer");
+  const data = await (await fetch("./explorer-data.json")).json();
+  host.replaceChildren();
+  window.explorer = mount(host, data, { onNavigate: (target) => console.log("navigate", target) });
+</script>
+</body>
+</html>

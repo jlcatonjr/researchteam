@@ -1,0 +1,1180 @@
+{
+ "evidence": [
+  {
+   "access": "full-text",
+   "attribute_kind": "life-dates",
+   "audit": "checked twice against the page image",
+   "id": "ev-001",
+   "locator": "p. 14",
+   "person_id": "ada-wickmere",
+   "quote": "Wickmere, born in the winter of 1811, died at her bench in 1879.",
+   "source_id": "brask-fictive-1950",
+   "tier": "confirmed",
+   "value": "1811–1879"
+  },
+  {
+   "access": "snippet",
+   "attribute_kind": "life-dates",
+   "id": "ev-002",
+   "person_id": "ada-wickmere",
+   "source_id": "ec-ed35db187bc80ca7",
+   "tier": "supported",
+   "url": "https://example.org/encyclopedia/wickmere",
+   "value": "1811–1879"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "origin",
+   "id": "ev-003",
+   "locator": "p. 12",
+   "person_id": "ada-wickmere",
+   "source_id": "brask-fictive-1950",
+   "tier": "confirmed",
+   "value": "Mirrowmere"
+  },
+  {
+   "access": "project-file",
+   "attribute_kind": "role",
+   "cited_as": "Charter, article 3 (see guild-charter-1903)",
+   "id": "ev-004",
+   "locator": "art. 3",
+   "person_id": "ada-wickmere",
+   "source_id": "guild-charter-1903",
+   "tier": "confirmed",
+   "value": "Master of the guild"
+  },
+  {
+   "access": "snippet",
+   "attribute_kind": "role",
+   "id": "ev-005",
+   "person_id": "ada-wickmere",
+   "source_id": "ec-2fdc925f787134e2",
+   "tier": "provisional",
+   "url": "https://example.org/encyclopedia/pattern-book",
+   "value": "Keeper of the pattern book",
+   "via": "reported by the encyclopedia's anonymous editor"
+  },
+  {
+   "access": "project-file",
+   "attribute_kind": "works",
+   "id": "ev-006",
+   "locator": "title page",
+   "person_id": "ada-wickmere",
+   "source_id": "wickmere-trimming",
+   "tier": "confirmed",
+   "value": "On the Trimming of Wicks"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "life-dates",
+   "id": "ev-007",
+   "locator": "p. 47",
+   "person_id": "ionut_glasswright",
+   "source_id": "sample-question-2001",
+   "tier": "supported",
+   "value": "d. 1871"
+  },
+  {
+   "access": "snippet",
+   "attribute_kind": "origin",
+   "audit": "nothing found on two attempts",
+   "id": "ev-008",
+   "person_id": "ionut_glasswright",
+   "source_id": "ec-f5b0e580112c52fc",
+   "tier": "not-established",
+   "url": "https://example.org/encyclopedia/search?q=glasswright",
+   "value": "not established"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "role",
+   "id": "ev-009",
+   "locator": "p. 45",
+   "person_id": "ionut_glasswright",
+   "quote": "Glasswright blew every chimney the guild sold that decade.",
+   "source_id": "sample-question-2001",
+   "tier": "confirmed",
+   "value": "Glassblower"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "life-dates",
+   "id": "ev-010",
+   "locator": "p. 3",
+   "person_id": "tolliver-brask",
+   "source_id": "placeholder-chapter-1999",
+   "tier": "provisional",
+   "value": "fl. 1764"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "role",
+   "id": "ev-011",
+   "locator": "p. 2",
+   "person_id": "tolliver-brask",
+   "source_id": "placeholder-chapter-1999",
+   "tier": "confirmed",
+   "value": "Founder"
+  },
+  {
+   "access": "project-file",
+   "attribute_kind": "role",
+   "id": "ev-012",
+   "locator": "preamble",
+   "person_id": "mirrowmere-guild",
+   "source_id": "guild-charter-1903",
+   "tier": "confirmed",
+   "value": "Chartered body"
+  },
+  {
+   "access": "snippet",
+   "attribute_kind": "life-dates",
+   "id": "ev-013",
+   "person_id": "nessa-quillon",
+   "source_id": "ec-95d2d159d949ae50",
+   "tier": "supported",
+   "url": "https://example.org/encyclopedia/quillon",
+   "value": "b. 1888"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "life-dates",
+   "id": "ev-014",
+   "locator": "p. 201",
+   "person_id": "nessa-quillon",
+   "source_id": "nobody-thesis-1980",
+   "tier": "provisional",
+   "value": "born 1888"
+  },
+  {
+   "access": "full-text",
+   "attribute_kind": "role",
+   "id": "ev-015",
+   "locator": "ch. 6",
+   "person_id": "nessa-quillon",
+   "source_id": "nobody-thesis-1980",
+   "tier": "confirmed",
+   "value": "Electrician"
+  },
+  {
+   "access": "project-file",
+   "attribute_kind": "role",
+   "id": "ev-016",
+   "person_id": "unnamed-apprentice",
+   "source_id": "ec-62643cbacbe2e9f1",
+   "tier": "not-established",
+   "value": "not established"
+  }
+ ],
+ "links": [
+  {
+   "attribute_kinds": [
+    "life-dates",
+    "origin"
+   ],
+   "evidence_ids": [
+    "ev-001",
+    "ev-003"
+   ],
+   "person_id": "ada-wickmere",
+   "relation": "about",
+   "source_id": "brask-fictive-1950"
+  },
+  {
+   "attribute_kinds": [
+    "life-dates"
+   ],
+   "evidence_ids": [
+    "ev-002"
+   ],
+   "person_id": "ada-wickmere",
+   "relation": "about",
+   "source_id": "ec-ed35db187bc80ca7"
+  },
+  {
+   "attribute_kinds": [
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-004"
+   ],
+   "person_id": "ada-wickmere",
+   "relation": "about",
+   "source_id": "guild-charter-1903"
+  },
+  {
+   "attribute_kinds": [
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-005"
+   ],
+   "person_id": "ada-wickmere",
+   "relation": "about",
+   "source_id": "ec-2fdc925f787134e2"
+  },
+  {
+   "attribute_kinds": [
+    "works"
+   ],
+   "evidence_ids": [
+    "ev-006"
+   ],
+   "person_id": "ada-wickmere",
+   "relation": "about",
+   "source_id": "wickmere-trimming"
+  },
+  {
+   "attribute_kinds": [
+    "life-dates",
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-007",
+    "ev-009"
+   ],
+   "person_id": "ionut_glasswright",
+   "relation": "about",
+   "source_id": "sample-question-2001"
+  },
+  {
+   "attribute_kinds": [
+    "origin"
+   ],
+   "evidence_ids": [
+    "ev-008"
+   ],
+   "person_id": "ionut_glasswright",
+   "relation": "about",
+   "source_id": "ec-f5b0e580112c52fc"
+  },
+  {
+   "attribute_kinds": [
+    "life-dates",
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-010",
+    "ev-011"
+   ],
+   "person_id": "tolliver-brask",
+   "relation": "about",
+   "source_id": "placeholder-chapter-1999"
+  },
+  {
+   "attribute_kinds": [
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-012"
+   ],
+   "person_id": "mirrowmere-guild",
+   "relation": "about",
+   "source_id": "guild-charter-1903"
+  },
+  {
+   "attribute_kinds": [
+    "life-dates"
+   ],
+   "evidence_ids": [
+    "ev-013"
+   ],
+   "person_id": "nessa-quillon",
+   "relation": "about",
+   "source_id": "ec-95d2d159d949ae50"
+  },
+  {
+   "attribute_kinds": [
+    "life-dates",
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-014",
+    "ev-015"
+   ],
+   "person_id": "nessa-quillon",
+   "relation": "about",
+   "source_id": "nobody-thesis-1980"
+  },
+  {
+   "attribute_kinds": [
+    "role"
+   ],
+   "evidence_ids": [
+    "ev-016"
+   ],
+   "person_id": "unnamed-apprentice",
+   "relation": "about",
+   "source_id": "ec-62643cbacbe2e9f1"
+  },
+  {
+   "basis": "explicit key in a works row",
+   "person_id": "ada-wickmere",
+   "relation": "by",
+   "role": "author",
+   "source_id": "wickmere-trimming"
+  },
+  {
+   "basis": "name match checked by hand",
+   "person_id": "ada-wickmere",
+   "relation": "by",
+   "role": "attributed",
+   "source_id": "wickmere-letters"
+  },
+  {
+   "basis": "name match checked by hand",
+   "person_id": "tolliver-brask",
+   "relation": "by",
+   "role": "author",
+   "source_id": "brask-fictive-1950"
+  },
+  {
+   "basis": "explicit key in a works row",
+   "person_id": "mirrowmere-guild",
+   "relation": "by",
+   "role": "author",
+   "source_id": "guild-charter-1903"
+  }
+ ],
+ "meta": {
+  "citation_renderer": "researchteam-chicago-v1",
+  "counts": {
+   "evidence": 16,
+   "links": 16,
+   "persons": 6,
+   "sources": 12
+  },
+  "exporter": "researchteam-bibliography-explorer-exporter-v1",
+  "inputs": [
+   {
+    "name": "bios.json",
+    "sha256": "894d27bd3d4b9d81566ab3cababd1f34d2d93b589e3824997f8ccfa6c2698fd7"
+   },
+   {
+    "name": "codes.csv",
+    "sha256": "2155b3ee20437c2ae6f2885068db48e192b652fe1cd68a886ead66126363e34b"
+   },
+   {
+    "name": "evidence.csv",
+    "sha256": "831203835cf8e0ffade35a12667c336922022973ea496513cc815c148515d12b"
+   },
+   {
+    "name": "example.bib",
+    "sha256": "e29767ab79082df2de579de4a758068e4fba231b5ceb3a1777be31e54769e99a"
+   },
+   {
+    "name": "explorer.json",
+    "sha256": "6fa8d060dd073175af298b67ea5c1cb6e0c7dfaf26d0b48873bb9441e6dd8dad"
+   },
+   {
+    "name": "groups.json",
+    "sha256": "66acdaf0667ccc707c24855bdbc73f2978d290099081353276e69665122d8667"
+   },
+   {
+    "name": "links.csv",
+    "sha256": "f88ad26af55bbb9ee300ad98b164231319e9ed66dce5d28d3e5f3958189078a6"
+   },
+   {
+    "name": "persons.csv",
+    "sha256": "e7341681e273a124aaa0e253feb69c088ea917f78d4d70caa1c249fa1ec496ce"
+   },
+   {
+    "name": "source_attributes.csv",
+    "sha256": "9d70e90cb6a22e014036af2b785c920bdd3ba9442a004f1423824252e2844820"
+   },
+   {
+    "name": "summaries.jsonl",
+    "sha256": "ac205f2ae6d4a28ef6464aa25fea119b1c51d7e1d33597d2c750a4acfb073700"
+   },
+   {
+    "name": "works.csv",
+    "sha256": "2c0b48e9e62ef2b6dab5fb6ff8e96637eb40243c4363b7a3af5c0edfba50b453"
+   }
+  ],
+  "notice": "Invented example. Every person, institution, source and quotation here is made up to demonstrate the explorer. None of it is real.",
+  "title": "Lantern Guild of Mirrowmere (invented example)"
+ },
+ "periods": [
+  {
+   "end_year": 1799,
+   "established": true,
+   "id": "early",
+   "label": "Early guild",
+   "order": 1,
+   "start_year": null
+  },
+  {
+   "end_year": 1899,
+   "established": true,
+   "id": "middle",
+   "label": "Charter years",
+   "order": 2,
+   "start_year": 1800
+  },
+  {
+   "end_year": null,
+   "established": true,
+   "id": "late",
+   "label": "Electric age",
+   "order": 3,
+   "start_year": 1900
+  },
+  {
+   "end_year": null,
+   "established": false,
+   "id": "unknown",
+   "label": "Period not established",
+   "order": 4,
+   "start_year": null
+  }
+ ],
+ "persons": [
+  {
+   "aliases": [
+    "A. Wickmere",
+    "Ada of the Lamps"
+   ],
+   "attributes": [
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-001",
+      "ev-002"
+     ],
+     "kind": "life-dates",
+     "value": "1811–1879"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-003"
+     ],
+     "kind": "origin",
+     "value": "Mirrowmere"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-004"
+     ],
+     "kind": "role",
+     "value": "Master of the guild"
+    },
+    {
+     "established": false,
+     "evidence_ids": [
+      "ev-005"
+     ],
+     "kind": "role",
+     "value": "Keeper of the pattern book"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-006"
+     ],
+     "kind": "works",
+     "value": "On the Trimming of Wicks"
+    }
+   ],
+   "bio": {
+    "authored_by": "example generator",
+    "basis": "assembled from established attributes",
+    "clauses": [
+     {
+      "evidence_ids": [
+       "ev-001",
+       "ev-002"
+      ],
+      "text": "Ada Wickmere (1811–1879)"
+     },
+     {
+      "evidence_ids": [
+       "ev-003"
+      ],
+      "text": "was born in Mirrowmere."
+     },
+     {
+      "evidence_ids": [
+       "ev-004"
+      ],
+      "text": "She was master of the guild."
+     }
+    ],
+    "text": "Ada Wickmere (1811–1879) was born in Mirrowmere. She was master of the guild.",
+    "verification_state": "UNVERIFIED — invented example"
+   },
+   "codes": [
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-001"
+     ],
+     "key": "period",
+     "label": "Period",
+     "value_label": "Charter years"
+    },
+    {
+     "basis": "reported — guild charter",
+     "established": true,
+     "evidence_ids": [
+      "ev-004"
+     ],
+     "key": "is-master",
+     "label": "Held guild office",
+     "value_label": "Yes"
+    },
+    {
+     "established": false,
+     "evidence_ids": [],
+     "key": "is-keeper",
+     "label": "Kept the pattern book",
+     "value_label": "Not established"
+    }
+   ],
+   "display_name": "Ada Wickmere",
+   "groups": [
+    {
+     "advisory": true,
+     "caveat": "Advisory only. This assessment is the example's own reading of invented rolls and settles nothing.",
+     "id": "standing",
+     "rows": [
+      {
+       "label": "Rolls checked",
+       "links": [
+        {
+         "label": "Roll of masters (fictional)",
+         "url": "https://example.org/rolls/masters"
+        },
+        {
+         "label": "Roll of honour (fictional)",
+         "url": "https://example.org/rolls/honour"
+        }
+       ],
+       "value": "Two"
+      },
+      {
+       "evidence_ids": [
+        "ev-004"
+       ],
+       "label": "Listed as master",
+       "value": "Yes"
+      },
+      {
+       "label": "Assessment",
+       "note": "Rationale: named in the charter and in neither roll of expulsions.",
+       "value": "In good standing"
+      }
+     ],
+     "title": "Standing in the guild rolls"
+    }
+   ],
+   "id": "ada-wickmere",
+   "kind": "person",
+   "period": {
+    "id": "middle",
+    "year": 1842,
+    "year_basis": "date of the cited work"
+   },
+   "sort_name": "Wickmere, Ada"
+  },
+  {
+   "attributes": [
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-007"
+     ],
+     "kind": "life-dates",
+     "value": "d. 1871"
+    },
+    {
+     "established": false,
+     "evidence_ids": [
+      "ev-008"
+     ],
+     "kind": "origin",
+     "value": "not established"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-009"
+     ],
+     "kind": "role",
+     "value": "Glassblower"
+    }
+   ],
+   "codes": [
+    {
+     "established": false,
+     "evidence_ids": [],
+     "key": "is-master",
+     "label": "Held guild office",
+     "value_label": "Not established"
+    }
+   ],
+   "display_name": "Ionuț Glasswright",
+   "id": "ionut_glasswright",
+   "kind": "person",
+   "period": {
+    "id": "middle",
+    "year": 1871,
+    "year_basis": "latest life date"
+   },
+   "sort_name": "Glasswright, Ionuț"
+  },
+  {
+   "attributes": [
+    {
+     "established": false,
+     "evidence_ids": [
+      "ev-010"
+     ],
+     "kind": "life-dates",
+     "value": "fl. 1764"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-011"
+     ],
+     "kind": "role",
+     "value": "Founder"
+    }
+   ],
+   "display_name": "Tolliver Brask",
+   "id": "tolliver-brask",
+   "kind": "person",
+   "period": {
+    "id": "early",
+    "year": 1764,
+    "year_basis": "date of the cited work"
+   },
+   "sort_name": "Brask, Tolliver"
+  },
+  {
+   "aliases": [
+    "The Guild"
+   ],
+   "attributes": [
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-012"
+     ],
+     "kind": "role",
+     "value": "Chartered body"
+    }
+   ],
+   "display_name": "Lantern Guild of Mirrowmere",
+   "id": "mirrowmere-guild",
+   "kind": "institution",
+   "period": {
+    "id": "late",
+    "year": 1903,
+    "year_basis": "date of the cited work"
+   },
+   "sort_name": "Lantern Guild of Mirrowmere"
+  },
+  {
+   "attributes": [
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-013"
+     ],
+     "kind": "life-dates",
+     "value": "b. 1888"
+    },
+    {
+     "established": false,
+     "evidence_ids": [
+      "ev-014"
+     ],
+     "kind": "life-dates",
+     "value": "born 1888"
+    },
+    {
+     "established": true,
+     "evidence_ids": [
+      "ev-015"
+     ],
+     "kind": "role",
+     "value": "Electrician"
+    }
+   ],
+   "bio": {
+    "basis": "written",
+    "text": "Nessa Quillon was the guild's first electrician.",
+    "verification_state": "UNVERIFIED — invented example"
+   },
+   "display_name": "Nessa Quillon",
+   "id": "nessa-quillon",
+   "kind": "person",
+   "period": {
+    "id": "late",
+    "year": 1931,
+    "year_basis": "latest life date"
+   },
+   "sort_name": "Quillon, Nessa"
+  },
+  {
+   "attributes": [
+    {
+     "established": false,
+     "evidence_ids": [
+      "ev-016"
+     ],
+     "kind": "role",
+     "value": "not established"
+    }
+   ],
+   "display_name": "The Unnamed Apprentice",
+   "id": "unnamed-apprentice",
+   "kind": "person",
+   "period": {
+    "id": "unknown"
+   },
+   "sort_name": "Unnamed Apprentice, The"
+  }
+ ],
+ "schema": "researchteam.bibliography-explorer",
+ "schema_version": "1.0",
+ "sources": [
+  {
+   "attributes": [
+    {
+     "label": "Kind",
+     "value": "Study"
+    },
+    {
+     "label": "Access",
+     "value": "Project copy"
+    }
+   ],
+   "citation": {
+    "chicago": "Brask, Tolliver, Jr., and Ana María de la Fictive. The Lamp-Makers of Mirrowmere: An Invented History, 1750–1900. Vol. 2. Imaginary Guild Studies 7. Nowhere: Invented Press, 1950.",
+    "chicago_runs": [
+     {
+      "italic": false,
+      "text": "Brask, Tolliver, Jr., and Ana María de la Fictive. "
+     },
+     {
+      "italic": true,
+      "text": "The Lamp-Makers of Mirrowmere: An Invented History, 1750–1900"
+     },
+     {
+      "italic": false,
+      "text": ". Vol. 2. Imaginary Guild Studies 7. Nowhere: Invented Press, 1950."
+     }
+    ]
+   },
+   "fields": {
+    "address": "Nowhere",
+    "authors": [
+     {
+      "family": "Brask",
+      "given": "Tolliver",
+      "suffix": "Jr."
+     },
+     {
+      "family": "de la Fictive",
+      "given": "Ana María"
+     }
+    ],
+    "number": "7",
+    "publisher": "Invented Press",
+    "series": "Imaginary Guild Studies",
+    "title": "The Lamp-Makers of Mirrowmere: An Invented History, 1750–1900",
+    "volume": "2",
+    "year": "1950"
+   },
+   "id": "brask-fictive-1950",
+   "links": [],
+   "note": "Invented entry. Read in a project copy.",
+   "origin": "bibliography",
+   "summary": {
+    "basis": "full text",
+    "caveats": [
+     "different edition from the one cited"
+    ],
+    "deemed_by": "example generator",
+    "read_url": "https://example.org/books/brask-1950",
+    "text": "An invented two-volume history of the guild. Volume 2 covers the charter years and gives the fullest account of Wickmere's life.",
+    "verification_state": "UNVERIFIED — invented example"
+   },
+   "type": "book"
+  },
+  {
+   "citation": {
+    "chicago": "Sample, Ionuţ, and Q. R. Placeholder. “Who Blew the Glass?” Journal of Invented Results 12, no. 3 (March 2001): 45–67. https://doi.org/10.5555/invented.2001.12.3.45.",
+    "chicago_runs": [
+     {
+      "italic": false,
+      "text": "Sample, Ionuţ, and Q. R. Placeholder. “Who Blew the Glass?” "
+     },
+     {
+      "italic": true,
+      "text": "Journal of Invented Results"
+     },
+     {
+      "italic": false,
+      "text": " 12, no. 3 (March 2001): 45–67. https://doi.org/10.5555/invented.2001.12.3.45."
+     }
+    ]
+   },
+   "fields": {
+    "authors": [
+     {
+      "family": "Sample",
+      "given": "Ionuţ"
+     },
+     {
+      "family": "Placeholder",
+      "given": "Q. R."
+     }
+    ],
+    "doi": "10.5555/invented.2001.12.3.45",
+    "journal": "Journal of Invented Results",
+    "month": "March",
+    "number": "3",
+    "pages": "45–67",
+    "title": "Who Blew the Glass?",
+    "volume": "12",
+    "year": "2001"
+   },
+   "id": "sample-question-2001",
+   "links": [
+    {
+     "label": "DOI",
+     "url": "https://doi.org/10.5555/invented.2001.12.3.45"
+    }
+   ],
+   "origin": "bibliography",
+   "summary": {
+    "basis": "abstract",
+    "deemed_by": "example generator",
+    "text": "Argues, from invented account books, that one glassblower supplied the guild for a decade.",
+    "verification_state": "UNVERIFIED — invented example"
+   },
+   "type": "article"
+  },
+  {
+   "citation": {
+    "chicago": "Placeholder, Pat. “Founders and Their Benches.” In The Made-Up Handbook of Guild History, edited by Ed One and Edwina van Two, 1–9. Nowhere: Invented Press, 1999.",
+    "chicago_runs": [
+     {
+      "italic": false,
+      "text": "Placeholder, Pat. “Founders and Their Benches.” In "
+     },
+     {
+      "italic": true,
+      "text": "The Made-Up Handbook of Guild History"
+     },
+     {
+      "italic": false,
+      "text": ", edited by Ed One and Edwina van Two, 1–9. Nowhere: Invented Press, 1999."
+     }
+    ]
+   },
+   "fields": {
+    "address": "Nowhere",
+    "authors": [
+     {
+      "family": "Placeholder",
+      "given": "Pat"
+     }
+    ],
+    "booktitle": "The Made-Up Handbook of Guild History",
+    "editors": [
+     {
+      "family": "One",
+      "given": "Ed"
+     },
+     {
+      "family": "van Two",
+      "given": "Edwina"
+     }
+    ],
+    "pages": "1–9",
+    "publisher": "Invented Press",
+    "title": "Founders and Their Benches",
+    "year": "1999"
+   },
+   "id": "placeholder-chapter-1999",
+   "links": [],
+   "origin": "bibliography",
+   "type": "incollection"
+  },
+  {
+   "citation": {
+    "chicago": "Nobody, Nell. “Wires in the Workshop: The Guild after Gaslight.” PhD diss., University of Nowhere, 1980. https://example.org/theses/nobody-1980.",
+    "chicago_runs": [
+     {
+      "italic": false,
+      "text": "Nobody, Nell. “Wires in the Workshop: The Guild after Gaslight.” PhD diss., University of Nowhere, 1980. https://example.org/theses/nobody-1980."
+     }
+    ]
+   },
+   "fields": {
+    "authors": [
+     {
+      "family": "Nobody",
+      "given": "Nell"
+     }
+    ],
+    "school": "University of Nowhere",
+    "title": "Wires in the Workshop: The Guild after Gaslight",
+    "url": "https://example.org/theses/nobody-1980",
+    "year": "1980"
+   },
+   "id": "nobody-thesis-1980",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/theses/nobody-1980"
+    }
+   ],
+   "origin": "bibliography",
+   "type": "phdthesis"
+  },
+  {
+   "attributes": [
+    {
+     "label": "Kind",
+     "value": "Primary text"
+    }
+   ],
+   "citation": {
+    "chicago": "Lantern Guild of Mirrowmere. “Charter of the Lantern Guild.” Invented Archive of Mirrowmere. 1903. https://example.org/archive/charter-1903.",
+    "chicago_runs": [
+     {
+      "italic": false,
+      "text": "Lantern Guild of Mirrowmere. “Charter of the Lantern Guild.” Invented Archive of Mirrowmere. 1903. https://example.org/archive/charter-1903."
+     }
+    ]
+   },
+   "fields": {
+    "authors": [
+     {
+      "literal": "Lantern Guild of Mirrowmere"
+     }
+    ],
+    "howpublished": "Invented Archive of Mirrowmere",
+    "title": "Charter of the Lantern Guild",
+    "url": "https://example.org/archive/charter-1903",
+    "year": "1903"
+   },
+   "id": "guild-charter-1903",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/archive/charter-1903"
+    }
+   ],
+   "note": "Invented entry. Translator credited in the archive record: T. Nobody.",
+   "origin": "bibliography",
+   "type": "misc"
+  },
+  {
+   "attributes": [
+    {
+     "label": "Kind",
+     "value": "Primary text"
+    }
+   ],
+   "citation": {
+    "as_recorded": "On the Trimming of Wicks"
+   },
+   "fields": {
+    "date": "1842",
+    "locator": "Guild pamphlets (fictional) 3",
+    "title": "On the Trimming of Wicks"
+   },
+   "id": "wickmere-trimming",
+   "links": [],
+   "origin": "work-title"
+  },
+  {
+   "citation": {
+    "as_recorded": "Letters to the Apprentices"
+   },
+   "fields": {
+    "title": "Letters to the Apprentices"
+   },
+   "id": "wickmere-letters",
+   "links": [],
+   "origin": "work-title"
+  },
+  {
+   "citation": {
+    "as_recorded": "Invented Encyclopedia of Lamps, s.v. \"Wickmere, Ada\""
+   },
+   "fields": {
+    "url": "https://example.org/encyclopedia/wickmere"
+   },
+   "id": "ec-ed35db187bc80ca7",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/encyclopedia/wickmere"
+    }
+   ],
+   "origin": "evidence-citation"
+  },
+  {
+   "citation": {
+    "as_recorded": "Invented Encyclopedia of Lamps, s.v. \"Pattern book\""
+   },
+   "fields": {
+    "url": "https://example.org/encyclopedia/pattern-book"
+   },
+   "id": "ec-2fdc925f787134e2",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/encyclopedia/pattern-book"
+    }
+   ],
+   "origin": "evidence-citation"
+  },
+  {
+   "citation": {
+    "as_recorded": "Searched: Invented Encyclopedia of Lamps; guild register (fictional)"
+   },
+   "fields": {
+    "url": "https://example.org/encyclopedia/search?q=glasswright"
+   },
+   "id": "ec-f5b0e580112c52fc",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/encyclopedia/search?q=glasswright"
+    }
+   ],
+   "origin": "evidence-citation"
+  },
+  {
+   "citation": {
+    "as_recorded": "Invented Encyclopedia of Lamps, s.v. \"Quillon, Nessa\""
+   },
+   "fields": {
+    "url": "https://example.org/encyclopedia/quillon"
+   },
+   "id": "ec-95d2d159d949ae50",
+   "links": [
+    {
+     "label": "URL",
+     "url": "https://example.org/encyclopedia/quillon"
+    }
+   ],
+   "origin": "evidence-citation"
+  },
+  {
+   "citation": {
+    "as_recorded": "Searched: guild register (fictional)"
+   },
+   "fields": {},
+   "id": "ec-62643cbacbe2e9f1",
+   "links": [],
+   "origin": "evidence-citation"
+  }
+ ],
+ "vocab": {
+  "access": [
+   {
+    "id": "full-text",
+    "label": "Read in full"
+   },
+   {
+    "id": "snippet",
+    "label": "Snippet only"
+   },
+   {
+    "id": "project-file",
+    "label": "Project file"
+   }
+  ],
+  "attribute_kinds": [
+   {
+    "id": "life-dates",
+    "label": "Life dates",
+    "multi": false,
+    "order": 1
+   },
+   {
+    "id": "origin",
+    "label": "Place of origin",
+    "multi": false,
+    "order": 2
+   },
+   {
+    "id": "role",
+    "label": "Role in the guild",
+    "multi": true,
+    "order": 3
+   },
+   {
+    "id": "works",
+    "label": "Works",
+    "multi": true,
+    "order": 4
+   }
+  ],
+  "person_kinds": [
+   {
+    "id": "person",
+    "label": "Person"
+   },
+   {
+    "id": "institution",
+    "label": "Institution"
+   }
+  ],
+  "roles": [
+   {
+    "id": "author",
+    "label": "Author"
+   },
+   {
+    "id": "editor",
+    "label": "Editor"
+   },
+   {
+    "id": "translator",
+    "label": "Translator"
+   },
+   {
+    "id": "attributed",
+    "label": "Attributed"
+   }
+  ],
+  "tiers": [
+   {
+    "description": "Stated in a source read in full.",
+    "establishes": true,
+    "id": "confirmed",
+    "label": "Confirmed"
+   },
+   {
+    "description": "Stated in a reference work.",
+    "establishes": true,
+    "id": "supported",
+    "label": "Supported"
+   },
+   {
+    "description": "Reported second-hand; not yet checked.",
+    "establishes": false,
+    "id": "provisional",
+    "label": "Provisional"
+   },
+   {
+    "description": "Searched for and not found.",
+    "establishes": false,
+    "id": "not-established",
+    "label": "Not established"
+   }
+  ]
+ }
+}

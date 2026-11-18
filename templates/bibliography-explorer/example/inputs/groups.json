@@ -1,0 +1,17 @@
+{
+  "ada-wickmere": [
+    {
+      "id": "standing",
+      "title": "Standing in the guild rolls",
+      "advisory": true,
+      "caveat": "Advisory only. This assessment is the example's own reading of invented rolls and settles nothing.",
+      "rows": [
+        {"label": "Rolls checked", "value": "Two", "links": [
+          {"label": "Roll of masters (fictional)", "url": "https://example.org/rolls/masters"},
+          {"label": "Roll of honour (fictional)", "url": "https://example.org/rolls/honour"}]},
+        {"label": "Listed as master", "value": "Yes", "evidence_ids": ["ev-004"]},
+        {"label": "Assessment", "value": "In good standing", "note": "Rationale: named in the charter and in neither roll of expulsions."}
+      ]
+    }
+  ]
+}

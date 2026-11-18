@@ -1,0 +1,17 @@
+id,person_id,attribute_kind,value,tier,source_id,citation,locator,quote,url,access,via,audit
+ev-001,ada-wickmere,life-dates,1811–1879,confirmed,brask-fictive-1950,,p. 14,"Wickmere, born in the winter of 1811, died at her bench in 1879.",,full-text,,checked twice against the page image
+ev-002,ada-wickmere,life-dates,1811–1879,supported,,"Invented Encyclopedia of Lamps, s.v. ""Wickmere, Ada""",,,https://example.org/encyclopedia/wickmere,snippet,,
+ev-003,ada-wickmere,origin,Mirrowmere,confirmed,brask-fictive-1950,,p. 12,,,full-text,,
+ev-004,ada-wickmere,role,Master of the guild,confirmed,guild-charter-1903,"Charter, article 3 (see guild-charter-1903)",art. 3,,,project-file,,
+ev-005,ada-wickmere,role,Keeper of the pattern book,provisional,,"Invented Encyclopedia of Lamps, s.v. ""Pattern book""",,,https://example.org/encyclopedia/pattern-book,snippet,reported by the encyclopedia's anonymous editor,
+ev-006,ada-wickmere,works,On the Trimming of Wicks,confirmed,wickmere-trimming,,title page,,,project-file,,
+ev-007,ionut_glasswright,life-dates,d. 1871,supported,sample-question-2001,,p. 47,,,full-text,,
+ev-008,ionut_glasswright,origin,not established,not-established,,"Searched: Invented Encyclopedia of Lamps; guild register (fictional)",,,https://example.org/encyclopedia/search?q=glasswright,snippet,,nothing found on two attempts
+ev-009,ionut_glasswright,role,Glassblower,confirmed,sample-question-2001,,p. 45,"Glasswright blew every chimney the guild sold that decade.",,full-text,,
+ev-010,tolliver-brask,life-dates,fl. 1764,provisional,placeholder-chapter-1999,,p. 3,,,full-text,,
+ev-011,tolliver-brask,role,Founder,confirmed,placeholder-chapter-1999,,p. 2,,,full-text,,
+ev-012,mirrowmere-guild,role,Chartered body,confirmed,guild-charter-1903,,preamble,,,project-file,,
+ev-013,nessa-quillon,life-dates,b. 1888,supported,,"Invented Encyclopedia of Lamps, s.v. ""Quillon, Nessa""",,,https://example.org/encyclopedia/quillon,snippet,,
+ev-014,nessa-quillon,life-dates,born 1888,provisional,nobody-thesis-1980,,p. 201,,,full-text,,
+ev-015,nessa-quillon,role,Electrician,confirmed,nobody-thesis-1980,,ch. 6,,,full-text,,
+ev-016,unnamed-apprentice,role,not established,not-established,,"Searched: guild register (fictional)",,,,project-file,,

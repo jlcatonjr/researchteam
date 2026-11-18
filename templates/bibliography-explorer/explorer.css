@@ -1,0 +1,87 @@
+/* Bibliography explorer. Everything is scoped under .bibx and styled through the custom properties
+   below. A host maps its own tokens onto them, for example:
+       .bibx { --bibx-accent: var(--my-accent); --bibx-surface: var(--my-panel); }
+   The defaults derive from the inherited text colour, so they follow a light or dark host as they are. */
+.bibx {
+  --bibx-text: currentColor;
+  --bibx-muted: color-mix(in srgb, currentColor 68%, transparent);
+  --bibx-line: color-mix(in srgb, currentColor 22%, transparent);
+  --bibx-surface: color-mix(in srgb, currentColor 6%, transparent);
+  --bibx-accent: LinkText;
+  --bibx-yes: color-mix(in srgb, currentColor 14%, transparent);
+  --bibx-no: transparent;
+  --bibx-advisory: color-mix(in srgb, currentColor 10%, transparent);
+  --bibx-radius: 6px;
+  --bibx-gap: 0.75rem;
+  color: var(--bibx-text);
+  line-height: 1.5;
+  max-width: 46rem;
+  overflow-wrap: anywhere;
+}
+.bibx *, .bibx *::before, .bibx *::after { box-sizing: border-box; }
+.bibx :is(h1, h2, h3, h4, h5, h6) { line-height: 1.25; margin: 0 0 0.5rem; }
+.bibx [data-bibx-heading] { font-size: 1.35em; }
+.bibx [data-bibx-heading]:focus { outline: none; }
+.bibx [data-bibx-heading]:focus-visible { outline: 2px solid var(--bibx-accent); outline-offset: 4px; }
+.bibx p { margin: 0 0 0.5rem; }
+.bibx ul, .bibx ol { margin: 0; padding: 0; list-style: none; }
+.bibx button { font: inherit; color: inherit; cursor: pointer; }
+.bibx :is(button, a, input, summary):focus-visible { outline: 2px solid var(--bibx-accent); outline-offset: 2px; }
+.bibx a { color: var(--bibx-accent); }
+
+.bibx-notice { border: 1px solid var(--bibx-line); border-radius: var(--bibx-radius); padding: 0.5rem 0.75rem; background: var(--bibx-surface); font-size: 0.9em; }
+.bibx-muted { color: var(--bibx-muted); font-size: 0.9em; font-weight: normal; }
+
+.bibx-crumbs { margin-bottom: var(--bibx-gap); font-size: 0.9em; }
+.bibx-crumbs ol { display: flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; }
+.bibx-crumbs li + li::before { content: "›"; margin-right: 0.5rem; color: var(--bibx-muted); }
+.bibx-link { background: none; border: 0; padding: 0; color: var(--bibx-accent); text-decoration: underline; text-align: left; }
+.bibx-cite { display: inline; }
+
+.bibx-list { display: grid; gap: 0.4rem; }
+.bibx-rowbutton { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.25rem 1rem; width: 100%; min-height: 44px; padding: 0.5rem 0.75rem; text-align: left; background: var(--bibx-surface); border: 1px solid var(--bibx-line); border-radius: var(--bibx-radius); }
+.bibx-rowbutton:hover { border-color: var(--bibx-accent); }
+.bibx-row-main { font-weight: 600; }
+.bibx-row-meta { color: var(--bibx-muted); font-size: 0.9em; display: inline-flex; flex-wrap: wrap; gap: 0.25rem 0.5rem; align-items: baseline; }
+
+.bibx-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; margin-bottom: 0.5rem; }
+.bibx-controls input { font: inherit; color: inherit; background: transparent; border: 1px solid var(--bibx-line); border-radius: var(--bibx-radius); padding: 0.4rem 0.6rem; min-height: 44px; flex: 1 1 10rem; min-width: 0; }
+.bibx-sort { display: inline-flex; align-items: center; gap: 0.25rem; }
+.bibx-toggle { background: transparent; border: 1px solid var(--bibx-line); border-radius: var(--bibx-radius); padding: 0.4rem 0.7rem; min-height: 44px; }
+.bibx-toggle[aria-pressed="true"] { background: var(--bibx-yes); border-color: var(--bibx-text); font-weight: 600; }
+
+.bibx-badge { display: inline-block; border: 1px solid var(--bibx-line); border-radius: 999px; padding: 0 0.5rem; font-size: 0.8em; font-weight: normal; white-space: nowrap; vertical-align: middle; }
+.bibx-yes { background: var(--bibx-yes); border-color: var(--bibx-text); }
+.bibx-no { background: var(--bibx-no); border-style: dashed; }
+
+.bibx-section { margin-top: 1.25rem; padding-top: 0.75rem; border-top: 1px solid var(--bibx-line); }
+.bibx-kind { margin-bottom: 0.75rem; }
+.bibx-kind :is(h1, h2, h3, h4, h5, h6) { font-size: 1em; margin-bottom: 0.25rem; }
+.bibx-values, .bibx-sources { display: grid; gap: 0.5rem; }
+.bibx-value { font-weight: 600; }
+
+.bibx-dl { display: grid; grid-template-columns: minmax(6rem, max-content) 1fr; gap: 0.2rem 0.75rem; margin: 0 0 0.5rem; }
+.bibx-dl dt { color: var(--bibx-muted); }
+.bibx-dl dd { margin: 0; min-width: 0; }
+.bibx-inline { display: flex; flex-wrap: wrap; gap: 0.15rem 0.75rem; }
+
+.bibx-details { margin-top: 0.25rem; }
+.bibx-details > summary, .bibx-audit > summary { cursor: pointer; color: var(--bibx-muted); font-size: 0.9em; min-height: 1.75rem; }
+.bibx-evidence-list { display: grid; gap: 0.5rem; margin-top: 0.4rem; }
+.bibx-evidence { border-left: 3px solid var(--bibx-line); padding: 0.4rem 0 0.1rem 0.75rem; font-size: 0.95em; }
+.bibx-evidence-value { font-weight: 600; }
+.bibx blockquote { margin: 0; padding-left: 0.6rem; border-left: 2px solid var(--bibx-line); font-style: italic; }
+
+.bibx-bio { font-size: 1.05em; }
+.bibx-ref { margin: 0 0.15rem; padding: 0 0.4rem; min-width: 1.6rem; min-height: 1.6rem; font-size: 0.75em; vertical-align: super; background: var(--bibx-surface); border: 1px solid var(--bibx-line); border-radius: 999px; }
+.bibx-ref[aria-expanded="true"] { background: var(--bibx-yes); border-color: var(--bibx-text); }
+
+.bibx-advisory { background: var(--bibx-advisory); border: 1px dashed var(--bibx-text); border-radius: var(--bibx-radius); padding: 0.75rem; }
+.bibx-advisory .bibx-badge { margin-left: 0.5rem; }
+.bibx-caveat { font-style: italic; }
+.bibx-citation { font-size: 1.05em; padding: 0.6rem 0.75rem; background: var(--bibx-surface); border-radius: var(--bibx-radius); }
+
+@media (max-width: 30rem) {
+  .bibx-dl { grid-template-columns: 1fr; }
+  .bibx-dl dd { margin-bottom: 0.3rem; }
+}

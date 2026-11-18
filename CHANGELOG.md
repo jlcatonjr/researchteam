@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Bibliography explorer (#210).** A reusable view of a project's people and sources: period, person, bio with
+  the evidence behind each attribute, and source detail with a Chicago-style citation and summary.
+  `scripts/build_bibliography_explorer.py` (with `scripts/bibtex_chicago.py`) builds one data file from a project's
+  input tables and its `.bib`; `templates/bibliography-explorer/` holds the data contract, the display component and
+  an invented example. Standard library only; no third-party JavaScript. `researchteam update` does not sync these
+  files: a derived repository vendors them at a pinned commit (`templates/bibliography-explorer/README.md`). A clean
+  export means well-formed and consistent, not that any value or citation is true.
+
 ## 1.1.9 (tag `v1.1.9`, on `release/1.1`)
 
 A patch release on `release/1.1`. It still pins agentteams **`v1.1.4`** (`b82d78e7`). Derived repositories take it
