@@ -6,6 +6,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 5,primary-producer,Write the vendoring README and the hashed file list,steps 3 and 4,templates/bibliography-explorer/README.md; templates/bibliography-explorer/FILES.sha256,done,,3;4
 6,code-hygiene,Audit the code,steps 3 to 5,audit result,done,PASS on the third pass; five defects found and fixed with tests; one advisory open (string passed as a function label),5
 7,conflict-auditor,Close the multi-file change,steps 3 to 6,audit result,done,Five conflicts found and resolved (contract against plan; literature mapping; onNavigate wording); ran beside step 6,5
-8,git-operations,"Open the PR, wait for both test checks, merge under PS-2",branch feat/bibliography-explorer,merge commit on main,pending,No workflow or agent file or pin touched,7
-9,orchestrator,Send the merge commit to the OrthodoxLLM session,merge commit,message,pending,,8
-10,work-summarizer,Record the session in the daily work summary,plan and git history,workSummaries/daily/2026-11-18.md,pending,,9
+8,git-operations,"Open the PR, wait for both test checks, merge under PS-2",branch feat/bibliography-explorer,merge commit on main,done,PR #210 merged as db23be6 at reviewed head 2ef5c57; tests green on main,7
+9,orchestrator,Send the merge commit to the OrthodoxLLM session,merge commit,message,done,Sent db23be6 as a development pin,8
+10,work-summarizer,Record the session in the daily work summary,plan and git history,workSummaries/daily/2026-11-18.md,done,,9
