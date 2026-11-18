@@ -16,5 +16,7 @@ no-cache rule in the update policy) and the evergreen PR #207 from its verificat
 2. `@security` and `@conflict-auditor` review it; it is merged under PS-2.
 3. **Wait** for the coordinator's word that the fleet's v1.1.8 move is complete.
 4. The operator runs the cut: fast-forward `release/1.1`, sign and push v1.1.9, create the GitHub release.
+   **Superseded 2026-11-18:** the operator ruled to cut now, without waiting for the last v1.1.8 move, and
+   confirmed it in the cutting session. The cut was made from `166ee217`, the merge of the later docs PR #209.
 5. Verify the tag; send infrastructuremanagement-4d and infrastructuremanagement-65 the tag object and the
    peeled SHA; work summary.
