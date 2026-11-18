@@ -4,7 +4,7 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 3,primary-producer,"Write the exporter: BibTeX parser, Chicago renderer, input readers, validation, report",CONTRACT.md,scripts/build_bibliography_explorer.py; tests/test_bibliography_explorer.py,done,Stdlib only; deterministic output; also scripts/bibtex_chicago.py,2
 4,primary-producer,"Write the component, stylesheet, example page and invented example data",CONTRACT.md,templates/bibliography-explorer/,done,No third-party JavaScript; text inserted as text; checked in headless Chrome at 390 px,2
 5,primary-producer,Write the vendoring README and the hashed file list,steps 3 and 4,templates/bibliography-explorer/README.md; templates/bibliography-explorer/FILES.sha256,done,,3;4
-6,code-hygiene,Audit the code,steps 3 to 5,audit result,pending,,5
+6,code-hygiene,Audit the code,steps 3 to 5,audit result,done,PASS on the third pass; five defects found and fixed with tests; one advisory open (string passed as a function label),5
 7,conflict-auditor,Close the multi-file change,steps 3 to 6,audit result,done,Five conflicts found and resolved (contract against plan; literature mapping; onNavigate wording); ran beside step 6,5
 8,git-operations,"Open the PR, wait for both test checks, merge under PS-2",branch feat/bibliography-explorer,merge commit on main,pending,No workflow or agent file or pin touched,7
 9,orchestrator,Send the merge commit to the OrthodoxLLM session,merge commit,message,pending,,8
