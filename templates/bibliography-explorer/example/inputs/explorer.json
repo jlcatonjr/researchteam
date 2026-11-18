@@ -1,0 +1,39 @@
+{
+  "title": "Lantern Guild of Mirrowmere (invented example)",
+  "notice": "Invented example. Every person, institution, source and quotation here is made up to demonstrate the explorer. None of it is real.",
+  "vocab": {
+    "attribute_kinds": [
+      {"id": "life-dates", "label": "Life dates", "order": 1, "multi": false},
+      {"id": "origin", "label": "Place of origin", "order": 2, "multi": false},
+      {"id": "role", "label": "Role in the guild", "order": 3, "multi": true},
+      {"id": "works", "label": "Works", "order": 4, "multi": true}
+    ],
+    "tiers": [
+      {"id": "confirmed", "label": "Confirmed", "establishes": true, "description": "Stated in a source read in full."},
+      {"id": "supported", "label": "Supported", "establishes": true, "description": "Stated in a reference work."},
+      {"id": "provisional", "label": "Provisional", "establishes": false, "description": "Reported second-hand; not yet checked."},
+      {"id": "not-established", "label": "Not established", "establishes": false, "description": "Searched for and not found."}
+    ],
+    "access": [
+      {"id": "full-text", "label": "Read in full"},
+      {"id": "snippet", "label": "Snippet only"},
+      {"id": "project-file", "label": "Project file"}
+    ],
+    "roles": [
+      {"id": "author", "label": "Author"},
+      {"id": "editor", "label": "Editor"},
+      {"id": "translator", "label": "Translator"},
+      {"id": "attributed", "label": "Attributed"}
+    ],
+    "person_kinds": [
+      {"id": "person", "label": "Person"},
+      {"id": "institution", "label": "Institution"}
+    ]
+  },
+  "periods": [
+    {"id": "early", "label": "Early guild", "order": 1, "start_year": null, "end_year": 1799, "established": true},
+    {"id": "middle", "label": "Charter years", "order": 2, "start_year": 1800, "end_year": 1899, "established": true},
+    {"id": "late", "label": "Electric age", "order": 3, "start_year": 1900, "end_year": null, "established": true},
+    {"id": "unknown", "label": "Period not established", "order": 4, "start_year": null, "end_year": null, "established": false}
+  ]
+}

@@ -1,0 +1,5 @@
+person_id,source_id,role,basis
+ada-wickmere,wickmere-trimming,author,explicit key in a works row
+ada-wickmere,wickmere-letters,attributed,name match checked by hand
+tolliver-brask,brask-fictive-1950,author,name match checked by hand
+mirrowmere-guild,guild-charter-1903,author,explicit key in a works row

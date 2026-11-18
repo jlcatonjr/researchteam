@@ -1,0 +1,5 @@
+person_id,key,label,value_label,established,basis,evidence_ids
+ada-wickmere,period,Period,Charter years,true,,ev-001
+ada-wickmere,is-master,Held guild office,Yes,true,reported — guild charter,ev-004
+ada-wickmere,is-keeper,Kept the pattern book,Not established,false,,
+ionut_glasswright,is-master,Held guild office,Not established,false,,

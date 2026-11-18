@@ -1,0 +1,18 @@
+{
+  "ada-wickmere": {
+    "text": "Ada Wickmere (1811–1879) was born in Mirrowmere. She was master of the guild.",
+    "clauses": [
+      {"text": "Ada Wickmere (1811–1879)", "evidence_ids": ["ev-001", "ev-002"]},
+      {"text": "was born in Mirrowmere.", "evidence_ids": ["ev-003"]},
+      {"text": "She was master of the guild.", "evidence_ids": ["ev-004"]}
+    ],
+    "basis": "assembled from established attributes",
+    "authored_by": "example generator",
+    "verification_state": "UNVERIFIED — invented example"
+  },
+  "nessa-quillon": {
+    "text": "Nessa Quillon was the guild's first electrician.",
+    "basis": "written",
+    "verification_state": "UNVERIFIED — invented example"
+  }
+}
