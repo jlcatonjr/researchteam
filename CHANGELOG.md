@@ -5,6 +5,15 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **agentteams 1.2 (the researchteam 1.2 line).** The agent team is regenerated with agentteams 1.2.1, and
+  `toolchain.lock` and the `update` / `research` extras move from agentteams `v1.1.4` to **`v1.2.1`** (`a7ab95e2`). New in the
+  rendered team: a "GitHub management" section and an "Integration-branch merge authorization" section in the
+  instruction files, an updated constitutional gate hook, a work-summary stop hook (an example the operator may
+  merge into `settings.json`), and new reference files. agentteams 1.2 changes an unscoped Claude agent's fallback
+  grant to read-only (`Read`, `Grep`, `Glob`; agentteams #511); every agent researchteam renders already declares
+  `tools:`, so no grant changes. A derived repository with its own unscoped agents must add an explicit `tools:`
+  line. Policy: `docs/release-policy.md`, "The 1.2 line".
+
 - **Bibliography explorer (#210).** A reusable view of a project's people and sources: period, person, bio with
   the evidence behind each attribute, and source detail with a Chicago-style citation and summary.
   `scripts/build_bibliography_explorer.py` (with `scripts/bibtex_chicago.py`) builds one data file from a project's

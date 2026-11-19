@@ -226,7 +226,7 @@
         {
           "label": "Resolve Conflicts",
           "agent": "conflict-resolution",
-          "prompt": "Conflicts have been identified and logged. Make ACCEPT/REJECT/REVISE decisions.",
+          "prompt": "Conflicts have been identified; the orchestrator has appended their rows to the conflict log. Make ACCEPT/REJECT/REVISE decisions on the open rows.",
           "send": false
         },
         {

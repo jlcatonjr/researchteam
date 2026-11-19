@@ -38,6 +38,19 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`researchteam update --ref <tag>`, then `python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag>
   --tag agentteams=<agentteams tag>`), which keeps the order agentteams → researchteam → derived.
 
+### The 1.2 line
+- researchteam 1.2 pins agentteams 1.2 (operator ruling, 2026-11-19). `release/1.2` is cut from `main` at `1.2.0rc1`,
+  after the agentteams 1.2 pin has merged to `main`. The 1.2 RC and final tags (`v1.2.0-rc.N`, `v1.2.0`, `v1.2.N`)
+  are cut and signed **on `release/1.2` only**, and each tag is merged forward into `main` as above.
+- `release/1.1` stays open for `v1.1.N` backports and keeps its own tags; it does not move to agentteams 1.2.
+- Moving `toolchain.lock` from the 1.1 line to the 1.2 line is a trust change with its own `@security` row
+  (`release-line-agentteams-1.2`), separate from the pin review. As for 1.1, the move drops the `agentteams.tag=`
+  line and starts a new lock with `--write-lock --tag agentteams=<1.2 tag> --sync-extras`.
+- researchteam 1.2.0 is the agentteams 1.2 pin release. The term-index core switch (`docs/term-index-protocol.md`,
+  "Planned placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
+  replacing the 2026-11-17 plan to carry it in 1.2.0).
+- Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag, as for 1.1.
+
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
   `SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM` (agentteams SECURITY.md "Release signers"),

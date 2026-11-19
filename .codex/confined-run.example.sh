@@ -74,7 +74,7 @@ for f in AGENTS.md AGENTS.override.md; do [ -e "$CODEX_HOME/$f" ] || : > "$CODEX
 sha(){ { sha256sum "$1" 2>/dev/null || shasum -a 256 "$1"; } | cut -d" " -f1; }
 pin(){ if [ ! -f "$1" ] || [ -L "$1" ] || [ "$(sha "$1")" != "$2" ]; then
   echo "REFUSING: $1 is missing, a symlink, or not the pinned copy; regenerate the team with agentteams." >&2; exit 2; fi; }
-pin "$ROOT/.agentteams/bin/codex-role-gate.py" 8e2a3bea7a3b0022c85db521431699506641859bcc7577360bb82031e9f874c1
+pin "$ROOT/.agentteams/bin/codex-role-gate.py" 163ef4dc89d99e747fbe78e40fea3998019bf0bb0e8bc4a23ec008485aad623c
 pin "$ROOT/.agentteams/bin/goose-readfs-mcp.py" dc8413e8ec16298e79b5ff27e6629c792693ef88bcae4c9f9c40e85d127cab58
 pin "$ROOT/.codex/hooks.json" 440226be258249e417ecd48378da09ad44551391dc2941912da4de44c5a33858
 case "$ROOT" in *[\"\\]*|*[[:cntrl:]]*)

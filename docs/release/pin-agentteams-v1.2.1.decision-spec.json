@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-19",
+  "date": "2026-11-19",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "pin-agentteams-v1.2.1",
+  "verdict": "PASS",
+  "scope": "pin-agentteams-v1.2.1",
+  "conditions": "Pin = peeled commit of the verified signed tag v1.2.1 (tag object a72a844e7afa468edb69cf1bf99d6f5f74390c1a, release key SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM), published as the latest stable agentteams release, so the latest-stable rule is met. It is the first pin on the agentteams 1.2 line; the line move is a separate trust change (release-line-agentteams-1.2). Adopted on its release day, inside the 14-day cooldown: agentteams is a first-party toolchain group member (operator rulings T2/R9; s10-first-party-releases-2026-11 and the signed group file). Under T2 a group release needs this repository's @security review and a verified tag, and no operator-signed row. This spec is the lasting copy of that review; it enters the signed log only if the operator chooses to sign it. agentteams' declared dependencies differ from v1.1.4 (the previous pin) only in the version line, so the vetted set in constraints-2026-11-13.txt is unchanged. A fresh OSV search ran for this pin (2026-11-19 09:10Z, api.osv.dev, PyPI ecosystem): agentteams 1.2.1 none, and no entry of any kind for the name; jsonschema 4.26.0, attrs 26.1.0, jsonschema-specifications 2025.9.1, referencing 0.37.0, rpds-py 2026.9.1, typing-extensions 4.16.0, cryptography 50.0.2, cffi 2.1.1, pycparser 3.12 none. Render delta (local `researchteam update --layer1-only` with agentteams at the pinned commit): the instruction files gain the generated 'GitHub management' and 'Integration-branch merge authorization' sections; the constitutional gate hook, the sandbox profiles and the example deny list tighten; a work-summary stop hook and its example settings are added (not wired; the operator merges examples); new reference files; no tools: line changes; derived data is regenerated. The first @security round (HALT at f01358a for an S-8 match in the memory indexes and for the then-unsigned tag) and its findings are recorded in PR #214.",
+  "conditions_verified": "tag v1.2.1 object a72a844e7afa468edb69cf1bf99d6f5f74390c1a peeled a7ab95e241244903339b6d54743f7c3366530071 (= agentteams origin/release/1.2); release-key signature verified in researchteam's session by scripts/check_toolchain.py --verify-tag agentteams v1.2.1 (2026-11-19), and independently by the coordinator's session; pyproject diff v1.1.4 -> v1.2.1 is the version line only; the autosync gate's vetted set installed --no-deps with agentteams at a7ab95e2, then `pip check` clean (CPython 3.14); agentteams --verify-toolchain-pin rc 0 (1 group pin verifies); scripts/validate_agentteams_update.sh passed; the team was rendered from a7ab95e2, the commit the tag peels to",
+  "evidence": "researchteam PR #214 (plan references/plans/release-line-1.2.plan.md); Scope: toolchain.lock, the update/research extras and .github/agentteams-autosync-ref: agentteams b82d78e74382ceeec560b2198c96430ffcedcf21 (v1.1.4) -> a7ab95e241244903339b6d54743f7c3366530071 (v1.2.1)",
+  "derives_from": "release-policy-1.0; s10-release-cooldown-restored; s10-first-party-releases-2026-11; release-line-agentteams-1.2",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml; .github/agentteams-autosync-ref",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}

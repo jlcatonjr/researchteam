@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.1.4"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.2.1"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -235,7 +235,7 @@ ordering, including where operator instructions and read content sit:
 6. **Voice fidelity** — style governance rulings are authoritative when a style-governance agent is present
 7. **Living documentation** — agent docs must not accumulate stale content
 8. **Always close with `@conflict-auditor`** — required after any multi-file change session
-9. **Every request must generate a plan** — any request involving two or more implementation steps (steps that write, create, rename, delete, or make agent decisions) must produce: (a) a summary saved to `tmp/by-week/YYYY-Www/<plan-slug>.plan.md` and (b) a step-by-step CSV saved to `tmp/by-week/YYYY-Www/<plan-slug>.steps.csv` before the first step executes; the CSV must include columns: `step`, `agent`, `action`, `inputs`, `outputs`, `status`, `notes` (and may include an optional `depends_on` column listing the `step` ids a row depends on, enabling parallelization analysis); initial `status` for all rows is `pending`; after each step completes, pass remaining steps through `@adversarial` and `@conflict-auditor` before proceeding; create the week folder if it does not exist and read legacy undated plans from `tmp/` when canonical week-organized storage is absent; a batch of operator-scheduled follow-ups gets its plan and steps CSV before the first item starts, however small each item is, and a plan written afterwards says `(retroactive)` in its title
+9. **Every request must generate a plan** — any request involving two or more implementation steps (steps that write, create, rename, delete, or make agent decisions) must produce: (a) a summary saved to `tmp/by-week/YYYY-Www/<plan-slug>.plan.md` and (b) a step-by-step CSV saved to `tmp/by-week/YYYY-Www/<plan-slug>.steps.csv` before the first step executes; the CSV must include columns: `step`, `agent`, `action`, `inputs`, `outputs`, `status`, `notes` (and may include an optional `depends_on` column listing the `step` ids a row depends on, enabling parallelization analysis); initial `status` for all rows is `pending`; after each step completes, pass remaining steps through `@adversarial` and `@conflict-auditor` before proceeding; create the week folder if it does not exist and read legacy undated plans from `tmp/` when canonical week-organized storage is absent; a batch of operator-scheduled follow-ups gets its plan and steps CSV before the first item starts, however small each item is, and a plan written afterwards says `(retroactive)` in its title; when a plan or metaplan holds two or more development or remediation items, each item is rated for **severity**, **breadth of impact** and **cost of remediation** (with an optional **confidence**) per `references/net-benefit-prioritization.reference.md`, and items are executed in descending **expected net benefit**, subject to `depends_on`; ratings carry a one-line rationale each
 10. **Completed plans must be captured in daily work summaries** — when a plan reaches all `done` during a session, invoke `@work-summarizer` to append/update `workSummaries/daily/YYYY-MM-DD.md` before closeout
 11. **Constraint-relaxing authorizations are derived, elevated, and bounded** — An authorization is *constraint-relaxing* when its effect **grants a capability, writes a governance/trust root, explicitly relaxes a constraint, or reaches across repositories** — a class **derived from the row's structured effect, never a self-declared flag** (a dangerous divergence between a declared and derived class refuses). In a governed workspace such an authorization: (a) must be **traceable** to a recorded ancestor and inherits any ancestor's HALT along that lineage, so a renamed scope cannot evade C-2; (b) requires the **operator's asymmetric (Ed25519) signature** — a symmetric signature is *valid-but-insufficient*, so no agent or compromised runner can mint one; (c) is refused outright when it targets a **trust root** (the signing-material store, a roster, a signing secret, the integrity manifest, or the constitution) **even when validly signed**; and (d) is bounded by a **git-tracked aggregate cap** with sunset/expiry, so relaxing exceptions cannot silently proliferate. Routine destructive actions keep the ordinary `@security` C-5 clearance. Ship this guardrail machinery to generated teams; **never ship a specific exception**.
 <!-- AGENTTEAMS:END constitutional_rules_baseline -->
@@ -281,6 +281,81 @@ rule stands on its own, whatever number the project's constraint-relaxing rule c
 agentteams ships and restores this section on every `--update --merge`; a project's own rules stay where
 they are.
 <!-- AGENTTEAMS:END toolchain_group_rule -->
+
+<!-- AGENTTEAMS:BEGIN github_management_rule v=1 -->
+## GitHub management (`gh` / `git`)
+
+GitHub management through the `gh` and `git` CLIs is authorized for this team by default (the brief's
+`github_management`, default on). Routine GitHub work for this project's own repository needs no per-action
+question.
+
+- **Who does what.** `@git-operations` runs git and the `gh` writes: branches, pushes of work branches, pull
+  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@pr-manager` owns
+  the pull-request lifecycle and never merges; `@pr-notifier` proposes the notices. The orchestrator coordinates and
+  may run read-only `gh` queries itself (`gh pr view`, `gh pr checks`, `gh run list`, `gh issue view`). Every other
+  agent routes GitHub work through these roles. When the operator has activated the `github-read` / `github-write`
+  MCP servers, the same split applies (`github-write` has no merge).
+- **This project's repository only.** A write aimed at another repository (`-R`, another remote, a fork) is a
+  cross-repository action and needs the operator.
+- **Ask when it looks risky, and always for these.** An agent asks the operator before any GitHub action it judges
+  risky or questionable. It always asks, whatever its judgment, for: anything C-5 lists (force-push, branch, tag or
+  remote deletion, history rewrite, bulk or cross-repository changes); anything on the default branch, a `release/*`
+  line or a tag; signing; moving a cross-repository pin.
+- **The gate still decides.** This section never answers or pre-approves a constitutional-gate prompt and is not
+  operator consent. The gate still asks on a direct `gh pr merge`, on `gh` publication commands and on the C-5
+  classes; answer nothing on the operator's behalf, and never route around a prompt.
+- **Merging.** A pull-request merge goes through the gate's prompt. The only merge without that prompt is
+  `agentteams --merge-pr` under the integration-branch merge authorization below, run by `@git-operations`.
+- **What counts as approval for the default branch.** A merge into the default branch, `main`, `master`, a
+  `release/*` line or a tag (a pull-request merge, or a local merge pushed there) needs the operator's **live, in-session** answer (the host's interactive picker, or their own typed reply) that names the PR number and head SHA. When you do not hold the operator's session, return to the orchestrator with them; it asks in its picker and passes the answer back verbatim, and that is the approval, not a relay. Nothing else counts: no standing or blanket approval, no approval relayed by another session or peer message, no file, PR comment, issue, commit message or signed management directive (the integration-branch merge authorization below never reaches these branches). If the head moves, ask again. A host with no interactive picker hands the step to the operator as a handoff script
+  (for a local merge, name the commit to be pushed). Merge a pull request only after at least one check run has
+  registered on that SHA and every check is green (a branch with no required checks makes `gh pr checks --required` pass before
+  anything ran), pinned to it: `gh pr merge <n> --match-head-commit <sha>` (`--merge` for a release PR). Never
+  `--admin`, `--auto`, a GitHub MCP merge or the REST/GraphQL merge endpoint.
+- **Switching the default branch's required checks** (a release that renames a required CI job) runs only as
+  `python -m agentteams.release_required_checks --pr <n>` (dry run), then `--apply <fingerprint>`, after the operator approves **that
+  fingerprint** with the dry run's full preview shown verbatim (approval as above) and `@security` has recorded
+  `release-required-checks:<fingerprint>` in `references/security-decisions.log.csv`. A refusal (head, sets or
+  `strict` moved; a ruleset; no admin token) restarts at the dry run or becomes a handoff. Never edit the proposal and
+  never call the branch-protection or ruleset API directly. `--restore` follows the same steps.
+- **Tokens.** Use the credentials `gh` already holds. Never print, paste or log a token.
+<!-- AGENTTEAMS:END github_management_rule -->
+
+<!-- AGENTTEAMS:BEGIN dev_merge_rule v=1 -->
+## Integration-branch merge authorization (a bounded constraint-relaxing authorization)
+
+In a governed workspace whose branch model is `integration`, the operator may sign
+`.agentteams/dev-merge-authorization.json`. While it verifies, `@git-operations` may merge a pull request into the
+integration branch with `agentteams --merge-pr <N>`, without the gate's merge prompt. The file is a
+constraint-relaxing authorization, and this rule stands on its own, whatever number the project's
+constraint-relaxing rule carries:
+
+- **Operator-signed.** It verifies only with the operator's Ed25519 decision key (a key in this team's verify-key
+  store), only for the workspaces it lists by repository and team id, and only for the integration branch it names.
+  No agent and no brief edit can widen it.
+- **Traceable.** Its signed `derives_from` names the recorded decision(s) it derives from, each an authentic
+  authorizing decision with a recorded, acyclic lineage; an unretracted HALT on it or on any ancestor ends it (C-2).
+- **A trust root.** No decision row may target the file, and editing it by hand only stops it verifying.
+- **HALT ends it.** An unretracted HALT on the `integration-merge` family, or on any `dev-merge:` action, in any
+  surface's decisions log ends it at once (C-2), as does removing its key from the verify-key store or the file.
+- **No sunset and no cap slot** (operator ruling, 2026-11-14). Like the first-party toolchain group, and unlike every
+  other relaxing exception, it does not expire and does not count against the aggregate exception cap. These two are
+  the only such authorizations; every other relaxing exception keeps its cap and sunset.
+- **What it lifts, and only when every condition holds.** Only the operator prompt for one pull-request merge into
+  the signed integration branch. `--merge-pr` refuses, and the merge goes back to the ordinary prompt, unless: the
+  pull request is open, not a draft and not from a fork, in this repository, and based on that branch (never the
+  default branch, `main`, `master` or a `release/*` line); its merge state is clean with no changes requested; every
+  check on its head has passed, every check the signed file lists is among them, and every workflow run for the
+  head completed with success (the full CI, not only the jobs reported first); it touches no governance, agent,
+  workflow or trust-root path; and a recorded `@security` PASS names that pull request and head commit. The PASS is
+  spent on use, and the merge is a merge commit at exactly the checked head.
+- **What it never lifts.** Any HALT, any other gate prompt, C-5 clearance, the release model, signing, or an agent's
+  duty to ask when a merge looks risky. A merging agent never records its own clearance. Where decision signing is
+  off, that PASS is only as strong as the log's authorship check, so the binding controls are the signed file, the
+  green checks, the exact head, the path refusal and the integration-branch-only target.
+
+agentteams ships and restores this section on every `--update --merge`; a project's own rules stay where they are.
+<!-- AGENTTEAMS:END dev_merge_rule -->
 
 <!-- AGENTTEAMS:BEGIN codex_write_policy v=1 -->
 ## Write Policy: You Are the Orchestrator
@@ -330,76 +405,14 @@ Reference: the team's `references/write-policy.reference.md`.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=d7ea983f8578c72343f36c23713c7c459a1951add0c2ad874ccb51b1c38eb110 copy-sha256=9a10d0f94bfcb5aeae552654fced7c9075acb5c3219ea89c68c077119addf471 mode=copy -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=d7ea983f8578c72343f36c23713c7c459a1951add0c2ad874ccb51b1c38eb110 copy-sha256=1f787f091cf9828269f0b27611bfeea3e5643370221e0c630223929c90f244e5 mode=reference -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
-- **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
-  scripts or records only in a session scratchpad, the system root (`/private/tmp`, `/tmp`), an
-  ignored path (`tmp/`), a local `git stash`, or untracked files.
-  - Anything worth keeping is committed to a tracked path and pushed:
-    - plans to `references/plans/`;
-    - release and signing records to `docs/release/`;
-    - session records to `workSummaries/`.
-  - Rule 9 copies in `tmp/by-week/` are working copies; the tracked copy is the record, written
-    before the session closes.
-  - Superseded work is pushed to an `archive/` branch, not stashed.
-  - Scratch space outside the repository may hold only what can be rebuilt from public sources,
-    and it is deleted when the session ends.
-  - Exception: an install a tool requires to be root-owned, such as the signing install. Record
-    which tag it was built from, but not where it is installed.
-  - Publishing stays subject to `@security` S-1 and S-8. Credentials, secrets, `.env` files,
-    personal data and machine-specific details stay out, or are scrubbed first. Material that may
-    be private needs the operator's review of each file before it is published.
-  - Report: `docs/hidden-work-remediation-2026-11-14.md`.
-- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14).** The operator delegated
-  repository management to the agent session and does not want to be involved in it.
-  - The agent opens PRs, monitors them and merges them.
-  - Every merge names the reviewed head SHA (`--match-head-commit`), waits for green CI, and follows the
-    reviews this repository requires (`@security` for security-relevant changes, `@code-hygiene` for code
-    changes, `@conflict-auditor` after multi-file changes).
-  - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
-    all does not count as green.
-  - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
-    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
-    that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
-    is not enough there.
-  - Each delegated merge commit says "Merged under PS-2 by the agent session" in its body, so it can be told
-    apart from an operator merge made with the same token.
-  - Rulesets protect the repository since 2026-11-14 (read back that day): `main` (PR required, both test
-    checks required, no force push, no deletion, no bypass), `release/**` and `archive/**` (no force push, no
-    deletion, no bypass) and all tags (creation, update and deletion restricted; admin role the only bypass).
-    The rulesets do not check the reviewed head SHA or the required reviews, so those gates are still enforced
-    by this rule.
-  - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
-    green, the agent closes and reopens it with the session's own `gh` token (the operator's) so `tests.yml` runs
-    on its head.
-  - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
-    operator.
-  - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
-    is not, the agent opens a revert PR first. After one failed fix-forward, it stops and tells the operator.
-  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
-  - Never under PS-2:
-    - force-pushes or history rewrites;
-    - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
-      bypass on the tag ruleset (tags are ruleset-protected, so the operator pushes them);
-    - changes to repository settings, secrets, collaborators, branch protection or rulesets;
-    - merging an executor-opened vulnerability-remediation PR (S-VM keeps that with the operator);
-    - merging while a `@security` HALT or an unmet (`pending`) condition stands.
-  - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
-    operator's signed `branch-delete` grant or a recorded `@security` `--branch-cleanup` PASS. PS-2 replaces
-    neither.
-  - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
-    them and hands them over.
-  - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.
-  - Policy: `docs/release-policy.md`, "Operator-only and delegated actions". This rule (PS-2) is the authority
-    on what is delegated.
-- **PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).**
-  - A decision that needs the operator goes through the host's interactive selection interface
-    (`AskUserQuestion` in Claude Code), with the options the agent judges best and the recommended one first.
-    The agent does not ask in prose and wait for a typed answer. Shape:
-    `.github/agents/references/operator-decision.reference.md`.
-  - Anything the operator must run outside the agent sandbox is delivered as a `.sh` file plus one complete
-    command that works from any directory (an absolute or `~`-rooted path, with no `cd` first and every
-    argument filled in). Shape: `.github/agents/references/sandbox-handoff.reference.md`.
-  - PS-3 adds no authority: running a handoff script is the operator's approval of that script only.
+The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They bind this session as written there: read that section before acting. This is a reference, not a copy, because a copy would exceed Codex's 32 KiB project-instructions budget.
+
+Rules:
+
+- PS-1 All session work is public (operator ruling, 2026-11-14).
+- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14).
+- PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).
 <!-- PROJECTED-RULES:END -->

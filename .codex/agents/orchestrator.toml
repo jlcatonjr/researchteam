@@ -104,21 +104,24 @@ including where operator instructions and read content sit: `references/instruct
 
 | Content Area | Agent | Key Indicators |
 |---|---|---|
-<!-- AGENTTEAMS:BEGIN routing_table_rows v=3 -->
+<!-- AGENTTEAMS:BEGIN routing_table_rows v=7 -->
 | Creating or revising primary Markdown research reports, BibTeX bibliography and Executive summary | `@primary-producer` | New work or revision in `reports/` |
 | Architecture and file hygiene | `@code-hygiene` | Backup files, script lifecycle, duplication, agent doc consistency |
 | Quality and structural defects | `@quality-auditor` | Purposeless content, structural weakness, pattern violations |
 | Within-section cohesion | `@cohesion-repairer` *(if in team)* | Disjointed paragraphs, broken argument flow, orphaned evidence |
 | Style and standards | `@style-guardian` *(if in team)* | Style reference: N/A - no formal style guide defined for this project |
-| Technical accuracy | `@technical-validator` | Code, paths, counts, claims against source files |
-| Format conversion | `@format-converter` | Source format → output format `Markdown with Chicago citations` |
-| References and dependencies | `@reference-manager` | Database: `references/bibliography.bib` |
-| Final compilation | `@output-compiler` | Final assembly and build |
+| Technical accuracy | `@technical-validator` *(if in team)* | Code, paths, counts, claims against source files |
+| Format conversion | `@format-converter` *(if in team)* | Source format → output format `Markdown with Chicago citations` |
+| References and dependencies | `@reference-manager` *(if in team)* | Database: `references/bibliography.bib` |
+| Final compilation | `@output-compiler` *(if in team)* | Final assembly and build |
 | Diagrams and figures | `@visual-designer` *(if in team)* | Files in `figures/` |
 | Cross-repository impact and liaison | `@repo-liaison` | Adjacent repo docs, cross-orchestrator coordination, registry maintenance |
 | Daily/weekly/monthly work summary reporting | `@work-summarizer` | Synthesize `tmp/by-week/` plan artifacts, legacy `tmp/` fallbacks, and git history into `workSummaries/` |
 | Commit and push, pull/merge/rebase from main, conflict resolution, file recovery (git diff, revert, restore) | `@git-operations` | "Commit", "push", "pull main", "merge", "rebase", "recover file", "revert", "what changed", "restore old version" |
 | Parallel dispatch of independent plan steps | `@orchestrator` → Workflow 0A | Plan steps with disjoint domains; "run these in parallel"; a `*.steps.csv` carrying `depends_on` |
+| A structural change or new feature was committed; API docs may be stale | `@orchestrator` → API Impact Review | The pre-commit hook printed `API impact`; `api_impact status` lists unreviewed commits; Workflow 11 gate 6b |
+| A decision only the operator can make | `@orchestrator` → Operator Decision Query | A preference, trade-off, approval or costly-to-undo fork the request and code do not settle; another agent returning a decision |
+| Complex request with several separable items | `@orchestrator` → Workflow 0C | Two or more features/defects/findings that each need a plan; "make a metaplan"; parallel implementation of several plans |
 | Coordinated concurrent dispatch of overlapping plan steps | `@orchestrator` → Workflow 0B | Overlapping footprints without shared mutable state; "work these together"; steps that would otherwise serialize on file overlap |
 | User-facing query from a delegated (spawned) orchestrator | `@orchestrator` → Workflow 12 | A sub-orchestrator or adjacent-repo orchestrator this session spawned needs a decision; prime resolves or consolidates before any user prompt |
 | Spawn a scoped child orchestrator for a coordinating sub-body-of-work (in-repo) | `@orchestrator` → Workflow 13 | "Spin up an orchestrator for X"; a delegated body of work that itself needs coordination, not a single domain subagent |
