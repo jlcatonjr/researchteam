@@ -224,14 +224,26 @@ Under a release lock, the Execution Policy above changes as follows:
 Moving a pin is a security event: record each move, naming the tag object and the peeled SHA. Where the
 record goes depends on the release (`docs/release-policy.md`, "Pins"):
 
-- **A release of a first-party toolchain-group member** (agentteams, researchteam, baseAgent, mathAgents, in a
-  workspace the operator-signed group file lists): no decision-log row. The record is the repository's own
-  `@security` review in the pin-move PR, which names the tag object and the peeled SHA and records the
-  known-vulnerability search. It is a record of a review, not an authorization: no decision row is signed for
-  it, but the tag must still verify as the operator's signed release (`agentteams --verify-toolchain-pin`) and
-  the latest-stable rule still applies.
+- **A release of a first-party toolchain-group member** (agentteams, researchteam, baseAgent, mathAgents): no
+  decision-log row, in either of two kinds of workspace:
+  - a workspace the operator-signed group file (`.agentteams/toolchain-group.json`) lists;
+  - a workspace where decision signing is off and the brief lists the member in `s10_cooldown_exempt_repos`.
+    There is no group file there, and the rendered S-10 rule names the member from the brief.
+
+  In both, the record is the repository's own `@security` review in the pin-move PR, which names the tag object
+  and the peeled SHA and records the known-vulnerability search. It is a record of a review, not an
+  authorization: no decision row is signed for it. The tag must still verify as the operator's signed release,
+  and the latest-stable rule still applies. What verifies the tag differs:
+  - with a group file: `agentteams --verify-toolchain-pin`, which fails closed;
+  - without one: that command checks nothing and exits 2, so it is not the check. Verify each moved pin with
+    `python3 scripts/check_toolchain.py --verify-tag <name> <tag>` (run with the project environment), or by
+    hand with `git verify-tag`, using an allowed-signers file that holds only the release-key line, after
+    confirming the tag is annotated, and confirm the peeled commit equals the
+    locked one. The `@security` review records which check was run and its output. Nothing enforces this check
+    mechanically in such a workspace, so the review is the control.
 - **Any other pin move**, or a member move once the group file no longer verifies or an unretracted HALT on
-  `s10-toolchain-group` stands: a row in the decisions log. In a repository with decision signing on, that row is an authorization and the operator signs it.
+  `s10-toolchain-group` stands, or a member the brief no longer lists where signing is off: a row in the decisions
+  log. In a repository with decision signing on, that row is an authorization and the operator signs it.
 
 ## Derived Repositories: what an update means, and a paused schedule
 

@@ -1,0 +1,10 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Update .venv to toolchain.lock with scripts/bootstrap_toolchain.sh,toolchain.lock,.venv at the pinned commits,done,bootstrap run; check_toolchain reports .venv matches toolchain.lock,
+2,git-operations,Remove this session's worktree for the merged pin branch and delete the session scratch files,clean worktree,none,done,worktree for pin/agentteams-v1.2.1 removed (clean; branch merged); session scratch files deleted,
+3,primary-producer,Draft the issue #213 wording fix on a branch,issue #213; docs/agentteams-update-policy.md,docs change,done,"branch docs/213-pin-record-unsigned-workspaces: update policy, release policy and changelog",1
+4,security,Review the #213 wording and set the exact sentence,branch diff,verdict,pending,,3
+5,orchestrator,Open the #213 PR; wait for green CI; ask the operator to approve the merge; merge and check main,@security PASS,merge commit,pending,,4
+6,git-operations,Prepare the merged-branch deletion script and list,ls-remote; open PRs,operator script,pending,,5
+7,security,--branch-cleanup review of the script and its list,script,verdict,pending,,6
+8,operator,Run the deletion script,reviewed script,deleted branches,pending,,7
+9,orchestrator,Read back remote branches; record in the work summary; close-out audit,ls-remote,workSummaries/daily entry,pending,,8

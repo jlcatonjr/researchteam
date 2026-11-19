@@ -66,9 +66,10 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Each pin move gets its own `@security` row naming the tag object and the peeled SHA, except for the moves
   below.
 - **Exception: first-party toolchain group members** (operator rulings T2 and R9, 2026-W46, and R16, confirmed
-  by the operator in this repository's session on 2026-11-14). It covers only the repositories listed in
-  `.agentteams/toolchain-group.json`, which today are agentteams, researchteam, baseAgent and mathAgents, and only
-  while that operator-signed file verifies. A pin move to a member's release needs no decision-log row. Instead it
+  by the operator in this repository's session on 2026-11-14). In a governed workspace it covers only the
+  repositories listed in `.agentteams/toolchain-group.json`, which today are agentteams, researchteam, baseAgent
+  and mathAgents, and only while that operator-signed file verifies (a workspace without decision signing: see
+  below). A pin move to a member's release needs no decision-log row. Instead it
   needs:
   - a verified signed tag;
   - this repository's own `@security` review, recorded in the pin-move PR, naming the tag object and the peeled
@@ -77,7 +78,10 @@ How collaborators work within this policy (branches, installs, contributions, ba
 
   The exception ends when the group file stops verifying, when its key is removed from the verify-key store, or
   on an unretracted HALT on `s10-toolchain-group`. Member moves then need their own rows again.
-  `agentteams --verify-toolchain-pin` checks every group pin against the file. A tracked decision spec in
+  `agentteams --verify-toolchain-pin` checks every group pin against the file. A derived workspace where decision
+  signing is off has no group file; its exemption comes from the brief's `s10_cooldown_exempt_repos`, and its
+  record and tag check are described in `docs/agentteams-update-policy.md` ("Moving a pin is a security event").
+  A tracked decision spec in
   `docs/release/` (for example `pin-agentteams-v1.1.3.decision-spec.json`) is the lasting copy of the review,
   because a PR body can be edited after the fact.
 - **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
