@@ -5,6 +5,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Docs: the pin-move record in a workspace without decision signing (#213).** No rule changes.
+  `docs/agentteams-update-policy.md` said a first-party member's release needs no decision-log row only where
+  the operator-signed group file lists the workspace. It now also names a workspace where decision signing is
+  off and the brief lists the member in `s10_cooldown_exempt_repos`. There the record is the same `@security`
+  review in the pin-move PR, and the tag is verified with `scripts/check_toolchain.py --verify-tag` or
+  `git verify-tag`, because `agentteams --verify-toolchain-pin` checks nothing without a group file.
+
 ## 1.2.0 (tag `v1.2.0`, on `release/1.2`)
 
 The first release of the 1.2 line. It is `1.2.0rc1` plus release files only (this section, the release notes and
