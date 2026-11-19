@@ -405,7 +405,7 @@ Reference: the team's `references/write-policy.reference.md`.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=7c1cd141b4587e541ca519ffe2c9a2a680fa96643579a94bad10dc6ec2154015 copy-sha256=e656a38eed60bb32a03b08e9f555d230e3d4a39d44e1e754f181fbc9c10c5879 mode=reference -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=848dc349273abaea46e74d7274cf53c28c3a4591381e46247930496390841b87 copy-sha256=b4af24d5b68e6bb1d7cc62ab28a72c48915e64ab5ed21afb869ee52057dee9d0 mode=reference -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They bind this session as written there: read that section before acting. This is a reference, not a copy, because a copy would exceed Codex's 32 KiB project-instructions budget.
@@ -413,5 +413,6 @@ The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Speci
 Rules:
 
 - PS-1 All session work is public (operator ruling, 2026-11-14).
+- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 202…
 - PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).
 <!-- PROJECTED-RULES:END -->

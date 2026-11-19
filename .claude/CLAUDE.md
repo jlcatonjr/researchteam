@@ -350,8 +350,8 @@ No project-specific style rules defined.
     personal data and machine-specific details stay out, or are scrubbed first. Material that may
     be private needs the operator's review of each file before it is published.
   - Report: `docs/hidden-work-remediation-2026-11-14.md`.
-- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added
-  2026-11-19).** The operator delegated repository management to the agent session.
+- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 2026-11-19).**
+  The operator delegated repository management to the agent session.
   - The agent opens PRs and monitors them. It merges a PR into `main` or a `release/*` line only after the
     operator's live answer in the session (the host's picker, or their own typed reply) naming that PR number and
     head SHA, as the generated "GitHub management" section requires (operator ruling, 2026-11-19). PS-2 is not a

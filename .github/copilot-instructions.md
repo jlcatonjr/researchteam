@@ -340,7 +340,7 @@ default explicitly by saying so in their first line.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=7c1cd141b4587e541ca519ffe2c9a2a680fa96643579a94bad10dc6ec2154015 copy-sha256=7456627baa82287bc8ef4a48c75bbe59ff39eb2abe39428ccefcd877fd445cc3 mode=copy -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=848dc349273abaea46e74d7274cf53c28c3a4591381e46247930496390841b87 copy-sha256=2e0739de9aeeef60f120933021186526f997b0d7fe734c4b783e1dbe0c9ef16a mode=copy -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 - **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
@@ -361,8 +361,8 @@ default explicitly by saying so in their first line.
     personal data and machine-specific details stay out, or are scrubbed first. Material that may
     be private needs the operator's review of each file before it is published.
   - Report: `docs/hidden-work-remediation-2026-11-14.md`.
-- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added
-  2026-11-19).** The operator delegated repository management to the agent session.
+- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 2026-11-19).**
+  The operator delegated repository management to the agent session.
   - The agent opens PRs and monitors them. It merges a PR into `main` or a `release/*` line only after the
     operator's live answer in the session (the host's picker, or their own typed reply) naming that PR number and
     head SHA, as the generated "GitHub management" section requires (operator ruling, 2026-11-19). PS-2 is not a
