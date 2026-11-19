@@ -308,8 +308,9 @@ The generic core of the term index (register validation, form keys, the ambiguit
 quotation rule, the matcher and the hash manifest) is planned to move into agentteams 1.3.0 as a public
 module. researchteam keeps the research adapters: `Projects/` discovery, the `.bib` `[SRC]` check, the
 reference-section skip, the bridge commands and the `doctor` check. It will later carry a sha256-pinned copy
-of the core, so the base install keeps working without agentteams. Until then, the term index on
-researchteam 1.1.x takes bug fixes only; the placement report adds that nothing is renamed yet.
+of the core, so the base install keeps working without agentteams. The switch is planned for researchteam
+1.3.0, pinned to agentteams 1.3. Until then, the term index on researchteam 1.1.x and 1.2.x takes bug fixes
+only; the placement report adds that nothing is renamed yet.
 
 Two conditions hold until that work is done. The copy's integrity check (a sha256 constant per
 researchteam release, compared locally) is not built yet, so a copy is unverified until it exists. Moving
@@ -317,7 +318,9 @@ this repository's pin to agentteams 1.3 is a cross-line move and needs its own o
 
 Source: operator ruling of 2026-11-16, "Core in agentteams 1.3", recorded by the fleet coordinator in its
 operator-preferences register, on option C of its term-index placement report. The agentteams work is
-tracked in agentteams issue #548.
+tracked in agentteams issue #548. The release that carries the switch: operator ruling of 2026-11-19 in this
+repository's session (researchteam 1.2.0 pins agentteams 1.2 and does not carry the switch; researchteam 1.3.0
+does), replacing the 2026-11-17 plan to carry it in 1.2.0.
 
 ## Origin
 
