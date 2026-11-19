@@ -121,7 +121,10 @@ Signing tags; installing `allowed_signers` and verify keys; the signed decision 
 scripts that carried these out for the 1.0 cut are archived as records in
 `references/plans/archive/2026-W42/operator/`.
 
-**Merges are delegated (rule PS-2, operator ruling 2026-11-14).** The agent session merges PRs, as long as:
+**The agent session carries out merges, each with the operator's live approval (rule PS-2; operator rulings
+2026-11-14 and 2026-11-19).** A merge into `main` or a `release/*` line needs the operator's answer in the session
+naming the PR number and head SHA, as the generated "GitHub management" section of the instruction files requires.
+The agent session then merges, as long as:
 - the merge names the reviewed head SHA (`gh pr merge --match-head-commit <sha>`);
 - CI is green on that head;
 - every review the change needs (`@security`, `@code-hygiene` for code, `@conflict-auditor`) is recorded in the
