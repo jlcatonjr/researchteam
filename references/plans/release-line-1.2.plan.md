@@ -25,6 +25,12 @@ Written 2026-11-19 by the researchteam agent session.
 - The head that carries the operator-signed row needs its own `@security` PASS naming `.github/agents/` before the
   operator is asked to approve the merge.
 
+## Outcome, 2026-11-19
+- `v1.2.0-rc.1`: tag object `8987baad79d341c7a02e318fde9ef14243839b92`, peeled `4bc357d4065c52b3586bb7f1d71feed4f98e0eed`.
+- `v1.2.0`: tag object `c621290a2f45891a483e088ce33f3becbfc39a79`, peeled `7da258f62831ea300335b023ccbeb1b04cc7df0c`
+  (the merge of PR #218). `main` and `release/1.2` are both at that commit; the release is marked Latest.
+- All 12 steps are done. The gates below are kept as written; each was met. Record: `workSummaries/daily/2026-11-19.md`.
+
 ## Gates
 - Nothing merges to `main`, moves `release/**` or is signed without the operator. The pin PR touches `toolchain.lock`,
   the extras and `.github/agents/`, so it needs a `@security` PASS naming those paths (PS-2), and the operator's
