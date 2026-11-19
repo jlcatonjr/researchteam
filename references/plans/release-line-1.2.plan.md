@@ -17,6 +17,14 @@ Written 2026-11-19 by the researchteam agent session.
 - agentteams #511 (unscoped Claude agents fall back to Read/Grep/Glob): every rendered agent under `.claude/agents/`
   declares `tools:`, so no grant is missing. Re-checked after the regeneration (step 3).
 
+## Update, 2026-11-19 (later the same day)
+- agentteams `v1.2.1` is signed and published as Latest: tag object `a72a844e7afa468edb69cf1bf99d6f5f74390c1a`, peeled
+  `a7ab95e241244903339b6d54743f7c3366530071`. The facts above describe the state when the plan was written.
+- The lock, both extras and the autosync ref were written from the verified tag. `main` was merged into the branch
+  (it then held #215, `e1243ea`, the commit the lock's advisory `researchteam=` line names).
+- The head that carries the operator-signed row needs its own `@security` PASS naming `.github/agents/` before the
+  operator is asked to approve the merge.
+
 ## Gates
 - Nothing merges to `main`, moves `release/**` or is signed without the operator. The pin PR touches `toolchain.lock`,
   the extras and `.github/agents/`, so it needs a `@security` PASS naming those paths (PS-2), and the operator's

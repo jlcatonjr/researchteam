@@ -5,7 +5,9 @@
 # The gate check below expects the row to clear.
 # Usage (plain Terminal, from any directory; ALWAYS `/bin/bash -p <path>`, never `bash <path>`):
 #   /bin/bash -p ~/githubrepositories/researchteam/tmp/by-week/2026-W47/operator/14-sign-release-line-1.2.sh <40-hex head the session reports>
-# It COMMITS NOTHING: the researchteam session commits the row, pushes, opens the PR and merges it under PS-2.
+# It COMMITS NOTHING: the researchteam session commits the row and pushes it to PR #214. The merge needs the
+# operator's live approval in that session. This script asks y/N and names the key file because signing is an
+# operator-only act (not a sandbox handoff of an agent's own action), and the signer is given the key explicitly.
 if [[ $- == *p* ]]; then
 builtin unset -f $(builtin compgen -A function) 2>/dev/null; builtin set -euo pipefail
 [[ -z "${CLAUDECODE:-}" && -z "${CLAUDE_CODE_ENTRYPOINT:-}" ]] || { echo "error: run this from a plain Terminal, not an agent session" >&2; exit 1; }
