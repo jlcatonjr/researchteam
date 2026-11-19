@@ -1,0 +1,13 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Confirm the relayed rulings with the operator and write this plan,peer request; picker,plan and steps,done,Both rulings confirmed in this session's picker,
+2,primary-producer,Record the 1.2 line in the release policy and the changelog,docs/release-policy.md; CHANGELOG.md,"The 1.2 line" section; Unreleased entry,pending,,1
+3,agent-updater,Regenerate the agent team with agentteams at the v1.2.1 commit and run the gate's validation,agentteams a7ab95e2; researchteam update --layer1-only,regenerated team; validation result; #511 re-check,pending,Scratch environment mirrors the autosync gate's vetted dependency set,1
+4,git-operations,Open the pin PR into main as a draft and send the coordinator its number head and base,branch pin/agentteams-v1.2.1,draft PR,pending,Lock and extras unchanged until the tag is signed,2;3
+5,security,Draft the release-line-agentteams-1.2 decision spec and review it,docs/release-policy.md,docs/release/release-line-agentteams-1.2.decision-spec.json; operator signing script,pending,The operator signs the row,2
+6,primary-producer,Move the term-index core switch to researchteam 1.3.0 in the protocol note and tell the coordinating session,docs/term-index-protocol.md,separate docs PR,pending,Second ruling,1
+7,git-operations,When v1.2.1 is signed: verify the tag then write the lock and sync the extras,signed tag v1.2.1,toolchain.lock; pyproject.toml; autosync ref,pending,Waits for the operator's signature on agentteams v1.2.1,4
+8,security,Review the pin PR: tag object and peel; S-10 vulnerability search; sensitive paths named,PR head,verdict and decision spec in docs/release/,pending,,7
+9,orchestrator,Ask the operator to approve the merge then merge with the reviewed head and check main,@security PASS; green CI,merge commit,pending,Operator's live approval required,8;5
+10,git-operations,Prepare the v1.2.0-rc.1 cut script (release/1.2 from main) and send it to the coordinator for review,main after the pin merge,operator script,pending,The operator signs,9
+11,git-operations,After rc.1 CI is green and the downstream dry-run pin check: prepare the v1.2.0 script the same way,v1.2.0-rc.1 verified,operator script; release notes,pending,,10
+12,conflict-auditor,Close-out audit and work summary,all changes,workSummaries/daily entry,pending,,11
