@@ -6,7 +6,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 ## Unreleased
 
 - **agentteams 1.2 (the researchteam 1.2 line).** The agent team is regenerated with agentteams 1.2.1, and
-  `toolchain.lock` and the `update` / `research` extras move from agentteams `v1.1.4` to the 1.2 line. New in the
+  `toolchain.lock` and the `update` / `research` extras move from agentteams `v1.1.4` to **`v1.2.1`** (`a7ab95e2`). New in the
   rendered team: a "GitHub management" section and an "Integration-branch merge authorization" section in the
   instruction files, an updated constitutional gate hook, a work-summary stop hook (an example the operator may
   merge into `settings.json`), and new reference files. agentteams 1.2 changes an unscoped Claude agent's fallback
