@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.2.0rc1 (tag `v1.2.0-rc.1`, on `release/1.2`)
+
+The first release candidate of the 1.2 line. researchteam 1.2 pins agentteams 1.2: this candidate pins agentteams
+**`v1.2.1`** (`a7ab95e2`). `release/1.2` is cut at this commit; `release/1.1` stays open for `v1.1.N` backports and
+keeps agentteams 1.1. It is a candidate: derived repositories wait for `v1.2.0`, apart from the dry-run pin check
+the next repository in the release order runs against it. The term-index core switch is not in the 1.2 line; it
+is planned for researchteam 1.3 (`docs/term-index-protocol.md`, "Planned placement").
+
 - **agentteams 1.2 (the researchteam 1.2 line).** The agent team is regenerated with agentteams 1.2.1, and
   `toolchain.lock` and the `update` / `research` extras move from agentteams `v1.1.4` to **`v1.2.1`** (`a7ab95e2`). New in the
   rendered team: a "GitHub management" section and an "Integration-branch merge authorization" section in the
