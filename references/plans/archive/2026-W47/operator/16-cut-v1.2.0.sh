@@ -82,7 +82,7 @@ verify_tag "$MAIN" "v1.2.0-rc.1"
 ngit merge-base --is-ancestor "refs/tags/v1.2.0-rc.1^{commit}" "$SHA" || die "$SHA does not contain v1.2.0-rc.1"
 # "rc.1 plus release files only" is enforced, not just stated (@security, 2026-11-19): every path changed since the
 # candidate must be a release file. Anything else needs a new release candidate.
-CHANGED="$(ngit diff --name-only "refs/tags/v1.2.0-rc.1^{commit}" "$SHA")" || die "cannot list the changes since v1.2.0-rc.1"
+CHANGED="$(ngit diff --no-renames --name-only "refs/tags/v1.2.0-rc.1^{commit}" "$SHA")" || die "cannot list the changes since v1.2.0-rc.1"
 [ -n "$CHANGED" ] || die "$SHA changes nothing since v1.2.0-rc.1 (no 1.2.0 release files)"
 EXTRA="$(printf '%s\n' "$CHANGED" | grep -vxE 'CHANGELOG\.md|docs/release/release-notes-v1\.2\.0\.md|workSummaries/daily/[0-9-]+\.md|references/plans/release-line-1\.2\.(plan\.md|steps\.csv)|references/plans/archive/2026-W47/operator/16-cut-v1\.2\.0\.sh' || true)"
 [ -z "$EXTRA" ] || die "changes since v1.2.0-rc.1 that are not release files (cut a new candidate instead): $(printf '%s' "$EXTRA" | tr '\n' ' ')"
