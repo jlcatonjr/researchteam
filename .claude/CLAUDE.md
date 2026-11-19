@@ -350,9 +350,12 @@ No project-specific style rules defined.
     personal data and machine-specific details stay out, or are scrubbed first. Material that may
     be private needs the operator's review of each file before it is published.
   - Report: `docs/hidden-work-remediation-2026-11-14.md`.
-- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14).** The operator delegated
-  repository management to the agent session and does not want to be involved in it.
-  - The agent opens PRs, monitors them and merges them.
+- **PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 2026-11-19).**
+  The operator delegated repository management to the agent session.
+  - The agent opens PRs and monitors them. It merges a PR into `main` or a `release/*` line only after the
+    operator's live answer in the session (the host's picker, or their own typed reply) naming that PR number and
+    head SHA, as the generated "GitHub management" section requires (operator ruling, 2026-11-19). PS-2 is not a
+    standing approval of any merge. If the head moves after the answer, the agent asks again.
   - Every merge names the reviewed head SHA (`--match-head-commit`), waits for green CI, and follows the
     reviews this repository requires (`@security` for security-relevant changes, `@code-hygiene` for code
     changes, `@conflict-auditor` after multi-file changes).
@@ -362,8 +365,8 @@ No project-specific style rules defined.
     `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
     that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
     is not enough there.
-  - Each delegated merge commit says "Merged under PS-2 by the agent session" in its body, so it can be told
-    apart from an operator merge made with the same token.
+  - Each such merge commit says "Merged under PS-2 by the agent session" in its body and names the operator's
+    approval, so it can be told apart from an operator merge made with the same token.
   - Rulesets protect the repository since 2026-11-14 (read back that day): `main` (PR required, both test
     checks required, no force push, no deletion, no bypass), `release/**` and `archive/**` (no force push, no
     deletion, no bypass) and all tags (creation, update and deletion restricted; admin role the only bypass).
@@ -372,11 +375,12 @@ No project-specific style rules defined.
   - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
     green, the agent closes and reopens it with the session's own `gh` token (the operator's) so `tests.yml` runs
     on its head.
-  - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
-    operator.
+  - `release/*` moves only as a fast-forward to a commit the operator will tag, and only after the operator's
+    live answer naming that commit. The go/no-go stays with the operator.
   - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
     is not, the agent opens a revert PR first. After one failed fix-forward, it stops and tells the operator.
-  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
+  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`. Merging a revert or
+    fix PR needs the operator's live answer like any other merge.
   - Never under PS-2:
     - force-pushes or history rewrites;
     - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
