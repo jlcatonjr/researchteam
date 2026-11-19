@@ -94,8 +94,14 @@
     ".codex/agents and .goose/recipes: switch, verify-key store, rosters, build-log.json; plus",
     ".goose/sandbox.sb and .codex/config.toml), emitted whether or not those teams exist. Unless the",
     "brief sets protect_prompt_roots: true, they do NOT cover copilot/codex agent files or",
-    ".github/copilot-instructions.md (Edit-tool writable)."
+    ".github/copilot-instructions.md (Edit-tool writable).",
+    "",
+    "`model` and `env.CLAUDE_CODE_SUBAGENT_MODEL`: the main session runs claude-fable-5-2 and every subagent whose file names no model runs opus, matching the agent files' own `model:` lines.",
+    "settings.local.json, ANTHROPIC_MODEL, --model and /model still override the session model."
   ],
+  "env": {
+    "CLAUDE_CODE_SUBAGENT_MODEL": "opus"
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -109,6 +115,7 @@
       }
     ]
   },
+  "model": "claude-fable-5-2",
   "permissions": {
     "deny": [
       "Read(~/.config/agentteams/keys/**)",
@@ -131,7 +138,10 @@
       "Edit(/.claude/agents/references/security-approvers.txt)",
       "Edit(/.claude/agents/references/authorized-managers.txt)",
       "Edit(/.claude/agents/references/management-authority.json)",
+      "Edit(/.claude/agents/references/exception-registry.json)",
+      "Edit(/.claude/agents/references/carveout-high-water.json)",
       "Edit(/references/security-approvers.txt)",
+      "Edit(/.claude/agents/signing-governed.marker)",
       "Edit(/.claude/settings.json)",
       "Edit(/.claude/settings.local.json)",
       "Edit(/.claude/settings.hooks.example.json)",
@@ -144,25 +154,37 @@
       "Edit(/.github/agents/references/security-approvers.txt)",
       "Edit(/.github/agents/references/authorized-managers.txt)",
       "Edit(/.github/agents/references/management-authority.json)",
+      "Edit(/.github/agents/references/exception-registry.json)",
+      "Edit(/.github/agents/references/carveout-high-water.json)",
       "Edit(/.github/agents/references/build-log.json)",
+      "Edit(/.github/agents/signing-governed.marker)",
       "Edit(/.codex/agents/references/agent-privilege.json)",
       "Edit(/.codex/agents/references/authorized-verify-keys/**)",
       "Edit(/.codex/agents/references/security-approvers.txt)",
       "Edit(/.codex/agents/references/authorized-managers.txt)",
       "Edit(/.codex/agents/references/management-authority.json)",
+      "Edit(/.codex/agents/references/exception-registry.json)",
+      "Edit(/.codex/agents/references/carveout-high-water.json)",
       "Edit(/.codex/agents/references/build-log.json)",
+      "Edit(/.codex/agents/signing-governed.marker)",
       "Edit(/.goose/recipes/references/agent-privilege.json)",
       "Edit(/.goose/recipes/references/authorized-verify-keys/**)",
       "Edit(/.goose/recipes/references/security-approvers.txt)",
       "Edit(/.goose/recipes/references/authorized-managers.txt)",
       "Edit(/.goose/recipes/references/management-authority.json)",
+      "Edit(/.goose/recipes/references/exception-registry.json)",
+      "Edit(/.goose/recipes/references/carveout-high-water.json)",
       "Edit(/.goose/recipes/references/build-log.json)",
+      "Edit(/.goose/recipes/signing-governed.marker)",
       "Edit(/.grok/agents/references/agent-privilege.json)",
       "Edit(/.grok/agents/references/authorized-verify-keys/**)",
       "Edit(/.grok/agents/references/security-approvers.txt)",
       "Edit(/.grok/agents/references/authorized-managers.txt)",
       "Edit(/.grok/agents/references/management-authority.json)",
+      "Edit(/.grok/agents/references/exception-registry.json)",
+      "Edit(/.grok/agents/references/carveout-high-water.json)",
       "Edit(/.grok/agents/references/build-log.json)",
+      "Edit(/.grok/agents/signing-governed.marker)",
       "Edit(/.goose/sandbox.sb)",
       "Edit(/.codex/config.toml)",
       "Edit(/.grok/config.toml)",
@@ -184,6 +206,8 @@
         ".claude/agents/references/agent-privilege.json",
         ".claude/hooks/constitutional-gate.py",
         ".claude/agents/references/authorized-verify-keys",
+        "~/.config/agentteams/keys",
+        "~/.config/agentteams/verify-keys",
         ".claude",
         ".codex",
         ".github/agents",

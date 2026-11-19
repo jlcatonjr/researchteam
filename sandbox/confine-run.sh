@@ -47,15 +47,17 @@
 # CONTROL PLANE (F-4, 2026-09-30 Linux/bwrap; macOS Seatbelt 2026-10-07): inside every writable root (--scratch,
 #   --writable, --coord-root) each EXISTING agentteams control-plane path (CONTROL_PLANE_REL below:
 #   the enforce_decision_signing switch, the gate hook, the verify-key store, the approver/manager
-#   rosters and management config (PR-D), the goose profile, and each team's build-log marker) is
+#   rosters and management config (PR-D), the exception registry and carve-out high-water mark
+#   (2026-11-12; protect-if-present), the goose profile, each team's build-log marker, and each team's
+#   signing-governed.marker (2026-11-12, IM item 17; protect-if-present)) is
 #   --ro-bind'ed, and each of its ancestor dirs below the root gets a read-write SELF-bind so it
 #   becomes a mount point: renaming it away (`mv .claude .claude.old`, then plant a tree) fails
 #   EBUSY, while writes inside it still work. Order: rw roots, ancestor self-binds, ro-binds, masks.
 #   Every protected path is realpath'd and a SYMLINK anywhere on it is refused (die). A framework's
 #   entries are REQUIRED only when that framework holds an agentteams team, marked by
 #   <agents dir>/references/build-log.json (TEAM_MARKER_REL); a hand-written .claude/agents without
-#   it is skipped. Each present marker is itself ro-bound, so it cannot be deleted from inside to
-#   disable the check. The approver/manager rosters are required only when that team's switch is
+#   it is skipped. Each present marker (build-log.json and signing-governed.marker) is itself ro-bound, so it
+#   cannot be deleted from inside to disable a check. The approver/manager rosters are required only when that team's switch is
 #   present. A required entry that is absent is a DIE (a writable parent would let the process create
 #   it); anything else absent is skipped. The project-root references/security-approvers.txt (the
 #   grant roster) is protect-if-present only. Five team dirs are covered (TEAM_DIRS_REL): .claude/agents,
@@ -122,18 +124,23 @@ CONTROL_PLANE_REL=( .claude/agents/references/agent-privilege.json .claude/hooks
                     .claude/agents/references/authorized-verify-keys
                     .claude/agents/references/security-approvers.txt .claude/agents/references/authorized-managers.txt
                     .claude/agents/references/management-authority.json
+                    .claude/agents/references/exception-registry.json .claude/agents/references/carveout-high-water.json
                     .goose/recipes/references/agent-privilege.json .goose/recipes/references/authorized-verify-keys
                     .goose/recipes/references/security-approvers.txt .goose/recipes/references/authorized-managers.txt
                     .goose/recipes/references/management-authority.json
+                    .goose/recipes/references/exception-registry.json .goose/recipes/references/carveout-high-water.json
                     .github/agents/references/agent-privilege.json .github/agents/references/authorized-verify-keys
                     .github/agents/references/security-approvers.txt .github/agents/references/authorized-managers.txt
                     .github/agents/references/management-authority.json
+                    .github/agents/references/exception-registry.json .github/agents/references/carveout-high-water.json
                     .codex/agents/references/agent-privilege.json .codex/agents/references/authorized-verify-keys
                     .codex/agents/references/security-approvers.txt .codex/agents/references/authorized-managers.txt
-                    .codex/agents/references/management-authority.json .codex/config.toml
+                    .codex/agents/references/management-authority.json
+                    .codex/agents/references/exception-registry.json .codex/agents/references/carveout-high-water.json .codex/config.toml
                     .grok/agents/references/agent-privilege.json .grok/agents/references/authorized-verify-keys
                     .grok/agents/references/security-approvers.txt .grok/agents/references/authorized-managers.txt
-                    .grok/agents/references/management-authority.json .grok/config.toml .grok/sandbox.toml
+                    .grok/agents/references/management-authority.json
+                    .grok/agents/references/exception-registry.json .grok/agents/references/carveout-high-water.json .grok/config.toml .grok/sandbox.toml
                     .goose/sandbox.sb references/security-approvers.txt .goose/confined-run.example.sh
                     .codex/confined-run.example.sh .grok/confined-run.example.sh )
 # Whole directories read-only wherever they exist under a writable root (follow-up #2, 2026-09-30):
@@ -152,6 +159,7 @@ PROMPT_ROOTS_REL=( .github/copilot-instructions.md AGENTS.md AGENTS.override.md 
 PROTECT_PROMPT_ROOTS=0; PR_RO=()
 # The agentteams team marker, relative to an agents dir (locked to _sandbox_emit.TEAM_MARKER_REL).
 TEAM_MARKER_REL=references/build-log.json
+GOVERNED_MARKER_REL=signing-governed.marker   # item 17: deleting it turned governed signing off
 TEAM_DIRS_REL=( .claude/agents .goose/recipes .github/agents .codex/agents .grok/agents )
 CP_ANC=(); CP_RO=(); CP_ROOTS=()
 # DEFAULT-DENY ENV ALLOWLIST (the private-key non-leak residual). The guest inherits NONE of the
@@ -290,6 +298,7 @@ cp_required(){   # root rel -> prints the owning agentteams team dir when rel MU
     .codex/confined-run.example.sh) return 0 ;;  # operator-run example: protect-if-present
     .grok/confined-run.example.sh) return 0 ;;   # operator-run example: protect-if-present
     .grok/config.toml|.grok/sandbox.toml) return 0 ;;  # Grok's permission/MCP config + sandbox profiles: protect-if-present
+    */exception-registry.json|*/carveout-high-water.json) return 0 ;;  # Rule 15 cap + carve-out mark: protect-if-present
     .claude/*) team="$r/.claude/agents" ;;
     .goose/*) team="$r/.goose/recipes" ;;
     .github/agents/*) team="$r/.github/agents" ;;   # never .github/* (workflows stay unprotected)
@@ -396,15 +405,17 @@ grok_config_warn(){
   return 0
 }
 control_plane_collect() {   # -> CP_RO[] (protected paths) + CP_ANC[] (their ancestors below a root); both OSes
-  local roots=() prot=() anc=() r rel p a under t team
+  local roots=() prot=() anc=() r rel p a under t team m
   for r in "$SCRATCH" ${WRITABLES[@]+"${WRITABLES[@]}"} ${COORD_RESOLVED[@]+"${COORD_RESOLVED[@]}"}; do
     [ -n "$r" ] && { p="$(phys_dir "$r")" || die "writable root '$r' does not resolve"; roots+=( "$p" ); }
   done
   for r in "${roots[@]}"; do
-    for t in "${TEAM_DIRS_REL[@]}"; do   # the marker itself: deleting it must not disable the check
-      cp_present "$r/$t/$TEAM_MARKER_REL" || continue
-      p="$(cp_real "$r/$t/$TEAM_MARKER_REL")" || exit 2
-      prot+=( "$p" )
+    for t in "${TEAM_DIRS_REL[@]}"; do   # the markers themselves: deleting either must not disable a check
+      for m in "$TEAM_MARKER_REL" "$GOVERNED_MARKER_REL"; do
+        cp_present "$r/$t/$m" || continue
+        p="$(cp_real "$r/$t/$m")" || exit 2
+        prot+=( "$p" )
+      done
     done
     for rel in "${CONTROL_PLANE_DIRS_REL[@]}"; do   # protect-if-present, whole dir
       cp_present "$r/$rel" || continue

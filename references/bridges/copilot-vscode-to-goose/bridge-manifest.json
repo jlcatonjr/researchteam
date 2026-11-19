@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-11-17T12:03:36.755069+00:00",
+  "generated_at": "2026-11-19T03:30:07.293553+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "goose",
   "source_dir": ".github/agents",
@@ -23,7 +23,7 @@
     },
     {
       "path": "agents/code-hygiene.agent.md",
-      "sha256": "654d28d9fb509933c7f22b892fd382faccf71abd8f4127848a3cdfc51defdd4c"
+      "sha256": "385a73863945d7a322c7810dc3a97ab386072bacf22df1f5d558084f1b93ec16"
     },
     {
       "path": "agents/cohesion-repairer.agent.md",
@@ -35,11 +35,11 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "491f3d9e975ac1b454580c1558a2424a81d854d136276f7778f5375cb9e2369b"
+      "sha256": "f95cc13aed8fd28df80e568b86a0b135142bc4c95fdf2fc3adecdb15c382e64f"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
-      "sha256": "e57a57e79bd87285809b07ced54fbe5a32eefd0907f019d362e3b6256da884aa"
+      "sha256": "8dbe1d7ad602e962c2b43b728b2b749b611ca26a4a1ac3d8ab8a006a6f29c611"
     },
     {
       "path": "agents/content-enricher.agent.md",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "bc74447f3e7840c09da16e85f4e54ddbfc251944eb1405ca47ca98df3b86727b"
+      "sha256": "6a99d8020dd780b1033d45559f533b3302d109a64d6d577325278d6f294a7044"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "6fabdd31d5fa5177e518e42a4847552ab9e6fff165a82cb6211aa5afdb9cb1f7"
+      "sha256": "8a5bae45ca425d54e3312d0d81ccc119d41ad77d24a8b6507c3373669b748fe0"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -131,11 +131,11 @@
     },
     {
       "path": "agents/work-summarizer.agent.md",
-      "sha256": "14b152510cf033682e673fdf9865d1387c5311eeee950e379f9008918871ee16"
+      "sha256": "61990b96b645483d3bcdc786a9f28ced7535d3f3abb9d9af295b2cc8aa893678"
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "f76b9ef005230c15fc7a97346df76937e2b98837d56186aa3b14ccec8a4bc0fe"
+      "sha256": "eb193c4eebd62bb2d1e34eb6a2197de5dcfba09559977cdd71627f8dfc0108ad"
     }
   ],
   "inventory_count": 32,

@@ -33,13 +33,19 @@ This reference defines safe GitHub interaction and merge procedures for Research
 6. Run post-merge verification — including **CI/CD deployment verification** (see the next section) when the push/merge triggers Actions — and document noteworthy decisions for auditability.
 7. Dispose of the merged branch per `references/branch-lifecycle.reference.md` (post-merge step: `agentteams --branch-post-merge <branch>`), and record `Branch disposition`.
 
+## Pull-Request Merges
+
+A direct `gh pr merge` goes through the constitutional gate's prompt. For `agentteams --merge-pr <N>` (a pull-request
+merge into the integration branch under the operator-signed authorization), see the constitution's
+*Integration-branch merge authorization* section.
+
 ## Post-Merge / Post-Push CI/CD Deployment Verification
 
 **Distinct from pre-merge required status checks** (which *gate* the merge, above): this verifies the GitHub Actions runs that the push/merge itself **triggers** on the target branch — CI **and** deployment workflows (Pages, release, container/package publish, environment deploys). Those runs only come into existence *after* the ref updates, so a green pre-merge PR does not imply a green deployment.
 
 **Applies only when** the operation pushed or merged to a branch, **and** the repository has workflows (`.github/workflows/*.yml`), **and** run status is reachable (the GitHub REST API, or `gh` if installed and authenticated — directly, or through a **Sandbox Operator Handoff** when the agent sandbox cannot reach it; see `references/sandbox-handoff.reference.md`). Otherwise skip and record `N/A` — "unreachable from the sandbox" is not a skip.
 
-**Tooling preference — prefer `git` and the REST API over `gh`.** Use the `git` CLI for all ref/SHA/push work and the GitHub REST API (`curl https://api.github.com/...`) to read run status. `gh` is an *optional convenience* that is frequently **absent or unauthenticated** (headless CI, cron, minimal/sandboxed environments), so never make verification *depend* on it — the `gh` forms below are parenthetical fallbacks for when it happens to be installed. Likewise prefer `git push` over any `gh`-mediated push; when an HTTPS remote has no stored credentials, an SSH remote (`git@github.com:<owner>/<repo>.git`) often still authenticates.
+**Tooling preference — `gh` when it is authenticated, else `git` and the REST API.** Use the `git` CLI for all ref/SHA/push work. Read run status with `gh` when `gh auth status` succeeds (the constitution's GitHub management section authorizes it); `gh` is often **absent or unauthenticated** in headless CI, cron and sandboxed environments, so verification must never *depend* on it: there, use the GitHub REST API (`curl https://api.github.com/...`). The `gh` forms below are given beside the REST ones. Likewise prefer `git push` over any `gh`-mediated push; when an HTTPS remote has no stored credentials, an SSH remote (`git@github.com:<owner>/<repo>.git`) often still authenticates.
 
 **Procedure:**
 
@@ -56,6 +62,33 @@ This reference defines safe GitHub interaction and merge procedures for Research
    - Re-run **only** for a confirmed transient/infrastructure flake, never to mask a real failure: re-push, or `gh run rerun <run-id>` (`--failed`) / REST `curl -X POST -H "Authorization: Bearer $GITHUB_TOKEN" .../actions/runs/<run-id>/rerun` when available.
    - Escalate to the orchestrator / `@security` if the fix is risky, ambiguous, or out of scope. **Deployment** workflow success (Pages/release/publish) is the binding outcome — a failed deploy means the change is not live and the operation is **not complete**.
 5. **Cross-repo guard:** if a fix requires pushing to a repository other than this project's own (ResearchTeam), that re-push is a cross-repository write — route it through `@repo-liaison` + `@security` (orchestrator Rule 11) before pushing.
+
+## CI Cost Checklist
+
+GitHub Actions cost grows with the **number of trigger events**, not with how much code each event carries.
+Every `pull_request` event (open, each push, reopen) and every push to a CI-triggering branch runs the whole
+workflow. Before adding or changing a workflow, and when Actions spend is a concern, check:
+
+1. **Triggers.** Filter `pull_request` to the branches that need cloud CI (`branches: [<default branch>]`).
+   Keep `push` triggers off `'**'`: a trigger matching every branch bills each feature-branch push.
+2. **Superseded runs.** Give PR CI `concurrency: { group: ci-${{ github.ref }}, cancel-in-progress:
+   ${{ github.event_name == 'pull_request' }} }`, so a new push cancels the old run. Do **not** add it to
+   watcher or audit workflows whose verdict must survive (a cancelled run leaves no verdict).
+3. **Expensive runners.** On private repositories, macOS and Windows minutes cost a multiple of Linux minutes
+   (check the current rates in GitHub's *Billing for GitHub Actions*). Run those jobs only where they decide a
+   merge (the PR into the default branch, tags), and run the rest locally.
+4. **Irrelevant changes.** Use `paths` / `paths-ignore` so documentation-only changes skip the test matrix, and
+   code-only changes skip the docs build. Skip draft PRs (`if: github.event.pull_request.draft == false`).
+5. **Bookkeeping pushes.** `[skip ci]` in a commit message skips `push` and `pull_request` runs. Keep it off
+   any merge that deploys.
+6. **Schedules.** A scheduled job runs whether or not anything changed. Review its frequency, and whether it
+   can exit early when the default branch has not moved.
+7. **Batching.** Fewer, larger merges to the default branch cost less than many small ones. The
+   **integration-branch model** (brief `git_workflow.branch_model: "integration"`) merges feature branches
+   locally into an integration branch and advances the default branch only through a release PR.
+
+Public repositories run standard GitHub-hosted runners free, so on those the levers above mostly buy speed.
+Read the actual spend (Settings → Billing → Usage, by repository and runner OS) before and after a change.
 
 ## Conflict Handling Decision Tree
 
