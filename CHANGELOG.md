@@ -21,6 +21,10 @@ is planned for researchteam 1.3 (`docs/term-index-protocol.md`, "Planned placeme
   grant to read-only (`Read`, `Grep`, `Glob`; agentteams #511); every agent researchteam renders already declares
   `tools:`, so no grant changes. A derived repository with its own unscoped agents must add an explicit `tools:`
   line. Policy: `docs/release-policy.md`, "The 1.2 line".
+- **Merges into `main` and `release/*` need the operator's live approval** naming the PR and head, under the
+  generated "GitHub management" section. Project rule PS-2 and the release policy say the same (#216). A repository
+  that delegated merges to an agent session should read that section against its own project rules before it moves
+  to 1.2.
 
 - **Bibliography explorer (#210).** A reusable view of a project's people and sources: period, person, bio with
   the evidence behind each attribute, and source detail with a Chicago-style citation and summary.

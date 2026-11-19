@@ -23,6 +23,9 @@ NAME="$(git config user.name)"; EMAIL="$(git config user.email)"
 [ -n "$NAME" ] && [ -n "$EMAIL" ] || die "set git user.name / user.email in $MAIN first"
 ngit fetch --quiet --tags "$RT_URL" "+refs/heads/main:refs/remotes/origin/main"
 ngit merge-base --is-ancestor "$SHA" refs/remotes/origin/main || die "$SHA is not on origin/main"
+# The cut commit is the release-prep PR's merge commit and nothing later (@security, 2026-11-19).
+PR_MERGE="$(gh pr view 217 -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #217"
+[ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #217 (${PR_MERGE:-none})"
 
 # The agentteams pin at that commit: v1.2.1 (AT_TAG), verified HERE (signature, self-name, remote object), in the lock and
 # in both extras.
@@ -36,6 +39,7 @@ AT_PEELED="$(ngit -C "$TMP/at" rev-parse "refs/tags/$AT_TAG^{commit}")"
 ngit show "$SHA:toolchain.lock" | grep -x "agentteams=jlcatonjr/agentteams@$AT_PEELED" >/dev/null || die "lock at $SHA is not pinned to $AT_TAG ($AT_PEELED)"
 ngit show "$SHA:toolchain.lock" | grep -x "agentteams.tag=$AT_TAG" >/dev/null || die "lock at $SHA is not release-locked at $AT_TAG"
 [ "$(ngit show "$SHA:pyproject.toml" | grep -c "jlcatonjr/agentteams@$AT_PEELED")" = 2 ] || die "the update/research extras at $SHA do not both pin $AT_PEELED"
+[ "$(ngit show "$SHA:.github/agentteams-autosync-ref")" = "$AT_PEELED" ] || die "the autosync ref at $SHA is not $AT_PEELED"
 LOG="$(ngit show "$SHA:.github/agents/references/security-decisions.log.csv")"
 # A group-member pin move needs no per-release row (ruling R16, 2026-11-14). The rows it rests on must be present as
 # PASS rows (a text check; their signatures are checked by the gate and by --verify-toolchain-pin below).
@@ -54,7 +58,18 @@ ngit worktree add -q --detach "$TMP/rt" "$SHA" || die "cannot check out $SHA for
 trap 'ngit worktree remove --force "$TMP/rt" 2>/dev/null; rm -rf "$TMP"' EXIT
 ( cd "$TMP/rt" && "$AGENTTEAMS_BIN" --verify-toolchain-pin toolchain.lock --allowed-signers "$ALLOWED_SIGNERS" \
     --output .github/agents --description brief.json ) || die "the toolchain-group pin does not verify at $SHA (must exit 0)"
-ngit rev-parse -q --verify "refs/tags/$TAG" >/dev/null && die "$TAG already exists; tags are immutable"
+# The line-move row must CLEAR at $SHA (signature, lineage, no later HALT or retraction), not merely be present as
+# text (@security, 2026-11-19; C-2). Same non-consuming gate check as 14-sign-release-line-1.2.sh, from an empty cwd.
+mkdir "$TMP/empty"
+( cd "$TMP/empty" && "${AGENTTEAMS_BIN%/agentteams}/python" -I -P - "$TMP/rt/.github/agents" release-line-agentteams-1.2 ) <<'PY' || die "release-line-agentteams-1.2 does not clear at $SHA; nothing was pushed or signed"
+import sys
+from pathlib import Path
+from agentteams.cli.security_gate import check_clearance
+ok, why = check_clearance(Path(sys.argv[1]), action=sys.argv[2], consume=False) if "consume" in check_clearance.__code__.co_varnames else check_clearance(Path(sys.argv[1]), action=sys.argv[2])
+print(f"  {sys.argv[2]}: {'clears' if ok else 'REFUSED: ' + str(why)[:200]}")
+sys.exit(0 if ok else 1)
+PY
+ngit rev-parse -q --verify "refs/tags/$TAG" >/dev/null && die "$TAG already exists; tags are immutable. If an earlier run signed it here but did not push it, stop and tell the researchteam session; do not delete it yourself"
 existing="$(ngit ls-remote "$RT_URL" refs/heads/release/1.2 | cut -f1)"
 [ -z "$existing" ] || [ "$existing" = "$SHA" ] || die "release/1.2 already exists at $existing, not $SHA"
 
@@ -63,6 +78,7 @@ ngit log -1 --format='  %h %s' "$SHA"
 confirm "Cut release/1.2 at ${SHA:0:12} and sign $TAG there?"
 # Pushes use your credentials (so plain git, but no hooks and an explicit URL); everything else stays neutralised.
 [ "$existing" = "$SHA" ] || git -c core.hooksPath=/dev/null push --quiet "$RT_URL" "$SHA:refs/heads/release/1.2"
+[ "$(ngit ls-remote "$RT_URL" refs/heads/release/1.2 | cut -f1)" = "$SHA" ] || die "remote release/1.2 is not at $SHA after the push; nothing was signed"
 ngit -c user.name="$NAME" -c user.email="$EMAIL" -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
   -c user.signingkey="$RELEASE_PUB" tag -s "$TAG" "$SHA" -m "researchteam 1.2.0rc1 — first 1.2 release candidate (release/1.2): agentteams 1.2
 
