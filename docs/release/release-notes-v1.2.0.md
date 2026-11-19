@@ -1,0 +1,11 @@
+First release of the researchteam 1.2 line. It pins agentteams v1.2.1 (a7ab95e2) and is v1.2.0-rc.1 plus release files only.
+
+- **agentteams 1.2.** The agent team is regenerated with agentteams 1.2.1, and `toolchain.lock` and the `update` / `research` extras move from agentteams v1.1.4 to v1.2.1. The rendered instruction files gain a "GitHub management" section and an "Integration-branch merge authorization" section. The constitutional gate hook, the sandbox profiles and the example deny list tighten. The Codex role gate gains a WASM mode, which is not active in this repository. A work-summary stop hook ships as an example the operator may merge into `settings.json`; nothing wires it.
+- **Merges into `main` and `release/*` need the operator's live approval** naming the PR and head, under the generated "GitHub management" section. A repository that delegated merges to an agent session should read that section against its own project rules before it moves to 1.2.
+- **Unscoped Claude agents (agentteams #511).** An agent with no `tools:` line now falls back to `Read`, `Grep`, `Glob`. Every agent researchteam renders declares `tools:`. A derived repository with its own unscoped agents must add an explicit `tools:` line.
+- **Bibliography explorer (#210).** `scripts/build_bibliography_explorer.py` and `templates/bibliography-explorer/`: a reusable view of a project's people and sources. `researchteam update` does not sync these files; a derived repository vendors them at a pinned commit.
+- **Not in the 1.2 line:** the term-index core switch, planned for researchteam 1.3 with agentteams 1.3.
+
+**Moving a derived repository:** `researchteam update --ref v1.2.0`, then `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.2.0 --tag agentteams=v1.2.1`. A locked repository leaves two release lines at once (researchteam 1.1 and agentteams 1.1), and `check_toolchain.py` refuses a cross-line `--tag` for each pin, so drop both the `researchteam.tag=` and the `agentteams.tag=` line from `toolchain.lock` first. Both line moves are trust changes and get the repository's own `@security` review.
+
+`release/1.1` stays open for v1.1.N backports and keeps agentteams 1.1. Policy: `docs/release-policy.md`, "The 1.2 line". Full list: `CHANGELOG.md`.
