@@ -5,6 +5,20 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.2.0 (tag `v1.2.0`, on `release/1.2`)
+
+The first release of the 1.2 line. It is `1.2.0rc1` plus release files only (this section, the release notes and
+the cut record). researchteam 1.2 pins agentteams 1.2: this release pins agentteams **`v1.2.1`** (`a7ab95e2`). The
+changes are listed under `1.2.0rc1` below.
+
+Derived repositories take it with `researchteam update --ref v1.2.0`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.2.0 --tag agentteams=v1.2.1`. Moving a
+repository's lock from the agentteams 1.1 line to the 1.2 line is a trust change: drop its `agentteams.tag=` line
+first, and give the move that repository's own `@security` review. Before moving, read the generated "GitHub
+management" section against the repository's own project rules (merges into the default branch need the operator's
+live approval), and give any unscoped Claude agent an explicit `tools:` line (agentteams #511). `release/1.1` stays
+open for `v1.1.N` backports.
+
 ## 1.2.0rc1 (tag `v1.2.0-rc.1`, on `release/1.2`)
 
 The first release candidate of the 1.2 line. researchteam 1.2 pins agentteams 1.2: this candidate pins agentteams
