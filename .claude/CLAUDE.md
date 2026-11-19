@@ -375,11 +375,12 @@ No project-specific style rules defined.
   - An AgentTeams Autosync PR is opened with the workflow's own token and gets no checks. Before it can count as
     green, the agent closes and reopens it with the session's own `gh` token (the operator's) so `tests.yml` runs
     on its head.
-  - `release/*` moves only as a fast-forward to a commit the operator will tag. The go/no-go stays with the
-    operator.
+  - `release/*` moves only as a fast-forward to a commit the operator will tag, and only after the operator's
+    live answer naming that commit. The go/no-go stays with the operator.
   - After merging, the agent checks that the merge commit matches the PR and that CI on `main` is green. If it
     is not, the agent opens a revert PR first. After one failed fix-forward, it stops and tells the operator.
-  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`.
+  - Reverts and fixes always go through a PR, never a direct push to `main` or `release/*`. Merging a revert or
+    fix PR needs the operator's live answer like any other merge.
   - Never under PS-2:
     - force-pushes or history rewrites;
     - `gh pr merge --admin` or any bypass of branch protection or of a ruleset, including an admin-role
