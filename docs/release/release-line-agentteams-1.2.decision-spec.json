@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-19",
+  "date": "2026-11-19",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "release-line-agentteams-1.2",
+  "verdict": "PASS",
+  "scope": "release-line-agentteams-1.2",
+  "conditions": "researchteam's toolchain.lock leaves the agentteams 1.1 line for the 1.2 line: the agentteams.tag=v1.1.4 line is dropped and a new release lock is started with check_toolchain.py --write-lock --tag agentteams=<verified 1.2 tag> --sync-extras (the same-line rule refuses a cross-line move under an existing lock). The new lock follows only verified signed tags on v1.2; release/1.1 keeps v1.1.N backports and does not move. The pin itself is reviewed separately: agentteams is a first-party toolchain group member, so while the operator-signed group file verifies the pin move needs this repository's @security review in the pin PR (tag object, peeled commit, S-10 known-vulnerability search, latest-stable rule) and no row of its own; otherwise it needs its own row. Operator ruling 2026-11-19 (confirmed in researchteam's session picker): researchteam 1.2.0 pins agentteams v1.2.1, paced rc.1, CI, then the final. No constraint is relaxed and nothing is granted.",
+  "conditions_verified": "verified",
+  "evidence": "researchteam PR #214 (docs/release-policy.md 'The 1.2 line'; the team regenerated with agentteams 1.2.1); plan references/plans/release-line-1.2.plan.md. Scope: the trust change from the agentteams 1.1 release line to the 1.2 release line in toolchain.lock and the update/research extras.",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "",
+  "effect_targets": "toolchain.lock; pyproject.toml",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
