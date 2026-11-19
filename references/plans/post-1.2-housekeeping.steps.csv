@@ -2,9 +2,9 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Update .venv to toolchain.lock with scripts/bootstrap_toolchain.sh,toolchain.lock,.venv at the pinned commits,done,bootstrap run; check_toolchain reports .venv matches toolchain.lock,
 2,git-operations,Remove this session's worktree for the merged pin branch and delete the session scratch files,clean worktree,none,done,worktree for pin/agentteams-v1.2.1 removed (clean; branch merged); session scratch files deleted,
 3,primary-producer,Draft the issue #213 wording fix on a branch,issue #213; docs/agentteams-update-policy.md,docs change,done,"branch docs/213-pin-record-unsigned-workspaces: update policy, release policy and changelog",1
-4,security,Review the #213 wording and set the exact sentence,branch diff,verdict,pending,,3
-5,orchestrator,Open the #213 PR; wait for green CI; ask the operator to approve the merge; merge and check main,@security PASS,merge commit,pending,,4
-6,git-operations,Prepare the merged-branch deletion script and list,ls-remote; open PRs,operator script,pending,,5
-7,security,--branch-cleanup review of the script and its list,script,verdict,pending,,6
+4,security,Review the #213 wording and set the exact sentence,branch diff,verdict,done,@security PASS at 955e1aa after two required edits (recorded in a PR #220 comment),3
+5,orchestrator,Open the #213 PR; wait for green CI; ask the operator to approve the merge; merge and check main,@security PASS,merge commit,done,PR #220 merged as dc9d708 with the operator's live approval naming #220 and 955e1aa; tree equals the reviewed head; main green; issue #213 closed,4
+6,git-operations,Prepare the merged-branch deletion script and list,ls-remote; open PRs,operator script,done,17-delete-merged-branches.sh: script 10 with a new list of 27 merged branches,5
+7,security,--branch-cleanup review of the script and its list,script,verdict,done,@security --branch-cleanup PASS for script sha256 69762b2d…50e3 (logic identical to script 10; list matches the remote refs; 10 SHAs spot-checked); recorded in the records PR before the run,6
 8,operator,Run the deletion script,reviewed script,deleted branches,pending,,7
 9,orchestrator,Read back remote branches; record in the work summary; close-out audit,ls-remote,workSummaries/daily entry,pending,,8
