@@ -11,10 +11,7 @@ from pathlib import Path
 
 import pytest
 
-# _frozen binds subprocess.run at import (`from subprocess import run as _run`), and run_update imports it
-# lazily. Import it here, before any test fakes subprocess.run: otherwise, when this file runs alone or first,
-# _frozen keeps the fake for the rest of the session and its git calls get an object with no stdout.
-from researchteam import _frozen, _update_cmd  # noqa: F401
+from researchteam import _update_cmd
 
 REPO = Path(__file__).resolve().parents[1]
 
