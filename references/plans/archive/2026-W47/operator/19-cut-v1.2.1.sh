@@ -40,6 +40,9 @@ EOF_KEYS
 ngit fetch --quiet --tags "$RT_URL" "+refs/heads/main:refs/remotes/origin/main"
 ngit merge-base --is-ancestor "$SHA" refs/remotes/origin/main || die "$SHA is not on origin/main"
 # The cut commit is the release-prep PR's merge commit and nothing later (@security, 2026-11-19).
+# PR #229 must be merged, and merged at the head that was reviewed (coordinator, 2026-11-20).
+PR_HEAD="<reviewed head of PR #229>"   # filled in the runnable copy once this file is committed
+[ "$(gh pr view 229 -R "$REPO" --json state,headRefOid -q '"\(.state) \(.headRefOid)"')" = "MERGED $PR_HEAD" ] || die "PR #229 is not merged at the reviewed head $PR_HEAD"
 PR_MERGE="$(gh pr view 229 -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #229"
 [ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #229 (${PR_MERGE:-none})"
 
@@ -101,6 +104,13 @@ ngit merge-base --is-ancestor "refs/tags/v1.2.0^{commit}" "$SHA" || die "$SHA do
 CHANGED="$(ngit diff --no-renames --name-only "refs/tags/v1.2.0^{commit}" "$SHA")" || die "cannot list the changes since v1.2.0"
 [ -n "$CHANGED" ] || die "$SHA changes nothing since v1.2.0"
 printf '%s\n' "$CHANGED" | grep -qxF "researchteam/_release.py" || die "$SHA does not carry the verify_tag fix"
+# The code that ships is exactly the reviewed fix: both files must be byte-identical to PR #227's merge commit
+# (coordinator, 2026-11-20). A path being in the list above says nothing about its content.
+FIX="01c353bee1061b93fddd8974aa53cf22b34cd317"
+ngit merge-base --is-ancestor "$FIX" "$SHA" || die "$SHA does not contain the fix merge $FIX"
+for f in researchteam/_release.py tests/test_release_lock.py; do
+  [ "$(ngit rev-parse "$SHA:$f")" = "$(ngit rev-parse "$FIX:$f")" ] || die "$f at $SHA differs from the reviewed fix at $FIX"
+done
 EXTRA="$(printf '%s\n' "$CHANGED" | grep -vxE 'CHANGELOG\.md|researchteam/_release\.py|tests/test_release_lock\.py|(docs|docs_src|references/plans|workSummaries)/.*' || true)"
 [ -z "$EXTRA" ] || die "changes since v1.2.0 outside the fix and docs: $(printf '%s' "$EXTRA" | tr '\n' ' ')"
 
