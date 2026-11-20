@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Docs: the cut script's identity and signing-key checks are release policy (#231).** `docs/release-policy.md`,
+  "Tags", now says the cut script sets the tagger email itself (the operator account's GitHub no-reply address),
+  refuses to sign unless the release key is registered as a signing key on that account, and reports GitHub's
+  verification after the push. The report never stops a release, and GitHub's badge is not the consumer check:
+  consumers still verify against the allowed-signers file. The checks shipped in the `v1.2.1` cut script.
+- **Tests: the update and materialize tests pass when run alone (#233).** `tests/test_update_native_surfaces.py`
+  and `tests/test_materialize_surfaces.py` failed when run by themselves, because `researchteam._frozen` binds
+  `subprocess.run` at import and was first imported after a test had faked it. `tests/conftest.py` now imports
+  it before any test runs. One test no longer reaches the network. No code under test changed.
+- **Tests: characterization tests for the term index (#232).** `tests/test_term_index_characterization.py` pins
+  today's behaviour at the points the planned switch to the agentteams term-index core (1.3.0) could change.
+
 ## 1.2.1 (tag `v1.2.1`, on `release/1.2`)
 
 A patch release on the 1.2 line. It still pins agentteams **`v1.2.1`** (`a7ab95e2`); the pin does not move in

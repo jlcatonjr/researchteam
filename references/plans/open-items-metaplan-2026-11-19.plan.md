@@ -46,8 +46,23 @@ Tracked in `references/plans/` by the pull request opened from branch `plans/ope
   carries the checks (step 4), and GitHub reports `v1.2.1` as verified (step 6). Step 1 was superseded. Left:
   step 2 (confirm "fix forward only") and step 5 (the policy sentence). Where this file says P2 step 6 is
   blocked until the next tag, read it as done.
+  (Superseded for P2 by the second note below: steps 2 and 5 are done.)
 - New work outside the four plans: move researchteam's own pin to agentteams `v1.2.2` (its notes label one
   change as security), and issue #228 (the same shallow fetch in the derived workflow scaffold).
+
+## Update, 2026-11-20 (second): the metaplan carried out
+How it was carried out, the audits and every operator answer: `open-items-execution-2026-11-20.plan.md`.
+- **P1 phase 0 is done.** Seam table, private-symbol list and the held upstream request:
+  `open-1119-p1-seam-table.md`. Design note: `open-1119-p1-copy-integrity-design.md`. Characterization tests:
+  PR #232. New fact: the upstream core exists on agentteams `dev` as two files, and `term_index.py` imports the
+  private `agentteams._term_text`, so a byte-identical copy needs an import shim or an upstream change.
+- **P2 is done.** The operator confirmed "fix forward only" in this session; the policy sentence is PR #231.
+- **P3:** the operator chose automatic head-branch deletion, and to retire the redundant s10 exemption to free
+  the exception registry's one slot. Draft PR #234 carries the PS-2 amendment, the decision spec and scripts
+  20 to 22. It waits for the operator to run script 20. Safety review: `open-1119-p3-auto-delete-safety.md`.
+- **P4 is closed**: not reproduced under isolation in 25 full runs (`open-1119-p4-runs.md`). The triage
+  (`open-1119-p4-test-triage.md`) led to PR #233, which fixes two test files that failed when run alone.
+- Still outside the four plans, not started: the agentteams `v1.2.2` pin move, and issue #228.
 
 ## Rules that shape the schedule
 - Every merge into `main` or `release/*` needs the operator's live answer naming the PR and its head. Work is
