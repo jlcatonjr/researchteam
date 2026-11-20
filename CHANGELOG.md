@@ -5,6 +5,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.2.1 (tag `v1.2.1`, on `release/1.2`)
+
+A patch release on the 1.2 line. It still pins agentteams **`v1.2.1`** (`a7ab95e2`); the pin does not move in
+this release. A derived repository locks agentteams separately and may be on a later `v1.2.N`.
+
+Derived repositories take it as an ordinary patch release. Install it first, because the lock writer runs the
+installed code: `pip install "git+https://github.com/jlcatonjr/researchteam.git@v1.2.1"` (or
+`bash scripts/bootstrap_toolchain.sh` after the lock names it), then `researchteam update --ref v1.2.1`, then
+`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.2.1 --tag agentteams=<the v1.2.N it uses>`.
+
 - **Fix: verifying a release tag no longer downloads the pinned repository's history.** `researchteam._release`
   `verify_tag` (used by `check_toolchain.py --write-lock` and `--verify-tag`, and so by `researchteam update` on
   a release-locked pin) fetched the tag with the repository's full history under a
