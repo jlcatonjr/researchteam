@@ -114,6 +114,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "counted_tiers": [string],                         // a subset of tiers
     "not_established_tier": string,                    // one of tiers, not counted
     "receipts"?: path,                                 // folder of fetch receipts, 4.4
+    "legacy_exceptions"?: path,                        // legacy studies only; 4.1
     "attribute_kinds"?: [string]
   },
   "outcomes": [ {
@@ -196,6 +197,8 @@ labels. A level set has at least one level, and each `exclude_from_rollup` list 
   `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
   paths (rule 1.6);
 - evidence that cites a fetch receipt when `evidence.receipts` is not declared;
+- `evidence.legacy_exceptions` in a study whose `status` is not `legacy`, or naming a file that no gate
+  covers;
 - a `post_steps` file that no gate covers (4.5);
 - a gate that covers no file, or a `covers` path that does not exist, unless `status` is `draft`.
 
@@ -265,6 +268,43 @@ Errors:
 The row checks apply to the whole evidence file whenever it is checked, not only to rows being added, and
 none of them is skipped because an optional declaration or file is absent: an `attribute_kind` is checked
 against the outcomes and attributes that use it, and a missing registry is itself an error.
+
+**Rule ids.** Each evidence check has an id, which reports use and the exceptions file below is keyed on:
+
+| Rule id | Breach |
+|---|---|
+| `columns` | the columns are not exactly the eighteen, in order |
+| `id-empty` | an empty `id` |
+| `id-duplicate` | a repeated `id` |
+| `attribute-kind` | an `attribute_kind` that is not declared |
+| `person-unknown` | a `person_id` the registry does not hold |
+| `unit-id` | a `unit_id` in an author study, or none in a passage or work study |
+| `tier-unknown` | a `tier` that is not declared |
+| `counted-quote` | a counted row without a `quote` |
+| `counted-citation` | a counted row with neither `citation` nor `source_id` |
+| `counted-basis` | a counted row whose `basis` is not `own` or `reported` |
+| `reported-reporter` | a `reported` row without a `reporter` |
+| `own-reporter` | an `own` row that names a `reporter` |
+| `ne-quote` | a not-established row with a `quote` |
+| `ne-note` | a not-established row without a `note` |
+| `vocabulary` | forbidden vocabulary in a column that is not exempt |
+
+**Rows that predate the rules, in a legacy study.** A `legacy` study may name a file of exceptions,
+`evidence.legacy_exceptions`, with the columns `id, rule`: one line for each existing row and each rule
+that row breaks. Rewriting such rows would change the evidence of a study that is already closed.
+
+- A row that breaks a rule fails the check unless that row and that rule are listed. A listed breach is
+  reported, with counts by rule, and does not fail.
+- `columns`, `id-empty` and `id-duplicate` cannot be listed: without sound columns and ids no row can be
+  named.
+- Nothing else is excused. A row that is not listed, and so every row added later, must pass in full; a
+  listed row that comes to break a further rule fails on that rule.
+- A listed exception that no longer applies, because the row was removed or now passes, is an error:
+  the file is corrected, so it never claims more than is true.
+- The file is the project's, is covered by a gate, and is allowed only when `status` is `legacy`. The
+  tool can write a first version from the current breaches for a person to review; it never adds to an
+  existing one.
+- Every output that rests on the evidence file says how many exceptions it was read with.
 
 ### 4.2 Codes
 
@@ -375,9 +415,21 @@ page itself is cached only in a folder the repository ignores, and is never comm
 
 **Identity files:**
 
-- the overrides file (`identity.overrides`): `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
-  id of the project merges the two; one from the identity source links to it. An `alias_id` given twice
-  is an error. **The registry links and merges only from this file.**
+- the overrides file (`identity.overrides`): `alias_id, target_id, decision, decided_by, reason`. Every
+  column is required in every row. `decision` is one of:
+
+  | `decision` | Means | `target_id` |
+  |---|---|---|
+  | `link` | the project's person is the identity-source person | an id in the identity source; it may equal `alias_id` |
+  | `merge` | two of the project's ids are one person | another id of the project |
+  | `distinct` | reviewed, and they are different people | the other id, from either side |
+
+  A `distinct` row settles that one pair and no other: a candidate that appears later for the same alias
+  is undecided until it has a row of its own. An `alias_id` may have several `distinct` rows but at most
+  one `link` or `merge`; a second is an error, and so is a `distinct` row for a pair that is also linked
+  or merged. The decision is always written, never read off which side `target_id` belongs to. **The
+  registry links and merges only from this file**, and a candidate counts as decided only when a row
+  names that pair.
 - the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. `identity_id` is the id in the
   identity source.
 - **Candidates.** The registry tool lists possible matches between the project's persons and the identity
@@ -634,6 +686,10 @@ Settled by the comparison with the reference at its revision of 2026-11-19: a dr
 is left out of the rollup; identity candidates may be approximate but are never links, equal ids
 included; an unfindable quotation in a counted tier fails except in a legacy study; a stage with an
 undeclared gate refuses except in a legacy study.
+
+Added after the reference was aligned (2026-11-19): an override row states its decision, and `distinct`
+records a reviewed pair of different people (4.4); a legacy study may list, row by row and rule by rule,
+the breaches of rows that predate the rules (4.1).
 
 Still open:
 
