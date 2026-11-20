@@ -1,7 +1,8 @@
 # Survey toolkit: contract
 
-**Status: draft 3 (2026-11-19), revised after two checks against the reference implementation. Not yet
-agreed, and nothing here is implemented in researchteam yet.** The
+**Status: agreed draft, revision 2 (2026-11-19).** Agreed with the first integrating project after two
+checks and a line-by-line comparison with its reference implementation. Nothing here is implemented in
+researchteam yet. The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
 run one stage. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
@@ -28,11 +29,13 @@ order of work; 11 open points.
    only by the operator's signature over the hash of a manifest of every covered file. Any later edit to
    a covered file un-clears the gate.
 5. **Deterministic.** The same inputs give byte-identical outputs. Outputs carry no timestamp. A log row
-   carries the date its author gives it; a tool does not read the clock to fill one in. The one exception
-   is a fetch receipt (4.4), whose fetch time is a fact about the fetch.
+   carries the date its author gives it; a tool does not read the clock to fill one in. Two exceptions: a
+   fetch receipt (4.4), whose fetch time is a fact about the fetch, and the date in a sign-off request,
+   which is a field of `agentteams`.
 6. **Paths stay in the repository.** A path in the specification is relative to the study's folder, or
    to the repository root when it starts with `repo:`. An absolute path, a `..` segment, or a path that
-   resolves outside the repository through a link is an error.
+   resolves outside the repository through a link is an error, in a draft as much as in an active study.
+   Two paths are the same file when they resolve to the same place, however each is written.
 7. **Standard library only.** The tools import nothing outside the Python standard library. Verifying a
    signature needs `agentteams`, which is optional: without it a gate's state is `UNAVAILABLE`, and a
    blocking gate in that state refuses like an uncleared one.
@@ -41,6 +44,10 @@ order of work; 11 open points.
 9. **What a clean run means.** The study is well-formed, internally consistent and, where gates are
    cleared, unchanged since the operator signed. It does not mean that any quotation is accurate beyond
    the locus it was re-found at, that a code is right, or that the frame is complete.
+10. **Folded text.** Where this contract says text is *folded*, it means: decomposed (NFD) with combining
+   marks removed, lower-cased, soft hyphens removed, a hyphen followed by white space removed together
+   with that white space, and each remaining run of white space made one space, with none at either end.
+   *Folded without spaces* removes the white space altogether.
 
 ## 2. What the toolkit owns, and what a project owns
 
@@ -63,7 +70,8 @@ shape, and covered by gate S6.
 ## 3. The study specification (`study.json`, v0-unstable)
 
 One JSON file per study, at `Projects/<project>/study.json` unless the project says otherwise. Unknown
-keys are an error at every level. The validator is researchteam's own, written against the standard
+keys are an error at every level. A study is a draft only by its `status`; a file's name never makes it
+one. The validator is researchteam's own, written against the standard
 library; it is the authority. A JSON Schema file (2020-12) is published beside it as a description for
 editors. A shared set of valid and invalid specifications is kept in the tests so the two can be compared
 wherever a JSON Schema library is installed; researchteam's own CI does not install one.
@@ -78,12 +86,13 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
   "vantage"?: { "module": Plugin | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
   "vocabulary"?: { "forbidden": path, "exempt_columns"?: [string] },                        // 5.3
   "corpus"?: { "text": path, "works"?: path },                                              // 5.4
-  "identity": { "registry": path, "overrides": path },                                      // 4.4
+  "identity": { "registry": path, "overrides": path, "stop_words"?: path },                 // 4.4
   "unit": {
     "kind": "passage" | "work" | "author",             // passages and works roll up to their author
-    "attribution"?: { "file": path, "statuses": [string], "counted_statuses"?: [string] },
+    "attribution"?: { "file": path, "statuses": [string], "counted_statuses": [string] },
     "passage_attributes"?: [ LevelSet ],
     "rollup_by"?: [string],
+    "rollup_types"?: string,                           // a passage attribute key; 4.2
     "exclude_from_rollup"?: { "<passage attribute key>": [string] },                         // 4.2
     "collective"?: { "kinds": [string], "analysis": "apart" | "with-authors" }
   },
@@ -157,30 +166,40 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
              "mode": "prospective" | "retroactive" }
 ```
 
+**Bounds.** There is at least one enumeration, outcome, attribute and cut, and at least two period
+labels. A level set has at least one level, and each `exclude_from_rollup` list at least one value.
+`title`, `question`, every path and a plug-in's `version` are not empty. A plug-in's `attr` matches
+`^[A-Za-z_][A-Za-z0-9_]*$`. A bucketer carries only the fields of its own kind.
+
 **Checks beyond shape.** Each is an error:
 
-- outcome keys and attribute keys are unique; level codes are unique within an outcome;
+- a key used twice among the outcomes and attributes together; a level code used twice within an outcome;
 - `rollup: "max-order"` without `scale: "ordinal"`, or with a level that has no `order`;
 - a merge whose source is not a declared level code or NA code (a target may be a new label);
-- `cuts` not ascending, or `labels` not one longer than `cuts`; a `strata` key that is not a period
+- `cuts` not strictly ascending, or `labels` not one longer than `cuts`; a `strata` key that is not a period
   number from 1 to the number of labels;
 - a passage or work study with no outcome whose source is `codes`;
 - `counted_tiers` not a subset of `tiers`; `not_established_tier` not in `tiers`, or counted;
 - `rollup: "any-present"` without a `present_code`, or with one that is not a level code of the outcome;
   a `present_code` on any other rollup;
 - an `exclude_from_rollup` key that is not a `passage_attributes` key, or a value that is not one of its
-  level codes; a level code `mixed` in an outcome whose rollup is `mixed-if-conflict`;
-- a referenced input file that does not exist, unless `status` is `draft`. Files and folders a stage
-  writes (`log`, `change_log`, `identity.registry`, `evidence.receipts`) may be absent;
-- a plug-in, a `vantage.module` file or the `vocabulary.forbidden` file that is not covered by gate S0
-  (5.1, 5.3);
+  level codes; a level code `mixed` in any outcome;
+- `rollup: "any-present"` on an ordinal outcome with a level that has no `order`;
+- a `rollup_types` that is not a `passage_attributes` key;
+- a referenced input file that does not exist, unless `status` is `draft`. These may be absent, because
+  a stage writes them or they start empty: `log`, `change_log`, `identity.registry`,
+  `identity.overrides`, `evidence.receipts`;
+- a plug-in (a reader, a bucketer or the vantage module), the `vocabulary.forbidden` file or the
+  `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
+  paths (rule 1.6);
 - evidence that cites a fetch receipt when `evidence.receipts` is not declared;
 - a `post_steps` file that no gate covers (4.5);
-- a gate that covers no file, or a `covers` path that does not exist in an `active` study.
+- a gate that covers no file, or a `covers` path that does not exist, unless `status` is `draft`.
 
-**Changes from the reference implementation**, each for the reason given:
+**Changes from the first version of the reference implementation**, each for the reason given. The
+reference has since taken them.
 
-| Field | Reference | Here | Why |
+| Field | First reference | Here | Why |
 |---|---|---|---|
 | `evidence.format` | `author-attributions-v1`, `explorer-evidence-1.0` | `survey-evidence-0`, `plugin` | The first is one project's legacy file, read through a reader plug-in that stays in that project. The second name claimed the explorer's 13 columns for a file that has 18. |
 | `bucketer.plugin` | `"module.path:attr"` | `{file, attr, version}` | A file path can be confined to the repository, hashed and covered by a gate; an import path cannot. |
@@ -240,6 +259,10 @@ Errors:
 - text matching the project's forbidden-vocabulary file in any column not listed in
   `vocabulary.exempt_columns` (5.3).
 
+The row checks apply to the whole evidence file whenever it is checked, not only to rows being added, and
+none of them is skipped because an optional declaration or file is absent: an `attribute_kind` is checked
+against the outcomes and attributes that use it, and a missing registry is itself an error.
+
 ### 4.2 Codes
 
 `unit_id, person_id, outcome, code, pass, coder, basis, reporter, evidence_ids, level, note`
@@ -256,29 +279,42 @@ Errors:
   belonging is read through the attribution file: a unit's evidence belongs to the unit's attributed
   author;
 - two rows for the same unit, outcome and pass;
-- a `final` row for a unit that lacks an `A` or a `B` row, unless it is an adjudicated row whose `note`
-  begins `missing pass: A, ` or `missing pass: B, ` followed by the reason the pass could not be made.
+- a `final` row for a unit that lacks an `A` or a `B` row, unless it comes from an adjudication whose
+  `note` begins `missing pass: A, ` or `missing pass: B, ` followed by the reason the pass could not be
+  made.
+
+**Adjudications** are a row file of their own, written by the adjudicator:
+
+`unit_id, outcome, code, coder, basis, reporter, evidence_ids, note`
+
+They are checked like codes rows, and `coder` and `note` are required. An adjudication for a unit and
+outcome on which passes A and B agree is an error: an agreed code is not changed.
 
 **Finalising is fail-closed.** Where passes A and B agree, the final row is theirs. Where they disagree,
-or where one pass is missing, no final row is written until an adjudicated row is supplied with its own
-coder and note; the tool lists the units and exits non-zero. A single pass never becomes final on its
-own. Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1, per outcome, with the number of
+or where one pass is missing, the final row is the adjudication's, with the adjudication's own basis and
+evidence. Without one, no final row is written; the tool lists the units and exits non-zero. A single
+pass never becomes final on its own. Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1, per outcome, with the number of
 units each rests on.
 
 **Rollup** takes passage or work codes to their author:
 
 - only `final` rows count, and only for units whose attribution status is in `counted_statuses`;
 - a unit whose passage-attribute value is listed in `unit.exclude_from_rollup` is left out;
-- NA codes and the `missing` value are skipped. An author with nothing left gets `missing`;
+- NA codes and the `missing` value are skipped. An author whose remaining codes are all skipped gets
+  `missing`;
+- an author all of whose units were left out by status or exclusion is not in the rollup. The tool
+  reports how many authors that is;
+- an outcome whose source is an evidence attribute does not appear in the rollup;
 - `single-code`: the one code all remaining units share; more than one is an error;
 - `mixed-if-conflict`: the shared code, or the reserved code `mixed` where units differ;
 - `max-order`: the code with the highest `order`;
 - `any-present`: the outcome's `present_code` if any remaining unit has it. Otherwise, for an ordinal
   outcome, the remaining code with the lowest `order`; for a nominal one, the remaining code declared
   first in `levels`;
-- `none`: the outcome is not rolled up;
+- `none`: the outcome does not appear in the rollup;
 - results are split by each key in `unit.rollup_by`;
-- beside each outcome the rollup reports the passage-attribute values behind it (`<outcome>__types`);
+- where `unit.rollup_types` names a passage attribute, the rollup reports beside each outcome the values
+  of that attribute among the units behind it (`<outcome>__types`);
 - a collective author keeps its `author_kind`.
 
 ### 4.3 Attribution (passage and work studies)
@@ -287,7 +323,8 @@ units each rests on.
 `unit.passage_attributes`, then `basis, note`.
 
 `status` is one of `unit.attribution.statuses`. Only rows whose status is in `counted_statuses` enter a
-rollup. `author_kind` is `person` or one of `unit.collective.kinds`; anything else is an error.
+rollup. `author_kind` is `person` or one of `unit.collective.kinds`; anything else is an error. The
+attribution file is checked like any other row file, header included.
 
 ### 4.4 Logs and working files
 
@@ -296,8 +333,15 @@ rollup. `author_kind` is `person` or one of `unit.collective.kinds`; anything el
 `enumeration, round, date, method, queries, candidates, new, new_share, new_ids, note`
 
 `round`, `candidates` and `new` are integers; `new_share` is between 0 and 1, to four decimals; `new_ids`
-is a `;`-separated list. The stopping rule is computed from these rows only: a study cannot be declared
-saturated by assertion.
+is a `;`-separated list. Each enumeration writes the file its own `log` names. The stopping rule is
+computed from these rows only: a study cannot be declared saturated by assertion.
+
+| `stopping_rule.kind` | Met when |
+|---|---|
+| `saturation` | each of the last `rounds_without_new` rounds has a `new_share` no greater than `min_new_share`. Both fields are required; there is no default |
+| `exhaustive-corpus` | one round is recorded that ran the whole query plan over the corpus |
+| `closed-list` | one round is recorded that went through the whole list |
+| `legacy-unrecorded` | always, and it is allowed only in a `legacy` study: it records that no log was kept |
 
 **Frame-change log** (`frame_rules.change_log`; JSON Lines), one entry per change to the frame:
 
@@ -307,6 +351,8 @@ saturated by assertion.
   "added": [string], "removed": [string], "units": [string] }
 ```
 
+The log is the file `frame_rules.change_log` names. A frame's units are its `unit_id` values in a passage
+or work study and its `person_id` values in an author study. The first entry lists every unit as added.
 `id` is what a report cites. `results_seen` records whether any coded result had been seen when the change
 was made, and is shown wherever the change is reported. The check fails when the current frame's hash
 differs from the last entry's: a frame cannot change without an entry.
@@ -316,16 +362,26 @@ differs from the last entry's: a frame cannot change without an entry.
 `url, quote, fetched_at, quote_fold_sha256, status, final_url, content_type, sha256, found, context,
 reason, wayback, receipt_id`
 
-`receipt_id` is the first 24 hex characters of the SHA-256 of the URL, a line feed and the folded quote.
-`context` is at most about 100 characters each side of the quote, with whitespace collapsed. The fetched
+`receipt_id` is the first 24 hex characters of the SHA-256 of the URL, a line feed and the quote folded
+without spaces (rule 1.10). `context` is at most about 100 characters each side of the quote, with
+whitespace collapsed. `sha256`, `context` and `wayback` are absent when the fetch failed; `context` is
+absent for a response that is not text; `wayback` is absent when no archive copy was asked for. The fetched
 page itself is cached only in a folder the repository ignores, and is never committed.
 
 **Identity files:**
 
 - the overrides file (`identity.overrides`): `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
-  id of the project merges the two; one from the identity source links to it.
-- the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. (`identity_id` is the id in the
-  identity source; the reference names this column after its own vantage module.)
+  id of the project merges the two; one from the identity source links to it. An `alias_id` given twice
+  is an error. **The registry links and merges only from this file.**
+- the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. `identity_id` is the id in the
+  identity source.
+- **Candidates.** The registry tool lists possible matches between the project's persons and the identity
+  source, each with its kind: `same-id` (the two ids are equal), `exact` (the folded names are equal) or
+  `similar` (the names share tokens). A candidate is never a link, whatever its kind: two sources can
+  give the same id to different people. The tool may write proposed override rows to a separate file for
+  a person to review; it never writes the overrides file.
+- `identity.stop_words` names a text file of words left out when names are compared, one per line. It is
+  the project's. Without it no word is left out.
 
 ### 4.5 Frame post-steps
 
@@ -334,8 +390,8 @@ written. A post-step adds columns to the frame and does nothing else.
 
 - The frame build runs each step. Every later check and stage treats the frame as it stands after the
   last step.
-- A step whose output has different units from its input, or changes any column that was already there,
-  is refused: the build stops and the frame is not written.
+- A step whose output has different units from its input, puts them in a different order, or changes any
+  column that was already there, is refused: the build stops and the frame is not written.
 - A step is deterministic and follows the plug-in rules of 5.1 on network and clock.
 - Running a step runs the project's code, so each step file must be covered by a gate (S6 in the
   reference implementation). While that gate is blocking and not cleared, the frame build refuses to run
@@ -356,6 +412,7 @@ A plug-in is a Python file in the project's repository, named in the specificati
   such as a person's year, is passed as an argument. There is no separate initialisation step. It makes
   no network request and writes no file.
 - `version` is recorded in every output the plug-in contributes to.
+- No tool calls anything in a plug-in file except the object its `attr` names.
 
 Three kinds exist: an evidence **reader** (`evidence.reader`: yields rows in the 4.1 shape from a
 project's own format), a **bucketer** (`attributes[].bucketer`: maps a unit's source values to a level)
@@ -368,7 +425,7 @@ are, relative to that standpoint. The toolkit takes no position on any such revi
 `vantage.module` null or absent, identities are the persons the project's own rows name, as the registry records them, and every person
 is included.
 
-A vantage module provides:
+The vantage plug-in's `attr` names an object with two functions:
 
 ```
 identities() -> iterable of { "person_id": str, "display_name": str, "aliases": [str] }
@@ -378,13 +435,13 @@ included(person_id: str, rule: str) -> (bool, str)     # the specification's van
 `identities()` is the repository-wide identity source. `included()` applies `vantage.inclusion`; the
 reason is recorded beside every exclusion it causes, in the frame-change log.
 
-There is no name-lookup or review-status function. Matching a name to an identity is a candidate search
-the toolkit does over `identities()` (exact match on folded text; listed, never linked), and no stage
-needs a review status.
+There is no name-lookup or review-status function. Matching a name to an identity is the candidate search
+of 4.4, which the toolkit does over `identities()`, and no stage needs a review status.
 
 ### 5.3 Forbidden vocabulary
 
-`vocabulary.forbidden` names a text file of regular expressions, one per line, with `#` comments. The row
+`vocabulary.forbidden` names a text file of regular expressions, one per line, with `#` comments. They
+are matched without regard to case against the folded text of a cell (rule 1.10). The row
 checks apply them to every column except those in `exempt_columns`, which defaults to `["quote"]`: a
 quotation is reported as it stands. A project that wants quotations checked as well declares an empty
 list. The file is the project's and must be covered by S0. Without it no vocabulary check runs.
@@ -393,7 +450,8 @@ researchteam ships no pattern.
 ### 5.4 Corpus
 
 `corpus.text` and `corpus.works` name the folders of the project's text store, which the quote re-finder
-and the query-plan runner read. The tools read only what is listed here.
+and the query-plan runner read. The tools read only what is listed here, and a tool that needs the
+corpus refuses to run when it is not declared; there is no default location.
 
 - **Text:** one JSON Lines file per work, `<text>/<work slug>.jsonl`. Each line has `locus_id`
   (`<work slug>#p<N>`) and `text`. Other fields are ignored.
@@ -401,8 +459,11 @@ and the query-plan runner read. The tools read only what is listed here.
   (ISO 639-3), or `language` when that is absent; and `publication.composition.year` or `.date`, each a
   scalar or `{ "value": ... }`, of which the first integer is taken.
 - A `locator` of the form `<work slug>#p<N>` is a text-store locus. The quote re-finder looks for the
-  quotation in that line; any other locator is checked against a fetch receipt or reported as not
-  re-findable.
+  quotation in that line. A row with any other locator is checked against the fetch receipt for its
+  `url` and quote.
+- A row in a counted tier whose quotation cannot be re-found, at a locus or in a receipt, is an error in
+  a `draft` or `active` study. In a `legacy` study it is reported and counted, and is not an error: rows
+  that predate receipts cannot be made re-findable.
 
 ## 6. Gates and sign-offs
 
@@ -427,18 +488,23 @@ A **manifest** is one JSON object:
 ```
 
 - `files` lists the specification first, then the gate's `covers` in the order declared, with repeats
-  removed. Each entry is exactly `{ "path": ..., "sha256": ... }`: the repository-relative path with
-  forward slashes, and the lower-case hex SHA-256 of the file's bytes after the next rule.
+  removed. Each entry is exactly `{ "path": ..., "sha256": ... }`: the repository-relative path as
+  declared, with forward slashes, and the lower-case hex SHA-256 of the file's bytes after the next rule.
 - It is written as canonical JSON: keys sorted, no whitespace, UTF-8, and one trailing line feed.
 - A text file is hashed with each CRLF replaced by LF; any other file is hashed as it is. A file is text
   by its suffix alone, matched case-sensitively: `.json .jsonl .csv .tsv .md .txt .py .R .sh .yaml
   .yml`.
-- The gate's identity is the SHA-256 of the manifest file's bytes, the line feed included.
+- The gate's identity is the SHA-256 of the manifest file's bytes, the line feed included. Every command
+  that shows a gate's hash shows this one.
 
 These are fixed because any difference changes every manifest hash and so un-clears every signed gate.
 
 A gate is in one of three states: `CLEARED` (a valid signature exists for the current manifest hash),
-`UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here).
+`UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here). A gate whose files have changed
+since a request was made is `UNCLEARED` whether or not signatures can be verified.
+
+A stage whose gate the specification does not declare refuses to run, except in a `legacy` study, where
+the stage runs and its output records that the gate is not declared.
 
 | `enforce` | `CLEARED` | `UNCLEARED` or `UNAVAILABLE` |
 |---|---|---|
@@ -471,7 +537,7 @@ Bridge commands, each taking a project:
 | Command | Does |
 |---|---|
 | `survey-validate` | checks the specification and every row file present; writes nothing |
-| `survey-status` | prints each gate's manifest hash, state, `enforce` and `mode` |
+| `survey-status` | prints each gate's manifest hash, state, `enforce` and `mode`. It exits 0 whatever the states are, and non-zero only when a specification, manifest or ledger is malformed; refusing is a stage's job |
 | `survey-manifest <gate>` | writes the gate's manifest and prints what the operator signs |
 | `survey-registry` | builds the identity registry; lists candidates; applies recorded overrides |
 | `survey-enumerate` | records an enumeration round; reports the stopping rule (needs S0) |
@@ -547,7 +613,7 @@ Steps 1 to 3 can be done now. A copy of the specification taken before step 4 is
 
 Settled by the first check (2026-11-19): a hand-written validator is enough (the published schema uses
 only types, required keys, closed objects, enumerations, constants, patterns, bounds, references and
-three conditionals); no review-status function is needed; `unit.aggregate_to` is removed; a reader
+four conditionals); no review-status function is needed; `unit.aggregate_to` is removed; a reader
 plug-in is enough for a legacy evidence format, and writing that format stays with the project; the
 corpus shapes and the log columns are as given above.
 
@@ -555,6 +621,12 @@ Settled by the second check (2026-11-19): `held_out` is removed and its rule sta
 `any-present` takes a declared `present_code`; `mixed` is a reserved output code; a manifest's `files`
 entries and its text rule are as in 6.1; `window` and `log` stay required on every enumeration. Settled after the consistency audit:
 `evidence.tier_map` is removed, and `frame_rules.post_steps` is defined in 4.5.
+
+Settled by the comparison with the reference at its revision of 2026-11-19: a draft is a draft by
+`status` only; `identity.overrides` and `change_log` may be absent; a `none` or evidence-attribute outcome
+is left out of the rollup; identity candidates may be approximate but are never links, equal ids
+included; an unfindable quotation in a counted tier fails except in a legacy study; a stage with an
+undeclared gate refuses except in a legacy study.
 
 Still open:
 

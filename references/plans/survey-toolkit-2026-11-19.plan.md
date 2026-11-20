@@ -26,5 +26,8 @@ and gets its own plan when it starts.
 2. **Open a draft PR** so the text is tracked and public.
 3. **Send the draft for checking** against the reference implementation; revise until agreed.
 4. **Close:** `@conflict-auditor` on the PR; ask the operator for the merge.
+5. **Compare with the reference and revise.** Read the merged contract against the reference
+   implementation; settle each difference with the integrating session; put the contract-side corrections
+   in a second PR, audited and merged the same way.
 
 Steps: `survey-toolkit-2026-11-19.steps.csv`.
