@@ -1,0 +1,16 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+A0,security,Clearance naming the upstream candidate tag for a draft-only soak,signed upstream candidate,recorded clearance,pending,waits for the upstream candidate,
+A1,git-operations,Draft soak branch pinned to agentteams v1.3.0-rc.1 with the T2 rehearsal; never ready; never merged,A0; T2 step 1,draft PR,pending,external wait: T2 step 1 (the rehearsal); no change to the lock on main; no autosync; no write credentials,A0
+A2,git-operations,Run the soak checks and renders in the branch's own worktree,A1,raw output,pending,frozen-fences file cleared only after the operator's confirmation (S-4) and a @security clearance,A1
+A3,technical-validator,Read the output; list each failure and its upstream cause,A2,findings,pending,read-only,A2
+A4,primary-producer,Fix PRs on main for each researchteam command broken by an upstream behaviour change,A3,PRs,pending,@code-hygiene; operator approves each merge; git-operations merges,A3
+A5,orchestrator,Write the soak report to docs/release/ and send it to the coordinator,A3,tracked report; message,pending,,A3
+B1,technical-validator,Re-check upstream changes between the soaked candidate and the final,signed upstream final,list,pending,waits for the upstream final,A4
+B2,security,Review the handoff script for the release-line-agentteams-1.3 row; operator signs,D1; B1,signed row,pending,operator signs; the agent prepares,B1
+B3,git-operations,Install agentteams at the verified tag; write the lock; sync extras; move the autosync ref,B2,branch,pending,,B2
+B4,security,S-10 vulnerability search at the tag,B3,record,pending,read-only,B3
+B5,git-operations,Regenerate the team; validate; re-project the Project-Specific Rules; verify-toolchain-pin; tools check; brief.json exempt list if T5 was dropped,B3,branch,pending,,B3
+B6,technical-validator,S-8 search of the regenerated team and memory indexes,B5,clean result,pending,read-only,B5
+B7,security,PASS naming every path in plan step 7; final PASS at the signed head,B4;B6,PASS,pending,read-only,B4;B6
+B8,orchestrator,Ask the operator for the merge naming PR and head,B7,answer,pending,,B7
+B9,git-operations,Merge with --match-head-commit; verify the merge and main,B8,merge commit,pending,,B8

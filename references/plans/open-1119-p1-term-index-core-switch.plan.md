@@ -28,6 +28,12 @@ term-index module, keep the research adapters here, and ship that as researchtea
 - The request to the agentteams lane (single-file or shim-free core, three small gaps, public equivalents of
   two private symbols) is drafted in the seam table and was held by the operator's choice. It is not sent.
 
+## Update, 2026-11-20 (third): phases 1 and 2 moved
+Phases 1 and 2 below are superseded and kept only as the record of what was planned. Step 1.1 is
+`release-1.3.0-t1-pin-agentteams-1.3`; steps 1.2 to 1.4 are `release-1.3.0-t2-term-index-switch`; phase 2 is
+`release-1.3.0-t6-release`. All run under `release-1.3.0.metaplan.md`. The coordinator's assignment named in
+the entry conditions is a scheduling input, not an authorization.
+
 ## Phase 0: preparation that needs no agentteams 1.3 (start now)
 0.1 **Seam map.** A function-level table of `term_index_engine.py`: core or adapter, and for each adapter point
     the parameter the core must offer (scope root, discovery, pruned directories, skip-heading patterns, source

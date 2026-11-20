@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Reconcile the survey-toolkit plan record: step 13 done; PR #226 merged as 4435e14,git log,survey-toolkit-2026-11-19.steps.csv,pending,in the lead's next records PR,
+2,primary-producer,Explorer contract 1.1 with tests; component; FILES.sha256; close open point 2,D2; docs/survey-toolkit.md section 9,templates/bibliography-explorer/; docs/survey-toolkit.md,pending,only-if-ready; @code-hygiene; @conflict-auditor,
+3,orchestrator,Ask the operator for the merge of step 2's PR naming PR and head; git-operations merges,2,merge commit,pending,,2
+4,primary-producer,Write open point 1 against the released gates-only pattern,D2; agentteams 1.3.0 documentation,docs/survey-toolkit.md sections 6 and 11,pending,external waits: D2 and the upstream release,
+5,security,Read the sign-off log text,4,verdict,pending,read-only,4
+6,orchestrator,Ask the operator for the merge of step 4's PR naming PR and head; git-operations merges,5,merge commit,pending,,5
