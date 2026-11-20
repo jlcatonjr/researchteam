@@ -147,12 +147,19 @@ def verify_tag(repo: str, tag: str) -> tuple[str, str]:
     if not advertised:
         raise ReleaseError(f"{repo} does not advertise tag {tag}")
     with tempfile.TemporaryDirectory(prefix="rt-release-") as tmp:
-        for args in (["init", "--bare", "-q", tmp],
-                     ["-C", tmp, "fetch", "--no-tags", "-q", f"https://github.com/{repo}",
-                      f"refs/tags/{tag}:refs/tags/{tag}"]):
-            r = _git(args, timeout=300)
-            if r.returncode != 0:
-                raise ReleaseError(f"cannot fetch {repo} {tag}: {r.stderr.strip() or r.returncode}")
+        r = _git(["init", "--bare", "-q", tmp])
+        if r.returncode != 0:
+            raise ReleaseError(f"cannot create a temporary repository for {tag}: {r.stderr.strip() or r.returncode}")
+        # Only the tag object and the commit it names are needed: the signature is over the tag object, and
+        # no check below reads a tree or a file. A full fetch pulls the repository's whole history and timed
+        # out on slow links. The second attempt covers a git or a server that refuses object filters.
+        for shallow in (["--depth=1", "--filter=tree:0"], ["--depth=1"]):
+            r = _git(["-C", tmp, "fetch", "--no-tags", "-q", *shallow, f"https://github.com/{repo}",
+                      f"refs/tags/{tag}:refs/tags/{tag}"], timeout=300)
+            if r.returncode == 0:
+                break
+        else:
+            raise ReleaseError(f"cannot fetch {repo} {tag}: {r.stderr.strip() or r.returncode}")
         r = _git(["-C", tmp, "rev-parse", f"refs/tags/{tag}"])
         obj = r.stdout.strip()
         if r.returncode != 0 or not _SHA.match(obj):

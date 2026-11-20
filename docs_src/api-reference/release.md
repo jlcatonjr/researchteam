@@ -162,7 +162,7 @@ The newest release tag on `current`'s `vX.Y` line that sorts after `current`. Th
 
 ### `verify_tag(repo, tag)`
 
-Verify a signed release tag and return its tag object and peeled commit. Checks 1–3 run before anything is fetched; the tag is then fetched into a temporary bare repository (a failed fetch raises `ReleaseError`), and checks 4–8 run on the fetched copy:
+Verify a signed release tag and return its tag object and peeled commit. Checks 1–3 run before anything is fetched; the tag is then fetched into a temporary bare repository, shallow (the tag object and the commit it names, never the repository's history; a failed fetch raises `ReleaseError`), and checks 4–8 run on the fetched copy:
 
 1. `tag` matches `TAG_RE`.
 2. The `allowed_signers` file exists.

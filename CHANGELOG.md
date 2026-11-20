@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Fix: verifying a release tag no longer downloads the pinned repository's history.** `researchteam._release`
+  `verify_tag` (used by `check_toolchain.py --write-lock` and `--verify-tag`, and so by `researchteam update` on
+  a release-locked pin) fetched the tag with the repository's full history under a
+  300-second limit. On a slow link that timed out, and the lock could not be written. It now fetches only the
+  tag object and the commit it names (`--depth=1 --filter=tree:0`, retried once with `--depth=1` alone for a git
+  or a server without object filters). Every check is unchanged: an annotated tag, the fetched object equal to
+  the advertised one, a good signature from a release key, and the peeled commit. Reported by the fleet's sync
+  wave.
 - **Docs: the pin-move record in a workspace without decision signing (#213).** No rule changes.
   `docs/agentteams-update-policy.md` said a first-party member's release needs no decision-log row only where
   the operator-signed group file lists the workspace. It now also names a workspace where decision signing is
