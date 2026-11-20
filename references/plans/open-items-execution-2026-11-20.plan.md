@@ -182,3 +182,27 @@ those files' fixtures have faked `subprocess.run`. A full run hides it, because 
   three and two with the files in reverse order.
 - While the series ran, this session also ran single test files a few times and, once, every test file on
   its own. A failure of a timing test in the series during that window would not count as evidence.
+
+## Gate 2 (operator, session picker, 2026-11-20)
+One question per PR, each naming the PR and its full head. All three approved, then merged with
+`--match-head-commit`, with the content check and green tests on `main` after each:
+- #233 at `8542e2b` as `89bda42` (merge tree equal to the head's tree);
+- #232 at `ff8ab84` as `dabf348` (merge patch equal to the head's patch);
+- #231 at `45003ce` as `53ed42e` (merge patch equal to the head's patch).
+Before the question: `conflict-auditor` on the three PRs together, no blocking finding.
+
+## Option A after the cap finding (operator, session picker, 2026-11-20)
+`Security` found that A is a relaxation by effect and needs the registry's one slot, and that
+`s10-cooldown-exempt:jlcatonjr/agentteams` is redundant with the signed first-party toolchain group. Offered:
+retire that exemption; a signed `branch-delete` grant with no rule change; B; or raise the cap. **The operator
+chose: A, retiring the s10 exemption.**
+- Draft PR #234: the PS-2 amendment and its projected copies, the decision spec, operator scripts 20 (retire,
+  sign, register), 21 (setting on) and 22 (setting off), one clause and one merge condition in the release
+  policy.
+- `Security`: conditional at `670ad62` (four required changes), PASS at `e2b441f` as the basis for the
+  operator to run script 20. `conflict-auditor`: one blocking finding, fixed at `e2b441f`.
+- Next, in order: the operator runs script 20; the session commits the log and registry; `Security` reviews
+  that head; the operator approves the merge; `Security` clears script 21; the operator runs it; read-back.
+
+## P4 closed
+25 isolated full runs, no failure: `references/plans/open-1119-p4-runs.md`.

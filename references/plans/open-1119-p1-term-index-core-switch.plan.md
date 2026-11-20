@@ -20,6 +20,14 @@ term-index module, keep the research adapters here, and ship that as researchtea
 - `researchteam/_frozen.py` imports two private agentteams symbols (`_latest_security_decision`,
   `_latest_security_waiver`) from `agentteams.cli.security_gate`.
 
+## Update, 2026-11-20
+- Phase 0 is done; see the step file. The state above is out of date in one point: `agentteams/term_index.py`
+  now exists on agentteams `dev` (read at `b4b732f`, unreleased), with a private helper `agentteams/_term_text.py`.
+- Phase 1 starts from `open-1119-p1-seam-table.md` and `open-1119-p1-copy-integrity-design.md`. Section 8 of
+  the design note lists what to re-check against the signed 1.3.x tag, and section 10 binds phase 1.
+- The request to the agentteams lane (single-file or shim-free core, three small gaps, public equivalents of
+  two private symbols) is drafted in the seam table and was held by the operator's choice. It is not sent.
+
 ## Phase 0: preparation that needs no agentteams 1.3 (start now)
 0.1 **Seam map.** A function-level table of `term_index_engine.py`: core or adapter, and for each adapter point
     the parameter the core must offer (scope root, discovery, pruned directories, skip-heading patterns, source
