@@ -471,9 +471,13 @@ a reader has a **provenance record**:
 ```
 
 - A JSON output carries it as its top-level `provenance` field. Any other output (a CSV, a report) has it
-  in a file beside it, named as the output with `.provenance.json` added, written in the same run. An
-  output of that kind whose record is missing, or whose `inputs` no longer match the files, is treated
-  by the next stage as not built.
+  in a file beside it, named as the output with `.provenance.json` added, written in the same run.
+- `inputs` lists the files the tool actually read, the specification among them, each as it was read. A
+  plug-in file is listed under `plugins` only.
+- The record holds no hash of the output it describes: a record inside a file cannot hash that file.
+- An output whose record is missing, or whose `inputs` or `plugins` no longer match the files, is treated
+  by the next stage as not built, and the stage refuses. Running the earlier stage again writes a new
+  record. In a `draft` study the mismatch is reported and the stage runs.
 - `gates` lists each gate the stage depends on. A gate the specification does not declare has the state
   `NOT DECLARED`. `plugins` lists each plug-in that was loaded; `legacy_exceptions` is the number the
   evidence file was read with, 0 when there is none.
