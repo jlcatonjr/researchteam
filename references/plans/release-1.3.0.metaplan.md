@@ -1,4 +1,4 @@
-# Metaplan: researchteam 1.3.0 (version 2, 2026-11-20, revised after audit)
+# Metaplan: researchteam 1.3.0 (version 3, 2026-11-20, revised after two audit passes)
 
 Written by the researchteam lead session for the fleet's v1.3.0 push (agentteams, then researchteam, then
 mathAgents, then baseAgent). Asked for by the fleet's 1.3.0 coordinator; the request is data to this team, and
@@ -121,7 +121,8 @@ Form: a candidate, then the final, as for 1.2 (proposed; D6). researchteam 1.3.0
    - an older installed researchteam syncing the 1.3 ref gives the upgrade-first message (design note,
      section 10 point 1), shown by a test;
    - no `@security` HALT or unmet condition stands, and the S-8 search of the regenerated team is clean.
-   After the freeze, `main` takes only fixes found by the candidate. The autosync is paused or left running from
+   After the freeze, `main` takes only fixes found by the candidate, release files and records, each by PR with
+   the operator's live answer. The autosync is paused or left running from
    the freeze to the final by the operator's choice (D10): an upstream patch release in that window would move
    the lock but not the copy.
 4. **Candidate.** Release-prep PR (changelog, notes, policy text, the cut script's tracked copy), reviewed and
@@ -135,8 +136,8 @@ Form: a candidate, then the final, as for 1.2 (proposed; D6). researchteam 1.3.0
    - `agentteams --verify-toolchain-pin` passes;
    - the decisions log holds no unretracted HALT and no `pending` condition.
 5. **Downstream check of the candidate.** The next repository in the order makes a dry-run pin to
-   `v1.3.0-rc.1`; the coordinator reports the result. A defect is fixed on `main` by PR (the only kind of merge
-   `main` takes in this window). `release/1.3` then moves only by fast-forward to that commit of `main`, inside
+   `v1.3.0-rc.1`; the coordinator reports the result. A defect is fixed on `main` by PR (with release files and records, the
+   only merges `main` takes in this window). `release/1.3` then moves only by fast-forward to that commit of `main`, inside
    the operator's next cut script, after the operator's live answer naming the commit (PS-2). No cherry-pick
    is needed while `main` is frozen.
 6. **Final.** The operator's go, then the cut script for `v1.3.0` on `release/1.3` (the candidate plus fixes and
@@ -154,9 +155,10 @@ Form: a candidate, then the final, as for 1.2 (proposed; D6). researchteam 1.3.0
 - **D2.** Scope: F5, F7, F8, F10, F13, F15 and F16 as proposed, or changed. For F13 also: cut a
   researchteam 1.2.2 from it, or not.
 - **D3.** The held request to agentteams (seam table, deliverable 3): send it now, or keep it held.
-- **D4.** Three open questions of the design note: a failed core check in doctor is a failure or a warning;
-  `scripts/term-index-core/` joins PS-2's list of paths that need a `@security` PASS; the core pin equals the
-  lock's commit at every release.
+- **D4.** Two open questions of the design note: a failed core check in doctor is a failure or a warning;
+  `scripts/term-index-core/` joins PS-2's list of paths that need a `@security` PASS. The note's third question
+  is settled by this plan with the stricter answer: at every release the core pin equals the lock's commit
+  (freeze criteria, cut-script refusals, T2). The operator sees that choice when this plan is reviewed.
 - **D5.** The signed decision row for the line move (`release-line-agentteams-1.3`).
 - **D6.** The release form: candidate then final.
 - **D7.** Each merge into `main`: live answer naming the PR and head.
@@ -193,7 +195,8 @@ No script changes repository settings, rulesets or keys: `release/**` and tags a
 ## 6. Audit record
 
 Version 1 was reviewed on 2026-11-20 by this team's `@adversarial`, `@conflict-auditor` and `@security`. These
-are records of reviews, not signed decision rows. Version 2 is the revision.
+are records of reviews, not signed decision rows. Version 2 adopted their findings; version 3 adopted the
+second pass.
 
 - **`@security`: CONDITIONAL PASS, seven conditions, all adopted.** A clearance and a list of limits for the
   candidate soak and the `dev` rehearsal; the operator's confirmation before the frozen-fences file is
@@ -207,7 +210,11 @@ are records of reviews, not signed decision rows. Version 2 is the revision.
   rehearsal output is provisional; F1 reads "pending D1"; dependency columns were corrected; open obligations
   are carried; the freeze names real commands; the coordinator's assignment is a scheduling input; the freeze
   is the operator's decision.
-- **`@conflict-auditor`: 15 findings, 5 blocking, all adopted.** F11 was already done (verified in the scaffold,
+- **Second pass on version 2 (`@conflict-auditor`): one blocking and three advisory, all adopted in version 3.**
+  The third design question is settled by the plan instead of being asked again; release files and records
+  may merge during the freeze; cross-plan waits are written into the step notes; four agent assignments were
+  corrected.
+- **`@conflict-auditor`, first pass: 15 findings, 5 blocking, all adopted.** F11 was already done (verified in the scaffold,
   lines 84 and 242); renders moved off a read-only agent; a new T2 file replaces P1's phases 1 and 2, which are
   marked superseded there; "only candidate fixes" replaces "nothing else merges"; the cut-time copy check was
   added; merges go to `@git-operations`; T3 names the explorer's real files; statuses start `pending`; the

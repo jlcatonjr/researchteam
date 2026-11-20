@@ -6,4 +6,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 5,security,PASS naming every path in plan step 4,2;4,PASS,pending,read-only,2;4
 6,orchestrator,Ask the operator for the merge naming PR and head,5,answer,pending,,5
 7,git-operations,Merge with --match-head-commit; verify,6,merge commit,pending,,6
-8,git-operations,researchteam 1.2.2: bring the pin onto release/1.2; release prep; cut script; check main contains the tag,7; D2,PR; operator script,pending,only if the operator chose a 1.2.2 release; operator signs,7
+8,git-operations,researchteam 1.2.2: bring the pin onto release/1.2; release prep; cut script; check main contains the tag,7; D2,PR; operator script,pending,only if the operator chose a 1.2.2 release; release/1.2 moves only after the operator's live answer naming the commit; @security reviews the cut script; operator signs,7

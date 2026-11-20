@@ -1,11 +1,12 @@
-# T6: release researchteam 1.3.0 (version 2, 2026-11-20, revised after audit)
+# T6: release researchteam 1.3.0 (version 3, 2026-11-20, revised after two audit passes)
 
 Target of `release-1.3.0.metaplan.md`. Covers F14, the candidate and the final. The procedure, the freeze
 criteria, the cut scripts' refusals and the operator decisions are in the metaplan, section 4; this file lists
 the work.
 
 1. **Freeze review** against the criteria, after the operator's answers to D10 and D11.
-2. **Release-prep PR** (after the freeze; it is the candidate's gate, not the freeze's):
+2. **Release-prep PR** (after the freeze; it is the candidate's gate, not the freeze's; the lead writes the
+   changelog part):
    - `CHANGELOG.md`: a 1.3.0 section, with an upgrade part (install the new researchteam first, then
      `researchteam update`; what agentteams 1.3.0 changes for a derived repository; the term-index core
      directory; the workflow scaffold), and the entry owed after PR #234 if it has merged;
@@ -31,4 +32,5 @@ the work.
 9. **Afterwards:** soak and rehearsal branches go to `archive/`; work summary (`@work-summarizer`); then
    `@conflict-auditor`.
 
-Between the candidate and the final, `main` takes only fixes for defects the candidate showed.
+Between the candidate and the final, `main` takes only fixes for defects the candidate showed, release files
+and records, each by PR with the operator's live answer.
