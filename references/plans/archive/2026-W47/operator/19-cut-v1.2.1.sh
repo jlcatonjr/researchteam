@@ -26,6 +26,7 @@ GH_LOGIN="jlcatonjr"
 EMAIL="12754578+jlcatonjr@users.noreply.github.com"
 NAME="$(git config user.name)"
 [ -n "$NAME" ] || die "set git user.name in $MAIN first"
+[ "$(gh api "users/$GH_LOGIN" -q .id)" = "${EMAIL%%+*}" ] || die "the no-reply address does not carry the account id of $GH_LOGIN"
 # GitHub shows a tag as verified only if the signing key is registered on the tagger's account as a SIGNING key.
 # Checked before anything is pushed or signed (public key list; no token scope needed).
 SIGNING_KEYS="$(gh api "users/$GH_LOGIN/ssh_signing_keys" -q '.[].key')" || die "cannot list the signing keys of $GH_LOGIN"
@@ -105,6 +106,7 @@ EXTRA="$(printf '%s\n' "$CHANGED" | grep -vxE 'CHANGELOG\.md|researchteam/_relea
 
 say "release/1.2 and $TAG at $SHA (pins agentteams $AT_TAG ${AT_PEELED:0:12})"
 ngit log -1 --format='  %h %s' "$SHA"
+echo "  Paths that differ from v1.2.0:"; printf '%s\n' "$CHANGED" | sed 's/^/    /'
 confirm "Fast-forward release/1.2 ${existing:0:12} -> ${SHA:0:12} and sign $TAG there?"
 # Pushes use your credentials (so plain git, but no hooks and an explicit URL); everything else stays neutralised.
 [ "$existing" = "$SHA" ] || git -c core.hooksPath=/dev/null push --quiet "$RT_URL" "$SHA:refs/heads/release/1.2"
@@ -122,8 +124,10 @@ git -c core.hooksPath=/dev/null push --quiet "$RT_URL" "refs/tags/$TAG"
 [ "$(ngit ls-remote "$RT_URL" "refs/tags/$TAG" | cut -f1)" = "$OBJ" ] || die "remote tag object differs"
 if ! gh release view "$TAG" -R "$REPO" >/dev/null 2>&1; then
   drain; read -r -p "Create the GitHub release for $TAG (latest, not a pre-release)? [y/N] " a
-  [ "$a" = y ] && gh release create "$TAG" -R "$REPO" --verify-tag --latest --title "researchteam 1.2.1" \
-    --notes "$NOTES"
+  if [ "$a" = y ]; then
+    gh release create "$TAG" -R "$REPO" --verify-tag --latest --title "researchteam 1.2.1" --notes "$NOTES" \
+      || echo "  WARNING: the GitHub release was not created; the tag is signed and pushed. Tell the researchteam session."
+  fi
 fi
 # Report only: the tag is public and immutable, so nothing here can stop or undo the release.
 VERIFIED="unknown"

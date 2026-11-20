@@ -10,10 +10,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 A patch release on the 1.2 line. It still pins agentteams **`v1.2.1`** (`a7ab95e2`); the pin does not move in
 this release. A derived repository locks agentteams separately and may be on a later `v1.2.N`.
 
-Derived repositories take it as an ordinary patch release. Install it first, because the lock writer runs the
-installed code: `pip install "git+https://github.com/jlcatonjr/researchteam.git@v1.2.1"` (or
-`bash scripts/bootstrap_toolchain.sh` after the lock names it), then `researchteam update --ref v1.2.1`, then
-`python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.2.1 --tag agentteams=<the v1.2.N it uses>`.
+Derived repositories take it as an ordinary patch release, in this order, because the lock writer runs the
+installed code:
+1. Verify the signed tag `v1.2.1` first (Rule S-9): in a clone, `git verify-tag v1.2.1` against the release key in
+   `~/.config/agentteams/allowed_signers`, and note the commit it peels to.
+2. Install that commit with the interpreter that runs `check_toolchain.py`:
+   `python3 -m pip install "git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
+3. `researchteam update --ref v1.2.1`, then
+   `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.2.1 --tag agentteams=<the v1.2.N it uses>`.
 
 - **Fix: verifying a release tag no longer downloads the pinned repository's history.** `researchteam._release`
   `verify_tag` (used by `check_toolchain.py --write-lock` and `--verify-tag`, and so by `researchteam update` on

@@ -5,7 +5,7 @@
 # OPERATOR ONLY, plain Terminal, from any directory:
 #   bash <checkout>/tmp/by-week/2026-W47/operator/18-register-signing-key.sh
 # It reads the PUBLIC key file only, never a private key. If the gh token lacks the admin:ssh_signing_key scope it
-# asks GitHub for it (a browser confirmation), after asking you. It changes nothing in any repository and re-signs
+# asks GitHub for it (a browser confirmation), after asking you, and removes the scope again after the one call. It changes nothing in any repository and re-signs
 # nothing: existing tags stay as they are.
 source "$(dirname "$0")/common.sh"
 refuse_agent
@@ -31,7 +31,12 @@ if ! gh ssh-key add "$RELEASE_PUB" --type signing --title "release signing key";
   echo "  The gh token probably lacks the admin:ssh_signing_key scope."
   confirm "Ask GitHub to add that scope to the gh token (opens a browser confirmation)?"
   gh auth refresh -h github.com -s admin:ssh_signing_key
-  gh ssh-key add "$RELEASE_PUB" --type signing --title "release signing key" || die "could not add the signing key"
+  added=0
+  if gh ssh-key add "$RELEASE_PUB" --type signing --title "release signing key"; then added=1; fi
+  # The scope is needed only for this one call. A token that keeps it could register another signing key.
+  echo "  Removing the admin:ssh_signing_key scope from the gh token again (another browser confirmation)."
+  gh auth refresh -h github.com -r admin:ssh_signing_key || echo "  WARNING: the scope was not removed; run: gh auth refresh -h github.com -r admin:ssh_signing_key"
+  [ "$added" = 1 ] || die "could not add the signing key"
 fi
 is_registered || die "the key was added but is not in the public signing-key list yet; run this script again in a minute"
 say "Done. $RELEASE_FP is a signing key on $GH_LOGIN. Tags signed from now on can show as Verified."
