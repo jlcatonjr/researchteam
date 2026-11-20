@@ -406,9 +406,9 @@ No project-specific style rules defined.
       branches never opened as a pull request, any deletion an agent runs, and anything under `release/` or
       `archive/` (which the rulesets protect in any case).
     - The exception ends on its expiry date, or at once on an unretracted HALT on `branch-delete`, on the
-      `repo-setting` family or on that decision. Nothing turns the setting off automatically. The agent tells
-      the operator when either condition is met, and the operator turns the setting off with the handoff
-      script.
+      `repo-setting` family or on that decision, or when the decision stops verifying or its registry entry is
+      no longer active. Nothing turns the setting off automatically. The agent tells the operator when any of
+      these happens, and the operator turns the setting off with the handoff script.
     - Only the operator changes the setting, on or off. The agent never does (see "Never under PS-2").
   - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
     them and hands them over.

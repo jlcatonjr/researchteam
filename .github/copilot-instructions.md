@@ -340,7 +340,7 @@ default explicitly by saying so in their first line.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=52d96455a2f7ed386ad8450cc713036150b5f7bb14102afc336d24d888985dc4 copy-sha256=ed5dadb5564e4b622c10affc67c07a46a859696097ee8172e7246f03f9684c44 mode=copy -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=0ffae411f136a37f6628f4b2e759e3c9ac8db4a7729a4d27ce9b4206fca8a033 copy-sha256=fe6c0b9180bda5bf5f0521d011e560abafeee392cea5cdcf08561e81035c7ba5 mode=copy -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 - **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
@@ -417,9 +417,9 @@ default explicitly by saying so in their first line.
       branches never opened as a pull request, any deletion an agent runs, and anything under `release/` or
       `archive/` (which the rulesets protect in any case).
     - The exception ends on its expiry date, or at once on an unretracted HALT on `branch-delete`, on the
-      `repo-setting` family or on that decision. Nothing turns the setting off automatically. The agent tells
-      the operator when either condition is met, and the operator turns the setting off with the handoff
-      script.
+      `repo-setting` family or on that decision, or when the decision stops verifying or its registry entry is
+      no longer active. Nothing turns the setting off automatically. The agent tells the operator when any of
+      these happens, and the operator turns the setting off with the handoff script.
     - Only the operator changes the setting, on or off. The agent never does (see "Never under PS-2").
   - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
     them and hands them over.

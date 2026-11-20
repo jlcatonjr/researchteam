@@ -45,14 +45,15 @@ OLD_ID="s10-cooldown-exempt:jlcatonjr/agentteams@f5d9d6208ef25045"
 EXPIRES="2027-02-18T23:59:59+00:00"
 BR="governance/ps2-auto-branch-delete"
 TEAM=".github/agents"
-PY="$HOME/githubrepositories/researchteam/.venv/bin/python"   # the locked agentteams (toolchain.lock), for the registry calls only
 SIGNER="<signer>"     # root-owned install built from agentteams tag v1.1.4; agentteams refuses a signer under $HOME
 KEYFILE="$HOME/.config/agentteams/keys/decision-signing-op-2026.pem"
 [[ "$HEAD_REVIEWED" =~ ^[0-9a-f]{40}$ ]] || die "the head must be a full 40-hex SHA"
 [[ -x "$SIGNER" ]] || die "no root-owned signer at $SIGNER"
 [[ "$(/usr/bin/stat -f %Su "$SIGNER")" == root ]] || die "$SIGNER is not root-owned"
 [[ -f "$KEYFILE" ]] || die "missing $KEYFILE"
-[[ -x "$PY" ]] || die "no locked interpreter at $PY (run scripts/bootstrap_toolchain.sh in the main checkout)"
+PY="${SIGNER%/agentteams}/python"   # the signer install's own interpreter: root-owned, so no agent session can have changed the code it runs
+[[ -x "$PY" ]] || die "no interpreter beside the signer at $PY"
+[[ "$(/usr/bin/stat -f %Su "$PY")" == root ]] || die "$PY is not root-owned"
 [[ -d "$WT" ]] || die "no worktree at $WT"
 
 cd "$WT"
@@ -94,13 +95,21 @@ active = [e.get("id") for e in active_relaxing_exceptions(reg)]
 print("  active relaxing exceptions:", active, "| toolchain_group_sequence:", reg.get("toolchain_group_sequence"))
 sys.exit(0 if active == [old] else 1)
 PY
-GROUP=".agentteams/toolchain-group.json"
-[[ -f "$GROUP" ]] || die "no $GROUP: without the signed toolchain group the s10 exemption is NOT redundant; stop"
-/usr/bin/grep -qF 'jlcatonjr/agentteams' "$GROUP" || die "$GROUP does not list jlcatonjr/agentteams; the s10 exemption is NOT redundant; stop"
-echo "  The signed toolchain group lists jlcatonjr/agentteams, so the cooldown stays lifted for it without this entry."
+group_covers_agentteams() {   # the operator-signed toolchain group must VERIFY and list agentteams (not merely exist)
+  (cd "$EMPTY" && "$PY" -I -P - "$WT/$TEAM") <<'PY'
+import sys
+from pathlib import Path
+from agentteams.cli.s10_exempt_gate import _signed_group
+group = _signed_group({"team_id": "researchteam"}, Path(sys.argv[1]), consume=False)
+print("  verified toolchain group:", group)
+sys.exit(0 if group and "jlcatonjr/agentteams" in group else 1)
+PY
+}
+group_covers_agentteams || die "the signed toolchain group does not verify or does not list jlcatonjr/agentteams: the s10 exemption is NOT redundant; nothing changed; stop"
+echo "  The verified toolchain group lists jlcatonjr/agentteams, so the cooldown stays lifted for it without this entry."
 read -r -p "Retire $OLD_ID in the registry (status: sunset)? [y/N] " ok
 [[ "$ok" == "y" ]] || { echo "  not retired; nothing changed"; exit 0; }
-(cd "$EMPTY" && "$PY" -I -P - "$WT/$TEAM" "$OLD_ID" "$ACTION") <<'PY' || die "retiring failed; run: git -C $WT checkout -- $reg ; tell the researchteam session"
+(cd "$EMPTY" && "$PY" -I -P - "$WT/$TEAM" "$OLD_ID" "$ACTION") <<'PY' || die "retiring failed; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
 import sys
 from pathlib import Path
 from agentteams.cli.exception_registry import retire_exception, load_registry, active_relaxing_exceptions
@@ -119,19 +128,19 @@ echo; echo "== b) the decision to sign:"
 read -r -p "Sign $ACTION (PASS, relaxing, sunset 2027-02-18) into $TEAM with key op-2026? [y/N] " ok
 [[ "$ok" == "y" ]] || { echo "  not signed. The registry edit above is uncommitted: undo it with  git -C $WT checkout -- $reg"; exit 0; }
 n0=$(/usr/bin/wc -l < "$log")
-(cd "$EMPTY" && AGENTTEAMS_DECISION_ED25519_KEYFILE="$KEYFILE" "$SIGNER" --sign-decision "$TMP/spec.json" --output "$WT/$TEAM")
+(cd "$EMPTY" && AGENTTEAMS_DECISION_ED25519_KEYFILE="$KEYFILE" "$SIGNER" --sign-decision "$TMP/spec.json" --output "$WT/$TEAM") || die "signing failed; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
 n1=$(/usr/bin/wc -l < "$log")
 echo "  log lines: before sign $n0, after sign $n1"
-[[ $((n1 - n0)) -eq 1 ]] || die "the signer changed the log by $((n1 - n0)) lines (expected 1); stop, do not commit; tell the researchteam session"
+[[ $((n1 - n0)) -eq 1 ]] || die "the signer changed the log by $((n1 - n0)) lines (expected 1); do not commit; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
 
 # --- c) register the signed row (cap-checked) and audit -----------------------------------------------------------
 echo; echo "== c) register and audit:"
-(cd "$EMPTY" && "$PY" -I -P - "$WT/$TEAM" "$ACTION" "$EXPIRES") <<'PY' || die "registering failed; do not commit; tell the researchteam session"
+(cd "$EMPTY" && "$PY" -I -P - "$WT/$TEAM" "$ACTION" "$EXPIRES") <<'PY' || die "registering failed; do not commit; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
 import csv, sys
 from datetime import datetime, timezone
 from pathlib import Path
 from agentteams.cli.exception_registry import register_exception, audit_exceptions, load_registry, active_relaxing_exceptions
-from agentteams.cli.sandbox_relaxation_gate import _decision_binding, _split
+from agentteams.cli.s10_exempt_gate import _decision_binding, _split
 from agentteams.cli.effect_classifier import derive_effect_class, requires_operator_signature
 root, action, expires = Path(sys.argv[1]), sys.argv[2], sys.argv[3]
 csv.field_size_limit(10**8)
@@ -165,7 +174,10 @@ print("  audit:", "clean" if not problems else problems)
 sys.exit(0 if not problems else 1)
 PY
 n2=$(/usr/bin/wc -l < "$log")
-[[ "$n2" -eq "$n1" ]] || die "registering changed the log ($n1 -> $n2 lines); stop, do not commit; tell the researchteam session"
+[[ "$n2" -eq "$n1" ]] || die "registering changed the log ($n1 -> $n2 lines); do not commit; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
+group_covers_agentteams || die "after the change the toolchain group no longer verifies or no longer lists jlcatonjr/agentteams; do not commit; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
+changed="$("${GIT[@]}" status --porcelain)"
+[[ "$changed" == " M $reg"$'\n'" M $log" ]] || die "unexpected changes in the worktree (expected only $log and $reg): $changed ; do not commit; undo: git -C $WT checkout -- $reg $log ; tell the researchteam session"
 "${GIT[@]}" --no-pager diff --stat
 echo "Done: 1 exemption retired, 1 row signed, 1 registry entry active. Nothing was committed and no setting was changed."
 echo "Tell the researchteam session: it commits the log and the registry on $BR, pushes them to the PR, has @security"

@@ -98,8 +98,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
     `cargo audit` or an OSV.dev query may be adopted inside the cooldown.
   - **First-party toolchain group.** The cooldown does not apply to releases of the repositories the
     operator-signed `.agentteams/toolchain-group.json` lists (agentteams, researchteam, baseAgent, mathAgents), in
-    the workspaces it lists. Until it lapses on 2027-02-01, the legacy `s10-cooldown-exempt:jlcatonjr/agentteams`
-    entry also covers agentteams. Such a release-key tag may be adopted the day it is published once it passes the
+    the workspaces it lists. The legacy `s10-cooldown-exempt:jlcatonjr/agentteams` registry entry was retired on
+    2026-11-20 as redundant with the group. Such a release-key tag may be adopted the day it is published once it passes the
     signature and remote-object checks (`agentteams --verify-toolchain-pin`), and its exact `name==version`, and
     any dependency it changes, passes the known-vulnerability search (OSV/GHSA, including MAL-* entries).
   Every pin move records that search in its row or, for a group-member move, in the PR's `@security` review. Third-party packages wait out the cooldown unless the
@@ -141,6 +141,9 @@ The agent session then merges, as long as:
 - every review the change needs (`@security`, `@code-hygiene` for code, `@conflict-auditor`) is recorded in the
   PR;
 - no HALT or unmet condition stands.
+- while automatic head-branch deletion is on (PS-2, "Exception: automatic head-branch deletion"): the agent has
+  checked by hand that no other session or worktree still works on the head branch and that no open PR is based
+  on it, and the operator's approval was asked with the statement that the head branch is deleted at the merge.
 
 PS-2 in `.claude/CLAUDE.md` is the authority on what is delegated and what is excluded. It excludes force-pushes
 and history rewrites, `--admin` merges and ruleset bypasses, changes to settings, secrets, collaborators, branch protection or rulesets,
