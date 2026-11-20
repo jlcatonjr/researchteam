@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,technical-validator,Read issue #176 against the scaffold and its tests,issue #176; scaffold lines 84 and 242,finding: fixed or what is missing,pending,read-only,
+2,primary-producer,Shallow fetch with one retry in the release-locked check; fail closed; tests,issue #228; researchteam/_release.py,scaffold change; tests,pending,own worktree; after D2,
+3,security,PASS naming researchteam/scaffold/agentteams-sync-derived.yml (and .github/workflows/ if touched),PR diff,PASS,pending,read-only,2
+4,code-hygiene,Audit the change,PR diff,verdict,pending,read-only; parallel with step 3,2
+5,orchestrator,Ask the operator for the merge naming PR and head,3;4,answer,pending,,3;4
+6,git-operations,Merge with --match-head-commit; verify; close #228; close #176 with step 1's evidence,5;1,merge commit; closed issues,pending,,5;1

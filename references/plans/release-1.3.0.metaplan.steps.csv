@@ -1,0 +1,21 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+M1,orchestrator,Write the feature inventory and this metaplan with one target plan per feature bundle,coordinator request (data); repository state,release-1.3.0.metaplan.md; target plans,done,2026-11-20; version 1,
+M2,adversarial,Review the metaplan and each target,M1 files,findings,done,CONDITIONAL; 7 blocking and 5 advisory; all adopted in version 2,M1
+M3,conflict-auditor,Consistency check of the metaplan and each target against the repository's rules and records,M1 files,findings,done,15 findings; 5 blocking; all adopted in version 2,M1
+M4,security,Review the steps that touch a trust root or cross repositories,M1 files,findings,done,CONDITIONAL PASS; 7 conditions; all adopted in version 2; cleared for nothing,M1
+M5,orchestrator,Revise; record how each finding was resolved; track the plans by PR; send paths and sha256 to the coordinator,M2;M3;M4,version 2; message,pending,the PR merge needs the operator's live answer,M2;M3;M4
+M6,orchestrator,Ask the operator D1 to D4 and D6 and D9 in the picker; record the answers,M5,answers recorded in this plan,pending,nothing below starts on a proposed class,M5
+M7,git-operations,T5: interim pin to agentteams v1.2.2,D2,PR,pending,only if D2 says so; otherwise recorded as dropped,M6
+M8,primary-producer,T4: shallow tag fetch in the derived workflow scaffold; close #176 as already fixed,D2,PR,pending,parallel with M7 M9 M10,M6
+M9,primary-producer,T3: plan record; explorer contract 1.1,D2,PRs,pending,survey-toolkit session writes; the lead edits plan files; parallel with M7 M8 M10,M6
+M10,primary-producer,T2 rehearsal against agentteams dev as a draft PR that is never merged,D2; @security clearance naming the dev commit,draft PR,pending,manifest marked provisional; own worktree; parallel with M7 to M9,M6
+M11,git-operations,T1 part A: soak agentteams v1.3.0-rc.1 on a draft branch; tracked report; message to the coordinator,signed upstream candidate; @security clearance naming the tag,report,pending,waits for the upstream candidate,M10
+M12,git-operations,T1 part B: pin PR to the signed agentteams v1.3.0,signed upstream final; D1; D5,PR,pending,waits for the upstream final; after M7 is merged or dropped,M6;M7;M11
+M13,primary-producer,T2: swap PR on the pinned commit with the manifest rebuilt from the signed tag; CI job; docs; private imports,M12,PRs,pending,,M12;M10
+M14,primary-producer,T3: write open point 1 against the released gates-only pattern,upstream #578 released,PR,pending,waits for upstream; does not wait for M12,M6
+M15,orchestrator,Ask D10 and D11; freeze review against section 4 step 3,M8;M9;M12;M13;M14,freeze record,pending,each input merged or recorded as dropped or moved to 1.3.x,M8;M9;M12;M13;M14
+M16,git-operations,T6: release prep PR and the candidate cut script; operator runs it,M15,v1.3.0-rc.1,pending,,M15
+M17,orchestrator,Wait for the downstream dry-run pin report; candidate fixes only,v1.3.0-rc.1,report,pending,,M16
+M18,git-operations,T6: final cut script; operator go; read-back; tell the coordinator,M17,v1.3.0,pending,,M17
+M19,work-summarizer,Work summary,M18,workSummaries/daily,pending,,M18
+M20,conflict-auditor,Close-out audit,M19,findings,pending,read-only,M19
