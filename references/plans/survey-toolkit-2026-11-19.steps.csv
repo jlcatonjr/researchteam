@@ -7,4 +7,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 6,orchestrator,Compare the merged contract with the reference implementation; settle the differences,reference code (read-only),list of mismatches and decisions,done,About fifty mismatches; six decisions settled with the integrating session; the list is kept outside this repository,5
 7,orchestrator,Revise the contract (revision 2) from the comparison; record the session,step 6,docs/survey-toolkit.md; workSummaries/daily/2026-11-19.md,done,Contract-side corrections only,6
 8,conflict-auditor,Consistency check of the revision PR,PR diff,findings,done,Ten findings at 5bb6361 resolved; section 10 reordered so no tool precedes the wait (the operator's ruling),7
-9,orchestrator,Ask the operator for the merge of the revision PR,audited head,merge commit,pending,,8
+9,orchestrator,Ask the operator for the merge of the revision PR,audited head,merge commit,done,Operator approved in the picker; PR #224 merged as 42c29e4 at reviewed head 7799940; tests green on main,8
+10,orchestrator,Add a reviewed-distinct decision to the identity overrides (asked for by the integrating session),review of same-id candidates,docs/survey-toolkit.md,done,An explicit decision column: link / merge / distinct,9
+11,orchestrator,Ask the operator for the merge of the overrides PR,head with green checks,merge commit,pending,One section of one document; no separate audit,10

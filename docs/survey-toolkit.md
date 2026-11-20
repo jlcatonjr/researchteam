@@ -375,9 +375,21 @@ page itself is cached only in a folder the repository ignores, and is never comm
 
 **Identity files:**
 
-- the overrides file (`identity.overrides`): `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
-  id of the project merges the two; one from the identity source links to it. An `alias_id` given twice
-  is an error. **The registry links and merges only from this file.**
+- the overrides file (`identity.overrides`): `alias_id, target_id, decision, decided_by, reason`. Every
+  column is required in every row. `decision` is one of:
+
+  | `decision` | Means | `target_id` |
+  |---|---|---|
+  | `link` | the project's person is the identity-source person | an id in the identity source; it may equal `alias_id` |
+  | `merge` | two of the project's ids are one person | another id of the project |
+  | `distinct` | reviewed, and they are different people | the other id, from either side |
+
+  A `distinct` row settles that one pair and no other: a candidate that appears later for the same alias
+  is undecided until it has a row of its own. An `alias_id` may have several `distinct` rows but at most
+  one `link` or `merge`; a second is an error, and so is a `distinct` row for a pair that is also linked
+  or merged. The decision is always written, never read off which side `target_id` belongs to. **The
+  registry links and merges only from this file**, and a candidate counts as decided only when a row
+  names that pair.
 - the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. `identity_id` is the id in the
   identity source.
 - **Candidates.** The registry tool lists possible matches between the project's persons and the identity
@@ -634,6 +646,9 @@ Settled by the comparison with the reference at its revision of 2026-11-19: a dr
 is left out of the rollup; identity candidates may be approximate but are never links, equal ids
 included; an unfindable quotation in a counted tier fails except in a legacy study; a stage with an
 undeclared gate refuses except in a legacy study.
+
+Added after the reference was aligned (2026-11-19): an override row states its decision, and `distinct`
+records a reviewed pair of different people (4.4).
 
 Still open:
 
