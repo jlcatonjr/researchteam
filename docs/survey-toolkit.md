@@ -114,6 +114,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "counted_tiers": [string],                         // a subset of tiers
     "not_established_tier": string,                    // one of tiers, not counted
     "receipts"?: path,                                 // folder of fetch receipts, 4.4
+    "legacy_exceptions"?: path,                        // legacy studies only; 4.1
     "attribute_kinds"?: [string]
   },
   "outcomes": [ {
@@ -196,6 +197,8 @@ labels. A level set has at least one level, and each `exclude_from_rollup` list 
   `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
   paths (rule 1.6);
 - evidence that cites a fetch receipt when `evidence.receipts` is not declared;
+- `evidence.legacy_exceptions` in a study whose `status` is not `legacy`, or naming a file that no gate
+  covers;
 - a `post_steps` file that no gate covers (4.5);
 - a gate that covers no file, or a `covers` path that does not exist, unless `status` is `draft`.
 
@@ -265,6 +268,21 @@ Errors:
 The row checks apply to the whole evidence file whenever it is checked, not only to rows being added, and
 none of them is skipped because an optional declaration or file is absent: an `attribute_kind` is checked
 against the outcomes and attributes that use it, and a missing registry is itself an error.
+
+**Rows that predate the rules, in a legacy study.** A `legacy` study may name a file of exceptions,
+`evidence.legacy_exceptions`, with the columns `id, rule`: one line for each existing row and each rule
+that row breaks. Rewriting such rows would change the evidence of a study that is already closed.
+
+- A row that breaks a rule fails the check unless that row and that rule are listed. A listed breach is
+  reported, with counts by rule, and does not fail.
+- Nothing else is excused. A row that is not listed, and so every row added later, must pass in full; a
+  listed row that comes to break a further rule fails on that rule.
+- A listed exception that no longer applies, because the row was removed or now passes, is an error:
+  the file is corrected, so it never claims more than is true.
+- The file is the project's, is covered by a gate, and is allowed only when `status` is `legacy`. The
+  tool can write a first version from the current breaches for a person to review; it never adds to an
+  existing one.
+- Every output that rests on the evidence file says how many exceptions it was read with.
 
 ### 4.2 Codes
 
@@ -648,7 +666,8 @@ included; an unfindable quotation in a counted tier fails except in a legacy stu
 undeclared gate refuses except in a legacy study.
 
 Added after the reference was aligned (2026-11-19): an override row states its decision, and `distinct`
-records a reviewed pair of different people (4.4).
+records a reviewed pair of different people (4.4); a legacy study may list, row by row and rule by rule,
+the breaches of rows that predate the rules (4.1).
 
 Still open:
 
