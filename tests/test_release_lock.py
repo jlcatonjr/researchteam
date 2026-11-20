@@ -104,12 +104,18 @@ class _FakeGit:
     """Canned git: an annotated tag whose verify output and remote advertisement a test controls."""
 
     def __init__(self, signer="SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM", good=True, kind="tag",
-                 obj="d" * 40, advertised="d" * 40):
+                 obj="d" * 40, advertised="d" * 40, fetch_failures=0):
         self.signer, self.good, self.kind, self.obj, self.advertised = signer, good, kind, obj, advertised
+        self.fetches, self.fetch_failures = [], fetch_failures   # every fetch argv; how many fetches fail first
 
     def __call__(self, args, cwd=None, timeout=60):
         def done(out="", err="", rc=0):
             return subprocess.CompletedProcess(args, rc, out, err)
+        if "fetch" in args:
+            self.fetches.append(list(args))
+            if len(self.fetches) <= self.fetch_failures:
+                return done(err="fatal: the remote end hung up unexpectedly\n", rc=128)
+            return done()
         if args[0] == "ls-remote":
             return done(f"{self.advertised}\trefs/tags/v1.0.0-rc.10\n{C}\trefs/tags/v1.0.0-rc.10^{{}}\n")
         cmd = [a for a in args if not a.startswith("gpg.ssh.allowedSignersFile")]
@@ -156,6 +162,33 @@ def test_release_signers_keeps_only_pinned_fingerprints(tmp_path, monkeypatch):
 def test_verify_returns_the_peeled_commit(signers, monkeypatch):
     monkeypatch.setattr(rel, "_git", _FakeGit())
     assert rel.verify_tag(AT, "v1.0.0-rc.10") == ("d" * 40, C)
+
+
+def test_verify_fetches_only_the_tag_not_the_history(signers, monkeypatch):
+    # A full fetch of the pinned repository timed out fleet-wide (v1.2.0); the check needs the tag and its commit.
+    fake = _FakeGit()
+    monkeypatch.setattr(rel, "_git", fake)
+    assert rel.verify_tag(AT, "v1.0.0-rc.10") == ("d" * 40, C)
+    (fetch,) = fake.fetches
+    assert "--depth=1" in fetch and "--filter=tree:0" in fetch and "--no-tags" in fetch
+    assert fetch[-2:] == [f"https://github.com/{AT}", "refs/tags/v1.0.0-rc.10:refs/tags/v1.0.0-rc.10"]
+
+
+def test_verify_retries_once_without_the_object_filter(signers, monkeypatch):
+    fake = _FakeGit(fetch_failures=1)
+    monkeypatch.setattr(rel, "_git", fake)
+    assert rel.verify_tag(AT, "v1.0.0-rc.10") == ("d" * 40, C)
+    first, second = fake.fetches
+    assert "--filter=tree:0" in first and "--filter=tree:0" not in second
+    assert "--depth=1" in second   # never a full-history fetch, even on the retry
+
+
+def test_verify_reports_a_fetch_that_fails_both_ways(signers, monkeypatch):
+    fake = _FakeGit(fetch_failures=2)
+    monkeypatch.setattr(rel, "_git", fake)
+    with pytest.raises(rel.ReleaseError, match="cannot fetch .* hung up"):
+        rel.verify_tag(AT, "v1.0.0-rc.10")
+    assert len(fake.fetches) == 2
 
 
 @pytest.mark.parametrize("fake, why", [
