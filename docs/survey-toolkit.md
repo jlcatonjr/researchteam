@@ -82,7 +82,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
 {
   "schema_version": "0",
   "id": slug, "title": string, "question": string,
-  "status"?: "draft" | "active" | "legacy",
+  "status": "draft" | "active" | "legacy",
   "vantage"?: { "module": Plugin | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
   "vocabulary"?: { "forbidden": path, "exempt_columns"?: [string] },                        // 5.3
   "corpus"?: { "text": path, "works"?: path },                                              // 5.4
@@ -119,7 +119,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
   "outcomes": [ {
     "key": slug, "label": string,
     "source": { "kind": "evidence-attribute", "attribute": string }
-            | { "kind": "codes", "codes_file": path },
+            | { "kind": "codes", "codes_file": path, "adjudications": path },
     "codebook"?: path,
     "scale": "nominal" | "ordinal",
     "levels": [ Level ],                               // at least 2
@@ -185,10 +185,13 @@ labels. A level set has at least one level, and each `exclude_from_rollup` list 
 - an `exclude_from_rollup` key that is not a `passage_attributes` key, or a value that is not one of its
   level codes; a level code `mixed` in any outcome;
 - `rollup: "any-present"` on an ordinal outcome with a level that has no `order`;
-- a `rollup_types` that is not a `passage_attributes` key;
+- a `rollup_types`, or a `rollup_by` entry, that is not a `passage_attributes` key;
+- a passage or work study without `unit.attribution`;
+- a `saturation` stopping rule without both `rounds_without_new` and `min_new_share`; a
+  `legacy-unrecorded` stopping rule in a study whose `status` is not `legacy`;
 - a referenced input file that does not exist, unless `status` is `draft`. These may be absent, because
   a stage writes them or they start empty: `log`, `change_log`, `identity.registry`,
-  `identity.overrides`, `evidence.receipts`;
+  `identity.overrides`, `evidence.receipts`, an outcome's `adjudications`;
 - a plug-in (a reader, a bucketer or the vantage module), the `vocabulary.forbidden` file or the
   `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
   paths (rule 1.6);
@@ -287,12 +290,14 @@ Errors:
 
 `unit_id, outcome, code, coder, basis, reporter, evidence_ids, note`
 
-They are checked like codes rows, and `coder` and `note` are required. An adjudication for a unit and
-outcome on which passes A and B agree is an error: an agreed code is not changed.
+The file is the one the outcome's `source.adjudications` names. Its rows are checked like codes rows, and
+`coder` and `note` are required. An adjudication for a unit and outcome on which passes A and B agree is
+an error: an agreed code is not changed. Where a pass is missing, the adjudication's `note` begins
+`missing pass: A, ` or `missing pass: B, `, followed by the reason.
 
 **Finalising is fail-closed.** Where passes A and B agree, the final row is theirs. Where they disagree,
-or where one pass is missing, the final row is the adjudication's, with the adjudication's own basis and
-evidence. Without one, no final row is written; the tool lists the units and exits non-zero. A single
+or where one pass is missing, the final row is the adjudication's, with the adjudication's own coder,
+basis, evidence and note. Without one, no final row is written; the tool lists the units and exits non-zero. A single
 pass never becomes final on its own. Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1, per outcome, with the number of
 units each rests on.
 
@@ -422,7 +427,8 @@ and a **vantage** module (5.2).
 
 A study may be read from a declared standpoint: a project's own review of who the people in the frame
 are, relative to that standpoint. The toolkit takes no position on any such review and holds none. With
-`vantage.module` null or absent, identities are the persons the project's own rows name, as the registry records them, and every person
+`vantage.module` null or absent, identities are the persons the project's own rows name, as the registry records them, the candidate
+search of 4.4 compares those persons with one another, and every person
 is included.
 
 The vantage plug-in's `attr` names an object with two functions:
@@ -471,7 +477,7 @@ corpus refuses to run when it is not declared; there is no default location.
 
 | Gate | What it clears | The stage that refuses without it |
 |---|---|---|
-| S0, study specification | the specification and the files it declares, including every plug-in and the vocabulary file | enumeration |
+| S0, study specification | the specification and the files it declares, including every plug-in, the vocabulary file and the stop-words file | enumeration |
 | S5, codebooks | the codebooks and shared coding rules | building coding packets |
 | S6, analysis plan | the analysis plan or code | analysis (in the analysis engine) |
 | S8, publication | the report and the page | building the report and page |
@@ -563,7 +569,7 @@ Seven roles, each with a declared tool grant. They are rendered into a derived r
 | `@identity-resolver` | identity overrides, each with a reason | links on a name match alone |
 | `@profiler` | evidence rows | codes; writes a quotation it did not read at the locus |
 | `@position-coder` A and B | one coding pass each, from a blind packet | sees the other pass, the other coder's notes or the rollup |
-| `@adjudicator` | adjudicated rows for disagreements | changes a row on which A and B agree |
+| `@adjudicator` | adjudications, for disagreements and for units where a pass is missing | changes a code on which A and B agree |
 | `@results-writer` | the report, from finalised codes | states a result that is not in the rollup |
 
 Their grants, and the hook or check that enforces each "never", are fixed when the agents are added, with
@@ -598,16 +604,17 @@ Order, each step its own reviewed pull request:
 
 1. This contract, checked against the reference implementation, then agreed.
 2. Explorer contract 1.1 (section 9).
-3. The specification validator, the manifest builder and `survey-validate` / `survey-status`, with an
-   invented example study and tests. No signing yet.
-4. **Wait** for the first project to have S0 and S5 signed and one stage run. Freeze the specification
+3. **Wait** for the first project to have S0 and S5 signed and one stage run. Freeze the specification
    as version 1, with a recorded list of what changed from this draft.
+4. The specification validator, the manifest builder and `survey-validate` / `survey-status`, with an
+   invented example study and tests. No signing yet.
 5. Row checks, the registry, the table bucketer, agreement, finalising and rollup.
 6. Sign-off verification and stage refusal, once the `agentteams` pattern is documented.
 7. Enumeration, packets, quote re-finding and the query-plan runner.
 8. The agents, the bridge commands in `CLAUDE.md`'s managed block, and the CI gate.
 
-Steps 1 to 3 can be done now. A copy of the specification taken before step 4 is labelled v0-unstable.
+Steps 1 and 2 can be done now. No tool is written before step 3 (operator ruling, 2026-11-19: the
+contract first, the tools and agents after the first project has run a stage).
 
 ## 11. Open points
 
