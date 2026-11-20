@@ -1,6 +1,6 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Draft the survey toolkit contract,shapes-only inventory from the integrating session,docs/survey-toolkit.md,done,Draft 1; specification labelled v0-unstable,
-2,git-operations,Open a draft PR for the contract,branch docs/survey-toolkit-contract,draft PR,pending,Docs only; not merged without the operator's live approval,1
-3,orchestrator,Send the draft to the integrating session for checking; revise until agreed,review notes,docs/survey-toolkit.md,pending,Eight open points listed in section 11,2
+2,git-operations,Open a draft PR for the contract,branch docs/survey-toolkit-contract,draft PR,done,PR #223 (draft); docs only; not merged without the operator's live approval,1
+3,orchestrator,Send the draft to the integrating session for checking; revise until agreed,review notes,docs/survey-toolkit.md,pending,Draft 2 after the first check: ten departures accepted; five points still open (section 11),2
 4,conflict-auditor,Consistency check of the PR,PR diff,findings,pending,,3
 5,orchestrator,Ask the operator for the merge (PR number and head SHA),audited head,merge commit,pending,,4

@@ -1,6 +1,7 @@
 # Survey toolkit: contract
 
-**Status: draft 1 (2026-11-19). Not agreed, and nothing here is implemented in researchteam yet.** The
+**Status: draft 2 (2026-11-19), revised after the first check against the reference implementation. Not
+agreed, and nothing here is implemented in researchteam yet.** The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
 run one stage. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
@@ -26,8 +27,9 @@ order of work; 11 open points.
 4. **No self-attestation.** An agent never signs a gate, and no tool writes a sign-off. A gate is cleared
    only by the operator's signature over the hash of a manifest of every covered file. Any later edit to
    a covered file un-clears the gate.
-5. **Deterministic.** The same inputs give byte-identical outputs. Outputs carry no timestamp; a log row
-   carries the date its author gives it.
+5. **Deterministic.** The same inputs give byte-identical outputs. Outputs carry no timestamp. A log row
+   carries the date its author gives it; a tool does not read the clock to fill one in. The one exception
+   is a fetch receipt (4.4), whose fetch time is a fact about the fetch.
 6. **Paths stay in the repository.** A path in the specification is relative to the study's folder, or
    to the repository root when it starts with `repo:`. An absolute path, a `..` segment, or a path that
    resolves outside the repository through a link is an error.
@@ -73,15 +75,15 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
   "schema_version": "0",
   "id": slug, "title": string, "question": string,
   "status"?: "draft" | "active" | "legacy",
-  "vantage"?: { "module": string | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
-  "vocabulary"?: { "forbidden": path },                                                     // 5.3
+  "vantage"?: { "module": Plugin | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
+  "vocabulary"?: { "forbidden": path, "exempt_columns"?: [string] },                        // 5.3
   "corpus"?: { "text": path, "works"?: path },                                              // 5.4
   "unit": {
-    "kind": "passage" | "work" | "author",
-    "aggregate_to"?: "author",                         // required unless kind is "author"
+    "kind": "passage" | "work" | "author",             // passages and works roll up to their author
     "attribution"?: { "file": path, "statuses": [string], "counted_statuses"?: [string] },
     "passage_attributes"?: [ LevelSet ],
     "rollup_by"?: [string],
+    "exclude_from_rollup"?: { "<passage attribute key>": [string] },                         // 4.2
     "collective"?: { "kinds": [string], "analysis": "apart" | "with-authors" }
   },
   "enumerations": [ {
@@ -98,7 +100,9 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "file": path,
     "format": "survey-evidence-0" | "plugin",          // 4.1; "plugin" reads through 5.1
     "reader"?: Plugin,                                 // required when format is "plugin"
-    "counted_tiers": [string],
+    "tiers": [string],                                 // every tier a row may carry
+    "counted_tiers": [string],                         // a subset of tiers
+    "not_established_tier": string,                    // one of tiers, not counted
     "tier_map"?: { string: string },
     "attribute_kinds"?: [string]
   },
@@ -112,14 +116,14 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "na_codes"?: [string],
     "missing"?: string,                                // default "NE"
     "merges"?: { string: string },
-    "rollup"?: "single-code" | "mixed-if-conflict" | "max-order" | "any-present" | "none",
-    "held_out"?: true
+    "rollup": "single-code" | "mixed-if-conflict" | "max-order" | "any-present" | "none",
+    "held_out": true                                   // as in the reference; open point 2
   } ],
   "attributes": [ {
     "key": slug, "label": string,
     "kind": "categorical" | "flags" | "period",
     "source_attributes"?: [string],
-    "bucketer"?: Bucketer,
+    "bucketer": Bucketer,
     "levels"?: [string], "flags"?: [string],
     "missing"?: string                                 // default "NE"
   } ],
@@ -130,8 +134,8 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "strata"?: { "<period number>": string }
   },
   "frame_rules": {
-    "exclude"?: [ { "rule": "institutions" | "not-on-question" | "unit-ids" | "id-contains",
-                    "values"?: [string], "reason": string } ],
+    "exclude": [ { "rule": "institutions" | "not-on-question" | "unit-ids" | "id-contains",
+                    "values"?: [string], "reason": string } ],       // may be empty
     "change_log"?: path,
     "post_steps"?: [path]
   },
@@ -160,6 +164,9 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 - `cuts` not ascending, or `labels` not one longer than `cuts`; a `strata` key that is not a period
   number from 1 to the number of labels;
 - a passage or work study with no outcome whose source is `codes`;
+- `counted_tiers` not a subset of `tiers`; `not_established_tier` not in `tiers`, or counted;
+- an `exclude_from_rollup` key that is not a `passage_attributes` key, or a value that is not one of its
+  level codes; a level code `mixed` in an outcome whose rollup is `mixed-if-conflict`;
 - a referenced input file that does not exist, unless `status` is `draft`. Files a stage writes
   (`log`, `change_log`) may be absent;
 - a plug-in or `vantage.module` file that is not covered by gate S0 (section 5.1);
@@ -169,12 +176,20 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 
 | Field | Reference | Here | Why |
 |---|---|---|---|
-| `evidence.format` | `author-attributions-v1`, `explorer-evidence-1.0` | `survey-evidence-0`, `plugin` | The first is one project's legacy file, read through a reader plug-in that stays in that project. The second name claimed the explorer's 13 columns for a file that has 17. |
+| `evidence.format` | `author-attributions-v1`, `explorer-evidence-1.0` | `survey-evidence-0`, `plugin` | The first is one project's legacy file, read through a reader plug-in that stays in that project. The second name claimed the explorer's 13 columns for a file that has 18. |
 | `bucketer.plugin` | `"module.path:attr"` | `{file, attr, version}` | A file path can be confined to the repository, hashed and covered by a gate; an import path cannot. |
 | `vocabulary` | a constant in the tools | a file the specification names | The rule is a project's, not the toolkit's. |
 | `corpus` | a fixed layout | declared paths | The text store's layout is a project's. |
 | `analysis` | fixed fields | an opaque object | Its shape belongs to the analysis engine, which is proposing to replace it. |
 | `signoffs.ledger` | the team's decisions log | a per-study log (6.2) | Operator ruling, 2026-11-19. |
+| `vantage.module` | a string | a `Plugin` or null | It must be a file gate S0 can cover. |
+| `vocabulary.exempt_columns` | every column checked | declarable, default `["quote"]` | Which columns the rule spares is a project's rule. |
+| `evidence.tiers`, `not_established_tier` | constants in the row checker | declared | Rule 1.1. |
+| `unit.exclude_from_rollup` | one value hard-coded | declared | Rule 1.1. |
+| `unit.aggregate_to` | `"author"`, required for passage and work studies | removed | It had one allowed value. Collective bodies are authors of a declared kind, not another aggregate. |
+
+`rollup`, `bucketer` and `frame_rules.exclude` are required, as in the reference, so that no tool supplies
+a default silently.
 
 ## 4. Row files
 
@@ -184,10 +199,10 @@ error. An empty cell means "not given"; a tool never treats it as a value.
 ### 4.1 Evidence (`survey-evidence-0`)
 
 `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via,
-audit, basis, reporter, unit_id, note`
+audit, basis, reporter, unit_id, note, downgraded_from`
 
 The first thirteen columns are the bibliography explorer's `evidence.csv` (contract 1.0), with the same
-meanings. The last four are the survey's:
+meanings. The last five are the survey's:
 
 | Column | Meaning |
 |---|---|
@@ -195,17 +210,19 @@ meanings. The last four are the survey's:
 | `reporter` | who reports, when `basis` is `reported` |
 | `unit_id` | the passage or work the row belongs to, in a passage or work study |
 | `note` | free text; on a not-established row, what was tried |
+| `downgraded_from` | the value and tier the row had before an audit downgraded it |
 
 Errors:
 
 - a row in a counted tier without a `quote`, or with neither `citation` nor `source_id`;
 - a row in a counted tier without a `basis`; `reported` without a `reporter`; a `reporter` on an `own` row;
-- a not-established row (the outcome's `missing` value) with a `quote`, or without a `note`;
-- a `tier` or `attribute_kind` the specification does not declare;
+- a row in the not-established tier (`evidence.not_established_tier`) with a `quote`, or without a
+  `note`. Not-established is a tier of the row; its `value` is free text and is not an outcome code;
+- a `tier` not in `evidence.tiers`; an `attribute_kind` the specification does not declare;
 - a `unit_id` in an author study, or none in a passage or work study;
 - a duplicate `id`; a `person_id` the registry does not hold;
-- text matching the project's forbidden-vocabulary file in `value`, `via`, `audit` or `note` (5.3). The
-  `quote` column is exempt: a quotation is reported as it stands.
+- text matching the project's forbidden-vocabulary file in any column not listed in
+  `vocabulary.exempt_columns` (5.3).
 
 ### 4.2 Codes
 
@@ -214,15 +231,37 @@ Errors:
 `pass` is `A`, `B` or `final`. `code` is one of the outcome's level codes, its NA codes, or its `missing`
 value. `evidence_ids` is a `;`-separated list of evidence ids.
 
-Errors: an outcome the specification does not declare as `codes`; a code outside the allowed set; a code
-other than `missing` without `evidence_ids` or without a `basis`; an evidence id that does not exist or
-belongs to another person; `reported` without a `reporter`; two rows for the same unit, outcome and pass;
-a `final` row for a unit that lacks an `A` or a `B` row.
+Errors:
+
+- an outcome the specification does not declare with source `codes`; a code outside the allowed set;
+- a code other than `missing` without `evidence_ids` or without a `basis`; `reported` without a
+  `reporter`;
+- an evidence id that does not exist, or that belongs to another person. In a passage or work study,
+  belonging is read through the attribution file: a unit's evidence belongs to the unit's attributed
+  author;
+- two rows for the same unit, outcome and pass;
+- a `final` row for a unit that lacks an `A` or a `B` row, unless it is an adjudicated row whose `note`
+  begins `missing pass: A, ` or `missing pass: B, ` followed by the reason the pass could not be made.
 
 **Finalising is fail-closed.** Where passes A and B agree, the final row is theirs. Where they disagree,
-no final row is written until an adjudicated row is supplied with its own coder and note; the tool lists
-the disagreements and exits non-zero. Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1,
-per outcome, with the number of units each rests on.
+or where one pass is missing, no final row is written until an adjudicated row is supplied with its own
+coder and note; the tool lists the units and exits non-zero. A single pass never becomes final on its
+own. Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1, per outcome, with the number of
+units each rests on.
+
+**Rollup** takes passage or work codes to their author:
+
+- only `final` rows count, and only for units whose attribution status is in `counted_statuses`;
+- a unit whose passage-attribute value is listed in `unit.exclude_from_rollup` is left out;
+- NA codes and the `missing` value are skipped. An author with nothing left gets `missing`;
+- `single-code`: the one code all remaining units share; more than one is an error;
+- `mixed-if-conflict`: the shared code, or the reserved code `mixed` where units differ;
+- `max-order`: the code with the highest `order`;
+- `any-present`: as in the reference, pending open point 3;
+- `none`: the outcome is not rolled up;
+- results are split by each key in `unit.rollup_by`;
+- beside each outcome the rollup reports the passage-attribute values behind it (`<outcome>__types`);
+- a collective author keeps its `author_kind`.
 
 ### 4.3 Attribution (passage and work studies)
 
@@ -230,21 +269,45 @@ per outcome, with the number of units each rests on.
 `unit.passage_attributes`, then `basis, note`.
 
 `status` is one of `unit.attribution.statuses`. Only rows whose status is in `counted_statuses` enter a
-rollup.
+rollup. `author_kind` is `person` or one of `unit.collective.kinds`; anything else is an error.
 
-### 4.4 Logs
+### 4.4 Logs and working files
 
-- **Enumeration log** (`enumerations[].log`): one row per round, with the round number, the query or
-  seed set used, the number of candidates seen and the number new. The stopping rule is computed from
-  these rows only; a study cannot be declared saturated by assertion.
-- **Frame-change log** (`frame_rules.change_log`): one row per unit added to or removed from the frame
-  after gate S0, with the rule and a reason. A frame that differs from the enumeration result without a
-  row for each difference is an error.
-- **Fetch receipts:** for evidence taken from the web, one record per fetch with the URL, the date and
-  the SHA-256 of the body, so a quotation can be re-found against what was fetched.
+**Enumeration log** (`enumerations[].log`; CSV, every cell quoted), one row per round:
 
-The exact columns of the three logs are taken from the reference implementation when the tools are
-moved; they are not fixed in this draft.
+`enumeration, round, date, method, queries, candidates, new, new_share, new_ids, note`
+
+`round`, `candidates` and `new` are integers; `new_share` is between 0 and 1, to four decimals; `new_ids`
+is a `;`-separated list. The stopping rule is computed from these rows only: a study cannot be declared
+saturated by assertion.
+
+**Frame-change log** (`frame_rules.change_log`; JSON Lines), one entry per change to the frame:
+
+```
+{ "id": string, "date": string, "reason": string, "results_seen": bool,
+  "frame_sha256": string, "n_units": int,
+  "added": [string], "removed": [string], "units": [string] }
+```
+
+`id` is what a report cites. `results_seen` records whether any coded result had been seen when the change
+was made, and is shown wherever the change is reported. The check fails when the current frame's hash
+differs from the last entry's: a frame cannot change without an entry.
+
+**Fetch receipt** (one JSON file per receipt, `<study>/survey/receipts/<receipt id>.json`):
+
+`url, quote, fetched_at, quote_fold_sha256, status, final_url, content_type, sha256, found, context,
+reason, wayback, receipt_id`
+
+`receipt_id` is the first 24 hex characters of the SHA-256 of the URL, a line feed and the folded quote.
+`context` is at most about 100 characters each side of the quote, with whitespace collapsed. The fetched
+page itself is cached only in a folder the repository ignores, and is never committed.
+
+**Identity files:**
+
+- `identity-overrides.csv`: `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
+  id of the project merges the two; one from the identity source links to it.
+- `registry.csv`: `person_id, display_name, identity_id, merged_from`. (`identity_id` is the id in the
+  identity source; the reference names this column after its own vantage module.)
 
 ## 5. Plug-ins
 
@@ -256,8 +319,10 @@ A plug-in is a Python file in the project's repository, named in the specificati
 - The toolkit loads the file by path. It does not import by module name and does not search `sys.path`.
 - **Every plug-in file must be covered by gate S0.** A specification naming one that is not is invalid.
   Loading a plug-in runs the project's code, so it is cleared the same way the specification is.
-- A plug-in is a pure function of its arguments and the files the specification names. It makes no
-  network request and writes no file.
+- A plug-in's result depends only on its arguments and on the files the specification names. It may
+  keep what it has read from those files, but nothing else between calls: a value that varies per call,
+  such as a person's year, is passed as an argument. There is no separate initialisation step. It makes
+  no network request and writes no file.
 - `version` is recorded in every output the plug-in contributes to.
 
 Three kinds exist: an evidence **reader** (`evidence.reader`: yields rows in the 4.1 shape from a
@@ -281,23 +346,31 @@ included(person_id: str, rule: str) -> (bool, str)     # the specification's van
 `identities()` is the repository-wide identity source. `included()` applies `vantage.inclusion`; the
 reason is recorded beside every exclusion it causes, in the frame-change log.
 
-The reference implementation also proposed `lookup(name) -> { status, person_id }`. It is left out of
-this draft: matching a name to an identity is a candidate search the toolkit already does over
-`identities()` (exact match on folded text, listed, never linked), and a review status is the vantage
-module's own vocabulary. If a stage needs the status, the proposal is a third function
-`status(person_id) -> str`, with the allowed values declared by the module (open point 3).
+There is no name-lookup or review-status function. Matching a name to an identity is a candidate search
+the toolkit does over `identities()` (exact match on folded text; listed, never linked), and no stage
+needs a review status.
 
 ### 5.3 Forbidden vocabulary
 
 `vocabulary.forbidden` names a text file of regular expressions, one per line, with `#` comments. The row
-checks apply them as in 4.1. The file is the project's and must be covered by S0. Without it no
-vocabulary check runs. researchteam ships no pattern.
+checks apply them to every column except those in `exempt_columns`, which defaults to `["quote"]`: a
+quotation is reported as it stands. A project that wants quotations checked as well declares an empty
+list. The file is the project's and must be covered by S0. Without it no vocabulary check runs.
+researchteam ships no pattern.
 
 ### 5.4 Corpus
 
-`corpus.text` and `corpus.works` name the project's text store, which the quote re-finder and the
-query-plan runner read. Their record shapes are an open point (4); until it is settled these two tools
-are moved last.
+`corpus.text` and `corpus.works` name the folders of the project's text store, which the quote re-finder
+and the query-plan runner read. The tools read only what is listed here.
+
+- **Text:** one JSON Lines file per work, `<text>/<work slug>.jsonl`. Each line has `locus_id`
+  (`<work slug>#p<N>`) and `text`. Other fields are ignored.
+- **Works:** one JSON file per work, `<works>/<work slug>.json`, with `author`; `stored_language`
+  (ISO 639-3), or `language` when that is absent; and `publication.composition.year` or `.date`, each a
+  scalar or `{ "value": ... }`, of which the first integer is taken.
+- A `locator` of the form `<work slug>#p<N>` is a text-store locus. The quote re-finder looks for the
+  quotation in that line; any other locator is checked against a fetch receipt or reported as not
+  re-findable.
 
 ## 6. Gates and sign-offs
 
@@ -314,8 +387,22 @@ There is no S1 to S4 or S7 gate. In the reference implementation only S5 is enfo
 contract requires S0 enforcement before the enumeration tools are moved, and leaves S6 and S8 to the
 tools that run those stages.
 
-A **manifest** lists the specification and every file the gate covers, each with its SHA-256, sorted by
-path, with the gate's `mode`. The gate's identity is the SHA-256 of the manifest's bytes.
+A **manifest** is one JSON object:
+
+```
+{ "kind": "survey-signoff", "gate": string, "project": string, "mode": string,
+  "schema_version": string, "files": [ ... ] }
+```
+
+- `files` lists the specification first, then the gate's `covers` in the order declared, with repeats
+  removed, each with its SHA-256.
+- It is written as canonical JSON: keys sorted, no whitespace, UTF-8, and one trailing line feed.
+- A text file is hashed with each CRLF replaced by LF.
+- The gate's identity is the SHA-256 of the manifest file's bytes, the line feed included.
+
+These are fixed because any difference changes every manifest hash and so un-clears every signed gate.
+The shape of a `files` entry and how a file is judged to be text are taken from the reference (open
+point 4).
 
 A gate is in one of three states: `CLEARED` (a valid signature exists for the current manifest hash),
 `UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here).
@@ -323,7 +410,7 @@ A gate is in one of three states: `CLEARED` (a valid signature exists for the cu
 | `enforce` | `CLEARED` | `UNCLEARED` or `UNAVAILABLE` |
 |---|---|---|
 | `blocking` | the stage runs | the stage refuses, exit non-zero |
-| `build-only` | the stage runs | the stage runs and its output says the gate is not cleared |
+| `build-only` | the stage runs | the stage runs, and its output records the gate's state and mode |
 
 `mode: "retroactive"` records that a gate was signed after the work it covers was done. It is written
 into the manifest and carried into every output that depends on the gate, to be shown to the reader.
@@ -342,7 +429,7 @@ into the manifest and carried into every output that depends on the gate, to be 
   not clear a gate.
 - This depends on `agentteams` supporting a second, gates-only log as a documented and tested pattern,
   including whether a HALT in the team's log binds it (an open `agentteams` issue). The sign-off tools
-  are not moved before that is settled (open point 5).
+  are not moved before that is settled (open point 1).
 
 ## 7. Commands and CI
 
@@ -358,7 +445,7 @@ Bridge commands, each taking a project:
 | `survey-packets` | builds blind coding packets for passes A and B (needs S5) |
 | `survey-agreement` | reports agreement between passes A and B |
 | `survey-finalize` | writes final codes, fail-closed (4.2) |
-| `survey-rollup` | rolls final codes up to the aggregate unit |
+| `survey-rollup` | rolls final codes up to the author |
 | `survey-quotecheck` | re-finds each quotation at its locus or against its fetch receipt |
 
 **CI.** `survey-validate` fails the build on any error. Gate state is *reported* and never fails a pull
@@ -388,12 +475,13 @@ Their grants, and the hook or check that enforces each "never", are fixed when t
 The explorer displays people, evidence and sources; the toolkit produces them. The join is a projection:
 
 - **Evidence:** the first thirteen columns of 4.1 are the explorer's `evidence.csv`. The projection drops
-  `unit_id` and writes one explorer row per survey row.
+  `unit_id`, writes one explorer row per survey row, and appends a row's `downgraded_from` to its `audit`
+  text, labelled as such.
 - **`basis`, `reporter`, `note`:** the explorer contract 1.0 has nowhere to show them, and they must not
   be folded into `via` or `audit`. The proposal is explorer contract **1.1**: three optional
   `evidence.csv` columns with these names, shown beside each piece of evidence. It is an additive change
   made in the explorer's own contract, tests and component before the projection is written (open
-  point 2). Until then the projection refuses to run on rows that have a `reported` basis, because
+  point 5). Until then the projection refuses to run on rows that have a `reported` basis, because
   showing a reported statement without saying so would misstate it.
 - **Codes:** the explorer's `codes.csv` is one row per person. It is generated from the rollup, never
   written by hand; `established` is false for the outcome's `missing` value.
@@ -423,15 +511,21 @@ Steps 1 to 3 can be done now. A copy of the specification taken before step 4 is
 
 ## 11. Open points
 
-1. **Standard-library validator.** The reference implementation validates with a JSON Schema library.
-   Does anything in the 866-line schema (conditional requirements, `$defs`) resist a hand-written check?
-2. **Explorer 1.1.** Are `basis`, `reporter` and `note` enough for the explorer, or does a downgraded
-   value's history (`downgraded_from`) also need its own column rather than living in `audit`?
-3. **Vantage.** Is `status(person_id)` needed by any stage, and with what values?
-4. **Corpus.** The record shapes of the text store and the works file, as field names and types.
-5. **Per-study ledger.** The exact folder layout `agentteams` expects for a gates-only log, and whether
-   a HALT in the team's log binds it.
-6. **`unit.aggregate_to`.** It has one allowed value. Is another aggregate planned, or should it go?
-7. **Evidence reader plug-in.** Is a reader enough for the legacy evidence format, or does that study
-   need to write the legacy format as well?
-8. **Log columns** (4.4): the three logs' columns, as names and types.
+Settled by the first check (2026-11-19): a hand-written validator is enough (the published schema uses
+only types, required keys, closed objects, enumerations, constants, patterns, bounds, references and
+three conditionals); no review-status function is needed; `unit.aggregate_to` is removed; a reader
+plug-in is enough for a legacy evidence format, and writing that format stays with the project; the
+corpus shapes and the log columns are as given above.
+
+Still open:
+
+1. **Per-study ledger.** The folder layout `agentteams` expects for a gates-only log, and whether a HALT
+   in the team's log binds it. Waits for the `agentteams` issue.
+2. **`held_out`.** The reference requires it with the single value `true`. What it asserts, and whether
+   a field with one allowed value should stay, needs one sentence from the reference.
+3. **`any-present`.** Which code counts as present, and what an author gets when no unit has it. It must
+   be declared in the specification, not a word fixed in the tool.
+4. **Manifest details.** The fields of a `files` entry, and the rule that decides a file is text for the
+   CRLF replacement.
+5. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
+   own contract.
