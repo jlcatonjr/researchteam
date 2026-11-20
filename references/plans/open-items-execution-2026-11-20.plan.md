@@ -145,3 +145,40 @@ recur".
   - the records branch is assembled before the close-out audit, and merged after it.
 - Not checked by either audit: Rule 9's "after each step" wording against the batched passes the metaplan
   accepted on 2026-11-19. This session follows the metaplan's batching.
+
+## Rule 9 pass before Gate 1 (2026-11-20)
+`adversarial`: CONDITIONAL, four blocking, all adopted: the Wave 1 findings were pushed to the records branch
+at once (PS-1); `main`'s ruleset was read (`strict_required_status_checks_policy` is false, so one merge does
+not move another PR's head); the P4 fetch stub raises, as the offline path does; the cost of option A in
+signing and a cap slot was stated at Gate 1. Also adopted: #231 and #232 are not held for the P4 PR; this
+session's worktrees are removed before script 20 is built; unmerged PRs stay off its list.
+
+## Gate 1 answers (operator, session picker, 2026-11-20)
+1. **P2: confirmed.** "Fix forward only": `v1.1.9`, `v1.2.0-rc.1` and `v1.2.0` stay as they are and are not
+   re-signed. P2 step 2 is closed.
+2. **P3: option A**, automatic head-branch deletion. The recommendation shown was B.
+3. **P1: the upstream request is held in the records.** It was not sent. The draft is Deliverable 3 of
+   `references/plans/open-1119-p1-seam-table.md`.
+4. **P3: the four `docs/survey-toolkit-*` branches stay off the next deletion list.**
+
+## Found after Gate 1: the exception cap
+Option A was offered as needing "a cap slot". The registry
+(`.github/agents/references/exception-registry.json`) sets no cap, so the default of one active relaxing
+exception applies, and one is active: `s10-cooldown-exempt:jlcatonjr/agentteams`, until 2027-02-01. A second
+would breach the cap. The operator did not have this fact when choosing A. `Security` is asked what A
+lawfully requires; the result goes back to the operator in the picker before anything is built for A.
+
+## Found during Wave 2: two test files fail when run alone (P4)
+`tests/test_update_native_surfaces.py` (4 of 10) and `tests/test_materialize_surfaces.py` (13 of 20) fail on
+`main` when run alone. `researchteam._frozen` binds `subprocess.run` at import and is imported lazily, after
+those files' fixtures have faked `subprocess.run`. A full run hides it, because another file imports
+`_frozen` at collection. PR #233 fixes it in `tests/conftest.py`. It cannot be the single failure of
+2026-11-19, which happened in a full run.
+
+## Deviation recorded: the 25 runs
+- The repository's `.venv` has no pytest, so the runs do not use it. They use two interpreters, to cover the
+  leading explanation of the 2026-11-19 failure: one with no agentteams (as in CI), one in which agentteams
+  is importable from a local checkout (as the session's default `python3` is). Ten forward runs each, then
+  three and two with the files in reverse order.
+- While the series ran, this session also ran single test files a few times and, once, every test file on
+  its own. A failure of a timing test in the series during that window would not count as evidence.
