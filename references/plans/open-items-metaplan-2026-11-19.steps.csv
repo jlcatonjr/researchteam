@@ -10,4 +10,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 9,work-summarizer,Wave 3: work summary for the records PR (P3 5; P4 4),all outcomes,workSummaries/daily entry,pending,Rule 10,7;8
 10,orchestrator,Wave 3: records PR (plan statuses; design note; script copies; summary); operator's live approval; merge; delete scratch,step 9,merge commit,pending,,9;11
 11,conflict-auditor,Close-out audit (Rule 8),all changes,audit,pending,run on the records PR before its merge is asked,9
-12,orchestrator,Blocked work: P1 phases 1-2 when agentteams 1.3.x is signed and the operator rules on the line move; P2 6 at the next tag,signed tag; ruling,release 1.3.0; verification record,blocked,,7
+12,orchestrator,Blocked work: P1 phases 1-2 when agentteams 1.3.x is signed and the operator rules on the line move,signed tag; ruling,release 1.3.0,blocked,P2 6 was done at v1.2.1 on 2026-11-20 (verified=true),7
