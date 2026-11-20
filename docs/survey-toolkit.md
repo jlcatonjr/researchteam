@@ -78,6 +78,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
   "vantage"?: { "module": Plugin | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
   "vocabulary"?: { "forbidden": path, "exempt_columns"?: [string] },                        // 5.3
   "corpus"?: { "text": path, "works"?: path },                                              // 5.4
+  "identity": { "registry": path, "overrides": path },                                      // 4.4
   "unit": {
     "kind": "passage" | "work" | "author",             // passages and works roll up to their author
     "attribution"?: { "file": path, "statuses": [string], "counted_statuses"?: [string] },
@@ -103,7 +104,8 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "tiers": [string],                                 // every tier a row may carry
     "counted_tiers": [string],                         // a subset of tiers
     "not_established_tier": string,                    // one of tiers, not counted
-    "tier_map"?: { string: string },
+    "tier_map"?: { string: string },                   // open point 3
+    "receipts"?: path,                                 // folder of fetch receipts, 4.4
     "attribute_kinds"?: [string]
   },
   "outcomes": [ {
@@ -136,8 +138,8 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
   "frame_rules": {
     "exclude": [ { "rule": "institutions" | "not-on-question" | "unit-ids" | "id-contains",
                     "values"?: [string], "reason": string } ],       // may be empty
-    "change_log"?: path,
-    "post_steps"?: [path]
+    "change_log": path,
+    "post_steps"?: [path]                              // open point 3
   },
   "analysis"?: object,                                 // carried; shape owned by the analysis engine
   "signoffs": {
@@ -169,9 +171,11 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
   a `present_code` on any other rollup;
 - an `exclude_from_rollup` key that is not a `passage_attributes` key, or a value that is not one of its
   level codes; a level code `mixed` in an outcome whose rollup is `mixed-if-conflict`;
-- a referenced input file that does not exist, unless `status` is `draft`. Files a stage writes
-  (`log`, `change_log`) may be absent;
-- a plug-in or `vantage.module` file that is not covered by gate S0 (section 5.1);
+- a referenced input file that does not exist, unless `status` is `draft`. Files and folders a stage
+  writes (`log`, `change_log`, `identity.registry`, `evidence.receipts`) may be absent;
+- a plug-in, a `vantage.module` file or the `vocabulary.forbidden` file that is not covered by gate S0
+  (5.1, 5.3);
+- evidence that cites a fetch receipt when `evidence.receipts` is not declared;
 - a gate that covers no file, or a `covers` path that does not exist in an `active` study.
 
 **Changes from the reference implementation**, each for the reason given:
@@ -189,9 +193,10 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 | `evidence.tiers`, `not_established_tier` | constants in the row checker | declared | Rule 1.1. |
 | `unit.exclude_from_rollup` | one value hard-coded | declared | Rule 1.1. |
 | `unit.aggregate_to` | `"author"`, required for passage and work studies | removed | It had one allowed value. Collective bodies are authors of a declared kind, not another aggregate. |
-
 | `outcomes[].held_out` | required, always `true` | removed | A field with one value says nothing. The rule it stood for is stated below. |
 | `outcomes[].present_code` | a word fixed in the tool | declared | Rule 1.1. |
+| `identity`, `evidence.receipts` | fixed file locations | declared paths | Rule 1.1. |
+| `frame_rules.change_log` | optional | required | A frame change, or an exclusion a vantage module causes, must have somewhere to be recorded. |
 
 **Outcomes are never analysis inputs.** An outcome is what the study asks about; an attribute is the
 background it is read against. The specification keeps them in separate lists, and an analysis must not
@@ -305,7 +310,7 @@ saturated by assertion.
 was made, and is shown wherever the change is reported. The check fails when the current frame's hash
 differs from the last entry's: a frame cannot change without an entry.
 
-**Fetch receipt** (one JSON file per receipt, `<study>/survey/receipts/<receipt id>.json`):
+**Fetch receipt** (one JSON file per receipt, `<evidence.receipts>/<receipt id>.json`):
 
 `url, quote, fetched_at, quote_fold_sha256, status, final_url, content_type, sha256, found, context,
 reason, wayback, receipt_id`
@@ -316,9 +321,9 @@ page itself is cached only in a folder the repository ignores, and is never comm
 
 **Identity files:**
 
-- `identity-overrides.csv`: `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
+- the overrides file (`identity.overrides`): `alias_id, canonical_id, decided_by, reason`. A `canonical_id` that is another
   id of the project merges the two; one from the identity source links to it.
-- `registry.csv`: `person_id, display_name, identity_id, merged_from`. (`identity_id` is the id in the
+- the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. (`identity_id` is the id in the
   identity source; the reference names this column after its own vantage module.)
 
 ## 5. Plug-ins
@@ -345,7 +350,7 @@ and a **vantage** module (5.2).
 
 A study may be read from a declared standpoint: a project's own review of who the people in the frame
 are, relative to that standpoint. The toolkit takes no position on any such review and holds none. With
-`vantage.module` null or absent, identities come from the project's own registry file and every person
+`vantage.module` null or absent, identities are the persons the project's own rows name, as the registry records them, and every person
 is included.
 
 A vantage module provides:
@@ -490,13 +495,14 @@ The explorer displays people, evidence and sources; the toolkit produces them. T
 - **Evidence:** the first thirteen columns of 4.1 are the explorer's `evidence.csv`. The projection drops
   `unit_id`, writes one explorer row per survey row, and appends a row's `downgraded_from` to its `audit`
   text, labelled as such.
-- **`basis`, `reporter`, `note`:** the explorer contract 1.0 has nowhere to show them, and they must not
+- **`basis`, `reporter`, `note`:** the explorer contract 1.0 has nowhere to show them on a piece of
+  evidence (only its codes carry a `basis`), and they must not
   be folded into `via` or `audit`. The proposal is explorer contract **1.1**: three optional
   `evidence.csv` columns with these names, shown beside each piece of evidence. It is an additive change
   made in the explorer's own contract, tests and component before the projection is written (open
   point 2). Until then the projection refuses to run on rows that have a `reported` basis, because
   showing a reported statement without saying so would misstate it.
-- **Codes:** the explorer's `codes.csv` is one row per person. It is generated from the rollup, never
+- **Codes:** the explorer's `codes.csv` is one row per person and code key. It is generated from the rollup, never
   written by hand; `established` is false for the outcome's `missing` value.
 - **Persons:** display names come from the registry, which is also what writes the explorer's
   `persons.csv`.
@@ -541,3 +547,5 @@ Still open:
    contract's agreement.
 2. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
    own contract (step 2 of section 10).
+3. **`evidence.tier_map` and `frame_rules.post_steps`.** Carried from the reference. What each does is
+   not yet written here, and neither may stay in version 1 without a definition.
