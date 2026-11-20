@@ -38,6 +38,9 @@ live in the picker.
 | D1 | P4 1 | `technical-validator` subagent | risk table for the test files that touch network, clock, environment or home |
 | D2 | P4 2 | this session, in the background, after D1 | 20 runs, then 5 in reverse file order, junit per run |
 
+(Superseded in part by "Deviation recorded: the 25 runs" below: the repository's `.venv` has no pytest, so
+the runs used two other interpreters.)
+
 D2 runs from a `git archive` extract of `main` in the session scratchpad, one run at a time, as
 `PYTHONPATH=<extract> .venv/bin/python -m pytest -p no:cacheprovider --junitxml=...` from the extract root,
 with a scratch `HOME`. `.venv` holds an installed, non-editable researchteam from an older commit, and only
@@ -52,7 +55,7 @@ only thing using `.venv` while it runs. A1's runs use the same command form.
 3. P1: which session receives the upstream message, shown in full (or: hold it). Sent or held, the draft
    goes in the records PR.
 4. P3: whether the four merged `docs/survey-toolkit-*` branches of another session go on the next deletion
-   list. Asked here, before script 20 is built, so the `--branch-cleanup` review covers the final list.
+   list. Asked here, before the deletion script is built, so the `--branch-cleanup` review covers the final list.
 No answer means "keep as it is" for each, and for question 1 it is recorded as "fix forward unconfirmed",
 not as a confirmation. PR-docs is not put up for merge before question 1 is answered.
 
@@ -104,7 +107,9 @@ Operator script for P3 (only if A): the setting script is reviewed by `Security`
 only after PR-ps2 has merged; its readback goes in the records PR.
 
 ### Wave 3: records and leftovers
-- Deletion script `20-delete-merged-branches.sh`, built from script 17 with the final list, only after the
+Numbers 20 to 22 went to the option-A operator scripts on PR #234; the deletion script takes the next free
+number.
+- The next deletion script, built from script 17 with the final list, only after the
   Gate 2 merges. `Security` `--branch-cleanup` review, then handed over as a `.sh` plus one command (PS-3).
   The list follows Gate 1 question 4. At run time the script re-checks that each branch is an ancestor of
   `main` and is not the head of an open PR, which also covers a Gate 2 PR left unmerged.
@@ -151,7 +156,7 @@ recur".
 at once (PS-1); `main`'s ruleset was read (`strict_required_status_checks_policy` is false, so one merge does
 not move another PR's head); the P4 fetch stub raises, as the offline path does; the cost of option A in
 signing and a cap slot was stated at Gate 1. Also adopted: #231 and #232 are not held for the P4 PR; this
-session's worktrees are removed before script 20 is built; unmerged PRs stay off its list.
+session's worktrees are removed before the deletion script is built; unmerged PRs stay off its list.
 
 ## Gate 1 answers (operator, session picker, 2026-11-20)
 1. **P2: confirmed.** "Fix forward only": `v1.1.9`, `v1.2.0-rc.1` and `v1.2.0` stay as they are and are not
@@ -168,7 +173,7 @@ exception applies, and one is active: `s10-cooldown-exempt:jlcatonjr/agentteams`
 would breach the cap. The operator did not have this fact when choosing A. `Security` is asked what A
 lawfully requires; the result goes back to the operator in the picker before anything is built for A.
 
-## Found during Wave 2: two test files fail when run alone (P4)
+## Found while building the P4 hardening change: two test files fail when run alone
 `tests/test_update_native_surfaces.py` (4 of 10) and `tests/test_materialize_surfaces.py` (13 of 20) fail on
 `main` when run alone. `researchteam._frozen` binds `subprocess.run` at import and is imported lazily, after
 those files' fixtures have faked `subprocess.run`. A full run hides it, because another file imports
@@ -189,7 +194,8 @@ One question per PR, each naming the PR and its full head. All three approved, t
 - #233 at `8542e2b` as `89bda42` (merge tree equal to the head's tree);
 - #232 at `ff8ab84` as `dabf348` (merge patch equal to the head's patch);
 - #231 at `45003ce` as `53ed42e` (merge patch equal to the head's patch).
-Before the question: `conflict-auditor` on the three PRs together, no blocking finding.
+Before the question: `conflict-auditor` on the three PRs together, no blocking finding. `adversarial` was not run
+again here: its pass before Gate 1 had examined the Gate 2 procedure, and each PR had its own review.
 
 ## Option A after the cap finding (operator, session picker, 2026-11-20)
 `Security` found that A is a relaxation by effect and needs the registry's one slot, and that

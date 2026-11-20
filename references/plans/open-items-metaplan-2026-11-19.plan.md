@@ -46,6 +46,7 @@ Tracked in `references/plans/` by the pull request opened from branch `plans/ope
   carries the checks (step 4), and GitHub reports `v1.2.1` as verified (step 6). Step 1 was superseded. Left:
   step 2 (confirm "fix forward only") and step 5 (the policy sentence). Where this file says P2 step 6 is
   blocked until the next tag, read it as done.
+  (Superseded for P2 by the second note below: steps 2 and 5 are done.)
 - New work outside the four plans: move researchteam's own pin to agentteams `v1.2.2` (its notes label one
   change as security), and issue #228 (the same shallow fetch in the derived workflow scaffold).
 

@@ -171,7 +171,7 @@ Abbreviations: "TI" means upstream `term_index.py` and "TT" means upstream `_ter
     [TV-07] references/plans/open-1119-p1-term-index-core-switch.plan.md:17
     Expected (in source): agentteams/term_index.py exists on dev (commit b4b732f, per the caller)
     Found (in deliverable): "`agentteams/term_index.py` does not exist on `dev`."
-    Authority source: caller statement; upstream copy at scratchpad/upstream/term_index.py
+    Authority source: caller statement; upstream copy at a scratch copy of term_index.py
     Recommended action: update the dated state line when the plan is next revised
     ```
 

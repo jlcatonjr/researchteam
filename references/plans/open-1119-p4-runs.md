@@ -21,6 +21,7 @@ limit (one series, no retry without new evidence).
   below. `noat`: Python 3.14 with no agentteams, as in CI. `at`: Python 3.14 in which agentteams is importable
   from a local agentteams checkout (on its `main` that day), as it is for this machine's default `python3`.
 - 20 forward runs (10 per interpreter), then 5 with the test files in reverse order (3 and 2).
+  `fwd-noat-01` is the first, timed run of the same runner, relabelled by `series.sh`.
 
 ## Leading explanation of the 2026-11-19 failure (a hypothesis, not a finding)
 `tests/test_scaffold_fixes.py::test_signer_appends_verified_row` is skipped when agentteams cannot be imported,
