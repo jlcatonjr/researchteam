@@ -60,6 +60,10 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - Consumers verify against `~/.config/agentteams/allowed_signers` with repository config neutralised.
   `researchteam/_release.py` does this, and also neutralises global and system git config.
 - Tags are immutable. A defect is fixed forward with a new patch tag.
+- The cut script sets the tagger identity itself (the operator account's GitHub no-reply address, passed
+  explicitly, not read from the checkout) and refuses to sign unless the release key is registered as a
+  **signing** key on that account. After the push it reports GitHub's verification of the tag. The report
+  never stops a release: the tag is already public and immutable.
 
 ## Pins
 - Every cross-repository pin (`toolchain.lock`, the pip extras) is the **peeled commit of a verified signed
