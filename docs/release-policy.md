@@ -145,6 +145,6 @@ The agent session then merges, as long as:
 PS-2 in `.claude/CLAUDE.md` is the authority on what is delegated and what is excluded. It excludes force-pushes
 and history rewrites, `--admin` merges and ruleset bypasses, changes to settings, secrets, collaborators, branch protection or rulesets,
 executor-opened remediation PRs (S-VM), and writes to other repositories. Its deletion rules (S-4,
-`branch-delete`) also apply.
+`branch-delete`) also apply, with the one dated exception PS-2 states for the head branch of a merged pull request.
 
 Releases still need an operator-signed tag, so the agent prepares the tag command and the operator signs it.

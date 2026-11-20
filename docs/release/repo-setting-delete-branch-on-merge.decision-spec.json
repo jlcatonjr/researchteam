@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-20",
+  "date": "2026-11-20",
+  "requesting_agent": "security",
+  "author": "operator",
+  "key_id": "op-2026",
+  "action_reviewed": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+  "verdict": "PASS",
+  "scope": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+  "conditions": "Operator ruling 2026-11-20 (researchteam session picker, twice: 'A: automatic deletion', then 'A: retire the s10 exemption'): the operator turns on the GitHub repository setting 'Automatically delete head branches' (delete_branch_on_merge) for jlcatonjr/researchteam. Scope: only the head ref of a pull request in this repository, deleted by GitHub when that pull request merges. Relaxed: PS-2's requirement of a signed branch-delete grant or a recorded @security --branch-cleanup PASS for that one deletion, and with it the deletion ledger row and the hold checks (owner, link, open pull request, worktree, pin, session), none of which run. Still gated as before: local branches, branches never opened as a pull request, every deletion an agent runs, and every release/ or archive/ ref (rulesets forbid deleting those). Compensating duties in PS-2: before asking for a merge approval the agent checks by hand for session and worktree holds and for pull requests based on the head, and the question says the head is deleted at merge. Restore: refs/pull/<n>/head. Sunset: 90 days, expiring 2027-02-18. It ends earlier on an unretracted HALT on branch-delete, on the repo-setting family or on this action. Nothing switches the setting off automatically: at the sunset or on such a HALT the operator turns it off with the handoff script. Cap: this takes the one active relaxing slot; s10-cooldown-exempt:jlcatonjr/agentteams is retired first as redundant with the operator-signed first-party toolchain group (retired in the exception registry, never by a HALT).",
+  "conditions_verified": "operator ruling: automatic head-branch deletion, with the s10 exemption retired (researchteam session picker, 2026-11-20); safety review references/plans/open-1119-p3-auto-delete-safety.md; rulesets read back 2026-11-20 (main, release/**, archive/**: deletion forbidden, no bypass)",
+  "evidence": "researchteam PR for branch governance/ps2-auto-branch-delete (the PS-2 amendment in .claude/CLAUDE.md and its projected copies); plan references/plans/open-1119-p3-branch-hygiene.plan.md; execution record references/plans/open-items-execution-2026-11-20.plan.md",
+  "derives_from": "release-policy-1.0",
+  "effect_grants": "",
+  "effect_targets": "",
+  "effect_relaxes": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+  "effect_destructive": "true",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
