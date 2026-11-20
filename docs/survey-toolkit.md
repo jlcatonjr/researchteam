@@ -104,7 +104,6 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "tiers": [string],                                 // every tier a row may carry
     "counted_tiers": [string],                         // a subset of tiers
     "not_established_tier": string,                    // one of tiers, not counted
-    "tier_map"?: { string: string },                   // open point 3
     "receipts"?: path,                                 // folder of fetch receipts, 4.4
     "attribute_kinds"?: [string]
   },
@@ -139,7 +138,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "exclude": [ { "rule": "institutions" | "not-on-question" | "unit-ids" | "id-contains",
                     "values"?: [string], "reason": string } ],       // may be empty
     "change_log": path,
-    "post_steps"?: [path]                              // open point 3
+    "post_steps"?: [path]                              // 4.5
   },
   "analysis"?: object,                                 // carried; shape owned by the analysis engine
   "signoffs": {
@@ -176,6 +175,7 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 - a plug-in, a `vantage.module` file or the `vocabulary.forbidden` file that is not covered by gate S0
   (5.1, 5.3);
 - evidence that cites a fetch receipt when `evidence.receipts` is not declared;
+- a `post_steps` file that no gate covers (4.5);
 - a gate that covers no file, or a `covers` path that does not exist in an `active` study.
 
 **Changes from the reference implementation**, each for the reason given:
@@ -195,6 +195,7 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 | `unit.aggregate_to` | `"author"`, required for passage and work studies | removed | It had one allowed value. Collective bodies are authors of a declared kind, not another aggregate. |
 | `outcomes[].held_out` | required, always `true` | removed | A field with one value says nothing. The rule it stood for is stated below. |
 | `outcomes[].present_code` | a word fixed in the tool | declared | Rule 1.1. |
+| `evidence.tier_map` | a mapping from a project's own states to tiers | removed | No tool read it; rows carry declared tiers directly. |
 | `identity`, `evidence.receipts` | fixed file locations | declared paths | Rule 1.1. |
 | `frame_rules.change_log` | optional | required | A frame change, or an exclusion a vantage module causes, must have somewhere to be recorded. |
 
@@ -325,6 +326,20 @@ page itself is cached only in a folder the repository ignores, and is never comm
   id of the project merges the two; one from the identity source links to it.
 - the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. (`identity_id` is the id in the
   identity source; the reference names this column after its own vantage module.)
+
+### 4.5 Frame post-steps
+
+`frame_rules.post_steps` lists scripts of the project's, run in the order given after the frame is
+written. A post-step adds columns to the frame and does nothing else.
+
+- The frame build runs each step. Every later check and stage treats the frame as it stands after the
+  last step.
+- A step whose output has different units from its input, or changes any column that was already there,
+  is refused: the build stops and the frame is not written.
+- A step is deterministic and follows the plug-in rules of 5.1 on network and clock.
+- Running a step runs the project's code, so each step file must be covered by a gate (S6 in the
+  reference implementation). While that gate is blocking and not cleared, the frame build refuses to run
+  the step.
 
 ## 5. Plug-ins
 
@@ -538,7 +553,8 @@ corpus shapes and the log columns are as given above.
 
 Settled by the second check (2026-11-19): `held_out` is removed and its rule stated in section 3;
 `any-present` takes a declared `present_code`; `mixed` is a reserved output code; a manifest's `files`
-entries and its text rule are as in 6.1; `window` and `log` stay required on every enumeration.
+entries and its text rule are as in 6.1; `window` and `log` stay required on every enumeration. Settled after the consistency audit:
+`evidence.tier_map` is removed, and `frame_rules.post_steps` is defined in 4.5.
 
 Still open:
 
@@ -547,5 +563,3 @@ Still open:
    contract's agreement.
 2. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
    own contract (step 2 of section 10).
-3. **`evidence.tier_map` and `frame_rules.post_steps`.** Carried from the reference. What each does is
-   not yet written here, and neither may stay in version 1 without a definition.
