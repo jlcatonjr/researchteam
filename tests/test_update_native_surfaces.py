@@ -11,7 +11,10 @@ from pathlib import Path
 
 import pytest
 
-from researchteam import _update_cmd
+# _frozen binds subprocess.run at import (`from subprocess import run as _run`), and run_update imports it
+# lazily. Import it here, before any test fakes subprocess.run: otherwise, when this file runs alone or first,
+# _frozen keeps the fake for the rest of the session and its git calls get an object with no stdout.
+from researchteam import _frozen, _update_cmd  # noqa: F401
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -41,6 +44,13 @@ def calls(monkeypatch):
 
     monkeypatch.setattr(_update_cmd, "_preflight_agentteams", lambda: "agentteams")
     monkeypatch.setattr(_update_cmd, "_brief_has_placeholder", lambda root: False)
+
+    def offline_fetch(repo, ref, path):
+        """The update's Notes sync reads upstream blocks; no test reaches the network. A failed fetch is the
+        path the sync already handles ("upstream block unavailable"), and it writes nothing."""
+        raise RuntimeError(f"offline in tests: {path}")
+
+    monkeypatch.setattr(_update_cmd, "fetch_raw", offline_fetch)
 
     def fake_run(cmd, cwd=None, **kwargs):
         seen.append(list(cmd))
