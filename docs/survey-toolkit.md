@@ -304,7 +304,7 @@ that row breaks. Rewriting such rows would change the evidence of a study that i
 - The file is the project's, is covered by a gate, and is allowed only when `status` is `legacy`. The
   tool can write a first version from the current breaches for a person to review; it never adds to an
   existing one.
-- Every output that rests on the evidence file says how many exceptions it was read with.
+- Every output that rests on the evidence file records how many exceptions it was read with (4.6).
 
 ### 4.2 Codes
 
@@ -427,7 +427,8 @@ page itself is cached only in a folder the repository ignores, and is never comm
   A `distinct` row settles that one pair and no other: a candidate that appears later for the same alias
   is undecided until it has a row of its own. An `alias_id` may have several `distinct` rows but at most
   one `link` or `merge`; a second is an error, and so is a `distinct` row for a pair that is also linked
-  or merged. The decision is always written, never read off which side `target_id` belongs to. **The
+  or merged. A `merge` or `distinct` row whose `target_id` equals its `alias_id` is an error, and so is the
+  same pair and decision given twice; a pair is the same whichever id is written first. The decision is always written, never read off which side `target_id` belongs to. **The
   registry links and merges only from this file**, and a candidate counts as decided only when a row
   names that pair.
 - the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. `identity_id` is the id in the
@@ -454,6 +455,31 @@ written. A post-step adds columns to the frame and does nothing else.
   reference implementation). While that gate is blocking and not cleared, the frame build refuses to run
   the step.
 
+### 4.6 What every output records
+
+Several rules above say an output "records" something: a gate's state and mode, a plug-in's version, the
+number of legacy exceptions. They are all met in one place. Every file a tool writes for a later stage or
+a reader has a **provenance record**:
+
+```
+{ "output": path, "tool": string, "study": slug, "schema_version": string,
+  "inputs": [ { "path": path, "sha256": string } ],
+  "gates": { "<gate>": { "state": string, "mode": string, "enforce": string,
+                         "manifest_sha256"?: string } },
+  "plugins": [ { "file": path, "attr": string, "version": string, "sha256": string } ],
+  "legacy_exceptions": int }
+```
+
+- A JSON output carries it as its top-level `provenance` field. Any other output (a CSV, a report) has it
+  in a file beside it, named as the output with `.provenance.json` added, written in the same run. An
+  output of that kind whose record is missing, or whose `inputs` no longer match the files, is treated
+  by the next stage as not built.
+- `gates` lists each gate the stage depends on. A gate the specification does not declare has the state
+  `NOT DECLARED`. `plugins` lists each plug-in that was loaded; `legacy_exceptions` is the number the
+  evidence file was read with, 0 when there is none.
+- It is written as canonical JSON, like a manifest, and carries no date.
+- A message on the screen is not a record. Nothing is added to a CSV's own columns for this.
+
 ## 5. Plug-ins
 
 ### 5.1 Common rules
@@ -468,7 +494,7 @@ A plug-in is a Python file in the project's repository, named in the specificati
   keep what it has read from those files, but nothing else between calls: a value that varies per call,
   such as a person's year, is passed as an argument. There is no separate initialisation step. It makes
   no network request and writes no file.
-- `version` is recorded in every output the plug-in contributes to.
+- `version` is recorded in every output the plug-in contributes to (4.6).
 - No tool calls anything in a plug-in file except the object its `attr` names.
 
 Three kinds exist: an evidence **reader** (`evidence.reader`: yields rows in the 4.1 shape from a
@@ -562,7 +588,7 @@ A gate is in one of three states: `CLEARED` (a valid signature exists for the cu
 since a request was made is `UNCLEARED` whether or not signatures can be verified.
 
 A stage whose gate the specification does not declare refuses to run, except in a `legacy` study, where
-the stage runs and its output records that the gate is not declared.
+the stage runs and its output records that the gate is not declared (4.6).
 
 | `enforce` | `CLEARED` | `UNCLEARED` or `UNAVAILABLE` |
 |---|---|---|
@@ -570,7 +596,7 @@ the stage runs and its output records that the gate is not declared.
 | `build-only` | the stage runs | the stage runs, and its output records the gate's state and mode |
 
 `mode: "retroactive"` records that a gate was signed after the work it covers was done. It is written
-into the manifest and carried into every output that depends on the gate, to be shown to the reader.
+into the manifest and carried into every output that depends on the gate (4.6), to be shown to the reader.
 
 ### 6.2 Sign-offs
 
@@ -689,7 +715,7 @@ undeclared gate refuses except in a legacy study.
 
 Added after the reference was aligned (2026-11-19): an override row states its decision, and `distinct`
 records a reviewed pair of different people (4.4); a legacy study may list, row by row and rule by rule,
-the breaches of rows that predate the rules (4.1).
+the breaches of rows that predate the rules (4.1); every output has a provenance record (4.6).
 
 Still open:
 
