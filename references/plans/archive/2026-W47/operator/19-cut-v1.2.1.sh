@@ -39,8 +39,8 @@ EOF_KEYS
 ngit fetch --quiet --tags "$RT_URL" "+refs/heads/main:refs/remotes/origin/main"
 ngit merge-base --is-ancestor "$SHA" refs/remotes/origin/main || die "$SHA is not on origin/main"
 # The cut commit is the release-prep PR's merge commit and nothing later (@security, 2026-11-19).
-PR_MERGE="$(gh pr view __PR__ -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #__PR__"
-[ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #__PR__ (${PR_MERGE:-none})"
+PR_MERGE="$(gh pr view 229 -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #229"
+[ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #229 (${PR_MERGE:-none})"
 
 # The agentteams pin at that commit: v1.2.1 (AT_TAG), verified HERE (signature, self-name, remote object), in the lock and
 # in both extras.
