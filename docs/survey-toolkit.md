@@ -1,6 +1,6 @@
 # Survey toolkit: contract
 
-**Status: draft 2 (2026-11-19), revised after the first check against the reference implementation. Not
+**Status: draft 3 (2026-11-19), revised after two checks against the reference implementation. Not yet
 agreed, and nothing here is implemented in researchteam yet.** The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
@@ -117,7 +117,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "missing"?: string,                                // default "NE"
     "merges"?: { string: string },
     "rollup": "single-code" | "mixed-if-conflict" | "max-order" | "any-present" | "none",
-    "held_out": true                                   // as in the reference; open point 2
+    "present_code"?: string                            // required when rollup is "any-present"
   } ],
   "attributes": [ {
     "key": slug, "label": string,
@@ -165,6 +165,8 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
   number from 1 to the number of labels;
 - a passage or work study with no outcome whose source is `codes`;
 - `counted_tiers` not a subset of `tiers`; `not_established_tier` not in `tiers`, or counted;
+- `rollup: "any-present"` without a `present_code`, or with one that is not a level code of the outcome;
+  a `present_code` on any other rollup;
 - an `exclude_from_rollup` key that is not a `passage_attributes` key, or a value that is not one of its
   level codes; a level code `mixed` in an outcome whose rollup is `mixed-if-conflict`;
 - a referenced input file that does not exist, unless `status` is `draft`. Files a stage writes
@@ -187,6 +189,14 @@ Gate     = { "covers": [path], "enforce": "blocking" | "build-only",
 | `evidence.tiers`, `not_established_tier` | constants in the row checker | declared | Rule 1.1. |
 | `unit.exclude_from_rollup` | one value hard-coded | declared | Rule 1.1. |
 | `unit.aggregate_to` | `"author"`, required for passage and work studies | removed | It had one allowed value. Collective bodies are authors of a declared kind, not another aggregate. |
+
+| `outcomes[].held_out` | required, always `true` | removed | A field with one value says nothing. The rule it stood for is stated below. |
+| `outcomes[].present_code` | a word fixed in the tool | declared | Rule 1.1. |
+
+**Outcomes are never analysis inputs.** An outcome is what the study asks about; an attribute is the
+background it is read against. The specification keeps them in separate lists, and an analysis must not
+use an outcome to form its groups or distances: a specification's `analysis` that names an outcome key
+among its grouping attributes is to be refused by the engine that runs it.
 
 `rollup`, `bucketer` and `frame_rules.exclude` are required, as in the reference, so that no tool supplies
 a default silently.
@@ -257,7 +267,9 @@ units each rests on.
 - `single-code`: the one code all remaining units share; more than one is an error;
 - `mixed-if-conflict`: the shared code, or the reserved code `mixed` where units differ;
 - `max-order`: the code with the highest `order`;
-- `any-present`: as in the reference, pending open point 3;
+- `any-present`: the outcome's `present_code` if any remaining unit has it. Otherwise, for an ordinal
+  outcome, the remaining code with the lowest `order`; for a nominal one, the remaining code declared
+  first in `levels`;
 - `none`: the outcome is not rolled up;
 - results are split by each key in `unit.rollup_by`;
 - beside each outcome the rollup reports the passage-attribute values behind it (`<outcome>__types`);
@@ -395,14 +407,15 @@ A **manifest** is one JSON object:
 ```
 
 - `files` lists the specification first, then the gate's `covers` in the order declared, with repeats
-  removed, each with its SHA-256.
+  removed. Each entry is exactly `{ "path": ..., "sha256": ... }`: the repository-relative path with
+  forward slashes, and the lower-case hex SHA-256 of the file's bytes after the next rule.
 - It is written as canonical JSON: keys sorted, no whitespace, UTF-8, and one trailing line feed.
-- A text file is hashed with each CRLF replaced by LF.
+- A text file is hashed with each CRLF replaced by LF; any other file is hashed as it is. A file is text
+  by its suffix alone, matched case-sensitively: `.json .jsonl .csv .tsv .md .txt .py .R .sh .yaml
+  .yml`.
 - The gate's identity is the SHA-256 of the manifest file's bytes, the line feed included.
 
 These are fixed because any difference changes every manifest hash and so un-clears every signed gate.
-The shape of a `files` entry and how a file is judged to be text are taken from the reference (open
-point 4).
 
 A gate is in one of three states: `CLEARED` (a valid signature exists for the current manifest hash),
 `UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here).
@@ -481,7 +494,7 @@ The explorer displays people, evidence and sources; the toolkit produces them. T
   be folded into `via` or `audit`. The proposal is explorer contract **1.1**: three optional
   `evidence.csv` columns with these names, shown beside each piece of evidence. It is an additive change
   made in the explorer's own contract, tests and component before the projection is written (open
-  point 5). Until then the projection refuses to run on rows that have a `reported` basis, because
+  point 2). Until then the projection refuses to run on rows that have a `reported` basis, because
   showing a reported statement without saying so would misstate it.
 - **Codes:** the explorer's `codes.csv` is one row per person. It is generated from the rollup, never
   written by hand; `established` is false for the outcome's `missing` value.
@@ -517,15 +530,14 @@ three conditionals); no review-status function is needed; `unit.aggregate_to` is
 plug-in is enough for a legacy evidence format, and writing that format stays with the project; the
 corpus shapes and the log columns are as given above.
 
+Settled by the second check (2026-11-19): `held_out` is removed and its rule stated in section 3;
+`any-present` takes a declared `present_code`; `mixed` is a reserved output code; a manifest's `files`
+entries and its text rule are as in 6.1; `window` and `log` stay required on every enumeration.
+
 Still open:
 
 1. **Per-study ledger.** The folder layout `agentteams` expects for a gates-only log, and whether a HALT
-   in the team's log binds it. Waits for the `agentteams` issue.
-2. **`held_out`.** The reference requires it with the single value `true`. What it asserts, and whether
-   a field with one allowed value should stay, needs one sentence from the reference.
-3. **`any-present`.** Which code counts as present, and what an author gets when no unit has it. It must
-   be declared in the specification, not a word fixed in the tool.
-4. **Manifest details.** The fields of a `files` entry, and the rule that decides a file is text for the
-   CRLF replacement.
-5. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
-   own contract.
+   in the team's log binds it. Waits for the `agentteams` issue. It blocks step 6 of section 10, not this
+   contract's agreement.
+2. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
+   own contract (step 2 of section 10).
