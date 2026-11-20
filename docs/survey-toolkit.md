@@ -269,12 +269,34 @@ The row checks apply to the whole evidence file whenever it is checked, not only
 none of them is skipped because an optional declaration or file is absent: an `attribute_kind` is checked
 against the outcomes and attributes that use it, and a missing registry is itself an error.
 
+**Rule ids.** Each evidence check has an id, which reports use and the exceptions file below is keyed on:
+
+| Rule id | Breach |
+|---|---|
+| `columns` | the columns are not exactly the eighteen, in order |
+| `id-empty` | an empty `id` |
+| `id-duplicate` | a repeated `id` |
+| `attribute-kind` | an `attribute_kind` that is not declared |
+| `person-unknown` | a `person_id` the registry does not hold |
+| `unit-id` | a `unit_id` in an author study, or none in a passage or work study |
+| `tier-unknown` | a `tier` that is not declared |
+| `counted-quote` | a counted row without a `quote` |
+| `counted-citation` | a counted row with neither `citation` nor `source_id` |
+| `counted-basis` | a counted row whose `basis` is not `own` or `reported` |
+| `reported-reporter` | a `reported` row without a `reporter` |
+| `own-reporter` | an `own` row that names a `reporter` |
+| `ne-quote` | a not-established row with a `quote` |
+| `ne-note` | a not-established row without a `note` |
+| `vocabulary` | forbidden vocabulary in a column that is not exempt |
+
 **Rows that predate the rules, in a legacy study.** A `legacy` study may name a file of exceptions,
 `evidence.legacy_exceptions`, with the columns `id, rule`: one line for each existing row and each rule
 that row breaks. Rewriting such rows would change the evidence of a study that is already closed.
 
 - A row that breaks a rule fails the check unless that row and that rule are listed. A listed breach is
   reported, with counts by rule, and does not fail.
+- `columns`, `id-empty` and `id-duplicate` cannot be listed: without sound columns and ids no row can be
+  named.
 - Nothing else is excused. A row that is not listed, and so every row added later, must pass in full; a
   listed row that comes to break a further rule fails on that rule.
 - A listed exception that no longer applies, because the row was removed or now passes, is an error:
