@@ -11,7 +11,8 @@ Operator rulings, given in this session's picker on 2026-11-19:
 - **Sign-offs:** recorded in a per-study log, not in the team's security decisions log.
 
 The study specification is v0-unstable until the first project has had gates S0 and S5 signed and has run
-one stage (a sequencing call agreed between the sessions, not an operator ruling).
+one stage (a sequencing call agreed between the sessions). Operator ruling, 2026-11-21: that stage must be
+one that writes evidence rows or codes; enumeration alone does not count.
 
 Constraints: no project data in this repository; standard library only; agents are rendered by
 agentteams, never hand-written; a change under `.github/workflows/` or `.github/agents/` needs a

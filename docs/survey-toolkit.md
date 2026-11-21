@@ -5,7 +5,8 @@ checks and a line-by-line comparison with its reference implementation. No surve
 researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2) is, since 2026-11-20. The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
-run one stage. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
+run a stage that writes evidence rows or codes; enumeration alone is not enough (operator ruling,
+2026-11-21). Planned for researchteam 1.3 (operator ruling, 2026-11-19).
 
 A *position survey* answers a question of the form "what did the people in this frame hold about X, and
 on what evidence". The toolkit is the reusable part of running one: a study specification, the row
@@ -686,8 +687,10 @@ Order, each step its own reviewed pull request:
 
 1. This contract, checked against the reference implementation, then agreed.
 2. Explorer contract 1.1 (section 9).
-3. **Wait** for the first project to have S0 and S5 signed and one stage run. Freeze the specification
-   as version 1, with a recorded list of what changed from this draft.
+3. **Wait** for the first project to have S0 and S5 signed and to have run a stage that writes evidence
+   rows or codes. A run of enumeration alone does not end the wait, because it exercises none of the
+   evidence, codes, rollup or attribution shapes of section 4. Then freeze the specification as
+   version 1, with a recorded list of what changed from this draft.
 4. The specification validator, the manifest builder and `survey-validate` / `survey-status`, with an
    invented example study and tests. No signing yet.
 5. Row checks, the registry, the table bucketer, agreement, finalising and rollup.
@@ -695,8 +698,11 @@ Order, each step its own reviewed pull request:
 7. Enumeration, packets, quote re-finding and the query-plan runner.
 8. The agents, the bridge commands in `CLAUDE.md`'s managed block, and the CI gate.
 
-Steps 1 and 2 are done (step 2 on 2026-11-20). No tool is written before step 3 (operator ruling, 2026-11-19: the
-contract first, the tools and agents after the first project has run a stage).
+Steps 1 and 2 are done (step 2 on 2026-11-20). No tool is written before step 3 (operator rulings: 2026-11-19, the
+contract first, the tools and agents after the first project has run a stage; 2026-11-21, that stage
+is one that writes evidence rows or codes, so that the freeze follows real rows and a change the first
+project forces does not become a version after 1. The cost, accepted with the ruling, is that the tools
+start later).
 
 ## 11. Open points
 
