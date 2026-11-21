@@ -10,7 +10,7 @@ live in the picker.
   merged. Working copies in `tmp/by-week/2026-W47/` equal the tracked copies.
 - `v1.2.1` is Latest; the lock pins agentteams `v1.2.1`; agentteams `v1.2.2` is Latest upstream.
 - No signed agentteams 1.3.x tag exists, so P1 phases 1 and 2 stay blocked.
-- Repository setting `delete_branch_on_merge` is `false`. Rulesets read back: `main`, `release/**` and
+- Repository setting `delete_branch_on_merge` is `false` (at the start; on since 2026-11-21, see the P3 section). Rulesets read back: `main`, `release/**` and
   `archive/**` forbid deletion with no bypass; tags restricted.
 - Merged remote branches now waiting: `plans/open-items-2026-11-19`, `records/post-1.2-housekeeping`,
   `records/v1.2.1-cut`, `release-prep/v1.2.1`, `fix/verify-tag-shallow-fetch`, and four
@@ -210,8 +210,9 @@ chose: A, retiring the s10 exemption.**
 - Then, in order: the operator ran script 20; the session committed the log and registry as `52d0b78`;
   `Security` gave a PASS at that head for the merge and for script 21 after it; the operator approved
   "Approve #234 at 52d0b78"; merged as `bcec0ca`.
-- Still open: the operator runs script 21 (setting on) and script 23 (ten merged branch heads; `Security`
-  `--branch-cleanup` PASS); both read-backs are recorded afterwards.
+- The operator then ran script 21 (read-back `delete_branch_on_merge=true`) and script 23 (ten merged branch
+  heads, `Security` `--branch-cleanup` PASS; deleted 10 of 10). P3 is closed. Record:
+  `workSummaries/daily/2026-11-21.md`.
 
 ## P4 closed
 25 isolated full runs, no failure: `references/plans/open-1119-p4-runs.md`.
