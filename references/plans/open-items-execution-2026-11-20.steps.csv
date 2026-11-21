@@ -20,3 +20,5 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 19,conflict-auditor,Close-out audit on the records branch,all changes,audit,done,Rule 8; 1 blocking (two meanings of script 20) and 10 advisory; all fixed on the records branch,18
 20,orchestrator,Records PR; operator's live approval; merge; delete scratch and worktrees,steps 18-19,merge commit,done,PR #235 merged as 69c89e1 at the approved head 0603b57; scratch worktrees removed,19
 21,orchestrator,Only if A: @security review of the setting script; hand-over after PR-ps2 merges; readback,step 15,operator script; readback,in progress,@security cleared script 21 at 52d0b78 (operator only; after the merge with main green; working copy equal to the tracked copy); handed over; the readback goes in a records PR,15
+22,conflict-auditor,Close-out audit on the second records branch (PR #239),all changes,audit,done,Rule 8; no blocking finding; 8 advisories; fixed on the branch,21
+23,orchestrator,Second records PR #239; operator's live approval; merge; record the read-backs of scripts 21 and 23,step 22,merge commit; read-backs,in progress,,22

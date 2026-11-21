@@ -207,8 +207,11 @@ chose: A, retiring the s10 exemption.**
   policy.
 - `Security`: conditional at `670ad62` (four required changes), PASS at `e2b441f` as the basis for the
   operator to run script 20. `conflict-auditor`: one blocking finding, fixed at `e2b441f`.
-- Next, in order: the operator runs script 20; the session commits the log and registry; `Security` reviews
-  that head; the operator approves the merge; `Security` clears script 21; the operator runs it; read-back.
+- Then, in order: the operator ran script 20; the session committed the log and registry as `52d0b78`;
+  `Security` gave a PASS at that head for the merge and for script 21 after it; the operator approved
+  "Approve #234 at 52d0b78"; merged as `bcec0ca`.
+- Still open: the operator runs script 21 (setting on) and script 23 (ten merged branch heads; `Security`
+  `--branch-cleanup` PASS); both read-backs are recorded afterwards.
 
 ## P4 closed
 25 isolated full runs, no failure: `references/plans/open-1119-p4-runs.md`.
