@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Governance: merged pull-request heads may be deleted automatically (#234).** PS-2 in `.claude/CLAUDE.md` has
+  a new exception: once the operator turns on the repository setting "Automatically delete head branches", GitHub
+  deletes a pull request's head branch when it merges, with no deletion record and no hold checks for that one
+  deletion. The agent checks holds by hand before it asks for a merge approval, and a deleted head is restored
+  from `refs/pull/<n>/head`. Every other deletion is gated as before. The exception rests on the operator-signed
+  decision `repo-setting:delete-branch-on-merge:jlcatonjr/researchteam` and ends on 2027-02-18, or earlier on a
+  HALT. Nothing switches the setting off automatically; the operator does that with a handoff script.
+- **Governance: the legacy cooldown exemption for agentteams is retired (#234).** The exception registry entry
+  `s10-cooldown-exempt:jlcatonjr/agentteams` is now `sunset`. It was redundant with the operator-signed
+  first-party toolchain group, which still lifts the Rule S-10 cooldown for agentteams releases. The registry
+  allows one active relaxing exception, and the slot now holds the decision above.
+
 - **Bibliography explorer: contract 1.1.** `evidence.csv` may carry three optional columns, `basis`, `reporter`
   and `note`. The exporter (`scripts/build_bibliography_explorer.py`) carries them into the explorer file and the
   component shows them beside each piece of evidence. One new error: a `reporter` on a row with no `basis`. The
