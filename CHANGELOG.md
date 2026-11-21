@@ -5,6 +5,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Bibliography explorer: contract 1.1.** `evidence.csv` may carry three optional columns, `basis`, `reporter`
+  and `note`. The exporter (`scripts/build_bibliography_explorer.py`) carries them into the explorer file and the
+  component shows them beside each piece of evidence. One new error: a `reporter` on a row with no `basis`. The
+  change is additive: inputs written for 1.0 still export, and the file's `schema_version` is now `1.1`. A
+  project that vendors the explorer takes the exporter and the component from the same commit
+  (`templates/bibliography-explorer/CONTRACT.md`, section 7). This is step 2 of `docs/survey-toolkit.md`,
+  section 10; no survey tool is added.
 - **Docs: the cut script's identity and signing-key checks are release policy (#231).** `docs/release-policy.md`,
   "Tags", now says the cut script sets the tagger email itself (the operator account's GitHub no-reply address),
   refuses to sign unless the release key is registered as a signing key on that account, and reports GitHub's

@@ -36,7 +36,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import bibtex_chicago as bc  # noqa: E402
 
 SCHEMA = "researchteam.bibliography-explorer"
-SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION = "1.1"
 EXPORTER_ID = "researchteam-bibliography-explorer-exporter-v1"
 ID_RX = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 URL_RX = re.compile(r"^https?://\S+$")
@@ -51,6 +51,8 @@ CSV_COLUMNS = {
     "codes.csv": ["person_id", "key", "label", "value_label", "established", "basis", "evidence_ids"],
     "source_attributes.csv": ["source_id", "label", "value"],
 }
+# Columns a file may carry after its required ones (contract 1.1). An absent one reads as empty cells.
+CSV_OPTIONAL = {"evidence.csv": ["basis", "reporter", "note"]}
 VOCABS = {
     "attribute_kinds": ({"id", "label", "order", "multi"}, set()),
     "tiers": ({"id", "label", "establishes"}, {"description"}),
@@ -101,11 +103,13 @@ class Export:
             return []
         reader = csv.DictReader(io.StringIO(text, newline=""))
         want = CSV_COLUMNS[name]
+        optional = CSV_OPTIONAL.get(name, [])
         have = reader.fieldnames or []
         missing = [c for c in want if c not in have]
-        unknown = [c for c in have if c not in want]
+        unknown = [c for c in have if c not in want and c not in optional]
         if missing or unknown or len(set(have)) != len(have):
             self.error(f"{name}: columns must be exactly {', '.join(want)}"
+                       + (f", then optionally any of {', '.join(optional)}" if optional else "")
                        + (f"; missing: {', '.join(missing)}" if missing else "")
                        + (f"; unknown: {', '.join(map(str, unknown))}" if unknown else ""))
             return []
@@ -115,6 +119,8 @@ class Export:
                 self.error(f"{name} row {n}: wrong number of cells")
                 continue
             clean = {k: (v if k == "quote" else v.strip()) for k, v in row.items()}
+            for column in optional:
+                clean.setdefault(column, "")
             clean["_row"] = n
             rows.append(clean)
         return rows
@@ -410,6 +416,9 @@ def _evidence(x: Export, vocab: dict, persons: dict, sources: dict) -> tuple[lis
         ok = x.text(row["value"], where + " value") and ok
         if row["url"]:
             ok = x.url(row["url"], where + " url") and ok
+        if row["reporter"] and not row["basis"]:
+            x.error(f"{where}: a reporter is given without a basis")
+            ok = False
         source_id = row["source_id"]
         if source_id:
             if source_id not in sources or sources[source_id]["origin"] == "evidence-citation":
@@ -436,7 +445,8 @@ def _evidence(x: Export, vocab: dict, persons: dict, sources: dict) -> tuple[lis
              "value": row["value"], "tier": row["tier"], "source_id": source_id},
             cited_as=row["citation"] if row["source_id"] else "",
             locator=row["locator"], quote=row["quote"], url=row["url"], access=row["access"],
-            via=row["via"], audit=row["audit"]))
+            via=row["via"], audit=row["audit"], basis=row["basis"], reporter=row["reporter"],
+            note=row["note"]))
         key = (row["person_id"], row["attribute_kind"], row["value"])
         value = values.get(key)
         if value is None:
