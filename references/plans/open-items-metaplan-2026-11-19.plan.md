@@ -57,9 +57,10 @@ How it was carried out, the audits and every operator answer: `open-items-execut
   PR #232. New fact: the upstream core exists on agentteams `dev` as two files, and `term_index.py` imports the
   private `agentteams._term_text`, so a byte-identical copy needs an import shim or an upstream change.
 - **P2 is done.** The operator confirmed "fix forward only" in this session; the policy sentence is PR #231.
-- **P3:** the operator chose automatic head-branch deletion, and to retire the redundant s10 exemption to free
-  the exception registry's one slot. Draft PR #234 carries the PS-2 amendment, the decision spec and scripts
-  20 to 22. It waits for the operator to run script 20. Safety review: `open-1119-p3-auto-delete-safety.md`.
+- **P3 is closed (2026-11-21).** The operator chose automatic head-branch deletion, and to retire the redundant
+  s10 exemption to free the exception registry's one slot. PR #234 (the PS-2 amendment, the signed decision and
+  scripts 20 to 22) merged as `bcec0ca`. The operator turned the setting on with script 21 and deleted the ten
+  older merged branches with script 23. Safety review: `open-1119-p3-auto-delete-safety.md`.
 - **P4 is closed**: not reproduced under isolation in 25 full runs (`open-1119-p4-runs.md`). The triage
   (`open-1119-p4-test-triage.md`) led to PR #233, which fixes two test files that failed when run alone.
 - Still outside the four plans, not started: the agentteams `v1.2.2` pin move, and issue #228.

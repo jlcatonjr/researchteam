@@ -210,8 +210,9 @@ chose: A, retiring the s10 exemption.**
 - Then, in order: the operator ran script 20; the session committed the log and registry as `52d0b78`;
   `Security` gave a PASS at that head for the merge and for script 21 after it; the operator approved
   "Approve #234 at 52d0b78"; merged as `bcec0ca`.
-- Still open: the operator runs script 21 (setting on) and script 23 (ten merged branch heads; `Security`
-  `--branch-cleanup` PASS); both read-backs are recorded afterwards.
+- The operator then ran script 21 (read-back `delete_branch_on_merge=true`) and script 23 (ten merged branch
+  heads, `Security` `--branch-cleanup` PASS; deleted 10 of 10). P3 is closed. Record:
+  `workSummaries/daily/2026-11-21.md`.
 
 ## P4 closed
 25 isolated full runs, no failure: `references/plans/open-1119-p4-runs.md`.
