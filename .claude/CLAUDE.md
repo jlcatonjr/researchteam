@@ -391,6 +391,25 @@ No project-specific style rules defined.
   - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
     operator's signed `branch-delete` grant or a recorded `@security` `--branch-cleanup` PASS. PS-2 replaces
     neither.
+  - Exception: automatic head-branch deletion (operator ruling, 2026-11-20; signed decision
+    `repo-setting:delete-branch-on-merge:jlcatonjr/researchteam`, which expires on 2027-02-18). While that
+    decision is in force and the repository setting "Automatically delete head branches" is on:
+    - GitHub deletes the head branch of any pull request in this repository when it merges, whatever its base.
+      GitHub retargets a pull request that was based on that branch.
+    - No deletion record is written, and none of the hold checks run (owner, link, open pull request, worktree,
+      pin, session).
+    - A deleted head is restored from `refs/pull/<n>/head`.
+    - Before asking for a merge approval, the agent checks by hand that no other session or worktree still
+      works on the head branch and that no open pull request is based on it. The question says that the head
+      branch is deleted at the merge.
+    - Every other deletion still needs the signed grant or the `--branch-cleanup` PASS: local branches,
+      branches never opened as a pull request, any deletion an agent runs, and anything under `release/` or
+      `archive/` (which the rulesets protect in any case).
+    - The exception ends on its expiry date, or at once on an unretracted HALT on `branch-delete`, on the
+      `repo-setting` family or on that decision, or when the decision stops verifying or its registry entry is
+      no longer active. Nothing turns the setting off automatically. The agent tells the operator when any of
+      these happens, and the operator turns the setting off with the handoff script.
+    - Only the operator changes the setting, on or off. The agent never does (see "Never under PS-2").
   - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
     them and hands them over.
   - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.

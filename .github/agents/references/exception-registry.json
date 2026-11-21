@@ -19,7 +19,28 @@
         "s10-release-cooldown-restored"
       ],
       "relaxing": true,
+      "retired_reason": "redundant with the operator-signed first-party toolchain group; slot released for repo-setting:delete-branch-on-merge:jlcatonjr/researchteam (operator ruling 2026-11-20)",
       "scope": "s10-cooldown-exempt:jlcatonjr/agentteams",
+      "status": "sunset"
+    },
+    {
+      "action": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+      "decision_key_id": "op-2026",
+      "decision_sha256": "3a11d65b797a84bd50a7ca75154d7b43b658d0029ea00c0ee7a0ea1f5f64e78a",
+      "effect": {
+        "relaxes": [
+          "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam"
+        ]
+      },
+      "expires": "2027-02-18T23:59:59+00:00",
+      "id": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam@c4c40701ad95ad92",
+      "issued": "2026-11-21T01:15:07.376044+00:00",
+      "kind": "repo-setting",
+      "lineage": [
+        "release-policy-1.0"
+      ],
+      "relaxing": true,
+      "scope": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
       "status": "active"
     }
   ],
