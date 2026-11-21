@@ -6,4 +6,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 5,orchestrator,Records: survey contract open point; changelog; survey plan step 13; work summaries,steps 1 to 4,docs/survey-toolkit.md; CHANGELOG.md; references/plans/survey-toolkit-2026-11-19.steps.csv; workSummaries/daily/,done,Open point settled; step 13 of the survey plan and PRs #225 and #226 recorded,4
 6,code-hygiene,Audit the code change,PR diff,findings,done,PASS at 4b68ddc; four advisory findings applied (a repeated column is named; wording; two tests),5
 7,conflict-auditor,Consistency check of the PR,PR diff,findings,done,No blocking conflict; five advisory findings applied,5
-8,orchestrator,Ask the operator for the merge (PR number and head SHA),audited head with green checks,merge commit,pending,,6;7
+8,orchestrator,Ask the operator for the merge (PR number and head SHA),audited head with green checks,merge commit,done,Operator approved in the picker; PR #238 merged as 5b59aa5 at reviewed head 1faebee; tests green on main,6;7
