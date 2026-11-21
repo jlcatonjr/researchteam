@@ -243,10 +243,20 @@ def test_an_evidence_file_without_the_optional_columns_is_valid(inputs, kept):
     assert carried == set(kept)
 
 
+def test_a_reporter_column_without_a_basis_column_is_an_error(inputs):
+    edit(inputs / "evidence.csv", "via,audit,basis,reporter,note", "via,audit,reporter,note")
+    for row_id in ("ev-005", "ev-006", "ev-009"):
+        edit(inputs / "evidence.csv", {"ev-005": "reported,the", "ev-006": "own,,", "ev-009": "reported,Ionuţ"}[row_id],
+             {"ev-005": "the", "ev-006": ",", "ev-009": "Ionuţ"}[row_id])
+    _, run, _ = export(inputs)
+    assert len([e for e in run.errors if "reporter is given without a basis" in e]) == 2
+
+
 def test_component_shows_the_evidence_basis_reporter_and_note():
     """Rule 5. A static check, because CI has no JavaScript runtime."""
     source = (TEMPLATE / "explorer.js").read_text(encoding="utf-8")
-    for shown in ("row(L.evidenceBasis, ev.basis)", "row(L.reporter, ev.reporter)", "row(L.evidenceNote, ev.note)"):
+    for shown in ("row(L.evidenceBasis, ev.basis)", "row(L.reporter, ev.reporter)", "row(L.evidenceNote, ev.note)",
+                  '  evidenceBasis: "', '  reporter: "', '  evidenceNote: "'):
         assert shown in source, shown
 
 
@@ -263,7 +273,7 @@ CASES = [
     ("evidence.csv", "https://example.org/encyclopedia/quillon", "javascript:alert(1)", "not an http"),
     ("evidence.csv", "reported,the encyclopedia's anonymous editor", ",the encyclopedia's anonymous editor", "reporter is given without a basis"),
     ("evidence.csv", "via,audit,basis,reporter,note", "via,audit,basis,reporter,note,extra", "columns must be exactly"),
-    ("evidence.csv", "via,audit,basis,reporter,note", "via,audit,basis,reporter,basis", "columns must be exactly"),
+    ("evidence.csv", "via,audit,basis,reporter,note", "via,audit,basis,reporter,basis", "repeated: basis"),
     ("codes.csv", "Not established,false,,\nionut", "Yes,true,,\nionut", "needs evidence"),
     ("codes.csv", "true,,ev-001", "true,,ev-009", "belongs to another person"),
     ("bios.json", "She was master of the guild.\",\n", "She led the guild.\",\n", "differs from the clauses"),

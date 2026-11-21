@@ -1,8 +1,8 @@
 # Survey toolkit: contract
 
 **Status: agreed draft, revision 2 (2026-11-19).** Agreed with the first integrating project after two
-checks and a line-by-line comparison with its reference implementation. Nothing here is implemented in
-researchteam yet. The
+checks and a line-by-line comparison with its reference implementation. No survey tool is implemented in
+researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2) is, since 2026-11-20. The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
 run one stage. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
@@ -662,7 +662,8 @@ Their grants, and the hook or check that enforces each "never", are fixed when t
 
 The explorer displays people, evidence and sources; the toolkit produces them. The join is a projection:
 
-- **Evidence:** the first thirteen columns of 4.1 are the explorer's `evidence.csv`. The projection drops
+- **Evidence:** the first thirteen columns of 4.1 are the explorer's required `evidence.csv` columns.
+  The projection drops
   `unit_id`, writes one explorer row per survey row, and appends a row's `downgraded_from` to its `audit`
   text, labelled as such.
 - **`basis`, `reporter`, `note`:** explorer contract **1.1** (2026-11-20) carries them as three optional

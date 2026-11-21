@@ -13,7 +13,7 @@ audit; a multi-file change closes with `@conflict-auditor`; the merge needs the 
 naming the PR and head.
 
 1. **Contract.** Revise `templates/bibliography-explorer/CONTRACT.md` to version 1.1.
-2. **Exporter.** Optional columns, the two new checks, schema version 1.1.
+2. **Exporter.** Optional columns, the new check, schema version 1.1.
 3. **Component.** Show the three fields beside the evidence.
 4. **Example and tests.** Extend the invented example; rebuild its data file; add tests; rewrite the
    hash list.

@@ -55,7 +55,7 @@
    "tier": "provisional",
    "url": "https://example.org/encyclopedia/pattern-book",
    "value": "Keeper of the pattern book",
-   "via": "reported by the encyclopedia's anonymous editor"
+   "via": "the encyclopedia's online edition"
   },
   {
    "access": "project-file",
@@ -362,7 +362,7 @@
    },
    {
     "name": "evidence.csv",
-    "sha256": "a346c9f1a5af569d47a791e9164b8eaa85864d9a2ebd36c1cbd960193e46d24e"
+    "sha256": "dade41e207f66992dd73aadd6b46707dc5631fbabad67c5cfae59eca83aa7abd"
    },
    {
     "name": "example.bib",

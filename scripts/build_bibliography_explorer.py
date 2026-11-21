@@ -51,7 +51,7 @@ CSV_COLUMNS = {
     "codes.csv": ["person_id", "key", "label", "value_label", "established", "basis", "evidence_ids"],
     "source_attributes.csv": ["source_id", "label", "value"],
 }
-# Columns a file may carry after its required ones (contract 1.1). An absent one reads as empty cells.
+# Columns a file may carry besides its required ones (contract 1.1). An absent one reads as empty cells.
 CSV_OPTIONAL = {"evidence.csv": ["basis", "reporter", "note"]}
 VOCABS = {
     "attribute_kinds": ({"id", "label", "order", "multi"}, set()),
@@ -107,11 +107,13 @@ class Export:
         have = reader.fieldnames or []
         missing = [c for c in want if c not in have]
         unknown = [c for c in have if c not in want and c not in optional]
-        if missing or unknown or len(set(have)) != len(have):
+        repeated = sorted({c for c in have if have.count(c) > 1})
+        if missing or unknown or repeated:
             self.error(f"{name}: columns must be exactly {', '.join(want)}"
-                       + (f", then optionally any of {', '.join(optional)}" if optional else "")
+                       + (f", plus optionally any of {', '.join(optional)}" if optional else "")
                        + (f"; missing: {', '.join(missing)}" if missing else "")
-                       + (f"; unknown: {', '.join(map(str, unknown))}" if unknown else ""))
+                       + (f"; unknown: {', '.join(map(str, unknown))}" if unknown else "")
+                       + (f"; repeated: {', '.join(map(str, repeated))}" if repeated else ""))
             return []
         rows = []
         for n, row in enumerate(reader, start=2):

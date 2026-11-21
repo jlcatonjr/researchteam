@@ -3,7 +3,7 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 2,orchestrator,Exporter: optional evidence columns; checks; schema version 1.1,step 1,scripts/build_bibliography_explorer.py,done,CSV_OPTIONAL; a reporter without a basis is an error,1
 3,orchestrator,Component: show basis; reporter and note beside the evidence,step 1,templates/bibliography-explorer/explorer.js,done,Three rows under their own labels; labels can be overridden by the host,1
 4,orchestrator,Extend the invented example; rebuild its data file; add tests; rewrite the hash list,steps 2 and 3,templates/bibliography-explorer/example/; tests/test_bibliography_explorer.py; templates/bibliography-explorer/FILES.sha256,done,Three example rows use the columns; 87 tests pass,2;3
-5,orchestrator,Records: survey contract open point; changelog; survey plan step 13; work summaries,steps 1 to 4,docs/survey-toolkit.md; CHANGELOG.md; references/plans/survey-toolkit-2026-11-19.steps.csv; workSummaries/daily/,done,Open point settled; steps 13 of the survey plan and PRs #225 and #226 recorded,4
-6,code-hygiene,Audit the code change,PR diff,findings,pending,,5
-7,conflict-auditor,Consistency check of the PR,PR diff,findings,pending,,5
+5,orchestrator,Records: survey contract open point; changelog; survey plan step 13; work summaries,steps 1 to 4,docs/survey-toolkit.md; CHANGELOG.md; references/plans/survey-toolkit-2026-11-19.steps.csv; workSummaries/daily/,done,Open point settled; step 13 of the survey plan and PRs #225 and #226 recorded,4
+6,code-hygiene,Audit the code change,PR diff,findings,done,PASS at 4b68ddc; four advisory findings applied (a repeated column is named; wording; two tests),5
+7,conflict-auditor,Consistency check of the PR,PR diff,findings,done,No blocking conflict; five advisory findings applied,5
 8,orchestrator,Ask the operator for the merge (PR number and head SHA),audited head with green checks,merge commit,pending,,6;7

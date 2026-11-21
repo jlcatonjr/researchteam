@@ -253,7 +253,7 @@ A list inside a CSV cell is separated by `;`.
 |---|---|---|
 | `explorer.json` | yes | `{ "title", "notice"?, "vocab": {…2.1…}, "periods": [ …2.2… ] }` |
 | `persons.csv` | yes | `id, kind, display_name, sort_name, aliases, period_id, period_year, year_basis` |
-| `evidence.csv` | yes | `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via, audit`, then optionally any of `basis, reporter, note` |
+| `evidence.csv` | yes | `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via, audit`, plus optionally any of `basis, reporter, note` |
 | the `.bib` file | no | passed by path (`--bib`); a source id of `bibliography` origin is its BibTeX key |
 | `works.csv` | no | `source_id, title, date, locator` — `work-title` sources |
 | `links.csv` | no | `person_id, source_id, role, basis` — the `by` links |
