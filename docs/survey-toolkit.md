@@ -1,8 +1,8 @@
 # Survey toolkit: contract
 
 **Status: agreed draft, revision 2 (2026-11-19).** Agreed with the first integrating project after two
-checks and a line-by-line comparison with its reference implementation. Nothing here is implemented in
-researchteam yet. The
+checks and a line-by-line comparison with its reference implementation. No survey tool is implemented in
+researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2) is, since 2026-11-20. The
 study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
 changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
 run one stage. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
@@ -242,8 +242,9 @@ error. An empty cell means "not given"; a tool never treats it as a value.
 `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via,
 audit, basis, reporter, unit_id, note, downgraded_from`
 
-The first thirteen columns are the bibliography explorer's `evidence.csv` (contract 1.0), with the same
-meanings. The last five are the survey's:
+The first thirteen columns are the bibliography explorer's required `evidence.csv` columns, with the
+same meanings. The last five are the survey's; the explorer's contract 1.1 also carries `basis`,
+`reporter` and `note` as optional columns (section 9):
 
 | Column | Meaning |
 |---|---|
@@ -661,16 +662,15 @@ Their grants, and the hook or check that enforces each "never", are fixed when t
 
 The explorer displays people, evidence and sources; the toolkit produces them. The join is a projection:
 
-- **Evidence:** the first thirteen columns of 4.1 are the explorer's `evidence.csv`. The projection drops
+- **Evidence:** the first thirteen columns of 4.1 are the explorer's required `evidence.csv` columns.
+  The projection drops
   `unit_id`, writes one explorer row per survey row, and appends a row's `downgraded_from` to its `audit`
   text, labelled as such.
-- **`basis`, `reporter`, `note`:** the explorer contract 1.0 has nowhere to show them on a piece of
-  evidence (only its codes carry a `basis`), and they must not
-  be folded into `via` or `audit`. The proposal is explorer contract **1.1**: three optional
-  `evidence.csv` columns with these names, shown beside each piece of evidence. It is an additive change
-  made in the explorer's own contract, tests and component before the projection is written (open
-  point 2). Until then the projection refuses to run on rows that have a `reported` basis, because
-  showing a reported statement without saying so would misstate it.
+- **`basis`, `reporter`, `note`:** explorer contract **1.1** (2026-11-20) carries them as three optional
+  `evidence.csv` columns with these names, shown beside each piece of evidence. The projection copies
+  them as they are; they are never folded into `via` or `audit`. A project must take the explorer's
+  exporter and component at 1.1 or later before it projects rows that have a `reported` basis: a 1.0
+  exporter refuses the columns, and showing a reported statement without saying so would misstate it.
 - **Codes:** the explorer's `codes.csv` is one row per person and code key. It is generated from the rollup, never
   written by hand; `established` is false for the outcome's `missing` value.
 - **Persons:** display names come from the registry, which is also what writes the explorer's
@@ -695,7 +695,7 @@ Order, each step its own reviewed pull request:
 7. Enumeration, packets, quote re-finding and the query-plan runner.
 8. The agents, the bridge commands in `CLAUDE.md`'s managed block, and the CI gate.
 
-Steps 1 and 2 can be done now. No tool is written before step 3 (operator ruling, 2026-11-19: the
+Steps 1 and 2 are done (step 2 on 2026-11-20). No tool is written before step 3 (operator ruling, 2026-11-19: the
 contract first, the tools and agents after the first project has run a stage).
 
 ## 11. Open points
@@ -721,10 +721,11 @@ Added after the reference was aligned (2026-11-19): an override row states its d
 records a reviewed pair of different people (4.4); a legacy study may list, row by row and rule by rule,
 the breaches of rows that predate the rules (4.1); every output has a provenance record (4.6).
 
+Settled on 2026-11-20: explorer contract 1.1 is written (`templates/bibliography-explorer/CONTRACT.md`,
+section 7), with `basis`, `reporter` and `note` as optional evidence columns.
+
 Still open:
 
 1. **Per-study ledger.** The folder layout `agentteams` expects for a gates-only log, and whether a HALT
    in the team's log binds it. Waits for the `agentteams` issue. It blocks step 6 of section 10, not this
    contract's agreement.
-2. **Explorer 1.1.** Agreed in outline (`basis`, `reporter`, `note`); to be written into the explorer's
-   own contract (step 2 of section 10).

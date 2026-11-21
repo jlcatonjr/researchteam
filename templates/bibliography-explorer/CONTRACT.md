@@ -1,7 +1,8 @@
 # Bibliography explorer: data contract
 
 **Status:** agreed with the first integrating project on 2026-11-18. Schema id
-`researchteam.bibliography-explorer`, version `1.0`. The exporter is
+`researchteam.bibliography-explorer`, version `1.1` (2026-11-20; section 7 lists what changed from
+`1.0`). The exporter is
 `scripts/build_bibliography_explorer.py`; the citation code is `scripts/bibtex_chicago.py`.
 
 The bibliography explorer is a reusable component: period → person → bio and attributes → sources →
@@ -19,7 +20,7 @@ source detail. It knows nothing about any study. A project maps its own files in
    merge near-duplicate citations or fill a missing field. Identity comes only from ids the project gives.
 4. **Text is text.** Every string is displayed as plain text. The component never interprets HTML or
    Markdown. A URL must start with `http://` or `https://`.
-5. **Provenance is displayed.** Evidence tier, access, `via`, `basis`, `deemed_by` and
+5. **Provenance is displayed.** Evidence tier, access, `via`, `basis`, `reporter`, `deemed_by` and
    `verification_state` are shown beside the content they qualify. Absent content is stated plainly
    ("No summary yet", "Not established"), never left blank.
 6. **Labels come from the data.** Period labels, attribute names, tier names and role names are in the
@@ -36,7 +37,7 @@ not written as an empty string.
 ```
 {
   "schema": "researchteam.bibliography-explorer",
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "meta": {
     "title": string,
     "notice"?: string,                  // caveat shown at the top of every view
@@ -161,8 +162,16 @@ separate Codes.
   "url"?: string,                           // the page actually consulted, if it differs from the source's
   "access"?: <access id>,
   "via"?: string,                           // third-party channel: the value is reported by someone else
-  "audit"?: string }                        // audit trail, shown in a collapsed detail
+  "audit"?: string,                         // audit trail, shown in a collapsed detail
+  "basis"?: string,                         // whose words the evidence is, e.g. "own" | "reported"
+  "reporter"?: string,                      // who reports it; only with a basis
+  "note"?: string }                         // a remark on this piece of evidence
 ```
+
+`basis`, `reporter` and `note` are shown as given, each under its own label beside the evidence. The
+component attaches no meaning to a `basis` value; the project chooses the words. `via` is the channel
+the evidence reached the project through, and `reporter` is the one whose account it is, so a row may
+carry both.
 
 ### 2.5 Source
 
@@ -244,7 +253,7 @@ A list inside a CSV cell is separated by `;`.
 |---|---|---|
 | `explorer.json` | yes | `{ "title", "notice"?, "vocab": {…2.1…}, "periods": [ …2.2… ] }` |
 | `persons.csv` | yes | `id, kind, display_name, sort_name, aliases, period_id, period_year, year_basis` |
-| `evidence.csv` | yes | `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via, audit` |
+| `evidence.csv` | yes | `id, person_id, attribute_kind, value, tier, source_id, citation, locator, quote, url, access, via, audit`, plus optionally any of `basis, reporter, note` |
 | the `.bib` file | no | passed by path (`--bib`); a source id of `bibliography` origin is its BibTeX key |
 | `works.csv` | no | `source_id, title, date, locator` — `work-title` sources |
 | `links.csv` | no | `person_id, source_id, role, basis` — the `by` links |
@@ -257,7 +266,8 @@ A list inside a CSV cell is separated by `;`.
 **`evidence.csv` is one row per (person, attribute, value, evidence)**, which is the shape most
 evidence tables already have. The exporter groups rows with the same `person_id`, `attribute_kind` and
 exactly equal `value` into one AttributeValue. Cells are trimmed of surrounding white space, except
-`quote`, which is kept exactly. A row whose tier does not establish (for example a "not established"
+`quote`, which is kept exactly. An optional column that is absent reads as empty in every row, so a
+file with only the thirteen required columns is valid. A row whose tier does not establish (for example a "not established"
 tier that records what was searched) is kept and shown like any other.
 
 **How an evidence row finds its source:**
@@ -299,7 +309,8 @@ Errors (no output):
 - periods that overlap or share an `order`; a period whose `start_year` is after its `end_year`; an
   open start on any period but the first, or an open end on any but the last; more than one
   unestablished period, or one that has years;
-- an evidence row with neither `source_id` nor `citation`; a URL that is not `http(s)`;
+- an evidence row with neither `source_id` nor `citation`; an evidence row with a `reporter` and no
+  `basis`; a URL that is not `http(s)`;
 - a bio whose `text` differs from its joined clauses; a bio or summary without `verification_state`;
   a summary without `deemed_by` or `basis`;
 - a code marked established with no evidence, or given twice for one person; an advisory group without
@@ -308,7 +319,8 @@ Errors (no output):
   `https://doi.org/` or `doi:` is removed; a `.bib` entry of an unsupported type; a `.bib` entry that cannot be
   parsed or decoded;
 - an evidence id used in a bio, code or group of a person it does not belong to;
-- a CSV file with a missing or unknown column; a JSON record with an unknown key.
+- a CSV file with a missing or unknown column (an optional column of section 3 is not unknown), or with
+  a column given twice; a JSON record with an unknown key.
 
 Warnings (output written, listed in the report):
 
@@ -337,3 +349,17 @@ keyboard, and inside a host tab panel. Details: `README.md` beside this file.
 2. Values group by exact string equality; no value ids.
 3. One evidence-citation source per exact (`citation`, `url`) pair; explicit `source_id` merges.
 4. The Group shape holds a nested project record as rows with links; nothing nests deeper.
+
+## 7. Changes in 1.1 (2026-11-20)
+
+Additive; nothing in 1.0 is removed or changes meaning.
+
+- `evidence.csv` may carry any of three more columns: `basis`, `reporter` and `note`. They become the Evidence fields of the same names (2.4) and are shown beside each
+  piece of evidence.
+- One new error: a `reporter` on a row with no `basis`.
+- The exporter writes `schema_version` `1.1` whether or not the columns are present.
+
+Compatibility: inputs written for 1.0 export unchanged apart from the version string. The component
+checks only the major version, so a 1.0 component opens a 1.1 file, but it does not show the three new
+fields, which breaks rule 5 for a file that has them. Take the exporter and the component from the same
+commit (`FILES.sha256`).

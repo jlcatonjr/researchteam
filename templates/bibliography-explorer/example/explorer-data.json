@@ -46,17 +46,21 @@
   {
    "access": "snippet",
    "attribute_kind": "role",
+   "basis": "reported",
    "id": "ev-005",
+   "note": "The entry names no source for this.",
    "person_id": "ada-wickmere",
+   "reporter": "the encyclopedia's anonymous editor",
    "source_id": "ec-2fdc925f787134e2",
    "tier": "provisional",
    "url": "https://example.org/encyclopedia/pattern-book",
    "value": "Keeper of the pattern book",
-   "via": "reported by the encyclopedia's anonymous editor"
+   "via": "the encyclopedia's online edition"
   },
   {
    "access": "project-file",
    "attribute_kind": "works",
+   "basis": "own",
    "id": "ev-006",
    "locator": "title page",
    "person_id": "ada-wickmere",
@@ -88,10 +92,12 @@
   {
    "access": "full-text",
    "attribute_kind": "role",
+   "basis": "reported",
    "id": "ev-009",
    "locator": "p. 45",
    "person_id": "ionut_glasswright",
    "quote": "Glasswright blew every chimney the guild sold that decade.",
+   "reporter": "Ionuţ Sample",
    "source_id": "sample-question-2001",
    "tier": "confirmed",
    "value": "Glassblower"
@@ -356,7 +362,7 @@
    },
    {
     "name": "evidence.csv",
-    "sha256": "831203835cf8e0ffade35a12667c336922022973ea496513cc815c148515d12b"
+    "sha256": "dade41e207f66992dd73aadd6b46707dc5631fbabad67c5cfae59eca83aa7abd"
    },
    {
     "name": "example.bib",
@@ -740,7 +746,7 @@
   }
  ],
  "schema": "researchteam.bibliography-explorer",
- "schema_version": "1.0",
+ "schema_version": "1.1",
  "sources": [
   {
    "attributes": [
