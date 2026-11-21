@@ -12,7 +12,7 @@ Merged branches stop piling up on the remote, with no deletion the operator has 
   `chore/agentteams-autosync` (evergreen); the heads of open PRs #156 and #135; the unmerged
   `docs/framework-install-pin-v1.1.2`; `records/post-1.2-housekeeping` (merged, PR #221); and this plan's own
   branch.
-- The repository setting "Automatically delete head branches" is **off**.
+- The repository setting "Automatically delete head branches" is **off** (on since 2026-11-21; see "Closed").
 - Rulesets already forbid deleting `main`, `release/**` and `archive/**`.
 - Locally there are about 110 branches already merged into `main`, and four worktrees that belong to other
   work (`governance/agentteams-1.1`, `feat/briefing-records`, `docs/install-pins-v1.1.2`,
@@ -58,3 +58,12 @@ leftovers.
 
 ## Done when
 The operator has chosen A or B, the leftover merged branches are gone, and the choice is recorded.
+
+## Closed (2026-11-21)
+- The operator chose A. The PS-2 exception and its signed decision merged in PR #234 (`bcec0ca`); the operator
+  turned the setting on with script 21 (read-back `delete_branch_on_merge=true`).
+- Script 23 deleted the ten merged branches that were leftovers when it was built.
+- Still on the remote, for a later cleanup: `records/p3-option-a-2026-11-20` (PR #239, merged before the
+  setting was on), and, only with the operator's word, the four `docs/survey-toolkit-*` branches and
+  `feat/explorer-contract-1.1` (another session's).
+- Record: `workSummaries/daily/2026-11-21.md`.

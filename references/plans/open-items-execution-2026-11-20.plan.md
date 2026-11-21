@@ -10,7 +10,7 @@ live in the picker.
   merged. Working copies in `tmp/by-week/2026-W47/` equal the tracked copies.
 - `v1.2.1` is Latest; the lock pins agentteams `v1.2.1`; agentteams `v1.2.2` is Latest upstream.
 - No signed agentteams 1.3.x tag exists, so P1 phases 1 and 2 stay blocked.
-- Repository setting `delete_branch_on_merge` is `false`. Rulesets read back: `main`, `release/**` and
+- Repository setting `delete_branch_on_merge` is `false` (at the start; on since 2026-11-21, see the P3 section). Rulesets read back: `main`, `release/**` and
   `archive/**` forbid deletion with no bypass; tags restricted.
 - Merged remote branches now waiting: `plans/open-items-2026-11-19`, `records/post-1.2-housekeeping`,
   `records/v1.2.1-cut`, `release-prep/v1.2.1`, `fix/verify-tag-shallow-fetch`, and four
