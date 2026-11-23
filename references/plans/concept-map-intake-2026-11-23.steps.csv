@@ -6,6 +6,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 4,orchestrator,Ask the operator how to publish the private project details,security finding 1,operator ruling,done,Rewrite before push (picker 2026-11-23),3
 5,orchestrator,Reword the two commits and fix the blocking findings,rulings and findings,three commits,done,1047 passed and 2 skipped after the fixes,4;3b
 6,git-operations,Push feat/concept-map and open the pull request,three commits,pull request 247,done,,5
-7,security,Re-check the fixes on the pull request head; conflict-auditor closes,pull request 247,verdicts,pending,,6
+7,security,Re-check the fixes on the pull request head; conflict-auditor closes,pull request 247,verdicts,done,security PASS at 9dd435a with advisories; conflict-auditor found three blocking wording conflicts; all fixed in a further commit and re-confirmed,6
 8,git-operations,Merge after the operator's answer naming the pull request and head; check main,operator answer,merge commit,pending,PS-2: merge commit with --match-head-commit,7
 9,orchestrator,Send the pull request number and merged commit to the handing-over session,merge commit,message,pending,,8

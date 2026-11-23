@@ -49,13 +49,14 @@ so their findings are not anchored on the draft's reasoning.
 3. **Tie persons.** Every actor node lists its persons by register id, normally the bibliography explorer's file,
    passed with `--registry`. A writer with no entry is listed as `unregistered`, with the reason. Never guess an
    id from a name. A group node lists everyone its label names.
-4. **Settle group edges.** The build report lists under REVIEW every line from a group node that does not say whom it
-   speaks for. For each one, read the line's label and its sources:
+4. **Settle group edges.** The build report lists under REVIEW every line between a group node and a topic that does
+   not say whom it speaks for. For each one, read the line's label and its sources:
    - if it speaks for some members only (a quotation from one of them, say), give `only`;
    - if it holds for every member, give `all_members: true`;
    - if it rests on someone *outside* the box, it stays under REVIEW and goes to the residuals.
 
-   A clean build has no REVIEW line that has not been judged.
+   The build does not stop for a REVIEW line. Before the audit, judge every one: each is settled with `only` or
+   `all_members`, or recorded as a residual with its reason.
 5. **Round 1: independent audit.** Give the validator the SVG, the spec and the research files. Ask for findings,
    each with a severity (major or minor), the evidence (file and line) and a proposed change. Give no list of
    suspected faults.
@@ -117,6 +118,7 @@ Each item below generalises one or more findings of the first audit.
 
 A clean build means the spec is well-formed and internally consistent. The build does not stop for an unregistered
 person or an unjudged group line: it lists them in the report as warnings (the group lines as REVIEW). The map is
-ready for audit only when the report has no REVIEW line and every unregistered person is accounted for. A clean audit means the two rounds and the second pass found nothing left to
-change. Neither means the map is true. It stays an agent-drafted summary of the project's files, UNVERIFIED until
+ready for audit only when every REVIEW line still in the report is recorded as a residual with its reason, and
+every unregistered person has one too. A clean audit means the two rounds and the second pass found nothing left
+to change. Neither means the map is true. It stays an agent-drafted summary of the project's files, UNVERIFIED until
 a person reviews it.

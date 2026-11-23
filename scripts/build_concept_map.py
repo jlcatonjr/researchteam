@@ -12,11 +12,12 @@ the one external program, and only this exporter runs it.
 
 `--dot-bin` defaults to the environment variable CONCEPT_MAP_DOT, else `dot`.
 
-Fail closed: any error stops the build with exit status 1, lists every error, writes nothing and removes
-any file an earlier build left at an output path. It removes only files this exporter (or Graphviz, for the
+Fail closed: any error stops the build with exit status 1, lists the errors found, writes no map file, DOT or
+SVG (the report is still written) and removes any file an earlier build left at an output path. It removes only files this exporter (or Graphviz, for the
 SVG) wrote: any other file found at an output path is left in place and named in the report. An output path
-that names the spec, the registry or another output is refused before anything is read or removed. A clean build means the map is well-formed and
-internally consistent. It does not mean any label, link or attribution is true.
+that names the spec, the registry or another output is refused before anything is read or removed.
+
+A clean build means the map is well-formed and internally consistent. It does not mean any label, link or attribution is true.
 """
 from __future__ import annotations
 
@@ -430,7 +431,7 @@ def run_dot(dot_bin: str, dot_text: str, fmt: str) -> str:
     try:
         r = subprocess.run([dot_bin, f"-T{fmt}"], input=dot_text, capture_output=True, text=True, timeout=120)
     except FileNotFoundError:
-        raise SpecError(f"Graphviz not found ({dot_bin!r}); install Graphviz or pass --dot-bin")
+        raise SpecError(f"Graphviz not found ({Path(dot_bin).name!r}); install Graphviz or pass --dot-bin")
     except subprocess.TimeoutExpired:
         raise SpecError("Graphviz did not finish within 120 s")
     if r.returncode != 0:
@@ -661,7 +662,11 @@ def main(argv=None) -> int:
         return _run(a, outputs, lines)
     except Exception as e:  # fail closed on anything unforeseen, too (CONTRACT.md, rule 2)
         _clear(outputs, lines)
-        lines += [f"ERROR the spec could not be processed ({type(e).__name__}: {e})", "1 error; nothing written."]
+        # an OSError's own text carries the full path; report the reason and the file's name only
+        why = f"{e.strerror}: {Path(str(e.filename)).name}" if isinstance(e, OSError) and e.filename else str(e)
+        if isinstance(e, OSError) and not e.filename:
+            why = e.strerror or type(e).__name__
+        lines += [f"ERROR the spec could not be processed ({type(e).__name__}: {why})", "1 error; nothing written."]
         _emit(lines, a.report)
         return 1
 
@@ -712,7 +717,7 @@ def _run(a, outputs, lines) -> int:
             tmps.append((tmp, path))
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(text)
-            os.chmod(tmp, 0o666 & ~_umask())    # mkstemp makes the file private; an output is an ordinary file
+                os.fchmod(f.fileno(), 0o666 & ~_umask())    # mkstemp makes it private; an output is an ordinary file
         for tmp, path in tmps:
             os.replace(tmp, path)
     finally:

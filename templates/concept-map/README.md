@@ -19,10 +19,11 @@ two-round independent audit, the second pass and the audit log) is in
 
 ## What a clean build means
 
-The map is well-formed and internally consistent. With `--registry`, each person id that is not in the register is
-listed as a warning. Each line to or from a group node that does not yet say whom it speaks for is listed as a
-REVIEW warning. Warnings do not stop the build, so read the report: a map is ready for audit only when it has no
-REVIEW line and no unexplained unregistered person. A clean build does not mean any label, line or attribution is
+The map is well-formed and internally consistent. With `--registry`, a person id that is not in the register is an
+error; a person the spec marks `unregistered` is listed as a warning. Each line between a group node and a topic
+that does not yet say whom it speaks for is listed as a REVIEW warning. Warnings do not stop the build, so read the
+report: a map is ready for audit only when every REVIEW line still listed is recorded as a residual with its reason,
+and every unregistered person has one too. A clean build does not mean any label, line or attribution is
 true. That is what the protocol's audit is for.
 
 ## Try the example
@@ -40,7 +41,7 @@ python3 scripts/build_concept_map.py templates/concept-map/example/spec.json \
     --dot templates/concept-map/example/map.dot --svg templates/concept-map/example/map.svg
 ```
 
-The example leaves one group line (`F_date -> chron`) unjudged on purpose, so its report shows a REVIEW warning.
+The example leaves one line between a topic and a group node (`F_date -> chron`) unjudged on purpose, so its report shows a REVIEW warning.
 
 ## Use it in a project
 
@@ -52,7 +53,7 @@ The example leaves one group line (`F_date -> chron`) unjudged on purpose, so it
 2. **Write the spec** (CONTRACT.md, section 3) by following the protocol. The spec is the project's file; keep it
    beside the figure (for example `figures/<map>.json`).
 3. **Build it** with the project's person register: `--registry` takes a bibliography-explorer file. The build
-   writes the map file, the DOT and the SVG, or stops with a list of errors and writes nothing. Read the report,
+   writes the map file, the DOT and the SVG, or stops with a list of errors and writes none of them (only the report). Read the report,
    and judge every REVIEW line.
 4. **Mount the component** and list the people in the host's own panel:
 

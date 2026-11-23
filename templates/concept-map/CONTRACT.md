@@ -17,7 +17,8 @@ any study.
 1. **The exporter is the only writer of the map file, the DOT and the SVG.** Do not edit them; edit the spec and
    rebuild. The same spec, registry and Graphviz version give byte-identical files. The map file carries no
    timestamp; it carries the SHA-256 of each input and the Graphviz version.
-2. **Fail closed.** Any violation of section 4 stops the build with a non-zero exit and no output. Files left at the
+2. **Fail closed.** Any violation of section 4 stops the build with a non-zero exit and no map file, DOT or
+   SVG (the report is still written). Files left at the
    output paths by an earlier build are removed, so they cannot pass for this one. Only files the exporter (or
    Graphviz, for the SVG) wrote are removed; any other file at an output path is left and named in the report. An
    output path that names the spec, the registry or another output is refused before anything is read.
@@ -185,6 +186,7 @@ cannot pass unexamined.
 
 Errors (no output):
 
+- an output path that names the spec, the registry or another output (refused before anything is read);
 - an unknown key anywhere; a wrong or missing `schema`, or a different major `schema_version`;
 - an id that is malformed or duplicated, or a node id that is also a band id; any reference that does not resolve
   (kind, fill, band, relation, node);
@@ -205,8 +207,8 @@ Warnings (output written, listed in the report):
 
 - each unregistered person;
 - a person whose `name` in the spec differs from the registry's;
-- REVIEW: each edge to or from a group node (an actor node with more than one person) with neither `only` nor
-  `all_members`;
+- REVIEW: each edge between a group node (an actor node with more than one person) and a topic, in either
+  direction, with neither `only` nor `all_members`. An edge between two actor nodes is never listed;
 - a node no edge touches; a band with no node.
 
 ## 5. The component (for orientation)
