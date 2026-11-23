@@ -1,13 +1,14 @@
 {
   "schema_version": "1.5",
-  "agentteams_version": "1.2.1",
+  "agentteams_version": "1.2.2",
   "agentteams_source": {
     "kind": "vcs-pin",
-    "commit": "a7ab95e241244903339b6d54743f7c3366530071",
+    "commit": "a5bc8c0e930a59c5144d87814b8e256ad64b04a5",
     "branch": null,
-    "dirty": false
+    "dirty": false,
+    "on_remote": null
   },
-  "generated_at": "2026-11-19T03:44:53.450417+00:00",
+  "generated_at": "2026-11-23T06:22:18.482774+00:00",
   "project_name": "ResearchTeam",
   "framework": "codex",
   "project_type": "research",
@@ -34,7 +35,7 @@
   "files_written": [],
   "manual_required": 8,
   "template_hashes": {
-    "universal/orchestrator.template.md": "c571d5b8a208012b",
+    "universal/orchestrator.template.md": "d71641cab1e0d395",
     "universal/navigator.template.md": "5a8b04969c0727df",
     "universal/security.template.md": "9e9f79c92ba2cc24",
     "universal/code-hygiene.template.md": "6774a03ed3018fe6",
@@ -42,7 +43,7 @@
     "universal/conflict-auditor.template.md": "03a61cb6e57afeda",
     "universal/conflict-resolution.template.md": "88624f165b7992e7",
     "universal/cleanup.template.md": "6a404be5ad0bfbe9",
-    "universal/agent-updater.template.md": "120cfda154d35a45",
+    "universal/agent-updater.template.md": "e1801dc15c6cd557",
     "universal/agent-refactor.template.md": "1c0cede6ba31198d",
     "universal/repo-liaison.template.md": "70331bea47521df8",
     "universal/git-operations.template.md": "58d7680e3974bde4",
@@ -71,7 +72,7 @@
     "universal/ai-bad-habits-watch.reference.template.md": "3265a4ef0b7e5f7a",
     "universal/framework-watch.reference.template.md": "ca23bcc73afc2e2a",
     "universal/adjacent-repos.reference.template.md": "e66157a91f72492a",
-    "universal/github-workflows-merge.reference.template.md": "288fb2f043fa1f4f",
+    "universal/github-workflows-merge.reference.template.md": "4e7c51deabc83d4f",
     "universal/branch-lifecycle.reference.template.md": "49d996d0d76b3fe7",
     "universal/work-summary-spec.reference.template.md": "d29ca7e680ad715d",
     "universal/work-summary-tooling.reference.template.md": "62e643b1a9711af6",
@@ -559,13 +560,16 @@
     "repo-liaison",
     "git-operations"
   ],
-  "manifest_fingerprint": "5ca210827b19291e",
+  "manifest_fingerprint": "fea7d61157cab3d4",
   "fingerprint_algo_version": 1,
   "file_hashes": {
-    "references/security-vulnerability-watch.json": "3609d3df64f20018",
-    "security.toml": "832de0059e749c0c",
+    "references/security-vulnerability-watch.reference.md": "ddfb2be4cac3cda4",
+    "references/security-vulnerability-watch.json": "de43f38fff335137",
+    "references/github-workflows-merge.reference.md": "538b734c44586d3b",
+    "security.toml": "75800039bf2115d1",
+    "../confined-run.example.sh": "884b71910a5ad1c8",
+    "../../.agentteams/bin/codex-role-gate.py": "4f2bda5fc06cdb66",
     "references/code-hygiene-rules.reference.md": "ffb4a032e2859b12",
-    "references/security-vulnerability-watch.reference.md": "7b6c184f4f91e3e4",
     "references/framework-watch.reference.md": "c98c4e3862ab11a4",
     "orchestrator.toml": "b945a88a6f08cff3",
     "navigator.toml": "3519e944e8f26d47",
@@ -590,7 +594,6 @@
     "research-analyst.toml": "0050028872590814",
     "tool-doc-researcher.toml": "76f71018cdbb7382",
     "references/ref-bibtex-reference.md": "50c803f98ee78dc9",
-    "references/github-workflows-merge.reference.md": "b57b1e9ca8fa8558",
     "references/work-summary-spec.reference.md": "96232231a1f7c6be",
     "references/work-summary-tooling.reference.md": "f3656972717153a9",
     "references/work-summary-backfill.reference.md": "0169973c90979a3d",
@@ -606,7 +609,7 @@
     "literature-review-expert.toml": "5ce6d4d63a172aa2",
     "main-analysis-expert.toml": "14e5a21bee2afa59",
     "conclusion-expert.toml": "5394a33bce59d72c",
-    "../../AGENTS.md": "a298a2b90983c3d8",
+    "../../AGENTS.md": "5d1cfb3d22cfce64",
     "team-builder.toml": "d3dd092c84096ecc",
     "SETUP-REQUIRED.md": "dac35a00bc95e2a5",
     "content-enricher.toml": "2af827c39ea5540a",
@@ -617,8 +620,15 @@
   "front_matter_baseline": {},
   "front_matter_baseline_version": 2,
   "fence_baseline": {
+    "references/security-vulnerability-watch.reference.md": {
+      "threat_data": "d8770ab8aa218863a4efa75a359f8dd356206bc282dcaffa05136d8ecb78d94e",
+      "operational_integration_process": "d0f4bee8580d904734bf5622085cd2e48005c302778e24410f92b310603e1f8a"
+    },
+    "references/github-workflows-merge.reference.md": {
+      "content": "538b734c44586d3b591a47cb077523ed2a759be282f632c0b51c185aad4cb05c"
+    },
     "security.toml": {
-      "threat_intelligence": "89e7f5f1a06e37bd721891d0afd5fb1ede520b8ebb36f9b39ffb277aa699840b",
+      "threat_intelligence": "a87a57983c873dc728507adcaa074fe3ac45789c857881a5667bb10c89c8446d",
       "security_verdict_contract": "b716341cc2321f62c266f85cae69c7b639cf678396cec2d7ce4b933ea9c0b029",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
@@ -628,10 +638,6 @@
     },
     "references/code-hygiene-rules.reference.md": {
       "content": "ffb4a032e2859b1241028b6137ce72f7fad8a5c67303980d9cf1e537e58f351d"
-    },
-    "references/security-vulnerability-watch.reference.md": {
-      "threat_data": "f211c643d45adbc0ef50dc3ce3ae22c9493df96724f61e1f070f55e7e66060bb",
-      "operational_integration_process": "d0f4bee8580d904734bf5622085cd2e48005c302778e24410f92b310603e1f8a"
     },
     "references/framework-watch.reference.md": {
       "operational_integration_process": "157d0f536d83f2a774e8b4520699ed625464572a33f1eb05f8e57498b91e1361",
@@ -776,9 +782,6 @@
     "references/ref-bibtex-reference.md": {
       "content": "50c803f98ee78dc91b82ac22f0628a29a1eed240ff443df83a4fa600008ebe43"
     },
-    "references/github-workflows-merge.reference.md": {
-      "content": "b57b1e9ca8fa8558595937789f831cd3fce270b369f6391781faadcc5ad84e27"
-    },
     "references/work-summary-spec.reference.md": {
       "content": "96232231a1f7c6bedf5f88786a47ade3b083b9863a26df30049c8de946d6f1bc"
     },
@@ -851,7 +854,7 @@
       "constitutional_rules_baseline": "bec779b2412e528d225cc8516df902a36008603fbf934fb644188b80535cc7dc",
       "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
       "toolchain_group_rule": "4555e58798afd30feeab9190a62dd54fec914d1a2d1c8f8ae93a37464235c95d",
-      "github_management_rule": "f4892e0fd535a97902fb597c6293f4884cf06b652d43ad03facdc6c04c9283e0",
+      "github_management_rule": "03ca62add9f498fdc120b8e89fd9fb81dbc813f57a2c2533fb7e1ae7bdebcf4b",
       "dev_merge_rule": "181ced5afc7d1e7e490eaf870d3bebf2e1fa0134a76b1187d335e6f169eba28b",
       "codex_write_policy": "903bf63811c39668446020c28b86f4e7b145e5530d2d159f1f307ae2f3a5d11b"
     },
@@ -1027,7 +1030,7 @@
       "codex_translation": "6a1c09eb9115569c2c166ada433d7c9a0a315ae916eadd03181e45ec7f3d6c3e"
     },
     ".codex/agents/security.toml": {
-      "threat_intelligence": "89e7f5f1a06e37bd721891d0afd5fb1ede520b8ebb36f9b39ffb277aa699840b",
+      "threat_intelligence": "a87a57983c873dc728507adcaa074fe3ac45789c857881a5667bb10c89c8446d",
       "security_verdict_contract": "b716341cc2321f62c266f85cae69c7b639cf678396cec2d7ce4b933ea9c0b029",
       "write_policy": "344c071911ca18e2356c63a9033470a088301fb946a9e955e4463a0348f6bb83",
       "security_authority": "f5c4fee8bdc57380e24f5c9abefc68aee4e17d0caaa59555f050f87df3f0db4b",
@@ -1087,7 +1090,7 @@
       "constitutional_rules_baseline": "bec779b2412e528d225cc8516df902a36008603fbf934fb644188b80535cc7dc",
       "source_repositories": "b10e007e80c76272b9e8a84eedb709a8810bbbf817756e1317fc50ab2c10e6cb",
       "toolchain_group_rule": "4555e58798afd30feeab9190a62dd54fec914d1a2d1c8f8ae93a37464235c95d",
-      "github_management_rule": "f4892e0fd535a97902fb597c6293f4884cf06b652d43ad03facdc6c04c9283e0",
+      "github_management_rule": "03ca62add9f498fdc120b8e89fd9fb81dbc813f57a2c2533fb7e1ae7bdebcf4b",
       "dev_merge_rule": "181ced5afc7d1e7e490eaf870d3bebf2e1fa0134a76b1187d335e6f169eba28b",
       "codex_write_policy": "903bf63811c39668446020c28b86f4e7b145e5530d2d159f1f307ae2f3a5d11b"
     }

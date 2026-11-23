@@ -51,7 +51,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 -c \"import hashlib,runpy,sys;p,h=sys.argv[1:3];sys.argv=[p];hashlib.sha256(open(p,'rb').read()).hexdigest()==h or sys.exit('work-summary-stop.py does not match the digest recorded in settings.json: review the script, then merge settings.worksummary.example.json again');runpy.run_path(p,run_name='__main__')\" \"${CLAUDE_PROJECT_DIR}/.claude/hooks/work-summary-stop.py\" 9402db4619f49ba02a7ea0502d756bc26c4e1719237848ec5e8d1e5a8f276b1a",
+            "command": "python3 -I -c \"import hashlib,runpy,sys;p,h=sys.argv[1:3];sys.argv=[p];hashlib.sha256(open(p,'rb').read()).hexdigest()==h or sys.exit('work-summary-stop.py does not match the digest recorded in settings.json: review the script, then merge settings.worksummary.example.json again');runpy.run_path(p,run_name='__main__')\" \"${CLAUDE_PROJECT_DIR}/.claude/hooks/work-summary-stop.py\" c82d72eb635013b381bb0978191aca3eb64df2cc0eaa03576d98f146f3d0d1e2",
             "timeout": 30
           }
         ]

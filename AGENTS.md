@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.2.1"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.2.2"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -290,8 +290,7 @@ GitHub management through the `gh` and `git` CLIs is authorized for this team by
 question.
 
 - **Who does what.** `@git-operations` runs git and the `gh` writes: branches, pushes of work branches, pull
-  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@pr-manager` owns
-  the pull-request lifecycle and never merges; `@pr-notifier` proposes the notices. The orchestrator coordinates and
+  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@git-operations` also owns the pull-request lifecycle. The orchestrator coordinates and
   may run read-only `gh` queries itself (`gh pr view`, `gh pr checks`, `gh run list`, `gh issue view`). Every other
   agent routes GitHub work through these roles. When the operator has activated the `github-read` / `github-write`
   MCP servers, the same split applies (`github-write` has no merge).
@@ -405,7 +404,7 @@ Reference: the team's `references/write-policy.reference.md`.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=0ffae411f136a37f6628f4b2e759e3c9ac8db4a7729a4d27ce9b4206fca8a033 copy-sha256=b4af24d5b68e6bb1d7cc62ab28a72c48915e64ab5ed21afb869ee52057dee9d0 mode=reference -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=0ffae411f136a37f6628f4b2e759e3c9ac8db4a7729a4d27ce9b4206fca8a033 copy-sha256=57d9044deb251ed3b4d5b231c3651defb751017ccd0777890529b1bbdb6b3382 mode=reference -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They bind this session as written there: read that section before acting. This is a reference, not a copy, because a copy would exceed Codex's 32 KiB project-instructions budget.
@@ -413,6 +412,6 @@ The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Speci
 Rules:
 
 - PS-1 All session work is public (operator ruling, 2026-11-14).
-- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 202…
+- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added…
 - PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).
 <!-- PROJECTED-RULES:END -->
