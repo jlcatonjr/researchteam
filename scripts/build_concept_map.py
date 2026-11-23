@@ -10,8 +10,12 @@ the one external program, and only this exporter runs it.
         [--registry explorer-data.json] [--dot map.dot] [--svg map.svg] [--report report.txt] \
         [--dot-bin dot]
 
+`--dot-bin` defaults to the environment variable CONCEPT_MAP_DOT, else `dot`.
+
 Fail closed: any error stops the build with exit status 1, lists every error, writes nothing and removes
-any file an earlier build left at an output path. A clean build means the map is well-formed and
+any file an earlier build left at an output path. It removes only files this exporter (or Graphviz, for the
+SVG) wrote: any other file found at an output path is left in place and named in the report. An output path
+that names the spec, the registry or another output is refused before anything is read or removed. A clean build means the map is well-formed and
 internally consistent. It does not mean any label, link or attribution is true.
 """
 from __future__ import annotations
@@ -21,12 +25,13 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
-EXPORTER = "researchteam-concept-map-exporter 1.0"
+EXPORTER_NAME = "researchteam-concept-map-exporter"
+EXPORTER = EXPORTER_NAME + " 1.0"
 SCHEMA = "researchteam.concept-map"
 SPEC_SCHEMA = "researchteam.concept-map-spec"
 SCHEMA_VERSION = "1.0"
@@ -101,14 +106,14 @@ def load_registry(path: Path, errs: list) -> dict:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
-        errs.append(f"registry {path}: cannot be read ({e})")
+        errs.append(f"registry {path.name}: cannot be read ({type(e).__name__})")
         return {}
     if not isinstance(data, dict) or data.get("schema") != "researchteam.bibliography-explorer":
-        errs.append(f"registry {path}: not a researchteam.bibliography-explorer file")
+        errs.append(f"registry {path.name}: not a researchteam.bibliography-explorer file")
         return {}
     persons = data.get("persons") if isinstance(data, dict) else None
     if not isinstance(persons, list):
-        errs.append(f"registry {path}: has no persons list")
+        errs.append(f"registry {path.name}: has no persons list")
         return {}
     return {p["id"]: str(p.get("display_name") or p["id"]) for p in persons
             if isinstance(p, dict) and isinstance(p.get("id"), str)}
@@ -178,7 +183,8 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
                     errs.append(f"{w}.style: must be one of {', '.join(sorted(STYLES))}")
                 if r.get("head", "normal") not in HEADS:
                     errs.append(f"{w}.head: must be one of {', '.join(sorted(HEADS))}")
-                if "width" in r and not (isinstance(r["width"], (int, float)) and 0 < r["width"] <= 6):
+                if "width" in r and not (isinstance(r["width"], (int, float)) and not isinstance(r["width"], bool)
+                                         and 0 < r["width"] <= 6):
                     errs.append(f"{w}.width: must be a number in (0, 6]")
                 if "inferred" in r and not isinstance(r["inferred"], bool):
                     errs.append(f"{w}.inferred: must be true or false")
@@ -219,7 +225,7 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
             errs.append(f"{w}.fill: {n['fill']!r} is not a fills id")
         if kind is not None and "fill" not in n and kind.get("fill") is None:
             errs.append(f"{w}.fill: required (its kind sets no fill)")
-        if "emphasis" in n and n["emphasis"] not in (1, 2):
+        if "emphasis" in n and (isinstance(n["emphasis"], bool) or n["emphasis"] not in (1, 2)):
             errs.append(f"{w}.emphasis: must be 1 or 2")
         for k in ("basis",):
             if k in n and not (isinstance(n[k], list) and all(isinstance(x, str) and x.strip() for x in n[k])):
@@ -278,7 +284,7 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
             errs.append(f"{w}.relation: {e.get('relation')!r} is not a relations id")
         if "label" in e and (not isinstance(e["label"], str) or not e["label"].strip()):
             errs.append(f"{w}.label: must be a non-empty string")
-        if "emphasis" in e and e["emphasis"] not in (1, 2):
+        if "emphasis" in e and (isinstance(e["emphasis"], bool) or e["emphasis"] not in (1, 2)):
             errs.append(f"{w}.emphasis: must be 1 or 2")
         if "basis" in e and not (isinstance(e["basis"], list) and all(isinstance(x, str) and x.strip() for x in e["basis"])):
             errs.append(f"{w}.basis: must be a list of non-empty strings")
@@ -368,7 +374,8 @@ def to_dot(spec: dict) -> str:
         out.append("  node [shape=plaintext, style=\"\", fontsize=%g, fontcolor=\"#555555\"];" % (fs + 1))
         for b in spec["bands"]:
             out.append(f"  {_q(b['id'])} [id={_q(b['id'])}, label={_q(b['label'])}];")
-        out.append("  " + " -> ".join(_q(b) for b in bands) + " [style=invis];")
+        if len(bands) > 1:     # with one band there is no chain; alone, this line would hide the band's label
+            out.append("  " + " -> ".join(_q(b) for b in bands) + " [style=invis];")
         out.append(f"  node [shape=box, style=\"rounded,filled\", fontsize={fs:g}, fontcolor=black];")
     def node_line(n):
         k = kinds[n["kind"]]
@@ -586,10 +593,52 @@ def _sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _clear(paths):
+def _ours(p: Path) -> bool:
+    """True when the file at an output path is one this exporter wrote (or the Graphviz figure it asked for)."""
+    try:
+        if p.is_symlink() or not p.is_file():
+            return False
+        text = p.read_text(encoding="utf-8")
+    except (OSError, ValueError):
+        return False
+    if text.startswith(f"// Generated by {EXPORTER_NAME} ") or "<!-- Generated by graphviz" in text[:1024]:
+        return True
+    try:
+        data = json.loads(text)
+    except ValueError:
+        return False
+    return isinstance(data, dict) and data.get("schema") == SCHEMA
+
+
+def _clear(paths, lines):
+    """Remove what an earlier build left at the output paths; leave, and name, anything else found there."""
     for p in paths:
-        if p and p.exists():
+        if not p or not (p.exists() or p.is_symlink()):
+            continue
+        if _ours(p):
             p.unlink()
+        else:
+            lines.append(f"NOTE {p.name}: left in place (this exporter did not write it)")
+
+
+def _same(a: Path, b: Path) -> bool:
+    try:
+        if a.resolve() == b.resolve():
+            return True
+        return a.exists() and b.exists() and os.path.samefile(a, b)
+    except OSError:
+        return False
+
+
+def _path_clash(a):
+    """An output that names an input or another output would be overwritten on success and removed on failure."""
+    outs = [(n, p) for n, p in (("--out", a.out), ("--dot", a.dot), ("--svg", a.svg), ("--report", a.report)) if p]
+    ins = [(n, p) for n, p in (("the spec", a.spec), ("--registry", a.registry)) if p]
+    for i, (n, p) in enumerate(outs):
+        for m, q in ins + outs[:i]:
+            if _same(p, q):
+                return f"{n} names the same file as {m}"
+    return None
 
 
 def main(argv=None) -> int:
@@ -604,10 +653,14 @@ def main(argv=None) -> int:
     a = ap.parse_args(argv)
     outputs = [a.out, a.dot, a.svg]
     lines = [f"{EXPORTER}: {a.spec.name}"]
+    clash = _path_clash(a)
+    if clash:      # nothing is read, written or removed, and no report file is written (it may be the clash)
+        sys.stdout.write("\n".join(lines + [f"ERROR {clash}", "1 error; nothing written."]) + "\n")
+        return 1
     try:
         return _run(a, outputs, lines)
     except Exception as e:  # fail closed on anything unforeseen, too (CONTRACT.md, rule 2)
-        _clear(outputs)
+        _clear(outputs, lines)
         lines += [f"ERROR the spec could not be processed ({type(e).__name__}: {e})", "1 error; nothing written."]
         _emit(lines, a.report)
         return 1
@@ -618,7 +671,7 @@ def _run(a, outputs, lines) -> int:
     try:
         spec = json.loads(a.spec.read_text(encoding="utf-8"))
     except (OSError, ValueError) as e:
-        errs.append(f"spec {a.spec}: cannot be read ({e})")
+        errs.append(f"spec {a.spec.name}: cannot be read ({type(e).__name__})")
         spec = None
     registry = load_registry(a.registry, errs) if a.registry else None
     warns: list = []
@@ -626,7 +679,7 @@ def _run(a, outputs, lines) -> int:
         e2, warns = check_spec(spec, registry)
         errs.extend(e2)
     if errs:
-        _clear(outputs)
+        _clear(outputs, lines)
         lines += [f"ERROR {e}" for e in errs] + [f"{len(errs)} error(s); nothing written."]
         _emit(lines, a.report)
         return 1
@@ -639,7 +692,7 @@ def _run(a, outputs, lines) -> int:
             inputs.append({"name": a.registry.name, "sha256": _sha(a.registry)})
         data = build_map(spec, registry, geo, inputs, dot_version(a.dot_bin))
     except SpecError as e:
-        _clear(outputs)
+        _clear(outputs, lines)
         lines += [f"ERROR {e}", "1 error; nothing written."]
         _emit(lines, a.report)
         return 1
@@ -654,9 +707,12 @@ def _run(a, outputs, lines) -> int:
     try:
         for path, text in staged:
             path.parent.mkdir(parents=True, exist_ok=True)
-            tmp = path.with_name(path.name + ".partial")
-            tmp.write_text(text, encoding="utf-8")
+            fd, name = tempfile.mkstemp(prefix=path.name + ".", suffix=".partial", dir=path.parent)
+            tmp = Path(name)
             tmps.append((tmp, path))
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(text)
+            os.chmod(tmp, 0o666 & ~_umask())    # mkstemp makes the file private; an output is an ordinary file
         for tmp, path in tmps:
             os.replace(tmp, path)
     finally:
@@ -670,6 +726,12 @@ def _run(a, outputs, lines) -> int:
     lines.append("A clean build means well-formed and internally consistent, not that any label or link is true.")
     _emit(lines, a.report)
     return 0
+
+
+def _umask() -> int:
+    m = os.umask(0)
+    os.umask(m)
+    return m
 
 
 def _emit(lines, report):

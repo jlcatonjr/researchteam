@@ -47,7 +47,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 
 `toolchain.lock` itself is not managed: it is repo-owned and written by the autosync gate after a green sync. `.claude/settings.toolchain.example.json` is a SessionStart hook example that the operator merges into `.claude/settings.json` by hand.
 
-`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (18 files):
+`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (19 files):
 
 | Path | Merge strategy |
 |------|----------------|
@@ -55,6 +55,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 | `docs/literature-library-protocol.md` | overwrite |
 | `docs/news-perspective-protocol.md` | overwrite |
 | `docs/historical-context-protocol.md` | overwrite |
+| `docs/concept-map-protocol.md` | overwrite |
 | `scripts/check_methodology_coverage.sh` | overwrite |
 | `scripts/check_historical_context.sh` | overwrite |
 | `scripts/check_citation_integrity.sh` | overwrite |

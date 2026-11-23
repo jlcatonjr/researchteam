@@ -19,9 +19,11 @@ two-round independent audit, the second pass and the audit log) is in
 
 ## What a clean build means
 
-The map is well-formed and internally consistent, every person id is in the register, and every line from a group
-node says whom it speaks for. It does not mean any label, line or attribution is true. That is what the protocol's
-audit is for.
+The map is well-formed and internally consistent. With `--registry`, each person id that is not in the register is
+listed as a warning. Each line to or from a group node that does not yet say whom it speaks for is listed as a
+REVIEW warning. Warnings do not stop the build, so read the report: a map is ready for audit only when it has no
+REVIEW line and no unexplained unregistered person. A clean build does not mean any label, line or attribution is
+true. That is what the protocol's audit is for.
 
 ## Try the example
 

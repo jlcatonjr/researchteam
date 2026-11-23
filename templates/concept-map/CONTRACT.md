@@ -18,7 +18,9 @@ any study.
    rebuild. The same spec, registry and Graphviz version give byte-identical files. The map file carries no
    timestamp; it carries the SHA-256 of each input and the Graphviz version.
 2. **Fail closed.** Any violation of section 4 stops the build with a non-zero exit and no output. Files left at the
-   output paths by an earlier build are removed, so they cannot pass for this one.
+   output paths by an earlier build are removed, so they cannot pass for this one. Only files the exporter (or
+   Graphviz, for the SVG) wrote are removed; any other file at an output path is left and named in the report. An
+   output path that names the spec, the registry or another output is refused before anything is read.
 3. **Nothing is inferred.** The exporter does not match names to people, guess who a group stands for, or decide what
    a line means. A person is tied to a node only by an id (or an explicit unregistered entry) in the spec, and to a
    topic only through an edge the spec draws.
@@ -203,7 +205,8 @@ Warnings (output written, listed in the report):
 
 - each unregistered person;
 - a person whose `name` in the spec differs from the registry's;
-- REVIEW: each edge from a group node with neither `only` nor `all_members`;
+- REVIEW: each edge to or from a group node (an actor node with more than one person) with neither `only` nor
+  `all_members`;
 - a node no edge touches; a band with no node.
 
 ## 5. The component (for orientation)

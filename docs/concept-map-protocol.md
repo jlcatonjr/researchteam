@@ -115,7 +115,8 @@ Each item below generalises one or more findings of the first audit.
 
 ## 6. What a clean build and a clean audit mean
 
-A clean build means the spec is well-formed and internally consistent, every person id is in the register, and
-every group line has been judged. A clean audit means the two rounds and the second pass found nothing left to
+A clean build means the spec is well-formed and internally consistent. The build does not stop for an unregistered
+person or an unjudged group line: it lists them in the report as warnings (the group lines as REVIEW). The map is
+ready for audit only when the report has no REVIEW line and every unregistered person is accounted for. A clean audit means the two rounds and the second pass found nothing left to
 change. Neither means the map is true. It stays an agent-drafted summary of the project's files, UNVERIFIED until
 a person reviews it.

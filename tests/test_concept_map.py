@@ -159,11 +159,79 @@ def test_malformed_values_fail_closed_without_a_traceback(tmp_path, change):
     p = tmp_path / "bad.json"
     p.write_text(json.dumps(s), encoding="utf-8")
     out = tmp_path / "map.json"
-    out.write_text("stale", encoding="utf-8")
+    out.write_text(json.dumps({"schema": cm.SCHEMA, "note": "left by an earlier build"}), encoding="utf-8")
     report = tmp_path / "r.txt"
     assert cm.main([str(p), "--out", str(out), "--report", str(report), "--dot-bin", str(tmp_path / "no-dot")]) == 1
     assert not out.exists()
     assert "nothing written" in report.read_text(encoding="utf-8")
+
+
+def test_a_failed_build_leaves_a_file_it_did_not_write(tmp_path):
+    bad = spec()
+    bad["edges"][0]["relation"] = "likes"
+    p = tmp_path / "bad.json"
+    p.write_text(json.dumps(bad), encoding="utf-8")
+    out, dot = tmp_path / "notes.json", tmp_path / "notes.txt"
+    out.write_text(json.dumps({"mine": True}), encoding="utf-8")
+    dot.write_text("my notes", encoding="utf-8")
+    report = tmp_path / "r.txt"
+    assert cm.main([str(p), "--out", str(out), "--dot", str(dot), "--report", str(report)]) == 1
+    assert json.loads(out.read_text(encoding="utf-8")) == {"mine": True}
+    assert dot.read_text(encoding="utf-8") == "my notes"
+    text = report.read_text(encoding="utf-8")
+    assert "NOTE notes.json: left in place" in text and "NOTE notes.txt: left in place" in text
+
+
+@pytest.mark.parametrize("flag", ["--out", "--dot", "--svg", "--report"])
+def test_an_output_that_names_an_input_is_refused_and_the_input_is_kept(tmp_path, capsys, flag):
+    bad = spec()
+    bad["edges"][0]["relation"] = "likes"          # a failing build is the case that used to delete the file
+    p = tmp_path / "spec.json"
+    p.write_text(json.dumps(bad), encoding="utf-8")
+    before = p.read_bytes()
+    args = [str(p), "--out", str(tmp_path / "map.json")]
+    args = [str(p), "--out", str(p)] if flag == "--out" else args + [flag, str(tmp_path / "." / "spec.json")]
+    assert cm.main(args) == 1
+    assert p.read_bytes() == before
+    assert "names the same file as the spec" in capsys.readouterr().out
+
+
+def test_two_outputs_at_one_path_are_refused(tmp_path, capsys):
+    out = tmp_path / "map.json"
+    assert cm.main([str(EXAMPLE / "spec.json"), "--out", str(out), "--dot", str(out)]) == 1
+    assert not out.exists()
+    assert "--dot names the same file as --out" in capsys.readouterr().out
+
+
+def test_error_lines_name_files_without_their_directories(tmp_path, capsys):
+    missing = tmp_path / "private-dir" / "spec.json"
+    assert cm.main([str(missing), "--out", str(tmp_path / "map.json")]) == 1
+    assert "private-dir" not in capsys.readouterr().out
+
+
+def test_true_is_not_a_number():
+    s = spec()
+    s["nodes"][0]["emphasis"] = True
+    s["edges"][0]["emphasis"] = True
+    errs, _ = cm.check_spec(s, None)
+    assert sum("emphasis: must be 1 or 2" in e for e in errs) == 2
+
+
+def test_a_single_band_keeps_its_label_in_the_static_figure():
+    s = spec()
+    keep = s["bands"][0]["id"]
+    s["bands"] = s["bands"][:1]
+    for n in s["nodes"]:
+        if "band" in n:
+            n["band"] = keep
+    assert not [e for e in cm.check_spec(s, None)[0] if "band" in e]
+    assert "[style=invis]" not in cm.to_dot(s)
+
+
+def test_the_example_dot_matches_the_spec_without_graphviz():
+    assert cm.to_dot(spec()) == (EXAMPLE / "map.dot").read_text(encoding="utf-8")
+    recorded = json.loads((EXAMPLE / "map-data.json").read_text(encoding="utf-8"))["meta"]["inputs"]
+    assert recorded == [{"name": "spec.json", "sha256": hashlib.sha256((EXAMPLE / "spec.json").read_bytes()).hexdigest()}]
 
 
 def test_a_registry_without_a_persons_list_is_an_error(tmp_path):
@@ -308,7 +376,9 @@ def test_the_component_test_passes_in_node():
 
 def test_the_hash_list_is_current():
     lines = (TEMPLATE / "FILES.sha256").read_text(encoding="utf-8").splitlines()
-    assert lines
+    assert [line.split("  ", 1)[1] for line in lines] == [
+        "templates/concept-map/concept-map.js", "templates/concept-map/concept-map.css",
+        "templates/concept-map/CONTRACT.md", "scripts/build_concept_map.py"]
     for line in lines:
         digest, rel = line.split("  ", 1)
         assert hashlib.sha256((ROOT / rel).read_bytes()).hexdigest() == digest, rel
