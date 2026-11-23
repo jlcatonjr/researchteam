@@ -1,0 +1,968 @@
+{
+ "bands": [
+  {
+   "id": "b1",
+   "label": "1600s",
+   "x": 27.0,
+   "y": 65.67
+  },
+  {
+   "id": "b2",
+   "label": "1800s",
+   "x": 27.0,
+   "y": 145.92
+  },
+  {
+   "id": "bF",
+   "label": "Findings",
+   "x": 27.0,
+   "y": 242.05
+  }
+ ],
+ "canvas": {
+  "height": 283.18,
+  "unit": "pt",
+  "width": 913.51
+ },
+ "edges": [
+  {
+   "from": "ada",
+   "id": "e0",
+   "path": [
+    [
+     176.4,
+     50.23
+    ],
+    [
+     194.12,
+     45.53
+    ],
+    [
+     214.27,
+     41.0
+    ],
+    [
+     233.0,
+     38.67
+    ],
+    [
+     283.28,
+     32.42
+    ],
+    [
+     296.85,
+     31.46
+    ],
+    [
+     347.0,
+     38.67
+    ],
+    [
+     361.91,
+     40.81
+    ],
+    [
+     377.77,
+     44.81
+    ],
+    [
+     392.06,
+     49.09
+    ]
+   ],
+   "relation": "affirms",
+   "tip": [
+    404.13,
+    52.88
+   ],
+   "to": "C_guild"
+  },
+  {
+   "from": "chron",
+   "id": "e1",
+   "path": [
+    [
+     347.62,
+     65.67
+    ],
+    [
+     357.47,
+     65.67
+    ],
+    [
+     367.31,
+     65.67
+    ],
+    [
+     377.16,
+     65.67
+    ]
+   ],
+   "relation": "affirms",
+   "tip": [
+    390.1,
+    65.67
+   ],
+   "to": "C_guild"
+  },
+  {
+   "from": "ada",
+   "id": "e2",
+   "label_at": [
+    204.44,
+    58.55
+   ],
+   "label_lines": [
+    "quoted by"
+   ],
+   "path": [
+    [
+     176.1,
+     65.67
+    ],
+    [
+     190.28,
+     65.67
+    ],
+    [
+     205.98,
+     65.67
+    ],
+    [
+     221.07,
+     65.67
+    ]
+   ],
+   "relation": "documented",
+   "tip": [
+    232.46,
+    65.67
+   ],
+   "to": "chron"
+  },
+  {
+   "from": "dov",
+   "id": "e3",
+   "path": [
+    [
+     510.0,
+     127.55
+    ],
+    [
+     503.27,
+     121.95
+    ],
+    [
+     495.8,
+     115.69
+    ],
+    [
+     489.0,
+     109.92
+    ],
+    [
+     479.81,
+     102.12
+    ],
+    [
+     469.75,
+     93.44
+    ],
+    [
+     461.08,
+     85.92
+    ]
+   ],
+   "relation": "denies",
+   "tip": [
+    457.45,
+    82.77
+   ],
+   "to": "C_guild"
+  },
+  {
+   "from": "dov",
+   "id": "e4",
+   "path": [
+    [
+     576.1,
+     145.92
+    ],
+    [
+     586.24,
+     145.92
+    ],
+    [
+     596.38,
+     145.92
+    ],
+    [
+     606.52,
+     145.92
+    ]
+   ],
+   "relation": "affirms",
+   "tip": [
+    619.36,
+    145.92
+   ],
+   "to": "C_late"
+  },
+  {
+   "from": "survey",
+   "id": "e5",
+   "label_at": [
+    542.0,
+    105.8
+   ],
+   "label_lines": [
+    "Lund: 'no earlier than 1700'"
+   ],
+   "only": [
+    "id:fia-lund"
+   ],
+   "path": [
+    [
+     444.19,
+     127.58
+    ],
+    [
+     458.79,
+     120.03
+    ],
+    [
+     476.74,
+     112.16
+    ],
+    [
+     494.0,
+     108.36
+    ],
+    [
+     514.83,
+     103.76
+    ],
+    [
+     569.31,
+     103.16
+    ],
+    [
+     590.0,
+     108.36
+    ],
+    [
+     602.71,
+     111.55
+    ],
+    [
+     615.62,
+     117.55
+    ],
+    [
+     626.84,
+     123.83
+    ]
+   ],
+   "relation": "affirms",
+   "tip": [
+    637.84,
+    130.37
+   ],
+   "to": "C_late"
+  },
+  {
+   "from": "C_late",
+   "id": "e6",
+   "label_at": [
+    740.47,
+    138.8
+   ],
+   "label_lines": [
+    "echoed (inferred)"
+   ],
+   "path": [
+    [
+     700.58,
+     145.92
+    ],
+    [
+     720.52,
+     145.92
+    ],
+    [
+     745.24,
+     145.92
+    ],
+    [
+     768.67,
+     145.92
+    ]
+   ],
+   "relation": "inferred",
+   "tip": [
+    780.03,
+    145.92
+   ],
+   "to": "anon"
+  },
+  {
+   "from": "C_late",
+   "id": "e7",
+   "path": [
+    [
+     625.11,
+     155.53
+    ],
+    [
+     578.67,
+     167.23
+    ],
+    [
+     499.21,
+     188.16
+    ],
+    [
+     472.0,
+     200.92
+    ],
+    [
+     463.47,
+     204.92
+    ],
+    [
+     454.8,
+     210.09
+    ],
+    [
+     446.82,
+     215.37
+    ]
+   ],
+   "relation": "documented",
+   "tip": [
+    437.5,
+    221.81
+   ],
+   "to": "F_date"
+  },
+  {
+   "from": "F_date",
+   "id": "e8",
+   "label_at": [
+    317.75,
+    145.92
+   ],
+   "label_lines": [
+    "chronicle dates fail"
+   ],
+   "path": [
+    [
+     371.96,
+     228.43
+    ],
+    [
+     342.12,
+     216.86
+    ],
+    [
+     303.86,
+     196.48
+    ],
+    [
+     285.5,
+     163.92
+    ],
+    [
+     272.51,
+     140.88
+    ],
+    [
+     277.08,
+     109.68
+    ],
+    [
+     282.6,
+     88.9
+    ]
+   ],
+   "relation": "denies",
+   "tip": [
+    283.93,
+    84.11
+   ],
+   "to": "chron"
+  },
+  {
+   "from": "survey",
+   "id": "e9",
+   "path": [
+    [
+     413.0,
+     164.18
+    ],
+    [
+     413.0,
+     176.13
+    ],
+    [
+     413.0,
+     192.43
+    ],
+    [
+     413.0,
+     206.95
+    ]
+   ],
+   "relation": "affirms",
+   "tip": [
+    413.0,
+    219.6
+   ],
+   "to": "F_date"
+  }
+ ],
+ "meta": {
+  "counts": {
+   "edges": 10,
+   "nodes": 8,
+   "persons": 7,
+   "topics": 3
+  },
+  "exporter": "researchteam-concept-map-exporter 1.0",
+  "font": {
+   "band_size": 10,
+   "edge_size": 7.5,
+   "family": "Helvetica",
+   "node_size": 9
+  },
+  "inputs": [
+   {
+    "name": "spec.json",
+    "sha256": "8219b7c021054ca96cbaec19e4461a9366f211c4b37aa3d1034402347e402580"
+   }
+  ],
+  "layout_engine": "graphviz 14.0.5",
+  "legend_note": "fill = school of the writer",
+  "map_id": "lantern-bridge-example",
+  "notice": "Invented example. No person, date or claim on this map is real.",
+  "registry": false,
+  "status": "EXAMPLE",
+  "subtitle": "Every person, date and claim here is invented",
+  "title": "Who built the Lantern Bridge? (invented example)"
+ },
+ "nodes": [
+  {
+   "band": "b1",
+   "basis": [
+    "invented"
+   ],
+   "fill": "guild",
+   "h": 36.0,
+   "id": "ada",
+   "kind": "actor",
+   "label_lines": [
+    "Ada Fenwright (1640)",
+    "the guild built it"
+   ],
+   "persons": [
+    {
+     "id": "ada-fenwright",
+     "key": "id:ada-fenwright",
+     "name": "Ada Fenwright",
+     "registered": false
+    }
+   ],
+   "related": [
+    {
+     "edge": "e0",
+     "node": "C_guild",
+     "outgoing": true,
+     "relation": "affirms"
+    },
+    {
+     "edge": "e2",
+     "node": "chron",
+     "outgoing": true,
+     "relation": "documented"
+    }
+   ],
+   "w": 100.02,
+   "x": 126.0,
+   "y": 65.67
+  },
+  {
+   "band": "b1",
+   "fill": "guild",
+   "h": 36.0,
+   "id": "chron",
+   "kind": "actor",
+   "label_lines": [
+    "Guild chroniclers (1650s)",
+    "Bram Oakes, Cel Varro"
+   ],
+   "persons": [
+    {
+     "id": "bram-oakes",
+     "key": "id:bram-oakes",
+     "name": "Bram Oakes",
+     "registered": false
+    },
+    {
+     "id": "cel-varro",
+     "key": "id:cel-varro",
+     "name": "Cel Varro",
+     "registered": false
+    }
+   ],
+   "related": [
+    {
+     "edge": "e1",
+     "node": "C_guild",
+     "outgoing": true,
+     "relation": "affirms"
+    },
+    {
+     "edge": "e2",
+     "node": "ada",
+     "outgoing": false,
+     "relation": "documented"
+    },
+    {
+     "edge": "e8",
+     "node": "F_date",
+     "outgoing": false,
+     "relation": "denies"
+    }
+   ],
+   "w": 114.27,
+   "x": 290.0,
+   "y": 65.67
+  },
+  {
+   "band": "b1",
+   "fill": "claim",
+   "h": 36.0,
+   "id": "C_guild",
+   "kind": "claim",
+   "label_lines": [
+    "The guild built",
+    "the bridge"
+   ],
+   "members": [
+    {
+     "active": true,
+     "person": {
+      "id": "ada-fenwright",
+      "key": "id:ada-fenwright",
+      "name": "Ada Fenwright",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e0",
+       "node": "ada"
+      }
+     ]
+    },
+    {
+     "active": true,
+     "person": {
+      "id": "bram-oakes",
+      "key": "id:bram-oakes",
+      "name": "Bram Oakes",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e1",
+       "node": "chron"
+      }
+     ]
+    },
+    {
+     "active": true,
+     "person": {
+      "id": "cel-varro",
+      "key": "id:cel-varro",
+      "name": "Cel Varro",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e1",
+       "node": "chron"
+      }
+     ]
+    },
+    {
+     "active": true,
+     "person": {
+      "id": "dov-pell",
+      "key": "id:dov-pell",
+      "name": "Dov Pell",
+      "registered": false
+     },
+     "relation": "denies",
+     "via": [
+      {
+       "edge": "e3",
+       "node": "dov"
+      }
+     ]
+    }
+   ],
+   "related": [],
+   "w": 97.22,
+   "x": 439.0,
+   "y": 65.67
+  },
+  {
+   "band": "b2",
+   "fill": "survey",
+   "h": 36.0,
+   "id": "dov",
+   "kind": "actor",
+   "label_lines": [
+    "Dov Pell (1820)",
+    "the stones are later"
+   ],
+   "persons": [
+    {
+     "id": "dov-pell",
+     "key": "id:dov-pell",
+     "name": "Dov Pell",
+     "registered": false
+    }
+   ],
+   "related": [
+    {
+     "edge": "e3",
+     "node": "C_guild",
+     "outgoing": true,
+     "relation": "denies"
+    },
+    {
+     "edge": "e4",
+     "node": "C_late",
+     "outgoing": true,
+     "relation": "affirms"
+    }
+   ],
+   "w": 89.52,
+   "x": 531.0,
+   "y": 145.92
+  },
+  {
+   "band": "b2",
+   "fill": "survey",
+   "h": 36.0,
+   "id": "survey",
+   "kind": "actor",
+   "label_lines": [
+    "Survey school (1840s)",
+    "Esk Ruan, Fia Lund"
+   ],
+   "persons": [
+    {
+     "id": "esk-ruan",
+     "key": "id:esk-ruan",
+     "name": "Esk Ruan",
+     "registered": false
+    },
+    {
+     "id": "fia-lund",
+     "key": "id:fia-lund",
+     "name": "Fia Lund",
+     "registered": false
+    }
+   ],
+   "related": [
+    {
+     "edge": "e5",
+     "node": "C_late",
+     "outgoing": true,
+     "relation": "affirms"
+    },
+    {
+     "edge": "e9",
+     "node": "F_date",
+     "outgoing": true,
+     "relation": "affirms"
+    }
+   ],
+   "w": 103.02,
+   "x": 413.0,
+   "y": 145.92
+  },
+  {
+   "band": "b2",
+   "fill": "survey",
+   "h": 36.0,
+   "id": "anon",
+   "kind": "actor",
+   "label_lines": [
+    "An unsigned pamphlet (1851)"
+   ],
+   "persons": [
+    {
+     "key": "name:Unsigned pamphlet",
+     "name": "Unsigned pamphlet",
+     "note": "anonymous; no person entry",
+     "registered": false
+    }
+   ],
+   "related": [
+    {
+     "edge": "e6",
+     "node": "C_late",
+     "outgoing": false,
+     "relation": "inferred"
+    }
+   ],
+   "w": 133.02,
+   "x": 847.0,
+   "y": 145.92
+  },
+  {
+   "band": "b2",
+   "fill": "claim",
+   "h": 36.0,
+   "id": "C_late",
+   "kind": "claim",
+   "label_lines": [
+    "Built after 1700"
+   ],
+   "members": [
+    {
+     "active": true,
+     "person": {
+      "id": "dov-pell",
+      "key": "id:dov-pell",
+      "name": "Dov Pell",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e4",
+       "node": "dov"
+      }
+     ]
+    },
+    {
+     "active": true,
+     "person": {
+      "id": "fia-lund",
+      "key": "id:fia-lund",
+      "name": "Fia Lund",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e5",
+       "node": "survey"
+      }
+     ]
+    },
+    {
+     "active": false,
+     "person": {
+      "key": "name:Unsigned pamphlet",
+      "name": "Unsigned pamphlet",
+      "note": "anonymous; no person entry",
+      "registered": false
+     },
+     "relation": "inferred",
+     "via": [
+      {
+       "edge": "e6",
+       "node": "anon"
+      }
+     ]
+    }
+   ],
+   "related": [
+    {
+     "edge": "e7",
+     "node": "F_date",
+     "outgoing": true,
+     "relation": "documented"
+    }
+   ],
+   "w": 80.91,
+   "x": 660.0,
+   "y": 145.92
+  },
+  {
+   "band": "bF",
+   "fill": "finding",
+   "h": 44.0,
+   "id": "F_date",
+   "kind": "finding",
+   "label_lines": [
+    "DATE",
+    "1710–1730"
+   ],
+   "members": [
+    {
+     "active": true,
+     "person": {
+      "id": "esk-ruan",
+      "key": "id:esk-ruan",
+      "name": "Esk Ruan",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e9",
+       "node": "survey"
+      }
+     ]
+    },
+    {
+     "active": true,
+     "person": {
+      "id": "fia-lund",
+      "key": "id:fia-lund",
+      "name": "Fia Lund",
+      "registered": false
+     },
+     "relation": "affirms",
+     "via": [
+      {
+       "edge": "e9",
+       "node": "survey"
+      }
+     ]
+    },
+    {
+     "active": false,
+     "person": {
+      "id": "bram-oakes",
+      "key": "id:bram-oakes",
+      "name": "Bram Oakes",
+      "registered": false
+     },
+     "relation": "denies",
+     "via": [
+      {
+       "edge": "e8",
+       "node": "chron"
+      }
+     ]
+    },
+    {
+     "active": false,
+     "person": {
+      "id": "cel-varro",
+      "key": "id:cel-varro",
+      "name": "Cel Varro",
+      "registered": false
+     },
+     "relation": "denies",
+     "via": [
+      {
+       "edge": "e8",
+       "node": "chron"
+      }
+     ]
+    }
+   ],
+   "related": [
+    {
+     "edge": "e7",
+     "node": "C_late",
+     "outgoing": false,
+     "relation": "documented"
+    }
+   ],
+   "w": 97.28,
+   "x": 413.0,
+   "y": 242.05
+  }
+ ],
+ "schema": "researchteam.concept-map",
+ "schema_version": "1.0",
+ "vocab": {
+  "fills": [
+   {
+    "color": "#e0e0e0",
+    "id": "guild",
+    "label": "Guild chroniclers"
+   },
+   {
+    "color": "#bbdefb",
+    "id": "survey",
+    "label": "Survey school"
+   },
+   {
+    "color": "#fff8e1",
+    "id": "claim",
+    "label": "claim in contention"
+   },
+   {
+    "color": "#c8e6c9",
+    "id": "finding",
+    "label": "project finding"
+   }
+  ],
+  "node_kinds": [
+   {
+    "id": "actor",
+    "label": "Writer or group",
+    "role": "actor",
+    "shape": "box"
+   },
+   {
+    "fill": "claim",
+    "id": "claim",
+    "label": "Claim in contention",
+    "role": "topic",
+    "shape": "ellipse"
+   },
+   {
+    "fill": "finding",
+    "id": "finding",
+    "label": "Project finding",
+    "role": "topic",
+    "shape": "octagon"
+   }
+  ],
+  "relations": [
+   {
+    "id": "affirms",
+    "label": "affirms",
+    "passive_label": "affirmed by",
+    "stroke": "#2e7d32",
+    "width": 2
+   },
+   {
+    "head": "tee",
+    "id": "denies",
+    "label": "denies or rebuts",
+    "passive_label": "denied or rebutted by",
+    "stroke": "#c62828"
+   },
+   {
+    "description": "quotes, uses or restates",
+    "id": "documented",
+    "label": "documented development",
+    "passive_label": "developed from",
+    "stroke": "ink"
+   },
+   {
+    "id": "inferred",
+    "inferred": true,
+    "label": "inferred only",
+    "passive_label": "linked by inference only from",
+    "stroke": "#888888",
+    "style": "dotted"
+   }
+  ]
+ }
+}

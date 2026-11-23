@@ -1,0 +1,47 @@
+/* Concept map component. Every rule is scoped under .cmap; colours come from custom properties whose
+   defaults derive from the inherited text colour, so the map follows a light or dark host. */
+.cmap {
+  --cmap-text: currentColor;
+  --cmap-muted: color-mix(in srgb, currentColor 62%, transparent);
+  --cmap-line: color-mix(in srgb, currentColor 22%, transparent);
+  --cmap-surface: color-mix(in srgb, currentColor 4%, transparent);
+  --cmap-accent: currentColor;
+  --cmap-ink: color-mix(in srgb, currentColor 78%, transparent);
+  --cmap-node-ink: #111111;          /* text and outline on the (pale) node fills */
+  --cmap-radius: 8px;
+  color: var(--cmap-text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.cmap-notice { margin: 0 0 8px; padding: 6px 10px; border-left: 3px solid var(--cmap-line); color: var(--cmap-muted); font-size: 13px; }
+.cmap-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 0 0 8px; }
+.cmap-hint { margin: 0; color: var(--cmap-muted); font-size: 13px; flex: 1 1 260px; }
+.cmap-fit { font: inherit; font-size: 13px; color: var(--cmap-text); background: transparent; border: 1px solid var(--cmap-line); border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+.cmap-fit:focus-visible { outline: 2px solid var(--cmap-accent); outline-offset: 2px; }
+.cmap-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.cmap-scroll { overflow: auto; max-height: 78vh; border: 1px solid var(--cmap-line); border-radius: var(--cmap-radius); background: var(--cmap-surface); -webkit-overflow-scrolling: touch; }
+.cmap-svg { display: block; font-family: var(--cmap-font, Helvetica, Arial, sans-serif); }
+.cmap-band { fill: var(--cmap-muted); }
+.cmap-edge-label { fill: var(--cmap-muted); }
+.cmap-edge { transition: opacity 120ms; }
+.cmap-node { cursor: pointer; outline: none; transition: opacity 120ms; }
+.cmap-shape { stroke: var(--cmap-node-ink); }
+.cmap-shape-inner { stroke: var(--cmap-node-ink); stroke-width: 1; }
+.cmap-node-label { fill: var(--cmap-node-ink); pointer-events: none; }
+.cmap-node:hover .cmap-shape { stroke-width: 2; }
+.cmap-node:focus-visible .cmap-shape { stroke: var(--cmap-accent); stroke-width: 3; }
+.cmap-has-selection .cmap-node:not(.cmap-selected):not(.cmap-near) { opacity: 0.28; }
+.cmap-has-selection .cmap-edge:not(.cmap-on) { opacity: 0.12; }
+.cmap-has-selection .cmap-edge.cmap-on .cmap-edge-label { fill: var(--cmap-text); }
+.cmap-selected .cmap-shape { stroke: var(--cmap-accent); stroke-width: 3.5; }
+.cmap-legend { margin-top: 10px; font-size: 12.5px; color: var(--cmap-muted); }
+.cmap-legend-title { margin: 0 0 4px; font-weight: 600; color: var(--cmap-text); }
+.cmap-legend-row { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; margin: 2px 0; }
+.cmap-legend-label { min-width: 48px; font-weight: 600; }
+.cmap-legend-items { display: flex; flex-wrap: wrap; gap: 4px 14px; list-style: none; margin: 0; padding: 0; }
+.cmap-legend-items li { display: inline-flex; align-items: center; gap: 5px; }
+.cmap-swatch { display: inline-block; width: 14px; height: 11px; border: 1px solid var(--cmap-line); border-radius: 3px; }
+.cmap-legend-line { flex: none; }
+.cmap-legend-note { margin: 4px 0 0; }
+@media (max-width: 600px) { .cmap-scroll { max-height: 64vh; } .cmap-hint { font-size: 12.5px; } }
+@media (prefers-reduced-motion: reduce) { .cmap-edge, .cmap-node { transition: none; } }
