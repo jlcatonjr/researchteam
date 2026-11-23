@@ -1,8 +1,8 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Draft the authorization spec and the plan,operator's picker answers (2026-11-22); rulesets and wrapper read back,docs/release/fleet-agent-tier1.decision-spec.json; plan,done,Tier 1 only; no merges; 90 days; a new id,
-2,security,Review the spec and the cap change; adversarial challenges the cap change,step 1,verdicts,pending,,1
-3,orchestrator,Send the spec to the coordinator for checking,step 1,review notes,pending,data in and data out,1
-4,orchestrator,Ask the operator for the signing day; set the date and expiry,steps 2 and 3,final spec,pending,picker,2;3
+2,security,Review the spec and the cap change; adversarial challenges the cap change,step 1,verdicts,done,@security CONDITIONAL PASS on the draft and @adversarial CONDITIONAL; findings adopted except effect_targets (reason in the plan),1
+3,orchestrator,Send the spec to the coordinator for checking,step 1,review notes,done,The coordinator confirmed the wrapper copy and supplied the exact command list and a coordination step,1
+4,orchestrator,Ask the operator for the signing day; set the date and expiry,steps 2 and 3,final spec,done,Operator: cap two only until 2027-02-18; signing day 2026-11-23,2;3
 5,git-operations,Write the operator script (cap; sign; register; audit); @security reviews it,step 4,operator script,pending,,4
 6,operator,Run the script in a terminal outside the agent session,step 5,signed row; registry entry,pending,,5
 7,orchestrator,Verify; commit; ask the operator for the merge; tell the coordinator,step 6,merge commit,pending,,6
