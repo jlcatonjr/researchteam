@@ -3,4 +3,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 2,security,Review the script and the PR's paths,step 1,verdict,done,CONDITIONAL PASS; three advisory findings applied; five conditions: tracked copy run; blob sha256 in both stores; op-2026 unchanged; no decision row or log change; green checks and the operator's live answer,1
 3,operator,Run the script in a terminal outside the agent session,step 2,two key files in the worktree,done,Preview then --apply from the tracked copy with its sha256 checked,2
 4,git-operations,Check the two files against the sha256; commit; open the PR,step 3,PR,done,Both copies d22faa83…dab7; op-2026 unchanged; nothing else changed,3
-5,orchestrator,Ask the operator for the merge (PR number and head SHA); read back the blobs on main; tell the coordinator,step 4,merge commit; read-back,pending,,4
+5,orchestrator,Ask the operator for the merge (PR number and head SHA); read back the blobs on main; tell the coordinator,step 4,merge commit; read-back,done,Operator approved in the picker; PR #244 merged as f95f27f at reviewed head 19b70bc; both blobs d22faa83…dab7 on main; the coordinator verified it,4

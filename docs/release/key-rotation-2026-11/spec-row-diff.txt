@@ -1,0 +1,9 @@
+Mechanical comparison of each re-sign spec with its op-2026 row (.github log on main f95f27f), 2026-11-22
+
+release-policy-1.0: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+s10-first-party-releases-2026-11: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+management-roster-enroll:infrastructure-management: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+term-index-2026-11: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+release-line-agentteams-1.2: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+repo-setting:delete-branch-on-merge:jlcatonjr/researchteam: differing fields besides date/key/evidence-suffix: none; dropped non-empty fields: none; derives_from identical: True -> OK
+.codex release-policy-1.0 vs .github row: fields that differ: none

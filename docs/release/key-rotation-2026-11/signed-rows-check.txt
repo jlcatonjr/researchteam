@@ -1,0 +1,10 @@
+Each row the operator signed on 2026-11-22 (script 25, head fc242f3), compared field by field with its spec.
+Old rows: each log is its committed bytes plus the appended rows only.
+
+.github/agents release-policy-1.0: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:5b98018b7f7b26314e6bb79723ca1453243fac548dd55afb572161d32e2b317c; signature begins eb57bb5d76082e29 -> OK
+.github/agents s10-first-party-releases-2026-11: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:1023078bb3d51cc04939eda18d0b3cf902f9f8cfb3a837cbc1c14a0c699dfa03; signature begins 38cdec358958053c -> OK
+.github/agents management-roster-enroll:infrastructure-management: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:08b06606502e0c98cd0bc94955d02999a15063f83ceb48227c9e4238f2fd806b; signature begins 08dd108c060d44ae -> OK
+.github/agents term-index-2026-11: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:834b2ec3739fd070c72f37d82a6d9d3f7855f002528fe4f2e1748174be79230c; signature begins c33f5cb6c186a19e -> OK
+.github/agents release-line-agentteams-1.2: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:455fbd7f8e9397d9cb4de4881b12e37e87145f680f1578f2e2e16f70b42d9983; signature begins 199cacb31c02bfbe -> OK
+.github/agents repo-setting:delete-branch-on-merge:jlcatonjr/researchteam: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:1455048a067ecb78ee4bd51f605843f315fd37edbff26fe92e66ea905f9ffb48; signature begins dc79fe00692848c4 -> OK
+.codex/agents release-policy-1.0: fields differing from the spec: none; unexpected extra fields: none; text_digest sha256:5b98018b7f7b26314e6bb79723ca1453243fac548dd55afb572161d32e2b317c; signature begins 90f75a9d584125f5 -> OK
