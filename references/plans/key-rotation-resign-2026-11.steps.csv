@@ -5,4 +5,4 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 4,orchestrator,Ask the operator which doubtful rows are re-signed,steps 2 and 3,final list,done,Six ids and seven signatures; the pilot row and the Codex render row lapse; signing day 2026-11-22,2;3
 5,git-operations,Write the signing script; @security reviews it,step 4,operator script,done,Script 25; @security CONDITIONAL PASS for the run at fc242f3 and for the merge,4
 6,operator,Run the signing script in a terminal outside the agent session,step 5,appended signed rows,done,The operator ran script 25 at fc242f3 on 2026-11-22: seven prompts answered; all seven rows cleared; the toolchain group still verifies,5
-7,orchestrator,Verify the rows; commit; ask the operator for the merge; tell the coordinator,step 6,merge commit,pending,,6
+7,orchestrator,Verify the rows; commit; ask the operator for the merge; tell the coordinator,step 6,merge commit,done,Operator approved in the picker; PR #245 merged as 1933260 at reviewed head 712d2f9; tests green on main; the coordinator verified the seven signatures,6
