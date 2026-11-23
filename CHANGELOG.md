@@ -9,6 +9,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
   longer skip in CI. The pytest summary lists any test that was skipped.
 
+- **Survey toolkit: the contract is frozen as version 1.** `docs/survey-toolkit.md` is no longer a draft. The first
+  project had its S0 and S5 gates signed and merged its first evidence rows on 2026-11-23, which was the condition
+  for the freeze. Ten changes that project's run brought out are taken (section 12): the frame of a passage or work
+  study and its passage list (new section 4.7), the cell as the frame's unit, a registry seeded from the attribution
+  file and renewed by an evidence merge (or the merge is refused), person-level rows with new row checks, no empty
+  enumeration rounds, period columns named after the period attribute, an analysis-engine pin that may be a file
+  only S6 covers, and a plain statement of what a re-found quotation proves. Bucket tables and the year rule are
+  written down for the first time (4.8). `schema_version` is `"1"`; `"0"` is read identically. No survey tool is
+  implemented yet.
+
 - **Governance: the toolchain-group file is re-signed for this repository alone (sequence 5).**
   `.agentteams/toolchain-group.json` is now signed with the decision key `opr-2026-11` and lists this workspace only;
   the group and its `derives_from` are unchanged. The exception registry's `toolchain_group_sequence` is 5, so the

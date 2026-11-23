@@ -10,7 +10,7 @@ Operator rulings, given in this session's picker on 2026-11-19:
   using the specification has run a stage.
 - **Sign-offs:** recorded in a per-study log, not in the team's security decisions log.
 
-The study specification is v0-unstable until the first project has had gates S0 and S5 signed and has run
+The study specification was v0-unstable until the first project has had gates S0 and S5 signed and has run
 one stage (a sequencing call agreed between the sessions). Operator ruling, 2026-11-21: that stage must be
 one that writes evidence rows or codes; enumeration alone does not count.
 
@@ -32,3 +32,13 @@ and gets its own plan when it starts.
    in a second PR, audited and merged the same way.
 
 Steps: `survey-toolkit-2026-11-19.steps.csv`.
+
+## The freeze (2026-11-23)
+
+The wait of section 10, step 3 ended on 2026-11-23: the first project had gates S0, S5 and S6 signed and merged
+its first evidence rows. Its session sent the list it had kept of every
+point where its reference implementation had moved from revision 2 of the contract: ten points, all proposed. All ten are taken.
+The contract is version 1. Its section 12 lists them, the decisions researchteam made beyond the list, and where
+the reference implementation still differs. An adversarial review, a consistency audit and the first project's
+session's check against its reference tools all fed the final text (the frame section was rewritten after them).
+Steps 14 to 18 of the steps file. The tools get a plan of their own after the freeze is merged.

@@ -49,7 +49,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - researchteam 1.2.0 is the agentteams 1.2 pin release. The term-index core switch (`docs/term-index-protocol.md`,
   "Planned placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
   replacing the 2026-11-17 plan to carry it in 1.2.0).
-- The survey toolkit (`docs/survey-toolkit.md`, a draft contract) is also planned for researchteam 1.3 (operator
+- The survey toolkit (`docs/survey-toolkit.md`, a contract frozen as version 1 on 2026-11-23, with no tool yet) is also planned for researchteam 1.3 (operator
   ruling, 2026-11-19).
 - Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag, as for 1.1.
 
