@@ -6,7 +6,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 ## Unreleased
 
 - **CI: the concept-map layout and component tests now run.** `tests.yml` installs Graphviz from the runner's
-  Ubuntu archive and checks that Node 18 or later is present, and fails when either is missing, so those tests no
+  Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
   longer skip in CI. The pytest summary lists any test that was skipped.
 
 - **Governance: the toolchain-group file is re-signed for this repository alone (sequence 5).**
