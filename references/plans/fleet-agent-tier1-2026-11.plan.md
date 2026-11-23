@@ -49,5 +49,8 @@ authority here is the operator's own answers.
    audit. `@security` reviews it. The tracked copy has placeholders for the signer and the key; the copy the
    operator runs is outside the tracked tree.
 6. The operator runs it; the session verifies, commits the log and the registry, and asks for the merge.
+7. Later, tracked in the steps file: the cap returns to one by an operator script, on 2027-02-18 or as soon as
+   either exception ends; and a pointer to this row goes into the Project-Specific Rules before the App's first
+   write under it.
 
 Steps: `fleet-agent-tier1-2026-11.steps.csv`.

@@ -45,7 +45,7 @@ ACTION="fleet-agent-tier1:jlcatonjr/researchteam"
 OTHER="repo-setting:delete-branch-on-merge:jlcatonjr/researchteam"
 TEAM=.github/agents
 SPEC=docs/release/fleet-agent-tier1.decision-spec.json
-SPEC_SHA=109891cb775684a4f985a826dca18a7a53b3cc9aaa29216a3b44107a37445b63
+SPEC_SHA=d1e2ded320b1e361baf9e88c73f669a0463a2694ec35779895a657a93a914aca
 VENV="<signer>"                # root-owned install built from agentteams tag v1.2.1 on python.org 3.13; the real path is only in the copy the operator runs
 BASEPY=/Library/Frameworks/Python.framework/Versions/3.13
 KEY="<decision-key-file>"      # the operator's opr-2026-11 private key; the real path is only in the copy the operator runs
@@ -92,7 +92,11 @@ p="$TEAM/references/authorized-verify-keys/opr-2026-11.pub.pem"
 [[ -f "$p" && ! -L "$p" && "$(sha "$p")" == "$PUB_SHA" ]] || die "$p is not $PUB_SHA"
 [[ -f "$KEY" && ! -L "$KEY" && "$(/usr/bin/stat -f %Lp "$KEY")" == 600 ]] || die "the key file is missing, a link, or not mode 600"
 /usr/bin/grep -qF ",$ACTION," "$LOG" && die "a row for $ACTION is already in $LOG; nothing to do"
-if /usr/bin/grep -E ',fleet-agent[^,]*,HALT,' "$LOG" >/dev/null; then die "a HALT on a fleet-agent action is recorded; do not sign"; fi
+"$PY" -I -c 'import csv,sys
+csv.field_size_limit(10**8)
+bad=[r.get("action_reviewed") for r in csv.DictReader(open(sys.argv[1],newline="",encoding="utf-8"))
+     if (r.get("verdict") or "").strip().upper()=="HALT" and "fleet-agent" in ((r.get("action_reviewed") or "")+" "+(r.get("scope") or "")).lower()]
+print("  HALT rows naming fleet-agent:", bad or "none"); sys.exit(1 if bad else 0)' "$LOG" || die "a HALT naming a fleet-agent action is recorded; do not sign"
 (cd / && "$PY" -I -P - "$WT/$TEAM" "$OTHER") <<'PYEOF' || die "the registry is not in the expected state (cap at the default, exactly one active relaxing exception: branch deletion); nothing changed"
 import sys
 from pathlib import Path
@@ -121,7 +125,7 @@ if [[ "$CHECK_ONLY" == 1 ]]; then
   printf '\n================ %s (CHECK_ONLY: the payload is shown and declined)\n' "$ACTION"
   printf 'n\n' | AGENTTEAMS_DECISION_ED25519_KEYFILE="$KEY" "$AT" --sign-decision "$SPEC" --output "$TEAM" || true
   [[ -z "$("${G[@]}" status --porcelain --untracked-files=all)" ]] || die "CHECK_ONLY changed the worktree; undo: $UNDO"
-  printf '\nCHECK_ONLY: every check passed; nothing was signed, the key was not read, the registry is unchanged.\n'; exit 0
+  printf '\nCHECK_ONLY: every check passed; nothing was signed and the worktree is unchanged.\n'; exit 0
 fi
 
 # 3. Your read-back of the App's installation. The session cannot read it; the row rests on this answer.
@@ -129,8 +133,10 @@ printf '\n== Read the installation now: GitHub > Settings > Applications > Insta
 printf '   It must show, and nothing more:\n'
 printf '     Repository permissions: Contents read and write; Issues read and write; Pull requests read and write;\n'
 printf '                             Checks read; Actions read; Metadata read.\n'
-printf '     Repository access: selected repositories, with jlcatonjr/researchteam among them.\n'
-read -r -p "Does the installation show exactly those permissions, and list jlcatonjr/researchteam? [y/N] " ok
+printf '     Account permissions: none. No pending permission request.\n'
+printf '     Repository access: "Only select repositories", exactly these two and nothing else:\n'
+printf '                             jlcatonjr/researchteam and jlcatonjr/infrastructureManagement.\n'
+read -r -p "Does the installation show exactly those permissions and exactly those two repositories? [y/N] " ok
 [[ "$ok" == "y" ]] || { printf 'Not confirmed. Nothing was signed and nothing changed. Tell the session what the page shows.\n'; exit 0; }
 
 # 4. Sign (one prompt from agentteams), then set the cap and register in one step.
@@ -205,6 +211,6 @@ out=$("$AT" --verify-toolchain-group --output "$TEAM" --description brief.json 2
   || { printf '%s\n' "$out"; die "the toolchain group no longer verifies; do not commit; undo: $UNDO"; }
 printf '%s\n' "$out" | /usr/bin/tail -1
 changed="$("${G[@]}" status --porcelain --untracked-files=all)"
-[[ "$changed" == " M $LOG"$'\n'" M $REG" ]] || die "unexpected changes in the worktree (expected only $LOG and $REG): $changed ; do not commit; undo: $UNDO"
+[[ "$changed" == " M $REG"$'\n'" M $LOG" ]] || die "unexpected changes in the worktree (expected only $LOG and $REG): $changed ; do not commit; undo: $UNDO"
 "${G[@]}" diff --stat
 printf '== done: 1 row signed, cap 2, 2 active exceptions; nothing committed or pushed. Paste this output into the researchteam session.\n'
