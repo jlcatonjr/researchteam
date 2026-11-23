@@ -31,5 +31,7 @@ listing this workspace alone, and signed it on 2026-11-23.
 
 - No decision row targets the file (it is a trust root). No verify key is added or removed; `op-2026` stays in the
   stores until its retirement plan.
-- The earlier file stays in history with its workspaces list. How to treat that is a separate operator decision.
+- The earlier file stays in history with its workspaces list. Operator ruling, 2026-11-23 (picker): "Accept history".
+  The list holds repository names only, and removing it would need a rewrite and force-push of `main`, which PS-2
+  and the rulesets forbid.
 - What the group lifts is unchanged: the S-10 cooldown and the per-release decision row for group members only.
