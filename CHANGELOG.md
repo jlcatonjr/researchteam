@@ -5,6 +5,11 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Governance: the toolchain-group file is re-signed for this repository alone (sequence 5).**
+  `.agentteams/toolchain-group.json` is now signed with the decision key `opr-2026-11` and lists this workspace only;
+  the group and its `derives_from` are unchanged. The exception registry's `toolchain_group_sequence` is 5, so the
+  sequence 1 file (signed with `op-2026`) is refused as a rollback. Part of the key rotation.
+
 - **Concept map: a reusable, interactive map of a debate (#247).** `templates/concept-map/` adds a contract
   (`researchteam.concept-map`, version 1.0), an exporter (`scripts/build_concept_map.py`) and a dependency-free
   component (`concept-map.js`, `concept-map.css`). A project writes one JSON spec of actors (writers or groups, each
