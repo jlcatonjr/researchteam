@@ -42,10 +42,11 @@ HEAD_WANT="$1"
 WT="$HOME/githubrepositories/researchteam-wt-survey-toolkit"
 BRANCH=governance/key-rotation-resign
 DATE=2026-11-22
-VENV=/opt/agentteams-signer/venv-v1.2.1-pyorg
+VENV="<signer>"                # root-owned install built from agentteams tag v1.2.1 on python.org 3.13; the real path is only in the copy the operator ran
 BASEPY=/Library/Frameworks/Python.framework/Versions/3.13
 AT="$VENV/bin/agentteams"; PY="$VENV/bin/python"
-KEY="$HOME/.config/agentteams/keys/decision-signing-opr-2026-11.pem"
+KEY="<decision-key-file>"      # the operator's opr-2026-11 private key; the real path is only in the copy the operator ran
+[[ "$VENV" != "<"* && "$KEY" != "<"* ]] || die "this is the tracked record of the script (run on 2026-11-22 at head fc242f3, sha256 8cab1c65...808fd9); it has placeholders and does not run"
 PUB_SHA=d22faa83b674abe6b1e3207a4f13fc17c5ddd367e35e0c60c69163eddbd9dab7
 # The frozen-key audit is run from the coordinating repository's checkout, pinned by hash; it is not vendored here.
 AUDIT_SRC="$HOME/githubrepositories/infrastructureManagement/scripts/frozen_key_audit.py"
