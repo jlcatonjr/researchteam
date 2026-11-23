@@ -5,6 +5,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **CI: the concept-map layout and component tests now run.** `tests.yml` installs Graphviz from the runner's
+  Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
+  longer skip in CI. The pytest summary lists any test that was skipped.
+
 - **Survey toolkit: the contract is frozen as version 1.** `docs/survey-toolkit.md` is no longer a draft. The first
   project had its S0 and S5 gates signed and merged its first evidence rows on 2026-11-23, which was the condition
   for the freeze. Ten changes that project's run brought out are taken (section 12): the frame of a passage or work
@@ -33,7 +37,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   bibliography explorer, the template is vendored, not synced. A `/concept-map` skill (`.claude/skills/concept-map/`)
   is hand-written in this repository and `researchteam update` does not sync it either. Tests:
   `tests/test_concept_map.py` and a Node component test; the Graphviz and Node tests skip where those programs are
-  missing, as they are in CI. First integrated by a derived project.
+  missing. First integrated by a derived project.
 
 - **Governance: merged pull-request heads may be deleted automatically (#234).** PS-2 in `.claude/CLAUDE.md` has
   a new exception: once the operator turns on the repository setting "Automatically delete head branches", GitHub

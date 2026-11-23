@@ -110,7 +110,7 @@ the DOT and its escaping, fail-closed output, determinism, the example's currenc
 properties and this folder's hash list. `templates/concept-map/tests/component.test.mjs` runs the component in Node
 against a minimal DOM shim. It checks drawing, selection by click and keyboard, the `onSelect` payload, Escape,
 `select()`, the schema guard and text-only rendering. The Graphviz tests skip when `dot` is not installed, and the
-Node test when `node` is not. **The repository's CI installs neither, so in CI those tests are skipped.** No test
+Node test when `node` is not. The repository's CI installs Graphviz and checks for Node, so both run there. No test
 runs a browser. Check layout, theming and phone width by hand in one before relying on a change.
 
 After changing any of the four vendored files, rewrite the hash list from the repository root:
