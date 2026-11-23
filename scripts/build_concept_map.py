@@ -33,6 +33,7 @@ SCHEMA_VERSION = "1.0"
 ID_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
 COLOR_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 SHAPES = {"box": "box", "ellipse": "ellipse", "octagon": "doubleoctagon"}
+SHAPE_NAMES = {"box": "box", "ellipse": "ellipse", "octagon": "double octagon"}   # as drawn, for the legends
 ROLES = {"actor", "topic"}
 HEADS = {"normal", "tee", "none"}
 STYLES = {"solid", "dotted", "dashed"}
@@ -58,6 +59,11 @@ def person_key(p: dict) -> str:
 
 class SpecError(Exception):
     pass
+
+
+def _k(v):
+    """A value usable as a lookup key: the string itself, or None for anything else (lists, objects, numbers)."""
+    return v if isinstance(v, str) else None
 
 
 # --------------------------------------------------------------------------- reading and checking
@@ -97,10 +103,15 @@ def load_registry(path: Path, errs: list) -> dict:
     except (OSError, ValueError) as e:
         errs.append(f"registry {path}: cannot be read ({e})")
         return {}
-    if data.get("schema") != "researchteam.bibliography-explorer":
+    if not isinstance(data, dict) or data.get("schema") != "researchteam.bibliography-explorer":
         errs.append(f"registry {path}: not a researchteam.bibliography-explorer file")
         return {}
-    return {p["id"]: p.get("display_name", p["id"]) for p in data.get("persons", []) if "id" in p}
+    persons = data.get("persons") if isinstance(data, dict) else None
+    if not isinstance(persons, list):
+        errs.append(f"registry {path}: has no persons list")
+        return {}
+    return {p["id"]: str(p.get("display_name") or p["id"]) for p in persons
+            if isinstance(p, dict) and isinstance(p.get("id"), str)}
 
 
 def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
@@ -122,8 +133,9 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
         if lay.get("rankdir", "TB") not in ("TB", "LR"):
             errs.append("spec.layout.rankdir: must be TB or LR")
         for k in ("nodesep", "ranksep", "fontsize"):
-            if k in lay and not (isinstance(lay[k], (int, float)) and lay[k] > 0):
+            if k in lay and not (isinstance(lay[k], (int, float)) and not isinstance(lay[k], bool) and lay[k] > 0):
                 errs.append(f"spec.layout.{k}: must be a positive number")
+        _text(errs, "spec.layout.fontname", lay.get("fontname"), required=False)
 
     vocab = spec.get("vocab")
     kinds, fills, rels = {}, {}, {}
@@ -149,7 +161,7 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
                     errs.append(f"{w}.shape: must be one of {', '.join(sorted(SHAPES))}")
                 if k.get("role") not in ROLES:
                     errs.append(f"{w}.role: must be actor or topic")
-                if k.get("fill") is not None and k.get("fill") not in fills:
+                if k.get("fill") is not None and _k(k.get("fill")) not in fills:
                     errs.append(f"{w}.fill: {k.get('fill')!r} is not a fills id")
                 kinds[k.get("id")] = k
         seen = set()
@@ -194,16 +206,16 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
         w = f"node {n.get('id')!r}"
         if n.get("id") in bands:
             errs.append(f"{w}: id is also a band id")
-        kind = kinds.get(n.get("kind"))
+        kind = kinds.get(_k(n.get("kind")))
         if kind is None:
             errs.append(f"{w}.kind: {n.get('kind')!r} is not a node_kinds id")
-        if "band" in n and n["band"] not in bands:
+        if "band" in n and _k(n["band"]) not in bands:
             errs.append(f"{w}.band: {n['band']!r} is not a bands id")
         if bands and "band" not in n:
             errs.append(f"{w}.band: required when the spec has bands")
         if not isinstance(n.get("label"), str) or not n["label"].strip():
             errs.append(f"{w}.label: must be a non-empty string")
-        if "fill" in n and n["fill"] not in fills:
+        if "fill" in n and _k(n["fill"]) not in fills:
             errs.append(f"{w}.fill: {n['fill']!r} is not a fills id")
         if kind is not None and "fill" not in n and kind.get("fill") is None:
             errs.append(f"{w}.fill: required (its kind sets no fill)")
@@ -229,8 +241,13 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
                     if "unregistered" in p:
                         errs.append(f"{pw}: give an id or mark unregistered, not both")
                     _ident(errs, pw, p["id"], pseen)
-                    if registry is not None and p.get("id") not in registry:
+                    if isinstance(p["id"], str) and p["id"].startswith("name:"):
+                        errs.append(f"{pw}: an id may not start with 'name:' (that prefix marks unregistered persons)")
+                    if registry is not None and _k(p.get("id")) not in registry:
                         errs.append(f"{pw}: person id {p.get('id')!r} is not in the registry")
+                    elif registry is not None and "name" in p and p["name"] != registry[p["id"]]:
+                        warns.append(f"{w}: {p['id']!r} is named {p['name']!r} in the spec but "
+                                     f"{registry[p['id']]!r} in the registry; the registry's name is used")
                     if registry is None and "name" not in p:
                         errs.append(f"{pw}: name is required when no registry is given")
                     if "name" in p:
@@ -253,11 +270,11 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
         if not _unknown(errs, w, e, EDGE_KEYS):
             continue
         for end in ("from", "to"):
-            if e.get(end) not in nodes:
+            if _k(e.get(end)) not in nodes:
                 errs.append(f"{w}.{end}: {e.get(end)!r} is not a node id")
         if e.get("from") == e.get("to"):
             errs.append(f"{w}: an edge may not join a node to itself")
-        if e.get("relation") not in rels:
+        if _k(e.get("relation")) not in rels:
             errs.append(f"{w}.relation: {e.get('relation')!r} is not a relations id")
         if "label" in e and (not isinstance(e["label"], str) or not e["label"].strip()):
             errs.append(f"{w}.label: must be a non-empty string")
@@ -265,7 +282,7 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
             errs.append(f"{w}.emphasis: must be 1 or 2")
         if "basis" in e and not (isinstance(e["basis"], list) and all(isinstance(x, str) and x.strip() for x in e["basis"])):
             errs.append(f"{w}.basis: must be a list of non-empty strings")
-        ends = [nodes.get(e.get("from")), nodes.get(e.get("to"))]
+        ends = [nodes.get(_k(e.get("from"))), nodes.get(_k(e.get("to")))]
         actors = [x for x in ends if x is not None and kinds.get(x.get("kind"), {}).get("role") == "actor"]
         if "all_members" in e and (e["all_members"] is not True or "only" in e or len(actors) != 1):
             errs.append(f"{w}.all_members: must be true, on an edge with one actor end and no `only`")
@@ -285,17 +302,19 @@ def check_spec(spec: dict, registry: dict | None) -> tuple[list, list]:
                     errs.append(f"{w}.only: a person is listed twice")
                 if set(e["only"]) == set(keys):
                     errs.append(f"{w}.only: names every person of {actors[0].get('id')!r}; leave it out")
-        elif len(actors) == 1 and len(actors[0].get("persons") or []) > 1 and e.get("all_members") is not True:
+        elif (len(actors) == 1 and isinstance(actors[0].get("persons"), list) and len(actors[0]["persons"]) > 1
+              and e.get("all_members") is not True):
             warns.append(f"REVIEW edge {e.get('from')} -> {e.get('to')} ({e.get('relation')}"
                          f"{', ' + repr(e['label'].replace(chr(10), ' ')) if e.get('label') else ''}): holds for all "
                          f"{len(actors[0]['persons'])} persons of {actors[0].get('id')!r}; give `only` if it speaks for fewer")
-        pair = (e.get("from"), e.get("to"), e.get("relation"))
+        pair = (_k(e.get("from")), _k(e.get("to")), _k(e.get("relation")))
         if pair in seen_pairs:
             errs.append(f"{w}: the same (from, to, relation) is given twice")
         seen_pairs.add(pair)
     if not nodes:
         errs.append("nodes: at least one node is required")
-    linked = {e.get("from") for e in spec.get("edges") or []} | {e.get("to") for e in spec.get("edges") or []}
+    edges_list = [e for e in spec.get("edges") or [] if isinstance(e, dict)]
+    linked = {_k(e.get("from")) for e in edges_list} | {_k(e.get("to")) for e in edges_list}
     for nid in nodes:
         if nid not in linked:
             warns.append(f"node {nid!r}: no edge touches it")
@@ -381,14 +400,14 @@ def to_dot(spec: dict) -> str:
         rcells.append(f'<TD><FONT COLOR="{stroke}">{mark} {_h(r["label"])}</FONT></TD>')
     for i in range(0, len(rcells), cols):
         rows.append("<TR>" + "".join(rcells[i:i + cols]) + "</TR>")
-    shapes = "; ".join(f"{_h(k['label'])}: {k['shape']}" for k in spec["vocab"]["node_kinds"])
+    shapes = "; ".join(f"{_h(k['label'])}: {SHAPE_NAMES[k['shape']]}" for k in spec["vocab"]["node_kinds"])
     note = f" · {_h(spec['legend_note'])}" if spec.get("legend_note") else ""
     rows.insert(0, f'<TR><TD COLSPAN="{cols}"><B>Legend</B></TD></TR>')
     rows.append(f'<TR><TD COLSPAN="{cols}">{shapes}{note}</TD></TR>')
-    out.append("  legend [shape=plaintext, style=\"\", label=<<TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"2\" "
+    out.append("  \"__legend\" [shape=plaintext, style=\"\", label=<<TABLE BORDER=\"1\" CELLBORDER=\"0\" CELLSPACING=\"2\" "
                "CELLPADDING=\"3\" COLOR=\"#999999\">" + "".join(rows) + "</TABLE>>];")
     if bands:
-        out.append(f"  {{ rank=same; {_q(bands[-1])}; legend; }}")
+        out.append(f"  {{ rank=same; {_q(bands[-1])}; \"__legend\"; }}")
     out.append("  // edges")
     for i, e in enumerate(spec.get("edges") or []):
         a = [f"id=\"e{i}\""] + _rel_attrs(rels[e["relation"]], e.get("emphasis"))
@@ -475,7 +494,7 @@ def build_map(spec: dict, registry: dict | None, geo: dict, inputs: list, engine
         out = []
         for p in n.get("persons") or []:
             if "id" in p:
-                name = p.get("name") or (registry or {}).get(p["id"], p["id"])
+                name = registry[p["id"]] if registry is not None else p["name"]
                 out.append({"key": "id:" + p["id"], "id": p["id"], "name": name, "registered": registry is not None})
             else:
                 out.append({"key": "name:" + p["name"], "name": p["name"], "registered": False,
@@ -584,6 +603,17 @@ def main(argv=None) -> int:
     ap.add_argument("--dot-bin", default=os.environ.get("CONCEPT_MAP_DOT", "dot"))
     a = ap.parse_args(argv)
     outputs = [a.out, a.dot, a.svg]
+    lines = [f"{EXPORTER}: {a.spec.name}"]
+    try:
+        return _run(a, outputs, lines)
+    except Exception as e:  # fail closed on anything unforeseen, too (CONTRACT.md, rule 2)
+        _clear(outputs)
+        lines += [f"ERROR the spec could not be processed ({type(e).__name__}: {e})", "1 error; nothing written."]
+        _emit(lines, a.report)
+        return 1
+
+
+def _run(a, outputs, lines) -> int:
     errs: list = []
     try:
         spec = json.loads(a.spec.read_text(encoding="utf-8"))
@@ -595,7 +625,6 @@ def main(argv=None) -> int:
     if spec is not None and not errs:
         e2, warns = check_spec(spec, registry)
         errs.extend(e2)
-    lines = [f"{EXPORTER}: {a.spec.name}"]
     if errs:
         _clear(outputs)
         lines += [f"ERROR {e}" for e in errs] + [f"{len(errs)} error(s); nothing written."]
@@ -614,12 +643,26 @@ def main(argv=None) -> int:
         lines += [f"ERROR {e}", "1 error; nothing written."]
         _emit(lines, a.report)
         return 1
-    a.out.parent.mkdir(parents=True, exist_ok=True)
-    a.out.write_text(json.dumps(data, ensure_ascii=False, sort_keys=True, indent=1) + "\n", encoding="utf-8")
+    # write every output beside its target first, then move them all into place, so a failed write
+    # cannot leave a new map file next to an old DOT or SVG
+    staged = [(a.out, json.dumps(data, ensure_ascii=False, sort_keys=True, indent=1) + "\n")]
     if a.dot:
-        a.dot.write_text(dot_text, encoding="utf-8")
+        staged.append((a.dot, dot_text))
     if a.svg:
-        a.svg.write_text(svg, encoding="utf-8")
+        staged.append((a.svg, svg))
+    tmps = []
+    try:
+        for path, text in staged:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            tmp = path.with_name(path.name + ".partial")
+            tmp.write_text(text, encoding="utf-8")
+            tmps.append((tmp, path))
+        for tmp, path in tmps:
+            os.replace(tmp, path)
+    finally:
+        for tmp, _ in tmps:
+            if tmp.exists():
+                tmp.unlink()
     c = data["meta"]["counts"]
     lines += [f"WARNING {w}" for w in warns]
     lines.append(f"ok: {c['nodes']} nodes ({c['topics']} topics), {c['edges']} edges, {c['persons']} persons; "

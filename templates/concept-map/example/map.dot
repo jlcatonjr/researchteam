@@ -24,8 +24,8 @@ digraph "lantern-bridge-example" {
   // band bF
   "F_date" [id="F_date", shape=doubleoctagon, label="DATE\n1710–1730", fillcolor="#c8e6c9"];
   { rank=same; "bF"; "F_date"; }
-  legend [shape=plaintext, style="", label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="2" CELLPADDING="3" COLOR="#999999"><TR><TD COLSPAN="4"><B>Legend</B></TD></TR><TR><TD BGCOLOR="#e0e0e0">Guild chroniclers</TD><TD BGCOLOR="#bbdefb">Survey school</TD><TD BGCOLOR="#fff8e1">claim in contention</TD><TD BGCOLOR="#c8e6c9">project finding</TD></TR><TR><TD><FONT COLOR="#2e7d32">→ affirms</FONT></TD><TD><FONT COLOR="#c62828">⊣ denies or rebuts</FONT></TD><TD><FONT COLOR="#333333">→ documented development</FONT></TD><TD><FONT COLOR="#888888">→ inferred only</FONT></TD></TR><TR><TD COLSPAN="4">Writer or group: box; Claim in contention: ellipse; Project finding: octagon · fill = school of the writer</TD></TR></TABLE>>];
-  { rank=same; "bF"; legend; }
+  "__legend" [shape=plaintext, style="", label=<<TABLE BORDER="1" CELLBORDER="0" CELLSPACING="2" CELLPADDING="3" COLOR="#999999"><TR><TD COLSPAN="4"><B>Legend</B></TD></TR><TR><TD BGCOLOR="#e0e0e0">Guild chroniclers</TD><TD BGCOLOR="#bbdefb">Survey school</TD><TD BGCOLOR="#fff8e1">claim in contention</TD><TD BGCOLOR="#c8e6c9">project finding</TD></TR><TR><TD><FONT COLOR="#2e7d32">→ affirms</FONT></TD><TD><FONT COLOR="#c62828">⊣ denies or rebuts</FONT></TD><TD><FONT COLOR="#333333">→ documented development</FONT></TD><TD><FONT COLOR="#888888">→ inferred only</FONT></TD></TR><TR><TD COLSPAN="4">Writer or group: box; Claim in contention: ellipse; Project finding: double octagon · fill = school of the writer</TD></TR></TABLE>>];
+  { rank=same; "bF"; "__legend"; }
   // edges
   "ada" -> "C_guild" [id="e0", color="#2e7d32", penwidth=2];
   "chron" -> "C_guild" [id="e1", color="#2e7d32", penwidth=2];

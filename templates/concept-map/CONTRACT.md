@@ -156,8 +156,9 @@ PersonRef = { "id", "name"? }                              // name is required w
 
 A group node lists every person its label names. When the project has a person register, pass it with
 `--registry` (a bibliography-explorer file, `templates/bibliography-explorer/CONTRACT.md`): every id is then checked
-and the register's display name is used. A person with no entry is listed with `unregistered` and a reason, and
-appears in the build report.
+and the register's display name is used. A `name` given in the spec is then only a check: if it differs from the
+register's, the report says so. A person with no entry is listed with `unregistered` and a reason, and appears in
+the build report. An id may not start with `name:`, the prefix that marks unregistered persons in `only`.
 
 ### 3.3 Bands
 
@@ -190,7 +191,9 @@ Errors (no output):
 - a node without `band` when the spec has bands; a node with no fill from itself or its kind; an empty label;
 - an actor node without `persons`, or a topic node with them; a person id not in the registry; a person with
   neither id nor `unregistered`, or with both; a person listed twice in one node; with no registry, a person id
-  without a name;
+  without a name; a person id starting with `name:`;
+- a value of the wrong type anywhere (for example a list where an id belongs, or a non-string `fontname`); a
+  registry that is not a bibliography-explorer file with a `persons` list;
 - an edge from a node to itself; the same (from, to, relation) twice;
 - `only` on an edge that does not have exactly one actor end, naming a person who is not in that node, naming a
   person twice, or naming all of them; `all_members` that is not `true`, or given with `only`;
@@ -199,6 +202,7 @@ Errors (no output):
 Warnings (output written, listed in the report):
 
 - each unregistered person;
+- a person whose `name` in the spec differs from the registry's;
 - REVIEW: each edge from a group node with neither `only` nor `all_members`;
 - a node no edge touches; a band with no node.
 

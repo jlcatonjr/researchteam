@@ -1,5 +1,7 @@
-/* Concept map component. Every rule is scoped under .cmap; colours come from custom properties whose
-   defaults derive from the inherited text colour, so the map follows a light or dark host. */
+/* Concept map component. Every rule is scoped under .cmap. Text rules carry extra classes, so a host's
+   generic "svg text" rule cannot recolour labels drawn on the pale fills (sizes are set inline by the
+   component). Colours come from custom properties whose defaults derive from the inherited text colour,
+   so the map follows a light or dark host. */
 .cmap {
   --cmap-text: currentColor;
   --cmap-muted: color-mix(in srgb, currentColor 62%, transparent);
@@ -21,18 +23,19 @@
 .cmap-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .cmap-scroll { overflow: auto; max-height: 78vh; border: 1px solid var(--cmap-line); border-radius: var(--cmap-radius); background: var(--cmap-surface); -webkit-overflow-scrolling: touch; }
 .cmap-svg { display: block; font-family: var(--cmap-font, Helvetica, Arial, sans-serif); }
-.cmap-band { fill: var(--cmap-muted); }
-.cmap-edge-label { fill: var(--cmap-muted); }
+.cmap .cmap-svg text { font-family: var(--cmap-font, Helvetica, Arial, sans-serif); }
+.cmap .cmap-svg .cmap-band { fill: var(--cmap-muted); }
+.cmap .cmap-svg .cmap-edge-label { fill: var(--cmap-muted); }
 .cmap-edge { transition: opacity 120ms; }
 .cmap-node { cursor: pointer; outline: none; transition: opacity 120ms; }
 .cmap-shape { stroke: var(--cmap-node-ink); }
 .cmap-shape-inner { stroke: var(--cmap-node-ink); stroke-width: 1; }
-.cmap-node-label { fill: var(--cmap-node-ink); pointer-events: none; }
+.cmap .cmap-svg .cmap-node-label { fill: var(--cmap-node-ink); pointer-events: none; }
 .cmap-node:hover .cmap-shape { stroke-width: 2; }
 .cmap-node:focus-visible .cmap-shape { stroke: var(--cmap-accent); stroke-width: 3; }
 .cmap-has-selection .cmap-node:not(.cmap-selected):not(.cmap-near) { opacity: 0.28; }
 .cmap-has-selection .cmap-edge:not(.cmap-on) { opacity: 0.12; }
-.cmap-has-selection .cmap-edge.cmap-on .cmap-edge-label { fill: var(--cmap-text); }
+.cmap.cmap-has-selection .cmap-svg .cmap-edge.cmap-on .cmap-edge-label { fill: var(--cmap-text); }
 .cmap-selected .cmap-shape { stroke: var(--cmap-accent); stroke-width: 3.5; }
 .cmap-legend { margin-top: 10px; font-size: 12.5px; color: var(--cmap-muted); }
 .cmap-legend-title { margin: 0 0 4px; font-weight: 600; color: var(--cmap-text); }

@@ -30,6 +30,7 @@ export const DEFAULT_LABELS = {
   kinds: "Shapes",
   fills: "Fill",
   relations: "Lines",
+  shapeNames: { box: "box", ellipse: "ellipse", octagon: "double octagon" },   // as drawn
   selected: (label) => `Selected: ${label}`,
   cleared: "Selection cleared.",
 };
@@ -52,6 +53,7 @@ function lines(parent, textLines, x, y, size, cls) {
   const lh = size * 1.2;
   const y0 = y - ((textLines.length - 1) * lh) / 2;
   const t = svg("text", { x, y: y0, "font-size": size, "text-anchor": "middle", "dominant-baseline": "central", class: cls }, parent);
+  t.style.fontSize = `${size}px`;   // inline, so a host rule such as "svg text { font-size }" cannot resize labels Graphviz sized
   textLines.forEach((s, i) => {
     const span = svg("tspan", { x, y: y0 + i * lh }, t);
     span.textContent = s;
@@ -200,7 +202,9 @@ export function mount(host, data, options = {}) {
   }));
   row(L.relations, data.vocab.relations.map((r) => {
     const li = el("li");
-    const s = svg("svg", { width: 28, height: 10, class: "cmap-legend-line", "aria-hidden": "true" });
+    const s = svg("svg", { width: 28, height: 10, viewBox: "0 0 28 10", class: "cmap-legend-line", "aria-hidden": "true" });
+    s.style.width = "28px";
+    s.style.height = "10px";
     const ln = svg("line", { x1: 1, y1: 5, x2: 25, y2: 5, stroke: stroke(r), "stroke-width": r.width || 1 }, s);
     if (r.style === "dotted") ln.setAttribute("stroke-dasharray", "1.5 3");
     if (r.style === "dashed") ln.setAttribute("stroke-dasharray", "5 3");
@@ -209,7 +213,7 @@ export function mount(host, data, options = {}) {
     li.append(s, document.createTextNode(r.description ? `${r.label} (${r.description})` : r.label));
     return li;
   }));
-  row(L.kinds, data.vocab.node_kinds.map((k) => el("li", null, `${k.label}: ${k.shape}`)));
+  row(L.kinds, data.vocab.node_kinds.map((k) => el("li", null, `${k.label}: ${L.shapeNames[k.shape] || k.shape}`)));
   if (data.meta.legend_note) leg.appendChild(el("p", "cmap-legend-note", data.meta.legend_note));
   root.appendChild(leg);
   host.appendChild(root);
@@ -217,11 +221,11 @@ export function mount(host, data, options = {}) {
   // fit / actual size
   let fit = options.fit !== false;
   const applyFit = () => {
-    S.setAttribute("width", fit ? "100%" : String(W));
-    S.setAttribute("height", fit ? "" : String(H));
-    if (fit) S.removeAttribute("height");
-    fitBtn.textContent = fit ? L.actual : L.fit;
-    fitBtn.setAttribute("aria-pressed", String(!fit));
+    // inline styles, so a host rule such as "svg { width: 100% }" cannot override the chosen size
+    S.style.width = fit ? "100%" : `${W}px`;
+    S.style.height = fit ? "auto" : `${H}px`;
+    S.style.maxWidth = fit ? "100%" : "none";
+    fitBtn.textContent = fit ? L.actual : L.fit;    // the label names the action, so no aria-pressed
   };
   fitBtn.addEventListener("click", () => { fit = !fit; applyFit(); });
   applyFit();

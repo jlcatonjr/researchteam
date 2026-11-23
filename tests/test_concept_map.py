@@ -118,13 +118,60 @@ def test_duplicate_edge_is_an_error():
 def test_registry_ids_are_checked_and_names_taken_from_it():
     s = spec()
     reg = {p["id"]: p["name"].upper() for n in s["nodes"] for p in n.get("persons", []) if "id" in p}
-    assert errors(s, reg) == []
-    data = build(s, reg)
-    assert node(data, "ada")["persons"][0]["name"] == "Ada Fenwright"      # a name given in the spec wins
+    errs, warns = cm.check_spec(s, reg)
+    assert errs == []
+    # with a registry, the register's name is used, and a different name in the spec is reported
+    assert node(build(s, reg), "ada")["persons"][0]["name"] == "ADA FENWRIGHT"
+    assert any("'ada-fenwright' is named 'Ada Fenwright' in the spec" in w for w in warns)
     del s["nodes"][0]["persons"][0]["name"]
     assert node(build(s, reg), "ada")["persons"][0]["name"] == "ADA FENWRIGHT"
     reg.pop("dov-pell")
     assert any("not in the registry" in e for e in errors(s, reg))
+
+
+def test_an_id_may_not_use_the_unregistered_prefix():
+    s = spec()
+    s["nodes"][0]["persons"] = [{"id": "name:ada", "name": "Ada"}]
+    assert any("may not start with 'name:'" in e for e in errors(s))
+
+
+def test_a_node_may_be_called_legend():
+    s = spec()
+    s["nodes"][0]["id"] = "legend"
+    for e in s["edges"]:
+        for end in ("from", "to"):
+            if e[end] == "ada":
+                e[end] = "legend"
+    assert errors(s) == []
+    assert '"legend" [id="legend"' in cm.to_dot(s) and '"__legend" [shape=plaintext' in cm.to_dot(s)
+
+
+@pytest.mark.parametrize("change", [
+    lambda s: s["nodes"][0].__setitem__("kind", ["actor"]),
+    lambda s: s["edges"][0].__setitem__("from", ["ada"]),
+    lambda s: s["nodes"][1].__setitem__("persons", 5),
+    lambda s: s["layout"].__setitem__("fontname", 5),
+    lambda s: s["edges"].append("not an edge"),
+])
+def test_malformed_values_fail_closed_without_a_traceback(tmp_path, change):
+    s = spec()
+    change(s)
+    p = tmp_path / "bad.json"
+    p.write_text(json.dumps(s), encoding="utf-8")
+    out = tmp_path / "map.json"
+    out.write_text("stale", encoding="utf-8")
+    report = tmp_path / "r.txt"
+    assert cm.main([str(p), "--out", str(out), "--report", str(report), "--dot-bin", str(tmp_path / "no-dot")]) == 1
+    assert not out.exists()
+    assert "nothing written" in report.read_text(encoding="utf-8")
+
+
+def test_a_registry_without_a_persons_list_is_an_error(tmp_path):
+    reg = tmp_path / "reg.json"
+    reg.write_text(json.dumps({"schema": "researchteam.bibliography-explorer", "persons": {"a": 1}}), encoding="utf-8")
+    out = tmp_path / "map.json"
+    assert cm.main([str(EXAMPLE / "spec.json"), "--out", str(out), "--registry", str(reg)]) == 1
+    assert not out.exists()
 
 
 def test_a_group_edge_is_listed_for_review_until_it_says_who():
@@ -183,7 +230,7 @@ def test_dot_is_deterministic_and_carries_ids():
     a, b = cm.to_dot(spec()), cm.to_dot(spec())
     assert a == b
     assert 'id="e0"' in a and '"ada" [id="ada"' in a
-    assert "rank=same" in a and "legend [" in a
+    assert "rank=same" in a and '"__legend" [' in a
 
 
 def test_dot_escapes_quotes_backslashes_and_markup():
