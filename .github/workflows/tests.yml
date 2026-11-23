@@ -40,10 +40,22 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --require-hashes -r .github/ci/requirements-test.txt
 
+      # Graphviz and Node, so the concept-map layout tests and the component test run instead of skipping
+      # (operator decision, 2026-11-23). Graphviz comes from the runner's own Ubuntu archive; Node is the one
+      # the runner image ships, so no action and no download from elsewhere is added. The step fails when
+      # either is missing: a skipped test must not pass for a run one.
+      - name: Install Graphviz; check Node
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends graphviz
+          dot -V
+          node --version
+          node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 18 ? 0 : 1)'
+
       - name: Run the test suite
         env:
           PYTHONPATH: .
-        run: python -m pytest -q tests
+        run: python -m pytest -q -rs tests
 
       - name: Bridge validate (fence pairing, placeholders)
         run: bash scripts/claude_researchteam_bridge.sh validate
