@@ -5,7 +5,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
-- **Concept map: a reusable, interactive map of a debate.** `templates/concept-map/` adds a contract
+- **Concept map: a reusable, interactive map of a debate (#247).** `templates/concept-map/` adds a contract
   (`researchteam.concept-map`, version 1.0), an exporter (`scripts/build_concept_map.py`) and a dependency-free
   component (`concept-map.js`, `concept-map.css`). A project writes one JSON spec of actors (writers or groups, each
   tied to person ids from its register), topics (claims and findings) and typed lines (in the example: affirms, denies,
