@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Toolchain: agentteams v1.3.0 is pinned, the first pin on the 1.3 line.** `toolchain.lock`, the `update` and
+  `research` extras and the autosync ref name `536306d`, the commit the signed tag `v1.3.0` peels to. The move off
+  the 1.2 line is recorded by the operator-signed row `release-line-agentteams-1.3`; the review of the pin itself is
+  `docs/release/pin-agentteams-v1.3.0.decision-spec.json`. The agent team is regenerated on all four surfaces: the
+  generated instruction sections say more exactly what `agentteams --verify-toolchain-pin` proves and name
+  `@git-operations` as the owner of the pull-request lifecycle, and the work-summary hook and the codex role gate
+  are stricter. A derived repository receives the pin at its next sync.
+
 - **Synced files no longer name other repositories.** Eleven files that `researchteam update` copies into every
   derived repository (eight protocol and policy documents under `docs/`, and three scripts' header comments) named
   particular derived repositories, their projects or their commits as the origin of a pattern. They now say "a
