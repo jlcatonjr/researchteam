@@ -5,6 +5,11 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Governance: the term-index loader and engine join the paths that need a `@security` PASS (PS-2).**
+  `scripts/check_term_core.py` decides which bytes of the pinned core run, and `scripts/term_index_engine.py` decides
+  whether that loader is used, so a pull request that touches either is merged only with a `@security` PASS naming
+  it (operator ruling, 2026-11-24). The projected copies of the project rules are re-synced.
+
 - **Term index: the engine now runs a pinned copy of agentteams' term-index core.** `scripts/term-index-core/` holds
   `term_index.py` and `_term_text.py` from the signed agentteams tag `v1.3.0` as exact bytes, its MIT licence and a
   manifest (`PINNED.json`) naming the tag, the commit and each file's sha256. `scripts/term_index_engine.py` is

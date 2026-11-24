@@ -405,7 +405,7 @@ Reference: the team's `references/write-policy.reference.md`.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=ed7c6a255b2f166f5a336666e5654b343323302deae0f40f6132d0f123c9b842 copy-sha256=57d9044deb251ed3b4d5b231c3651defb751017ccd0777890529b1bbdb6b3382 mode=reference -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=a971c144d9bc3f465f2891bd4907b3a1008d15d072c4a584dea9456f45687035 copy-sha256=57d9044deb251ed3b4d5b231c3651defb751017ccd0777890529b1bbdb6b3382 mode=reference -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They bind this session as written there: read that section before acting. This is a reference, not a copy, because a copy would exceed Codex's 32 KiB project-instructions budget.

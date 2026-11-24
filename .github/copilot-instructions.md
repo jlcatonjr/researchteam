@@ -340,7 +340,7 @@ default explicitly by saying so in their first line.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=ed7c6a255b2f166f5a336666e5654b343323302deae0f40f6132d0f123c9b842 copy-sha256=e6071380e22a54d73716ddd6c15880564b404c88c10d43027c521d98c3532725 mode=copy -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=a971c144d9bc3f465f2891bd4907b3a1008d15d072c4a584dea9456f45687035 copy-sha256=948eee5b62041bf19e21c9122a85bd8efba9db17aa41b9245ec2a4e24805d491 mode=copy -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 - **PS-1 All session work is public (operator ruling, 2026-11-14).** Keep no notes, plans, drafts,
@@ -373,9 +373,10 @@ default explicitly by saying so in their first line.
   - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
     all does not count as green.
   - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
-    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, a pin in `pyproject.toml`, or `scripts/term-index-core/`
-    (the copied term-index core and its manifest; operator ruling, 2026-11-24) needs a `@security` PASS that names
-    those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
+    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, a pin in `pyproject.toml`, `scripts/term-index-core/`
+    (the copied term-index core and its manifest), `scripts/check_term_core.py` (its check and loader) or
+    `scripts/term_index_engine.py` (the engine that calls the loader; operator rulings, 2026-11-24) needs a
+    `@security` PASS that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
     is not enough there.
   - Each such merge commit says "Merged under PS-2 by the agent session" in its body and names the operator's
     approval, so it can be told apart from an operator merge made with the same token.
