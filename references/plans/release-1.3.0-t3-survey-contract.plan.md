@@ -10,10 +10,12 @@ run a stage.
 2. **Explorer contract 1.1 (F8, only-if-ready, after D2).** `templates/bibliography-explorer/CONTRACT.md`
    gains `basis`, `reporter` and `note`, with the explorer's tests, component and `FILES.sha256` as section 9
    of `docs/survey-toolkit.md` requires; open point 2 in section 11 is closed. Own PR; `@code-hygiene` and
-   `@conflict-auditor`. It does not wait for step 3.
+   `@conflict-auditor`. It does not wait for step 3. **Done on 2026-11-20 (PR #238, `5b59aa5`).** The freeze
+   renumbered the contract's open points; open point 1 (step 3 below) keeps its number.
 3. **Open point 1 (F7).** After agentteams releases its gates-only team directory: write the per-study log's
    folder layout and the HALT rule into section 6 of `docs/survey-toolkit.md`, citing the released
    documentation, and close open point 1. `@security` reads the text, because it describes a sign-off log.
-4. The specification stays labelled v0-unstable in 1.3.0.
+4. ~~The specification stays labelled v0-unstable in 1.3.0.~~ Superseded on 2026-11-23: the contract was frozen as
+   version 1 (PR #251) once the first project had run a stage that writes evidence. 1.3.0 ships the frozen contract.
 
 Done when the contract on `main` has no open point that 1.3.0 could close, and the plan record is true.

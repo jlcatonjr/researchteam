@@ -22,9 +22,9 @@ has not ruled on it yet (decision D2).
 | F3 | Copy-integrity check for F2: hash manifest next to the copy, offline check, doctor report, equality test against the pinned commit, byte-exact sync, and a CI job that runs the network comparison on every PR touching the copy | design note `open-1119-p1-copy-integrity-design.md`, sections 1 to 5 and 10 | lead | designed, reviewed by `@adversarial`; not built | none beyond F2 | in. Part of F2 by the operator's choice of the pinned-copy design; F2 does not merge without it |
 | F4 | Term-index docs: the placement as built, and the layering rule | plan P1 step 1.4 | lead | not started | none | in, with F2 |
 | F5 | Replace the two private agentteams imports in `researchteam/_frozen.py` | seam table, deliverable 2 | lead | inventory done; the request to agentteams is held by the operator's choice | public equivalents, which are not in agentteams' 1.3.0 scope today | only-if-ready (proposed). Otherwise kept, with the reason recorded |
-| F6 | Survey toolkit contract (`docs/survey-toolkit.md`) | operator, 2026-11-19, the survey session's picker ("researchteam 1.3; the contract first") | the survey-toolkit session | merged on `main` (PRs #223 to #226); the plan's step 13 still reads pending and is reconciled in T3 | none | in. Operator, 2026-11-19 |
+| F6 | Survey toolkit contract (`docs/survey-toolkit.md`) | operator, 2026-11-19, the survey session's picker ("researchteam 1.3; the contract first") | the survey-toolkit session | merged on `main` (PRs #223 to #226) and **frozen as version 1 on 2026-11-23** (PR #251, `9538596`), after the first project's first stage that writes evidence; the plan record is reconciled | none | in. Operator, 2026-11-19 |
 | F7 | Survey contract, open point 1: the per-study sign-off log, written against the gates-only pattern as agentteams releases it | `docs/survey-toolkit.md`, section 11 | the survey-toolkit session | waits for upstream | agentteams #578 (its PR #588): the gates-only team directory, documented and tested, and whether a main-team HALT binds it | in, as documentation only (proposed) |
-| F8 | Survey: explorer contract 1.1 (`basis`, `reporter`, `note`) | `docs/survey-toolkit.md`, section 10 step 2 | the survey-toolkit session | agreed in outline; not written | none | only-if-ready (proposed) |
+| F8 | Survey: explorer contract 1.1 (`basis`, `reporter`, `note`) | `docs/survey-toolkit.md`, section 10 step 2 | the survey-toolkit session | **done**: contract 1.1 merged on 2026-11-20 (PR #238, `5b59aa5`) | none | in (done) |
 | F9 | Survey tools: validator, manifest builder, row checks, sign-off verification, enumeration, agents, CI gate | `docs/survey-toolkit.md`, section 10 steps 4 to 8 | the survey-toolkit session | not started, by ruling | #578 for sign-off verification | deferred to 1.3.x or 1.4. Operator, 2026-11-19: no tool before the first project has run a stage |
 | F10 | Derived autosync workflow: fetch a release tag without the repository's history | issue #228 | lead | not started | none | in (proposed) |
 | F11 | Derived autosync workflow: `persist-credentials: false` on checkout | issue #176 | lead | already on `main`: both checkouts set it and tests assert it; the issue is still open | none | done. T4 verifies it against the issue and closes the issue |
@@ -234,3 +234,19 @@ second pass.
   1.3.0 (only its first term-index PR is in scope), so researchteam adopts nothing from them.
 - **Any change to the term index's behaviour:** the switch must be invisible; the freeze on term-index scope
   holds until it has shipped.
+
+## Update, 2026-11-23 (the lead changed hands on 2026-11-22; facts only, no decision D1 to D9 is answered here)
+
+- **F6:** the survey contract is frozen as version 1 (PR #251). T3's step 4 ("the specification stays labelled
+  v0-unstable in 1.3.0") no longer holds: 1.3.0 ships the frozen contract. Its open points were renumbered at the
+  freeze; open point 1 (the per-study ledger, F7) keeps its number.
+- **F8:** done on 2026-11-20 (PR #238). Nothing of it is left for 1.3.0.
+- **F9:** operator ruling, 2026-11-23 (picker): the survey tools are planned for the minor release after 1.3.0.
+  Plan: `references/plans/survey-tools-2026-11-23.plan.md`. They are out of 1.3.0's scope.
+- **New on `main` since version 3, all of which 1.3.0 will carry:** the concept-map template, exporter and
+  protocol (PR #247; `docs/concept-map-protocol.md` is a scholarly managed file); CI installs Graphviz and checks
+  for Node (PR #250); this repository's own toolchain-group file, sequence 5, signed with `opr-2026-11` (PR #248);
+  the verify key `opr-2026-11` beside `op-2026` and seven re-signed decision rows (PRs #244, #245).
+- **Soak order** as the fleet's coordinator gave it on 2026-11-23: the first soak repository, then researchteam,
+  then the third. The agentteams freeze is clear and its release branch is next.
+- **Still open for the operator:** D1 to D4, D6 and D9.
