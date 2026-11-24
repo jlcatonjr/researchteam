@@ -7,7 +7,7 @@ and prints a short notice when anything is behind. Used by the SessionStart hook
 ``scripts/bootstrap_toolchain.sh`` and by ``researchteam doctor``. ``--write-lock`` is used by the
 autosync gate to record what a green sync was verified with.
 
-Managed by researchteam (layer 2); adapted from OrthodoxLLM a291cf2.
+Managed by researchteam (layer 2); adapted from a derived repository's script.
 
 Which interpreter is inspected, first match wins:
   --python PATH  >  <repo>/.venv/bin/python  >  the interpreter behind `researchteam` on PATH.

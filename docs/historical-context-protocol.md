@@ -135,6 +135,6 @@ term. A term with period senses is registered once per sense.
 
 ## Origin
 
-Generalised from the OrthodoxLLM historical-context audit (2026-10-09). A comparative project
-(christ-the-eternal-tao, round 3) needed a context rule written into its plan after the fact, because
+Generalised from a derived research repository's historical-context audit (2026-10-09). A comparative
+project there needed a context rule written into its plan after the fact, because
 no agent owned setting. This protocol makes that rule the default.

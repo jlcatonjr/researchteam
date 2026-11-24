@@ -7,7 +7,7 @@ builds and owns its own library, separable from every other. This is the single 
 
 ## The honest ceiling (read first — binding; do not soften)
 
-Generalized from the OrthodoxLLM instance, whose guardrails "must not be softened to make it usable":
+Generalized from a derived research repository's instance, whose guardrails "must not be softened to make it usable":
 
 - **Records ship `UNVERIFIED`** (`verification_state: "UNVERIFIED — no human resolution performed"`).
   A green `check_literature_library_integrity.sh` certifies **structure, not truth**.
@@ -91,7 +91,7 @@ until that aggregator exists.
 
 ## Deferred: the out-of-band full-text layer
 
-For public-domain sources, an optional layer (OrthodoxLLM-style) acquires full text **out-of-band**
+For public-domain sources, an optional layer (as in that instance) acquires full text **out-of-band**
 into `Projects/<project>/references/library/corpus/<slug>.txt` (gitignored) + a committed
 `<slug>.provenance.json` (source URL + sha256 + license), and vectorizes the text. This is documented
 for future work; it is **not** built by the base capability, and acquisition is **never** an
@@ -104,10 +104,10 @@ audit-time agent fetch.
 > its own weaker honesty label ("navigation, not a proof; not peer-reviewed truth"). It does **not** change
 > the corpus-of-record law above: the base library's acquisition remains out-of-band and human-gated.
 
-## Relation to OrthodoxLLM
+## Relation to the originating instance
 
-OrthodoxLLM has its own **instance-local, domain-specific** library pipeline
+The originating repository has its own **instance-local, domain-specific** library pipeline
 (`build_catalogue.py`/`acquire_text.py`/`build_vectors.py` with sklearn, `check_library_integrity.sh`,
 canonical-repertory IDs) — a superset. This researchteam capability is the **domain-agnostic,
 stdlib** generalization; its gate is deliberately named `check_literature_library_integrity.sh` so it
-never overwrites OrthodoxLLM's instance-local `check_library_integrity.sh`.
+never overwrites that repository's instance-local `check_library_integrity.sh`.

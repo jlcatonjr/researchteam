@@ -5,6 +5,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Synced files no longer name other repositories.** Eleven files that `researchteam update` copies into every
+  derived repository (eight protocol and policy documents under `docs/`, and three scripts' header comments) named
+  particular derived repositories, their projects or their commits as the origin of a pattern. They now say "a
+  derived research repository" or similar. No behaviour changes. A derived repository receives the new wording at
+  its next sync.
+
 - **CI: the concept-map layout and component tests now run.** `tests.yml` installs Graphviz from the runner's
   Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
   longer skip in CI. The pytest summary lists any test that was skipped.

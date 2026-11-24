@@ -223,7 +223,7 @@ omits can therefore give the surfaces different agent rosters. The two that matt
   and `package.json`.
 
 `researchteam update` warns when either is missing and a native surface is present. Declare both in
-`brief.json` to get one roster everywhere. One scan rule for every surface (masterTeacher ticket 4.4)
+`brief.json` to get one roster everywhere. One scan rule for every surface (a consuming project's ticket)
 was planned for 1.0.1 but has not shipped (not in 1.0.1, 1.0.2 or the 1.1.0 release candidates); until it does,
 declare both fields.
 

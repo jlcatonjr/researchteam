@@ -28,7 +28,7 @@ ceiling — and it carries its own, weaker honesty label to say so out loud.
 ## What the profile is
 
 A per-answer pipeline: **fetch a few reputable sources now → provenance → chunk → dense-embed → query**,
-all local, no cloud key. It is templated on the researchRepositories corpora (OrthodoxLLM draws only from an
+all local, no cloud key. It is templated on the derived research corpora (one of them draws only from an
 *enumerated set* of reputable repositories — CCEL / newadvent / archive.org — **never an open crawl**); the
 on-the-fly profile applies that same "enumerated reputable sources only" idea at answer time.
 
@@ -96,7 +96,7 @@ This profile has two halves; only the first is a real, present implementation as
   `pyproject.toml`) — a `ReputableSourceAllowlist` built from a data-driven `AllowlistConfig`
   (tier/type per domain, optional path-scoping, topic-keyword routing), with a public `tier_of
   (url)` and an honest-empty `reputable_sources(...) → []`. Generalized from the pattern originally
-  built in LingoFriend `b6579ad` (`knowledge/reputable.py`) — that commit is this pattern's
+  built in an earlier private project (`knowledge/reputable.py` there) — that work is this pattern's
   historical origin, not the implementation a consumer needs to port from scratch anymore. Besides
   a small, deliberately generic `DEFAULT_CONFIG` (4 broadly-uncontroversial domains —
   wikipedia.org, reuters.com, apnews.com, bbc.com), `agentteams.research` ships larger starting
@@ -105,7 +105,7 @@ This profile has two halves; only the first is a real, present implementation as
   supplies its own `AllowlistConfig`, and none substitutes for its own editorial judgment.
 - **Fetch → chunk → dense-embed → per-account query (still hypothetical):** this half of the
   profile has no implementation in `agentteams.research` or anywhere else in this framework as of
-  this writing. LingoFriend `b6579ad`'s `knowledge/sources.py` (fetch →
+  this writing. That earlier project's `knowledge/sources.py` (fetch →
   `provenance{sha256, tier, url, retrieved_at}` → paragraph-chunk → dense-embed → per-account
   query, all local, no cloud key) remains the only reference implementation to port from, exactly
   as before. Porting it is a separate, later decision, not part of what shipped alongside the
