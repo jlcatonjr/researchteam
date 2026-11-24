@@ -139,18 +139,23 @@ def test_malformed_locked_pins_fail_closed(tmp_path, upstream, lock):
 
 
 # --- the tag fetch is shallow, retried once without the object filter, and fails closed (#228) ---------------
+# The stand-in remote is a local path, whose server ignores --filter with a warning: these tests prove the
+# arguments, the fallback and the failure path, not that a filtered fetch transfers less.
 
 def _git_wrapper(tmp_path: Path, refuse: str) -> Path:
     """Put a `git` first on PATH that logs every fetch and refuses those whose arguments contain *refuse*."""
-    real = shutil.which("git")
+    import shlex
+    real = shlex.quote(shutil.which("git"))
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir(exist_ok=True)
     log = tmp_path / "git-fetch.log"
+    quoted = shlex.quote(str(log))
     (bin_dir / "git").write_text(
         "#!/bin/sh\n"
-        f"case \" $* \" in *\" fetch \"*) echo \"$*\" >> {log}\n"
+        f"case \" $* \" in *\" fetch \"*) echo \"$*\" >> {quoted}\n"
         f"  case \" $* \" in *\"{refuse}\"*) echo 'fatal: refused by the test' >&2; exit 128;; esac;; esac\n"
         f"exec {real} \"$@\"\n")
+    (bin_dir / "git").chmod(0o755)
     return log
 
 
@@ -158,7 +163,9 @@ def test_the_tag_fetch_is_shallow_and_never_carries_a_credential():
     step = _step("Install ResearchTeam CLI")
     fetches = [ln.strip() for ln in step.splitlines() if " fetch " in ln and not ln.lstrip().startswith("#")]
     assert len(fetches) == 2, fetches
-    assert all("--no-tags" in f and "--depth=1" in f and '"refs/tags/$tag:refs/tags/$tag"' in f for f in fetches)
+    import re
+    assert all("--no-tags" in f and re.search(r"--depth=1(?!\d)", f) and '"refs/tags/$tag:refs/tags/$tag"' in f
+               for f in fetches)
     assert "--filter=tree:0" in fetches[0] and "--filter" not in fetches[1]
     assert not any(word in step for word in ("extraheader", "x-access-token", "GH_TOKEN", "GITHUB_TOKEN"))
 
