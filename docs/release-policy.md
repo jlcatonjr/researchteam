@@ -65,6 +65,9 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`release-line-agentteams-1.3`), separate from the pin review. As before, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.3 tag> --sync-extras`. The new lock follows only
   verified signed tags on the 1.3 line.
+- researchteam 1.3 carries the term-index core switch (`docs/term-index-protocol.md`, "Planned placement") and
+  the survey toolkit's contract (`docs/survey-toolkit.md`, version 1), as ruled under "The 1.2 line". The survey
+  tools follow in the minor release after 1.3.0.
 - Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag, as for 1.2.
 
 ## Tags
