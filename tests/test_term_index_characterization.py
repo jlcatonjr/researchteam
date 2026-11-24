@@ -26,7 +26,8 @@ Added here (the gaps, concentrated on the seams in the swap's seam analysis):
 - a terms.json marked `agentteams-term-register` is foreign: status, gate codes and exit codes;
 - exact bytes of an index file (with and without occurrences), the glossary, and the manifest's key order;
 - manifest_matches / manifest_is_current after register edit, new document, missing manifest, generator change;
-- assess(proj, True) (positional reuse) gives the same files as assess(proj);
+- assess(proj, reuse=True) gives the same files as assess(proj) (by keyword: the adapter's `reuse` is
+  keyword-only after the swap, design note section 7, so a positional call is refused there);
 - a golden project checked for self-consistency, with its full occurrence list;
 - MAY CHANGE AT THE SWAP: generator and schema identifiers, the NOREG / NEEDS-REGISTER wording, the
   oversized-register wording, and a symbolically linked terminology/index/ passing the gate.
@@ -54,7 +55,7 @@ INVARIANT_TESTS = (
     "test_an_agentteams_schema_register_is_foreign",
     "test_generated_index_glossary_and_manifest_bytes",
     "test_manifest_fast_path",
-    "test_assess_with_positional_reuse_gives_the_same_files",
+    "test_assess_with_reuse_gives_the_same_files",
     "test_golden_project_is_self_consistent",
 )
 MAY_CHANGE_AT_SWAP_TESTS = (
@@ -270,12 +271,12 @@ def test_manifest_fast_path(tmp_path):
         assert engine.manifest_is_current(proj) is True, what
 
 
-def test_assess_with_positional_reuse_gives_the_same_files(tmp_path):
+def test_assess_with_reuse_gives_the_same_files(tmp_path):
     engine = load("term_index_engine")
     proj = make(tmp_path, {"a.md": "A term register.\n", "sub/b.md": "An occurrence index.\n"})
-    unbuilt = engine.assess(proj, True)
+    unbuilt = engine.assess(proj, reuse=True)
     assert build(tmp_path).returncode == 0
-    fresh, reused = engine.assess(proj), engine.assess(proj, True)
+    fresh, reused = engine.assess(proj), engine.assess(proj, reuse=True)
     assert reused.files == fresh.files == unbuilt.files and reused.docs == fresh.docs
     for rel, data in fresh.files.items():
         assert (proj / "terminology" / rel).read_bytes() == data, rel
