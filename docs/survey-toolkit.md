@@ -7,7 +7,8 @@ that project had its S0 and S5 gates signed and had run a stage that writes evid
 ruling, 2026-11-21: enumeration alone was not enough). What the freeze changed is listed in section 12.
 From here a change to a shape, rule or command is a new version of this contract, not an edit. No survey
 tool is implemented in researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2)
-is, since 2026-11-20. Planned for researchteam 1.3 (operator ruling, 2026-11-19).
+is, since 2026-11-20. The contract ships in researchteam 1.3.0 (operator ruling, 2026-11-19); the tools are
+planned for the minor release after it (operator ruling, 2026-11-23).
 
 A *position survey* answers a question of the form "what did the people in this frame hold about X, and
 on what evidence". The toolkit is the reusable part of running one: a study specification, the row

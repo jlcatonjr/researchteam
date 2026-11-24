@@ -25,3 +25,16 @@ researchteam's lead, checks it, publishes it and takes it to a merge decision.
 - `@code-hygiene`: three blocking findings (a "clean build" claim the code did not enforce; a single band lost its
   label; the skill's ownership), all fixed. The advisory findings not fixed are listed in pull request #247.
 - Tests on the pushed head: 1047 passed, 2 skipped, with Graphviz and Node present.
+
+## Follow-up: CI runs the concept-map tests (pull request #250)
+
+Operator decision, 2026-11-23, relayed by the handing-over session and confirmed by the operator's merge answer in
+this session: CI should install Graphviz and have Node, so the layout tests and the component test stop skipping.
+
+- `tests.yml` installs Graphviz from the runner's Ubuntu archive and checks for Node 20 or later; the step fails
+  when either is missing. No action was added: Node is the runner image's own.
+- S-10: the installed version was read from the first green run, and the vulnerability search is recorded beside
+  the step. One open advisory, of low priority, was found and accepted by `@security` for this use.
+- `@security` PASS naming `.github/workflows/tests.yml` at the merged head. Merged as `fdf0fb6`; `main` is green.
+- One comparison still skips by design: the example's layout, byte for byte, when the runner's Graphviz differs
+  from the version that made the example.
