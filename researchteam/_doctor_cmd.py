@@ -337,6 +337,14 @@ def _lock_agentteams_tag(root: Path) -> str | None:
 _TERM_CORE_SUMMARY = re.compile(r"^\[term-core\] SUMMARY agentteams (v\d+\.\d+\.\d+(?:-rc\.\d+)?) \(([0-9a-f]{12})\): ")
 
 
+def _engine_uses_core(root: Path) -> bool:
+    """Whether the repository's term-index engine is the one that loads the pinned core (it names the check)."""
+    try:
+        return "check_term_core" in (root / "scripts" / "term_index_engine.py").read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return True  # unreadable or absent beside a present gate: treat as the new engine, so the fault is reported
+
+
 def _check_term_core(root: Path, ok, warn, fail) -> bool:
     """Check the pinned copy of the agentteams term-index core (scripts/check_term_core.py). A failure FAILS doctor.
 
@@ -350,6 +358,12 @@ def _check_term_core(root: Path, ok, warn, fail) -> bool:
     if not (root / TERM_INDEX_GATE).is_file():
         return True
     missing = [rel for rel in (TERM_CORE_CHECK, TERM_CORE_MANIFEST) if not (root / rel).is_file()]
+    if missing and not _engine_uses_core(root):
+        # The repository still carries the engine from before the core switch (researchteam 1.2 or older). It runs
+        # no pinned core, so there is nothing to verify and nothing is broken: say so, and do not fail.
+        warn("term-index core: this repository's term index is the engine from before the pinned core "
+             "(researchteam 1.2 or older); `researchteam update` moves it to the pinned core.")
+        return True
     if missing:
         fail(f"term-index core: {', '.join(missing)} missing, so the term index cannot verify or load its pinned "
              "core and will not run.\n         Upgrade researchteam first (bash scripts/bootstrap_toolchain.sh, or "

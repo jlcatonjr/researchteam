@@ -382,6 +382,19 @@ def test_doctor_fails_when_the_gate_is_present_without_its_core(tmp_path, missin
     assert len(out) == 1 and out[0][0] == "FAIL" and "missing" in out[0][1] and "Upgrade researchteam first" in out[0][1]
 
 
+def test_doctor_only_warns_for_the_engine_from_before_the_switch(tmp_path):
+    """A repository still on the pre-switch engine runs no pinned core: nothing to verify, nothing broken."""
+    from researchteam import _doctor_cmd
+
+    repo = repo_copy(tmp_path, project=False)
+    shutil.rmtree(repo / "scripts" / "term-index-core")
+    (repo / "scripts" / "check_term_core.py").unlink()
+    (repo / "scripts" / "term_index_engine.py").write_text("# the whole engine, as shipped before the switch\n")
+    out, ok, warn, fail = _lines()
+    assert _doctor_cmd._check_term_core(repo, ok, warn, fail) is True
+    assert len(out) == 1 and out[0][0] == "warn" and "before the pinned core" in out[0][1]
+
+
 def test_doctor_is_silent_without_the_term_index_scripts(tmp_path):
     from researchteam import _doctor_cmd
 

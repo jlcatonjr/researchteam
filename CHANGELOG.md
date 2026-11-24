@@ -14,7 +14,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     `researchteam doctor` reports a mismatch as a failure. `term-core-check` runs the check alone.
   - `python -m researchteam._term_core_upstream` compares the copy with the signed tag over the network; the
     offline check proves only that the copy matches its manifest.
-  - `researchteam update` syncs the directory byte for byte.
+  - `researchteam update` syncs the directory byte for byte, as one set that is checked against its manifest
+    before anything is written, and refuses to write through a symlink.
+  - CI: a new workflow, `term-core.yml`, runs the network comparison on every pull request and push that touches
+    the directory or the code that checks it. It takes the comparing code from the base branch, so a pull
+    request cannot pass by changing its own judge.
+  - A repository still on the engine from before the switch gets a doctor warning, not a failure.
   - Generated indexes, findings and exit codes are unchanged, with two exceptions. A register that is a link, not
     a regular file, or larger than the size limit is refused with one combined message. A symlinked
     `terminology/index/` is now reported as `[STALE]` instead of passing.

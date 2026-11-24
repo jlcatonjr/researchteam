@@ -1,0 +1,109 @@
+name: Term-index core
+
+# Compares the pinned term-index core (scripts/term-index-core/) with the signed agentteams tag its manifest
+# names, on every pull request and push that touches the directory, its manifest's reader or this workflow.
+# The offline check proves only that the copy matches its own manifest; a pull request can change both together.
+# This job is what proves the bytes are the signed tag's (design: docs/term-index-protocol.md, "Placement").
+#
+# The comparison code is taken from the BASE branch, not from the pull request, so a pull request cannot
+# pass by changing the code that judges it. Only when the base has no such code yet (the pull request that
+# introduces it) does the job run the pull request's own copy, and it says so.
+#
+# Read-only: no write token, no artifacts. One secret, AGENTTEAMS_ALLOWED_SIGNERS: the release key's public
+# line, the same one the AgentTeams Autosync uses. A pull request from a fork gets no secrets, so the job
+# fails closed there.
+
+on:
+  pull_request:
+    branches: [main, "release/**"]
+    paths:
+      - "scripts/term-index-core/**"
+      - "scripts/check_term_core.py"
+      - "researchteam/_term_core_upstream.py"
+      - "researchteam/_release.py"
+      - ".github/workflows/term-core.yml"
+  push:
+    branches: [main, "release/**"]
+    paths:
+      - "scripts/term-index-core/**"
+      - "scripts/check_term_core.py"
+      - "researchteam/_term_core_upstream.py"
+      - "researchteam/_release.py"
+      - ".github/workflows/term-core.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: term-core-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  upstream-comparison:
+    name: term-index core equals the signed tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the change
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+          path: change
+
+      - name: Check out the base (pull requests)
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5
+        with:
+          python-version: "3.13"
+
+      - name: Release trust root (operator-provisioned secret)
+        env:
+          ALLOWED_SIGNERS: ${{ secrets.AGENTTEAMS_ALLOWED_SIGNERS }}
+        run: |
+          # Only the agentteams release key is trusted, by its pinned fingerprint (agentteams SECURITY.md
+          # "Release signers"). A key rotation is a reviewed change to RELEASE_FP, never a secret edit.
+          if [ -z "$ALLOWED_SIGNERS" ]; then
+            echo "AGENTTEAMS_ALLOWED_SIGNERS is not available (a fork, or the secret is not set); refusing" >&2; exit 1
+          fi
+          RELEASE_FP="SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM"
+          signers="$RUNNER_TEMP/allowed_signers"
+          printf '%s\n' "$ALLOWED_SIGNERS" | sed '/^[[:space:]]*$/d' > "$signers"
+          if [ "$(wc -l < "$signers" | tr -d ' ')" != 1 ]; then
+            echo "AGENTTEAMS_ALLOWED_SIGNERS must hold exactly one line, the release key's; refusing" >&2; exit 1
+          fi
+          read -r principal opts ktype kdata rest < "$signers"
+          if [ -z "$principal" ] || [ "$opts" != 'namespaces="git"' ] || [ -z "$kdata" ] || [ -n "$rest" ]; then
+            echo 'AGENTTEAMS_ALLOWED_SIGNERS is not "<principal> namespaces="git" <type> <key>"; refusing' >&2; exit 1
+          fi
+          printf '%s %s\n' "$ktype" "$kdata" > "$signers.pub"
+          fp="$(ssh-keygen -l -E sha256 -f "$signers.pub" 2>/dev/null | awk '{print $2}')"
+          if [ "$fp" != "$RELEASE_FP" ]; then
+            echo "AGENTTEAMS_ALLOWED_SIGNERS holds key ${fp:-<unreadable>}, not the release key $RELEASE_FP; refusing" >&2
+            exit 1
+          fi
+          echo "AGENTTEAMS_ALLOWED_SIGNERS=$signers" >> "$GITHUB_ENV"
+
+      - name: Compare the core with the signed tag
+        run: |
+          # researchteam has no dependencies, so the judging code runs straight from a checkout (-I: no
+          # current directory, no user site; -B: no bytecode written).
+          judge="$GITHUB_WORKSPACE/change"
+          if [ -d "$GITHUB_WORKSPACE/base" ]; then
+            if [ -f "$GITHUB_WORKSPACE/base/researchteam/_term_core_upstream.py" ]; then
+              judge="$GITHUB_WORKSPACE/base"
+              echo "judging code: the base branch's"
+            else
+              echo "::warning::the base branch has no comparison code yet; using the pull request's own (first introduction only)"
+            fi
+          else
+            echo "judging code: the pushed commit's (already merged)"
+          fi
+          cd "$RUNNER_TEMP"
+          python -I -B -c 'import sys; sys.path.insert(0, sys.argv[1]); sys.argv = ["researchteam._term_core_upstream", "--root", sys.argv[2]]; import runpy; runpy.run_module("researchteam._term_core_upstream", run_name="__main__")' \
+            "$judge" "$GITHUB_WORKSPACE/change"
