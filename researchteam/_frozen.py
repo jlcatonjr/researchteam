@@ -165,6 +165,10 @@ def record(root: Path, frozen: frozenset[str]) -> bool:
 
 # --- unfreeze, verified by the pinned agentteams' own gate ---------------------------------------------------------
 
+# _latest_security_decision and _latest_security_waiver are private agentteams names, kept on purpose: agentteams
+# 1.3.0 exports no public equivalent (checked against the v1.3.0 tag, 2026-11-24). Its public verify_waivers returns
+# every waiver row, compares actions as plain strings and never raises, so using it here would change what an
+# unfreeze refuses. Replace both when agentteams exports a latest-decision and a latest-waiver lookup.
 _VERIFY = r"""
 import json, sys
 from pathlib import Path
