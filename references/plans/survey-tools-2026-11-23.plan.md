@@ -37,7 +37,7 @@ version.
 | C | 5 | Codes: agreement, fail-closed finalising, rollup; provenance records (4.6) for every output | B |
 | D | 5 | The frame of a passage or work study, its dropped list and passage list (4.7); the frame-change log and post-steps (4.4, 4.5) | C |
 | E | 5 | The explorer projection (section 9): `evidence.csv`, `codes.csv`, `persons.csv` for explorer contract 1.1 | D |
-| F | 6 | Sign-off verification and stage refusal | the `agentteams` gates-only log pattern being documented (contract open point 1); A |
+| F | 6 | Sign-off verification and stage refusal | A. The `agentteams` gates-only log pattern is documented since its 1.3.0 (contract 6.2, settled 2026-11-24) |
 | G | 7 | Enumeration log and stopping rule; blind coding packets; quote re-finding and fetch receipts; the query-plan runner | F for the stages that a gate blocks |
 | H | 8 | The seven agents (rendered by `agentteams` from the brief, never by hand), the bridge commands in the managed block of `CLAUDE.md`, and the CI gate | G; `@security` review of every grant |
 
