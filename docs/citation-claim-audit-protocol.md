@@ -157,7 +157,7 @@ are real, the specific attribution composition is not yet assembled anywhere in 
 **Reference (best-effort, order-dependent — not authoritative):** the survival/attribution split itself is
 implemented, generalized, and real in `agentteams.research.verify` (`extract_claims`/`audit_claims`/
 `_supported_by_evidence` — see above); the full per-`(claim × source)` matrix composition is not, and
-LingoFriend `daa3f93` (`knowledge/team.py`, the pattern's historical origin) remains the closest full
+an earlier private project (`knowledge/team.py` there, the pattern's historical origin) remains the closest full
 worked example: it splits survival (claim vs. evidence corpus) from attribution (per-source), recording a
 per-claim `source_url` only when a real source supports it; a truncated attribution can drop a URL but
 never changes a survival verdict.

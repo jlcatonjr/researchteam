@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fail-closed integrity gate for a per-project literature library.
 # (Named check_literature_library_integrity.sh — NOT check_library_integrity.sh — to avoid clobbering
-#  the OrthodoxLLM instance-local, domain-specific gate of that name via researchteam update.)
+#  a derived repository's instance-local, domain-specific gate of that name via researchteam update.)
 #
 # A GREEN result certifies STRUCTURE, not truth. It enforces the anti-fabrication ceiling and the
 # relevance-capture obligation; it does NOT prove any source is real, relevant, or exhaustive.

@@ -74,7 +74,7 @@ required schema field.
 
 This protocol did not originate as framework prescription — it formalizes a pattern a downstream
 researchteam consumer project independently built and proved useful under real deliverable
-pressure: `researchRepositories/OrthodoxLLM`'s `election-within-the-orthodox-church` project.
+pressure, in one of its projects.
 That project's own interpretive map defined a source-tier discipline naming journalism as a
 distinct, recency-scoped class ("Tier 3 — journalism / wikis: used for *recent events*... always
 cross-checked and attributed. Never the sole support for a normative or historical-structural
@@ -114,4 +114,4 @@ researchteam project, this protocol asks `@technical-validator`'s claim ledger a
 Documented as an interpretive overlay with its own honest ceiling and a proven, cited precedent —
 so a project consuming reputable news sources has a formalized "Reported"/"Contested" vocabulary
 and a named recency-drift check to apply, rather than either treating a news claim as equivalent
-to a scholarly citation or re-inventing the OrthodoxLLM pattern locally, unaware it already exists.
+to a scholarly citation or re-inventing that pattern locally, unaware it already exists.
