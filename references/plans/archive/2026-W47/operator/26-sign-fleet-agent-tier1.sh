@@ -14,7 +14,7 @@
 #   /bin/bash -p <this file> <HEAD>                   the real run
 # Before answering y at "Sign this payload?", check: key_id opr-2026-11; action fleet-agent-tier1:jlcatonjr/researchteam;
 # derives_from release-policy-1.0; verdict PASS; grants ['fleet-agent-jlcatonjr']; relaxes that action id only; the
-# date in the signature values is 2026-11-23.
+# date in the signature values is 2026-11-24.
 [[ $- == *p* ]] || { printf 'STOP: run this as /bin/bash -p <path> <HEAD>\n' >&2; exit 1; }
 set -euo pipefail
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin
@@ -39,13 +39,13 @@ HEAD_WANT="$1"
 
 WT="$HOME/githubrepositories/researchteam-wt-survey-toolkit"
 BRANCH=governance/fleet-agent-tier1
-DATE=2026-11-23
+DATE=2026-11-24
 EXPIRES=2027-02-18T23:59:59+00:00
 ACTION="fleet-agent-tier1:jlcatonjr/researchteam"
 OTHER="repo-setting:delete-branch-on-merge:jlcatonjr/researchteam"
 TEAM=.github/agents
 SPEC=docs/release/fleet-agent-tier1.decision-spec.json
-SPEC_SHA=d1e2ded320b1e361baf9e88c73f669a0463a2694ec35779895a657a93a914aca
+SPEC_SHA=5ad59d0fed4ab0fc9809fc6d8f3ec3328c7bf043cb3219f76010908527c92dee
 VENV="<signer>"                # root-owned install built from agentteams tag v1.2.1 on python.org 3.13; the real path is only in the copy the operator runs
 BASEPY=/Library/Frameworks/Python.framework/Versions/3.13
 KEY="<decision-key-file>"      # the operator's opr-2026-11 private key; the real path is only in the copy the operator runs

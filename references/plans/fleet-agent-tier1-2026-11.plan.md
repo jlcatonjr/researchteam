@@ -9,7 +9,7 @@ Operator rulings in this session's picker, 2026-11-22:
 - First: raise the exception cap to two. After the reviews, a second picker with the narrower options the
   first had not offered: **the cap is two only until 2027-02-18**, the row expires that day (the day the
   branch-deletion exception ends), and the cap returns to one in the step that ends them.
-- Signing day: 2026-11-23.
+- Signing day: 2026-11-24 (first set for 2026-11-23; not run that day; moved by the operator's picker answer).
 
 The managing repository's coordinator supplied the wording of the operator's ruling of 2026-11-21, asked for
 Tier 1 only with no merges and an expiry, and checked the action list against its wrapper (data). The
@@ -32,7 +32,7 @@ authority here is the operator's own answers.
 
 - **Decision row** `fleet-agent-tier1:jlcatonjr/researchteam` (spec: `docs/release/fleet-agent-tier1.decision-spec.json`):
   PASS, derives from `release-policy-1.0`, grants `fleet-agent-jlcatonjr`, relaxes its own action id, signed
-  with `opr-2026-11`, dated 2026-11-23, expiring 2027-02-18.
+  with `opr-2026-11`, dated 2026-11-24, expiring 2027-02-18.
 - **Registry:** `cap.max_active_relaxing` set to 2 (until 2027-02-18) in `.github/agents/references/exception-registry.json`; one
   new active entry for the row, bound to it by hash, with the same expiry. The branch-deletion entry is
   untouched.
