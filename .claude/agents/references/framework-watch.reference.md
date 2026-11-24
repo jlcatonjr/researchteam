@@ -21,23 +21,27 @@ authoritative source; the table below is a human-readable projection
 re-rendered on every `--update --merge`.
 
 <!-- AGENTTEAMS:BEGIN framework_data v=1 -->
-> ⚠️ **STALE DATA** — snapshot is 45.2 days old (threshold 7 days). Run the daily research stage online.
+> ⚠️ **UNVERIFIED DATA** — no framework doc was fetched for this snapshot (every fetch was skipped or failed). Run the daily research stage online.
 
-Generated on: `2026-06-23`
+Generated on: `2026-11-24`
 Source: https://docs.anthropic.com/en/docs/claude-code/sub-agents
-Fetch status: `ok`
-Diff summary: `matched=1 new_upstream=2 missing_upstream=1`
+Fetch status: `skipped`
+Diff summary: `matched=0 new_upstream=0 missing_upstream=4`
 
-| Framework | Fetch | Tokens observed | Locations observed |
-|---|---|---|---|
-| claude (Claude Code Sub-Agents) | `ok` | model, name, tools | .claude/agents, CLAUDE.md |
-| copilot_vscode (GitHub Copilot — VS Code Chat Modes) | `ok` | — | .github/agents |
-| copilot_cli (GitHub Copilot — CLI) | `ok` | — | — |
+| Framework | Fetch | Tokens observed | Locations observed | Drift (missing keys ↓) |
+|---|---|---|---|---|
+| claude (Claude Code Sub-Agents) | `skipped` | — | — | ↓ description, model, name, tools |
+| copilot_vscode (GitHub Copilot — VS Code Custom Agents) | `skipped` | — | — | ↓ description, model, tools |
+| copilot_cli (GitHub Copilot — CLI Custom Agents) | `skipped` | — | — | ↓ description, model, tools |
+| goose (Goose (AAIF) Recipes) | `skipped` | — | — | ↓ description, instructions, prompt, title |
+| agents_md (AGENTS.md Cross-Tool Standard) | `skipped` | — | — | — |
+| codex (OpenAI Codex CLI) | `skipped` | — | — | ↓ developer_instructions, mcp_servers, project_doc_max_bytes, sandbox_mode |
+| grok (xAI Grok Build) | `skipped` | — | — | ↓ mcp_servers, permission, plugins |
 
-Local Claude adapter constants:
-- required_front_matter_keys: description, name
-- default_allowed_tools: Bash, Read, Write, Edit
-- claude diff — matched: name; new_upstream: model, tools; missing_upstream: description
+Local Claude adapter constants (parsed from claude.py source):
+- strictly-required keys (_CLAUDE_REQUIRED_KEYS): description, name
+- default_allowed_tools: Read, Grep, Glob
+- claude diff (vs expected_doc_tokens) — matched: —; new_upstream: —; missing_upstream: description, model, name, tools
 <!-- AGENTTEAMS:END framework_data -->
 
 <!-- AGENTTEAMS:BEGIN operational_integration_process v=1 -->

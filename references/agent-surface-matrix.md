@@ -71,5 +71,7 @@ Rules in an agent's notes reach only the surfaces that carry them: `conclusion-e
 
 ## Skills by surface
 
-- claude: code-recall, recall, todo-from-plan, tool-pandoc
+- claude: code-recall, concept-map, recall, todo-from-plan, tool-pandoc
 - codex: code-recall, recall, todo-from-plan, tool-pandoc
+
+On some skill surfaces only: concept-map.

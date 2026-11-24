@@ -22,9 +22,9 @@ authoritative source; the table below is a human-readable projection
 re-rendered on every `--update --merge`.
 
 <!-- AGENTTEAMS:BEGIN framework_data v=1 -->
+> ⚠️ **UNVERIFIED DATA** — no framework doc was fetched for this snapshot (every fetch was skipped or failed). Run the daily research stage online.
 
-
-Generated on: `2026-10-16`
+Generated on: `2026-11-24`
 Source: https://docs.anthropic.com/en/docs/claude-code/sub-agents
 Fetch status: `skipped`
 Diff summary: `matched=0 new_upstream=0 missing_upstream=4`
@@ -41,7 +41,7 @@ Diff summary: `matched=0 new_upstream=0 missing_upstream=4`
 
 Local Claude adapter constants (parsed from claude.py source):
 - strictly-required keys (_CLAUDE_REQUIRED_KEYS): description, name
-- default_allowed_tools: Bash, Read, Write, Edit
+- default_allowed_tools: Read, Grep, Glob
 - claude diff (vs expected_doc_tokens) — matched: —; new_upstream: —; missing_upstream: description, model, name, tools
 <!-- AGENTTEAMS:END framework_data -->
 

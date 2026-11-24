@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-11-19T03:44:57.650607+00:00",
+  "generated_at": "2026-11-24T18:59:41.505899+00:00",
   "source_framework": "copilot-vscode",
   "target_framework": "claude",
   "source_dir": ".github/agents",
@@ -35,7 +35,7 @@
     },
     {
       "path": "agents/conflict-auditor.agent.md",
-      "sha256": "f95cc13aed8fd28df80e568b86a0b135142bc4c95fdf2fc3adecdb15c382e64f"
+      "sha256": "bbff4a95683496cba58407c17a30aba2c6a3b5870c719719e276aca543c69aae"
     },
     {
       "path": "agents/conflict-resolution.agent.md",
@@ -71,7 +71,7 @@
     },
     {
       "path": "agents/orchestrator.agent.md",
-      "sha256": "6a99d8020dd780b1033d45559f533b3302d109a64d6d577325278d6f294a7044"
+      "sha256": "527c7a059c61e77ead1108d20151289155a07ea5cf6fd95235238c907a3ca56a"
     },
     {
       "path": "agents/output-compiler.agent.md",
@@ -103,7 +103,7 @@
     },
     {
       "path": "agents/security.agent.md",
-      "sha256": "25131d2af5fc23701087a33b1db4757c90dd2b5e6d828c2e727f450cfc7df16c"
+      "sha256": "3f8fe1aaa39ddef2fe90fee8a8846219fd5c7373a0f100e2e0dd98daa5454881"
     },
     {
       "path": "agents/team-builder.agent.md",
@@ -135,7 +135,7 @@
     },
     {
       "path": "copilot-instructions.md",
-      "sha256": "eb193c4eebd62bb2d1e34eb6a2197de5dcfba09559977cdd71627f8dfc0108ad"
+      "sha256": "1f7bacb8035f90395d2e7f390a7b6ce0a8adb47801ee22f595f6fefd05f423e1"
     }
   ],
   "inventory_count": 32,
