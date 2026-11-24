@@ -352,10 +352,10 @@ python -m researchteam._term_core_upstream                      # network: PINNE
 ```
 
 The offline check (also run by the bridge `validate` command before the term-index check, and by `researchteam
-doctor`, where a failure is `[FAIL]`) proves that every copied file has the hash the manifest records and that
+doctor`, where a failure, or a term-index gate without its core, is `[FAIL]`) proves that every copied file has the hash the manifest records and that
 no unlisted code file is in the directory. It does not prove that the manifest matches agentteams: anyone who
 can merge could change a file and its hash together. The network comparison proves that, against the signed
-tag; it is required when the pin moves and at release, and a CI job is to run it on every pull request that
+tag. It parses the manifest and hashes the copy itself, without running the repository's check script; it is required when the pin moves and at release, and a CI job is to run it on every pull request that
 touches `scripts/term-index-core/`. A derived repository relies on the signed researchteam tag its
 `toolchain.lock` names for where its copy came from; one that is not release-locked syncs from `main`.
 

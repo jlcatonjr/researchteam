@@ -73,14 +73,12 @@ class CoreCheckFailed(Exception):
 # ----------------------------------------------------------------------------- the repair message
 def installed_researchteam() -> str:
     """The researchteam version installed for this interpreter, for the repair message."""
+    from importlib.metadata import PackageNotFoundError, version
+
     try:
-        from importlib.metadata import PackageNotFoundError, version
-        try:
-            return f"researchteam {version('researchteam')} (this interpreter)"
-        except PackageNotFoundError:
-            return "no researchteam in this interpreter"
-    except Exception:  # noqa: BLE001  (only a message depends on it)
-        return "researchteam version unknown"
+        return f"researchteam {version('researchteam')} (this interpreter)"
+    except PackageNotFoundError:
+        return "no researchteam in this interpreter"
 
 
 def repair_lines() -> list[str]:
@@ -212,6 +210,17 @@ def _unlisted(listed: set[str]) -> list[str]:
     return sorted(found)
 
 
+def digest_mismatch(entry: dict, data: bytes) -> str | None:
+    """None when ``data`` has the sha256 the manifest entry records; otherwise the sha256 it has."""
+    digest = hashlib.sha256(data).hexdigest()
+    return None if digest == entry["sha256"] else digest
+
+
+#: The summary line's stable prefix; doctor reads the pinned tag and short commit from this line.
+SUMMARY_PREFIX = "[term-core] SUMMARY agentteams "
+SUMMARY_LINE = re.compile(r"^\[term-core\] SUMMARY agentteams (v\d+\.\d+\.\d+(?:-rc\.\d+)?) \(([0-9a-f]{12})\): ")
+
+
 def verify() -> tuple[dict, str, dict[str, bytes], list[str]]:
     """(manifest, manifest sha256, {name: verified bytes}, report lines). Raises CoreCheckFailed on any failure."""
     dfd = _open_dir(CORE_DIR)
@@ -231,8 +240,8 @@ def verify() -> tuple[dict, str, dict[str, bytes], list[str]]:
                 why = {"missing": "missing", "link": "a symbolic link (refused)"}.get(state, "not a regular file, or too large (refused)")
                 lines.append(f"[term-core] {state.upper()} {path}: {why} (expected sha256 {f['sha256'][:12]}, {origin})")
                 continue
-            digest = hashlib.sha256(data).hexdigest()
-            if digest != f["sha256"]:
+            digest = digest_mismatch(f, data)
+            if digest is not None:
                 bad["mismatched"] += 1
                 lines.append(f"[term-core] MISMATCH {path}: sha256 {digest[:12]}, expected {f['sha256'][:12]} ({origin})")
                 continue
@@ -245,7 +254,7 @@ def verify() -> tuple[dict, str, dict[str, bytes], list[str]]:
         bad["unlisted"] += 1
         lines.append(f"[term-core] UNLISTED {LOCAL_PREFIX}{rel}: a code file the manifest does not list")
     total = len(manifest["files"]) + len(manifest["data_files"])
-    lines.append(f"[term-core] agentteams {up['tag']} ({up['commit'][:12]}): {len(verified)} of {total} files match; "
+    lines.append(f"{SUMMARY_PREFIX}{up['tag']} ({up['commit'][:12]}): {len(verified)} of {total} files match; "
                  + ", ".join(f"{n} {k}" for k, n in bad.items()))
     if any(bad.values()):
         raise _fail(1, lines + ["[term-core] FAILED: the copied core is not the one the manifest names."])
@@ -287,6 +296,19 @@ def _restricted_import(pinned: dict[str, types.ModuleType]):
 
 
 def _exec_all(manifest: dict, verified: dict[str, bytes]) -> types.ModuleType:
+    """Run the verified files as the private package. On any failure, sys.modules is put back as it was."""
+    ours = [PACKAGE] + [f"{PACKAGE}.{f['name'][:-3]}" for f in manifest["files"]]
+    saved = {name: sys.modules[name] for name in ours if name in sys.modules}
+    try:
+        return _exec_unguarded(manifest, verified)
+    except BaseException:
+        for name in [k for k in sys.modules if k == PACKAGE or k.startswith(PACKAGE + ".")]:
+            del sys.modules[name]
+        sys.modules.update(saved)
+        raise
+
+
+def _exec_unguarded(manifest: dict, verified: dict[str, bytes]) -> types.ModuleType:
     had_agentteams = UPSTREAM_PACKAGE in sys.modules
     package = types.ModuleType(PACKAGE, "The pinned agentteams term-index core (scripts/term-index-core/).")
     package.__path__ = []  # a package that finds nothing on disk
@@ -314,7 +336,6 @@ def _exec_all(manifest: dict, verified: dict[str, bytes]) -> types.ModuleType:
         try:
             exec(code, module.__dict__)
         except Exception as exc:
-            sys.modules.pop(fullname, None)
             raise _fail(2, [f"[term-core] LOAD {f['local_path']}: failed to run ({type(exc).__name__}: {exc})"]) from None
         setattr(package, stem, module)
         modules[stem] = module

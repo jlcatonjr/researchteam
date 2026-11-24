@@ -295,9 +295,9 @@ Render each non-frozen surface returned by `_native_surfaces` with `_run_agentte
 
 Exits unless `agentteams --help` output contains `--discard-user-regions` (agentteams P5a, f113f5d or later). An older agentteams would drop user-editable regions on `--overwrite`.
 
-### `_sync_byte_exact(root, rel_path, ref, *, yes, dry_run)`
+### `_sync_byte_exact_set(root, rels, ref, *, yes, dry_run)`
 
-Layer-2 sync of one managed file under `BYTE_EXACT_PREFIXES` (the pinned term-index core). It fetches the file with `fetch_raw_bytes`, compares and writes bytes, and never decodes. A symbolic link at the path is not written through (skipped, with a message). Interactively it shows the old and new sha256 instead of a text diff. Returns `(outcome, detail)`, outcome one of `same`, `updated`, `created`, `skipped`, `error`.
+Layer-2 sync of the managed files under `BYTE_EXACT_PREFIXES` (the pinned term-index core) as one set: all files or none. Each file is fetched with `fetch_raw_bytes` and never decoded. Nothing is written when a fetch fails, when any component of a target path under the repository is a symbolic link or a parent resolves outside it, or when the fetched files do not match the fetched `PINNED.json` (checked with `_term_core_upstream.parse_pinned` and `sha256_mismatch`, not with the repository's own check script). Interactively one prompt covers the set and shows each file's old and new sha256. After writing, `_term_core_upstream.local_mismatches` checks the files on disk; a failure is reported as an error. A frozen path in the set skips the whole set. Returns `(updated, skipped, errors)`.
 
 ### `_merge_bridges(root, dry_run)`
 

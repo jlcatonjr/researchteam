@@ -90,7 +90,8 @@ def test_the_copy_matches_its_manifest_which_names_the_signed_tag():
         "[term-core] OK scripts/term-index-core/_term_text.py",
         "[term-core] OK scripts/term-index-core/term_index.py",
         "[term-core] OK scripts/term-index-core/LICENSE",
-        "[term-core] agentteams v1.3.0 (536306d2502e): 3 of 3 files match; 0 mismatched, 0 missing or refused, 0 unlisted"]
+        "[term-core] SUMMARY agentteams v1.3.0 (536306d2502e): 3 of 3 files match; 0 mismatched, 0 missing or refused, "
+        "0 unlisted"]
     m = manifest()
     assert m["format"] == "researchteam-pinned-copy/1" and m["upstream"] == PINNED and m["entry"] == "term_index"
     assert [(f["upstream_path"], f["local_path"]) for f in m["files"] + m["data_files"]] == [
@@ -116,18 +117,20 @@ def test_every_file_in_the_core_directory_is_listed_managed_and_synced_as_bytes(
     from researchteam._manifest import BYTE_EXACT_PREFIXES, FRAMEWORK_MANAGED_FILES, SCHOLARLY_MANAGED_FILES
 
     m = manifest()
-    listed = {f["local_path"] for f in m["files"] + m["data_files"]} | {"scripts/term-index-core/PINNED.json"}
+    # .gitattributes is researchteam's own file, not upstream's, so it is managed but not in PINNED.json (which lists
+    # only files with an upstream counterpart); the check ignores it as a file that is not code.
+    pinned = {f["local_path"] for f in m["files"] + m["data_files"]}
+    listed = pinned | {"scripts/term-index-core/PINNED.json", "scripts/term-index-core/.gitattributes"}
     on_disk = {p.relative_to(ROOT).as_posix() for p in CORE.rglob("*")}
     assert on_disk == listed
     for rel in listed | {"scripts/check_term_core.py"}:
         assert rel in SCHOLARLY_MANAGED_FILES and rel not in FRAMEWORK_MANAGED_FILES, rel
-    assert [rel for rel in SCHOLARLY_MANAGED_FILES if rel.startswith(BYTE_EXACT_PREFIXES)] == sorted(
-        listed, key=["scripts/term-index-core/PINNED.json", "scripts/term-index-core/_term_text.py",
-                     "scripts/term-index-core/term_index.py", "scripts/term-index-core/LICENSE"].index)
+    assert {rel for rel in SCHOLARLY_MANAGED_FILES if rel.startswith(BYTE_EXACT_PREFIXES)} == listed
 
 
 def test_git_never_converts_the_copied_bytes():
-    assert "scripts/term-index-core/** -text -ident -filter" in (ROOT / ".gitattributes").read_text().splitlines()
+    """The directory carries its own .gitattributes, so a derived repository that receives it gets the rule too."""
+    assert "* -text -ident -filter" in (CORE / ".gitattributes").read_text().splitlines()
     if shutil.which("git") is None or not (ROOT / ".git").exists():
         pytest.skip("no git checkout")
     r = subprocess.run(["git", "-C", str(ROOT), "check-attr", "text", "ident", "filter", "--",
@@ -367,6 +370,18 @@ def test_doctor_fails_on_a_tampered_core_and_reports_it_once(tmp_path, monkeypat
     assert "term index: gate" not in captured.out  # one fault, reported once
 
 
+@pytest.mark.parametrize("missing", ["scripts/check_term_core.py", "scripts/term-index-core"])
+def test_doctor_fails_when_the_gate_is_present_without_its_core(tmp_path, missing):
+    from researchteam import _doctor_cmd
+
+    repo = repo_copy(tmp_path, project=False)
+    target = repo / missing
+    shutil.rmtree(target) if target.is_dir() else target.unlink()
+    out, ok, warn, fail = _lines()
+    assert _doctor_cmd._check_term_core(repo, ok, warn, fail) is False
+    assert len(out) == 1 and out[0][0] == "FAIL" and "missing" in out[0][1] and "Upgrade researchteam first" in out[0][1]
+
+
 def test_doctor_is_silent_without_the_term_index_scripts(tmp_path):
     from researchteam import _doctor_cmd
 
@@ -375,31 +390,75 @@ def test_doctor_is_silent_without_the_term_index_scripts(tmp_path):
 
 
 # --------------------------------------------------------------------------- byte-exact layer-2 sync
-def test_update_syncs_the_core_as_exact_bytes(tmp_path, monkeypatch, capsys):
+def _served_core(extra: dict | None = None) -> dict[str, bytes]:
+    """A consistent upstream set: two files (one with CRLF and a byte that is not UTF-8) and a manifest naming them."""
+    files = {"scripts/term-index-core/_term_text.py": b"x = 1\r\n# \xff\r\n", "scripts/term-index-core/LICENSE": b"MIT\n",
+             "scripts/term-index-core/.gitattributes": b"* -text -ident -filter\n"}
+    entry = lambda rel, up: {"upstream_path": up, "local_path": rel, "sha256": hashlib.sha256(files[rel]).hexdigest()}
+    pinned = {"format": "researchteam-pinned-copy/1", "upstream": PINNED, "entry": "_term_text",
+              "files": [entry("scripts/term-index-core/_term_text.py", "agentteams/_term_text.py")],
+              "data_files": [entry("scripts/term-index-core/LICENSE", "LICENSE")]}
+    return {**files, "scripts/term-index-core/PINNED.json": json.dumps(pinned).encode(), **(extra or {})}
+
+
+def _byte_update(tmp_path, monkeypatch, served, *, yes=True, answers=None):
     from researchteam import _update_cmd
 
-    rels = ["scripts/term-index-core/_term_text.py", "scripts/term-index-core/LICENSE"]
-    served = {rels[0]: b"line one\r\nline two \xff\r\n", rels[1]: b"MIT\n"}
-    monkeypatch.setattr(_update_cmd, "managed_files_for", lambda profile: rels)
+    monkeypatch.setattr(_update_cmd, "managed_files_for", lambda profile: sorted(served))
     monkeypatch.setattr(_update_cmd, "fetch_raw", lambda *a: pytest.fail("a byte-exact file must not be decoded"))
     monkeypatch.setattr(_update_cmd, "fetch_raw_bytes", lambda repo, ref, path: served[path])
     monkeypatch.setattr(_update_cmd, "_sync_notes", lambda *a, **k: None)
+    asked = []
+    monkeypatch.setattr("builtins.input", lambda prompt="": asked.append(prompt) or (answers or ["y"])[len(asked) - 1])
+    _update_cmd.run_update(tmp_path, ref="main", yes=yes, dry_run=False, layer2_only=True, layer1_only=False)
+    return asked
 
-    def update(**kw):
-        _update_cmd.run_update(tmp_path, ref="main", yes=True, dry_run=False, layer2_only=True, layer1_only=False, **kw)
 
-    update()
-    assert {r: (tmp_path / r).read_bytes() for r in rels} == served
-    assert "2 updated" in capsys.readouterr().out
-    update()
+def test_update_syncs_the_core_as_exact_bytes_and_verifies_the_result(tmp_path, monkeypatch, capsys):
+    served = _served_core()
+    _byte_update(tmp_path, monkeypatch, served)
+    assert {r: (tmp_path / r).read_bytes() for r in served} == served
+    out = capsys.readouterr().out
+    assert "4 updated" in out and "0 errors" in out
+    _byte_update(tmp_path, monkeypatch, served)
     assert "0 updated" in capsys.readouterr().out  # identical bytes: nothing to do
-    (tmp_path / rels[1]).unlink()
-    if hasattr(os, "symlink"):
-        victim = tmp_path / "victim.txt"
-        victim.write_bytes(b"untouched")
-        (tmp_path / rels[1]).symlink_to(victim)
-        update()
-        assert victim.read_bytes() == b"untouched" and "a symbolic link; not written" in capsys.readouterr().out
+
+
+def test_update_writes_nothing_from_a_set_that_does_not_verify(tmp_path, monkeypatch, capsys):
+    served = _served_core()
+    served["scripts/term-index-core/LICENSE"] = b"changed\n"  # no longer the manifest's bytes
+    _byte_update(tmp_path, monkeypatch, served)
+    assert not (tmp_path / "scripts").exists()
+    assert "does not match the fetched manifest" in capsys.readouterr().err
+
+
+def test_update_asks_once_for_the_whole_core_set(tmp_path, monkeypatch, capsys):
+    served = _served_core()
+    asked = _byte_update(tmp_path, monkeypatch, served, yes=False, answers=["n"])
+    assert len(asked) == 1 and "Apply all 4?" in asked[0]
+    assert not (tmp_path / "scripts" / "term-index-core").exists()  # declined: no file written
+    asked = _byte_update(tmp_path, monkeypatch, served, yes=False, answers=["y"])
+    assert len(asked) == 1 and all((tmp_path / r).read_bytes() == b for r, b in served.items())
+
+
+@pytest.mark.skipif(not hasattr(os, "symlink"), reason="needs symbolic links")
+@pytest.mark.parametrize("link", ["directory", "parent", "file"])
+def test_update_never_writes_the_core_through_a_link(tmp_path, monkeypatch, capsys, link):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    repo = tmp_path / "repo"
+    if link == "directory":   # scripts/term-index-core itself is a link to a directory outside the repository
+        (repo / "scripts").mkdir(parents=True)
+        (repo / "scripts" / "term-index-core").symlink_to(outside, target_is_directory=True)
+    elif link == "parent":    # scripts/ is a link
+        repo.mkdir()
+        (repo / "scripts").symlink_to(outside, target_is_directory=True)
+    else:                     # one file is a link
+        (repo / "scripts" / "term-index-core").mkdir(parents=True)
+        (repo / "scripts" / "term-index-core" / "LICENSE").symlink_to(outside / "victim")
+    _byte_update(repo, monkeypatch, _served_core())
+    assert list(outside.rglob("*")) == []  # nothing written outside the repository
+    assert "a symbolic link on the path, or outside the repository; nothing" in capsys.readouterr().out
 
 
 # --------------------------------------------------------------------------- the network comparison (L2)
@@ -421,3 +480,48 @@ def test_the_manifest_equals_the_signed_agentteams_tag():
 
     code, lines = compare(ROOT)
     assert code == 0, "\n".join(lines)
+
+
+FAILING_LOAD = r"""
+import json, sys
+sys.path.insert(0, "scripts")
+import check_term_core
+try:
+    check_term_core.load()
+except check_term_core.CoreCheckFailed as exc:
+    print(json.dumps({"failed": exc.code, "lines": exc.lines,
+                      "left": sorted(k for k in sys.modules if k.startswith("_researchteam_term_core"))}))
+"""
+
+
+@pytest.mark.parametrize("tail", [b"\nraise RuntimeError('fails while running')\n", b"\nMatcher = object\n"],
+                         ids=["raises", "wrong-matcher"])
+def test_a_failed_load_leaves_nothing_in_sys_modules(tmp_path, tail):
+    """A copy whose manifest was edited with it verifies, then fails to load: no partial package is left behind."""
+    repo = repo_copy(tmp_path, project=False)
+    core = repo / "scripts" / "term-index-core"
+    data = (core / "term_index.py").read_bytes() + tail
+    (core / "term_index.py").write_bytes(data)
+    m = json.loads((core / "PINNED.json").read_text())
+    m["files"][1]["sha256"] = hashlib.sha256(data).hexdigest()
+    (core / "PINNED.json").write_text(json.dumps(m))
+    r = subprocess.run([sys.executable, "-B", "-c", FAILING_LOAD], capture_output=True, text=True, cwd=repo, timeout=60)
+    out = json.loads(r.stdout)
+    assert out["failed"] == 2 and out["left"] == [], out
+
+
+def test_the_network_form_checks_the_copy_without_the_repositorys_check_script(tmp_path):
+    """A check script changed to pass everything cannot vouch for a tampered copy: the package hashes it itself."""
+    from researchteam._term_core_upstream import compare, local_mismatches
+
+    repo = repo_copy(tmp_path, project=False)
+    (repo / "scripts" / "check_term_core.py").write_text("def verify():\n    raise SystemExit('never called')\n")
+    manifest, problems = local_mismatches(repo)
+    assert manifest["upstream"] == PINNED and problems == []
+    _flip_byte(repo / "scripts" / "term-index-core")
+    (repo / "scripts" / "term-index-core" / "extra.py").write_text("")
+    code, lines = compare(repo)  # stops before any network step
+    assert code == 1 and any("MISMATCH scripts/term-index-core/term_index.py" in ln for ln in lines)
+    assert any("UNLISTED scripts/term-index-core/extra.py" in ln for ln in lines)
+    (repo / "scripts" / "term-index-core" / "PINNED.json").write_text("{}")
+    assert compare(repo)[0] == 2

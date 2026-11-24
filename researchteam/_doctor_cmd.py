@@ -333,42 +333,54 @@ def _lock_agentteams_tag(root: Path) -> str | None:
     return pin[2] if pin else None
 
 
+# The offline check's summary line (scripts/check_term_core.py, SUMMARY_PREFIX): the pinned tag and short commit.
+_TERM_CORE_SUMMARY = re.compile(r"^\[term-core\] SUMMARY agentteams (v\d+\.\d+\.\d+(?:-rc\.\d+)?) \(([0-9a-f]{12})\): ")
+
+
 def _check_term_core(root: Path, ok, warn, fail) -> bool:
     """Check the pinned copy of the agentteams term-index core (scripts/check_term_core.py). A failure FAILS doctor.
 
-    A failed check means the code the term index would run is not the code researchteam shipped, the same
-    class of fault as an agentteams that is installed but cannot run. Silent where the term-index gate is
-    absent (``_check_scholarly_tooling`` says whether it is expected) or where the check script is absent
-    (an index from before researchteam 1.3.0, which has no copy; that check reports the missing script).
-    Returns False only when the check ran and failed, so the term-index line stays quiet then.
+    A failed check means the code the term index would run is not the code researchteam shipped, the same class
+    of fault as an agentteams that is installed but cannot run. Not applicable (silent) where the repository has
+    no term index at all (no ``scripts/check_term_index.py``; ``_check_scholarly_tooling`` says whether one is
+    expected). Where the gate is present but the check script or the core directory is missing, that is a failure
+    too (operator ruling: a failed core check is a failure). Returns False when the check failed or could not
+    run, so the term-index line stays quiet then and the fault is reported once.
     """
-    script = root / TERM_CORE_CHECK
-    if not (root / TERM_INDEX_GATE).is_file() or not script.is_file():
+    if not (root / TERM_INDEX_GATE).is_file():
         return True
+    missing = [rel for rel in (TERM_CORE_CHECK, TERM_CORE_MANIFEST) if not (root / rel).is_file()]
+    if missing:
+        fail(f"term-index core: {', '.join(missing)} missing, so the term index cannot verify or load its pinned "
+             "core and will not run.\n         Upgrade researchteam first (bash scripts/bootstrap_toolchain.sh, or "
+             "pip at the tag toolchain.lock names), then run `researchteam update`; an older researchteam does not "
+             "sync these files.")
+        return False
     try:
-        r = subprocess.run([sys.executable, "-B", "-I", str(script)], capture_output=True, text=True, timeout=60,
-                           cwd=root)
+        r = subprocess.run([sys.executable, "-B", "-I", str(root / TERM_CORE_CHECK)], capture_output=True, text=True,
+                           timeout=60, cwd=root)
         lines, code = [_printable(ln) for ln in (r.stdout or "").splitlines() if ln.strip()], r.returncode
     except (OSError, subprocess.TimeoutExpired) as exc:
         lines, code = [f"[term-core] the check could not run ({type(exc).__name__})"], 2
-    if code != 0:
+    summary = next((m for m in map(_TERM_CORE_SUMMARY.match, lines) if m), None)
+    if code != 0 or summary is None:
         fail("term-index core: the pinned copy does not verify; the term index will not run:\n         "
              + "\n         ".join(ln.removeprefix("[term-core] ") for ln in lines or ["(no output)"]))
         return False
-    summary = next((ln for ln in reversed(lines) if " files match" in ln), "(no summary line)")
-    ok(f"term-index core: {summary.removeprefix('[term-core] ')}")
+    pinned = summary.group(1)
+    ok(f"term-index core: {summary.string.removeprefix('[term-core] SUMMARY ')}")
     ok("term-index core: the term index runs the pinned copy (scripts/term-index-core/), never an installed agentteams.")
+    from ._release import ReleaseError, release_line
+
+    lock_tag = _lock_agentteams_tag(root)
     try:
-        pinned = json.loads((root / TERM_CORE_MANIFEST).read_text(encoding="utf-8"))["upstream"]["tag"]
-        from ._release import release_line
-        lock_tag = _lock_agentteams_tag(root)
         if lock_tag is None:
             warn(f"term-index core: pinned to agentteams {pinned}; toolchain.lock names no agentteams.tag to compare.")
         elif release_line(lock_tag) != release_line(pinned):
             warn(f"term-index core: pinned to agentteams {pinned}, but toolchain.lock is on {lock_tag} "
                  f"({release_line(lock_tag)} against {release_line(pinned)}): move the core pin with the lock.")
-    except (OSError, ValueError, KeyError, TypeError, RuntimeError) as exc:
-        warn(f"term-index core: could not compare the pin with toolchain.lock ({type(exc).__name__}).")
+    except ReleaseError:
+        warn(f"term-index core: toolchain.lock's agentteams.tag is not a release tag; pinned to agentteams {pinned}.")
     return True
 
 

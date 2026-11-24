@@ -251,7 +251,7 @@ python3 scripts/check_term_core.py        # or: bash scripts/claude_researchteam
 | 1 | A file is mismatched, missing, a symbolic link or not a regular file, or a code file (`.py`, `.pyc` and the like) is not listed. |
 | 2 | `PINNED.json` is missing, unreadable or malformed, or the directory is missing or a symbolic link. |
 
-Output: one line per file (`[term-core] OK <path>`, `[term-core] MISMATCH <path>: sha256 <12 hex>, expected <12 hex> (agentteams <tag> <upstream path>)`, `MISSING`, `LINK`, `REFUSED`, `UNLISTED`), then a summary naming the tag, the short commit and the counts. A failure adds the repair: restore from git, or upgrade researchteam first and then run `researchteam update` (an older researchteam does not sync this directory).
+Output: one line per file (`[term-core] OK <path>`, `[term-core] MISMATCH <path>: sha256 <12 hex>, expected <12 hex> (agentteams <tag> <upstream path>)`, `MISSING`, `LINK`, `REFUSED`, `UNLISTED`), then a summary, `[term-core] SUMMARY agentteams <tag> (<12-hex commit>): <n> of <m> files match; ...`, whose prefix is stable (`researchteam doctor` reads the tag from it). A failure adds the repair: restore from git, or upgrade researchteam first and then run `researchteam update` (an older researchteam does not sync this directory).
 
 A pass proves the copy matches the manifest, not that the manifest matches upstream; that is `python -m researchteam._term_core_upstream`, against the signed tag (see [`term-core-upstream.md`](term-core-upstream.md)).
 

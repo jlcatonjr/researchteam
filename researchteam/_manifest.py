@@ -65,10 +65,12 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/query_term_index.py",
     ".claude/settings.terms.example.json",
     # The pinned agentteams term-index core the engine's adapters load (researchteam 1.3.0): the loader and
-    # offline check, then the copied files, their licence and their manifest. Every file in the directory is
-    # listed, because the check refuses only an unlisted code file. They are synced as exact bytes
-    # (BYTE_EXACT_PREFIXES): a decoded and re-encoded copy could fail its own hash.
+    # offline check, then the directory's own .gitattributes, its manifest, the copied files and their licence.
+    # Every file in the directory is listed here: the offline check refuses an unlisted code file but would not
+    # notice a missing non-code file such as .gitattributes. The directory is synced as exact bytes
+    # (BYTE_EXACT_PREFIXES).
     "scripts/check_term_core.py",
+    "scripts/term-index-core/.gitattributes",
     "scripts/term-index-core/PINNED.json",
     "scripts/term-index-core/_term_text.py",
     "scripts/term-index-core/term_index.py",
@@ -78,8 +80,10 @@ SCHOLARLY_MANAGED_FILES = [
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
 ]
 
-# Managed files under these prefixes are fetched and written as bytes, never decoded: their sha256 is checked
-# (scripts/check_term_core.py), and `.gitattributes` marks them -text so git never converts their line endings.
+# Managed files under these prefixes are fetched and written as bytes, never decoded, and synced as one set:
+# scripts/check_term_core.py checks the copied files' sha256 against PINNED.json. The directory's own
+# .gitattributes (one of these files) marks them -text -ident -filter, so git does not convert them in any
+# repository that receives the directory. Before 1.3.0 nothing of this directory was synced.
 BYTE_EXACT_PREFIXES = ("scripts/term-index-core/",)
 
 # Files `init` seeds that `update` never syncs (not managed, not agentteams-rendered, not project
