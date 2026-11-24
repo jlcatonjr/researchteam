@@ -54,6 +54,19 @@ How collaborators work within this policy (branches, installs, contributions, ba
   2026-11-23).
 - Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag, as for 1.1.
 
+### The 1.3 line
+- researchteam 1.3 pins agentteams 1.3 (operator ruling, 2026-11-24, in researchteam's session picker), with no
+  interim pin to agentteams 1.2.2. `release/1.3` is cut from `main` at `1.3.0rc1`, after the agentteams 1.3 pin has
+  merged to `main`. The 1.3 candidate and final tags (`v1.3.0-rc.N`, `v1.3.0`, `v1.3.N`) are cut and signed **on
+  `release/1.3` only**, and each tag is merged forward into `main` as above. 1.3.0 is released as a candidate and
+  then the final (operator ruling, 2026-11-24).
+- `release/1.2` stays open for `v1.2.N` backports and keeps its own tags; it does not move to agentteams 1.3.
+- Moving `toolchain.lock` from the 1.2 line to the 1.3 line is a trust change with its own `@security` row
+  (`release-line-agentteams-1.3`), separate from the pin review. As before, the move drops the `agentteams.tag=`
+  line and starts a new lock with `--write-lock --tag agentteams=<1.3 tag> --sync-extras`. The new lock follows only
+  verified signed tags on the 1.3 line.
+- Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag, as for 1.2.
+
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
   `SHA256:IPdnLwlFdHNhr7QGKVWU40BOKyYzv2u8qxP/qxnzTNM` (agentteams SECURITY.md "Release signers"),

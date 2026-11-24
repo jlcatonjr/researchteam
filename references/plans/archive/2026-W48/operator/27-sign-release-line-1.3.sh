@@ -40,7 +40,7 @@ DATE=2026-11-24
 ACTION="release-line-agentteams-1.3"
 TEAM=.github/agents
 SPEC=docs/release/release-line-agentteams-1.3.decision-spec.json
-SPEC_SHA=6591d280745edc6c7c984a5c48b676bad3a6e7a39e03348b25c05f10c77b34a0
+SPEC_SHA=cad0ea53f19ff2b2c0fe99254d954bc03ecb4e98f2e6f097c353a0d9abc92d71
 VENV="<signer>"                # root-owned install built from agentteams tag v1.2.1 on python.org 3.13; the real path is only in the copy the operator runs
 BASEPY=/Library/Frameworks/Python.framework/Versions/3.13
 KEY="<decision-key-file>"      # the operator's opr-2026-11 private key; the real path is only in the copy the operator runs
@@ -54,14 +54,14 @@ BASE_SHA=7406903c1172d90864f009f5b8dc4761e82115a8cbc2bb5d9c0b70e983f6cf56
 LOG="$TEAM/references/security-decisions.log.csv"
 G=(/usr/bin/git --no-pager -c core.fsmonitor=false -c core.hooksPath=/dev/null -c core.pager=cat)
 sha() { /usr/bin/shasum -a 256 "$1" | /usr/bin/cut -d' ' -f1; }
-UNDO="/usr/bin/git -C $WT checkout -- $LOG"
+UNDO="/usr/bin/git -c core.hooksPath=/dev/null -C $WT checkout -- $LOG"
 [[ "$(/bin/date +%Y-%m-%d)" == "$DATE" ]] || die "today is not $DATE: the spec carries the signing day, so the session must regenerate it"
 
 # 0. The signer: root-owned agentteams 1.2.1 on the root-owned python.org 3.13.
 [[ -x "$AT" && -x "$PY" ]] || die "the clean signer is missing"
 bad=$(/usr/bin/find "$VENV" "$BASEPY" \( ! -user root -o \( ! -type l \( -perm -0020 -o -perm -0002 \) \) \) -print 2>&1 | /usr/bin/head -3)
 [[ -z "$bad" ]] || die "the signer or its base Python has an entry that is not root-owned or is group/world-writable: $bad"
-"$AT" --version | /usr/bin/grep -q '^agentteams 1\.2\.1' || die "the signer is not agentteams 1.2.1"
+"$AT" --version | /usr/bin/grep -q -E '^agentteams 1\.2\.1([^0-9]|$)' || die "the signer is not agentteams 1.2.1"
 base=$("$PY" -I -c 'import sys; print(sys.base_prefix)')
 [[ "$base" == "$BASEPY" ]] || die "the signer's base Python is $base, not $BASEPY"
 printf '== signer: agentteams 1.2.1, root-owned, base %s\n' "$base"
@@ -79,6 +79,8 @@ cd "$WT"
 /usr/bin/grep -qF '"effect_grants": ""' "$SPEC" || die "$SPEC grants something"
 /usr/bin/grep -qF '"effect_targets": "toolchain.lock; pyproject.toml; .github/agentteams-autosync-ref"' "$SPEC" || die "$SPEC write targets are not the three pin files"
 /usr/bin/grep -qF '"effect_destructive": "false"' "$SPEC" || die "$SPEC is marked destructive"
+/usr/bin/grep -qF '"effect_cross_repo": "false"' "$SPEC" || die "$SPEC is marked cross-repository"
+/usr/bin/grep -qF '"effect_bulk": "false"' "$SPEC" || die "$SPEC is marked bulk"
 /usr/bin/grep -qF '"derives_from": "release-policy-1.0"' "$SPEC" || die "$SPEC does not derive from release-policy-1.0 alone"
 /usr/bin/grep -qF '"key_id": "opr-2026-11"' "$SPEC" || die "$SPEC does not name key opr-2026-11"
 /usr/bin/grep -qF "\"date\": \"$DATE\"" "$SPEC" || die "$SPEC is not dated $DATE"
@@ -121,8 +123,8 @@ n1=$(/usr/bin/wc -l < "$LOG")
 [[ $((n1 - n0)) -eq 1 ]] || die "the signer changed the log by $((n1 - n0)) lines (expected 1); do not commit; undo: $UNDO"
 
 # 4. Verify.
-"$PY" -I - "$TEAM" "$ACTION" "$LOG" <<'PYEOF' || die "verification failed; do not commit; undo: $UNDO ; paste this output to the session"
-import csv, subprocess, sys
+"$PY" -I - "$TEAM" "$ACTION" "$LOG" "$SPEC" <<'PYEOF' || die "verification failed; do not commit; undo: $UNDO ; paste this output to the session"
+import csv, json, subprocess, sys
 from pathlib import Path
 from agentteams.cli.security_gate import check_clearance
 team, action, log = sys.argv[1], sys.argv[2], sys.argv[3]
@@ -134,9 +136,12 @@ rows = [r for r in csv.DictReader(open(log, newline="", encoding="utf-8")) if (r
 one = len(rows) == 1 and rows[0].get("key_id") == "opr-2026-11" and rows[0].get("sig_scheme") == "ed25519" \
     and rows[0].get("derives_from") == "release-policy-1.0" and not (rows[0].get("effect_relaxes") or "").strip() \
     and not (rows[0].get("effect_grants") or "").strip()
+spec = json.load(open(sys.argv[4], encoding="utf-8"))
+same = one and all((rows[0].get(k) or "") == (spec.get(k) or "") for k in
+                   ("date", "scope", "verdict", "conditions", "conditions_verified", "effect_targets", "derives_from"))
 ok, why = check_clearance(Path(team), action=action)
-print(f"   {action}: {'CLEARED' if ok else 'NOT CLEARED: ' + str(why)[:200]} | one opr-2026-11 row, non-relaxing: {one} | log is the committed bytes plus appended rows: {new.startswith(old)}")
-sys.exit(0 if ok and one and new.startswith(old) else 1)
+print(f"   {action}: {'CLEARED' if ok else 'NOT CLEARED: ' + str(why)[:200]} | one opr-2026-11 row, non-relaxing: {one} | row equals the spec: {same} | log is the committed bytes plus appended rows: {new.startswith(old)}")
+sys.exit(0 if ok and one and same and new.startswith(old) else 1)
 PYEOF
 out=$("$AT" --verify-toolchain-group --output "$TEAM" --description brief.json 2>&1) \
   || { printf '%s\n' "$out"; die "the toolchain group no longer verifies; do not commit; undo: $UNDO"; }
