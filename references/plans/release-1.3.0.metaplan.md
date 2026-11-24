@@ -293,3 +293,23 @@ second pass.
 - **All four target plans T1 to T4 are done; T5 was dropped.** What remains is T6: the freeze (D11, D10), the
   release-prep PR, the operator's cut of `release/1.3` and `v1.3.0-rc.1` (D8), the downstream dry run, and the
   final. D3 and D9 are still to be asked.
+- **D11 answered: the freeze is declared** on `main` at `440b5269145fb3334526c4929db3110f991866d3` (operator's
+  picker answer, 2026-11-24). Checked there before the question: `tests (3.10)` and `tests (3.13)` green; the lock
+  at the signed agentteams `v1.3.0`; `--verify-tag`, `--verify-toolchain-pin` and the group pass; the core check
+  offline and against the signed tag; `validate`; `doctor` with no failure; `term-check` on every project; PS-1 to
+  PS-3 in every projected copy; all 33 rendered Claude agents declare `tools:`; the upgrade-first message has
+  tests; no HALT; security intelligence fresh. From here `main` takes only fixes the candidate shows, release
+  files and records, each by PR with the operator's live answer.
+- **F12:** the update render on all four surfaces and the pin check pass under agentteams 1.3.0. An overwrite
+  (`materialize`) render does not apply to this upstream repository, which refuses it; the downstream dry run on
+  the candidate covers it.
+- **D10 answered: the autosync is paused** from the freeze to the final. Enabling or disabling a workflow is a
+  repository setting, so the operator runs script 28 (`archive/2026-W48/operator/28-pause-autosync.sh`). The stale
+  autosync PR #246 is closed as superseded.
+- **Pending conditions, operator ruling:** the candidate cut script refuses on a `pending` condition in any
+  decision row added since `v1.2.1` and reports older ones without refusing. One older row is pending (2026-10-22,
+  a documentation fix merged in the agentteams repository); it shipped under three earlier releases.
+- **D3 answered: the held request to agentteams is sent** (to the release coordinator's session, 2026-11-24), for
+  a later agentteams release. It does not affect 1.3.0.
+- **Still open for the operator:** D8 (the commit for `release/1.3` and the candidate; the go for the final), D9
+  (closing PR #156, after the release-prep PR), and D7 at each merge.
