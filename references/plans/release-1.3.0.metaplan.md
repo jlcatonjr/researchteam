@@ -287,3 +287,9 @@ second pass.
   ruling in the picker: the folder may be the only home of the verify keys and approver list, with the limit
   stated; a trust root outside the repository is the contract's new open point 7. The contract stays version 1.
 - **Next:** T4, then the freeze.
+- **T4 is done (same day).** PR #259 (`440b526`): the derived workflow scaffold's release-locked check fetches the
+  tag shallowly, with one retry, and fails closed. Issue #228 is closed by the merge and #176 with the evidence
+  that it was already fixed.
+- **All four target plans T1 to T4 are done; T5 was dropped.** What remains is T6: the freeze (D11, D10), the
+  release-prep PR, the operator's cut of `release/1.3` and `v1.3.0-rc.1` (D8), the downstream dry run, and the
+  final. D3 and D9 are still to be asked.
