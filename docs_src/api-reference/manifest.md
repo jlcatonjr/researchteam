@@ -47,7 +47,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 
 `toolchain.lock` itself is not managed: it is repo-owned and written by the autosync gate after a green sync. `.claude/settings.toolchain.example.json` is a SessionStart hook example that the operator merges into `.claude/settings.json` by hand.
 
-`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (19 files):
+`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (24 files):
 
 | Path | Merge strategy |
 |------|----------------|
@@ -68,6 +68,11 @@ Static data that defines what researchteam owns in a derived repository: the ups
 | `scripts/check_term_index.py` | overwrite |
 | `scripts/query_term_index.py` | overwrite |
 | `.claude/settings.terms.example.json` | overwrite |
+| `scripts/check_term_core.py` | overwrite |
+| `scripts/term-index-core/PINNED.json` | exact bytes (`BYTE_EXACT_PREFIXES`) |
+| `scripts/term-index-core/_term_text.py` | exact bytes (`BYTE_EXACT_PREFIXES`) |
+| `scripts/term-index-core/term_index.py` | exact bytes (`BYTE_EXACT_PREFIXES`) |
+| `scripts/term-index-core/LICENSE` | exact bytes (`BYTE_EXACT_PREFIXES`) |
 | `.github/agents/interpretation-advisor.agent.md` | `above-notes` |
 | `.github/agents/references/methodology/_TEMPLATE.methodology.guide.md` | overwrite |
 
@@ -77,6 +82,7 @@ Before researchteam 1.0.0 these two were seeded only at `init`; `update` now syn
 |------|-------|---------|
 | `SEEDED_FILES` | `[]` (`list[str]`) | Files `init` seeds but `update` never syncs. `doctor --drift` compares their upstream-owned part (everything before `## Project-Specific Notes`) with upstream at the pinned researchteam commit. Currently empty: both former entries became managed. |
 | `MANAGED_FILES` | `FRAMEWORK_MANAGED_FILES + SCHOLARLY_MANAGED_FILES` | Backwards-compatible flat list equal to the full scholarly set. |
+| `BYTE_EXACT_PREFIXES` | `("scripts/term-index-core/",)` | Managed files under these prefixes are fetched (`fetch_raw_bytes`) and written as bytes, never decoded, because `scripts/check_term_core.py` checks their sha256. `.gitattributes` marks the same directory `-text`. An installed researchteam older than 1.3.0 does not list these files, so it never syncs them: upgrade researchteam before `update`. |
 
 ### Merge strategies
 

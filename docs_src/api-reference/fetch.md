@@ -53,6 +53,14 @@ text = fetch_raw(UPSTREAM_REPO, "main", "docs/researchteam-framework.md")
 
 ---
 
+### `fetch_raw_bytes(repo: str, ref: str, path: str) -> bytes`
+
+> *Source: `researchteam/_fetch.py`*
+
+The same request as `fetch_raw`, returning the exact bytes served, undecoded. `fetch_raw` is this followed by a UTF-8 decode. `update` uses it for the managed files under `BYTE_EXACT_PREFIXES` (the pinned term-index core), whose sha256 must survive the sync. Raises the same `RuntimeError` messages as `fetch_raw`.
+
+---
+
 ### `fetch_tarball(repo: str, ref: str) -> bytes`
 
 > *Source: `researchteam/_fetch.py`*

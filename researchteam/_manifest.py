@@ -64,10 +64,23 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/check_term_index.py",
     "scripts/query_term_index.py",
     ".claude/settings.terms.example.json",
+    # The pinned agentteams term-index core the engine's adapters load (researchteam 1.3.0): the loader and
+    # offline check, then the copied files, their licence and their manifest. Every file in the directory is
+    # listed, because the check refuses only an unlisted code file. They are synced as exact bytes
+    # (BYTE_EXACT_PREFIXES): a decoded and re-encoded copy could fail its own hash.
+    "scripts/check_term_core.py",
+    "scripts/term-index-core/PINNED.json",
+    "scripts/term-index-core/_term_text.py",
+    "scripts/term-index-core/term_index.py",
+    "scripts/term-index-core/LICENSE",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
 ]
+
+# Managed files under these prefixes are fetched and written as bytes, never decoded: their sha256 is checked
+# (scripts/check_term_core.py), and `.gitattributes` marks them -text so git never converts their line endings.
+BYTE_EXACT_PREFIXES = ("scripts/term-index-core/",)
 
 # Files `init` seeds that `update` never syncs (not managed, not agentteams-rendered, not project
 # content). `doctor --drift` compares their upstream-owned part (everything before

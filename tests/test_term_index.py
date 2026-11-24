@@ -856,7 +856,7 @@ def test_documents_created_in_another_order_give_the_same_bytes(tmp_path):
 # The engine's limit was 650; the third review raised it to 700 so that the section dividers could stay.
 SCRIPTS = {ENGINE: 700, BUILD: 300, CHECK: 250, QUERY: 100}
 ALLOWED_IMPORTS = {"__future__", "bisect", "dataclasses", "hashlib", "json", "os", "re", "stat", "sys",
-                   "tempfile", "pathlib", "fcntl", "term_index_engine"}
+                   "tempfile", "pathlib", "fcntl", "term_index_engine", "check_term_core"}
 BANNED_CALLS = {"system", "popen", "fork", "eval", "exec", "__import__", "execv", "execve",
                 "spawnl", "spawnv", "startfile"}
 

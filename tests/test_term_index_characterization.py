@@ -31,6 +31,9 @@ Added here (the gaps, concentrated on the seams in the swap's seam analysis):
 - a golden project checked for self-consistency, with its full occurrence list;
 - MAY CHANGE AT THE SWAP: generator and schema identifiers, the NOREG / NEEDS-REGISTER wording, the
   oversized-register wording, and a symbolically linked terminology/index/ passing the gate.
+  At the swap (researchteam 1.3.0) the identifiers and the NOREG / NEEDS-REGISTER wording stayed as they
+  were; the oversized-register wording and the symbolically linked index changed, as the design note
+  (section 7) accepts, and those two tests now pin the new behaviour.
 
 Classification: custom markers are not registered in this repository, so each test is listed in exactly one of
 INVARIANT_TESTS or MAY_CHANGE_AT_SWAP_TESTS (test_every_test_is_classified enforces it).
@@ -378,17 +381,22 @@ def test_noreg_and_needs_register_wording(tmp_path):
 
 
 def test_oversized_register_wording(tmp_path):
+    """Changed at the swap (seam table, gap 5; design note section 7 accepts it): the pinned core reads the
+    register through one capped, link-refusing read, so its message names all three refusals."""
     make(tmp_path, {"a.md": "x\n"}, raw=json.dumps(register()) + " " * 1_000_001)
+    wording = "terms.json is a link, not a regular file, or larger than 1000000 bytes (refused)"
     r = check(tmp_path, "Demo")
-    assert r.returncode == 1 and "\n  DEFECT[SCHEMA]  terms.json is larger than 1000000 bytes\n" in r.stdout, r.stdout
+    assert r.returncode == 1 and f"\n  DEFECT[SCHEMA]  {wording}\n" in r.stdout, r.stdout
     b = build(tmp_path, "Demo")
-    assert b.returncode == 1 and b.stdout == "Projects/Demo: DEFECT[SCHEMA] terms.json is larger than 1000000 bytes\n"
+    assert b.returncode == 1 and b.stdout == f"Projects/Demo: DEFECT[SCHEMA] {wording}\n"
 
 
 @pytest.mark.skipif(not hasattr(os, "symlink"), reason="needs symbolic links")
 def test_symlinked_index_directory_passes_the_gate(tmp_path):
-    """Today a terminology/index/ that is a link to a correct copy passes the gate; the upstream core's
-    O_NOFOLLOW reads would report [STALE] (seam analysis, gap 6). The builder refuses to write through it."""
+    """Changed at the swap (seam table, gap 6; design note section 7 accepts the stricter behaviour): before
+    it, a terminology/index/ that is a link to a correct copy passed the gate. The pinned core reads every
+    generated file without following a link, so each index file now reads as differing ([STALE], exit 1).
+    The builder still refuses to write through the link."""
     proj = make(tmp_path, {"a.md": "A term register.\n"})
     assert build(tmp_path).returncode == 0
     copy = tmp_path / "index-copy"
@@ -398,7 +406,10 @@ def test_symlinked_index_directory_passes_the_gate(tmp_path):
     except OSError:
         pytest.skip("cannot create a symbolic link here")
     r = check(tmp_path, "Demo")
-    assert r.returncode == 0 and "PASS (no DEFECT)" in r.stdout, r.stdout
+    assert r.returncode == 1, r.stdout
+    for rel in ("00-research-plan.md", "a.md"):
+        assert (f"DEFECT[STALE]   terminology/index/{rel}.json: differs from a fresh build although the inputs are "
+                "unchanged (edited by hand, or incomplete; run: term-build)") in r.stdout, r.stdout
     before = snapshot(copy)
     b = build(tmp_path, "Demo")
     assert b.returncode == 1

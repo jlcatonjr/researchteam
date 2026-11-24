@@ -295,6 +295,10 @@ Render each non-frozen surface returned by `_native_surfaces` with `_run_agentte
 
 Exits unless `agentteams --help` output contains `--discard-user-regions` (agentteams P5a, f113f5d or later). An older agentteams would drop user-editable regions on `--overwrite`.
 
+### `_sync_byte_exact(root, rel_path, ref, *, yes, dry_run)`
+
+Layer-2 sync of one managed file under `BYTE_EXACT_PREFIXES` (the pinned term-index core). It fetches the file with `fetch_raw_bytes`, compares and writes bytes, and never decodes. A symbolic link at the path is not written through (skipped, with a message). Interactively it shows the old and new sha256 instead of a text diff. Returns `(outcome, detail)`, outcome one of `same`, `updated`, `created`, `skipped`, `error`.
+
 ### `_merge_bridges(root, dry_run)`
 
 Refresh each recorded copilot-vscode bridge (`_drift.bridge_frameworks`) with `agentteams --bridge-from .github/agents --framework <fw> --output . --bridge-merge`. It skips frameworks in these cases:

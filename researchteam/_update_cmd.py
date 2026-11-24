@@ -2,6 +2,7 @@
 
 import datetime
 import difflib
+import hashlib
 import json
 import os
 import re
@@ -13,6 +14,7 @@ from pathlib import Path
 
 from ._manifest import (
     BRIEF_PLACEHOLDER,
+    BYTE_EXACT_PREFIXES,
     FENCE_CORE_BEGIN,
     FENCE_CORE_END,
     MERGE_STRATEGIES,
@@ -20,7 +22,7 @@ from ._manifest import (
     managed_files_for,
 )
 from ._drift import NOTES_HEADING_RE, clean, comparable_body, is_safe_ref, pinned_ref
-from ._fetch import fetch_raw
+from ._fetch import fetch_raw, fetch_raw_bytes
 
 
 def _split_fence(text: str) -> tuple[str, str, str] | None:
@@ -321,6 +323,15 @@ def _run_update_body(
             print(f"  [frozen] {rel_path}: under a frozen surface; not synced (left unchanged)")
             skipped.append(rel_path)
             continue
+        if rel_path.startswith(BYTE_EXACT_PREFIXES):
+            outcome, detail = _sync_byte_exact(root, rel_path, ref, yes=yes, dry_run=dry_run)
+            if outcome == "error":
+                errors.append(detail)
+            elif outcome in ("updated", "created"):
+                updated.append(rel_path)
+            elif outcome == "skipped":
+                skipped.append(rel_path)
+            continue
         local_path = root / rel_path
         try:
             remote_content = fetch_raw(UPSTREAM_REPO, ref, rel_path)
@@ -463,6 +474,40 @@ def _run_update_body(
     _refresh_codex_unless_frozen(root, dry_run=dry_run, codex=codex)
     _merge_bridges(root, dry_run)
     _print_frozen_summary(root, dry_run)
+
+
+def _sync_byte_exact(root: Path, rel_path: str, ref: str, *, yes: bool, dry_run: bool) -> tuple[str, str]:
+    """Sync one file of a byte-exact directory (the pinned term-index core): fetched and written as bytes.
+
+    Returns ``(outcome, detail)``: outcome is ``same``, ``updated``, ``created``, ``skipped`` or ``error``. A
+    decoded-and-re-encoded copy could differ from the bytes its manifest hashes, so nothing here decodes, and
+    a symbolic link at the path is never written through (the term-core check refuses one anyway).
+    """
+    try:
+        remote = fetch_raw_bytes(UPSTREAM_REPO, ref, rel_path)
+    except RuntimeError as exc:
+        return "error", str(exc)
+    local_path = root / rel_path
+    if local_path.is_symlink():
+        print(f"  [byte-exact] {rel_path}: a symbolic link; not written (restore a regular file, then update again)")
+        return "skipped", ""
+    local = local_path.read_bytes() if local_path.is_file() else None
+    if local == remote:
+        return "same", ""
+    verb = "update" if local is not None else "create"
+    if dry_run:
+        print(f"  [dry-run] Would {verb}: {rel_path}")
+        return "updated", ""
+    if not yes:
+        before = hashlib.sha256(local).hexdigest()[:12] if local is not None else "(absent)"
+        print(f"\n--- {rel_path} (exact bytes) ---\n  sha256 {before} -> {hashlib.sha256(remote).hexdigest()[:12]}")
+        if input("Apply? [y/N] ").strip().lower() != "y":
+            print(f"  Skipped {rel_path}")
+            return "skipped", ""
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+    local_path.write_bytes(remote)
+    print(f"  {'Updated' if local is not None else 'Created'} {rel_path}")
+    return ("updated" if local is not None else "created"), ""
 
 
 def _merge_bridges(root: Path, dry_run: bool) -> None:

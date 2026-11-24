@@ -12,7 +12,9 @@ Implementation of `researchteam doctor`, a health check for the researchteam ↔
 
 | Name | Value | Purpose |
 |------|-------|---------|
-| `SCHOLARLY_CAPABILITY_SCRIPTS` | `("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh", TERM_INDEX_GATE)` | Scholarly tooling check 5b reports on. |
+| `SCHOLARLY_CAPABILITY_SCRIPTS` | `("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh", TERM_INDEX_GATE, TERM_CORE_CHECK, TERM_CORE_MANIFEST)` | Scholarly tooling check 5b reports on. |
+| `TERM_CORE_CHECK` | `"scripts/check_term_core.py"` | The offline check of the pinned term-index core that check 5b' runs. |
+| `TERM_CORE_MANIFEST` | `"scripts/term-index-core/PINNED.json"` | The core's manifest: the pinned agentteams tag, commit and file hashes. |
 | `TERM_INDEX_GATE` | `"scripts/check_term_index.py"` | The term-index gate that check 5c runs. |
 | `VALIDATE_COMMAND` | `"claude_researchteam_bridge.sh validate"` | The text check 5c looks for in a workflow to decide whether CI runs the bridge validator. |
 | `_EPHEMERAL_MARKERS` | `("/tmp/", "/private/tmp/", "-worktree", "scratchpad", "/var/folders/")` | Substrings that mark an `agentteams` source path as ephemeral. |
@@ -77,6 +79,12 @@ Run every check and print a report. The CLI calls it as `run_doctor(root, drift=
 **5b. Scholarly tooling** (`_check_scholarly_tooling`, always runs, informational). For each of `SCHOLARLY_CAPABILITY_SCRIPTS`, decided by `managed_files_for(<brief layer2_profile>)`:
 - OK: the script is present; or the profile does not manage it (`layer2_profile: "generic"`), so it is not expected.
 - WARN: the profile manages it but it is missing; run `researchteam update` to receive it.
+
+**5b'. Term-index core** (`_check_term_core`, always runs; a failure FAILS doctor, operator ruling of 2026-11-24). Silent when `scripts/check_term_index.py` or `scripts/check_term_core.py` is absent (check 5b says whether they are expected).
+- Runs `scripts/check_term_core.py` under `sys.executable -B -I` (60-second timeout) and relays its lines with control characters removed.
+- FAIL: the check exits non-zero (a file mismatched, missing, a link, not a regular file, or an unlisted code file; or a malformed manifest) or cannot run. The code the term index would run is not the code researchteam shipped. Check 5c is then skipped, so the fault is reported once.
+- OK (two lines): the check's summary (pinned tag, short commit, counts), and that the term index runs the pinned copy, never an installed agentteams.
+- WARN: `toolchain.lock` names no `agentteams.tag=` (the manifest's tag is printed), or its tag is on a different `vX.Y` line from the manifest's.
 
 **5c. Term index** (`_check_term_index`, always runs, informational). Silent when `scripts/check_term_index.py` is absent (check 5b says whether it is expected).
 - Runs the gate (`scripts/check_term_index.py`, 120-second timeout, with `RT_ROOT` and `TERM_INDEX_ADVISORY` cleared) and relays its `Projects seen: …` summary with control characters removed. The gate, not doctor, decides how many registers there are and whether one is required.
@@ -146,6 +154,8 @@ Check 9 above. When `fail` is `None`, the leftover-bridge-agent finding is repor
 | `_agentteams_source(interp: str) -> Optional[str]` | Runs `interp -c` to print the directory of `build_team.__file__`; `None` on failure or empty output. |
 | `_check_pandoc(ok, warn) -> None` | Check 5a. Never reports FAIL. |
 | `_check_scholarly_tooling(root, ok, warn) -> None` | Check 5b. Never reports FAIL. |
+| `_check_term_core(root, ok, warn, fail) -> bool` | Check 5b'. Returns False only when the check ran and failed. |
+| `_lock_agentteams_tag(root) -> str \| None` | The `agentteams.tag=` value of `toolchain.lock` (`_release.read_lock_pin`). |
 | `_check_term_index(root, ok, warn) -> None` | Check 5c. Never reports FAIL. |
 | `_workflow_runs_validate(root) -> bool` | Whether a file under `.github/workflows/` has a line, not a comment, containing `VALIDATE_COMMAND`. A file that is not UTF-8 text does not count. |
 | `_printable(text) -> str` | `text` without control characters, for a line relayed from a repository's own script. |

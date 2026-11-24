@@ -65,6 +65,7 @@ nav:
       - notes: api-reference/notes.md
       - release: api-reference/release.md
       - agentteams provenance: api-reference/agentteams-provenance.md
+      - term-index core upstream: api-reference/term-core-upstream.md
       - manifest: api-reference/manifest.md
       - fetch: api-reference/fetch.md
       - scripts: api-reference/scripts.md
