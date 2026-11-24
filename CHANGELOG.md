@@ -7,8 +7,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 - **Survey toolkit: the per-study sign-off log is specified (open point 1 closed).** Section 6.2 of
   `docs/survey-toolkit.md` now gives the log's folder layout, a gates-only team dir as agentteams 1.3.0 documents
-  it, and the HALT rule: an unretracted HALT in the repository's team logs binds a study's sign-off. The sign-off
-  tools will require agentteams 1.3.0 or later. The contract stays version 1.
+  it, and the HALT rule: an unretracted HALT in the repository's team logs binds a study's sign-off. Only an
+  Ed25519 row by a key in the folder clears a gate, and a waiver file there is an error. The text says what a
+  sign-off proves while its keys live in the repository; a trust root outside it is a new open point. The
+  sign-off tools will require agentteams 1.3.0 or later. The contract stays version 1.
 
 - **Governance: the term-index loader and engine join the paths that need a `@security` PASS (PS-2).**
   `scripts/check_term_core.py` decides which bytes of the pinned core run, and `scripts/term_index_engine.py` decides

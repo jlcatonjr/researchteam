@@ -813,7 +813,8 @@ A **manifest** is one JSON object:
 These are fixed because any difference changes every manifest hash and so un-clears every signed gate.
 
 A gate is in one of three states: `CLEARED` (a valid signature exists for the current manifest hash),
-`UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here). A gate whose files have changed
+`UNCLEARED`, or `UNAVAILABLE` (signatures cannot be verified here, or the log's folder or a log whose HALTs
+bind it cannot be read or is malformed; 6.2). A gate whose files have changed
 since a request was made is `UNCLEARED` whether or not signatures can be verified.
 
 A stage whose gate the specification does not declare refuses to run, except in a `legacy` study, where
@@ -840,10 +841,10 @@ into the manifest and carried into every output that depends on the gate (4.6), 
 - Verification uses the team's approver list and verify keys. A signature by a key not on the list does
   not clear a gate.
 
-**The log's folder** (settled 2026-11-24, closing open point 1). `agentteams` 1.3.0 documents and tests
-this pattern as a *gates-only team dir* (its API reference, "Workspace privilege scoping", section
-"Gates-only team dirs for sign-off rows"; its changelog for 1.3.0, issue #578). The folder that
-`signoffs.ledger` names holds exactly this, and nothing an agent team would run:
+**The log's folder** (settled 2026-11-24, closing open point 1; section 7 calls it the *ledger*).
+`agentteams` 1.3.0 documents and tests this pattern as a *gates-only team dir* (its API reference,
+"Workspace privilege scoping", section "Gates-only team dirs for sign-off rows"; its changelog for 1.3.0,
+issue #578). The folder that `signoffs.ledger` names holds this, and nothing an agent team would run:
 
 ```
 <path>/references/
@@ -853,34 +854,58 @@ this pattern as a *gates-only team dir* (its API reference, "Workspace privilege
   security-approvers.txt
 ```
 
-- `<path>` is relative to the repository root and lies inside the repository the study is in. No component
-  of it is a symbolic link. A log kept outside the repository would not see the team's HALTs (below), so the
-  validator refuses such a path.
-- The approver list and the verify keys in the folder are the team's. Where the repository's own team
-  directory holds an approver list or verify keys, the folder's are the same files, byte for byte, and the
-  validator refuses a difference. A repository whose team has neither keeps them in the folder alone.
-- The operator signs with `agentteams --sign-decision <spec> --output <path>` and the tools verify with
+- `<path>` is a path under rule 6 of section 1: relative to the study's folder, or to the repository root
+  when it starts with `repo:` (`agentteams-clearance:repo:.github/survey-gates`). It lies inside the
+  repository the study is in, and no component of it is a symbolic link. A log kept outside the repository
+  would not see the team's HALTs (below).
+- **A sign-off row is an Ed25519 row.** A row clears a gate only when its `sig_scheme` is `ed25519`, its
+  `key_id` names a key file in the folder's `authorized-verify-keys/`, and its author is on the folder's
+  approver list. `agentteams` also accepts a row signed with a shared secret
+  (`AGENTTEAMS_DECISION_SIGNING_KEY`), which needs no operator key; the tools do not count such a row.
+- **No waivers.** `agentteams` accepts a matching waiver before it looks for a signed row. A
+  `references/security-waivers.log.csv` in the folder is an error, and the gate is `UNAVAILABLE` while it
+  is there.
+- **Where the keys and the approver list live** (operator ruling, 2026-11-24). They are the team's. Where
+  the repository's own team directory has an approver list that names at least one approver, or at least
+  one verify key, the folder's list names the same approvers and the folder's keys are the same files, and
+  a difference is an error. A team directory with only the comment-only list `agentteams` generates, or
+  with no key file, has neither; the folder is then the only place they live.
+- **What a sign-off proves, and what it does not.** The folder is inside the repository, so whoever can
+  write there can add a key and an approver. A cleared gate proves that the manifest was signed by a key
+  that was in the folder when the gate was checked, by an author on the list as it then stood. It does not
+  prove who put the key there. A change to the folder's keys or approver list is therefore made only by a
+  reviewed pull request, as a change to the team's own trust roots is, and a repository that can protect
+  paths from agent writes protects this folder. A trust root outside the repository is open point 7.
+- The operator signs with `agentteams --sign-decision <spec> --output <path>`, with the decision key file
+  that `AGENTTEAMS_DECISION_ED25519_KEYFILE` names, and the tools verify with
   `agentteams --check-clearance <scope> --clearance-file <manifest> --output <path>` (or the function behind
-  it), which reads the PASS in this folder.
-- `AGENTTEAMS_DECISION_SIGNING_KEY` applies to a whole process: exported in a shell, it makes every
-  decisions log that process touches signing-active, the team's included. The handoff script sets it for
-  the signing command alone.
+  it), which reads the PASS in this folder. The handoff script never exports
+  `AGENTTEAMS_DECISION_SIGNING_KEY`: it applies to a whole process and makes every decisions log that
+  process touches signing-active, the team's included.
+- A check spends nothing. A sign-off holds for exactly the manifest bytes it names until those bytes
+  change or a HALT stands. When the operator's key is replaced and the old key file is removed from the
+  folder, every sign-off made with it stops clearing until it is signed again.
 
 **HALT.** The log has no HALT authority of its own. A sign-off does not clear a gate while an unretracted
-HALT on its scope, or on its action, stands in any of:
+HALT stands on its scope or its action, or on `survey-signoff` or `survey-signoff/<gate>`, in any of:
 
 - the log itself;
-- the decisions log of any generated team directory in the repository (`.claude/agents`, `.github/agents`,
-  `.codex/agents`, `.goose/recipes`, `.grok/agents`), whether or not the folder names it;
+- the decisions log at each generated team location under the repository's root (`.claude/agents`,
+  `.github/agents`, `.codex/agents`, `.goose/recipes`, `.grok/agents`), whether or not the folder names
+  it. These are fixed places under each directory that encloses the folder and holds a `.git`; the tree
+  is not searched, so a checkout of another repository kept below the study's is not read;
 - the team directory that the folder's `agent-privilege.json` declares as `parent_team`, a path relative to
   the repository root. A repository whose governing team is not in one of the generated locations declares
-  it; without the declaration that team's HALTs would not bind, so the validator requires it there.
+  it; without the declaration that team's HALTs would not bind.
 
-Each log is read under its own rules: an unsigned HALT binds, and a retraction counts only where it is
-valid in its own log. The check fails closed. A log that cannot be read or parsed, a team directory
-reached through a symbolic link, or a `parent_team` that is absolute, leaves the repository, is not a team
-directory, names the folder itself or declares a parent of its own, leaves the gate `UNAVAILABLE`, never
-`CLEARED`.
+A HALT is matched by the action its row reviewed, in whatever columns its own log has: a HALT on some
+other action, in a team's log that has no scope column, does not bind a sign-off. `agentteams` matches the
+scope and the action; the two shorter names are the tools' own check, because `agentteams` does not let a
+shorter name bind a longer one. Each log is read under its own rules: an unsigned HALT binds, and a
+retraction counts only where it is valid in its own log. The check fails closed. A log that cannot be read
+or parsed, a team directory reached through a symbolic link, or a `parent_team` that is absolute, leaves
+the repository, is not a team directory, names the folder itself or declares a parent of its own, leaves
+the gate `UNAVAILABLE`, never `CLEARED`.
 
 This behaviour is `agentteams` 1.3.0's. An older `agentteams` reads only the folder it is given, so a
 HALT in the team's log would not bind. The sign-off tools therefore require `agentteams` 1.3.0 or later
@@ -892,7 +917,7 @@ Bridge commands, each taking a project:
 
 | Command | Does |
 |---|---|
-| `survey-validate` | checks the specification and every row file present; writes nothing |
+| `survey-validate` | checks the specification, every row file present and the ledger's folder (6.2); writes nothing |
 | `survey-status` | prints each gate's manifest hash, state, `enforce` and `mode`. It exits 0 whatever the states are, and non-zero only when a specification, manifest or ledger is malformed; refusing is a stage's job |
 | `survey-manifest <gate>` | writes the gate's manifest and prints what the operator signs |
 | `survey-registry` | builds the identity registry; lists candidates; applies recorded overrides |
@@ -1011,9 +1036,10 @@ section 7), with `basis`, `reporter` and `note` as optional evidence columns.
 Settled at the freeze (2026-11-23): the points of section 12.
 
 Settled on 2026-11-24, after `agentteams` 1.3.0 was released: the per-study log's folder layout, and that a
-HALT in the team's log binds it (6.2). This was open point 1; the points below keep their numbers. It
-fills a point version 1 left open and changes no shape, rule or command that version 1 fixed, so the
-contract stays version 1 and `schema_version` stays `"1"`.
+HALT in the team's log binds it (6.2). This was open point 1; the points below keep their numbers, and
+point 7 is new. It fills a point version 1 left open and changes no shape, rule or command that version 1
+fixed, so the contract stays version 1 and `schema_version` stays `"1"`. The first project's log was
+compared with the text before it merged; its signed gates stay valid.
 
 Still open:
 
@@ -1027,6 +1053,10 @@ Still open:
 6. **Frame rules over cells, plug-in bucketers in a frame, and `merges`.** Version 1 defines only
    `not-on-question` for a passage or work frame, refuses a plug-in bucketer there, and
    carries an outcome's `merges` without saying which tool applies them.
+7. **A trust root outside the repository.** The verify keys and the approver list that clear a study gate
+   live in the repository (6.2), so a sign-off proves no more than the review of changes to them does.
+   Whether a later version verifies against keys the operator provisions outside every agent's write root,
+   with the in-repository copies required to match, is open (raised by `@security`, 2026-11-24).
 
 ## 12. What the freeze changed
 
