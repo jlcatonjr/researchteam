@@ -2,6 +2,6 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Reconcile the survey-toolkit plan record: step 13 done; PR #226 merged as 4435e14,git log,survey-toolkit-2026-11-19.steps.csv,done,Reconciled on main; the plan's steps now run to 18 (the freeze),
 2,primary-producer,Explorer contract 1.1 with tests; component; FILES.sha256; close open point 2,D2; docs/survey-toolkit.md section 9,templates/bibliography-explorer/; docs/survey-toolkit.md,done,PR #238; code-hygiene and conflict-auditor findings applied,
 3,orchestrator,Ask the operator for the merge of step 2's PR naming PR and head; git-operations merges,2,merge commit,done,Merged as 5b59aa5 at head 1faebee on the operator's picker answer,2
-4,primary-producer,Write open point 1 against the released gates-only pattern,D2; agentteams 1.3.0 documentation,docs/survey-toolkit.md sections 6 and 11,pending,external waits: D2 and the upstream release,
-5,security,Read the sign-off log text,4,verdict,pending,read-only,4
-6,orchestrator,Ask the operator for the merge of step 4's PR naming PR and head; git-operations merges,5,merge commit,pending,,5
+4,primary-producer,Write open point 1 against the released gates-only pattern,D2; agentteams 1.3.0 documentation,docs/survey-toolkit.md sections 6 and 11,done,"2026-11-24: section 6.2 written against agentteams 1.3.0 (#578); operator ruling 'Allow, state the limit' for a folder-only trust root; new open point 7; the first project compared the text with its live log",
+5,security,Read the sign-off log text,4,verdict,done,"2026-11-24: @security read the text three times against agentteams 1.3.0's code; PASS at 5063473, posted on PR #258",4
+6,orchestrator,Ask the operator for the merge of step 4's PR naming PR and head; git-operations merges,5,merge commit,done,2026-11-24: PR #258 merged as 41d76d9 on the operator's picker answer naming PR and head,5

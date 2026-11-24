@@ -282,3 +282,8 @@ second pass.
 - **Consequence to keep in mind at the freeze:** a move of the lock's agentteams pin now runs `term-core.yml`, and
   it fails unless the core moves with it.
 - **Next:** T3 open point 1, then T4.
+- **T3 is done (same day).** Open point 1 of the survey contract is closed by PR #258 (`41d76d9`): section 6.2
+  gives the per-study sign-off log's folder and the HALT rule, from agentteams 1.3.0's released pattern. Operator
+  ruling in the picker: the folder may be the only home of the verify keys and approver list, with the limit
+  stated; a trust root outside the repository is the contract's new open point 7. The contract stays version 1.
+- **Next:** T4, then the freeze.
