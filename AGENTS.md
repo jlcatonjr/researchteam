@@ -55,7 +55,7 @@ work routed through the orchestrator above:
   fetch, and (with the `[browser]` extra) JS rendering, through the ordinary
   shell — no MCP wiring. Verify first, the same discipline as any CLI tool:
   `python -m agentteams.research --help` (if absent, install from the project's git
-  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.2.1"` —
+  source: `pip install "agentteams[research] @ git+https://github.com/jlcatonjr/agentteams.git@v1.3.0"` —
   never `pip install agentteams` from PyPI, where the name is not this project's), then e.g.
   `python -m agentteams.research search "<query>"` and
   `python -m agentteams.research fetch "<url>"`.
@@ -237,7 +237,7 @@ ordering, including where operator instructions and read content sit:
 8. **Always close with `@conflict-auditor`** — required after any multi-file change session
 9. **Every request must generate a plan** — any request involving two or more implementation steps (steps that write, create, rename, delete, or make agent decisions) must produce: (a) a summary saved to `tmp/by-week/YYYY-Www/<plan-slug>.plan.md` and (b) a step-by-step CSV saved to `tmp/by-week/YYYY-Www/<plan-slug>.steps.csv` before the first step executes; the CSV must include columns: `step`, `agent`, `action`, `inputs`, `outputs`, `status`, `notes` (and may include an optional `depends_on` column listing the `step` ids a row depends on, enabling parallelization analysis); initial `status` for all rows is `pending`; after each step completes, pass remaining steps through `@adversarial` and `@conflict-auditor` before proceeding; create the week folder if it does not exist and read legacy undated plans from `tmp/` when canonical week-organized storage is absent; a batch of operator-scheduled follow-ups gets its plan and steps CSV before the first item starts, however small each item is, and a plan written afterwards says `(retroactive)` in its title; when a plan or metaplan holds two or more development or remediation items, each item is rated for **severity**, **breadth of impact** and **cost of remediation** (with an optional **confidence**) per `references/net-benefit-prioritization.reference.md`, and items are executed in descending **expected net benefit**, subject to `depends_on`; ratings carry a one-line rationale each
 10. **Completed plans must be captured in daily work summaries** — when a plan reaches all `done` during a session, invoke `@work-summarizer` to append/update `workSummaries/daily/YYYY-MM-DD.md` before closeout
-11. **Constraint-relaxing authorizations are derived, elevated, and bounded** — An authorization is *constraint-relaxing* when its effect **grants a capability, writes a governance/trust root, explicitly relaxes a constraint, or reaches across repositories** — a class **derived from the row's structured effect, never a self-declared flag** (a dangerous divergence between a declared and derived class refuses). In a governed workspace such an authorization: (a) must be **traceable** to a recorded ancestor and inherits any ancestor's HALT along that lineage, so a renamed scope cannot evade C-2; (b) requires the **operator's asymmetric (Ed25519) signature** — a symmetric signature is *valid-but-insufficient*, so no agent or compromised runner can mint one; (c) is refused outright when it targets a **trust root** (the signing-material store, a roster, a signing secret, the integrity manifest, or the constitution) **even when validly signed**; and (d) is bounded by a **git-tracked aggregate cap** with sunset/expiry, so relaxing exceptions cannot silently proliferate. Routine destructive actions keep the ordinary `@security` C-5 clearance. Ship this guardrail machinery to generated teams; **never ship a specific exception**.
+11. **Constraint-relaxing authorizations are derived, elevated, and bounded** — An authorization is *constraint-relaxing* when its effect **grants a capability, writes a governance/trust root, explicitly relaxes a constraint, reaches across repositories, or acts in bulk** — a class **derived from the row's structured effect, never a self-declared flag** (a dangerous divergence between a declared and derived class refuses). In a governed workspace such an authorization: (a) must be **traceable** to a recorded ancestor and inherits any ancestor's HALT along that lineage, so a renamed scope cannot evade C-2; (b) requires the **operator's asymmetric (Ed25519) signature** — a symmetric signature is *valid-but-insufficient*, so no agent or compromised runner can mint one; (c) is refused outright when it targets a **trust root** (the signing-material store, a roster, a signing secret, the integrity manifest, or the constitution) **even when validly signed**; and (d) is bounded by a **git-tracked aggregate cap** with sunset/expiry, so relaxing exceptions cannot silently proliferate. Routine destructive actions on a single target keep the ordinary `@security` C-5 clearance; a bulk one needs the operator's signature. Ship this guardrail machinery to generated teams; **never ship a specific exception**.
 <!-- AGENTTEAMS:END constitutional_rules_baseline -->
 
 <!-- AGENTTEAMS:BEGIN source_repositories v=1 -->
@@ -275,8 +275,9 @@ rule stands on its own, whatever number the project's constraint-relaxing rule c
   cap and sunset, a project's own clauses included.
 - **What it lifts.** Only Rule S-10's 14-day cooldown and a pin move's per-release operator decision row,
   for releases of group members. It never lifts the vulnerability search, Rule S-9's signed-tag check
-  (`agentteams --verify-toolchain-pin` checks it and fails closed; the project's dependency gate should run
-  it), the latest-stable rule, a `@security` review, or any other rule.
+  (`agentteams --verify-toolchain-pin` checks it and fails closed in every tier: exit 0 only if at least one
+  pin was checked and every checked pin verifies; it checks signed tags, not release age, so it never clears
+  the cooldown; the project's dependency gate should run it), the latest-stable rule, a `@security` review, or any other rule.
 
 agentteams ships and restores this section on every `--update --merge`; a project's own rules stay where
 they are.
@@ -290,8 +291,7 @@ GitHub management through the `gh` and `git` CLIs is authorized for this team by
 question.
 
 - **Who does what.** `@git-operations` runs git and the `gh` writes: branches, pushes of work branches, pull
-  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@pr-manager` owns
-  the pull-request lifecycle and never merges; `@pr-notifier` proposes the notices. The orchestrator coordinates and
+  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@git-operations` also owns the pull-request lifecycle. The orchestrator coordinates and
   may run read-only `gh` queries itself (`gh pr view`, `gh pr checks`, `gh run list`, `gh issue view`). Every other
   agent routes GitHub work through these roles. When the operator has activated the `github-read` / `github-write`
   MCP servers, the same split applies (`github-write` has no merge).
@@ -405,7 +405,7 @@ Reference: the team's `references/write-policy.reference.md`.
 > `emit`; instruction files do not, so it is declared here. Additions here may extend the
 > Constitutional Rules; they may not weaken the Constitutional Core.
 
-<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=0ffae411f136a37f6628f4b2e759e3c9ac8db4a7729a4d27ce9b4206fca8a033 copy-sha256=b4af24d5b68e6bb1d7cc62ab28a72c48915e64ab5ed21afb869ee52057dee9d0 mode=reference -->
+<!-- PROJECTED-RULES:BEGIN source=.claude/CLAUDE.md source-sha256=0ffae411f136a37f6628f4b2e759e3c9ac8db4a7729a4d27ce9b4206fca8a033 copy-sha256=57d9044deb251ed3b4d5b231c3651defb751017ccd0777890529b1bbdb6b3382 mode=reference -->
 > **Projected from `.claude/CLAUDE.md`** (`## Project-Specific Rules`) by agentteams. Edit the rules there; this block is regenerated on `--update` and by `--sync-project-rules`. Agents missing on this provider are listed in `references/agent-surface-matrix.md`.
 
 The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Specific Rules`. They bind this session as written there: read that section before acting. This is a reference, not a copy, because a copy would exceed Codex's 32 KiB project-instructions budget.
@@ -413,6 +413,6 @@ The project's operator rules are in `.claude/CLAUDE.md`, under `## Project-Speci
 Rules:
 
 - PS-1 All session work is public (operator ruling, 2026-11-14).
-- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added 202…
+- PS-2 The agent manages the GitHub repository (operator ruling, 2026-11-14; merge approval added…
 - PS-3 How the agent asks and hands off (operator ruling, 2026-11-14).
 <!-- PROJECTED-RULES:END -->

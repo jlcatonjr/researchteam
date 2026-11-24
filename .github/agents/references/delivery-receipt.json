@@ -1,11 +1,11 @@
 {
   "artifact_type": "delivery-receipt",
   "receipt_schema_version": "1.0",
-  "delivered_at": "2026-11-14T05:03:46Z",
+  "delivered_at": "2026-11-24T18:57:32Z",
   "project_name": "ResearchTeam",
   "framework": "copilot-vscode",
-  "manifest_fingerprint": "502bc775151c8c1c",
+  "manifest_fingerprint": "c52f047886a43856",
   "fingerprint_algo_version": 1,
   "output_dir": ".github/agents",
-  "agentteams_version": "1.1.3"
+  "agentteams_version": "1.3.0"
 }
