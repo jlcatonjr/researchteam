@@ -523,6 +523,28 @@ def test_a_failed_load_leaves_nothing_in_sys_modules(tmp_path, tail):
     assert out["failed"] == 2 and out["left"] == [], out
 
 
+def test_the_network_form_accepts_only_agentteams_own_repository(tmp_path, monkeypatch):
+    """A manifest, or a lock, repointed at another repository the release key may have signed is refused offline."""
+    import json as _json
+    from researchteam import _release, _term_core_upstream
+
+    def no_network(*a, **k):
+        raise AssertionError("refused before any network step")
+    monkeypatch.setattr(_release, "verify_tag", no_network)
+    repo = repo_copy(tmp_path, project=False)
+    pinned = repo / "scripts" / "term-index-core" / "PINNED.json"
+    original = pinned.read_bytes()
+    doc = _json.loads(original)
+    doc["upstream"]["repository"] = "jlcatonjr/baseagent"
+    pinned.write_text(_json.dumps(doc))
+    code, lines = _term_core_upstream.compare(repo)
+    assert code == 1 and "REPOSITORY the manifest names jlcatonjr/baseagent" in lines[-1]
+    pinned.write_bytes(original)
+    (repo / "toolchain.lock").write_text(f"agentteams=jlcatonjr/baseagent@{PINNED['commit']}\nagentteams.tag=v1.3.0\n")
+    code, lines = _term_core_upstream.compare(repo)
+    assert code == 1 and "REPOSITORY toolchain.lock pins agentteams from jlcatonjr/baseagent" in lines[-1]
+
+
 def test_the_network_form_checks_the_copy_without_the_repositorys_check_script(tmp_path):
     """A check script changed to pass everything cannot vouch for a tampered copy: the package hashes it itself."""
     from researchteam._term_core_upstream import compare, local_mismatches

@@ -5,6 +5,9 @@ name: Term-index core
 # The offline check proves only that the copy matches its own manifest; a pull request can change both together.
 # This job is what proves the bytes are the signed tag's (design: docs/term-index-protocol.md, "Placement").
 #
+# A move of toolchain.lock's agentteams pin runs it too: the core's commit must equal the lock's, so the core
+# moves with the lock (each move is its own reviewed adoption).
+#
 # The comparison code is taken from the BASE branch, not from the pull request, so a pull request cannot
 # pass by changing the code that judges it. Only when the base has no such code yet (the pull request that
 # introduces it) does the job run the pull request's own copy, and it says so.
@@ -21,6 +24,7 @@ on:
       - "scripts/check_term_core.py"
       - "researchteam/_term_core_upstream.py"
       - "researchteam/_release.py"
+      - "toolchain.lock"
       - ".github/workflows/term-core.yml"
   push:
     branches: [main, "release/**"]
@@ -29,6 +33,7 @@ on:
       - "scripts/check_term_core.py"
       - "researchteam/_term_core_upstream.py"
       - "researchteam/_release.py"
+      - "toolchain.lock"
       - ".github/workflows/term-core.yml"
 
 permissions:

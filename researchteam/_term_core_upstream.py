@@ -96,6 +96,10 @@ def parse_pinned(raw: bytes) -> dict:
     return data
 
 
+#: The only repository the copied core may come from (compared case-insensitively, as GitHub does).
+UPSTREAM_REPOSITORY = "jlcatonjr/agentteams"
+
+
 def link_on_path(root: Path, rel: str) -> bool:
     """Whether any component of ``root/rel`` below ``root`` is a symbolic link, or its parent resolves outside ``root``."""
     here = root
@@ -202,6 +206,15 @@ def compare(root: Path, *, allow_lock_difference: bool = False) -> tuple[int, li
         return 1, problems
     up = manifest["upstream"]
     lines = [f"[term-core-upstream] the copy matches {MANIFEST_REL} (checked here, not by scripts/check_term_core.py)"]
+    # The release key signs tags in more than one repository. The core may only come from agentteams' own, and
+    # from the repository the lock pins: a manifest and a lock repointed together must not verify.
+    if up["repository"].lower() != UPSTREAM_REPOSITORY:
+        return 1, lines + [f"[term-core-upstream] REPOSITORY the manifest names {up['repository']}; the core may only "
+                           f"come from {UPSTREAM_REPOSITORY}"]
+    lock_now = _release.read_lock_pin(root, "agentteams")
+    if lock_now is not None and lock_now[0].lower() != UPSTREAM_REPOSITORY:
+        return 1, lines + [f"[term-core-upstream] REPOSITORY toolchain.lock pins agentteams from {lock_now[0]}, not "
+                           f"{UPSTREAM_REPOSITORY}"]
     try:
         tag_object, peeled = _release.verify_tag(up["repository"], up["tag"])
     except _release.ReleaseError as exc:

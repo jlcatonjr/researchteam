@@ -38,6 +38,7 @@ It needs the operator's `allowed_signers` file (see [`release.md`](release.md)).
 |------|-------|---------|
 | `CORE_PREFIX` | `"scripts/term-index-core/"` | The pinned core's directory. |
 | `MANIFEST_REL` | `"scripts/term-index-core/PINNED.json"` | Its manifest. |
+| `UPSTREAM_REPOSITORY` | `"jlcatonjr/agentteams"` | The only repository the core may come from. `compare` refuses a manifest, or a `toolchain.lock` agentteams pin, that names another, before any network step. |
 | `FORMAT` | `"researchteam-pinned-copy/1"` | The manifest format this module reads. |
 | `CODE_SUFFIXES` | `(".py", ".pyc", ".pyo", ".pyw", ".pyd", ".so", ".pth")` | A file with one of these suffixes in the directory must be listed. |
 
