@@ -273,3 +273,12 @@ second pass.
 - **Next:** T2 (term-index core switch), then T3 open point 1, T4, the freeze (D11, D10), the release-prep PR and
   the operator's cut (D8).
 - **Still open for the operator:** D3, D8, D9, D10 and D11; D7 at each merge.
+- **T2 is done (same day).** The swap merged as PR #256 (`e15b3fb`): `scripts/term-index-core/` holds the two core
+  files of the signed agentteams `v1.3.0` as exact bytes, the engine is adapters, and `term-core.yml` compares the
+  copy with the signed tag on pull requests. PS-2 now names `scripts/term-index-core/` (PR #255),
+  `scripts/check_term_core.py` and `scripts/term_index_engine.py` (PR #257; operator's answer "Add both"). No
+  rehearsal against `dev` was run, because the signed tag was already out. Two edge cases changed, as the design
+  note accepts (a linked or oversized register's message; a symlinked index directory reads as stale).
+- **Consequence to keep in mind at the freeze:** a move of the lock's agentteams pin now runs `term-core.yml`, and
+  it fails unless the core moves with it.
+- **Next:** T3 open point 1, then T4.
