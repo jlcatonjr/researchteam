@@ -155,7 +155,9 @@ runpy.run_module("researchteam._term_core_upstream", run_name="__main__")' "$TMP
 ngit show "$SHA:scripts/term-index-core/PINNED.json" | grep -F "\"commit\": \"$AT_PEELED\"" >/dev/null || die "the core manifest at $SHA does not name the lock's commit $AT_PEELED"
 
 ngit rev-parse -q --verify "refs/tags/$TAG" >/dev/null && die "$TAG already exists; tags are immutable. If an earlier run signed it here but did not push it, stop and tell the researchteam session; do not delete it yourself"
-[ -z "$(ngit ls-remote "$RT_URL" "refs/tags/$TAG*")" ] || die "$TAG already exists on the remote; tags are immutable"
+# Captured first, so a failed listing stops the run instead of reading as "no such tag".
+remote_tag="$(ngit ls-remote "$RT_URL" "refs/tags/$TAG")" || die "cannot list the remote's tags; nothing was pushed or signed"
+[ -z "$remote_tag" ] || die "$TAG already exists on the remote; tags are immutable"
 existing="$(ngit ls-remote "$RT_URL" refs/heads/release/1.3 | cut -f1)"
 [ -z "$existing" ] || [ "$existing" = "$SHA" ] || die "release/1.3 already exists at $existing, not $SHA"
 

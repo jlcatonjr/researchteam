@@ -24,7 +24,10 @@ refuse_agent() {
 # run_log NAME: copy everything this run prints into a new file beside the script (an ignored path), so the record
 # survives a failure after a push. One file per run; never overwritten.
 run_log() {
-  local dir; dir="$(cd "$(dirname "$0")" && pwd)/logs"
+  local here dir; here="$(cd "$(dirname "$0")" && pwd)"; dir="$here/logs"
+  # A log holds local paths, so it must never land in a tracked tree: refuse unless git ignores the folder (the
+  # operator's copy lives under the ignored tmp/; the tracked copy of this script is not for running).
+  ngit -C "$here" check-ignore -q "$dir" || die "run the operator's copy under tmp/: $dir is not an ignored path"
   mkdir -p "$dir"
   RUN_LOG="$dir/$1.$(date -u +%Y%m%dT%H%M%SZ).$$.log"
   [ ! -e "$RUN_LOG" ] || die "$RUN_LOG already exists"
