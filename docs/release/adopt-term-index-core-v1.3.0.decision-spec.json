@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-11-24",
+  "date": "2026-11-24",
+  "requesting_agent": "security",
+  "author": "agent session",
+  "action_reviewed": "adopt-term-index-core-v1.3.0",
+  "verdict": "PASS",
+  "scope": "adopt-term-index-core-v1.3.0",
+  "conditions": "S-10 adoption of the copied term-index core. scripts/term-index-core/ holds agentteams/term_index.py and agentteams/_term_text.py as exact bytes of the signed tag v1.3.0 (tag object 1621402d6dbaec73edb342ae48e3ecc1819316d9, peeled commit 536306d2502e3db338846677f2d37489531ac8e7, the commit toolchain.lock pins), with agentteams' MIT LICENSE and the manifest PINNED.json. The module is marked beta upstream; researchteam's adapters and tests are what fix its behaviour here. The core imports only the standard library and its own two modules, and the loader enforces that. agentteams is a first-party toolchain group member, so the adoption needs this repository's @security review and a verified tag, and no operator-signed row. This file is the lasting copy of that review; it is not signed. Each later move of the core pin needs a new record: a vulnerability search at the new tag, the network comparison, and a test run on Python 3.10, because upstream declares Python 3.11 or later.",
+  "conditions_verified": "sha256 of each copied file equals the sha256 of the same path at 536306d2 in a checkout of agentteams (term_index.py 027acea9..., _term_text.py 24e1c8dc..., LICENSE 3724643f...); python -m researchteam._term_core_upstream exited 0 on 2026-11-24 (the tag verifies against the release key, every file matches the tag's blob, the core's commit equals the lock's); OSV search 2026-11-24 19:04Z (api.osv.dev, PyPI): agentteams 1.3.0 none, and no entry of any kind for the name; the test suite passed with agentteams 1.3.0 installed (1093 passed, 2 skipped) and the term-index tests passed on an interpreter with no agentteams installed; term-check output on every project is byte-identical before and after the switch",
+  "evidence": "the 1.3.0 metaplan, step T2 (under references/plans/ on the branch plans/release-1.3.0); design note open-1119-p1-copy-integrity-design.md",
+  "derives_from": "release-policy-1.0; s10-first-party-releases-2026-11; release-line-agentteams-1.3",
+  "effect_grants": "",
+  "effect_targets": "scripts/term-index-core/",
+  "effect_relaxes": "",
+  "effect_destructive": "false",
+  "effect_cross_repo": "false",
+  "effect_bulk": "false"
+}
