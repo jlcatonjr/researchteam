@@ -9,16 +9,19 @@
 # release/1.3 is created here (it must not exist, or must already be at the commit). The GitHub release is a
 # pre-release, never Latest.
 # OPERATOR ONLY, plain Terminal, from any directory:
-#   bash <checkout>/tmp/by-week/2026-W48/operator/29-cut-v1.3.0-rc.1.sh <40-hex reviewed main SHA>
+#   /bin/bash <checkout>/tmp/by-week/2026-W48/operator/29-cut-v1.3.0-rc.1.sh <40-hex reviewed main SHA>
+# The session hands over one command that first checks this copy's sha256 and that the shell is not an agent's or
+# an editor's. Every run writes its own log under logs/ beside this file.
 # Run it after the release-prep PR has merged, with that merge commit. It asks before each push, verifies the new
 # tag exactly as consumers will, and offers the GitHub pre-release. release/1.3 then equals main at that commit, so
 # no merge-forward is needed. Until the first "Cut release/1.3 ..." question nothing is pushed or signed.
 source "$(dirname "$0")/common.sh"
 refuse_agent
+run_log 29-cut
 TAG="v1.3.0-rc.1"; AT_TAG="v1.3.0"
 SHA="${1:?usage: $0 <40-hex reviewed main SHA>}"
 [[ "$SHA" =~ ^[0-9a-f]{40}$ ]] || die "the commit must be a full 40-hex SHA"
-fp="$(ssh-keygen -lf "$RELEASE_PUB" | awk '{print $2}')"
+fp="$(/usr/bin/ssh-keygen -lf "$RELEASE_PUB" | awk '{print $2}')"
 [ "$fp" = "$RELEASE_FP" ] || die "$RELEASE_PUB is $fp, not the release key $RELEASE_FP"
 RT_URL="https://github.com/$REPO"
 cd "$MAIN"
@@ -33,7 +36,7 @@ NAME="$(git config user.name)"
 SIGNING_KEYS="$(gh api "users/$GH_LOGIN/ssh_signing_keys" -q '.[].key')" || die "cannot list the signing keys of $GH_LOGIN"
 registered=0
 while IFS= read -r key; do
-  if [ -n "$key" ] && [ "$(printf '%s\n' "$key" | ssh-keygen -lf - | awk '{print $2}')" = "$RELEASE_FP" ]; then registered=1; fi
+  if [ -n "$key" ] && [ "$(printf '%s\n' "$key" | /usr/bin/ssh-keygen -lf - | awk '{print $2}')" = "$RELEASE_FP" ]; then registered=1; fi
 done <<EOF_KEYS
 $SIGNING_KEYS
 EOF_KEYS
@@ -48,17 +51,19 @@ PR_MERGE="$(gh pr view "$PREP_PR" -R "$REPO" --json mergeCommit -q .mergeCommit.
 [ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #$PREP_PR (${PR_MERGE:-none})"
 # Both test checks must have run and passed on exactly this commit (no checks at all is not green).
 for check in "tests (3.10)" "tests (3.13)"; do
-  got="$(gh api "repos/$REPO/commits/$SHA/check-runs" --paginate -q ".check_runs[] | select(.name == \"$check\") | .conclusion" | sort -u | tr '\n' ' ')"
+  got="$(gh api "repos/$REPO/commits/$SHA/check-runs" --paginate -q ".check_runs[] | select(.name == \"$check\" and .app.slug == \"github-actions\") | .conclusion" | sort -u | tr '\n' ' ')"
   [ "$got" = "success " ] || die "check '$check' on $SHA is '${got:-absent}', not success"
 done
 
 # The freeze: main was frozen at FROZEN (operator, 2026-11-24). The cut commit contains it, and differs from it
-# only in release files and records. No pin, lock, workflow, agent, script, package or test file may differ.
+# only in release files and records. No pin, lock, workflow, agent, script, package or test file may differ, and
+# no file under docs/ outside docs/release/: researchteam update copies documents from docs/ into every derived
+# repository, where agents follow them.
 FROZEN="440b5269145fb3334526c4929db3110f991866d3"
 ngit merge-base --is-ancestor "$FROZEN" "$SHA" || die "$SHA does not contain the frozen commit $FROZEN"
 SINCE_FREEZE="$(ngit diff --no-renames --name-only "$FROZEN" "$SHA")" || die "cannot list the changes since the freeze"
 [ -n "$SINCE_FREEZE" ] || die "$SHA changes nothing since the freeze (the release files are missing)"
-EXTRA="$(printf '%s\n' "$SINCE_FREEZE" | grep -vxE 'CHANGELOG\.md|(docs|docs_src|references/plans|workSummaries)/.*' || true)"
+EXTRA="$(printf '%s\n' "$SINCE_FREEZE" | grep -vxE 'CHANGELOG\.md|docs/release/.*|(docs_src|references/plans|workSummaries)/.*' || true)"
 [ -z "$EXTRA" ] || die "changes since the freeze outside release files and records: $(printf '%s' "$EXTRA" | tr '\n' ' ')"
 # The previous release is signed, is exactly the tag object recorded at its cut, and is an ancestor.
 PREV="v1.2.1"; PREV_OBJ="84dd75865cfae792c91935c008161f35ed39c048"   # read from the remote on 2026-11-24
@@ -150,6 +155,7 @@ runpy.run_module("researchteam._term_core_upstream", run_name="__main__")' "$TMP
 ngit show "$SHA:scripts/term-index-core/PINNED.json" | grep -F "\"commit\": \"$AT_PEELED\"" >/dev/null || die "the core manifest at $SHA does not name the lock's commit $AT_PEELED"
 
 ngit rev-parse -q --verify "refs/tags/$TAG" >/dev/null && die "$TAG already exists; tags are immutable. If an earlier run signed it here but did not push it, stop and tell the researchteam session; do not delete it yourself"
+[ -z "$(ngit ls-remote "$RT_URL" "refs/tags/$TAG*")" ] || die "$TAG already exists on the remote; tags are immutable"
 existing="$(ngit ls-remote "$RT_URL" refs/heads/release/1.3 | cut -f1)"
 [ -z "$existing" ] || [ "$existing" = "$SHA" ] || die "release/1.3 already exists at $existing, not $SHA"
 
@@ -158,7 +164,9 @@ ngit log -1 --format='  %h %s' "$SHA"
 echo "  Paths that differ from the frozen commit ${FROZEN:0:12}:"; printf '%s\n' "$SINCE_FREEZE" | sed 's/^/    /'
 confirm "Cut release/1.3 at ${SHA:0:12} and sign $TAG there?"
 # Pushes use your credentials (so plain git, but no hooks and an explicit URL); everything else stays neutralised.
-[ "$existing" = "$SHA" ] || git -c core.hooksPath=/dev/null push --quiet "$RT_URL" "$SHA:refs/heads/release/1.3"
+# Create-only: the empty lease value means "the branch must not exist", so a branch that appeared since the check
+# above is never moved, not even forward.
+[ "$existing" = "$SHA" ] || git -c core.hooksPath=/dev/null push --quiet --force-with-lease=refs/heads/release/1.3: "$RT_URL" "$SHA:refs/heads/release/1.3"
 [ "$(ngit ls-remote "$RT_URL" refs/heads/release/1.3 | cut -f1)" = "$SHA" ] || die "remote release/1.3 is not at $SHA after the push; nothing was signed"
 ngit -c user.name="$NAME" -c user.email="$EMAIL" -c gpg.format=ssh -c gpg.ssh.program=/usr/bin/ssh-keygen \
   -c user.signingkey="$RELEASE_PUB" tag -s "$TAG" "$SHA" -m "researchteam 1.3.0rc1 — first 1.3 release candidate (release/1.3): agentteams 1.3
@@ -190,4 +198,5 @@ echo "  tag object : $OBJ"
 echo "  peeled     : $PEELED"
 echo "  release/1.3: $(ngit ls-remote "$RT_URL" refs/heads/release/1.3 | cut -f1)"
 echo "  GitHub verification : $VERIFIED"
+echo "  run log    : $RUN_LOG"
 echo "Tell the researchteam session. This is a release candidate: derived repositories wait for v1.3.0."

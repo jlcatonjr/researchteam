@@ -24,9 +24,9 @@ the next repository in the release order runs against it.
    linked or oversized `terms.json`; a symlinked `terminology/index/`); see the term-index entry below.
 3. **agentteams 1.3.0.** The agent team is regenerated. An overwrite render (`researchteam materialize`,
    `agentteams --overwrite`) now stops before any write when it would drop agents the orchestrator routes to,
-   unless they are named with `--accept-routing-loss`; read agentteams' 1.3.0 notes before an overwrite. A
-   file-bound clearance checked in any team directory is now refused by an unretracted HALT in the repository's
-   other team logs.
+   unless they are named with `--accept-routing-loss`. A file-bound clearance checked in any team directory is
+   now refused by an unretracted HALT in the repository's other team logs. Both are in agentteams' own changelog
+   for 1.3.0 (its issues #392 and #578); read it before an overwrite.
 4. **The autosync workflow** fetches a release tag shallowly. It reaches a repository through
    `researchteam update --workflow` and that repository's own review.
 5. **Python.** researchteam still supports Python 3.10; agentteams 1.3.0 itself needs 3.11 or later, so the
@@ -64,17 +64,19 @@ the next repository in the release order runs against it.
     before anything is written, and refuses to write through a symlink.
   - CI: a new workflow, `term-core.yml`, runs the network comparison on every pull request and push that touches
     the directory or the code that checks it. It takes the comparing code from the base branch, so a pull
-    request cannot pass by changing its own judge.
+    request cannot pass by changing that code alone. Three limits: a pull request that edits the workflow file
+    itself runs its own version of it (PS-2's `@security` PASS for workflow paths covers that); the pull request
+    that introduced the job ran its own copy of the code; and the job is not a required check.
   - A repository still on the engine from before the switch gets a doctor warning, not a failure.
-  - Generated indexes, findings and exit codes are unchanged, with two exceptions. A register that is a link, not
+  - Generated indexes, findings and exit codes are unchanged, with these exceptions. A register that is a link, not
     a regular file, or larger than the size limit is refused with one combined message. A symlinked
     `terminology/index/` is now reported as `[STALE]` instead of passing.
   - `assess` takes `reuse` by keyword only.
 
 - **Governance: `scripts/term-index-core/` joins the paths that need a `@security` PASS (PS-2).** The directory
-  will hold the term-index core copied from agentteams and its manifest. A pull request that touches it is merged
-  only with a `@security` PASS naming it (operator ruling, 2026-11-24). The rule is in place before the directory
-  lands. The projected copies of the project rules are re-synced.
+  holds the term-index core copied from agentteams and its manifest. A pull request that touches it is merged
+  only with a `@security` PASS naming it (operator ruling, 2026-11-24). The rule was in place before the
+  directory landed. The projected copies of the project rules are re-synced.
 
 - **Toolchain: agentteams v1.3.0 is pinned, the first pin on the 1.3 line.** `toolchain.lock`, the `update` and
   `research` extras and the autosync ref name `536306d`, the commit the signed tag `v1.3.0` peels to. The move off
@@ -152,7 +154,7 @@ the next repository in the release order runs against it.
   `subprocess.run` at import and was first imported after a test had faked it. `tests/conftest.py` now imports
   it before any test runs. One test no longer reaches the network. No code under test changed.
 - **Tests: characterization tests for the term index (#232).** `tests/test_term_index_characterization.py` pins
-  today's behaviour at the points the planned switch to the agentteams term-index core (1.3.0) could change.
+  the behaviour at the points the switch to the agentteams term-index core (1.3.0) could change.
 
 ## 1.2.1 (tag `v1.2.1`, on `release/1.2`)
 
