@@ -250,3 +250,26 @@ second pass.
 - **Soak order** as the fleet's coordinator gave it on 2026-11-23: the first soak repository, then researchteam,
   then the third. The agentteams freeze is clear and its release branch is next.
 - **Still open for the operator:** D1 to D4, D6 and D9.
+
+## Update, 2026-11-24 (rulings answered in this session's picker, and T1 done)
+
+- **D1 answered: yes.** researchteam 1.3 pins agentteams v1.3.0.
+- **D2 answered: the interim pin is dropped.** No pin to agentteams 1.2.2 and no researchteam 1.2.2 (T5 is
+  recorded as dropped). The rest of the scope stands as proposed.
+- **D4 answered.** A failed term-index core check is a doctor failure, not a warning, and
+  `scripts/term-index-core/` joins PS-2's list of paths that need a `@security` PASS (its own PR on
+  `.claude/CLAUDE.md`, in T2).
+- **D5 done.** The operator signed `release-line-agentteams-1.3` with `opr-2026-11` (script 27).
+- **D6 answered: candidate, then final.**
+- **T1 is done.** agentteams v1.3.0 was already final, so part A's candidate soak on a draft branch was not run;
+  the final was soaked in a separate checkout instead. Part B merged as PR #254 (`c92fc56`): the lock, both extras
+  and the autosync ref name `536306d2502e3db338846677f2d37489531ac8e7`, and the team is regenerated on four
+  surfaces. The review record is `docs/release/pin-agentteams-v1.3.0.decision-spec.json`.
+- **The one test that failed in the first soak run is not a 1.3.0 change.** It targets an agentteams 1.0.0
+  interpreter and runs only when `RT_TEST_AGENTTEAMS_PYTHON` is set; the session had pointed it at 1.3.0. The
+  triage record (`open-1119-p4-test-triage.md`) already says to unset it.
+- **For agentteams:** the generated `operator-decision.reference.md` uses `@pr-manager` as an example in a team
+  without that agent. Reported to the release coordinator; not hand-edited.
+- **Next:** T2 (term-index core switch), then T3 open point 1, T4, the freeze (D11, D10), the release-prep PR and
+  the operator's cut (D8).
+- **Still open for the operator:** D3, D8, D9, D10 and D11; D7 at each merge.
