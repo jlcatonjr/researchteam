@@ -5,6 +5,33 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.3.0rc1 (tag `v1.3.0-rc.1`, on `release/1.3`)
+
+The first release candidate of the 1.3 line. researchteam 1.3 pins agentteams 1.3: this candidate pins agentteams
+**`v1.3.0`** (`536306d2`). `release/1.3` is cut at this commit; `release/1.2` stays open for `v1.2.N` backports and
+keeps agentteams 1.2. It is a candidate: derived repositories wait for `v1.3.0`, apart from the dry-run pin check
+the next repository in the release order runs against it.
+
+**Upgrading a derived repository (at `v1.3.0`, not at this candidate).**
+
+1. **Install the new researchteam first, then run `researchteam update`.** An older researchteam does not sync
+   `scripts/term-index-core/`, and the term index refuses to run without it; `validate`, `term-check` and
+   `researchteam doctor` say "upgrade researchteam first" in that state. A repository that has not yet synced the
+   new engine keeps working, and doctor only warns there.
+2. **The term index runs a pinned copy of agentteams' core.** It is checked against its manifest before it runs
+   and needs no installed agentteams. Do not edit the files under `scripts/term-index-core/`: a changed byte stops
+   `term-check`, `term-build` and `validate`, and doctor reports a failure. Two edge cases read differently (a
+   linked or oversized `terms.json`; a symlinked `terminology/index/`); see the term-index entry below.
+3. **agentteams 1.3.0.** The agent team is regenerated. An overwrite render (`researchteam materialize`,
+   `agentteams --overwrite`) now stops before any write when it would drop agents the orchestrator routes to,
+   unless they are named with `--accept-routing-loss`; read agentteams' 1.3.0 notes before an overwrite. A
+   file-bound clearance checked in any team directory is now refused by an unretracted HALT in the repository's
+   other team logs.
+4. **The autosync workflow** fetches a release tag shallowly. It reaches a repository through
+   `researchteam update --workflow` and that repository's own review.
+5. **Python.** researchteam still supports Python 3.10; agentteams 1.3.0 itself needs 3.11 or later, so the
+   `update` and `research` extras do too.
+
 - **Derived autosync workflow: the release-locked check fetches the tag shallowly.**
   `researchteam/scaffold/agentteams-sync-derived.yml` fetched researchteam's whole history to verify one tag. It
   now fetches with `--depth=1 --filter=tree:0` and retries once with `--depth=1`, as `verify_tag` does; a fetch
