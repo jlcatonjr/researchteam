@@ -313,3 +313,17 @@ second pass.
   a later agentteams release. It does not affect 1.3.0.
 - **Still open for the operator:** D8 (the commit for `release/1.3` and the candidate; the go for the final), D9
   (closing PR #156, after the release-prep PR), and D7 at each merge.
+- **Release-prep PR merged.** PR #260 (`26ee061108b95229ad74060f4456442c19dff214`, merged at the reviewed head
+  `cdfa940`): the 1.3.0rc1 changelog section with the upgrade steps, the release notes, and the tracked copy of
+  the candidate cut script (29) with its `common.sh` and script 28. `@security` PASS at `cdfa940` after three
+  reads; the release coordinator's review, read as data, found nothing blocking at that head. Both test checks
+  are green on the merge commit. The script's freeze allowlist is `CHANGELOG.md`, `docs/release/`, `docs_src/`,
+  `references/plans/` and `workSummaries/`: documents under `docs/` are synced into derived repositories.
+- **With the operator:** script 29 (cut `release/1.3` and sign `v1.3.0-rc.1` at `26ee061`; D8) and script 28
+  (pause the autosync).
+- **Owed at the final's release files** (outside the candidate's allowlist): install instructions naming
+  `v1.3.0` (README, CLAUDE.md and its scaffold template, the framework and getting-started pages; closes PR #156,
+  D9); "older than 1.3.0" becoming "older than 1.3.0rc1" in `docs/term-index-protocol.md` and the bridge message;
+  the release lines listed in `docs/CONTRIBUTING.md`. The final's cut script needs an allowlist that admits them.
+- **Another session** (researchteam-80) asked whether to work on the release after the operator asked it to
+  proceed; it is holding, and was told this session leads T6.
