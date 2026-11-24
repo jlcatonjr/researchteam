@@ -860,9 +860,10 @@ issue #578). The folder that `signoffs.ledger` names holds this, and nothing an 
   would not see the team's HALTs (below).
 - **A sign-off row is an Ed25519 row.** A row clears a gate only when its `sig_scheme` is `ed25519`, its
   `key_id` names a key file in the folder's `authorized-verify-keys/`, and its author is on the folder's
-  approver list. `agentteams` also accepts a row signed with a shared secret
+  approver list. The row judged is the one `agentteams` uses, the latest decision that matches the action;
+  an earlier Ed25519 row behind a later row of another kind does not count. `agentteams` also accepts a row signed with a shared secret
   (`AGENTTEAMS_DECISION_SIGNING_KEY`), which needs no operator key; the tools do not count such a row.
-- **No waivers.** `agentteams` accepts a matching waiver before it looks for a signed row. A
+- **No waivers.** `agentteams` accepts a matching waiver in place of a valid signed row. A
   `references/security-waivers.log.csv` in the folder is an error, and the gate is `UNAVAILABLE` while it
   is there.
 - **Where the keys and the approver list live** (operator ruling, 2026-11-24). They are the team's. Where
@@ -875,15 +876,19 @@ issue #578). The folder that `signoffs.ledger` names holds this, and nothing an 
   that was in the folder when the gate was checked, by an author on the list as it then stood. It does not
   prove who put the key there. A change to the folder's keys or approver list is therefore made only by a
   reviewed pull request, as a change to the team's own trust roots is, and a repository that can protect
-  paths from agent writes protects this folder. A trust root outside the repository is open point 7.
+  paths from agent writes protects this folder. The tools cannot check that rule: it holds as far as the
+  repository's branch protection does. A trust root outside the repository is open point 7.
 - The operator signs with `agentteams --sign-decision <spec> --output <path>`, with the decision key file
   that `AGENTTEAMS_DECISION_ED25519_KEYFILE` names, and the tools verify with
   `agentteams --check-clearance <scope> --clearance-file <manifest> --output <path>` (or the function behind
   it), which reads the PASS in this folder. The handoff script never exports
   `AGENTTEAMS_DECISION_SIGNING_KEY`: it applies to a whole process and makes every decisions log that
   process touches signing-active, the team's included.
+- "Scope" here is the name a clearance is checked under, not the row's `scope` column. A row is matched by
+  the action it reviewed; its `scope` column may be empty, and one that is not empty must list the action.
 - A check spends nothing. A sign-off holds for exactly the manifest bytes it names until those bytes
-  change or a HALT stands. When the operator's key is replaced and the old key file is removed from the
+  change, a HALT stands, or a later row for the same action is not a valid PASS (a conditional verdict
+  with a condition still pending, or a PASS marked consumed). When the operator's key is replaced and the old key file is removed from the
   folder, every sign-off made with it stops clearing until it is signed again.
 
 **HALT.** The log has no HALT authority of its own. A sign-off does not clear a gate while an unretracted
@@ -898,8 +903,8 @@ HALT stands on its scope or its action, or on `survey-signoff` or `survey-signof
   the repository root. A repository whose governing team is not in one of the generated locations declares
   it; without the declaration that team's HALTs would not bind.
 
-A HALT is matched by the action its row reviewed, in whatever columns its own log has: a HALT on some
-other action, in a team's log that has no scope column, does not bind a sign-off. `agentteams` matches the
+A HALT is matched by the action its row reviewed, never by a `scope` column: a HALT on some other action
+does not bind a sign-off. `agentteams` matches the
 scope and the action; the two shorter names are the tools' own check, because `agentteams` does not let a
 shorter name bind a longer one. Each log is read under its own rules: an unsigned HALT binds, and a
 retraction counts only where it is valid in its own log. The check fails closed. A log that cannot be read
