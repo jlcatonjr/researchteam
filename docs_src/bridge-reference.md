@@ -15,7 +15,7 @@ An unknown command prints the help and exits 2.
 |---|---|
 | `help` | Show the command list |
 | `status` | Show git status and the current branch |
-| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order, then the term-index check when `scripts/check_term_index.py` and `scripts/term_index_engine.py` are present (one without the other is an error). Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
+| `validate` | Run `scripts/validate_agentteams_update.sh` (with `VALIDATION_SKIP_SCOPE=1`, so general edits outside the update allowlist pass), then every executable file directly in `scripts/validate.d/` in name order, then, when the term-index scripts are present, the term-index core check (`scripts/check_term_core.py`) and the term-index check. `scripts/check_term_index.py`, `scripts/term_index_engine.py`, `scripts/check_term_core.py` and `scripts/term-index-core/PINNED.json` are present together or not at all; a partial set is an error whose message says to upgrade researchteam before `researchteam update`. Fails if any of them fails. `scripts/validate.d/` is repo-owned and never synced |
 | `plan-path` | Print the absolute path of the current ISO-week plan directory, `<repo>/tmp/by-week/YYYY-Www` |
 | `open-claude-dir` | Print the path to `.claude/` |
 
@@ -42,6 +42,7 @@ sense. Codes and the ceiling: the [Term Index protocol](https://github.com/jlcat
 | `term-build [project]` | (Re)build the index and glossary (`scripts/build_term_index.py build`). No argument rebuilds every project that has a register |
 | `term-check [project]` | The gate (`scripts/check_term_index.py`): a DEFECT exits 1. Read-only |
 | `term-query <project> "<label, variant or id>"` | List where a registered term occurs (`scripts/query_term_index.py`) |
+| `term-core-check` | Check the pinned agentteams term-index core (`scripts/check_term_core.py`) against `scripts/term-index-core/PINNED.json`, offline. `term-build`, `term-check` and `term-query` run the same check before they do anything |
 
 ## Literature library
 

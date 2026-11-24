@@ -47,7 +47,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`release-line-agentteams-1.2`), separate from the pin review. As for 1.1, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.2 tag> --sync-extras`.
 - researchteam 1.2.0 is the agentteams 1.2 pin release. The term-index core switch (`docs/term-index-protocol.md`,
-  "Planned placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
+  "Placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
   replacing the 2026-11-17 plan to carry it in 1.2.0).
 - The survey toolkit's contract (`docs/survey-toolkit.md`, frozen as version 1 on 2026-11-23) ships in researchteam
   1.3 (operator ruling, 2026-11-19). Its tools are planned for the minor release after 1.3.0 (operator ruling,
@@ -65,7 +65,7 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`release-line-agentteams-1.3`), separate from the pin review. As before, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.3 tag> --sync-extras`. The new lock follows only
   verified signed tags on the 1.3 line.
-- researchteam 1.3 carries the term-index core switch (`docs/term-index-protocol.md`, "Planned placement") and
+- researchteam 1.3 carries the term-index core switch (`docs/term-index-protocol.md`, "Placement") and
   the survey toolkit's contract (`docs/survey-toolkit.md`, version 1), as ruled under "The 1.2 line". The survey
   tools follow in the minor release after 1.3.0.
 - Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag, as for 1.2.

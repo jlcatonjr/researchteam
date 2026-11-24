@@ -5,6 +5,26 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Term index: the engine now runs a pinned copy of agentteams' term-index core.** `scripts/term-index-core/` holds
+  `term_index.py` and `_term_text.py` from the signed agentteams tag `v1.3.0` as exact bytes, its MIT licence and a
+  manifest (`PINNED.json`) naming the tag, the commit and each file's sha256. `scripts/term_index_engine.py` is
+  reduced to adapters over that core. The core is loaded only after its bytes match the manifest, it needs no
+  installed agentteams, and it may import nothing but the standard library and its own two modules.
+  - `term-check`, `term-build` and `validate` refuse to run on a copy that does not match its manifest, and
+    `researchteam doctor` reports a mismatch as a failure. `term-core-check` runs the check alone.
+  - `python -m researchteam._term_core_upstream` compares the copy with the signed tag over the network; the
+    offline check proves only that the copy matches its manifest.
+  - `researchteam update` syncs the directory byte for byte, as one set that is checked against its manifest
+    before anything is written, and refuses to write through a symlink.
+  - CI: a new workflow, `term-core.yml`, runs the network comparison on every pull request and push that touches
+    the directory or the code that checks it. It takes the comparing code from the base branch, so a pull
+    request cannot pass by changing its own judge.
+  - A repository still on the engine from before the switch gets a doctor warning, not a failure.
+  - Generated indexes, findings and exit codes are unchanged, with two exceptions. A register that is a link, not
+    a regular file, or larger than the size limit is refused with one combined message. A symlinked
+    `terminology/index/` is now reported as `[STALE]` instead of passing.
+  - `assess` takes `reuse` by keyword only.
+
 - **Governance: `scripts/term-index-core/` joins the paths that need a `@security` PASS (PS-2).** The directory
   will hold the term-index core copied from agentteams and its manifest. A pull request that touches it is merged
   only with a `@security` PASS naming it (operator ruling, 2026-11-24). The rule is in place before the directory

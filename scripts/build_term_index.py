@@ -105,7 +105,7 @@ def rebuild(proj: Path, reuse: bool = False) -> tuple[engine.Assessment, list[st
         fd = os.open(tdir, os.O_RDONLY)
         fcntl.flock(fd, fcntl.LOCK_EX)
     try:
-        a = engine.assess(proj, reuse)
+        a = engine.assess(proj, reuse=reuse)
         return a, (write_files(proj, a.files) if a.usable else None)
     finally:
         if fd is not None:

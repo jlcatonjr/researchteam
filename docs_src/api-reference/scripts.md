@@ -190,7 +190,7 @@ Prints a header with the query and project, a navigation-only notice, then one l
 
 > *Sources: `scripts/term_index_engine.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
 
-The term register and its occurrence index. `term_index_engine.py` is the engine (register validation, document scope, matching, rendering). It is imported, not run, and it writes nothing. `build_term_index.py` holds the commands that write. All three commands import the engine, so they read a register and match text the same way. Standard library only; no network calls and no child processes. The finding codes, the register format and the ceiling are defined in the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) and are not repeated here.
+The term register and its occurrence index. `term_index_engine.py` is researchteam's adapter layer over the pinned agentteams term-index core in `scripts/term-index-core/` (register validation, document scope, matching, rendering and the comparison with the committed index are the core's); it is imported, not run, and it writes nothing. Importing it first runs `check_term_core.py`'s offline check, and a copy that does not verify stops every command with exit 2. `build_term_index.py` holds the commands that write. All three commands import the engine, so they read a register and match text the same way. Standard library only; no network calls and no child processes. The finding codes, the register format and the ceiling are defined in the [Term Index protocol](https://github.com/jlcatonjr/researchteam/blob/main/docs/term-index-protocol.md) and are not repeated here.
 
 ### Usage
 
@@ -227,9 +227,33 @@ python3 scripts/query_term_index.py <project> "<label, variant or id>" | --list
 | `check_term_index.py` | No defect, or advisory mode, or nothing to check | At least one defect (an unreadable register is one) | Usage error, project not found, an unreadable document or `.bib`, or an invalid `term_index_require` value |
 | `query_term_index.py` | Found | No such term, or no usable register | Usage error, project not found, or an unreadable document |
 
+Every command above also exits 2, printing the core check's lines, when the pinned core does not verify or cannot load.
+
 ### Output files
 
 All under `<project>/terminology/`: `term-index.json` (manifest: generator version, SHA-256 of the register and of each indexed document), `index/<document path>.json` (that document's occurrences, one per line) and `glossary.md` (a reading view of the register). They hold no timestamps and no absolute paths, so the same inputs give the same bytes. `check_term_index.py` and `query_term_index.py` write nothing.
+
+---
+
+## `check_term_core.py` and `scripts/term-index-core/`
+
+> *Source: `scripts/check_term_core.py`*
+
+`scripts/term-index-core/` holds agentteams' `term_index.py` and `_term_text.py`, byte for byte as the signed agentteams tag has them, its `LICENSE` (MIT), and `PINNED.json`: the tag, its peeled commit and each file's sha256. `check_term_core.py` is the offline check of those bytes and the loader the engine imports. Standard library only; no network, no child process, nothing written.
+
+```text
+python3 scripts/check_term_core.py        # or: bash scripts/claude_researchteam_bridge.sh term-core-check
+```
+
+| Exit | Meaning |
+|------|---------|
+| 0 | Every listed file matches its hash, and no unlisted code file is in the directory. |
+| 1 | A file is mismatched, missing, a symbolic link or not a regular file, or a code file (`.py`, `.pyc` and the like) is not listed. |
+| 2 | `PINNED.json` is missing, unreadable or malformed, or the directory is missing or a symbolic link. |
+
+Output: one line per file (`[term-core] OK <path>`, `[term-core] MISMATCH <path>: sha256 <12 hex>, expected <12 hex> (agentteams <tag> <upstream path>)`, `MISSING`, `LINK`, `REFUSED`, `UNLISTED`), then a summary, `[term-core] SUMMARY agentteams <tag> (<12-hex commit>): <n> of <m> files match; ...`, whose prefix is stable (`researchteam doctor` reads the tag from it). A failure adds the repair: restore from git, or upgrade researchteam first and then run `researchteam update` (an older researchteam does not sync this directory).
+
+A pass proves the copy matches the manifest, not that the manifest matches upstream; that is `python -m researchteam._term_core_upstream`, against the signed tag (see [`term-core-upstream.md`](term-core-upstream.md)).
 
 ---
 

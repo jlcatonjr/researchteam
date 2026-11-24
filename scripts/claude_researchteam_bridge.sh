@@ -18,7 +18,8 @@ Commands:
   status        Show git status and current branch
   validate      Run repository validator (if available), then each executable
                 in scripts/validate.d/ (repo-owned local checks, in name order),
-                then the term-index check when scripts/check_term_index.py is present
+                then the term-index core check and the term-index check when
+                scripts/check_term_index.py is present
   open-claude-dir Print path to Claude support folder
   plan-path     Print current ISO-week plan directory path
   methodology-check [project]
@@ -57,6 +58,9 @@ Commands:
                 and the honest ceiling are in docs/term-index-protocol.md.
   term-query <project> "<label, variant or id>" | --list
                 List where a registered term occurs (places a form appears, NOT evidence of sense).
+  term-core-check
+                Check the pinned agentteams term-index core (scripts/term-index-core/) against its
+                manifest, offline. term-build, term-check and term-query run this check themselves.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -101,10 +105,24 @@ run_local_validators() {
 # Exit 1 (a DEFECT) and exit 2 (a usage or environment error) both fail validate. TERM_INDEX_ADVISORY
 # and RT_ROOT are cleared: a caller's advisory switch, or a root pointing elsewhere, must not turn the
 # gate off here.
+# The pinned agentteams core (scripts/check_term_core.py and scripts/term-index-core/) is checked first: the
+# engine loads it, so the four parts are present together or not at all. A repository synced by a researchteam
+# older than 1.3.0 has the engine without the core; the message says to upgrade researchteam first.
+TERM_INDEX_PARTS=("scripts/check_term_index.py" "scripts/term_index_engine.py" "scripts/check_term_core.py"
+                  "scripts/term-index-core/PINNED.json")
 run_term_index_check() {
-  [[ -f "scripts/check_term_index.py" || -f "scripts/term_index_engine.py" ]] || return 0
-  if [[ ! -f "scripts/check_term_index.py" || ! -f "scripts/term_index_engine.py" ]]; then
-    echo "Term-index check cannot run: one of scripts/check_term_index.py and scripts/term_index_engine.py is missing." >&2
+  local part present=0
+  for part in "${TERM_INDEX_PARTS[@]}"; do [[ -e "$part" || -L "$part" ]] && present=$((present + 1)); done
+  (( present )) || return 0
+  if (( present != ${#TERM_INDEX_PARTS[@]} )); then
+    echo "Term-index check cannot run: these must all be present: ${TERM_INDEX_PARTS[*]}." >&2
+    echo "If researchteam update left the pinned core out, upgrade researchteam first (bash scripts/bootstrap_toolchain.sh," >&2
+    echo "or pip install researchteam at the tag toolchain.lock names), then run researchteam update again." >&2
+    exit 1
+  fi
+  echo "Running scripts/check_term_core.py ..."
+  if ! python3 -B -I scripts/check_term_core.py; then
+    echo "Term-index core check failed: the copied core does not match scripts/term-index-core/PINNED.json." >&2
     exit 1
   fi
   echo "Running scripts/check_term_index.py ..."
@@ -286,6 +304,10 @@ case "$cmd" in
   term-query)
     shift
     command_term scripts/query_term_index.py "$@"
+    ;;
+  term-core-check)
+    shift
+    command_term scripts/check_term_core.py "$@"
     ;;
   code-query)
     shift

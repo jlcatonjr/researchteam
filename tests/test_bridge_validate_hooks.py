@@ -85,8 +85,9 @@ def test_the_example_project_commands_are_gone(cmd):
 
 # --------------------------------------------------------------------------- term-index step
 def _with_term_check(repo: Path) -> Path:
-    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py"):
+    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py", "check_term_core.py"):
         shutil.copy(ROOT / "scripts" / name, repo / "scripts")
+    shutil.copytree(ROOT / "scripts" / "term-index-core", repo / "scripts" / "term-index-core")
     return repo
 
 
@@ -152,3 +153,23 @@ def test_validate_fails_when_the_gate_is_present_without_its_engine(tmp_path):
     r = _validate(repo)
     assert r.returncode == 1 and "cannot run" in r.stderr and "Validation completed." not in r.stdout
 
+
+
+@pytest.mark.parametrize("missing", ["scripts/check_term_core.py", "scripts/term-index-core"])
+def test_validate_refuses_the_term_index_without_its_pinned_core(tmp_path, missing):
+    """An older researchteam syncing a newer ref delivers the engine but not the core: validate says to upgrade first."""
+    repo = _with_term_check(_repo(tmp_path))
+    target = repo / missing
+    shutil.rmtree(target) if target.is_dir() else target.unlink()
+    r = _validate(repo)
+    assert r.returncode == 1 and "Validation completed." not in r.stdout
+    assert "must all be present" in r.stderr and "upgrade researchteam first" in r.stderr
+
+
+def test_validate_fails_on_a_tampered_core_before_the_term_check(tmp_path):
+    repo = _with_term_check(_repo(tmp_path))
+    core = repo / "scripts" / "term-index-core" / "_term_text.py"
+    core.write_bytes(core.read_bytes() + b"\n")
+    r = _validate(repo)
+    assert r.returncode == 1 and "[term-core] MISMATCH scripts/term-index-core/_term_text.py" in r.stdout
+    assert "Term-index core check failed" in r.stderr and "Running scripts/check_term_index.py" not in r.stdout

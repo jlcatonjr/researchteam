@@ -106,8 +106,12 @@ def run_doctor(root: Path, drift: bool = False) -> None:
     # --- 3c''. scholarly tooling capability (informational; profile-aware) ---------------
     _check_scholarly_tooling(root, ok, warn)
 
+    # --- the pinned term-index core (a mismatch FAILS doctor: operator ruling, 2026-11-24) -
+    core_ok = _check_term_core(root, ok, warn, fail)
+
     # --- term registers and their index (informational; never fails doctor) -------------
-    _check_term_index(root, ok, warn)
+    if core_ok:  # a failed core check is reported once, by the line above
+        _check_term_index(root, ok, warn)
 
     # --- frozen surfaces (brief.json frozen_surfaces) -----------------------------------
     _check_frozen_surfaces(root, ok, warn, fail)
@@ -317,9 +321,86 @@ def _check_term_index(root: Path, ok, warn) -> None:
              "`researchteam workflow-sync --workflow validate` adds a read-only one (opt-in).")
 
 
+TERM_CORE_CHECK = "scripts/check_term_core.py"
+TERM_CORE_MANIFEST = "scripts/term-index-core/PINNED.json"
+
+
+def _lock_agentteams_tag(root: Path) -> str | None:
+    """The ``agentteams.tag=`` value of toolchain.lock, or None."""
+    from ._release import read_lock_pin
+
+    pin = read_lock_pin(root, "agentteams")
+    return pin[2] if pin else None
+
+
+# The offline check's summary line (scripts/check_term_core.py, SUMMARY_PREFIX): the pinned tag and short commit.
+_TERM_CORE_SUMMARY = re.compile(r"^\[term-core\] SUMMARY agentteams (v\d+\.\d+\.\d+(?:-rc\.\d+)?) \(([0-9a-f]{12})\): ")
+
+
+def _engine_uses_core(root: Path) -> bool:
+    """Whether the repository's term-index engine is the one that loads the pinned core (it names the check)."""
+    try:
+        return "check_term_core" in (root / "scripts" / "term_index_engine.py").read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return True  # unreadable or absent beside a present gate: treat as the new engine, so the fault is reported
+
+
+def _check_term_core(root: Path, ok, warn, fail) -> bool:
+    """Check the pinned copy of the agentteams term-index core (scripts/check_term_core.py). A failure FAILS doctor.
+
+    A failed check means the code the term index would run is not the code researchteam shipped, the same class
+    of fault as an agentteams that is installed but cannot run. Not applicable (silent) where the repository has
+    no term index at all (no ``scripts/check_term_index.py``; ``_check_scholarly_tooling`` says whether one is
+    expected). Where the gate is present but the check script or the core directory is missing, that is a failure
+    too (operator ruling: a failed core check is a failure). Returns False when the check failed or could not
+    run, so the term-index line stays quiet then and the fault is reported once.
+    """
+    if not (root / TERM_INDEX_GATE).is_file():
+        return True
+    missing = [rel for rel in (TERM_CORE_CHECK, TERM_CORE_MANIFEST) if not (root / rel).is_file()]
+    if missing and not _engine_uses_core(root):
+        # The repository still carries the engine from before the core switch (researchteam 1.2 or older). It runs
+        # no pinned core, so there is nothing to verify and nothing is broken: say so, and do not fail.
+        warn("term-index core: this repository's term index is the engine from before the pinned core "
+             "(researchteam 1.2 or older); `researchteam update` moves it to the pinned core.")
+        return True
+    if missing:
+        fail(f"term-index core: {', '.join(missing)} missing, so the term index cannot verify or load its pinned "
+             "core and will not run.\n         Upgrade researchteam first (bash scripts/bootstrap_toolchain.sh, or "
+             "pip at the tag toolchain.lock names), then run `researchteam update`; an older researchteam does not "
+             "sync these files.")
+        return False
+    try:
+        r = subprocess.run([sys.executable, "-B", "-I", str(root / TERM_CORE_CHECK)], capture_output=True, text=True,
+                           timeout=60, cwd=root)
+        lines, code = [_printable(ln) for ln in (r.stdout or "").splitlines() if ln.strip()], r.returncode
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        lines, code = [f"[term-core] the check could not run ({type(exc).__name__})"], 2
+    summary = next((m for m in map(_TERM_CORE_SUMMARY.match, lines) if m), None)
+    if code != 0 or summary is None:
+        fail("term-index core: the pinned copy does not verify; the term index will not run:\n         "
+             + "\n         ".join(ln.removeprefix("[term-core] ") for ln in lines or ["(no output)"]))
+        return False
+    pinned = summary.group(1)
+    ok(f"term-index core: {summary.string.removeprefix('[term-core] SUMMARY ')}")
+    ok("term-index core: the term index runs the pinned copy (scripts/term-index-core/), never an installed agentteams.")
+    from ._release import ReleaseError, release_line
+
+    lock_tag = _lock_agentteams_tag(root)
+    try:
+        if lock_tag is None:
+            warn(f"term-index core: pinned to agentteams {pinned}; toolchain.lock names no agentteams.tag to compare.")
+        elif release_line(lock_tag) != release_line(pinned):
+            warn(f"term-index core: pinned to agentteams {pinned}, but toolchain.lock is on {lock_tag} "
+                 f"({release_line(lock_tag)} against {release_line(pinned)}): move the core pin with the lock.")
+    except ReleaseError:
+        warn(f"term-index core: toolchain.lock's agentteams.tag is not a release tag; pinned to agentteams {pinned}.")
+    return True
+
+
 # Capability scripts doctor reports on; they are expected only where the layer2_profile manages them.
 SCHOLARLY_CAPABILITY_SCRIPTS = ("scripts/check_citation_integrity.sh", "scripts/check_literature_library_integrity.sh",
-                                TERM_INDEX_GATE)
+                                TERM_INDEX_GATE, TERM_CORE_CHECK, TERM_CORE_MANIFEST)
 
 
 def _check_scholarly_tooling(root: Path, ok, warn) -> None:

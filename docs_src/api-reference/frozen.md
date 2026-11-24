@@ -207,6 +207,8 @@ Ask the pinned agentteams, under its own interpreter, whether `unfreeze-<surface
 5. The latest decision row for the action exists and `requires_operator_signature` is true for it.
 6. The row's `sig_scheme` is `ed25519` and its `signature` is non-empty.
 
+`_latest_security_decision` and `_latest_security_waiver` are private agentteams names. They are kept on purpose: agentteams 1.3.0 exports no public equivalent. Its public `verify_waivers` returns every waiver row, compares actions as plain strings and never raises, so using it would change what an unfreeze refuses. They will be replaced when agentteams exports a latest-decision and a latest-waiver lookup.
+
 **Args:**
 
 - `root` (`Path`) — Repository root.

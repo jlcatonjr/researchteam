@@ -1,0 +1,653 @@
+# === scenario_clean_build_check_query
+$ build_term_index.py build
+  out| Projects/Demo: 4 documents indexed, 6 generated files written
+  exit 0
+# files under Projects/Demo/terminology
+  glossary.md 90cf49c3936321d77131fe33f3138aa112b0fc11ecd4c88261361bb8313b4752
+  index/00-research-plan.md.json 10adbd8b198b3d8b5fac0fea2de7ac1435ce461a4153353e816ba8671612c792
+  index/a.md.json 4385465db3acfe959c1c1df93becc063c4b1ad73d28e72462a4253dc724122c9
+  index/b.md.json 0372cf364c4e6a25e8ae6310f640c47423c05e7fa28b9cc021fac2393820ab61
+  index/sub/c.md.json b49e954368d83ab825d81dcf2eef4d14f3a7173ae8647fbc72edde0b55db9aa4
+  term-index.json 004e7ffca3e4a81fe5e65fc3330c892d983be837f155a275449d79a5f74bd07f
+  terms.json f4b618efd72f6e37615fd1c734a4d1aa2fb6ba92723fc5ee7cb17b8633b3b04a
+$ build_term_index.py build Demo
+  out| Projects/Demo: 4 documents indexed, 0 generated files written
+  exit 0
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   NEEDS-REVIEW[NOSRC]  term 'gloss': the definition has no 'source'
+  out|   NEEDS-REVIEW[QUOTED] 2 discouraged form(s) inside quotations (exempt; listed so that quoting stays visible)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 0  |  NEEDS-REVIEW: 2
+  out| PASS (no DEFECT). NEEDS-REVIEW items are advisory.
+  exit 0
+$ check_term_index.py Projects/Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   NEEDS-REVIEW[NOSRC]  term 'gloss': the definition has no 'source'
+  out|   NEEDS-REVIEW[QUOTED] 2 discouraged form(s) inside quotations (exempt; listed so that quoting stays visible)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 0  |  NEEDS-REVIEW: 2
+  out| PASS (no DEFECT). NEEDS-REVIEW items are advisory.
+  exit 0
+$ query_term_index.py Demo term register
+  out| term register  [term-register]
+  out|   The set of coded definitions.
+  out|   5 occurrence(s). Places where a form appears, not evidence of sense.
+  out|   a.md:7:3  term register  (label)
+  out|   a.md:7:30  term register  (label)
+  out|   a.md:8:12  term registry  (discouraged, quoted)
+  out|   a.md:8:39  term registry  (discouraged)
+  out|   a.md:12:12  term registry  (discouraged, quoted)
+  exit 0
+$ query_term_index.py Demo index
+  out| occurrence index  [index]
+  out|   Every place a form appears.
+  out|   3 occurrence(s). Places where a form appears, not evidence of sense.
+  out|   a.md:9:5  term-occurrence index  (variant)
+  out|   a.md:20:4  occurrence index  (label)
+  out|   sub/c.md:1:6  occurrence index  (label, quoted)
+  exit 0
+$ query_term_index.py Demo Term-Registers
+  err| No registered term matches: Term-Registers
+  exit 1
+$ query_term_index.py Demo --list
+  out|     1  gloss  (Glossary)
+  out|     3  index  (occurrence index)
+  out|     5  term-register  (term register)
+  exit 0
+$ query_term_index.py Demo nothing
+  err| No registered term matches: nothing
+  exit 1
+# === scenario_staleness
+$ build_term_index.py build
+  out| Projects/Demo: 3 documents indexed, 5 generated files written
+  exit 0
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   a.md: changed since the index was built (run: term-build)
+  out|   DEFECT[STALE]   b.md: left the scope since the index was built (run: term-build)
+  out|   DEFECT[STALE]   new.md: entered the scope since the index was built (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 3  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py build Demo
+  out| Projects/Demo: 3 documents indexed, 4 generated files written
+  exit 0
+# files under Projects/Demo/terminology
+  glossary.md 69023263564dbfa550edf27abda783932b1fc2a2eb188294c1b64c02cc275da0
+  index/00-research-plan.md.json 10adbd8b198b3d8b5fac0fea2de7ac1435ce461a4153353e816ba8671612c792
+  index/a.md.json 9119dc8de68dc5fb5eeb9be00f65e1a3930325391819e0e8fe40b847ffeccbc3
+  index/new.md.json 77e8cd44e9c22c62c2ba87274329763ea34b80f48c6ac06047db165c09894236
+  term-index.json 6d88b8dfb540461b9ad65fe8740caca5e1ef11f6e5e26524c626637cb5ff1c62
+  terms.json b4b1d6e6af2ba4c7b8fc48f6fdb858ac55bb96fb4b4ac6a907c51a83e035d93d
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   the register changed since the index was built (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py build
+  out| Projects/Demo: 3 documents indexed, 2 generated files written
+  exit 0
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   terminology/glossary.md: differs from a fresh build although the inputs are unchanged (edited by hand, or incomplete; run: term-build)
+  out|   DEFECT[STALE]   terminology/index/a.md.json: missing (edited by hand, or incomplete; run: term-build)
+  out|   DEFECT[STALE]   terminology/index/deep/x.json: not a file the builder writes (edited by hand, or incomplete; run: term-build)
+  out|   DEFECT[STALE]   terminology/index/stray.json: not a file the builder writes (edited by hand, or incomplete; run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 4  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py build Demo
+  out| Projects/Demo: 3 documents indexed, 4 generated files written
+  exit 0
+# files under Projects/Demo/terminology
+  glossary.md 57817c18e4a554dee52baae0d79aba52c8f86df4f53b6b4d0e1ddb83b2eae1fe
+  index/00-research-plan.md.json 10adbd8b198b3d8b5fac0fea2de7ac1435ce461a4153353e816ba8671612c792
+  index/a.md.json 9119dc8de68dc5fb5eeb9be00f65e1a3930325391819e0e8fe40b847ffeccbc3
+  index/new.md.json 77e8cd44e9c22c62c2ba87274329763ea34b80f48c6ac06047db165c09894236
+  term-index.json 98e7cacb648e98f9dbd25f0598b9347c38cff2d821577c1c8008dacfea64090e
+  terms.json a918514348b8823fc14c9f3bbb852f311dce9821ded51a9994362069a2d6f1bc
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   NEEDS-REVIEW[REBUILD]the inputs are unchanged but the index was built by another generator version (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 0  |  NEEDS-REVIEW: 1
+  out| PASS (no DEFECT). NEEDS-REVIEW items are advisory.
+  exit 0
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   terminology/glossary.md: missing (edited by hand, or incomplete; run: term-build)
+  out|   NEEDS-REVIEW[REBUILD]the inputs are unchanged but the index was built by another generator version (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 1
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   no usable index manifest (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Demo
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Demo
+  out|   DEFECT[STALE]   no usable index manifest (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+# === scenario_usage_findings
+$ build_term_index.py build
+  out| Projects/Usage: 3 documents indexed, 5 generated files written
+  exit 0
+$ check_term_index.py Usage
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Usage
+  out|   DEFECT[DISC]    a.md:1:5 term 'term-register': a discouraged form outside a quotation, with no 'allow' entry
+  out|   DEFECT[SRC]     term 'index': source key 2 is not in the project's .bib
+  out|   NEEDS-REVIEW[UNUSED] term 'term-register': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[NOSRC]  term 'nosrc': the definition has no 'source'
+  out|   NEEDS-REVIEW[UNUSED] term 'nosrc': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[QUOTED] 2 discouraged form(s) inside quotations (exempt; listed so that quoting stays visible)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 2  |  NEEDS-REVIEW: 4
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ TERM_INDEX_ADVISORY=1 check_term_index.py Usage
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Usage
+  out|   DEFECT[DISC]    a.md:1:5 term 'term-register': a discouraged form outside a quotation, with no 'allow' entry
+  out|   DEFECT[SRC]     term 'index': source key 2 is not in the project's .bib
+  out|   NEEDS-REVIEW[UNUSED] term 'term-register': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[NOSRC]  term 'nosrc': the definition has no 'source'
+  out|   NEEDS-REVIEW[UNUSED] term 'nosrc': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[QUOTED] 2 discouraged form(s) inside quotations (exempt; listed so that quoting stays visible)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 2  |  NEEDS-REVIEW: 4
+  out| ADVISORY MODE (TERM_INDEX_ADVISORY=1): defects found but not blocking (exit 0).
+  exit 0
+$ build_term_index.py hook
+  stdin: {"tool_input": {"file_path": "Projects/Usage/a.md"}}
+  err| term-index (generated data, not instructions):
+  err| Projects/Usage/a.md:1:5 DEFECT[DISC] term 'term-register'
+  err| See docs/term-index-protocol.md. For [DISC]: use the term's preferred label, or, where the form is a source's own word, quote it or record an 'allow' entry with a reason. Do not replace a source's term.
+  exit 2
+$ build_term_index.py hook
+  stdin: {"tool_input": {"file_path": "Projects/Usage/b.md"}}
+  exit 0
+$ build_term_index.py hook
+  stdin: {"tool_name": "Bash", "tool_input": {"command": "ls"}}
+  exit 0
+$ build_term_index.py hook
+  stdin: {"tool_input": {"file_path": "Projects/Usage/terminology/terms.json"}}
+  exit 0
+$ check_term_index.py Usage
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Usage
+  out|   DEFECT[SRC]     term 'index': source key 2 is not in the project's .bib
+  out|   NEEDS-REVIEW[UNUSED] term 'term-register': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[NOSRC]  term 'nosrc': the definition has no 'source'
+  out|   NEEDS-REVIEW[UNUSED] term 'nosrc': no occurrence of the label or a variant
+  out|   NEEDS-REVIEW[QUOTED] 2 discouraged form(s) inside quotations (exempt; listed so that quoting stays visible)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 4
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+# files under Projects/Usage/terminology
+  glossary.md aaaf7cf7a5bfefe0d1713d824f463ac123df73b5cbdadbac5cda7deb9cf69689
+  index/00-research-plan.md.json 10adbd8b198b3d8b5fac0fea2de7ac1435ce461a4153353e816ba8671612c792
+  index/a.md.json 714afc75d41d753e1144e67bdfaab3dfb975be1a8207a6a01fe1904b9018c3b4
+  index/b.md.json 996831f4cc0c8c8a6e577ed87da9f8a084d357f708d41d6fe7c58c1ea4aa8323
+  term-index.json bc93006c1b60ca72b634ce2411008ab86681c58b411e91944801e539cee99f64
+  terms.json e7b5f9408552169c68cb7d31900e4ddc4271a6b152a51ab026796a04473d84f4
+# === scenario_register_defects
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bad-allow-type
+  out|   DEFECT[SCHEMA]  'allow' must be a list
+  out| 
+  out| === Projects/Bad-ambiguous
+  out|   DEFECT[AMBIG]   term 'c' lists one form as both accepted and discouraged
+  out| 
+  out| === Projects/Bad-crowded
+  out|   DEFECT[SCHEMA]  more than 32 forms begin with the same word (one group has 33)
+  out| 
+  out| === Projects/Bad-invalid-json
+  out|   DEFECT[SCHEMA]  terms.json is not valid JSON at line 1, column 52
+  out| 
+  out| === Projects/Bad-no-documents
+  out|   DEFECT[SCOPE]   the scope matches no document
+  out|   DEFECT[STALE]   no usable index manifest (run: term-build)
+  out|   NEEDS-REVIEW[UNUSED] term 'term-register': no occurrence of the label or a variant
+  out| 
+  out| === Projects/Bad-not-utf8
+  out|   DEFECT[SCHEMA]  terms.json cannot be read (UnicodeDecodeError)
+  out| 
+  out| === Projects/Bad-scope
+  out|   DEFECT[SCOPE]   scope pattern 1 in 'include' is absolute, too long or leaves the project
+  out|   DEFECT[SCOPE]   scope pattern 2 in 'include' is absolute, too long or leaves the project
+  out|   DEFECT[SCOPE]   scope pattern 3 in 'include' is absolute, too long or leaves the project
+  out|   DEFECT[SCHEMA]  scope: 'exclude' must be a list of non-empty strings
+  out|   DEFECT[SCHEMA]  allow entry 1: names a term id that is not registered
+  out|   DEFECT[SCHEMA]  allow entry 2: needs exactly 'term', 'file' and 'reason' (strings)
+  out| 
+  out| === Projects/Bad-scope-type
+  out|   DEFECT[SCHEMA]  'scope' must be an object with 'include' and/or 'exclude'
+  out| 
+  out| === Projects/Bad-term-shapes
+  out|   DEFECT[SCHEMA]  term 1: must be an object
+  out|   DEFECT[SCHEMA]  term 2: 'id' must be a slug of 1 to 64 lower-case letters, digits, hyphens
+  out|   DEFECT[SCHEMA]  term 'dup': id is defined more than once
+  out|   DEFECT[SCHEMA]  term 'keys': unknown key (allowed: definition, discouraged, id, label, notes, plural, source, variants)
+  out|   DEFECT[SCHEMA]  term 'keys': 'definition' must be a non-empty string
+  out|   DEFECT[SCHEMA]  term 'keys': 'plural' must be true or false
+  out|   DEFECT[SCHEMA]  term 'keys': 'notes' must be a string
+  out|   DEFECT[SCHEMA]  term 'forms': 'discouraged' must be a list of non-empty strings
+  out|   DEFECT[SCHEMA]  term 'forms': a form may not begin or end with a space, hyphen, underscore, > or *
+  out|   DEFECT[SCHEMA]  term 'forms': in a form, a hyphen may not touch a space or another hyphen
+  out|   DEFECT[SCHEMA]  term 'forms': every word of a form must contain a letter or a digit
+  out|   DEFECT[SCHEMA]  term 'src': 'source' must be "project definition" or a list of .bib keys
+  out| 
+  out| === Projects/Bad-terms-type
+  out|   DEFECT[SCHEMA]  'terms' must be a list of at most 5000 records
+  out| 
+  out| === Projects/Bad-top-key
+  out|   DEFECT[SCHEMA]  unknown top-level key
+  out| 
+  out| === Projects/Bad-version
+  out|   DEFECT[SCHEMA]  unsupported schema_version (this builder reads 1.0)
+  out| 
+  out| ---
+  out| Projects seen: 12  |  registers checked: 12  |  DEFECT: 29  |  NEEDS-REVIEW: 1
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py build
+  out| Projects/Bad-allow-type: DEFECT[SCHEMA] 'allow' must be a list
+  out| Projects/Bad-ambiguous: DEFECT[AMBIG] term 'c' lists one form as both accepted and discouraged
+  out| Projects/Bad-crowded: DEFECT[SCHEMA] more than 32 forms begin with the same word (one group has 33)
+  out| Projects/Bad-invalid-json: DEFECT[SCHEMA] terms.json is not valid JSON at line 1, column 52
+  out| Projects/Bad-no-documents: DEFECT[SCOPE] the scope matches no document
+  out| Projects/Bad-not-utf8: DEFECT[SCHEMA] terms.json cannot be read (UnicodeDecodeError)
+  out| Projects/Bad-scope: DEFECT[SCOPE] scope pattern 1 in 'include' is absolute, too long or leaves the project
+  out| Projects/Bad-scope: DEFECT[SCOPE] scope pattern 2 in 'include' is absolute, too long or leaves the project
+  out| Projects/Bad-scope: DEFECT[SCOPE] scope pattern 3 in 'include' is absolute, too long or leaves the project
+  out| Projects/Bad-scope: DEFECT[SCHEMA] scope: 'exclude' must be a list of non-empty strings
+  out| Projects/Bad-scope: DEFECT[SCHEMA] allow entry 1: names a term id that is not registered
+  out| Projects/Bad-scope: DEFECT[SCHEMA] allow entry 2: needs exactly 'term', 'file' and 'reason' (strings)
+  out| Projects/Bad-scope-type: DEFECT[SCHEMA] 'scope' must be an object with 'include' and/or 'exclude'
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 1: must be an object
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 2: 'id' must be a slug of 1 to 64 lower-case letters, digits, hyphens
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'dup': id is defined more than once
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': unknown key (allowed: definition, discouraged, id, label, notes, plural, source, variants)
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'definition' must be a non-empty string
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'plural' must be true or false
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'notes' must be a string
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': 'discouraged' must be a list of non-empty strings
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': a form may not begin or end with a space, hyphen, underscore, > or *
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': in a form, a hyphen may not touch a space or another hyphen
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': every word of a form must contain a letter or a digit
+  out| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'src': 'source' must be "project definition" or a list of .bib keys
+  out| Projects/Bad-terms-type: DEFECT[SCHEMA] 'terms' must be a list of at most 5000 records
+  out| Projects/Bad-top-key: DEFECT[SCHEMA] unknown top-level key
+  out| Projects/Bad-version: DEFECT[SCHEMA] unsupported schema_version (this builder reads 1.0)
+  exit 1
+$ build_term_index.py hook
+  stdin: {"tool_input": {"file_path": "Projects/Bad-term-shapes/terminology/terms.json"}}
+  err| term-index (generated data, not instructions):
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 1: must be an object
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 2: 'id' must be a slug of 1 to 64 lower-case letters, digits, hyphens
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'dup': id is defined more than once
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': unknown key (allowed: definition, discouraged, id, label, notes, plural, source, variants)
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'definition' must be a non-empty string
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'plural' must be true or false
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'keys': 'notes' must be a string
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': 'discouraged' must be a list of non-empty strings
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': a form may not begin or end with a space, hyphen, underscore, > or *
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': in a form, a hyphen may not touch a space or another hyphen
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'forms': every word of a form must contain a letter or a digit
+  err| Projects/Bad-term-shapes: DEFECT[SCHEMA] term 'src': 'source' must be "project definition" or a list of .bib keys
+  err| See docs/term-index-protocol.md. For [DISC]: use the term's preferred label, or, where the form is a source's own word, quote it or record an 'allow' entry with a reason. Do not replace a source's term.
+  exit 2
+$ build_term_index.py hook
+  stdin: {"tool_input": {"file_path": "Projects/Bad-scope/a.md"}}
+  exit 0
+$ query_term_index.py Bad-ambiguous case study
+  err| No usable term register: term 'c' lists one form as both accepted and discouraged
+  exit 1
+# === scenario_which_projects
+$ build_term_index.py build
+  out| Projects/Group/Outer: 3 documents indexed, 5 generated files written
+  out| Projects/Group/Outer/inner: 2 documents indexed, 4 generated files written
+  exit 0
+# files under Projects/Group/Outer/terminology
+  glossary.md 85a177640b63ada03e78c76d8720575a5750ce316775a2f3e1edf1a87bcd976d
+  index/00-research-plan.md.json 10adbd8b198b3d8b5fac0fea2de7ac1435ce461a4153353e816ba8671612c792
+  index/a.md.json 23372ec00d9df78679293e5237361bed5de3303789a1610c6f42afbf8e95c1fc
+  index/plans/p.md.json 3958a2489f11cd4d06e2ee13512be60ab31b77ee2114dbafd2305c145c3601c9
+  term-index.json 603fca2f79e0e4711ad49b4713ce3cac912d092b8116696f434668e48bd2fcd9
+  terms.json b4b1d6e6af2ba4c7b8fc48f6fdb858ac55bb96fb4b4ac6a907c51a83e035d93d
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bare
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Foreign
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Group/Outer
+  out|   OK
+  out| 
+  out| === Projects/Group/Outer/chapter
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Group/Outer/inner
+  out|   OK
+  out| 
+  out| === Projects/Orphan
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/OrphanDir
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/Words
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| ---
+  out| Projects seen: 8  |  registers checked: 2  |  DEFECT: 2  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Bare
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bare
+  out|   DEFECT[NOREG]   the project has no term register (run: term-init)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 0  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py NotResearch
+  err| ERROR: no project under Projects/ matches: NotResearch
+  exit 2
+$ check_term_index.py Foreign
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Foreign
+  out|   DEFECT[NOREG]   the project has no term register (its terms.json is not a researchteam register)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 0  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Words
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Words
+  out|   DEFECT[NOREG]   the project has no term register (its terms.json is not a researchteam register)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 0  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Orphan
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Orphan
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 0  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py OrphanDir
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/OrphanDir
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 0  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py Outer
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Group/Outer
+  out|   OK
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 0  |  NEEDS-REVIEW: 0
+  out| PASS (no DEFECT). NEEDS-REVIEW items are advisory.
+  exit 0
+$ check_term_index.py inner
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Group/Outer/inner
+  out|   OK
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 0  |  NEEDS-REVIEW: 0
+  out| PASS (no DEFECT). NEEDS-REVIEW items are advisory.
+  exit 0
+$ check_term_index.py Nowhere
+  err| ERROR: no project under Projects/ matches: Nowhere
+  exit 2
+$ build_term_index.py build Foreign
+  out| Projects/Foreign: DEFECT[NOREG] no term register here
+  exit 1
+$ build_term_index.py build Bare
+  out| Projects/Bare: DEFECT[NOREG] no term register here
+  exit 1
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bare
+  out|   DEFECT[NOREG]   the project has no term register (run: term-init)
+  out| 
+  out| === Projects/Foreign
+  out|   DEFECT[NOREG]   the project has no term register (its terms.json is not a researchteam register)
+  out| 
+  out| === Projects/Group/Outer
+  out|   OK
+  out| 
+  out| === Projects/Group/Outer/chapter
+  out|   DEFECT[NOREG]   the project has no term register (run: term-init)
+  out| 
+  out| === Projects/Group/Outer/inner
+  out|   OK
+  out| 
+  out| === Projects/Orphan
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/OrphanDir
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/Words
+  out|   DEFECT[NOREG]   the project has no term register (its terms.json is not a researchteam register)
+  out| 
+  out| ---
+  out| Projects seen: 8  |  registers checked: 2  |  DEFECT: 6  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ check_term_index.py
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bare
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Foreign
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Group/Outer
+  out|   OK
+  out| 
+  out| === Projects/Group/Outer/chapter
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| === Projects/Group/Outer/inner
+  out|   OK
+  out| 
+  out| === Projects/Orphan
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/OrphanDir
+  out|   DEFECT[ORPHAN]  generated index files exist but there is no term register
+  out| 
+  out| === Projects/Words
+  out|   NEEDS-REGISTER   no term register (run: term-init)
+  out| 
+  out| ---
+  out| Projects seen: 8  |  registers checked: 2  |  DEFECT: 2  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py init Bare
+  out| Wrote Projects/Bare/terminology/terms.json. Add terms, then run term-build.
+  exit 0
+$ build_term_index.py init Bare
+  err| ERROR: its terminology/ already exists and is not empty; nothing written.
+  exit 1
+$ build_term_index.py init Group
+  err| ERROR: that directory holds projects and is not one itself; name the project.
+  exit 2
+$ build_term_index.py init Group/Outer/inner/terminology
+  err| ERROR: that directory is one the term index never searches; nothing written.
+  exit 2
+$ build_term_index.py init ../escape
+  err| usage: build_term_index.py init <project>   (an existing directory under Projects/)
+  exit 2
+$ build_term_index.py init
+  err| usage: build_term_index.py init <project>   (an existing directory under Projects/)
+  exit 2
+# files under Projects/Bare/terminology
+  terms.json d2c450f7a3202580152e0778658299205c8e2fa39cc4ed5be07f2fe2cb84ac9a
+$ check_term_index.py Bare
+  out| Term-index check
+  out| NOTE: a clean run establishes WELL-FORMED AND CURRENT, not that terms are used in their
+  out|       defined sense. Matching finds forms, not meanings.
+  out| 
+  out| === Projects/Bare
+  out|   DEFECT[STALE]   no usable index manifest (run: term-build)
+  out| 
+  out| ---
+  out| Projects seen: 1  |  registers checked: 1  |  DEFECT: 1  |  NEEDS-REVIEW: 0
+  out| GATE FAILED: see docs/term-index-protocol.md.
+  exit 1
+$ build_term_index.py build Bare
+  out| Projects/Bare: 2 documents indexed, 4 generated files written
+  exit 0
+# === scenario_usage_errors
+$ check_term_index.py a b
+  err| usage: check_term_index.py [project]
+  exit 2
+$ check_term_index.py --all
+  err| usage: check_term_index.py [project]
+  exit 2
+$ build_term_index.py
+  err| usage: build_term_index.py {build [project] | init <project> | hook}
+  exit 2
+$ build_term_index.py build a b
+  err| usage: build_term_index.py build [project]
+  exit 2
+$ build_term_index.py frobnicate
+  err| usage: build_term_index.py {build [project] | init <project> | hook}
+  exit 2
+$ query_term_index.py Demo
+  err| usage: query_term_index.py <project> "<label, variant or id>" | --list
+  exit 2
+$ query_term_index.py Nowhere x
+  err| ERROR: no project under Projects/ matches: Nowhere
+  exit 2
+$ query_term_index.py Demo term register
+  out| term register  [term-register]
+  out|   The set of coded definitions.
+  out|   1 occurrence(s). Places where a form appears, not evidence of sense.
+  out|   a.md:1:3  term register  (label)
+  exit 0
+$ build_term_index.py hook
+  stdin: not json
+  exit 0

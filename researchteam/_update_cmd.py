@@ -2,6 +2,7 @@
 
 import datetime
 import difflib
+import hashlib
 import json
 import os
 import re
@@ -13,6 +14,7 @@ from pathlib import Path
 
 from ._manifest import (
     BRIEF_PLACEHOLDER,
+    BYTE_EXACT_PREFIXES,
     FENCE_CORE_BEGIN,
     FENCE_CORE_END,
     MERGE_STRATEGIES,
@@ -20,7 +22,7 @@ from ._manifest import (
     managed_files_for,
 )
 from ._drift import NOTES_HEADING_RE, clean, comparable_body, is_safe_ref, pinned_ref
-from ._fetch import fetch_raw
+from ._fetch import fetch_raw, fetch_raw_bytes
 
 
 def _split_fence(text: str) -> tuple[str, str, str] | None:
@@ -316,10 +318,25 @@ def _run_update_body(
     for path in sorted(accepted - {p for p in managed if MERGE_STRATEGIES.get(p) == "above-notes"}):
         print(f"  [above-notes] --accept-upstream {clean(path)}: not an above-notes managed file; ignored.")
 
+    byte_set_done = False
     for rel_path in managed:
-        if _is_frozen(rel_path):
+        if _is_frozen(rel_path) and not rel_path.startswith(BYTE_EXACT_PREFIXES):
             print(f"  [frozen] {rel_path}: under a frozen surface; not synced (left unchanged)")
             skipped.append(rel_path)
+            continue
+        if rel_path.startswith(BYTE_EXACT_PREFIXES):
+            if not byte_set_done:  # the whole directory, once, at its first file: all files or none
+                byte_set_done = True
+                group = [p for p in managed if p.startswith(BYTE_EXACT_PREFIXES)]
+                frozen = [p for p in group if _is_frozen(p)]
+                if frozen:
+                    print(f"  [frozen] {', '.join(frozen)}: under a frozen surface; the byte-exact set is not synced")
+                    skipped += group
+                    continue
+                set_updated, set_skipped, set_errors = _sync_byte_exact_set(root, group, ref, yes=yes, dry_run=dry_run)
+                updated += set_updated
+                skipped += set_skipped
+                errors += set_errors
             continue
         local_path = root / rel_path
         try:
@@ -463,6 +480,77 @@ def _run_update_body(
     _refresh_codex_unless_frozen(root, dry_run=dry_run, codex=codex)
     _merge_bridges(root, dry_run)
     _print_frozen_summary(root, dry_run)
+
+
+def _sync_byte_exact_set(root: Path, rels: list[str], ref: str, *, yes: bool,
+                         dry_run: bool) -> tuple[list[str], list[str], list[str]]:
+    """Sync the byte-exact directory (the pinned term-index core) as one set: all files or none.
+
+    Returns ``(updated, skipped, errors)``. Every file is fetched as bytes and never decoded. Nothing is written
+    when a fetch fails, when any component of a target path under the repository is a symbolic link (or a parent
+    resolves outside it), or when the fetched files do not match the fetched PINNED.json. Interactively there is
+    one prompt for the whole set. After writing, the files on disk are checked against that manifest again, by
+    this package and not by the repository's own check script; a failure is reported as an error.
+    """
+    from ._term_core_upstream import MANIFEST_REL, CODE_SUFFIXES, link_on_path, local_mismatches, parse_pinned, \
+        sha256_mismatch
+
+    fetched, errors = {}, []
+    for rel in rels:
+        try:
+            fetched[rel] = fetch_raw_bytes(UPSTREAM_REPO, ref, rel)
+        except RuntimeError as exc:
+            errors.append(str(exc))
+    if errors:
+        print("  [byte-exact] a fetch failed; nothing in the pinned core directory was written (all files or none)")
+        return [], list(rels), errors
+    linked = [rel for rel in rels if link_on_path(root, rel)]
+    if linked:
+        print(f"  [byte-exact] {', '.join(linked)}: a symbolic link on the path, or outside the repository; nothing in "
+              "the pinned core directory was written. Replace the link with a regular directory, then update again.")
+        return [], list(rels), []
+    try:
+        manifest = parse_pinned(fetched[MANIFEST_REL]) if MANIFEST_REL in fetched else None
+    except (ValueError, RecursionError) as exc:
+        manifest, why = None, str(exc)
+    else:
+        why = f"{MANIFEST_REL} is not in the synced set"
+    entries = (manifest["files"] + manifest["data_files"]) if manifest else []
+    bad = [why] if manifest is None else (
+        [f"{f['local_path']}: not in the synced set" for f in entries if f["local_path"] not in fetched]
+        + [f"{f['local_path']}: does not match the fetched manifest" for f in entries
+           if f["local_path"] in fetched and sha256_mismatch(f, fetched[f["local_path"]]) is not None]
+        + [f"{rel}: a code file the fetched manifest does not list" for rel in rels
+           if rel.endswith(CODE_SUFFIXES) and rel not in {f["local_path"] for f in entries}])
+    if bad:
+        return [], list(rels), [f"[byte-exact] upstream {ref}: the pinned core does not verify, nothing written: {b}"
+                                for b in bad]
+    local = {rel: (root / rel).read_bytes() if (root / rel).is_file() else None for rel in rels}
+    changed = [rel for rel in rels if local[rel] != fetched[rel]]
+    if not changed:
+        return [], [], []
+    if dry_run:
+        for rel in changed:
+            print(f"  [dry-run] Would {'update' if local[rel] is not None else 'create'}: {rel}")
+        return changed, [], []
+    if not yes:
+        print("\n--- the pinned term-index core (exact bytes; applied as one set) ---")
+        for rel in changed:
+            before = hashlib.sha256(local[rel]).hexdigest()[:12] if local[rel] is not None else "(absent)"
+            print(f"  {rel}: sha256 {before} -> {hashlib.sha256(fetched[rel]).hexdigest()[:12]}")
+        if input(f"Apply all {len(changed)}? [y/N] ").strip().lower() != "y":
+            print("  Skipped the pinned core directory (no file written)")
+            return [], changed, []
+    for rel in changed:
+        (root / rel).parent.mkdir(parents=True, exist_ok=True)
+        (root / rel).write_bytes(fetched[rel])
+        print(f"  {'Updated' if local[rel] is not None else 'Created'} {rel}")
+    _, problems = local_mismatches(root)
+    if problems:
+        print("  [byte-exact] the synced pinned core does not verify against its manifest:")
+        for line in problems:
+            print(f"    {line}")
+    return changed, [], problems
 
 
 def _merge_bridges(root: Path, dry_run: bool) -> None:

@@ -748,8 +748,10 @@ def test_the_hook_scans_only_what_changed(tmp_path, monkeypatch):
     monkeypatch.setenv("RT_ROOT", str(tmp_path))
     assert builder.rebuild(proj)[1] is not None
     scanned = []
-    original = engine.Matcher.occurrences
-    monkeypatch.setattr(engine.Matcher, "occurrences", lambda self, text: scanned.append(1) or original(self, text))
+    # The class that defines the scan: the engine's own, or the core class the engine's Matcher extends.
+    owner = next(c for c in engine.Matcher.__mro__ if "occurrences" in vars(c))
+    original = owner.occurrences
+    monkeypatch.setattr(owner, "occurrences", lambda self, text: scanned.append(1) or original(self, text))
     assert engine.manifest_is_current(proj) is True and scanned == []          # the idle hook's test
     (proj / "d3.md").write_text("A term register, edited.\n")
     assert engine.manifest_is_current(proj) is False
@@ -854,7 +856,7 @@ def test_documents_created_in_another_order_give_the_same_bytes(tmp_path):
 # The engine's limit was 650; the third review raised it to 700 so that the section dividers could stay.
 SCRIPTS = {ENGINE: 700, BUILD: 300, CHECK: 250, QUERY: 100}
 ALLOWED_IMPORTS = {"__future__", "bisect", "dataclasses", "hashlib", "json", "os", "re", "stat", "sys",
-                   "tempfile", "pathlib", "fcntl", "term_index_engine"}
+                   "tempfile", "pathlib", "fcntl", "term_index_engine", "check_term_core"}
 BANNED_CALLS = {"system", "popen", "fork", "eval", "exec", "__import__", "execv", "execve",
                 "spawnl", "spawnv", "startfile"}
 
@@ -886,7 +888,9 @@ def test_scripts_stay_small_and_import_only_what_they_need():
 
 def test_every_finding_code_is_defined_in_the_protocol():
     protocol = (ROOT / "docs" / "term-index-protocol.md").read_text(encoding="utf-8")
-    source = ENGINE.read_text() + BUILD.read_text() + CHECK.read_text()
+    # The pinned core (scripts/term-index-core/, once the engine is reduced to adapters) emits most codes.
+    core = sorted((ROOT / "scripts" / "term-index-core").glob("*.py"))
+    source = "".join(p.read_text(encoding="utf-8") for p in (ENGINE, BUILD, CHECK, *core))
     codes = set(re.findall(r'\("([A-Z]{3,7})", ', source))
     assert {"SCHEMA", "AMBIG", "SCOPE", "STALE", "DISC", "SRC", "ORPHAN", "NOREG", "REBUILD", "UNUSED",
             "NOSRC", "QUOTED"} <= codes

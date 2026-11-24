@@ -1,0 +1,4 @@
+# researchteam: the pinned agentteams term-index core is kept as exact bytes (sha256 in PINNED.json).
+# This file is synced with the directory, so a derived repository gets it too: no line-ending conversion,
+# keyword expansion or filter may touch these files.
+* -text -ident -filter
