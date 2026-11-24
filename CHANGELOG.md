@@ -5,6 +5,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Derived autosync workflow: the release-locked check fetches the tag shallowly.**
+  `researchteam/scaffold/agentteams-sync-derived.yml` fetched researchteam's whole history to verify one tag. It
+  now fetches with `--depth=1 --filter=tree:0` and retries once with `--depth=1`, as `verify_tag` does; a fetch
+  that fails both ways fails the check. Every check after the fetch is unchanged, and no credential is involved.
+  A derived repository receives the new workflow only through its own sync (`researchteam update --workflow`)
+  and its own review of that change.
+
 - **Survey toolkit: the per-study sign-off log is specified (open point 1 closed).** Section 6.2 of
   `docs/survey-toolkit.md` now gives the log's folder layout, a gates-only team dir as agentteams 1.3.0 documents
   it, and the HALT rule: an unretracted HALT in the repository's team logs binds a study's sign-off. Only an
