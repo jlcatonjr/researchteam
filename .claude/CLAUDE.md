@@ -362,8 +362,9 @@ No project-specific style rules defined.
   - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
     all does not count as green.
   - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
-    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
-    that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
+    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, a pin in `pyproject.toml`, or `scripts/term-index-core/`
+    (the copied term-index core and its manifest; operator ruling, 2026-11-24) needs a `@security` PASS that names
+    those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
     is not enough there.
   - Each such merge commit says "Merged under PS-2 by the agent session" in its body and names the operator's
     approval, so it can be told apart from an operator merge made with the same token.

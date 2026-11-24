@@ -5,6 +5,11 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Governance: `scripts/term-index-core/` joins the paths that need a `@security` PASS (PS-2).** The directory
+  will hold the term-index core copied from agentteams and its manifest. A pull request that touches it is merged
+  only with a `@security` PASS naming it (operator ruling, 2026-11-24). The rule is in place before the directory
+  lands. The projected copies of the project rules are re-synced.
+
 - **Toolchain: agentteams v1.3.0 is pinned, the first pin on the 1.3 line.** `toolchain.lock`, the `update` and
   `research` extras and the autosync ref name `536306d`, the commit the signed tag `v1.3.0` peels to. The move off
   the 1.2 line is recorded by the operator-signed row `release-line-agentteams-1.3`; the review of the pin itself is
