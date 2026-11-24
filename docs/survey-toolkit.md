@@ -5,6 +5,8 @@ a line-by-line comparison with its reference implementation (as revision 2 of th
 2026-11-19), then frozen once
 that project had its S0 and S5 gates signed and had run a stage that writes evidence rows (operator
 ruling, 2026-11-21: enumeration alone was not enough). What the freeze changed is listed in section 12.
+Open point 1 (the per-study log's folder and the HALT rule, 6.2) was settled on 2026-11-24; nothing version 1
+fixed was changed.
 From here a change to a shape, rule or command is a new version of this contract, not an edit. No survey
 tool is implemented in researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2)
 is, since 2026-11-20. The contract ships in researchteam 1.3.0 (operator ruling, 2026-11-19); the tools are
@@ -837,9 +839,52 @@ into the manifest and carried into every output that depends on the gate (4.6), 
   signs from a trusted `agentteams` install outside every agent's write root, with one handoff script.
 - Verification uses the team's approver list and verify keys. A signature by a key not on the list does
   not clear a gate.
-- This depends on `agentteams` supporting a second, gates-only log as a documented and tested pattern,
-  including whether a HALT in the team's log binds it (an open `agentteams` issue). The sign-off tools
-  are not moved before that is settled (open point 1).
+
+**The log's folder** (settled 2026-11-24, closing open point 1). `agentteams` 1.3.0 documents and tests
+this pattern as a *gates-only team dir* (its API reference, "Workspace privilege scoping", section
+"Gates-only team dirs for sign-off rows"; its changelog for 1.3.0, issue #578). The folder that
+`signoffs.ledger` names holds exactly this, and nothing an agent team would run:
+
+```
+<path>/references/
+  agent-privilege.json            makes the folder a team dir; may declare "parent_team"
+  security-decisions.log.csv      with the signature columns, so every authorizing row must be signed
+  authorized-verify-keys/         the operator's <key_id>.pub.pem
+  security-approvers.txt
+```
+
+- `<path>` is relative to the repository root and lies inside the repository the study is in. No component
+  of it is a symbolic link. A log kept outside the repository would not see the team's HALTs (below), so the
+  validator refuses such a path.
+- The approver list and the verify keys in the folder are the team's. Where the repository's own team
+  directory holds an approver list or verify keys, the folder's are the same files, byte for byte, and the
+  validator refuses a difference. A repository whose team has neither keeps them in the folder alone.
+- The operator signs with `agentteams --sign-decision <spec> --output <path>` and the tools verify with
+  `agentteams --check-clearance <scope> --clearance-file <manifest> --output <path>` (or the function behind
+  it), which reads the PASS in this folder.
+- `AGENTTEAMS_DECISION_SIGNING_KEY` applies to a whole process: exported in a shell, it makes every
+  decisions log that process touches signing-active, the team's included. The handoff script sets it for
+  the signing command alone.
+
+**HALT.** The log has no HALT authority of its own. A sign-off does not clear a gate while an unretracted
+HALT on its scope, or on its action, stands in any of:
+
+- the log itself;
+- the decisions log of any generated team directory in the repository (`.claude/agents`, `.github/agents`,
+  `.codex/agents`, `.goose/recipes`, `.grok/agents`), whether or not the folder names it;
+- the team directory that the folder's `agent-privilege.json` declares as `parent_team`, a path relative to
+  the repository root. A repository whose governing team is not in one of the generated locations declares
+  it; without the declaration that team's HALTs would not bind, so the validator requires it there.
+
+Each log is read under its own rules: an unsigned HALT binds, and a retraction counts only where it is
+valid in its own log. The check fails closed. A log that cannot be read or parsed, a team directory
+reached through a symbolic link, or a `parent_team` that is absolute, leaves the repository, is not a team
+directory, names the folder itself or declares a parent of its own, leaves the gate `UNAVAILABLE`, never
+`CLEARED`.
+
+This behaviour is `agentteams` 1.3.0's. An older `agentteams` reads only the folder it is given, so a
+HALT in the team's log would not bind. The sign-off tools therefore require `agentteams` 1.3.0 or later
+and report every gate as `UNAVAILABLE` with an older one.
 
 ## 7. Commands and CI
 
@@ -927,7 +972,7 @@ Order, each step its own reviewed pull request:
    invented example study and tests. No signing yet.
 5. Row checks and the batch merge, the registry, the table bucketer, agreement, finalising, rollup, the
    frame and its passage list, and the explorer projection (section 9).
-6. Sign-off verification and stage refusal, once the `agentteams` pattern is documented.
+6. Sign-off verification and stage refusal. The `agentteams` pattern is documented since its 1.3.0 (6.2).
 7. Enumeration, packets, quote re-finding and the query-plan runner.
 8. The agents, the bridge commands in `CLAUDE.md`'s managed block, and the CI gate.
 
@@ -965,11 +1010,13 @@ section 7), with `basis`, `reporter` and `note` as optional evidence columns.
 
 Settled at the freeze (2026-11-23): the points of section 12.
 
+Settled on 2026-11-24, after `agentteams` 1.3.0 was released: the per-study log's folder layout, and that a
+HALT in the team's log binds it (6.2). This was open point 1; the points below keep their numbers. It
+fills a point version 1 left open and changes no shape, rule or command that version 1 fixed, so the
+contract stays version 1 and `schema_version` stays `"1"`.
+
 Still open:
 
-1. **Per-study ledger.** The folder layout `agentteams` expects for a gates-only log, and whether a HALT
-   in the team's log binds it. Waits for the `agentteams` issue. It blocks step 6 of section 10, not this
-   contract's agreement.
 2. **An author study's frame.** Version 1 fixes the frame of a passage or work study only (4.7).
 3. **Explorer contract 1.2.** The reader of the passage list (section 9).
 4. **A counted unit with no final code.** The frame writes an empty cell for it, as for "not applicable"
