@@ -48,6 +48,7 @@ SCHOLARLY_MANAGED_FILES = [
     "docs/literature-library-protocol.md",
     "docs/news-perspective-protocol.md",
     "docs/historical-context-protocol.md",
+    "docs/concept-map-protocol.md",                # procedure; the exporter and component are vendored (templates/concept-map)
     "scripts/check_methodology_coverage.sh",
     "scripts/check_historical_context.sh",
     "scripts/check_citation_integrity.sh",

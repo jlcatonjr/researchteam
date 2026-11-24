@@ -5,6 +5,40 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **CI: the concept-map layout and component tests now run.** `tests.yml` installs Graphviz from the runner's
+  Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
+  longer skip in CI. The pytest summary lists any test that was skipped.
+
+- **Survey toolkit: the contract is frozen as version 1.** `docs/survey-toolkit.md` is no longer a draft. The first
+  project had its S0 and S5 gates signed and merged its first evidence rows on 2026-11-23, which was the condition
+  for the freeze. Ten changes that project's run brought out are taken (section 12): the frame of a passage or work
+  study and its passage list (new section 4.7), the cell as the frame's unit, a registry seeded from the attribution
+  file and renewed by an evidence merge (or the merge is refused), person-level rows with new row checks, no empty
+  enumeration rounds, period columns named after the period attribute, an analysis-engine pin that may be a file
+  only S6 covers, and a plain statement of what a re-found quotation proves. Bucket tables and the year rule are
+  written down for the first time (4.8). `schema_version` is `"1"`; `"0"` is read identically. No survey tool is
+  implemented yet.
+
+- **Governance: the toolchain-group file is re-signed for this repository alone (sequence 5).**
+  `.agentteams/toolchain-group.json` is now signed with the decision key `opr-2026-11` and lists this workspace only;
+  the group and its `derives_from` are unchanged. The exception registry's `toolchain_group_sequence` is 5, so the
+  sequence 1 file (signed with `op-2026`) is refused as a rollback. Part of the key rotation.
+
+- **Concept map: a reusable, interactive map of a debate (#247).** `templates/concept-map/` adds a contract
+  (`researchteam.concept-map`, version 1.0), an exporter (`scripts/build_concept_map.py`) and a dependency-free
+  component (`concept-map.js`, `concept-map.css`). A project writes one JSON spec of actors (writers or groups, each
+  tied to person ids from its register), topics (claims and findings) and typed lines (in the example: affirms,
+  denies, documented, inferred). The exporter checks it fail-closed, writes the Graphviz DOT and SVG for the static
+  figure, gets the layout from Graphviz and computes who each topic ties to, with direction. A line between a group
+  box and a topic must say whom it speaks for (`only`) or be marked reviewed (`all_members`); until then the build
+  lists it under REVIEW. The component draws the map, makes every node a focusable button and reports the selection;
+  the host lists the people in its own panel. The procedure around it (drafting, a two-round independent audit, a
+  second pass and an audit log) is `docs/concept-map-protocol.md`, synced to scholarly derived repositories. Like the
+  bibliography explorer, the template is vendored, not synced. A `/concept-map` skill (`.claude/skills/concept-map/`)
+  is hand-written in this repository and `researchteam update` does not sync it either. Tests:
+  `tests/test_concept_map.py` and a Node component test; the Graphviz and Node tests skip where those programs are
+  missing. First integrated by a derived project.
+
 - **Governance: merged pull-request heads may be deleted automatically (#234).** PS-2 in `.claude/CLAUDE.md` has
   a new exception: once the operator turns on the repository setting "Automatically delete head branches", GitHub
   deletes a pull request's head branch when it merges, with no deletion record and no hold checks for that one

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept map example</title>
+<link rel="stylesheet" href="../concept-map.css">
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: Canvas; color: CanvasText; }
+  main { max-width: 1000px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 20px; margin: 0 0 8px; }
+  #who h2 { font-size: 16px; margin: 18px 0 4px; }
+  #who h3 { font-size: 13px; margin: 10px 0 2px; }
+  #who ul { margin: 0; padding-left: 18px; }
+  #who .how { opacity: 0.7; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Concept map example (invented data)</h1>
+  <div id="map"></div>
+  <section id="who" aria-live="polite"></section>
+</main>
+<script type="module">
+  // The host owns the list of people. This example lists them plainly; a real host uses its own panel and
+  // person items (README.md, "Use it in a project").
+  import { mount, membersByRelation } from "../concept-map.js";
+  const data = await (await fetch("map-data.json")).json();
+  const who = document.getElementById("who");
+  const add = (parent, tag, text, cls) => { const e = document.createElement(tag); e.textContent = text; if (cls) e.className = cls; parent.appendChild(e); return e; };
+  const nodes = new Map(data.nodes.map((n) => [n.id, n]));
+  const show = (s) => {
+    who.replaceChildren();
+    if (!s) { add(who, "p", "Click a node to list who it ties to."); return; }
+    add(who, "h2", s.node.label_lines.join(" "));
+    if (s.role === "actor") {
+      const ul = add(who, "ul");
+      for (const p of s.persons) add(ul, "li", p.registered || p.id ? p.name : `${p.name} (not in the register)`);
+      return;
+    }
+    for (const g of membersByRelation(data, s.node.id)) {
+      add(who, "h3", `${g.label} (${g.members.length})`);
+      const ul = add(who, "ul");
+      for (const m of g.members) {
+        const li = add(ul, "li", m.person.name);
+        add(li, "span", ` · via ${m.via.map((v) => nodes.get(v.node).label_lines[0]).join("; ")}`, "how");
+      }
+    }
+  };
+  mount(document.getElementById("map"), data, { onSelect: show });
+  show(null);
+</script>
+</body>
+</html>

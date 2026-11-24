@@ -1,12 +1,14 @@
 # Survey toolkit: contract
 
-**Status: agreed draft, revision 2 (2026-11-19).** Agreed with the first integrating project after two
-checks and a line-by-line comparison with its reference implementation. No survey tool is implemented in
-researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2) is, since 2026-11-20. The
-study specification is `schema_version "0"` and is **v0-unstable**: the first project using it is still
-changing it. It is frozen as version 1 only after that project has had its S0 and S5 gates signed and has
-run a stage that writes evidence rows or codes; enumeration alone is not enough (operator ruling,
-2026-11-21). Planned for researchteam 1.3 (operator ruling, 2026-11-19).
+**Status: version 1, frozen 2026-11-23.** Agreed with the first integrating project after two checks and
+a line-by-line comparison with its reference implementation (as revision 2 of this contract,
+2026-11-19), then frozen once
+that project had its S0 and S5 gates signed and had run a stage that writes evidence rows (operator
+ruling, 2026-11-21: enumeration alone was not enough). What the freeze changed is listed in section 12.
+From here a change to a shape, rule or command is a new version of this contract, not an edit. No survey
+tool is implemented in researchteam yet; the bibliography explorer's contract 1.1 (section 10, step 2)
+is, since 2026-11-20. The contract ships in researchteam 1.3.0 (operator ruling, 2026-11-19); the tools are
+planned for the minor release after it (operator ruling, 2026-11-23).
 
 A *position survey* answers a question of the form "what did the people in this frame hold about X, and
 on what evidence". The toolkit is the reusable part of running one: a study specification, the row
@@ -15,7 +17,7 @@ implementation in a derived repository, whose project-specific parts stay there.
 
 Sections: 1 rules; 2 what the toolkit owns; 3 the study specification; 4 row files; 5 plug-ins; 6 gates
 and sign-offs; 7 commands and CI; 8 agents; 9 relation to the bibliography explorer; 10 delivery and
-order of work; 11 open points.
+order of work; 11 open points; 12 what the freeze changed. Bucket tables are 4.8.
 
 ## 1. Rules that hold everywhere
 
@@ -44,7 +46,8 @@ order of work; 11 open points.
    invented data. A project's specification, codebooks, tables, plug-ins and rows stay in the project.
 9. **What a clean run means.** The study is well-formed, internally consistent and, where gates are
    cleared, unchanged since the operator signed. It does not mean that any quotation is accurate beyond
-   the locus it was re-found at, that a code is right, or that the frame is complete.
+   the locus it was re-found at, that a code is right, or that the frame is complete. A re-found
+   quotation is a string that occurs at its locus, and no more than that (5.4).
 10. **Folded text.** Where this contract says text is *folded*, it means: decomposed (NFD) with combining
    marks removed, lower-cased, soft hyphens removed, a hyphen followed by white space removed together
    with that white space, and each remaining run of white space made one space, with none at either end.
@@ -56,22 +59,26 @@ order of work; 11 open points.
 |---|---|
 | The specification's shape and its checks | `study.json` and every file it names |
 | Row shapes and row checks (section 4) | The rows |
-| The table bucketer and the period rule | Bucket tables; any plug-in bucketer |
+| The table bucketer and the period rule (4.8) | Bucket tables; any plug-in bucketer |
 | Identity candidates, registry build, override handling | The identity source; every link or merge decision |
 | Quote re-finding, fetch receipts | The text store and its layout (declared in the specification) |
-| Agreement statistics, fail-closed finalising, rollup | Codebooks; the two coding passes; adjudication |
+| Agreement statistics, fail-closed finalising, rollup, the frame | Codebooks; the two coding passes; adjudication |
 | Enumeration log and the stopping rule | Query plans, seeds, the rounds themselves |
 | Gate manifests, gate status, stage refusal | What each gate covers; the operator's signatures |
 | The plug-in interfaces (section 5) | The plug-ins, including any vantage module and vocabulary rule |
+| The frame, its passage list, and the projection to the explorer's tables (4.7, section 9) | The results page |
 
 The analysis engine and the results page are a separate workstream in another repository. The toolkit
-stops at finalised codes and a rollup; `analysis` in the specification is carried, checked only for
-shape, and covered by gate S6.
+ends with finalised codes, a rollup, the frame an analysis reads (4.7) and the explorer's input tables
+(section 9); `analysis` in the specification is carried, checked only for shape, and covered by gate S6.
 
-## 3. The study specification (`study.json`, v0-unstable)
+## 3. The study specification (`study.json`, version 1)
 
 One JSON file per study, at `Projects/<project>/study.json` unless the project says otherwise. Unknown
-keys are an error at every level. A study is a draft only by its `status`; a file's name never makes it
+keys are an error at every level. `schema_version` is `"1"` or `"0"`, and the two are checked identically.
+`"0"` is what a study written before the freeze carries; accepting it means the freeze alone does not
+un-clear that study's signed gates. A manifest carries whichever the specification says. Anything that
+writes a new specification writes `"1"`. A study is a draft only by its `status`; a file's name never makes it
 one. The validator is researchteam's own, written against the standard
 library; it is the authority. A JSON Schema file (2020-12) is published beside it as a description for
 editors. A shared set of valid and invalid specifications is kept in the tests so the two can be compared
@@ -81,7 +88,7 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
 
 ```
 {
-  "schema_version": "0",
+  "schema_version": "1",                               // or "0", read identically
   "id": slug, "title": string, "question": string,
   "status": "draft" | "active" | "legacy",
   "vantage"?: { "module": Plugin | null, "guide"?: path, "inclusion"?: string | null },     // 5.2
@@ -151,7 +158,8 @@ Fields marked `?` are optional. `slug` is `^[a-z0-9][a-z0-9_-]*$`. `path` is a s
     "change_log": path,
     "post_steps"?: [path]                              // 4.5
   },
-  "analysis"?: object,                                 // carried; shape owned by the analysis engine
+  "analysis"?: object,                                 // carried; shape owned by the analysis engine;
+                                                       // it may name files by path (see below)
   "signoffs": {
     "ledger": string,                                  // 6.2
     "gates": { "S0" | "S5" | "S6" | "S8": Gate }
@@ -188,14 +196,27 @@ labels. A level set has at least one level, and each `exclude_from_rollup` list 
   level codes; a level code `mixed` in any outcome;
 - `rollup: "any-present"` on an ordinal outcome with a level that has no `order`;
 - a `rollup_types`, or a `rollup_by` entry, that is not a `passage_attributes` key;
+- more than one attribute of kind `period`; an attribute of kind `period` whose bucketer is not of kind
+  `period`, or the reverse;
+- two frame columns with the same name (4.7). The frame's columns are generated from the keys, so this is
+  for example an attribute or outcome named `unit_id`, `author` or `unit_kind`, an outcome named like the
+  period's `<key>_num`, a key equal to a `rollup_by` key, or a flag column `<key>_<flag>` or
+  `<key>_<missing>` equal to another column;
+- `match: "all"` on a bucketer of an attribute that is not of kind `flags`; `match: "first"` or a
+  `fallback` on the bucketer of a flags attribute (4.8);
+- within an outcome, a level code, an NA code and the `missing` value that are not all different, or any
+  of them equal to `mixed`; an attribute whose `missing` value is one of its levels or flags;
+- a `|` in a level code of a `rollup_by` level set (4.7);
+- in a passage or work study, a `frame_rules.exclude` rule other than `not-on-question`: version 1 does
+  not define the other rules over cells (4.7);
 - a passage or work study without `unit.attribution`;
 - a `saturation` stopping rule without both `rounds_without_new` and `min_new_share`; a
   `legacy-unrecorded` stopping rule in a study whose `status` is not `legacy`;
 - a referenced input file that does not exist, unless `status` is `draft`. These may be absent, because
   a stage writes them or they start empty: `log`, `change_log`, `identity.registry`,
   `identity.overrides`, `evidence.receipts`, an outcome's `adjudications`;
-- a plug-in (a reader, a bucketer or the vantage module), the `vocabulary.forbidden` file or the
-  `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
+- a plug-in (a reader, a bucketer or the vantage module), a bucket table (4.8), the `vocabulary.forbidden`
+  file or the `identity.stop_words` file that is not covered by gate S0 (5.1, 5.3). Coverage is judged on resolved
   paths (rule 1.6);
 - evidence that cites a fetch receipt when `evidence.receipts` is not declared;
 - `evidence.legacy_exceptions` in a study whose `status` is not `legacy`, or naming a file that no gate
@@ -233,6 +254,20 @@ among its grouping attributes is to be refused by the engine that runs it.
 `rollup`, `bucketer` and `frame_rules.exclude` are required, as in the reference, so that no tool supplies
 a default silently.
 
+**The analysis-engine pin may live in a file of its own.** Every manifest lists the specification first
+(6.1), so anything written in `study.json` is covered by every gate, and a new engine release recorded
+there would un-clear S0 and S5 although nothing they clear had changed. A study may therefore keep the
+pin (which engine, at which commit and release) in a separate file that `analysis` names by path and
+that only S6 covers. A study may also keep it inside `analysis`; then every gate moves with it. The
+toolkit reads neither: the pin's fields are the analysis engine's (operator ruling, 2026-11-22).
+Because `analysis` is opaque, no toolkit check can confirm that such a file exists or that S6 covers it.
+That is checked by whoever prepares S6 and by the operator who signs it: a pin file that S6's `covers`
+does not list is not cleared by anything (open point 5).
+
+**The period attribute.** A study has at most one attribute of kind `period`. Its `key` names the frame's
+two period columns, `<key>` and `<key>_num` (4.7); a study without one gets `period` and `period_num`.
+An analysis that stratifies by period names that column.
+
 ## 4. Row files
 
 All are CSV, UTF-8, with exactly the columns listed, in this order. A missing or extra column is an
@@ -251,25 +286,42 @@ same meanings. The last five are the survey's; the explorer's contract 1.1 also 
 |---|---|
 | `basis` | `own` (the person's own words) or `reported` (someone else's account of them) |
 | `reporter` | who reports, when `basis` is `reported` |
-| `unit_id` | the passage or work the row belongs to, in a passage or work study |
+| `unit_id` | in a passage or work study, the passage or work the row belongs to; or, for a row about the person and not about one passage (life dates, language, office), the row's own `person_id` |
 | `note` | free text; on a not-established row, what was tried |
 | `downgraded_from` | the value and tier the row had before an audit downgraded it |
 
 Errors:
 
+- columns that are not exactly the eighteen, in order;
 - a row in a counted tier without a `quote`, or with neither `citation` nor `source_id`;
-- a row in a counted tier without a `basis`; `reported` without a `reporter`; a `reporter` on an `own` row;
+- a row in a counted tier whose `basis` is not `own` or `reported`; `reported` without a `reporter`; a
+  `reporter` on an `own` row;
 - a row in the not-established tier (`evidence.not_established_tier`) with a `quote`, or without a
   `note`. Not-established is a tier of the row; its `value` is free text and is not an outcome code;
 - a `tier` not in `evidence.tiers`; an `attribute_kind` the specification does not declare;
 - a `unit_id` in an author study, or none in a passage or work study;
-- a duplicate `id`; a `person_id` the registry does not hold;
+- in a passage or work study, a `unit_id` that is neither a unit of the attribution file nor the row's
+  own `person_id`; or a row on an attribution unit whose `person_id` is not that unit's attributed
+  author;
+- an empty or duplicate `id`; a `person_id` the registry does not hold; a `|` in a `person_id` or a
+  `unit_id` (4.7);
 - text matching the project's forbidden-vocabulary file in any column not listed in
   `vocabulary.exempt_columns` (5.3).
 
 The row checks apply to the whole evidence file whenever it is checked, not only to rows being added, and
 none of them is skipped because an optional declaration or file is absent: an `attribute_kind` is checked
 against the outcomes and attributes that use it, and a missing registry is itself an error.
+
+**Person-level rows in a passage or work study.** Such a study needs a `unit_id` on every row, and some
+rows are about the person, not about one passage. Those rows carry the person's own id as `unit_id`. It
+matches no unit of the attribution file, so a coding packet never contains the row, and the frame reads
+it as the person's own attribute (4.7).
+
+**Adding rows.** Rows are written as a batch file with the same columns and merged by the row tool. A
+batch is checked in full, together with the file it joins, and nothing is appended unless every row
+passes. A legacy exception never covers a batch row. Merging into a `plugin` format is the project's own
+write path and is refused. A merge also renews the registry's record, and is refused where it could not
+(4.4).
 
 **Rule ids.** Each evidence check has an id, which reports use and the exceptions file below is keyed on:
 
@@ -281,6 +333,9 @@ against the outcomes and attributes that use it, and a missing registry is itsel
 | `attribute-kind` | an `attribute_kind` that is not declared |
 | `person-unknown` | a `person_id` the registry does not hold |
 | `unit-id` | a `unit_id` in an author study, or none in a passage or work study |
+| `unit-unknown` | in a passage or work study, a `unit_id` that is neither an attribution unit nor the row's `person_id` |
+| `unit-person` | a row on an attribution unit whose `person_id` is not the unit's attributed author |
+| `id-separator` | a `\|` in a `person_id` or a `unit_id` |
 | `tier-unknown` | a `tier` that is not declared |
 | `counted-quote` | a counted row without a `quote` |
 | `counted-citation` | a counted row with neither `citation` nor `source_id` |
@@ -348,7 +403,7 @@ units each rests on.
 - only `final` rows count, and only for units whose attribution status is in `counted_statuses`;
 - a unit whose passage-attribute value is listed in `unit.exclude_from_rollup` is left out;
 - NA codes and the `missing` value are skipped. An author whose remaining codes are all skipped gets
-  `missing`;
+  `missing`. The frame is stricter here and keeps "not applicable" apart from "not established" (4.7);
 - an author all of whose units were left out by status or exclusion is not in the rollup. The tool
   reports how many authors that is;
 - an outcome whose source is an evidence attribute does not appear in the rollup;
@@ -371,7 +426,17 @@ units each rests on.
 
 `status` is one of `unit.attribution.statuses`. Only rows whose status is in `counted_statuses` enter a
 rollup. `author_kind` is `person` or one of `unit.collective.kinds`; anything else is an error. The
-attribution file is checked like any other row file, header included.
+attribution file is checked like any other row file, header included. Each of these is an error, and
+none can be listed as a legacy exception, which covers evidence rows only:
+
+- a `unit_id` that is empty, repeated, or equal to a `person_id` the registry holds: that would make a
+  passage indistinguishable from a person-level evidence row (4.1);
+- a passage-attribute cell that is empty or is not one of the attribute's level codes;
+- one `person_id` with more than one `author_kind`;
+- a `|` in a `unit_id` or a `person_id`.
+
+The attribution file is written before any evidence row exists, and the registry takes its persons from
+it (4.4).
 
 ### 4.4 Logs and working files
 
@@ -381,7 +446,8 @@ attribution file is checked like any other row file, header included.
 
 `round`, `candidates` and `new` are integers; `new_share` is between 0 and 1, to four decimals; `new_ids`
 is a `;`-separated list. Each enumeration writes the file its own `log` names. The stopping rule is
-computed from these rows only: a study cannot be declared saturated by assertion.
+computed from these rows only: a study cannot be declared saturated by assertion. A round with no
+candidates is refused and not logged: it found nothing, so it cannot count towards a stopping rule.
 
 | `stopping_rule.kind` | Met when |
 |---|---|
@@ -399,7 +465,10 @@ computed from these rows only: a study cannot be declared saturated by assertion
 ```
 
 The log is the file `frame_rules.change_log` names. A frame's units are its `unit_id` values in a passage
-or work study and its `person_id` values in an author study. The first entry lists every unit as added.
+or work study and its `person_id` values in an author study. In a passage or work study the frame has
+one row per cell and its `unit_id` is the cell's id (4.7), so the log records cells, not passages.
+`frame_sha256` is the hash of the frame file as it stands after the last post-step (4.5), computed as a
+manifest computes a text file's (6.1). The first entry lists every unit as added.
 `id` is what a report cites. `results_seen` records whether any coded result had been seen when the change
 was made, and is shown wherever the change is reported. The check fails when the current frame's hash
 differs from the last entry's: a frame cannot change without an entry.
@@ -435,6 +504,21 @@ page itself is cached only in a folder the repository ignores, and is never comm
   names that pair.
 - the registry (`identity.registry`, written by the registry tool): `person_id, display_name, identity_id, merged_from`. `identity_id` is the id in the
   identity source.
+  - **Where its persons come from.** The evidence file and, in a passage or work study, the attribution
+    file. A study can therefore build its registry before its first evidence row, which it must, because
+    a row whose person the registry does not hold is refused (4.1). The attribution file is then one of
+    the registry's recorded inputs (4.6).
+  - **Names.** `display_name` is, in this order: the `display_name` of the identity the person is linked
+    to; a name the evidence reader supplies (a `plugin` format may carry one); the `person_id` itself.
+  - **After an evidence merge.** The evidence file is a recorded input of the registry, so appending rows
+    would leave the registry "not built" (4.6) although its rows had not changed. A merge therefore also
+    renews the registry's record, in this way. It refuses unless the registry is built. Before writing
+    anything it works out the merged evidence file and the registry that a build over it would give. If
+    that registry's rows differ from the present ones (because the overrides, the attribution file or the
+    identity source changed since the last build, whatever the batch holds), it stops, writes nothing,
+    and says that the registry must be built first. Otherwise it writes the evidence file and then the
+    registry's new provenance record, last, so that an interrupted run leaves the registry not built and
+    never wrongly current.
 - **Candidates.** The registry tool lists possible matches between the project's persons and the identity
   source, each with its kind: `same-id` (the two ids are equal), `exact` (the folded names are equal) or
   `similar` (the names share tokens). A candidate is never a link, whatever its kind: two sources can
@@ -486,6 +570,139 @@ a reader has a **provenance record**:
 - It is written as canonical JSON, like a manifest, and carries no date.
 - A message on the screen is not a record. Nothing is added to a CSV's own columns for this.
 
+### 4.7 The frame (passage and work studies)
+
+The frame is the table an analysis reads: one row per cell, with its background attributes and its
+outcomes. The frame builder writes it from the final codes, the attribution file, the evidence and the
+specification. This section fixes the frame of a passage or work study. An author study's frame is not
+part of version 1, and the frame tool refuses to run in one.
+
+**Cells.** A *cell* is one author (a person or a collective) and one value of each attribute in
+`unit.rollup_by`. Its `unit_id` is `<person_id>|<value>|...`, in the order `rollup_by` gives; with no
+`rollup_by` it is the `person_id`. No `person_id`, `unit_id` or `rollup_by` level code contains `|`
+(section 3, 4.1, 4.3), so a cell id reads one way only.
+
+**Counted passages.** The units behind a cell are the rollup's (4.2): the attribution rows of that
+author and those `rollup_by` values that have no value listed in `unit.exclude_from_rollup` and whose
+status is in `counted_statuses`. Everything below that speaks of a cell's passages means these.
+
+**Columns**, in this order:
+
+`unit_id, author, <each rollup_by key>, unit_kind, <period key>, <period key>_num, <attribute columns>,
+<outcome columns>`
+
+| Column | Value |
+|---|---|
+| `author` | the cell's `person_id` |
+| `unit_kind` | the author's `author_kind` (one per person, 4.3) |
+| `<period key>`, `<period key>_num` | the period's label as declared in `periods.labels`, and its number from 1; both the missing value when no year places the cell |
+| a categorical attribute | one column, `<key>`: a declared level, or the missing value |
+| a flags attribute | one column per flag, `<key>_<flag>`, `1` or `0`, in the order `flags` gives; then `<key>_<missing>`, `1` when no value maps to any flag and `0` otherwise |
+| an outcome | one column, `<key>`, for each outcome whose source is `codes` and whose rollup is not `none`, in the order declared |
+
+Attribute columns follow the order of `attributes`. The attribute of kind `period` is not repeated among
+them: it is the period column. The missing value of an attribute or of the period is the attribute's
+`missing` (default `NE`); a study with no period attribute uses `NE`.
+
+**Outcome cells.** The value is the outcome's declared rollup (4.2) over the final codes of the cell's
+passages, with one difference:
+
+| The cell's final codes for the outcome | Frame value |
+|---|---|
+| none, or NA codes only | empty |
+| at least one `missing`, and no level code | the outcome's `missing` value |
+| at least one level code | the rollup of 4.2 over them: a level code, or `mixed` for `mixed-if-conflict` |
+
+An empty cell says the question did not arise; `missing` says it arose and was not established. The
+rollup of 4.2 writes `missing` for both, because it reports per author what is established. An NA code
+never appears in a frame. A final code that is not a level code, an NA code or the `missing` value of
+its outcome is an error. A passage with no final code at all counts as "none" (open point 4).
+
+**The period.** A year is sought by each entry of `periods.basis` in turn (4.8 says how a year is read
+from a value):
+
+- `work_date`: the evidence rows in counted tiers whose `attribute_kind` is `work_date` and whose
+  `unit_id` is one of the cell's passages. Each gives a year or none. If the years found all fall in one
+  period, that is the cell's period. If they fall in more than one, or none is found, the next basis is
+  tried. A person-level `work_date` row is not used.
+- `life_dates`: the person-level rows (4.1) of that `attribute_kind` in counted tiers. If they give a
+  year, its period is the cell's.
+
+If no basis places the cell, both period columns hold the missing value.
+
+**Attribute evidence.** An attribute's values are the `value` cells of the author's rows in counted tiers
+whose `attribute_kind` is one of its `source_attributes` and whose `unit_id` is either the person's own
+id (a person-level row) or one of the cell's passages, in the order of the evidence file. They are
+bucketed by the attribute's table (4.8). A categorical attribute with no value at all gets the missing
+value. A plug-in bucketer is refused in a frame, and nothing is written (open point 6).
+
+**Cells that are not on the question.** Where `frame_rules.exclude` declares the rule
+`not-on-question`, a cell whose outcome columns are all empty is left out of the frame and written to
+`<frame>.dropped.csv` (`unit_id, rule, reason`), so that it can still be inspected. Without the rule the
+cell stays in the frame. The other exclusion rules are not defined over cells in version 1 (section 3).
+
+**How the files are written.** The frame, the dropped list and the passage list are CSV with every cell
+quoted, lines ending in LF, and rows in ascending code-point order of `unit_id`. The passage list is the exception: its rows are in the order of
+the evidence file. The frame-change log's `frame_sha256` is taken from the
+frame file (4.4).
+
+**Checks.** Every cell is checked before anything is written: each value is one its column allows, each
+`unit_id` is unique, and every column is present. On any breach nothing is written and the breaches are
+listed. The finalised codes must be current (4.6). The frame's provenance record lists gates S5 and S6.
+Post-steps (4.5) run after these checks.
+
+**The passage list.** A second output of the same tool, for a reader who wants to see what stands behind
+a cell. One row per evidence row whose `unit_id` is an attribution unit, counted or not:
+
+`unit_id, passage_id, evidence_id, person_id, attribution, counted, not_counted_reason`
+
+`unit_id` is the cell the passage belongs to, or would belong to if it were counted; `passage_id` is the
+passage's own unit id; `person_id` is its attributed author; `attribution` is its status; `counted` is
+`true` or `false`. A row that is not counted gives the first reason that applies, in this order:
+
+1. `tier-<tier>`: the row's tier is not counted (`tier-blank` for an empty tier);
+2. `excluded-<attribute>-<value>`: `unit.exclude_from_rollup`, the first key that applies in the order
+   the specification gives;
+3. `attribution-<status>`: the passage's status is not counted (`attribution-blank` for an empty one);
+4. `not-on-question`: the cell was dropped.
+
+A reason is a label to show, not a field to take apart. Person-level rows are not listed.
+
+### 4.8 Bucket tables and years
+
+**A bucket table** (`bucketer.kind: "table"`) is a CSV with the columns `field, pattern, unless, bucket,
+note`, read from the top:
+
+| Column | Meaning |
+|---|---|
+| `field` | the `attribute_kind` the row looks at, or `*` for any |
+| `pattern` | a regular expression searched in the folded value (rule 1.10, spaces kept) |
+| `unless` | optional; the row does not fire on a value this also matches |
+| `bucket` | the level or flag the row assigns |
+| `note` | why the row exists; required |
+
+An empty table, other columns, a row without `pattern`, `bucket` or `note`, and an expression that does
+not compile are errors. A table is the project's. It decides values an analysis reads, so it must be
+listed in the `covers` of gate S0.
+
+- `match: "first"` (the default, for a categorical attribute): rows are tried in order, and the first row
+  that fires on any of the values decides. If none fires, the result is the bucketer's `fallback`, or the
+  attribute's missing value when no `fallback` is declared.
+- `match: "all"` (for a flags attribute, and only there): every row that fires adds its bucket; the
+  result is the set of buckets, and a flag is `1` when it is in the set. There is no fallback: an empty
+  set is what `<key>_<missing>` records.
+
+**A year** is read from a value like this, for the period rule:
+
+- From one value: for `work_date`, the first run of three or four digits that is not part of a longer
+  number; for `life_dates`, the largest such run. Where a value has no such run, for either basis, a
+  stated century ("4th c.") gives its middle year (350). Two-digit and negative years are not read. A
+  value that yields no year places nothing.
+- From several values: for `work_date`, each value gives its own year, and 4.7 says how a cell's years
+  combine. For `life_dates`, the largest year among the values is the person's.
+- A year `y` is in period `i`, counted from 1, when `i - 1` of the `cuts` are less than or equal to `y`:
+  a year equal to a cut begins the later period.
+
 ## 5. Plug-ins
 
 ### 5.1 Common rules
@@ -504,7 +721,7 @@ A plug-in is a Python file in the project's repository, named in the specificati
 - No tool calls anything in a plug-in file except the object its `attr` names.
 
 Three kinds exist: an evidence **reader** (`evidence.reader`: yields rows in the 4.1 shape from a
-project's own format), a **bucketer** (`attributes[].bucketer`: maps a unit's source values to a level)
+project's own format), a plug-in **bucketer** (`bucketer.kind: "plugin"`: maps a unit's source values to a level)
 and a **vantage** module (5.2).
 
 ### 5.2 Vantage (optional)
@@ -554,6 +771,11 @@ corpus refuses to run when it is not declared; there is no default location.
 - A row in a counted tier whose quotation cannot be re-found, at a locus or in a receipt, is an error in
   a `draft` or `active` study. In a `legacy` study it is reported and counted, and is not an error: rows
   that predate receipts cannot be made re-findable.
+- **What a re-find proves.** That the string occurs at the locus. It does not prove that the string is
+  one author's continuous text. Where a page was set in columns and its stored text interleaves them, a
+  span that runs from one column into the other is still a substring of the locus and is re-found. The
+  first project found such spans in its first run and repaired each by hand to a single column.
+  Whoever writes a quotation reads it at the locus (section 8); the re-finder does not stand in for that.
 
 ## 6. Gates and sign-offs
 
@@ -563,12 +785,11 @@ corpus refuses to run when it is not declared; there is no default location.
 |---|---|---|
 | S0, study specification | the specification and the files it declares, including every plug-in, the vocabulary file and the stop-words file | enumeration |
 | S5, codebooks | the codebooks and shared coding rules | building coding packets |
-| S6, analysis plan | the analysis plan or code | analysis (in the analysis engine) |
+| S6, analysis plan | the analysis plan or code, and the analysis-engine pin when it is a file of its own (section 3) | analysis (in the analysis engine) |
 | S8, publication | the report and the page | building the report and page |
 
-There is no S1 to S4 or S7 gate. In the reference implementation only S5 is enforced today; this
-contract requires S0 enforcement before the enumeration tools are moved, and leaves S6 and S8 to the
-tools that run those stages.
+There is no S1 to S4 or S7 gate. This contract requires S0 enforcement before the enumeration tools are
+moved, and leaves S6 and S8 to the tools that run those stages.
 
 A **manifest** is one JSON object:
 
@@ -630,12 +851,17 @@ Bridge commands, each taking a project:
 | `survey-status` | prints each gate's manifest hash, state, `enforce` and `mode`. It exits 0 whatever the states are, and non-zero only when a specification, manifest or ledger is malformed; refusing is a stage's job |
 | `survey-manifest <gate>` | writes the gate's manifest and prints what the operator signs |
 | `survey-registry` | builds the identity registry; lists candidates; applies recorded overrides |
+| `survey-rows` | checks a batch of evidence rows and merges it into the evidence file, renewing the registry's record or refusing where it could not (4.1, 4.4) |
 | `survey-enumerate` | records an enumeration round; reports the stopping rule (needs S0) |
 | `survey-packets` | builds blind coding packets for passes A and B (needs S5) |
 | `survey-agreement` | reports agreement between passes A and B |
 | `survey-finalize` | writes final codes, fail-closed (4.2) |
 | `survey-rollup` | rolls final codes up to the author |
+| `survey-frame` | writes the frame of a passage or work study, and its passage list (4.7). It refuses in an author study |
 | `survey-quotecheck` | re-finds each quotation at its locus or against its fetch receipt |
+
+A later version may add commands. The explorer projection (section 9) and the query-plan runner
+get theirs when those tools are written.
 
 **CI.** `survey-validate` fails the build on any error. Gate state is *reported* and never fails a pull
 request: an unsigned gate is the normal state while work is being prepared. A malformed manifest or
@@ -657,7 +883,7 @@ Seven roles, each with a declared tool grant. They are rendered into a derived r
 | `@results-writer` | the report, from finalised codes | states a result that is not in the rollup |
 
 Their grants, and the hook or check that enforces each "never", are fixed when the agents are added, with
-`@security` review. That is after the tools, and not in this draft.
+`@security` review. That is after the tools, and not in version 1.
 
 ## 9. Relation to the bibliography explorer
 
@@ -676,6 +902,12 @@ The explorer displays people, evidence and sources; the toolkit produces them. T
   written by hand; `established` is false for the outcome's `missing` value.
 - **Persons:** display names come from the registry, which is also what writes the explorer's
   `persons.csv`.
+- **Passages:** the passage list of 4.7 is what a later explorer contract (1.2, not yet written) is to
+  read in order to show, under a cell, the passages behind it and why any was not counted. Until that
+  contract exists the list is an output with no reader in researchteam, and its columns are fixed here.
+
+The projection is toolkit code: it is written in researchteam with the row tools (section 10, step 5),
+not in each project.
 
 ## 10. Delivery and order of work
 
@@ -690,15 +922,16 @@ Order, each step its own reviewed pull request:
 3. **Wait** for the first project to have S0 and S5 signed and to have run a stage that writes evidence
    rows or codes. A run of enumeration alone does not end the wait, because it exercises none of the
    evidence, codes, rollup or attribution shapes of section 4. Then freeze the specification as
-   version 1, with a recorded list of what changed from this draft.
+   version 1, with a recorded list of what changed from revision 2 (section 12).
 4. The specification validator, the manifest builder and `survey-validate` / `survey-status`, with an
    invented example study and tests. No signing yet.
-5. Row checks, the registry, the table bucketer, agreement, finalising and rollup.
+5. Row checks and the batch merge, the registry, the table bucketer, agreement, finalising, rollup, the
+   frame and its passage list, and the explorer projection (section 9).
 6. Sign-off verification and stage refusal, once the `agentteams` pattern is documented.
 7. Enumeration, packets, quote re-finding and the query-plan runner.
 8. The agents, the bridge commands in `CLAUDE.md`'s managed block, and the CI gate.
 
-Steps 1 and 2 are done (step 2 on 2026-11-20). No tool is written before step 3 (operator rulings: 2026-11-19, the
+Steps 1 to 3 are done (step 2 on 2026-11-20, step 3 on 2026-11-23). No tool was written before step 3 (operator rulings: 2026-11-19, the
 contract first, the tools and agents after the first project has run a stage; 2026-11-21, that stage
 is one that writes evidence rows or codes, so that the freeze follows real rows and a change the first
 project forces does not become a version after 1. The cost, accepted with the ruling, is that the tools
@@ -730,8 +963,73 @@ the breaches of rows that predate the rules (4.1); every output has a provenance
 Settled on 2026-11-20: explorer contract 1.1 is written (`templates/bibliography-explorer/CONTRACT.md`,
 section 7), with `basis`, `reporter` and `note` as optional evidence columns.
 
+Settled at the freeze (2026-11-23): the points of section 12.
+
 Still open:
 
 1. **Per-study ledger.** The folder layout `agentteams` expects for a gates-only log, and whether a HALT
    in the team's log binds it. Waits for the `agentteams` issue. It blocks step 6 of section 10, not this
    contract's agreement.
+2. **An author study's frame.** Version 1 fixes the frame of a passage or work study only (4.7).
+3. **Explorer contract 1.2.** The reader of the passage list (section 9).
+4. **A counted unit with no final code.** The frame writes an empty cell for it, as for "not applicable"
+   (4.7). Whether that should stop the build, or be reported apart, is open: a study coded in rounds
+   builds frames while some units are not yet coded.
+5. **A checkable engine pin.** A pin file is named inside the opaque `analysis` object, so no toolkit
+   check sees it (section 3). A declared field would let the validator require that S6 covers it.
+6. **Frame rules over cells, plug-in bucketers in a frame, and `merges`.** Version 1 defines only
+   `not-on-question` for a passage or work frame, refuses a plug-in bucketer there, and
+   carries an outcome's `merges` without saying which tool applies them.
+
+## 12. What the freeze changed
+
+The first project ran its first stage that writes evidence on 2026-11-23, with gates S0, S5 and S6
+signed. It kept a list of every point at which its reference implementation had moved away from
+revision 2 of this contract. Each is taken here.
+
+| # | Change | Sections | Found by |
+|---|---|---|---|
+| 1 | The frame of a passage or work study is specified: one row per cell, its columns, and an empty outcome cell for "not applicable" where the rollup writes `missing` | 2, 4.2, 4.7 | building the frame for analysis |
+| 2 | The passage list, an output for a later explorer contract | 4.7, 9 | the results page |
+| 3 | In a passage or work study the frame's unit, and so the frame-change log's, is the cell | 4.4 | building the frame |
+| 4 | The registry takes persons from the attribution file as well as the evidence, and an id-only person takes the linked identity's name | 4.3, 4.4 | a new study could not write its first evidence row |
+| 5 | A person-level row in a passage or work study carries the `person_id` as its `unit_id` | 4.1 | writing attribute rows |
+| 6 | An enumeration round with no candidates is refused | 4.4 | two empty rounds met a saturation rule |
+| 7 | The frame's period columns are named after the period attribute, and a study has at most one | 3, 4.7 | the analysis specification |
+| 8 | The analysis-engine pin may be a file of its own that only S6 covers | 3, 6.1 | an engine release un-cleared every gate (operator ruling, 2026-11-22) |
+| 9 | An evidence merge renews the registry's record, or is refused | 4.1, 4.4, 7 | the first merge left the registry stale |
+| 10 | A re-found quotation is a string at its locus, not proof of continuous text | 1, 5.4 | quotations spliced across interleaved columns, in the first run |
+
+Decided by researchteam at the freeze, beyond what the list asked:
+
+- **`schema_version`.** `"1"` and `"0"` are both valid and checked identically (section 3). The evidence
+  format keeps its name `survey-evidence-0`: the name stands for the eighteen columns, which did not
+  change.
+- **Checks that make the frame unambiguous.** New evidence rule ids `unit-unknown`, `unit-person` and
+  `id-separator` (4.1); the attribution file's rules on unit ids, passage attributes and one
+  `author_kind` per person (4.3); and in section 3 the checks on the period attribute, on frame columns
+  with the same name, on distinct level, NA and `missing` codes, on `|` in a `rollup_by` code, and on
+  exclusion rules in a passage or work study, and on a bucketer's `match` and `fallback`. Point 5 asked only that the convention be named; without
+  the check a mistyped passage id would pass as a person-level row. Every row of the first project's
+  first run passes all of them.
+- **Point 9 is settled inside the merge**, not as an order for a person to follow: the merge works out
+  the result first and writes nothing if the registry's rows would change.
+- **What was written down for the first time.** The bucket table and the year rule (4.8), and how the
+  frame files are written (4.7). Revision 2 relied on all three without stating them.
+- **Commands.** `survey-rows` and `survey-frame` are added to section 7.
+- **The explorer projection is toolkit code** (sections 2 and 9), written with the row tools.
+
+**Where the reference implementation differs from version 1.** None of these changes a value in the
+first project's data. The first group needs no gate re-signed there, because no gate covers those tools;
+the second is in the frame tool, which that project's S6 covers, so it is taken at that project's next
+S6 signing and must be taken before any study with another missing value uses the tool.
+
+- In the specification and row checks: accepting `schema_version` `"1"`; the section 3 checks listed
+  above, with those on bucket tables (`match`, `fallback`, S0 coverage); `unit-unknown`, `unit-person` and
+  `id-separator` (4.1); the attribution rules (4.3).
+- In the merge (4.1, 4.4): today it checks the batch but not the file it joins, refuses unless the
+  registry is built, appends, and writes nothing else. It does not yet work out the registry first or
+  renew its record, which is why the first project's registry went stale after its first merge.
+- In the frame tool: it writes `NE` wherever 4.7 says "the missing value" of an attribute or the period,
+  and ignores a table bucketer's `fallback`, where version 1 reads the attribute's `missing` and the
+  declared `fallback`.

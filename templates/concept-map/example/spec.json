@@ -1,0 +1,57 @@
+{
+ "schema": "researchteam.concept-map-spec",
+ "schema_version": "1.0",
+ "id": "lantern-bridge-example",
+ "title": "Who built the Lantern Bridge? (invented example)",
+ "subtitle": "Every person, date and claim here is invented",
+ "notice": "Invented example. No person, date or claim on this map is real.",
+ "status": "EXAMPLE",
+ "legend_note": "fill = school of the writer",
+ "layout": {"rankdir": "TB", "nodesep": 0.3, "ranksep": 0.5, "fontname": "Helvetica", "fontsize": 9},
+ "vocab": {
+  "node_kinds": [
+   {"id": "actor", "label": "Writer or group", "shape": "box", "role": "actor"},
+   {"id": "claim", "label": "Claim in contention", "shape": "ellipse", "role": "topic", "fill": "claim"},
+   {"id": "finding", "label": "Project finding", "shape": "octagon", "role": "topic", "fill": "finding"}
+  ],
+  "fills": [
+   {"id": "guild", "label": "Guild chroniclers", "color": "#e0e0e0"},
+   {"id": "survey", "label": "Survey school", "color": "#bbdefb"},
+   {"id": "claim", "label": "claim in contention", "color": "#fff8e1"},
+   {"id": "finding", "label": "project finding", "color": "#c8e6c9"}
+  ],
+  "relations": [
+   {"id": "affirms", "label": "affirms", "passive_label": "affirmed by", "stroke": "#2e7d32", "width": 2},
+   {"id": "denies", "label": "denies or rebuts", "passive_label": "denied or rebutted by", "stroke": "#c62828", "head": "tee"},
+   {"id": "documented", "label": "documented development", "passive_label": "developed from", "stroke": "ink", "description": "quotes, uses or restates"},
+   {"id": "inferred", "label": "inferred only", "passive_label": "linked by inference only from", "stroke": "#888888", "style": "dotted", "inferred": true}
+  ]
+ },
+ "bands": [
+  {"id": "b1", "label": "1600s"},
+  {"id": "b2", "label": "1800s"},
+  {"id": "bF", "label": "Findings"}
+ ],
+ "nodes": [
+  {"id": "ada", "kind": "actor", "band": "b1", "fill": "guild", "label": "Ada Fenwright (1640)\nthe guild built it", "persons": [{"id": "ada-fenwright", "name": "Ada Fenwright"}], "basis": ["invented"]},
+  {"id": "chron", "kind": "actor", "band": "b1", "fill": "guild", "label": "Guild chroniclers (1650s)\nBram Oakes, Cel Varro", "persons": [{"id": "bram-oakes", "name": "Bram Oakes"}, {"id": "cel-varro", "name": "Cel Varro"}]},
+  {"id": "C_guild", "kind": "claim", "band": "b1", "label": "The guild built\nthe bridge"},
+  {"id": "dov", "kind": "actor", "band": "b2", "fill": "survey", "label": "Dov Pell (1820)\nthe stones are later", "persons": [{"id": "dov-pell", "name": "Dov Pell"}]},
+  {"id": "survey", "kind": "actor", "band": "b2", "fill": "survey", "label": "Survey school (1840s)\nEsk Ruan, Fia Lund", "persons": [{"id": "esk-ruan", "name": "Esk Ruan"}, {"id": "fia-lund", "name": "Fia Lund"}]},
+  {"id": "anon", "kind": "actor", "band": "b2", "fill": "survey", "label": "An unsigned pamphlet (1851)", "persons": [{"name": "Unsigned pamphlet", "unregistered": "anonymous; no person entry"}]},
+  {"id": "C_late", "kind": "claim", "band": "b2", "label": "Built after 1700"},
+  {"id": "F_date", "kind": "finding", "band": "bF", "label": "DATE\n1710–1730"}
+ ],
+ "edges": [
+  {"from": "ada", "to": "C_guild", "relation": "affirms"},
+  {"from": "chron", "to": "C_guild", "relation": "affirms", "all_members": true},
+  {"from": "ada", "to": "chron", "relation": "documented", "label": "quoted by"},
+  {"from": "dov", "to": "C_guild", "relation": "denies"},
+  {"from": "dov", "to": "C_late", "relation": "affirms"},
+  {"from": "survey", "to": "C_late", "relation": "affirms", "only": ["fia-lund"], "label": "Lund: 'no earlier than 1700'"},
+  {"from": "C_late", "to": "anon", "relation": "inferred", "label": "echoed (inferred)"},
+  {"from": "C_late", "to": "F_date", "relation": "documented"},
+  {"from": "F_date", "to": "chron", "relation": "denies", "label": "chronicle dates fail"},
+  {"from": "survey", "to": "F_date", "relation": "affirms", "all_members": true}
+ ]
+}
