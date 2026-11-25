@@ -23,6 +23,8 @@ import sys
 
 import pytest
 
+ALL = {"S0", "S5", "S6"}  # the declared gates of the invented study
+
 from survey_support import (
     LEDGER, STUDY_REL, git_init, make_repo, run, survey_gates as gates, survey_ledger as ledger_mod,
     survey_manifest, survey_spec as sp, survey_status, survey_validate,
@@ -319,21 +321,29 @@ def test_a_log_with_an_extra_column_is_malformed(tmp_path):
 
 # --------------------------------------------------------------------------- the interim family-HALT scan (Q1)
 @pytest.mark.parametrize("where,action,blocked", [
-    (".github/agents", "survey-signoff", {"S0", "S5", "S6"}),
+    (".github/agents", "survey-signoff", ALL),
     (".claude/agents", "Survey_Signoff/s0", {"S0"}),
     (".codex/agents", " SURVEY-SIGNOFF/S5 ", {"S5"}),
-    (".github/agents", "survey.signoff", {"S0", "S5", "S6"}),
-    (".github/agents", "survey-signoff/S0/tidebell-survey", set()),  # a scope is not a family name (agentteams' job)
-    (".github/agents", "survey-signoff/S0/other-study", set()),
-    (".github/agents", "survey-signoffs", set()),
-    # @security S1: ids that extend a family name
-    (".github/agents", "survey-signoff:freeze", {"S0", "S5", "S6"}),
+    (".github/agents", "survey.signoff", ALL),
+    (".github/agents", "survey-signoffs", ALL),  # the squashed id contains the family name
+    # @security S1: ids that extend a family name, letter case, format characters, fullwidth letters, separators
+    (".github/agents", "survey-signoff:freeze", ALL),
     (".github/agents", "survey-signoff/S0-2026", {"S0"}),
-    (".github/agents", "freeze-survey-signoff", {"S0", "S5", "S6"}),
-    (".github/agents", "  Freeze_SURVEY  signoff  ", {"S0", "S5", "S6"}),
-    (".github/agents", "SurveySignoff/S5:hold", {"S5"}),  # a case change splits a token too
-    (".github/agents", "survey signoff s5 hold", {"S5"}),
-    (".github/agents", "SURVEY-SIGNOFF/S0/tidebell-survey:sha256-" + "ab" * 32, set()),  # an action: agentteams' job
+    (".github/agents", "freeze-survey-signoff", ALL),
+    (".github/agents", "Survey-SignOff", ALL),
+    (".github/agents", "survey-signOff/S0", {"S0"}),
+    (".github/agents", "SurveySignoff/S5:hold", {"S5"}),
+    (".github/agents", "sur\u200bvey-signoff", ALL),
+    (".github/agents", "\uff53\uff55\uff52\uff56\uff45\uff59-signoff/\uff33\uff16", {"S6"}),
+    (".github/agents", "  Freeze_SURVEY  signoff  ", ALL),
+    (".github/agents", "survey / signoff : s5 . hold", {"S5"}),
+    # a study's own scope or action is exempt (agentteams' check in the child judges it) ...
+    (".github/agents", "survey-signoff/S0/tidebell-survey", set()),
+    (".github/agents", "survey-signoff/S0/other-study", set()),
+    (".github/agents", "survey-signoff/S0/tidebell-survey:sha256-" + "ab" * 32, set()),
+    # ... and only exactly that: anything else after a colon, or another spelling, is a family HALT
+    (".github/agents", "survey-signoff/S0/tidebell-survey:hold", {"S0"}),
+    (".github/agents", "SURVEY-SIGNOFF/S0/tidebell-survey:sha256-" + "ab" * 32, {"S0"}),
 ])
 def test_a_family_halt_in_any_scanned_log_blocks_the_gates_it_names(tmp_path, where, action, blocked):
     root = make_repo(tmp_path)
@@ -470,6 +480,36 @@ def test_the_childs_stdout_is_read_through_a_bounded_read(tmp_path, monkeypatch)
     code, out = verify.run_child(tmp_path, tmp_path, "scope", tmp_path / "m.json")
     assert len(out) == verify.MAX_STDOUT + 1
     assert verify.interpret(code, out, "A").outcome == verify.UNAVAILABLE
+
+
+def test_a_grandchild_holding_stdout_open_is_stopped_with_its_group(tmp_path, monkeypatch):
+    """S3: the child runs in a session of its own; on a timeout the whole group is stopped, so a grandchild that
+    keeps stdout open cannot hang the check, and the answer is UNAVAILABLE."""
+    monkeypatch.setattr(verify, "TIMEOUT_SECONDS", 2)
+    monkeypatch.setattr(verify, "CHILD", "import subprocess, sys\n"
+                                         "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+                                         "print('{}')")
+    code, out = verify.run_child(tmp_path, tmp_path, "scope", tmp_path / "m.json")
+    assert code is None and "did not finish" in out
+    assert verify.interpret(code, out, "A").outcome == verify.UNAVAILABLE
+
+
+def test_a_log_that_cannot_be_read_is_reported_without_its_path(tmp_path):
+    """S4: an OS error is reported by its reason, never with the path it names."""
+    if os.geteuid() == 0:
+        pytest.skip("root reads a file whatever its mode")
+    root = make_repo(tmp_path)
+    _request(root)
+    _team_log(root, ".github/agents", ["2026-11-25,security,x,PASS,,"])
+    log = root / ".github/agents/references/security-decisions.log.csv"
+    log.chmod(0)
+    try:
+        st = _state(root)
+        out = run(survey_status, "--root", str(root), "tidebell")[1]
+    finally:
+        log.chmod(0o644)
+    assert st.state == "UNAVAILABLE" and "Permission denied" in st.reason
+    assert str(tmp_path) not in st.reason and str(tmp_path) not in out
 
 
 def test_the_verifier_location_never_shows_a_home_path(tmp_path):

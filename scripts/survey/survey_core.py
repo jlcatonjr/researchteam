@@ -77,6 +77,18 @@ def safe(text: str) -> str:
     return "".join(out)
 
 
+def reason(exc: BaseException) -> str:
+    """What went wrong, for an output line, without the path an OSError names (@security S4, S8): an OSError gives
+    its ``strerror`` (or its class name); anything else its message."""
+    if isinstance(exc, OSError):
+        if exc.strerror:
+            return exc.strerror
+        if exc.filename is None and exc.filename2 is None:  # no path to leak: the message as raised
+            return str(exc) or type(exc).__name__
+        return type(exc).__name__
+    return str(exc)
+
+
 class SurveyUsageError(Exception):
     """A usage or environment error: no such project, no repository root. Exit 2."""
 
@@ -334,7 +346,7 @@ def load_json_strict(data: bytes, where: str) -> tuple:
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError as exc:
-        return None, [Finding("json", where, f"not UTF-8: {exc}")]
+        return None, [Finding("json", where, f"not UTF-8: {reason(exc)}")]
     try:
         return json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_no_constant), []
     except _DuplicateKey as exc:
@@ -342,7 +354,7 @@ def load_json_strict(data: bytes, where: str) -> tuple:
     except RecursionError:
         return None, [Finding("json", where, "nested too deeply to read")]
     except ValueError as exc:
-        return None, [Finding("json", where, f"not valid JSON: {exc}")]
+        return None, [Finding("json", where, f"not valid JSON: {reason(exc)}")]
 
 
 def print_findings(findings, stream=None) -> None:

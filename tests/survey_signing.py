@@ -7,11 +7,9 @@ in the invented ledger folder, and keeps the private half in memory only: it is 
 checkout-signing mark (a stricter default the session adopted, Q4). agentteams' signer refuses to run from an install inside a git work
 tree (a virtual environment inside a checkout counts) unless ``--allow-checkout-signing`` is passed, and that flag
 writes the mark into the signed row. A signer outside every work tree would need a second agentteams install in the
-temporary folder (a network fetch or a wheel). So, as @security allowed for tests only, the rows are built with
-agentteams' own payload builder (``decision_log._decision_signature_values``, a private name), signed with its public
-``signed_ledger.ed25519_sign``, chained with the public ``decision_chain.chain_tip``, text-bound with
-``decision_text.bind_text_digest`` and written with the public ``decision_log.append_signed_decision_row``: every
-step ``--sign-decision`` takes after its operator gates. The survey tools themselves never import any of this.
+temporary folder (a network fetch or a wheel). So, as @security allowed for tests only, :func:`sign_row` builds
+each row with agentteams' own helpers, the steps ``--sign-decision`` takes after its operator gates. The survey tools
+themselves never import any of this.
 
 Importing this module needs agentteams and ``cryptography``; tests import it only after ``require_signing()``.
 """

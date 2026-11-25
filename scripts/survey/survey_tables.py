@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, TooLarge, fold, open_text_capped, q
+from survey_core import Finding, TooLarge, fold, open_text_capped, q, reason
 
 #: The toolkit's own limits (proposals): the bytes of one row file; the length of one project pattern; the number
 #: of patterns in one file; the length of the folded text one pattern is searched in.
@@ -49,7 +49,7 @@ def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
         out.findings.append(Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read"))
         return out
     except OSError as exc:
-        out.findings.append(Finding(rule, where, f"cannot be read: {exc}"))
+        out.findings.append(Finding(rule, where, f"cannot be read: {reason(exc)}"))
         return out
     try:
         with stream:
@@ -75,12 +75,12 @@ def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
     except TooLarge:
         return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")])
     except UnicodeDecodeError as exc:
-        return Rows(findings=[Finding(rule, where, f"not UTF-8: {exc}")])
+        return Rows(findings=[Finding(rule, where, f"not UTF-8: {reason(exc)}")])
     except OSError as exc:  # a read that fails partway through the file
-        return Rows(findings=[Finding(rule, where, f"cannot be read: {exc}")])
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {reason(exc)}")])
     except csv.Error as exc:
         rid = "cell-nul" if "NUL" in str(exc) else rule  # Python 3.10's csv refuses a NUL itself
-        return Rows(findings=[Finding(rid, where, f"not CSV: {exc}")])
+        return Rows(findings=[Finding(rid, where, f"not CSV: {reason(exc)}")])
     if not out.header and not out.findings:
         out.findings.append(Finding(rule, where, f"has no header; the columns are {', '.join(columns)}"))
     return out
@@ -102,7 +102,7 @@ def compile_pattern(text: str, flags: int = 0, *, lower_only: bool = False) -> t
     try:
         return re.compile(text, flags), None
     except (re.error, OverflowError, RecursionError, ValueError) as exc:
-        return None, f"does not compile: {type(exc).__name__}: {exc}"
+        return None, f"does not compile: {type(exc).__name__}: {reason(exc)}"
 
 
 def search(pattern: re.Pattern, folded: str) -> bool:

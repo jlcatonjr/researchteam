@@ -19,8 +19,8 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
-    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, safe, sha256_bytes, symlink_components,
-    usage_exit,
+    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, reason, safe, sha256_bytes,
+    symlink_components, usage_exit,
 )
 from survey_gates import (  # noqa: E402
     GATES, ManifestError, action, build_manifest, check_stored_manifest, manifest_rel, scope,
@@ -57,7 +57,7 @@ def main(argv=None) -> int:
     try:
         data = build_manifest(study, gate)
     except ManifestError as exc:
-        return refuse(f"the manifest cannot be built: {exc}")
+        return refuse(f"the manifest cannot be built: {reason(exc)}")
     rel = manifest_rel(ledger.rel, spec["id"], gate)
     path = root / rel
     state = "wrote"
@@ -67,7 +67,7 @@ def main(argv=None) -> int:
         try:
             old = read_capped(path, MAX_JSON_BYTES) or b""
         except OSError as exc:
-            return refuse(f"{rel} cannot be read: {exc}")
+            return refuse(f"{rel} cannot be read: {reason(exc)}")
         problems = check_stored_manifest(old, gate, project, rel)
         if problems:
             print_findings(problems)

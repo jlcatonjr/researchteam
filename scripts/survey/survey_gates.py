@@ -22,7 +22,7 @@ import survey_ledger
 import survey_verify
 from survey_core import (
     GATES, MAX_JSON_BYTES, Finding, canonical_json, file_identity, file_sha256, load_json_strict, read_capped,
-    sha256_bytes,
+    reason, sha256_bytes,
 )
 
 __all__ = ["GATES"]  # re-exported: the commands take the gate list from here or from survey_core
@@ -93,7 +93,7 @@ def build_manifest(study, gate: str) -> bytes:
         try:
             entries.append({"path": rel, "sha256": file_sha256(Path(real), rel)})
         except OSError as exc:
-            raise ManifestError(f"{rel} cannot be read: {exc}") from exc
+            raise ManifestError(f"{rel} cannot be read: {reason(exc)}") from exc
     g = study.spec["signoffs"]["gates"][gate]
     return canonical_json({
         "kind": MANIFEST_KIND, "gate": gate, "project": study.project, "mode": g["mode"],
@@ -202,13 +202,6 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     return ""
 
 
-def _reason(exc: Exception) -> str:
-    """An exception's reason without the path it names (@security S8): ``strerror`` for an OSError."""
-    if isinstance(exc, OSError):
-        return exc.strerror or type(exc).__name__
-    return str(exc)
-
-
 def _snapshot(folder: Path, request: Path):
     """Everything the check depends on in the folder, read once: ``(digest, keys, approvers)``. *digest* holds the
     hashes of the request, the log, the approver list and the keys, and whether the folder holds a waiver file (an
@@ -250,7 +243,7 @@ def verify_signoff(study, gate: str, manifest_sha256: str, ledger, verifier) -> 
     try:
         before, keys, approvers = _snapshot(folder, request)
     except (OSError, UnicodeDecodeError, ValueError) as exc:
-        return UNAVAILABLE, f"the ledger folder cannot be read: {_reason(exc)}", {}
+        return UNAVAILABLE, f"the ledger folder cannot be read: {reason(exc)}", {}
     if before[0] != manifest_sha256 or before[1] != ledger.log_sha256 or before[4]:
         return UNAVAILABLE, "the request or the ledger folder changed since they were checked; run again", {}
     row = deciding_row(ledger.rows, act)
@@ -308,7 +301,7 @@ def gate_status(study, gate: str, ledger, verifier=None) -> tuple:
         st.manifest_sha256 = sha256_bytes(build_manifest(study, gate))
     except ManifestError as exc:
         st.manifest_sha256 = ""
-        cannot_build = str(exc)
+        cannot_build = reason(exc)
     else:
         cannot_build = ""
     stored = None
@@ -322,7 +315,7 @@ def gate_status(study, gate: str, ledger, verifier=None) -> tuple:
                 try:
                     data = read_capped(path, MAX_JSON_BYTES)
                 except OSError as exc:
-                    data, findings = None, [Finding("manifest-malformed", rel, f"cannot be read: {exc}")]
+                    data, findings = None, [Finding("manifest-malformed", rel, f"cannot be read: {reason(exc)}")]
                 if data is None and not findings:
                     findings.append(Finding("manifest-malformed", rel, f"larger than {MAX_JSON_BYTES} bytes"))
                 if data is not None:

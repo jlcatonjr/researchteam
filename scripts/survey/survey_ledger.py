@@ -22,12 +22,13 @@ import io
 import os
 import re
 import stat
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
     GATES, MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped,
-    resolve_path, symlink_components,
+    reason, resolve_path, symlink_components,
 )
 
 LEDGER_PREFIX = "agentteams-clearance:"
@@ -53,6 +54,7 @@ LOG_HEADER = (
 SIG_SCHEME = "ed25519"
 #: The family names whose HALT binds every sign-off, or every sign-off of one gate (6.2, lines 894-895).
 FAMILY = "survey-signoff"
+FAMILY_SQUASHED = "surveysignoff"
 KEY_FILE = re.compile(r"([A-Za-z0-9._-]+)\.pub\.pem")
 PEM_BEGIN = b"-----BEGIN PUBLIC KEY-----"
 PEM_END = b"-----END PUBLIC KEY-----"
@@ -244,7 +246,7 @@ def _read_json_object(path: Path, where: str, rule: str, add, missing: str):
     try:
         data = read_capped(path, MAX_JSON_BYTES)
     except OSError as exc:
-        add(rule, where, f"cannot be read: {exc}")
+        add(rule, where, f"cannot be read: {reason(exc)}")
         return None
     if data is None:
         add(rule, where, f"larger than {MAX_JSON_BYTES} bytes")
@@ -269,7 +271,7 @@ def _check_log(path: Path, where: str, add) -> tuple:
             return [], ""
         records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline=""), strict=True))
     except (OSError, UnicodeDecodeError, csv.Error) as exc:
-        add("ledger-log", where, f"cannot be read or parsed: {exc}")
+        add("ledger-log", where, f"cannot be read or parsed: {reason(exc)}")
         return [], ""
     if not records:
         add("ledger-log", where, "has no header")
@@ -310,7 +312,7 @@ def _check_key_store(store: Path, where: str, add) -> None:
     try:
         entries = sorted(os.listdir(store))
     except OSError as exc:
-        add("ledger-keys", where, f"cannot be listed: {exc}")
+        add("ledger-keys", where, f"cannot be listed: {reason(exc)}")
         return
     for name in entries:
         entry, at = store / name, f"{where}/{name}"
@@ -322,7 +324,7 @@ def _check_key_store(store: Path, where: str, add) -> None:
             try:
                 data = read_capped(entry, MAX_KEY_BYTES)
             except OSError as exc:
-                add("ledger-keys", at, f"cannot be read: {exc}")
+                add("ledger-keys", at, f"cannot be read: {reason(exc)}")
                 continue
             data = (data or b"").strip()
             if not (data.startswith(PEM_BEGIN) and data.endswith(PEM_END)):
@@ -340,7 +342,7 @@ def _check_approvers(path: Path, where: str, add) -> None:
     try:
         names = read_approvers(path)
     except (OSError, UnicodeDecodeError, ValueError) as exc:
-        add("ledger-approvers", where, f"cannot be read: {exc}")
+        add("ledger-approvers", where, f"cannot be read: {reason(exc)}")
         return
     if not names:
         add("ledger-approvers-empty", where, "an empty or comment-only approver list is an error")
@@ -448,7 +450,7 @@ def _check_parity(folder: Path, teams: list, add) -> None:
             keys = read_keys(team / KEYS)
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             add("ledger-parity", rel, f"the comparison was not made: the team's approver list or keys cannot be "
-                f"read ({exc})")
+                f"read ({reason(exc)})")
             continue
         if not (names and keys):
             continue  # the team has neither (6.2); the folder is the only place they live
@@ -459,43 +461,37 @@ def _check_parity(folder: Path, teams: list, add) -> None:
 
 
 # --------------------------------------------------------------------------- the interim family-HALT scan (step F)
-def tokens(text: str) -> list:
-    """An id's tokens: split at every run of characters that are not letters or digits, between a letter and a
-    digit, and at a lower-to-upper case change (as agentteams' own HALT-side token rule does), then lower-cased
-    (``survey_Signoff/s0`` and ``SurveySignoff/S0`` -> ``survey signoff s 0``). Splitting more only widens the
-    family scan, which errs towards blocking."""
-    text = re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", text.strip())
-    text = re.sub(r"(?<=[a-z])(?=[0-9])|(?<=[0-9])(?=[a-z])", " ", text.lower())
-    return [t for t in re.split(r"[^a-z0-9]+", text) if t]
+def squashed(text: str) -> str:
+    """An id reduced for the family match (@security S1): Unicode format characters (category ``Cf``, such as a
+    zero-width space) dropped, NFKC-normalised (so a fullwidth spelling becomes ASCII), lower-cased, and every
+    character that is not ``a``-``z`` or ``0``-``9`` removed. ``Survey-SignOff/S0`` and ``survey_signoff s0`` both
+    become ``surveysignoffs0``."""
+    text = "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
+    text = unicodedata.normalize("NFKC", text).lower()
+    return re.sub(r"[^a-z0-9]+", "", text)
 
 
-def _contains_run(have: list, want: list) -> bool:
-    return any(have[k:k + len(want)] == want for k in range(len(have) - len(want) + 1))
-
-
-#: A study's scope or action: ``survey-signoff/<gate>/<study id>`` then the end or ``:``. HALTs on these are
-#: judged by agentteams' own check in the child, not by the family scan.
-_STUDY_ID = re.compile(r"survey-signoff/(?:%s)/[a-z0-9][a-z0-9_-]*(?::.*)?" % "|".join(g.lower() for g in GATES),
-                       re.S)
+#: A study's scope or action, exactly: ``survey-signoff/<gate>/<study id>``, optionally followed by exactly
+#: ``:sha256-<64 lower-case hex>``. A HALT on one of these is judged by agentteams' own check in the child, not by
+#: the family scan; anything else after a colon is not exempt.
+_STUDY_ID = re.compile(r"survey-signoff/(?:%s)/[a-z0-9][a-z0-9_-]*(?::sha256-[0-9a-f]{64})?" % "|".join(GATES))
 
 
 def family_gates(action: str) -> tuple:
-    """The gates a HALT row's action names as a family (6.2, line 895; @security S1).
+    """The gates a HALT row's action names as a family (6.2, line 895, widened as a session-adopted default).
 
-    The id is split into :func:`tokens`. It names gate ``<g>`` when its tokens contain
-    ``survey signoff <g's tokens>`` as a run (``survey-signoff/S0``, ``survey-signoff/S0-2026``,
-    ``Survey Signoff S0``); otherwise it names every gate when they contain ``survey signoff`` as a run
-    (``survey-signoff``, ``survey-signoff:freeze``, ``freeze-survey-signoff``). The exception is an id that is a
-    study's scope or action, ``survey-signoff/<gate>/<study id>`` optionally followed by ``:`` and more: a HALT on
-    that is judged by agentteams' own check in the child."""
-    if _STUDY_ID.fullmatch(action.strip().lower()):
+    A study's exact scope or action (:data:`_STUDY_ID`) is exempt. Otherwise the id is reduced by
+    :func:`squashed`; it names gate ``<g>`` when the result contains ``surveysignoff<g>`` (``survey-signoff/S0``,
+    ``survey-signoff/S0-2026``, ``Survey SignOff S0``), and otherwise every gate when it contains ``surveysignoff``
+    (``survey-signoff``, ``survey-signoff:freeze``, ``freeze-survey-signoff``). Look-alike letters from other scripts
+    are not caught (a residual gap)."""
+    if _STUDY_ID.fullmatch(action.strip()):
         return ()
-    have = tokens(action)
-    family = tokens(FAMILY)
-    named = tuple(g for g in GATES if _contains_run(have, family + tokens(g)))
+    have = squashed(action)
+    named = tuple(g for g in GATES if FAMILY_SQUASHED + g.lower() in have)
     if named:
         return named
-    return GATES if _contains_run(have, family) else ()
+    return GATES if FAMILY_SQUASHED in have else ()
 
 
 def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
@@ -533,7 +529,7 @@ def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
         try:
             rows = _read_any_log(log)
         except (OSError, UnicodeDecodeError, csv.Error, ValueError) as exc:
-            why = (exc.strerror or type(exc).__name__) if isinstance(exc, OSError) else str(exc)  # no path (S8)
+            why = reason(exc)  # no path (S4, S8)
             led.unavailable.append(f"the decisions log of {rel} cannot be read for HALTs ({why}); a HALT "
                                    "the tools cannot read must block, never vanish (6.2)")
             continue

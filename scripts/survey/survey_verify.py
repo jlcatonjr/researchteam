@@ -31,6 +31,7 @@ import json
 import os
 import re
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
@@ -129,17 +130,31 @@ def _read_bounded(stream, cap: int, out: list) -> None:
         total += len(chunk)
 
 
+def _kill_group(proc) -> None:
+    """Stop the child and everything it started (its own session, so one process group), where the platform can."""
+    try:
+        if hasattr(os, "killpg"):
+            os.killpg(proc.pid, signal.SIGKILL)
+        else:
+            proc.kill()
+    except OSError:
+        pass  # already gone
+
+
 def run_child(repo_root: Path, team_dir: Path, scope: str, manifest: Path):
     """Run the fixed snippet. Returns ``(returncode, stdout bytes)``, or ``(None, why)`` when it could not run.
-    Stdout is read through a bounded read that stops at ``MAX_STDOUT + 1`` bytes (@security S5); a child that prints
-    more is stopped, and the extra byte makes ``interpret`` refuse it."""
+
+    Stdout is read by a thread through a bounded read that stops at ``MAX_STDOUT + 1`` bytes; the extra byte makes
+    ``interpret`` refuse the answer. The child runs in a session of its own, so on a timeout or an over-long answer
+    the whole process group is stopped, a grandchild holding stdout open included. The pipe is never closed while
+    the reader thread may still be in it; a reader that does not finish leaves the check ``UNAVAILABLE``."""
     home = tempfile.mkdtemp(prefix="survey-verify-")
     try:
         try:
             proc = subprocess.Popen(
                 [sys.executable, *CHILD_FLAGS, "-c", CHILD, str(team_dir), scope, str(manifest)],
                 cwd=str(repo_root), env=child_env(home), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL)
+                stderr=subprocess.DEVNULL, start_new_session=True)
         except OSError as exc:
             return None, f"the agentteams check could not be started: {exc.strerror or type(exc).__name__}"
         chunks: list = []
@@ -148,15 +163,17 @@ def run_child(repo_root: Path, team_dir: Path, scope: str, manifest: Path):
         reader.join(TIMEOUT_SECONDS)
         timed_out = reader.is_alive()
         if timed_out or sum(map(len, chunks)) > MAX_STDOUT:
-            proc.kill()
+            _kill_group(proc)
         try:
             returncode = proc.wait(timeout=TIMEOUT_SECONDS)
         except subprocess.TimeoutExpired:
-            proc.kill()
-            returncode = proc.wait()
-        reader.join(1)
+            _kill_group(proc)
+            returncode = None
+        reader.join(5)
+        if reader.is_alive():
+            return None, "the agentteams check did not release its output; it was stopped"
         proc.stdout.close()
-        if timed_out:
+        if timed_out or returncode is None:
             return None, f"the agentteams check did not finish within {TIMEOUT_SECONDS} s"
         return returncode, b"".join(chunks)
     finally:

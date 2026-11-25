@@ -223,9 +223,9 @@ def test_the_log_header_is_exactly_agentteams_new_log_header(tmp_path):
     assert _ledger_rules(root) == set()
 
 
-def test_agentteams_accepts_the_fixtures_header_only_log(tmp_path):
-    """Where agentteams is importable: its public log check passes the fixture's log, and its own new-log header is
-    the toolkit's constant."""
+def test_the_fixtures_log_header_is_the_one_agentteams_writes(tmp_path):
+    """Where agentteams is importable: its public log check reports no problem with the fixture's log, and its
+    documented new-log header is the toolkit's constant."""
     governance_logs = pytest.importorskip("agentteams.governance_logs",
                                           reason="agentteams is not installed in this interpreter")
     decision_log = pytest.importorskip("agentteams.cli.decision_log", reason="agentteams is not installed")
