@@ -189,3 +189,27 @@ removal. Conditions, binding on phases 2 and 3:
 - **P4, `@security`'s view:** leave `release/1.0` to `1.2` alone. A pull request that brings `op-2026` back onto
   `main` (a forward-port from those lines, for example) is a HALT.
 - The generated memory indexes mention `op-2026` until they are next rebuilt through the normal path.
+
+## Operator's decisions (picker, 2026-11-25)
+
+- **P2: "Let both lapse".** The two cooldown rows are not signed again. `docs/release-policy.md` marks them as
+  history (step 11a), and the next cut script stops matching the old row as text (step 16, blocking for that cut).
+- **P3: "Retire the key first".** The retirement does not wait for H4. From the removal until H4's row is signed
+  the App has no authorization in this repository; the operator confirms it is idle or suspended before script
+  two runs (condition C3).
+- **P4: "Leave them alone".** `release/1.0`, `1.1` and `1.2` keep trusting `op-2026`. Nothing is opened against
+  them.
+
+## Phase 2, script one (2026-11-25)
+
+- Tracked copy: `references/plans/archive/2026-W48/operator/31-rebind-branch-delete-exception.sh`, on the branch
+  `chore/rebind-branch-delete-exception` (head `73b4206`, one commit on `main` `f97e9d3`).
+- It signs nothing and needs no private key. It retires the entry bound to the `op-2026` row with a reason and
+  registers the same exception against the 2026-11-22 row, through agentteams' registry functions, and restores
+  the registry if any check fails.
+- The new entry's `issued` is the time of the run: agentteams refuses an entry issued before its row was signed,
+  and the old entry was issued on 2026-11-21, a day before the re-signed row.
+- Rehearsed in a scratch export of `main` with agentteams 1.3.0: the check passes; the change retires
+  `…@c4c40701ad95ad92` and registers `…@dc79fe00692848c4` (key `opr-2026-11`, expiry unchanged); the binding
+  verifies, also in a copy with `op-2026` removed; the decisions log is byte-identical; a second run refuses.
+- `@security` is reviewing it for the clearance of condition C1.
