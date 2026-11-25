@@ -1,8 +1,8 @@
 # Helper scripts — ResearchTeam
 
-Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py`, `query_literature_library.py` and the four term-index scripts are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
+Command-line scripts under `scripts/` that researchteam ships to derived repositories as layer-2 managed files (see [`manifest.md`](manifest.md)). `check_toolchain.py` and `sign_security_decision.py` are in the framework set every repo receives; `build_literature_library.py`, `query_literature_library.py` the four term-index scripts and the survey toolkit (`scripts/survey/`) are in the scholarly set. This page covers their arguments, environment variables, exit codes and output files.
 
-> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`, `scripts/term_index_engine.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`*
+> *Sources: `scripts/check_toolchain.py`, `scripts/build_literature_library.py`, `scripts/query_literature_library.py`, `scripts/sign_security_decision.py`, `scripts/term_index_engine.py`, `scripts/build_term_index.py`, `scripts/check_term_index.py`, `scripts/query_term_index.py`, `scripts/survey/`*
 
 > **Stability.** The supported interface is each script's command line ([Bridge reference](../bridge-reference.md)); internals may change between releases.
 
@@ -254,6 +254,74 @@ python3 scripts/check_term_core.py        # or: bash scripts/claude_researchteam
 Output: one line per file (`[term-core] OK <path>`, `[term-core] MISMATCH <path>: sha256 <12 hex>, expected <12 hex> (agentteams <tag> <upstream path>)`, `MISSING`, `LINK`, `REFUSED`, `UNLISTED`), then a summary, `[term-core] SUMMARY agentteams <tag> (<12-hex commit>): <n> of <m> files match; ...`, whose prefix is stable (`researchteam doctor` reads the tag from it). A failure adds the repair: restore from git, or upgrade researchteam first and then run `researchteam update` (an older researchteam does not sync this directory).
 
 A pass proves the copy matches the manifest, not that the manifest matches upstream; that is `python -m researchteam._term_core_upstream`, against the signed tag (see [`term-core-upstream.md`](term-core-upstream.md)).
+
+---
+
+## `scripts/survey/`: the survey toolkit, step A
+
+> *Source: `scripts/survey/`*
+
+The specification validator, the gates and the ledger checks of the position-survey contract
+([`docs/survey-toolkit.md`](https://github.com/jlcatonjr/researchteam/blob/main/docs/survey-toolkit.md), version 1,
+sections 3, 6.1, 6.2 and 7). Standard library only, Python 3.10 to 3.13; no network, no clock, no child process.
+The modules import one another by file name, and each command puts its own folder on `sys.path`, so the bridge runs
+them with `python3 -B -I`.
+
+| File | Role |
+|------|------|
+| `survey_core.py` | Findings (error id, place, message), folded text (rule 1.10), canonical JSON and the manifest's file hashing (6.1), the repository root, the path rule (1.6), the command-line helper |
+| `survey_spec.py` | The rule table of `study.json`, the shape walker, the checks beyond shape (`SEMANTIC_RULES`), and the loader that also checks files and gate coverage |
+| `survey_ledger.py` | The structural checks of the ledger folder (6.2) that need no signature |
+| `survey_gates.py` | The gate list, the manifest builder, the three states, the verification seam (`verify_signoff`, replaced in a later step) and `stage_decision` (runs or refuses, 6.1) |
+| `survey_schema.py`, `study.schema.json` | The JSON Schema (2020-12) of `study.json`, generated from the rule table; `--check` exits 1 when the tracked file differs |
+| `survey_validate.py`, `survey_status.py`, `survey_manifest.py` | The three commands |
+
+### Usage
+
+```text
+python3 -B -I scripts/survey/survey_validate.py [--root DIR] <project>
+python3 -B -I scripts/survey/survey_status.py   [--root DIR] <project>
+python3 -B -I scripts/survey/survey_manifest.py [--root DIR] <project> <gate>
+python3 scripts/survey/survey_schema.py [--check]
+```
+
+`<project>` names `Projects/<project>/study.json`. `--root` is the repository root (default: the repository the
+script sits in); it must hold `.git`. `<gate>` is `S0`, `S5`, `S6` or `S8`.
+
+### Errors
+
+Each error is one line, `ERROR [<id>] <where>: <message>`, where `<where>` is a file and a JSON pointer. The ids are
+the toolkit's own (section 3 gives none) and stable; the check table
+(`references/plans/post-1.3.0-h5-step-a-check-table.md`) maps each to its contract line. Shape: `type`, `required`,
+`unknown-key`, `enum`, `pattern`, `empty`, `min-items`, `minimum`, `maximum`, and the conditionals
+`saturation-fields`, `reader-missing`, `reader-unexpected`, `present-code-missing`, `present-code-unexpected`.
+Paths: `path-empty`, `path-absolute`, `path-dotdot`, `path-backslash`, `path-outside`. JSON: `json`,
+`json-duplicate-key`. Beyond shape: the ids of `SEMANTIC_RULES`. Ledger: `ledger-form`, `ledger-link`,
+`ledger-missing`, `ledger-layout`, `ledger-privilege`, `ledger-log`, `ledger-keys`, `ledger-keys-empty`,
+`ledger-approvers`, `ledger-approvers-empty`, `ledger-waiver`, `ledger-parent`, `ledger-team-link`,
+`ledger-parity`. Manifest files: `manifest-malformed`.
+
+### Gate states
+
+No signature is verified in this version, so no gate reads `CLEARED`. A gate whose manifest built now differs from
+the manifest file `survey-manifest` wrote (the request the operator signs) is `UNCLEARED`, whatever else holds;
+otherwise it is `UNAVAILABLE`, with the reason. A malformed ledger folder or manifest file also leaves it
+`UNAVAILABLE`. A gate the specification does not declare is shown as `NOT DECLARED`.
+
+### Output files
+
+Only `survey-manifest` writes: `<ledger folder>/<study id>.<gate>.manifest.json`, canonical JSON, replaced
+atomically. It refuses, writing nothing, when the specification or the ledger is malformed, the gate is not declared,
+a covered file is missing or not a regular file, or the path holds something other than a well-formed manifest of
+this gate. `survey_schema.py` without `--check` writes `study.schema.json`.
+
+### Exit codes
+
+| Script | 0 | 1 | 2 |
+|--------|---|---|---|
+| `survey_validate.py` | Well-formed | Any error | Usage error, no project, no `.git` at the root |
+| `survey_status.py` | Printed, whatever the states | The specification, a manifest file or the ledger is malformed | As above |
+| `survey_manifest.py` | Written, or unchanged | Refused | As above, or an unknown gate |
 
 ---
 

@@ -269,3 +269,13 @@ def test_malformed_json_and_duplicate_keys_are_errors(tmp_path):
 def test_shape_errors_stop_before_the_checks_beyond_shape(tmp_path):
     study = _validate(make_repo(tmp_path, _seq(_set(["colour"], "blue"), _set(["periods", "cuts"], [2, 1]))))
     assert rules(study.findings) == {"unknown-key"}
+
+
+def test_the_survey_files_are_scholarly_managed():
+    from researchteam._manifest import FRAMEWORK_MANAGED_FILES, SCHOLARLY_MANAGED_FILES
+    from survey_support import ROOT, SURVEY
+
+    shipped = {f"scripts/survey/{p.name}" for p in SURVEY.iterdir() if p.is_file()}
+    listed = {f for f in SCHOLARLY_MANAGED_FILES if f.startswith("scripts/survey/")}
+    assert shipped == listed and not listed & set(FRAMEWORK_MANAGED_FILES)
+    assert all((ROOT / f).is_file() for f in listed)

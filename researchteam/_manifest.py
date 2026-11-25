@@ -75,6 +75,18 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/term-index-core/_term_text.py",
     "scripts/term-index-core/term_index.py",
     "scripts/term-index-core/LICENSE",
+    # Survey toolkit, step A (docs/survey-toolkit.md, version 1): the shared core, the specification validator and
+    # its generated JSON Schema, the ledger checks, the gates, and the three commands the bridge runs. Every file
+    # of scripts/survey/ is listed: the commands import one another by file name.
+    "scripts/survey/survey_core.py",
+    "scripts/survey/survey_spec.py",
+    "scripts/survey/survey_ledger.py",
+    "scripts/survey/survey_gates.py",
+    "scripts/survey/survey_schema.py",
+    "scripts/survey/study.schema.json",
+    "scripts/survey/survey_validate.py",
+    "scripts/survey/survey_status.py",
+    "scripts/survey/survey_manifest.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
