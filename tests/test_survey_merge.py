@@ -9,6 +9,7 @@ import pytest
 
 from survey_support import (
     FIXTURES, ROOT, STUDY_REL, SURVEY, edit_spec, make_repo, run, survey_provenance as prov, survey_registry, tree,
+    uncode,
 )
 
 _saved = sys.dont_write_bytecode
@@ -92,6 +93,7 @@ def test_a_file_without_a_final_line_feed_gets_one(tmp_path):
 
 def test_a_first_batch_creates_the_evidence_file_in_a_draft(tmp_path):
     root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    uncode(root)
     (root / EVIDENCE).unlink()
     assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
     name = _batch(root, GOOD)

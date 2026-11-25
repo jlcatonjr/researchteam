@@ -50,6 +50,7 @@ class EvidenceReport:
     exceptions: int = 0  # lines in the exceptions file it was read with
     reported: list = field(default_factory=list)  # 5.4: reported, not errors (a legacy study's unfindable rows)
     not_refound: int = 0  # counted rows whose quotation this version could not re-find (the step G seam)
+    codes: object = None  # the codes and adjudications as read (survey_codes.Codes), when the files were checked
 
 
 # --------------------------------------------------------------------------- the declared attribute kinds
@@ -318,6 +319,7 @@ def check_row_files(study, merged=None, batch_from: int | None = None) -> Eviden
         report.findings += att.findings
         units = att.units
     report.findings += _check_overrides(study)
+    report.findings += _check_codes(study, rows, units, persons, report)
     if rows is None:
         return report
     report.rows = len(rows.rows)
@@ -326,6 +328,24 @@ def check_row_files(study, merged=None, batch_from: int | None = None) -> Eviden
                                        "the registry does not exist; a missing registry is itself an error (4.1)"))
     _check_rows(study, rows, rp.repo_rel, persons, units, vocab or [], report, batch_from)
     return report
+
+
+def _check_codes(study, rows, units: dict, persons, report: EvidenceReport) -> list:
+    """The codes and adjudications files of the coded outcomes (4.2). Imported here: the codes module reads the row
+    reader from the tables module and nothing from this one, but keeps this module's import list short."""
+    from survey_codes import Context, coded_outcomes, evidence_owners, read_codes
+
+    if not coded_outcomes(study.spec):
+        return []
+    ev = study.paths.get("/evidence/file")
+    if rows is None and ev is not None and os.path.lexists(ev.real):
+        return []  # the evidence file itself is malformed and already fails the run; its ids cannot be judged
+    passage = study.spec["unit"]["kind"] in ("passage", "work")
+    evidence_rows = [r for _n, r in rows.rows] if rows is not None else []
+    unit_authors = {uid: r["person_id"] for uid, r in units.items()}
+    ctx = Context(evidence_owners(evidence_rows, unit_authors, passage), unit_authors, passage, persons)
+    report.codes = read_codes(study, ctx)
+    return report.codes.findings
 
 
 def _check_overrides(study) -> list:

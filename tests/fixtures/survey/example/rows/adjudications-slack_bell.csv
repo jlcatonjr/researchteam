@@ -1,0 +1,3 @@
+unit_id,outcome,code,coder,basis,reporter,evidence_ids,note
+p-002,slack_bell,tolerates,adjudicator-c (invented),reported,harbour clerk,ev-003,the clerk's account is hedged
+p-003,slack_bell,NA,adjudicator-c (invented),own,,ev-005,"missing pass: B, the second coder's packet was never returned"
