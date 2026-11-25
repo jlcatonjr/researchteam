@@ -9,7 +9,7 @@ The specification is `docs/survey-toolkit.md`, version 1, section 6 (6.1 gates, 
 - **Verification.** H5 step A already builds the manifest, makes the structural ledger checks and reports
   `UNCLEARED` or `UNAVAILABLE`. This step adds the part that needs agentteams: checking the signature over the
   current manifest hash, and the HALT scan of the repository's team logs. Only an Ed25519 row by a key in the
-  folder clears a gate; a waiver file there is an error; an unretracted HALT in the repository's team logs binds
+  folder clears a gate (a waiver file there is already an error in step A); an unretracted HALT in the repository's team logs binds
   a study's sign-off. A gate whose files changed since its request stays `UNCLEARED` whatever verifies (6.1).
 - **`agentteams` is optional (rule 1.7).** The tools import nothing outside the standard library. Verification
   calls agentteams only when it is importable and is 1.3.0 or later; otherwise a gate keeps the state step A
@@ -24,8 +24,8 @@ The specification is `docs/survey-toolkit.md`, version 1, section 6 (6.1 gates, 
 - **Stage refusal.** The function is step A's. This step makes `CLEARED` reachable, so `survey-status` reports
   real states. Its callers are the gated stages of 6.1 and 4.5: H5 step D's post-steps (S6), and later the
   enumeration and packet commands of step G (S0, S5). No command of H5 steps A to C is gated.
-- **No tool writes a sign-off or a ledger row** (rule 1.4). `survey-manifest` still only prints what the operator
-  signs.
+- **No tool writes a sign-off or a ledger row** (rule 1.4). `survey-manifest` still writes only the manifest
+  file and prints what the operator signs.
 
 ## Tests
 
@@ -38,7 +38,7 @@ The specification is `docs/survey-toolkit.md`, version 1, section 6 (6.1 gates, 
   the lock pins; that run's command and result are recorded in the pull request, and `@security` is told it is
   not covered by CI. Adding a CI job that installs agentteams is the operator's decision (metaplan P10), by its
   own pull request to a PS-2 path.
-- Each state of 6.2, each refusal, the HALT rule, the waiver-file error, an edited covered file un-clearing a
+- Each state of 6.2, each refusal, the HALT rule, an edited covered file un-clearing a
   gate, a key missing from the folder, a non-Ed25519 row, an agentteams older than 1.3.0.
 
 ## Reviews

@@ -128,6 +128,10 @@ plans branch and the existing `governance/fleet-agent-tier1` keep the names they
     database version is recorded; the schema is tested without a new dependency.
   - Metaplan: H1 before the waves; H3 on its own track; the paths H5 and H6 share; step E named; decisions P8
     to P11 added; branch prefixes; the wave table's gating.
+- **Second `@adversarial` pass on the revision:** H1 and H2 sound; H3 phase 1 cleared; it found step lists
+  that had not followed the prose (a clearance before H3's first script, the cut script's required row, the
+  private key's disposition, H4's key check, H3's need of H1) and two contract points in H5 (`survey-manifest`
+  writes the manifest file; moving the refusal function into step A is a second widening to record). Fixed.
 - **Not adopted:** none of the blocking findings. Advisory A12 (H2's autosync wording) is made a decision (P11)
   rather than settled by the session.
 

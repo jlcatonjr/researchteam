@@ -58,8 +58,9 @@ still present, so a failure here costs nothing.
    they are. The 2026-11-22 plan found that no agentteams gate does this; phase 2 first checks whether agentteams
    1.3.0 added one and uses it if so, and otherwise it is a script. If P2 asked for a new cooldown decision, its
    spec and signature are part of this step.
-8. Operator script one: the step above, then the registry audit and the clearance checks, stopping on any
-   failure before anything is committed. `@security` reviews it. The tracked copy carries placeholders for the
+8. `@security` reviews operator script one and records a clearance for the re-registration before it runs: the
+   entry it replaces is a trust record. The script does the step above, then the registry audit and the
+   clearance checks, stopping on any failure before anything is committed. The tracked copy carries placeholders for the
    signer and the key.
 9. The operator runs it; the session verifies, commits on a branch, opens the pull request; `@security`'s PASS
    names the paths (PS-2); the operator's live answer; the merge; CI on `main`.

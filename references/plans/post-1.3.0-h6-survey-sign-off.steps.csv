@@ -1,5 +1,5 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-F1,orchestrator,List the public agentteams 1.3.0 calls verification needs; state table from contract 6.1 and 6.2,agentteams 1.3.0; docs/survey-toolkit.md,table in the pull request description,pending,stop and ask if a private name is unavoidable; waits for step A7 of post-1.3.0-h5-survey-tools-a-d (merged),
+F1,orchestrator,List the public agentteams 1.3.0 calls verification needs; state table from contract 6.1 and 6.2,agentteams 1.3.0; docs/survey-toolkit.md,table in the pull request description,pending,stop and ask if a private name is unavoidable; waits for step A7 of post-1.3.0-h5-survey-tools-a-d (merged),post-1.3.0-h5-survey-tools-a-d:A7
 F2,security,Read the state table and add cases that must not clear,F1,cases,pending,read-only; before the code is final,F1
 F3,primary-producer,Fixtures in a temporary git repository with a run-time throwaway key; failing tests; signature verification; HALT scan; status reports real states,F1;F2,branch feat/survey-tools-f,pending,standard library only; agentteams optional,F2
 F4,technical-validator,Compare states and refusals with section 6,F3,findings,pending,read-only,F3

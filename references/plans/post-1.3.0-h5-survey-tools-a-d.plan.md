@@ -49,9 +49,14 @@ standard library, F does signatures. So in A:
 - The refusal function exists and is tested: a blocking gate that is `UNCLEARED` or `UNAVAILABLE` refuses (6.1,
   rule 1.7). No command of steps A to C is a gated stage under 6.1. Step D's post-steps are (4.5), and call it:
   in a study with a blocking S6 they refuse until H6 is merged and agentteams 1.3.0 or later is installed.
-- `survey-manifest` is in A because `survey-status` needs the manifest builder and the command only prints what
-  it builds. The 2026-11-23 plan and the contract's section 10 name only `survey-validate` and `survey-status`
-  for this step; this is a recorded widening of step A by one command, with no signing.
+- `survey-manifest` is in A because `survey-status` needs the manifest builder. As section 7 says, it writes the
+  gate's manifest file and prints what the operator signs; it signs nothing and writes no ledger row.
+- **Two recorded widenings of step A** against the 2026-11-23 plan and the contract's section 10, which name
+  the validator, the manifest builder, `survey-validate` and `survey-status` for this step, and put "stage
+  refusal" with verification in step 6: the `survey-manifest` command, and the refusal function. Both are
+  standard-library code with no signing. The reason is the audit's finding that step D's post-steps must refuse
+  on a blocking gate (4.5) whether or not verification has landed.
+- The waiver-file error of 6.2 is a structural check, so it is in A.
 
 **Step D ends with the comparison, before its merge.** The first project's session is asked to run its reference
 tool and researchteam's, at the pull request's head, on the invented study and on the same Python version, and
