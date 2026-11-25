@@ -327,3 +327,5 @@ second pass.
   the release lines listed in `docs/CONTRIBUTING.md`. The final's cut script needs an allowlist that admits them.
 - **Another session** (researchteam-80) asked whether to work on the release after the operator asked it to
   proceed; it is holding, and was told this session leads T6.
+- **The autosync is paused.** The operator ran script 28 on 2026-11-24; the workflow reads back as
+  `disabled_manually`. It is resumed with the same script (`resume`) after `v1.3.0` is final.
