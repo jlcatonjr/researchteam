@@ -21,6 +21,7 @@ from survey_attribution import columns as attribution_columns
 from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS
 from survey_evidence import REGISTRY_COLUMNS
+from survey_provenance import ABSENT
 from survey_tables import read_rows_hashed
 
 OVERRIDE_COLUMNS = ("alias_id", "target_id", "decision", "decided_by", "reason")
@@ -64,7 +65,10 @@ def project_persons(study) -> Sources:
         sources.append(("/unit/attribution/file", attribution_columns(study.spec), "attribution-columns"))
     for ptr, cols, rule in sources:
         rp = study.paths.get(ptr)
-        if rp is None or not os.path.lexists(rp.real):
+        if rp is None:
+            continue
+        if not os.path.lexists(rp.real):
+            out.inputs.append((rp.repo_rel, ABSENT))  # declared, absent: its appearing later makes the output stale
             continue
         rows, digest = read_rows_hashed(Path(rp.real), rp.repo_rel, cols, rule)
         out.findings += rows.findings
@@ -95,8 +99,11 @@ def read_overrides(study, persons: list) -> Overrides:
     persons (5.2), so a ``link`` target, a ``merge`` target and a ``distinct`` target are all project persons."""
     out = Overrides()
     rp = study.paths.get("/identity/overrides")
-    if rp is None or not os.path.lexists(rp.real):
-        return out  # it may be absent: a stage writes it or it starts empty (section 3, line 218)
+    if rp is None:
+        return out
+    if not os.path.lexists(rp.real):  # it may be absent: it starts empty (section 3, line 218)
+        out.inputs.append((rp.repo_rel, ABSENT))
+        return out
     rows, digest = read_rows_hashed(Path(rp.real), rp.repo_rel, OVERRIDE_COLUMNS, "overrides-columns")
     out.findings += rows.findings
     if digest is not None:
@@ -119,8 +126,9 @@ def read_overrides(study, persons: list) -> Overrides:
         if decision not in DECISIONS:
             add("overrides-decision", n, f"decision {q(decision)} is not one of {', '.join(DECISIONS)} (line 493)")
             continue
-        if alias not in known:
-            add("overrides-alias", n, f"alias_id {q(alias)} is not a person of the project (contract silent; refused)")
+        if alias not in known and decision != "merge":
+            add("overrides-alias", n, f"alias_id {q(alias)} is not a person of the project (line 496: a link names "
+                "\"the project's person\"; for distinct, the contract is silent)")
             continue
         if target not in known:
             add("overrides-target", n, f"target_id {q(target)} is not a person of the project, which is the identity "
@@ -196,10 +204,9 @@ def build_rows(persons: list, overrides: Overrides) -> list:
 
 
 def identity_name(identity_id: str) -> str:
-    """The ``display_name`` of an identity. Without a vantage module the identity source holds only the project's
-    persons, who carry no name but their id, so there is none to give and the ``person_id`` is used (4.4, lines
-    513-514)."""
-    return ""
+    """The ``display_name`` of an identity (4.4, line 513). Without a vantage module the identity source holds the
+    project's own persons, whose only name is their id, so a person linked to another shows that person's id."""
+    return identity_id
 
 
 def registry_bytes(rows: list) -> bytes:
@@ -230,11 +237,12 @@ def read_stop_words(study) -> tuple:
     return {fold(line) for line in text.splitlines() if line.strip()}, []
 
 
-_TOKEN = re.compile(r"\w+")
+_TOKEN = re.compile(r"[^\W_]+")
 
 
 def tokens(name: str, stop_words: set) -> set:
-    """The words of a folded name that are not stop words."""
+    """The words of a folded name that are not stop words: runs of letters and digits, so ``_`` separates words as
+    ``-`` and white space do."""
     return {t for t in _TOKEN.findall(fold(name)) if t not in stop_words}
 
 
@@ -246,24 +254,64 @@ class Candidate:
     decided: bool
 
 
-def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides) -> list:
+#: The most candidates one listing shows; the rest are counted (up to MAX_COUNTED), in the same order.
+MAX_CANDIDATES = 1000
+MAX_COUNTED = 100000
+
+
+@dataclass
+class CandidateList:
+    shown: list
+    more: int  # candidates beyond the shown ones
+    more_is_lower_bound: bool  # counting stopped at MAX_COUNTED
+
+
+def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides,
+               limit: int = MAX_CANDIDATES, counted: int = MAX_COUNTED) -> CandidateList:
     """Possible matches (4.4, lines 524-526), each with its kind: ``same-id`` (the two ids are equal), ``exact`` (the
     folded names are equal), ``similar`` (the names share a word that is not a stop word). Without a vantage module
     the identity source is the project's own persons, and the search "compares those persons with one another"
     (5.2, lines 733-734): each pair of persons once, so ``same-id`` cannot arise here. A pair is listed with its
     strongest kind and marked decided when an override row names it (line 506). A candidate is never a link (lines
-    526-527): nothing here writes or applies one. *names* maps each person to its name."""
+    526-527): nothing here writes or applies one. *names* maps each person to its name.
+
+    Persons are indexed by folded name and by word, so only persons that share one are compared. The order is fixed
+    (kind, then the two ids); the first *limit* are shown and the rest counted, up to *counted*."""
     decided = overrides.pairs()
-    out = []
-    for i, a in enumerate(persons):
-        for b in persons[i + 1:]:
-            if a == b:
-                kind = "same-id"
-            elif fold(names[a]) == fold(names[b]):
-                kind = "exact"
-            elif tokens(names[a], stop_words) & tokens(names[b], stop_words):
-                kind = "similar"
-            else:
+    persons = sorted(set(persons))
+    by_name: dict = {}
+    by_token: dict = {}
+    words = {}
+    for p in persons:
+        by_name.setdefault(fold(names[p]), []).append(p)
+        words[p] = tokens(names[p], stop_words)
+        for t in words[p]:
+            by_token.setdefault(t, []).append(p)
+    shown, total = [], 0
+
+    def emit(a, b, kind) -> bool:
+        nonlocal total
+        total += 1
+        if len(shown) < limit:
+            shown.append(Candidate(a, b, kind, frozenset((a, b)) in decided))
+        return total < counted
+
+    going = True
+    exact_pairs = set()
+    for a in persons:  # exact, in (a, b) order
+        for b in by_name[fold(names[a])]:
+            if b > a:
+                exact_pairs.add((a, b))
+                if going and not emit(a, b, "exact"):
+                    going = False
+    for a in persons:  # similar, in (a, b) order
+        if not going:
+            break
+        near = sorted({b for t in words[a] for b in by_token[t] if b > a})
+        for b in near:
+            if (a, b) in exact_pairs:
                 continue
-            out.append(Candidate(a, b, kind, frozenset((a, b)) in decided))
-    return sorted(out, key=lambda c: (KIND_ORDER.index(c.kind), c.person_id, c.other_id))
+            if not emit(a, b, "similar"):
+                going = False
+                break
+    return CandidateList(shown, total - len(shown), not going)

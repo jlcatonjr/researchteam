@@ -776,11 +776,12 @@ def test_a_century_range_reads_both_centuries():
     assert tb.year_of("4th-5th centuries BC", "life_dates") is None
 
 
-@pytest.mark.parametrize("value,year", [("1,750", None), ("1.750", None), ("1750.5", None), ("2,1750", None),
-                                        ("in 1742.", 1742), ("1742, 1790", 1742), ("1742,1790", None)])
+@pytest.mark.parametrize("value,year", [("1,750", None), ("1.750", None), ("12,750", None), ("1,234,567", None),
+                                        ("12.03.1750", 1750), ("1750.5", 1750), ("2,1750", 1750),
+                                        ("in 1742.", 1742), ("1742, 1790", 1742), ("1742,1790", 1742)])
 def test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number(value, year):
-    """(c) a run directly after a digit and ',' or '.', or directly before ',' or '.' and a digit, is part of a
-    longer number (proposal)."""
+    """(c) only a number grouped by thousands (a one-to-three-digit lead, a separator, a group of exactly three
+    digits) is "part of a longer number"; other separators leave each run its own number (4.8, line 699)."""
     assert tb.year_of(value, "work_date") == year
 
 
@@ -796,3 +797,7 @@ def test_step_a_messages_cut_a_long_declared_path(tmp_path):
     root = make_repo(tmp_path, lambda s: s["evidence"].update(file="/" + "a" * 600))
     found = [f for f in sp.load_study("tidebell", root).findings if f.rule == "path-absolute"]
     assert found and "a" * 300 not in found[0].message and "\u2026" in found[0].message
+
+
+def test_a_comma_list_of_years_gives_the_first_and_the_largest():
+    assert tb.year_of("1742,1790", "work_date") == 1742 and tb.year_of("1742,1790", "life_dates") == 1790

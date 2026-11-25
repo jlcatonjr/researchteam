@@ -26,8 +26,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from survey_core import (
-    MAX_JSON_BYTES, Finding, canonical_json, inside, load_json_strict, q, read_capped, sha256_bytes,
-    symlink_components,
+    MAX_JSON_BYTES, Finding, canonical_json, file_identity, inside, load_json_strict, q, read_capped, resolve_path,
+    sha256_bytes, symlink_components,
 )
 
 SUFFIX = ".provenance.json"
@@ -36,6 +36,9 @@ MAX_INPUT_BYTES = 64 * 1024 * 1024
 RECORD_KEYS = ("output", "tool", "study", "schema_version", "inputs", "gates", "plugins", "legacy_exceptions")
 GATE_KEYS = ("state", "mode", "enforce")
 NOT_DECLARED = "NOT DECLARED"
+#: The ``sha256`` recorded for a declared input that was absent when the output was built (a proposal: 4.6 lists
+#: only files read, so an input that appears later would otherwise go unnoticed).
+ABSENT = ""
 
 
 def record_rel(output_rel: str) -> str:
@@ -125,16 +128,17 @@ class Currency:
 
 def check_current(root: Path, rel: str) -> Currency:
     """Read the record at *rel* and compare each ``inputs`` and ``plugins`` entry with the file as it is now (4.6,
-    lines 566-568). Missing, malformed, or any mismatch: not built, with the reasons."""
+    lines 566-568). Missing, malformed, or any mismatch: not built, with the reasons. An input recorded as absent
+    (``"sha256": ""``, a declared file that was not there at build time) that is there now is a mismatch too."""
     path = root / rel
     if not os.path.lexists(path):
-        return Currency(False, [f"the record {rel} is missing"])
+        return Currency(False, [f"the record {q(rel)} is missing"])
     try:
         data = read_capped(path, MAX_JSON_BYTES)
     except OSError as exc:
-        return Currency(False, [f"the record {rel} cannot be read: {exc}"])
+        return Currency(False, [f"the record {q(rel)} cannot be read: {exc.strerror or type(exc).__name__}"])
     if data is None:
-        return Currency(False, [f"the record {rel} is larger than {MAX_JSON_BYTES} bytes"])
+        return Currency(False, [f"the record {q(rel)} is larger than {MAX_JSON_BYTES} bytes"])
     doc, errs = load_json_strict(data, rel)
     errs = errs or check_record_shape(doc, rel)
     if errs:
@@ -142,18 +146,77 @@ def check_current(root: Path, rel: str) -> Currency:
     reasons = []
     root_real = os.path.realpath(root)
     for entry in [*doc["inputs"], *({"path": p["file"], "sha256": p["sha256"]} for p in doc["plugins"])]:
+        name = q(entry["path"])
         place = os.path.realpath(root.joinpath(*entry["path"].split("/")))
-        if not inside(place, root_real) or not os.path.isfile(place):
-            reasons.append(f"{entry['path']} is gone")
+        if not inside(place, root_real):
+            reasons.append(f"{name} resolves outside the repository")
+            continue
+        if entry["sha256"] == ABSENT:
+            if os.path.lexists(root.joinpath(*entry["path"].split("/"))):
+                reasons.append(f"{name} was absent when the output was built and is there now")
+            continue
+        if not os.path.isfile(place):
+            reasons.append(f"{name} is gone")
             continue
         try:
             now = read_capped(Path(place), MAX_INPUT_BYTES)
         except OSError as exc:
-            reasons.append(f"{entry['path']} cannot be read: {exc}")
+            reasons.append(f"{name} cannot be read: {exc.strerror or type(exc).__name__}")
             continue
         if now is None or sha256_bytes(now) != entry["sha256"]:
-            reasons.append(f"{entry['path']} changed since the output was built")
+            reasons.append(f"{name} changed since the output was built")
     return Currency(not reasons, reasons)
+
+
+# --------------------------------------------------------------------------- where an output may go
+#: The first path component that no output may be written under, case-folded: the whole of ``.github`` (workflows
+#: and the agent team), as well as ``.git`` and every generated team location (the ledger's reserved places).
+RESERVED_TOPS = (".github",)
+
+
+def check_output_target(study, rel: str, own_pointer: str | None = None) -> None:
+    """Refuse (WriteRefused) an output target that would write over something it must not (rule 1.2; rule 1.3 for
+    the overrides file). Every writer calls this before it writes anything. Refused:
+
+    - a place at or under ``.git``, ``.github`` or a generated team location, by case-folded name and by device and
+      inode (the ledger's reserved places, with ``.github`` as a whole);
+    - the specification, or any path the specification declares (every file and folder, every gate's ``covers``),
+      other than the output's own declared path *own_pointer*: compared by device and inode where the file exists,
+      and by case-folded repository-relative path otherwise;
+    - a place at or under the ledger folder."""
+    from survey_ledger import LEDGER_PREFIX, reserved_by_identity, reserved_by_name
+
+    root = study.repo_root
+    parts = [p.casefold() for p in rel.split("/")]
+    if reserved_by_name(rel) or parts[0] in RESERVED_TOPS or reserved_by_identity(root, rel) or \
+            any(os.path.exists(root / top) and _under(root, rel, root / top) for top in RESERVED_TOPS):
+        raise WriteRefused(f"{q(rel)} is under .git, .github or a generated team location; no output goes there")
+    target_real = os.path.realpath(root.joinpath(*rel.split("/")))
+    target_id = file_identity(target_real) if os.path.exists(target_real) else None
+    declared = [(study.spec_rel, os.path.realpath(root / study.spec_rel))]
+    declared += [(rp.repo_rel, rp.real) for ptr, rp in study.paths.items() if ptr != own_pointer]
+    for other_rel, other_real in declared:
+        same = other_rel.casefold() == rel.casefold() or other_real == target_real or (
+            target_id is not None and os.path.exists(other_real) and file_identity(other_real) == target_id)
+        if same:
+            raise WriteRefused(f"{q(rel)} is the same file as {q(other_rel)}, which the specification names; an "
+                               "output never writes over a declared file")
+    ledger = study.spec["signoffs"]["ledger"]
+    if ledger.startswith(LEDGER_PREFIX):
+        rp, errors = resolve_path(ledger[len(LEDGER_PREFIX):], study.study_rel, root, "ledger")
+        if rp is not None and (rel.casefold() + "/").startswith(rp.repo_rel.casefold() + "/"):
+            raise WriteRefused(f"{q(rel)} is in the ledger folder; no output goes there")
+
+
+def _under(root: Path, rel: str, top: Path) -> bool:
+    """Whether a folder on the way to *rel* is the same directory as *top* (device and inode)."""
+    top_id = file_identity(os.path.realpath(top))
+    parts = rel.split("/")
+    for i in range(len(parts)):
+        here = root.joinpath(*parts[: i + 1])
+        if os.path.exists(here) and file_identity(os.path.realpath(here)) == top_id:
+            return True
+    return False
 
 
 # --------------------------------------------------------------------------- writing
@@ -167,31 +230,45 @@ def check_writable(root: Path, rel: str) -> None:
     folder_rel = rel.rsplit("/", 1)[0] if "/" in rel else ""
     links = symlink_components(root, rel)
     if links:
-        raise WriteRefused(f"a component of {rel} is a symbolic link: {', '.join(links)}")
+        raise WriteRefused(f"a component of {q(rel)} is a symbolic link: {', '.join(map(q, links))}")
     folder = root / folder_rel if folder_rel else root
     if not os.path.isdir(folder) or os.path.islink(folder):
-        raise WriteRefused(f"the folder of {rel} does not exist or is not a plain directory")
+        raise WriteRefused(f"the folder of {q(rel)} does not exist or is not a plain directory")
     path = root / rel
     if os.path.lexists(path) and (os.path.islink(path) or not os.path.isfile(path)):
-        raise WriteRefused(f"{rel} exists and is not a regular file")
+        raise WriteRefused(f"{q(rel)} exists and is not a regular file")
 
 
 def write_atomic(root: Path, rel: str, data: bytes) -> None:
-    """Write *data* to *rel* as survey-manifest writes a manifest: checked just before writing (no link on the way,
-    a regular file or nothing there), a temporary file in the same folder, mode 0644, then ``os.replace``. An
-    interruption before the replace leaves the old file as it was."""
-    check_writable(root, rel)
-    path = root / rel
-    fd, tmp = tempfile.mkstemp(prefix=".survey-", dir=path.parent)
+    """Write one output; see :func:`write_all`."""
+    write_all(root, [(rel, data)])
+
+
+def write_all(root: Path, outputs: list) -> None:
+    """Write several outputs, each as survey-manifest writes a manifest, in the order given: every target is checked
+    (no link on the way, a regular file or nothing there), every temporary file is written in its target's folder
+    (mode 0644), every target is checked again, and only then is each temporary file moved into place with
+    ``os.replace``, in order. A refusal at any check leaves every file as it was; only an interruption between two
+    replaces leaves the earlier ones replaced and the later ones not (the caller orders them so that this is safe).
+    The caller has already called :func:`check_output_target` for each."""
+    for rel, _data in outputs:
+        check_writable(root, rel)
+    temps = []
     try:
-        with os.fdopen(fd, "wb") as fh:
-            fh.write(data)
-        os.chmod(tmp, 0o644)
-        replace(tmp, path)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise
+        for rel, data in outputs:
+            fd, tmp = tempfile.mkstemp(prefix=".survey-", dir=(root / rel).parent)
+            temps.append(tmp)
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(data)
+            os.chmod(tmp, 0o644)
+        for rel, _data in outputs:
+            check_writable(root, rel)  # again, just before anything lands
+        for (rel, _data), tmp in zip(outputs, temps):
+            replace(tmp, root / rel)
+    finally:
+        for tmp in temps:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
 
 
 def replace(tmp: str, path: Path) -> None:

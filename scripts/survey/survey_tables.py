@@ -216,11 +216,28 @@ _CENTURY = re.compile(r"(?<![0-9])" + _ORDINAL + r"(?:\s*-\s*" + _ORDINAL + r")?
 
 
 def _grouped(value: str, start: int, end: int) -> bool:
-    """Whether the run at ``value[start:end]`` is part of a number grouped with ``,`` or ``.`` (``1,750``,
-    ``1.750``, ``1750.5``): directly after a digit and a separator, or directly before a separator and a digit."""
-    before = start >= 2 and value[start - 1] in ",." and value[start - 2].isdigit()
-    after = end + 1 < len(value) and value[end] in ",." and value[end + 1].isdigit()
-    return before or after
+    """Whether the run ``value[start:end]`` is part of a number grouped by thousands with ``,`` or ``.`` (``1,750``,
+    ``1.750``, ``12,750``): a run of exactly three digits after a separator that follows a lead of one to three
+    digits, or a run of one to three digits before a separator and a group of exactly three digits. Anything else
+    (``12.03.1750``, ``1742,1790``, ``1750.5``) leaves the run its own number (4.8, line 699)."""
+    def digits_back(i):  # length of the digit run ending just before index i
+        k = i
+        while k > 0 and value[k - 1].isdigit():
+            k -= 1
+        return i - k
+
+    def digits_ahead(i):  # length of the digit run starting at index i
+        k = i
+        while k < len(value) and value[k].isdigit():
+            k += 1
+        return k - i
+
+    length = end - start
+    if length == 3 and start >= 2 and value[start - 1] in ",." and 1 <= digits_back(start - 1) <= 3:
+        return True
+    if 1 <= length <= 3 and end + 1 < len(value) and value[end] in ",." and digits_ahead(end + 1) == 3:
+        return True
+    return False
 
 
 def _runs(value: str) -> list:

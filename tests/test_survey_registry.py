@@ -7,7 +7,7 @@ import shutil
 import pytest
 
 from survey_support import (
-    FIXTURES, STUDY_REL, make_repo, run, survey_identity as ident, survey_provenance as prov,
+    FIXTURES, STUDY_REL, edit_spec, make_repo, run, survey_identity as ident, survey_provenance as prov,
     survey_registry, survey_spec as sp, survey_validate, tree,
 )
 
@@ -77,9 +77,9 @@ def test_an_input_that_changes_leaves_the_registry_not_built(tmp_path):
     _build(root)
     (root / ROWS / "evidence.csv").write_bytes((root / ROWS / "evidence.csv").read_bytes() + b"\n")
     cur = prov.check_current(root, RECORD)
-    assert not cur.built and any("evidence.csv changed" in r for r in cur.reasons)
+    assert not cur.built and any("evidence.csv' changed" in r for r in cur.reasons)
     (root / RECORD).unlink()
-    assert prov.check_current(root, RECORD).reasons == [f"the record {RECORD} is missing"]
+    assert prov.check_current(root, RECORD).reasons == [f"the record {RECORD!r} is missing"]
 
 
 def test_the_build_is_deterministic(tmp_path):
@@ -135,7 +135,7 @@ def test_a_distinct_row_changes_no_registry_row(tmp_path):
 OVERRIDE_CASES = {
     "overrides-empty": [_row("warden-02", "warden-01", "merge", who="")],
     "overrides-decision": [_row("warden-02", "warden-01", "same")],
-    "overrides-alias": [_row("warden-99", "warden-01", "merge")],
+    "overrides-alias": [_row("warden-99", "warden-01", "link")],
     "overrides-target": [_row("warden-02", "warden-99", "merge")],
     "overrides-self": [_row("warden-02", "warden-02", "merge")],
     "overrides-repeat": [_row("warden-02", "warden-01", "distinct"), _row("warden-01", "warden-02", "distinct")],
@@ -291,10 +291,10 @@ def test_kinds_of_candidates():
     ov = ident.Overrides()
     found = ident.candidates(["a-1", "A-1x", "b"], {"a-1": "Orla Vennick", "A-1x": "orla  VENNICK", "b": "Vennick"},
                              set(), ov)
-    kinds = {(c.person_id, c.other_id): c.kind for c in found}
-    assert kinds[("a-1", "A-1x")] == "exact" or kinds[("A-1x", "a-1")] == "exact"
-    assert ("a-1", "b") in kinds and kinds[("a-1", "b")] == "similar"
-    assert ident.candidates(["x", "x"], {"x": "x"}, set(), ov)[0].kind == "same-id"
+    kinds = {(c.person_id, c.other_id): c.kind for c in found.shown}
+    assert kinds[("A-1x", "a-1")] == "exact"
+    assert kinds[("a-1", "b")] == "similar" and kinds[("A-1x", "b")] == "similar"
+    assert [c.kind for c in found.shown] == ["exact", "similar", "similar"]  # strongest kind first, then the ids
 
 
 def test_candidates_refuse_a_vantage_study(tmp_path):
@@ -374,3 +374,171 @@ def test_the_bridge_runs_survey_registry_and_refuses_root(tmp_path):
                          text=True, env=env)
     assert res.returncode == 2 and "--root is not accepted" in res.stderr
     assert not list((root / "scripts" / "survey").glob("__pycache__"))
+
+
+# --------------------------------------------------------------------------- review fixes (part 2a)
+@pytest.mark.parametrize("target", [
+    "study.json", "rows/overrides.csv", "rows/evidence.csv", "rows/attribution.csv", "codebooks/slack_bell.md",
+    "repo:.git/x.csv", "repo:.github/workflows/x.yml", "repo:.GitHub/x.csv", "repo:.claude/agents/x.csv",
+    "ledger/references/x.csv", "STUDY.JSON",
+])
+def test_the_registry_may_not_be_written_over_a_protected_file(tmp_path, target):
+    """S1: never a reserved place, the specification, a declared file, a covered file, or the ledger folder."""
+    def mutate(s):
+        s["identity"]["registry"] = target
+    root = make_repo(tmp_path, mutate)
+    for d in (".git", ".github/workflows", ".GitHub", ".claude/agents"):
+        (root / d).mkdir(parents=True, exist_ok=True)
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "nothing was written" in out
+    assert tree(root) == before
+
+
+def test_a_declared_path_equal_to_the_records_name_is_refused(tmp_path):
+    root = make_repo(tmp_path, lambda s: s["identity"].update(stop_words="rows/registry.csv.provenance.json"))
+    (root / RECORD).write_text("warden\n", encoding="utf-8")
+    edit_spec(root, lambda s: s["signoffs"]["gates"]["S0"]["covers"].append("rows/registry.csv.provenance.json"))
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "the specification names" in out and tree(root) == before
+
+
+def test_evidence_may_carry_a_merged_alias(tmp_path):
+    """T1: a merge makes two ids one person (line 497); the registry holds both, so the alias's rows still pass."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-02", "warden-01", "merge")])
+    assert _build(root)[0] == 0
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 0, out
+
+
+def test_a_merge_stays_valid_after_the_aliass_rows_are_rewritten(tmp_path):
+    """T1: rows rewritten to the target; the merge row, recorded in the overrides file, stays valid (proposal)."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-02", "warden-01", "merge")])
+    for name in ("evidence.csv", "attribution.csv"):
+        path = root / ROWS / name
+        path.write_bytes(path.read_bytes().replace(b"warden-02", b"warden-01"))
+    assert _build(root)[0] == 0
+    assert "warden-01,warden-01,,warden-02\n" in (root / REGISTRY).read_text(encoding="utf-8")
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
+
+
+def test_a_link_to_another_person_shows_that_persons_name(tmp_path):
+    """T3: display_name is the linked identity's (line 513); without a vantage module that is the other person."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-02", "warden-01", "link")])
+    assert _build(root)[0] == 0
+    assert "warden-02,warden-01,warden-01,\n" in (root / REGISTRY).read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("which", [0, 1])
+def test_a_write_refused_at_either_last_check_changes_nothing(tmp_path, monkeypatch, which):
+    """T2: both targets are checked again after the temporary files are written and before either replace."""
+    root = make_repo(tmp_path)
+    _build(root)
+    _overrides(root, [_row("warden-02", "warden-01", "merge")])
+    before = tree(root)
+    calls = []
+    real = prov.check_writable
+
+    def refuse_late(r, rel):
+        calls.append(rel)
+        if len(calls) == 3 + which:  # the first two calls are the early checks
+            raise prov.WriteRefused(f"{rel} became unsafe")
+        real(r, rel)
+    monkeypatch.setattr(prov, "check_writable", refuse_late)
+    code, out, _ = _build(root)
+    assert code == 1 and "became unsafe" in out
+    assert tree(root) == before
+
+
+def test_an_os_error_while_writing_is_a_refusal(tmp_path, monkeypatch):
+    """S4."""
+    root = make_repo(tmp_path)
+    before = tree(root)
+
+    def broken(tmp, path):
+        raise OSError(28, "No space left on device")
+    monkeypatch.setattr(prov, "replace", broken)
+    code, out, _ = _build(root)
+    assert code == 1 and "No space left on device" in out and tree(root) == before
+
+
+def test_the_record_counts_the_exceptions_the_evidence_is_read_with(tmp_path):
+    """T4: 4.1, line 366."""
+    def legacy(s):
+        s["status"] = "legacy"
+        s["evidence"]["legacy_exceptions"] = "rules/exceptions.csv"
+        s["signoffs"]["gates"]["S0"]["covers"].append("rules/exceptions.csv")
+    root = make_repo(tmp_path, legacy)
+    (root / STUDY_REL / "rules" / "exceptions.csv").write_bytes(b"id,rule\nev-003,counted-basis\nev-001,vocabulary\n")
+    assert _build(root)[0] == 0
+    doc = json.loads((root / RECORD).read_bytes())
+    assert doc["legacy_exceptions"] == 2
+    assert f"{STUDY_REL}/rules/exceptions.csv" in [e["path"] for e in doc["inputs"]]
+    (root / STUDY_REL / "rules" / "exceptions.csv").write_bytes(b"id,rule\nev-003,columns\n")
+    assert _build(root)[0] == 1  # a malformed exceptions file refuses
+
+
+def test_a_declared_input_absent_at_build_is_recorded_and_its_appearing_makes_the_output_stale(tmp_path):
+    """S2 (a proposal against line 563)."""
+    root = make_repo(tmp_path)
+    _build(root)
+    doc = json.loads((root / RECORD).read_bytes())
+    assert {"path": f"{ROWS}/overrides.csv", "sha256": ""} in doc["inputs"]
+    assert prov.check_current(root, RECORD).built
+    _overrides(root, [_row("warden-02", "warden-01", "distinct")])
+    cur = prov.check_current(root, RECORD)
+    assert not cur.built and any("was absent" in r for r in cur.reasons)
+
+
+def test_check_current_quotes_what_it_reports(tmp_path):
+    """S6."""
+    root = make_repo(tmp_path)
+    record = prov.make_record(sp.load_study("tidebell", root), "o.csv", "t", [("gone\nfile.csv", "ab")], {})
+    (root / "o.csv.provenance.json").write_bytes(prov.record_bytes(record))
+    reasons = prov.check_current(root, "o.csv.provenance.json").reasons
+    assert reasons == ["'gone\\nfile.csv' is gone"]
+
+
+def test_underscores_separate_words():
+    """T6: guild_01 and warden_01 share the word 01, as guild-01 and warden-01 do."""
+    assert ident.tokens("guild_01", set()) == {"guild", "01"}
+    found = ident.candidates(["guild_01", "warden_01"], {"guild_01": "guild_01", "warden_01": "warden_01"}, set(),
+                             ident.Overrides())
+    assert [(c.person_id, c.other_id, c.kind) for c in found.shown] == [("guild_01", "warden_01", "similar")]
+
+
+def test_the_gate_mode_is_carried_into_the_record(tmp_path):
+    """T6 (second part)."""
+    root = make_repo(tmp_path)
+    entries = prov.gate_entries(_study(root), ("S6",))
+    assert entries["S6"]["mode"] == "retroactive" and entries["S6"]["enforce"] == "build-only"
+
+
+def test_candidates_scale_and_are_capped(tmp_path):
+    """S3: persons are indexed by word, so thousands with few shared words finish quickly; the listing is capped."""
+    import time
+    persons = [f"person{i:05d}" for i in range(4000)] + ["orla-vennick", "vennick-orla"]
+    names = {p: p for p in persons}
+    started = time.perf_counter()
+    found = ident.candidates(persons, names, set(), ident.Overrides())
+    assert time.perf_counter() - started < 5
+    assert [(c.person_id, c.other_id) for c in found.shown] == [("orla-vennick", "vennick-orla")]
+    crowd = [f"crew-{i:04d}" for i in range(300)]  # every pair shares "crew"
+    capped = ident.candidates(crowd, {p: p for p in crowd}, set(), ident.Overrides(), limit=10, counted=1000)
+    assert len(capped.shown) == 10 and capped.more == 990 and capped.more_is_lower_bound
+    assert [(c.person_id, c.other_id) for c in capped.shown[:2]] == [("crew-0000", "crew-0001"),
+                                                                     ("crew-0000", "crew-0002")]
+    full = ident.candidates(crowd[:5], {p: p for p in crowd[:5]}, set(), ident.Overrides(), limit=3)
+    assert len(full.shown) == 3 and full.more == 7 and not full.more_is_lower_bound
+
+
+def test_a_distinct_row_names_project_persons_on_both_sides(tmp_path):
+    """Proposal 1: for distinct the contract is silent; an unknown alias is refused."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-99", "warden-01", "distinct")])
+    code, out, _ = _build(root)
+    assert code == 1 and "[overrides-alias]" in out
