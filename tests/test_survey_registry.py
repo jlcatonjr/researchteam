@@ -736,3 +736,60 @@ def test_the_decided_count_is_a_lower_bound_when_counting_stops(tmp_path):
     finally:
         ident.MAX_CANDIDATES, ident.MAX_COUNTED = monkeypatch_limits
     assert "at least" in out
+
+
+# --------------------------------------------------------------------------- final-read advisories (A-12, A-13)
+def test_a_folder_swapped_after_the_last_check_is_refused(tmp_path, monkeypatch):
+    """A-12: after the second check, the folder at the path is compared with the folder the descriptor holds."""
+    if not prov.DIR_FD_WRITES:
+        pytest.skip("descriptor-relative writes are not supported here")
+    root = make_repo(tmp_path)
+    rows = root / ROWS
+    real = prov.check_writable
+    calls = []
+
+    def swap_before_the_last_check(r, rel):
+        calls.append(rel)
+        if len(calls) == 3:  # the first late check: move the checked folder away, put another in its place
+            os.rename(rows, root / STUDY_REL / "rows-moved")
+            shutil.copytree(root / STUDY_REL / "rows-moved", rows,
+                            ignore=shutil.ignore_patterns(".survey-*"))
+        real(r, rel)
+    monkeypatch.setattr(prov, "check_writable", swap_before_the_last_check)
+    code, out, _ = _build(root)
+    assert code == 1 and "changed after it was checked" in out
+    moved = root / STUDY_REL / "rows-moved"
+    for folder in (rows, moved):
+        assert not (folder / "registry.csv.provenance.json").exists()
+        assert not [p for p in folder.iterdir() if p.name.startswith(".survey-")]
+    assert (rows / "registry.csv").read_bytes() == (moved / "registry.csv").read_bytes()  # neither was rewritten
+
+
+def test_a_failing_cleanup_neither_hides_the_error_nor_skips_the_rest(tmp_path, monkeypatch):
+    """A-13: an unlink that fails during clean-up does not replace the original refusal."""
+    if not prov.DIR_FD_WRITES:
+        pytest.skip("descriptor-relative writes are not supported here")
+    root = make_repo(tmp_path)
+    before = tree(root)
+
+    def unlink_fails(name, dir_fd):
+        raise PermissionError(13, "Permission denied")
+
+    def refuse_late(r, rel, _real=prov.check_writable, _n=[0]):
+        _n[0] += 1
+        if _n[0] == 3:
+            raise prov.WriteRefused("refused late for the test")
+        _real(r, rel)
+    closed = []
+    real_close = os.close
+    monkeypatch.setattr(prov, "unlink_in", unlink_fails)
+    monkeypatch.setattr(prov, "check_writable", refuse_late)
+    monkeypatch.setattr(prov.os, "close", lambda fd: (closed.append(fd), real_close(fd)))
+    code, out, _ = _build(root)
+    monkeypatch.undo()
+    assert code == 1 and "refused late for the test" in out  # the original refusal, not the clean-up error
+    assert closed  # the folder descriptor was still closed
+    leftovers = [p for p in (root / ROWS).iterdir() if p.name.startswith(".survey-")]
+    for p in leftovers:  # the failed clean-up left the temporary files: remove them before comparing
+        p.unlink()
+    assert tree(root) == before

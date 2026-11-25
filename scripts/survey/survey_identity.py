@@ -232,7 +232,7 @@ def unsafe_values(rows: list, where: str) -> list:
             if bad:
                 codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
                 out.append(Finding("registry-value", where, f"{col} {q(r[col])} of person {q(r['person_id'])} holds "
-                                   f"a control character or a line separator ({codes}); the registry is not written"))
+                                   f"a control, format or line-separator character ({codes}); the registry is not written"))
     return out
 
 

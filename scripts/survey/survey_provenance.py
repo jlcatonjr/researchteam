@@ -319,9 +319,12 @@ def write_atomic(root: Path, rel: str, data: bytes) -> None:
 
 
 #: Whether this platform can write relative to an open folder: open the folder once (``O_DIRECTORY | O_NOFOLLOW``),
-#: create the temporary file in it with ``O_EXCL`` and replace relative to the same descriptor, so the write lands in
-#: the folder that was checked even if a parent is swapped meanwhile. Linux and macOS can; elsewhere the plain path
-#: code below is used, with the same checks, and the window between the last check and ``os.replace`` remains.
+#: create the temporary file in it with ``O_EXCL`` and replace relative to the same descriptor. The write then lands
+#: in the folder that descriptor names, and that folder is compared (device and inode) with the folder at the path
+#: when it is opened and again after the last check, so it is the folder that was checked. A parent swapped after
+#: that last comparison does not redirect the write; the output then sits in the folder that was checked, which may
+#: no longer be at its path. Linux and macOS can; elsewhere the plain path code below is used, with the same checks,
+#: and the window between the last check and ``os.replace`` remains.
 #: ``os.replace`` takes ``src_dir_fd``/``dst_dir_fd`` wherever ``os.rename`` does (both are ``renameat``); only
 #: ``os.rename`` is listed in ``os.supports_dir_fd``.
 DIR_FD_WRITES = (os.name == "posix" and hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW")
@@ -385,16 +388,32 @@ def _write_all_dir_fd(root: Path, outputs: list) -> None:
                 os.fchmod(fh.fileno(), 0o644)
         for rel, _data in outputs:
             check_writable(root, rel)  # again, just before anything lands
+        for folder, dfd in folders.items():  # and the folder at the path is still the one opened
+            now, held = os.stat(folder), os.fstat(dfd)
+            if (now.st_dev, now.st_ino) != (held.st_dev, held.st_ino):
+                raise WriteRefused(f"the folder of an output changed after it was checked: {q(folder.name)}")
         for (rel, _data), (dfd, name) in zip(outputs, temps):
             replace(name, (root / rel).name, dfd)
     finally:
+        # Each clean-up step on its own: one that fails neither hides the exception being raised nor skips the rest.
         for dfd, name in temps:
             try:
-                os.unlink(name, dir_fd=dfd)
-            except FileNotFoundError:
+                unlink_in(name, dfd)
+            except OSError:
                 pass
         for dfd in folders.values():
-            os.close(dfd)
+            try:
+                os.close(dfd)
+            except OSError:
+                pass
+
+
+def unlink_in(name: str, dir_fd: int) -> None:
+    """Remove a leftover temporary file relative to its folder's descriptor; absent is fine. A seam for tests."""
+    try:
+        os.unlink(name, dir_fd=dir_fd)
+    except FileNotFoundError:
+        pass
 
 
 def replace(src: str, dst: str, dir_fd) -> None:
