@@ -18,7 +18,8 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
-    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, sha256_bytes, symlink_components, usage_exit,
+    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, safe, sha256_bytes, symlink_components,
+    usage_exit,
 )
 from survey_gates import (  # noqa: E402
     GATES, ManifestError, action, build_manifest, check_stored_manifest, manifest_rel, scope,
@@ -30,7 +31,7 @@ PROG = "survey_manifest.py"
 
 
 def refuse(msg: str) -> int:
-    print(f"REFUSED: {msg}")
+    print(safe(f"REFUSED: {msg}"))
     return 1
 
 
@@ -88,15 +89,15 @@ def main(argv=None) -> int:
                 os.unlink(tmp)
             raise
     digest = sha256_bytes(data)
-    print(f"{state}: {rel}")
+    print(safe(f"{state}: {rel}"))
     print(f"manifest_sha256: {digest}")
     print(f"scope: {scope(gate, spec['id'])}")
     print(f"action: {action(gate, spec['id'], digest)}")
     print(f"mode: {spec['signoffs']['gates'][gate]['mode']}")
     print("The operator signs the action above with agentteams (an Ed25519 row in the ledger folder, 6.2), from a")
     print("trusted install outside every agent's write root. This tool signs nothing and writes no ledger row.")
-    print(f"verify: agentteams --check-clearance {scope(gate, spec['id'])} --clearance-file {rel} "
-          f"--output {ledger.rel}")
+    print(safe(f"verify: agentteams --check-clearance {scope(gate, spec['id'])} --clearance-file {rel} "
+               f"--output {ledger.rel}"))
     return 0
 
 

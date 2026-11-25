@@ -5,6 +5,28 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
+  `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define
+  that is present:
+  - evidence rows, with the contract's rule ids (`columns`, `id-empty`, … `vocabulary`), and a legacy study's
+    exceptions file (a listed breach is counted and does not fail; an exception that no longer applies is an error);
+  - the attribution file of a passage or work study;
+  - the registry's presence and shape ("a missing registry is itself an error"); the registry is not built yet;
+  - the forbidden vocabulary, matched on folded text;
+  - bucket tables, with the bucketer (`match` first and all) and the year and period rule as functions for later
+    steps (a run of three or four digits, else a stated century in any of its usual spellings; a year marked BC or
+    BCE is negative and not read);
+  - the form and presence of a fetch-receipt citation (a row whose locator is not a `<work slug>#p<N>` locus; a
+    receipt must carry the ten required keys of 4.4). Nothing re-finds a quotation yet: that is step G.
+  Row files are streamed (at most 64 MiB) and opened at their resolved place under rule 1.6. Every output line
+  escapes control characters, so a file cannot forge a line. Project patterns are capped in length and number, and
+  every compile failure is a finding. The excused breaches and the quotations not re-found are printed on every run.
+  Evidence in a `plugin` format is not read (the reader plug-in is not loaded: not implemented), and
+  `survey-validate` fails for it.
+  The batch merge (`survey-rows`), the identity registry (`survey-registry`) and writing a first exceptions file
+  are step B part 2. The check table is `references/plans/post-1.3.0-h5-step-b-check-table.md`.
+- Survey toolkit, step A follow-ups: a `parent_team` with a `..` segment says so; the example study's S0 manifest
+  hash is pinned in a test; a `study.json` reached through a link inside the repository is tested to load.
 - **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
   The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
   own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)

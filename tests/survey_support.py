@@ -36,6 +36,9 @@ import survey_schema  # noqa: E402,F401
 import survey_spec  # noqa: E402,F401
 import survey_status  # noqa: E402,F401
 import survey_validate  # noqa: E402,F401
+import survey_tables  # noqa: E402,F401
+import survey_attribution  # noqa: E402,F401
+import survey_evidence  # noqa: E402,F401
 sys.dont_write_bytecode = _saved
 
 #: An invented PEM-shaped block. It is not a key of anyone's and does not decode to a usable key.

@@ -275,6 +275,34 @@ them with `python3 -B -I`.
 | `survey_gates.py` | The gate list, the manifest builder, the three states, the verification seam (`verify_signoff`, replaced in a later step) and `stage_decision` (runs or refuses, 6.1) |
 | `survey_schema.py`, `study.schema.json` | The JSON Schema (2020-12) of `study.json`, generated from the rule table; `--check` exits 1 when the tracked file differs |
 | `survey_validate.py`, `survey_status.py`, `survey_manifest.py` | The three commands |
+| `survey_tables.py` | Step B. The shared CSV reader of section 4, the bucket-table checks and bucketer (4.8), and the year and period rule |
+| `survey_attribution.py` | Step B. The attribution file's checks (4.3) |
+| `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
+
+### Row files (step B)
+
+`survey-validate` also checks every row file sections 4.1, 4.3 and 4.8 define that is present: the evidence file
+(with the registry it needs: "a missing registry is itself an error"), the attribution file, the legacy exceptions,
+the vocabulary file and the bucket tables. Evidence errors carry the rule ids of 4.1 (`columns`, `id-empty`,
+`id-duplicate`, `attribute-kind`, `person-unknown`, `unit-id`, `unit-unknown`, `unit-person`, `id-separator`,
+`tier-unknown`, `counted-quote`, `counted-citation`, `counted-basis`, `reported-reporter`, `own-reporter`, `ne-quote`,
+`ne-note`, `vocabulary`). The other ids are the toolkit's own: `registry-missing`, `registry-columns`,
+`registry-person`, `vocabulary-file`, `evidence-plugin`, `cell-nul`, `locator-missing`; `exceptions-columns`, `exceptions-rule`,
+`exceptions-unlistable`, `exceptions-id`, `exceptions-duplicate`, `exceptions-stale`; `receipts-undeclared`,
+`receipt-url`, `receipt-missing`, `receipt-malformed`; `attribution-columns`, `attribution-unit-empty`,
+`attribution-unit-duplicate`, `attribution-unit-is-person`, `attribution-person-empty`, `attribution-separator`,
+`attribution-status`, `attribution-author-kind`, `attribution-passage-attribute`, `attribution-author-kinds`;
+`table-columns`, `table-empty`, `table-row`, `table-pattern`, `table-bucket`, `table-fallback`.
+
+In a legacy study a breach listed in `evidence.legacy_exceptions` is counted and does not fail, and a counted row
+that predates receipts (no receipt, no url, no locator) is printed as `REPORTED`, not an error (5.4); a receipt that
+is there and broken is an error. Every run, failing or not, prints how many rows it read, how many exceptions it was
+read with, the excused breaches by rule, and how many counted quotations were not re-found. Row files are streamed
+(`MAX_CSV_BYTES`, 64 MiB) and opened at their resolved place under rule 1.6; project patterns are capped
+(`MAX_PATTERN_CHARS`, `MAX_PATTERNS`, `MAX_MATCH_CHARS`); every output line escapes control characters, and a quoted value is cut at `MAX_QUOTED_CHARS` (200) characters. The caps bound the size of a pattern and of the text it is searched in, not the time a search takes: a project's own pattern can still be slow, and the files that hold patterns (the vocabulary file, the bucket tables) are covered by gate S0. Evidence in a `plugin` format is not checked: this
+version does not load the reader plug-in, and says so as an error. Nothing re-finds a quotation yet (step G); the
+count of counted quotations not re-found is printed. The batch merge (`survey-rows`) and the registry
+(`survey-registry`) are not in this version.
 
 ### Usage
 

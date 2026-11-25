@@ -17,7 +17,7 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_core import SurveyUsageError, environment, parse_args, print_findings, usage_exit  # noqa: E402
+from survey_core import SurveyUsageError, environment, parse_args, print_findings, safe, usage_exit  # noqa: E402
 from survey_gates import GATES, gate_status  # noqa: E402
 from survey_ledger import check_ledger  # noqa: E402
 from survey_spec import load_study  # noqa: E402
@@ -40,9 +40,9 @@ def main(argv=None) -> int:
     env = environment()
     print(f"study {spec['id']} ({study.spec_rel}): status {spec['status']}, schema_version {spec['schema_version']}")
     print(f"environment: python {env['python']}, unicodedata {env['unicodedata']}")
-    print(f"ledger: {ledger.rel or spec['signoffs']['ledger']}")
+    print(safe(f"ledger: {ledger.rel or spec['signoffs']['ledger']}"))
     for reason in ledger.unavailable:
-        print(f"ledger note: {reason}")
+        print(safe(f"ledger note: {reason}"))
     malformed = list(ledger.findings)
     for gate in GATES:
         st, extra = gate_status(study, gate, ledger)
@@ -51,7 +51,7 @@ def main(argv=None) -> int:
             print(f"{gate}: NOT DECLARED")
             continue
         print(f"{gate}: {st.state} manifest_sha256={st.manifest_sha256 or '-'} enforce={st.enforce} mode={st.mode}")
-        print(f"    reason: {st.reason}")
+        print(safe(f"    reason: {st.reason}"))
     print("note: this version verifies no signature, so no gate reads CLEARED.")
     if malformed:
         print_findings(malformed)

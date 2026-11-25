@@ -10,6 +10,7 @@ and the manifest's file hashing (6.1), size-capped reading, file identity, and t
 from __future__ import annotations
 
 import hashlib
+import io
 import json
 import os
 import re
@@ -43,8 +44,37 @@ class Finding:
     where: str
     message: str
 
-    def line(self) -> str:
-        return f"ERROR [{self.rule}] {self.where}: {self.message}"
+    def line(self, label: str = "ERROR") -> str:
+        """The finding as one output line. Every control character is escaped, whatever produced the text: a cell, a
+        path declared in a specification, a file name or a pattern can never forge another output line."""
+        return safe(f"{label} [{self.rule}] {self.where}: {self.message}")
+
+
+#: The most characters of a value a message quotes; a longer value is cut and marked, in messages only, never in a
+#: check (a proposal: a file with huge cells or many bad rows cannot flood the output).
+MAX_QUOTED_CHARS = 200
+
+
+def q(value) -> str:
+    """A value from a file, quoted for a message: ``repr`` of at most MAX_QUOTED_CHARS characters, with ``…``
+    after it when cut."""
+    if isinstance(value, str) and len(value) > MAX_QUOTED_CHARS:
+        return repr(value[:MAX_QUOTED_CHARS]) + "\u2026"
+    return repr(value)
+
+
+def safe(text: str) -> str:
+    """*text* with every control, format, surrogate, private-use or line/paragraph-separator character escaped
+    (``\\xNN``, ``\\uNNNN``), so that what a file holds cannot add a line or move the cursor in the output."""
+    out = []
+    for ch in text:
+        cat = unicodedata.category(ch)
+        if cat[0] == "C" or cat in ("Zl", "Zp"):
+            code = ord(ch)
+            out.append(f"\\x{code:02x}" if code < 0x100 else f"\\u{code:04x}" if code < 0x10000 else f"\\U{code:08x}")
+        else:
+            out.append(ch)
+    return "".join(out)
 
 
 class SurveyUsageError(Exception):
@@ -125,20 +155,28 @@ class NotARegularFile(OSError):
     """The path is not a regular file (a link, FIFO, socket, device or directory), so it was not read."""
 
 
-def read_capped(path: Path, cap: int) -> bytes | None:
-    """The bytes of the regular file at *path*, or None when it holds more than *cap* bytes.
-
-    The file is opened without following a final symbolic link (``O_NOFOLLOW``, where the platform has it) and
-    without blocking on a FIFO (``O_NONBLOCK``); whether it is a regular file, and its size, are decided by
-    ``fstat`` on the open descriptor, so nothing can swap the file between the check and the read. Raises
+def _open_regular(path: Path) -> int:
+    """An open descriptor on the regular file at *path*: opened without following a final symbolic link
+    (``O_NOFOLLOW``, where the platform has it) and without blocking on a FIFO (``O_NONBLOCK``), then checked by
+    ``fstat`` on the descriptor itself, so nothing can swap the file between the check and the read. Raises
     NotARegularFile for anything but a regular file, and OSError as opening does (a link gives ``ELOOP``)."""
     flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
     fd = os.open(path, flags)
     try:
-        st = os.fstat(fd)
-        if not stat.S_ISREG(st.st_mode):
-            raise NotARegularFile(f"{path.name if hasattr(path, 'name') else path} is not a regular file")
-        if st.st_size > cap:
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            raise NotARegularFile(f"{getattr(path, 'name', path)!r} is not a regular file")
+    except BaseException:
+        os.close(fd)
+        raise
+    return fd
+
+
+def read_capped(path: Path, cap: int) -> bytes | None:
+    """The bytes of the regular file at *path* (see :func:`_open_regular`), or None when it holds more than *cap*
+    bytes."""
+    fd = _open_regular(path)
+    try:
+        if os.fstat(fd).st_size > cap:
             return None
         chunks, total = [], 0
         while total <= cap:  # O_NONBLOCK does not affect reads of a regular file
@@ -151,6 +189,43 @@ def read_capped(path: Path, cap: int) -> bytes | None:
         os.close(fd)
     data = b"".join(chunks)
     return None if len(data) > cap else data
+
+
+class TooLarge(OSError):
+    """The file holds more bytes than the cap allows; it was not read to the end."""
+
+
+class _CappedRaw(io.RawIOBase):
+    """A raw reader over a descriptor that raises TooLarge once more than *cap* bytes have been read."""
+
+    def __init__(self, fd: int, cap: int):
+        self._fd, self._left = fd, cap + 1
+
+    def readable(self) -> bool:
+        return True
+
+    def readinto(self, buffer) -> int:
+        data = os.read(self._fd, min(len(buffer), self._left))
+        self._left -= len(data)
+        if self._left <= 0:
+            raise TooLarge("larger than the cap")
+        buffer[: len(data)] = data
+        return len(data)
+
+    def close(self) -> None:
+        if not self.closed:
+            os.close(self._fd)
+        super().close()
+
+
+def open_text_capped(path: Path, cap: int):
+    """The regular file at *path* (see :func:`_open_regular`) as a UTF-8 text stream with ``newline=""`` (as the csv
+    module needs), read in chunks. Reading past *cap* bytes raises TooLarge; the file is never held whole."""
+    fd = _open_regular(path)
+    if os.fstat(fd).st_size > cap:
+        os.close(fd)
+        raise TooLarge("larger than the cap")
+    return io.TextIOWrapper(io.BufferedReader(_CappedRaw(fd, cap)), encoding="utf-8", newline="")
 
 
 # --------------------------------------------------------------------------- paths (rule 1.6)
@@ -300,5 +375,5 @@ def parse_args(argv: list, prog: str, extra: tuple = ()) -> tuple:
 
 
 def usage_exit(exc: Exception) -> int:
-    print(f"error: {exc}", file=sys.stderr)
+    print(safe(f"error: {exc}"), file=sys.stderr)
     return 2

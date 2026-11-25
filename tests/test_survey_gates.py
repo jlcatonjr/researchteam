@@ -257,7 +257,7 @@ def test_a_sound_parent_team(tmp_path):
 
 
 @pytest.mark.parametrize("setup,value,why", [
-    (None, "/governance/team", "is absolute"), (None, "../elsewhere", "leaves the repository"),
+    (None, "/governance/team", "is absolute"), (None, "../elsewhere", "has a '..' segment"),
     (None, "governance/none", "is not a team directory"),
     ("self", f"{LEDGER}", "names the ledger folder itself"),
     ("own-parent", "governance/team", "declares a parent of its own"),
@@ -672,3 +672,25 @@ def test_reserved_locations_are_compared_by_identity_on_disk(tmp_path):
     assert not ledger_mod.reserved_by_identity(root, f"{STUDY_REL}/ledger")
     led_root = make_repo(tmp_path / "b", lambda s: s["signoffs"].update(ledger="agentteams-clearance:repo:.GIT/gates"))
     assert "ledger-location" in _ledger_rules(led_root)
+
+
+# --------------------------------------------------------------------------- step A follow-ups (carried into step B)
+#: The invented example study's S0 manifest hash. It moves when the study, a file S0 covers, or the manifest rules
+#: of 6.1 change: a deliberate change updates it here, in one place.
+EXAMPLE_S0_SHA256 = "7d0ee994d63e4fff4dd990b49572916537de05be1ed5dcaba92b758eace4d0da"
+
+
+def test_the_example_studys_s0_manifest_hash_is_pinned(tmp_path):
+    root = make_repo(tmp_path)
+    assert _sha(gates.build_manifest(_study(root), "S0")) == EXAMPLE_S0_SHA256
+
+
+def test_a_specification_reached_through_a_link_inside_the_repository_loads(tmp_path):
+    root = make_repo(tmp_path)
+    spec = root / STUDY_REL / "study.json"
+    os.replace(spec, root / STUDY_REL / "study.real.json")
+    os.symlink("study.real.json", spec)
+    study = _study(root)
+    assert study.spec["id"] == "tidebell-survey"
+    assert _sha(gates.build_manifest(study, "S0")) == EXAMPLE_S0_SHA256  # the bytes, not the link, are hashed
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
