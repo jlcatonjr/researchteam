@@ -92,3 +92,22 @@ reviews run in parallel.
   and refuses clearly when `scripts/survey/` is absent (a repository synced by an older researchteam).
 
 Steps: `post-1.3.0-h5-survey-tools-a-d.steps.csv`.
+
+## Step B is split in two (2026-11-25)
+
+The builder stopped after a coherent first part, as this plan allows where a step is too large to review as one
+pull request.
+
+- **B part 1 (built, in review):** the evidence row checks with the contract's 18 rule ids and the legacy
+  exceptions (4.1), the attribution checks (4.3), bucket tables, the two bucketers and the year and period rule
+  (4.8), the form-and-presence check of a fetch-receipt citation (5.4; fetching and re-finding stay in step G), and
+  `survey-validate`'s row-file checks. It adds no command and writes no file. Branch `feat/survey-tools-b`.
+- **B part 2 (next):** the overrides file, the registry build with names and candidates, proposed override rows,
+  the batch merge, writing a first exceptions file, and the commands `survey-rows` and `survey-registry`.
+- **A dependency the plan had not seen.** The batch merge renews the registry's provenance record (4.4), and that
+  record's shape is defined in 4.6, which this plan gave to step C. Part 2 therefore brings forward the part of
+  4.6 it needs: the provenance record itself (the shape, and writing it for the registry). Step C keeps agreement,
+  finalising, the rollup, and applying the record to its own outputs. The record is written once, in shared code,
+  so step C adds callers and no second definition.
+- The metaplan's waves change accordingly: wave 2 is B part 1 and step F; B part 2 follows B part 1's merge and
+  runs beside step F if F is still open; step C waits for B part 2.
