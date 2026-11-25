@@ -367,3 +367,6 @@ second pass.
   condition as at the candidate. The tag details were sent to the release coordinator.
 - **Left:** the operator resumes the autosync (script 28, `resume`); the soak and rehearsal branches go to
   `archive/`; the work summary and the close-out audit; this plans branch (PR #237) is merged as the record.
+- **The autosync is resumed** (operator, script 28 `resume`, 2026-11-25); read back as `active`.
+- **Archive branches: none needed.** The soak ran in a detached worktree at the frozen `main` commit `440b526`
+  with no local changes, and the cut rehearsals were read-only; nothing unpublished exists.
