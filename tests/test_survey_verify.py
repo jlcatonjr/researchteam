@@ -311,8 +311,8 @@ def test_every_row_of_the_folder_log_must_be_ed25519(tmp_path, scheme):
 
 
 def test_a_log_with_an_extra_column_is_malformed(tmp_path):
-    """The exact header has no ``consumed`` column, so such a log is refused; a check spends nothing (6.2, lines 852
-    and 889)."""
+    """The header's set of columns has no ``consumed`` column, so such a log is refused; a check spends nothing (6.2,
+    lines 852 and 889)."""
     root = make_repo(tmp_path)
     log = _refs(root) / "security-decisions.log.csv"
     log.write_text(log.read_text().rstrip("\n") + ",consumed\n")
@@ -707,4 +707,39 @@ def test_signed_an_exempt_halt_binds_through_agentteams_in_every_scanned_log(sig
     assert ledger_mod.check_ledger(_study(root)).family_halts == {}  # exempt: not the tools' scan
     st = _real(root)
     assert st.state == "UNCLEARED" and st.reason == gates.NOT_CLEARED
+
+
+def _reorder_log(log, order):
+    """Rewrite a log with its columns in *order*, every row's cells moved with their column."""
+    rows = list(csv.DictReader(io.StringIO(log.read_text(encoding="utf-8"), newline="")))
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=order, lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    log.write_text(buf.getvalue(), encoding="utf-8")
+
+
+def test_a_row_in_a_log_with_its_columns_reordered_is_read_by_name(tmp_path):
+    """Every rule reads a row by column name: a reordered log decides exactly as the written order does."""
+    root = make_repo(tmp_path)
+    act = _request(root)
+    _append(root, action_reviewed=act)
+    _append(root, action_reviewed="survey-signoff/S5", verdict="HALT")
+    before = {g: _state(root, g).state for g in ("S0", "S5")}
+    _reorder_log(_refs(root) / "security-decisions.log.csv", list(ledger_mod.LOG_HEADER)[::-1])
+    assert {g: _state(root, g).state for g in ("S0", "S5")} == before == {"S0": "CLEARED", "S5": "UNAVAILABLE"}
+    lines = (_refs(root) / "security-decisions.log.csv").read_text().splitlines()
+    assert lines[0].startswith("signature,prev_digest")
+
+
+def test_signed_a_signed_row_in_a_reordered_log_still_clears(signed):
+    """Operator decision, 2026-11-25: a log with agentteams' columns in another order is well-formed; agentteams'
+    public log check and the child read it as written, so a valid row still clears."""
+    root, _act, _pem = signed
+    log = root / LEDGER / "references" / "security-decisions.log.csv"
+    _reorder_log(log, list(ledger_mod.LOG_HEADER)[7:] + list(ledger_mod.LOG_HEADER)[:7])
+    from agentteams.governance_logs import check_log
+    assert check_log(log) == []
+    st = _real(root)
+    assert st.state == "CLEARED", st.reason
 
