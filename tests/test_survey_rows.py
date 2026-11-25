@@ -700,7 +700,7 @@ def test_values_read_by_the_run_rule(value, year):
 @pytest.mark.parametrize("value,year", [
     ("4th c.", 350), ("4th c", 350), ("4th C.", 350), ("4th century", 350), ("4TH CENTURY", 350),
     ("12th cent.", 1150), ("12th cent", 1150), ("1st c.", 50), ("2nd c.", 150), ("3rd century", 250),
-    ("4th-5th centuries", 450), ("21st c.", 2050),
+    ("4th-5th centuries", 350), ("21st c.", 2050),
 ])
 def test_a_stated_century_gives_its_middle_year(value, year):
     """4.8, lines 700-701: "4th c." is the text's example of a stated century, not its only spelling."""
@@ -759,3 +759,40 @@ def test_a_usage_error_is_printed_escaped(tmp_path):
     root = make_repo(tmp_path)
     code, _out, err = run(survey_validate, "--root", str(root), "tide\x1bbell")
     assert code == 2 and "\x1b" not in err and "\\x1b" in err
+
+
+
+# --------------------------------------------------------------------------- step B part 1 follow-ups (in part 2)
+@pytest.mark.parametrize("value", ["350 B.C", "350 B.C.E", "350 B. C.", "350 b.c", "350 B C"])
+def test_more_bc_spellings_are_negative(value):
+    """(a) BC and BCE, dotted or not, spaced or not, after a number."""
+    assert tb.year_of(value, "work_date") is None
+
+
+def test_a_century_range_reads_both_centuries():
+    """(b) "4th-5th centuries" states two centuries: the first for work_date, the largest for life_dates."""
+    assert tb.year_of("4th-5th centuries", "work_date") == 350
+    assert tb.year_of("4th - 5th c.", "life_dates") == 450
+    assert tb.year_of("4th-5th centuries BC", "life_dates") is None
+
+
+@pytest.mark.parametrize("value,year", [("1,750", None), ("1.750", None), ("1750.5", None), ("2,1750", None),
+                                        ("in 1742.", 1742), ("1742, 1790", 1742), ("1742,1790", None)])
+def test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number(value, year):
+    """(c) a run directly after a digit and ',' or '.', or directly before ',' or '.' and a digit, is part of a
+    longer number (proposal)."""
+    assert tb.year_of(value, "work_date") == year
+
+
+def test_long_lists_in_messages_are_cut_too():
+    """(d) q() cuts the text of any value, not only of a string."""
+    from survey_support import survey_core as core
+    assert core.q(["x" * 50] * 10).endswith("\u2026") and len(core.q(["x" * 50] * 10)) == core.MAX_QUOTED_CHARS + 1
+    assert core.q(["a"]) == "['a']"
+
+
+def test_step_a_messages_cut_a_long_declared_path(tmp_path):
+    """(f) step A quotes file content through q()."""
+    root = make_repo(tmp_path, lambda s: s["evidence"].update(file="/" + "a" * 600))
+    found = [f for f in sp.load_study("tidebell", root).findings if f.rule == "path-absolute"]
+    assert found and "a" * 300 not in found[0].message and "\u2026" in found[0].message

@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    GATES, MAX_JSON_BYTES, Finding, SurveyUsageError, inside, load_json_strict, read_capped, resolve_path,
+    GATES, MAX_JSON_BYTES, Finding, SurveyUsageError, inside, load_json_strict, q, read_capped, resolve_path,
 )
 
 SLUG = "^[a-z0-9][a-z0-9_-]*$"
@@ -267,11 +267,11 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
             out.append(Finding("type", where, f"expected a string, found {_type_name(value)}"))
             return
         if node.enum is not None and value not in node.enum:
-            out.append(Finding("enum", where, f"{value!r} is not one of {', '.join(map(repr, node.enum))}"))
+            out.append(Finding("enum", where, f"{q(value)} is not one of {', '.join(map(repr, node.enum))}"))
         if len(value) < node.min_len:
             out.append(Finding("empty", where, "must not be empty"))
         if node.pattern and not _fullmatch(node.pattern, value):
-            out.append(Finding("pattern", where, f"{value!r} does not match {node.pattern}"))
+            out.append(Finding("pattern", where, f"{q(value)} does not match {node.pattern}"))
         if node.is_path and value:
             paths.append((where, value))
         return
@@ -315,7 +315,7 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
         for key in value:
             if node.key_enum is not None and key not in node.key_enum:
                 out.append(Finding("unknown-key", _ptr(where, key),
-                                   f"{key!r} is not one of {', '.join(node.key_enum)}"))
+                                   f"{q(key)} is not one of {', '.join(node.key_enum)}"))
                 continue
             check_shape(node.values, value[key], _ptr(where, key), out, paths)
         return
@@ -346,7 +346,7 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
             return
         if kind not in node.variants:
             out.append(Finding("enum", _ptr(where, "kind"),
-                               f"{kind!r} is not one of {', '.join(map(repr, node.variants))}"))
+                               f"{q(kind)} is not one of {', '.join(map(repr, node.variants))}"))
             return
         return check_shape(node.variants[kind], value, where, out, paths)
     if isinstance(node, Obj):
@@ -355,7 +355,7 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
             return
         for key in value:
             if key not in node.props:
-                out.append(Finding("unknown-key", _ptr(where, key), f"{key!r} is not a field here"))
+                out.append(Finding("unknown-key", _ptr(where, key), f"{q(key)} is not a field here"))
         for key, (sub, required) in node.props.items():
             if key in value:
                 check_shape(sub, value[key], _ptr(where, key), out, paths)
@@ -366,14 +366,14 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
                 for name in cond.then_required:
                     if name not in value:
                         out.append(Finding(cond.rule_required, _ptr(where, name),
-                                           f"required when {cond.field} is {cond.equals!r}"))
+                                           f"required when {cond.field} is {q(cond.equals)}"))
             else:
                 for name in cond.else_forbidden:
                     if name in value:
                         out.append(Finding(cond.rule_forbidden, _ptr(where, name),
-                                           f"allowed only when {cond.field} is {cond.equals!r}"))
+                                           f"allowed only when {cond.field} is {q(cond.equals)}"))
         return
-    raise TypeError(f"unknown rule-table node {node!r}")
+    raise TypeError(f"unknown rule-table node {q(node)}")
 
 
 def _describe(node: Node) -> str:
@@ -492,7 +492,7 @@ def check_semantics(spec: dict) -> list[Finding]:
     for kind in ("outcomes", "attributes"):
         for i, item in enumerate(spec[kind]):
             if item["key"] in seen:
-                add("key-duplicate", f"/{kind}/{i}/key", f"{item['key']!r} is also the key of {seen[item['key']]}")
+                add("key-duplicate", f"/{kind}/{i}/key", f"{q(item['key'])} is also the key of {seen[item['key']]}")
             else:
                 seen[item["key"]] = f"/{kind}/{i}"
 
@@ -501,14 +501,14 @@ def check_semantics(spec: dict) -> list[Finding]:
         levels, na, missing = _outcome_codes(o)
         dup = sorted({c for c in levels if levels.count(c) > 1})
         for c in dup:
-            add("level-duplicate", f"{at}/levels", f"level code {c!r} is used twice")
+            add("level-duplicate", f"{at}/levels", f"level code {q(c)} is used twice")
         everything = levels + na + [missing]
         clashes = sorted({c for c in everything if everything.count(c) > 1} - set(dup))
         for c in clashes:
-            add("outcome-codes-distinct", at, f"{c!r} is used more than once among level codes, NA codes and missing")
+            add("outcome-codes-distinct", at, f"{q(c)} is used more than once among level codes, NA codes and missing")
         for c in sorted(set(everything)):
             if c == MIXED:
-                add("mixed-code", at, f"{MIXED!r} is a reserved output code (4.2) and cannot be declared")
+                add("mixed-code", at, f"{q(MIXED)} is a reserved output code (4.2) and cannot be declared")
         no_order = [lv["code"] for lv in o["levels"] if "order" not in lv]
         if o["rollup"] == "max-order":
             if o["scale"] != "ordinal":
@@ -517,13 +517,13 @@ def check_semantics(spec: dict) -> list[Finding]:
                 add("max-order-order", f"{at}/levels", f"max-order needs an order on every level; none on {no_order}")
         if o["rollup"] == "any-present":
             if "present_code" in o and o["present_code"] not in levels:
-                add("present-code-level", f"{at}/present_code", f"{o['present_code']!r} is not a level code")
+                add("present-code-level", f"{at}/present_code", f"{q(o['present_code'])} is not a level code")
             if o["scale"] == "ordinal" and no_order:
                 add("any-present-order", f"{at}/levels",
                     f"any-present on an ordinal outcome needs an order on every level; none on {no_order}")
         for src in o.get("merges", {}):
             if src not in levels and src not in na:
-                add("merge-source", f"{at}/merges", f"merge source {src!r} is not a level code or NA code")
+                add("merge-source", f"{at}/merges", f"merge source {q(src)} is not a level code or NA code")
 
     periods = spec["periods"]
     cuts, labels = periods["cuts"], periods["labels"]
@@ -533,7 +533,7 @@ def check_semantics(spec: dict) -> list[Finding]:
         add("labels-count", "/periods/labels", f"{len(labels)} labels for {len(cuts)} cuts; needs {len(cuts) + 1}")
     for key in periods.get("strata", {}):
         if not re.fullmatch(PERIOD_NUMBER[1:-1], key) or int(key) > len(labels):
-            add("strata-key", f"/periods/strata/{key}", f"{key!r} is not a period number from 1 to {len(labels)}")
+            add("strata-key", f"/periods/strata/{key}", f"{q(key)} is not a period number from 1 to {len(labels)}")
 
     if passage_study and not any(o["source"]["kind"] == "codes" for o in spec["outcomes"]):
         add("codes-outcome-missing", "/outcomes", f"a {unit['kind']} study needs an outcome whose source is codes")
@@ -543,30 +543,30 @@ def check_semantics(spec: dict) -> list[Finding]:
     tiers = evidence["tiers"]
     for t in evidence["counted_tiers"]:
         if t not in tiers:
-            add("counted-tiers-subset", "/evidence/counted_tiers", f"{t!r} is not in tiers")
+            add("counted-tiers-subset", "/evidence/counted_tiers", f"{q(t)} is not in tiers")
     ne = evidence["not_established_tier"]
     if ne not in tiers:
-        add("ne-tier-undeclared", "/evidence/not_established_tier", f"{ne!r} is not in tiers")
+        add("ne-tier-undeclared", "/evidence/not_established_tier", f"{q(ne)} is not in tiers")
     if ne in evidence["counted_tiers"]:
-        add("ne-tier-counted", "/evidence/not_established_tier", f"{ne!r} is a counted tier")
+        add("ne-tier-counted", "/evidence/not_established_tier", f"{q(ne)} is a counted tier")
 
     for key, values in unit.get("exclude_from_rollup", {}).items():
         if key not in pattrs:
-            add("exclude-key", f"/unit/exclude_from_rollup/{key}", f"{key!r} is not a passage_attributes key")
+            add("exclude-key", f"/unit/exclude_from_rollup/{key}", f"{q(key)} is not a passage_attributes key")
             continue
         codes = [lv["code"] for lv in pattrs[key]["levels"]]
         for v in values:
             if v not in codes:
-                add("exclude-value", f"/unit/exclude_from_rollup/{key}", f"{v!r} is not a level code of {key!r}")
+                add("exclude-value", f"/unit/exclude_from_rollup/{key}", f"{q(v)} is not a level code of {q(key)}")
     if "rollup_types" in unit and unit["rollup_types"] not in pattrs:
-        add("rollup-types-key", "/unit/rollup_types", f"{unit['rollup_types']!r} is not a passage_attributes key")
+        add("rollup-types-key", "/unit/rollup_types", f"{q(unit['rollup_types'])} is not a passage_attributes key")
     for i, key in enumerate(unit.get("rollup_by", [])):
         if key not in pattrs:
-            add("rollup-by-key", f"/unit/rollup_by/{i}", f"{key!r} is not a passage_attributes key")
+            add("rollup-by-key", f"/unit/rollup_by/{i}", f"{q(key)} is not a passage_attributes key")
         else:
             for lv in pattrs[key]["levels"]:
                 if "|" in lv["code"]:
-                    add("rollup-by-pipe", f"/unit/rollup_by/{i}", f"level code {lv['code']!r} of {key!r} has a '|'")
+                    add("rollup-by-pipe", f"/unit/rollup_by/{i}", f"level code {q(lv['code'])} of {q(key)} has a '|'")
 
     period_attrs = [i for i, a in enumerate(spec["attributes"]) if a["kind"] == "period"]
     if len(period_attrs) > 1:
@@ -587,17 +587,17 @@ def check_semantics(spec: dict) -> list[Finding]:
             add("fallback-flags", f"{at}/bucketer/fallback", "a flags attribute's bucketer has no fallback (4.8)")
         missing = a.get("missing", DEFAULT_MISSING)
         if missing in a.get("levels", []) or missing in a.get("flags", []):
-            add("attribute-missing", at, f"the missing value {missing!r} is one of the attribute's levels or flags")
+            add("attribute-missing", at, f"the missing value {q(missing)} is one of the attribute's levels or flags")
 
     cols = frame_columns(spec)
     for c in sorted({c for c in cols if cols.count(c) > 1}):
-        add("frame-column-duplicate", "/", f"the frame would have two columns named {c!r} (4.7)")
+        add("frame-column-duplicate", "/", f"the frame would have two columns named {q(c)} (4.7)")
 
     if passage_study:
         for i, rule in enumerate(spec["frame_rules"]["exclude"]):
             if rule["rule"] != "not-on-question":
                 add("exclude-rule-cells", f"/frame_rules/exclude/{i}/rule",
-                    f"{rule['rule']!r} is not defined over cells in version 1 (4.7)")
+                    f"{q(rule['rule'])} is not defined over cells in version 1 (4.7)")
 
     for i, e in enumerate(spec["enumerations"]):
         if e["stopping_rule"]["kind"] == "legacy-unrecorded" and spec["status"] != "legacy":
@@ -650,7 +650,7 @@ def load_study(project: str, repo_root: Path) -> Study:
     """Load and check a project's specification: shape, paths (rule 1.6), checks beyond shape, and the checks that
     read the file system. Raises SurveyUsageError when the project or its specification cannot be found."""
     if not PROJECT_NAME.fullmatch(project) or project in (".", ".."):
-        raise SurveyUsageError(f"{project!r} is not a project name (a directory name under Projects/)")
+        raise SurveyUsageError(f"{q(project)} is not a project name (a directory name under Projects/)")
     spec_rel = locate(project)
     spec_path = repo_root / spec_rel
     root_real = os.path.realpath(repo_root)
@@ -700,27 +700,27 @@ def check_files(study: Study) -> list[Finding]:
         exists = os.path.exists(rp.real)  # a dangling link names nothing
         if _COVERS.match(ptr):
             if not exists and not draft:
-                out.append(Finding("covers-missing", where(ptr), f"{rp.declared!r} does not exist"))
+                out.append(Finding("covers-missing", where(ptr), f"{q(rp.declared)} does not exist"))
             elif exists and not _is_regular(rp.real):
-                out.append(Finding("covers-not-file", where(ptr), f"{rp.declared!r} is not a regular file, so a "
+                out.append(Finding("covers-not-file", where(ptr), f"{q(rp.declared)} is not a regular file, so a "
                                    "manifest cannot hash it"))
             continue
         if not exists and not draft and not any(p.match(ptr) for p in MAY_BE_ABSENT):
-            out.append(Finding("file-missing", where(ptr), f"{rp.declared!r} does not exist"))
+            out.append(Finding("file-missing", where(ptr), f"{q(rp.declared)} does not exist"))
     s0 = study.covered("S0")
     for ptr, rp in study.paths.items():
         if any(p.match(ptr) for p in MUST_BE_S0) and rp.identity not in s0:
-            out.append(Finding("not-covered-s0", where(ptr), f"{rp.declared!r} must be covered by gate S0 "
+            out.append(Finding("not-covered-s0", where(ptr), f"{q(rp.declared)} must be covered by gate S0 "
                                "(section 3; 5.1, 5.3)"))
     any_gate = set().union(*(study.covered(g) for g in spec["signoffs"]["gates"])) if spec["signoffs"]["gates"] \
         else set()
     rp = study.paths.get("/evidence/legacy_exceptions")
     if rp is not None and rp.identity not in any_gate:
         out.append(Finding("legacy-exceptions-uncovered", where("/evidence/legacy_exceptions"),
-                           f"{rp.declared!r} is covered by no gate"))
+                           f"{q(rp.declared)} is covered by no gate"))
     for ptr, rp in study.paths.items():
         if ptr.startswith("/frame_rules/post_steps/") and rp.identity not in any_gate:
-            out.append(Finding("post-step-uncovered", where(ptr), f"{rp.declared!r} is covered by no gate (4.5)"))
+            out.append(Finding("post-step-uncovered", where(ptr), f"{q(rp.declared)} is covered by no gate (4.5)"))
     return out
 
 

@@ -8,11 +8,12 @@ opened at its resolved place under rule 1.6, like every file a specification nam
 from __future__ import annotations
 
 import csv
+import io
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, TooLarge, fold, open_text_capped, q
+from survey_core import Finding, TooLarge, fold, open_text_capped, q, read_capped, sha256_bytes
 
 #: The toolkit's own limits (proposals): the bytes of one row file; the length of one project pattern; the number
 #: of patterns in one file; the length of the folded text one pattern is searched in.
@@ -42,15 +43,30 @@ def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
     differs from the header's (4, line 276), is a finding with id *rule*; so is a blank line. A cell holding a NUL
     is a ``cell-nul`` finding. The file is streamed, at most MAX_CSV_BYTES, and only when it is a regular file.
     Line numbers are those a row starts on, so a quoted cell over several lines does not shift them."""
-    out = Rows()
     try:
         stream = open_text_capped(path, MAX_CSV_BYTES)
     except TooLarge:
-        out.findings.append(Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read"))
-        return out
+        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")])
     except OSError as exc:
-        out.findings.append(Finding(rule, where, f"cannot be read: {exc}"))
-        return out
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {exc}")])
+    return _parse(stream, where, columns, rule)
+
+
+def read_rows_hashed(path: Path, where: str, columns: tuple, rule: str) -> tuple:
+    """As :func:`read_rows`, but from the file's bytes read once, so that a provenance record (4.6) can hash exactly
+    what was parsed: ``(rows, sha256 of the bytes)``; the hash is None when the file could not be read."""
+    try:
+        data = read_capped(path, MAX_CSV_BYTES)
+    except OSError as exc:
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {exc}")]), None
+    if data is None:
+        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")]), None
+    return _parse(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8", newline=""), where, columns, rule), \
+        sha256_bytes(data)
+
+
+def _parse(stream, where: str, columns: tuple, rule: str) -> Rows:
+    out = Rows()
     try:
         with stream:
             reader = csv.reader(stream)
@@ -187,23 +203,34 @@ def bucket_all(rows: list, values: list) -> set:
 
 
 # --------------------------------------------------------------------------- years and periods (4.8)
-_BC = r"\s*(?:b\.c\.e\.|b\.c\.|bce|bc)(?![A-Za-z])"
+#: A BC or BCE marker after a number, as a whole token, in any case, dotted or not, spaced or not: ``BC``, ``B.C.``,
+#: ``B.C``, ``B. C.``, ``BCE``, ``B.C.E.``, ``B.C.E``.
+_BC = r"\s*b\.?\s?c\.?(?:\s?e\.?)?(?![A-Za-z])"
 #: A run of digits, with an optional sign before it and an optional BC/BCE marker after it.
 _RUN = re.compile(r"(?<![0-9])(-?)([0-9]+)(?![0-9])(" + _BC + r")?", re.I)
-#: A stated century: an ordinal number followed, as a whole token, by c, c., cent, cent., century or centuries,
-#: in any case; an optional BC/BCE marker after it makes the century negative.
-_CENTURY = re.compile(r"(?<![0-9])([0-9]{1,2})(?:st|nd|rd|th)\s*(?:centuries|century|cent\.?|c\.?)(?![A-Za-z])"
-                      r"(" + _BC + r")?", re.I)
+_ORDINAL = r"([0-9]{1,2})(?:st|nd|rd|th)"
+#: A stated century: an ordinal number, or a range of two joined by ``-`` (``4th-5th``), followed as a whole token
+#: by c, c., cent, cent., century or centuries, in any case; a BC/BCE marker after it makes it negative.
+_CENTURY = re.compile(r"(?<![0-9])" + _ORDINAL + r"(?:\s*-\s*" + _ORDINAL + r")?"
+                      r"\s*(?:centuries|century|cent\.?|c\.?)(?![A-Za-z])(" + _BC + r")?", re.I)
+
+
+def _grouped(value: str, start: int, end: int) -> bool:
+    """Whether the run at ``value[start:end]`` is part of a number grouped with ``,`` or ``.`` (``1,750``,
+    ``1.750``, ``1750.5``): directly after a digit and a separator, or directly before a separator and a digit."""
+    before = start >= 2 and value[start - 1] in ",." and value[start - 2].isdigit()
+    after = end + 1 < len(value) and value[end] in ",." and value[end + 1].isdigit()
+    return before or after
 
 
 def _runs(value: str) -> list:
     """Runs of three or four digits that are not part of a longer number and not negative (4.8, lines 699-701).
-    Negative: a ``-`` directly before the run that follows no digit (``-350``; after a digit, ``1740-1790`` is a
-    range), or a BC/BCE marker directly after it (``350 BC``)."""
+    A longer number includes one grouped with ``,`` or ``.``. Negative: a ``-`` directly before the run that follows
+    no digit (``-350``; after a digit, ``1740-1790`` is a range), or a BC/BCE marker directly after it."""
     years = []
     for m in _RUN.finditer(value):
         sign, digits, bc = m.group(1), m.group(2), m.group(3)
-        if len(digits) not in (3, 4) or bc:
+        if len(digits) not in (3, 4) or bc or _grouped(value, m.start(2), m.end(2)):
             continue
         if sign and (m.start() == 0 or not value[m.start() - 1].isdigit()):
             continue
@@ -212,10 +239,16 @@ def _runs(value: str) -> list:
 
 
 def _centuries(value: str) -> list:
-    """The middle years of the centuries a value states (``4th c.`` -> 350); a century marked BC/BCE is negative
-    and not read."""
-    return [(int(m.group(1)) - 1) * 100 + 50 for m in _CENTURY.finditer(value)
-            if int(m.group(1)) >= 1 and not m.group(2)]
+    """The middle years of the centuries a value states, in order (``4th c.`` -> 350; ``4th-5th centuries`` ->
+    350, 450); a century marked BC/BCE is negative and not read."""
+    years = []
+    for m in _CENTURY.finditer(value):
+        if m.group(3):
+            continue
+        for g in (m.group(1), m.group(2)):
+            if g is not None and int(g) >= 1:
+                years.append((int(g) - 1) * 100 + 50)
+    return years
 
 
 def year_of(value: str, basis: str) -> int | None:
