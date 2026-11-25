@@ -34,7 +34,7 @@ sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
     Finding, SurveyUsageError, file_identity, parse_args, print_findings, q, read_capped, reason, resolve_path, safe,
-    sha256_bytes, symlink_components, usage_exit,
+    sha256_bytes, symlink_components, unsafe_chars, usage_exit,
 )
 from survey_evidence import COLUMNS, REGISTRY_COLUMNS, check_row_files, current_breaches  # noqa: E402
 from survey_identity import plan_registry  # noqa: E402
@@ -106,20 +106,29 @@ def merged_bytes(existing: bytes | None, batch_rows: list) -> bytes:
     return (head + buf.getvalue()).encode("utf-8")
 
 
+#: The evidence columns whose values are identifiers or declared names, compared exactly or matched as a whole:
+#: the row's id, the person, the unit, the source, the attribute kind, the tier, the basis, the locator (a locus id
+#: or a receipt key) and the url. They may hold no white-space control character either. Every other column is free
+#: text, where a TAB or a line break is part of the text (a quotation "as it stands", 5.3; folding makes each run of
+#: white space one space, rule 1.10).
+ID_COLUMNS = ("id", "person_id", "unit_id", "source_id", "attribute_kind", "tier", "basis", "locator", "url")
+
+
 def unsafe_cells(batch) -> list:
-    """Findings for a batch cell holding a control, format or line-separator character (Unicode category C, or a
-    line or paragraph separator): legal in quoted CSV, but it splits a line for anything that reads line by line.
-    Only batch rows are judged; rows already in the file are not (proposal 8)."""
+    """Findings for a batch cell holding a character of ``UNSAFE_CATEGORIES`` (control, format, line or paragraph
+    separator), with TAB, LF and CR LF allowed in free-text columns (not in :data:`ID_COLUMNS`); a lone CR is
+    refused everywhere. Only batch rows are judged; rows already in the file are not (proposal 8). A multi-line
+    cell cannot alter another row: the merge reads the merged file back cell for cell."""
     out = []
     for index, (_n, r) in enumerate(batch.rows, start=1):
         for col in COLUMNS:
-            bad = sorted({ch for ch in r[col] if unicodedata.category(ch)[0] == "C" or
-                          unicodedata.category(ch) in ("Zl", "Zp")})
+            bad = unsafe_chars(r[col], text_whitespace=col not in ID_COLUMNS)
             if bad:
                 codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
-                out.append(Finding("batch-control", f"batch row {index}", f"column {col} holds a control, format or "
-                                   f"line-separator character ({codes}); a batch cell may not (contract silent; "
-                                   "refused)"))
+                kind = "an identifier" if col in ID_COLUMNS else "a text"
+                out.append(Finding("batch-control", f"batch row {index}", f"column {col} ({kind} column) holds a "
+                                   f"control, format or line-separator character it may not ({codes}); contract "
+                                   "silent, refused"))
     return out
 
 
@@ -240,6 +249,8 @@ def merge(root: Path, project: str, batch_arg: str) -> int:
         check_output_target(study, rec_rel)
     except WriteRefused as exc:
         return refuse(f"{reason(exc)}; nothing was merged")
+    # The overrides and attribution files are not guarded: if one changes mid-run, the renewed record names their old
+    # hashes, so the registry reads as not built (fails safe) until survey-registry runs again.
     guards = {ev.repo_rel: ev_sha, reg.repo_rel: reg_sha, rec_rel: rec_sha, rp.repo_rel: sha256_bytes(batch_data)}
     try:
         # The evidence file first, the registry's renewed record last (4.4, lines 521-523). No state an interruption

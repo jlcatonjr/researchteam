@@ -65,6 +65,26 @@ def q(value) -> str:
     return text if len(text) <= MAX_QUOTED_CHARS else text[:MAX_QUOTED_CHARS] + "\u2026"
 
 
+#: The characters no identifier and no registry value may hold, and no batch cell either (bar the white space
+#: below): control characters (Cc), format characters (Cf: bidirectional overrides, zero-width characters) and line
+#: and paragraph separators. Not the rest of category C: private use (Co) is used in scholarly transcriptions, and
+#: unassigned (Cn) changes with the running Python's Unicode data, which would make a verdict version-dependent.
+UNSAFE_CATEGORIES = ("Cc", "Cf", "Zl", "Zp")
+
+
+def unsafe_chars(text: str, *, text_whitespace: bool = False) -> list:
+    """The characters of *text* in UNSAFE_CATEGORIES, sorted. With *text_whitespace* (a free-text cell), a TAB, a LF
+    and a CR directly followed by a LF are allowed; a lone CR never is."""
+    bad = set()
+    for i, ch in enumerate(text):
+        if unicodedata.category(ch) not in UNSAFE_CATEGORIES:
+            continue
+        if text_whitespace and (ch in "\t\n" or (ch == "\r" and text[i + 1:i + 2] == "\n")):
+            continue
+        bad.add(ch)
+    return sorted(bad)
+
+
 def safe(text: str) -> str:
     """*text* with every control, format, surrogate, private-use or line/paragraph-separator character escaped
     (``\\xNN``, ``\\uNNNN``), so that what a file holds cannot add a line or move the cursor in the output."""

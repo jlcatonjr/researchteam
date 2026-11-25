@@ -14,12 +14,11 @@ import csv
 import io
 import os
 import re
-import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import columns as attribution_columns
-from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped, reason
+from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped, reason, unsafe_chars
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS
 from survey_evidence import REGISTRY_COLUMNS
 from survey_provenance import ABSENT
@@ -232,7 +231,7 @@ def unsafe_values(rows: list, where: str) -> list:
     out = []
     for r in rows:
         for col in REGISTRY_COLUMNS:
-            bad = sorted({ch for ch in r[col] if unicodedata.category(ch) in ("Cc", "Cf", "Zl", "Zp")})
+            bad = unsafe_chars(r[col])
             if bad:
                 codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
                 out.append(Finding("registry-value", where, f"{col} {q(r[col])} of person {q(r['person_id'])} holds "

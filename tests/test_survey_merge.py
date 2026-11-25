@@ -449,13 +449,59 @@ def test_a_batch_reached_through_a_link_inside_the_study_is_refused(tmp_path):
     assert "symbolic link" in out
 
 
-@pytest.mark.parametrize("cell", [b'"two\nlines"', b'"carriage\rreturn"', b"tab\there", b"bell\x07", "zero​width".encode()])
-def test_a_batch_cell_with_a_control_character_is_refused(tmp_path, cell):
-    """S4: legal quoted CSV, but it splits a line for a line-by-line reader."""
+@pytest.mark.parametrize("old,new", [
+    (b"ev-201,", b'"ev\n201",'),                  # an LF in id
+    (b",warden-01,", b',"warden\t01",'),           # a TAB in person_id
+    (b",p-001,,", b',"p-001\r\n",,'),              # a CR LF in unit_id
+    (b",src-9,", b',"src\n9",'),                   # an LF in source_id
+    (b"North Quay", b'"North\rQuay"'),             # a lone CR, in a text column too
+    (b"North Quay", "North\u200bQuay".encode()),   # a zero-width character (Cf)
+    (b"North Quay", b"North\x07Quay"),             # a bell (Cc)
+    (b"North Quay", "North\u2028Quay".encode()),   # a line separator (Zl)
+])
+def test_a_batch_cell_with_a_character_it_may_not_hold_is_refused(tmp_path, old, new):
+    """T1/S4: identifier columns hold no control or white-space control character; any column, no lone CR and no
+    Cc (but TAB, LF, CR LF in text), Cf, Zl or Zp."""
     root = _repo(tmp_path)
-    name = _batch(root, GOOD.replace(b"North Quay", cell))
+    name = _batch(root, GOOD.replace(old, new))
     out = _refused(root, name)
     assert "[batch-control]" in out
+
+
+@pytest.mark.parametrize("old,new", [
+    (b"from the north quay", b'"from the north quay,\nas the logbook has it"'),  # a two-line quotation
+    (b"letter-09#p1,from", b"letter-09#p1,from"),  # unchanged quote; the note gets a tab below
+])
+def test_a_batch_with_a_line_break_or_tab_in_a_text_cell_merges(tmp_path, old, new):
+    """T1: 4.1 line 323 judges a batch by the file's rules, which accept such cells; the merged file is the old bytes
+    followed by the batch rows as the writer quotes them."""
+    import csv
+    import io
+    root = _repo(tmp_path)
+    body = GOOD.replace(old, new)
+    if old == new:
+        body = body.replace(b",,\n", b',"an invented\tnote",\n')
+    name = _batch(root, body)
+    before = (root / EVIDENCE).read_bytes()
+    code, out, _ = _merge(root, name)
+    assert code == 0, out
+    row = next(csv.reader(io.StringIO(body.decode("utf-8"), newline="")))
+    buf = io.StringIO()
+    csv.writer(buf, lineterminator="\n").writerow(row)
+    assert (root / EVIDENCE).read_bytes() == before + buf.getvalue().encode("utf-8")
+
+
+def test_a_private_use_character_is_accepted(tmp_path):
+    """T1: private use (Co) is used by scholarly transcriptions; only Cc, Cf, Zl and Zp are refused."""
+    root = _repo(tmp_path)
+    name = _batch(root, GOOD.replace(b"from the north quay", "from the north \ue000quay".encode()))
+    assert _merge(root, name)[0] == 0
+
+
+def test_the_registry_and_the_batch_share_one_set_of_unsafe_characters():
+    from survey_support import survey_core as core, survey_identity as ident
+    rows = [{"person_id": "a\ue000", "display_name": "x", "identity_id": "", "merged_from": ""}]
+    assert ident.unsafe_values(rows, "r") == [] and core.UNSAFE_CATEGORIES == ("Cc", "Cf", "Zl", "Zp")
 
 
 def test_an_existing_row_with_a_line_break_is_not_rejudged(tmp_path):
@@ -519,6 +565,17 @@ def test_no_exceptions_draft_for_an_id_with_a_control_character(tmp_path):
     """T7: the printed draft could not name such an id exactly, so it is refused, naming the row."""
     root = _legacy_without_exceptions(tmp_path)
     path = root / EVIDENCE
-    path.write_bytes(path.read_bytes().replace(b"ev-005,", b"ev\x1b-005,"))
+    path.write_bytes(path.read_bytes().replace(b"ev-005,guild-01,duty,lamp and bell,quoted",
+                                               b"ev\x1b-005,guild-01,duty,lamp and bell,rumoured"))  # with a breach
     code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
     assert code == 1 and "[exceptions-draft]" in out and f"{EVIDENCE}:6" in out and "\x1b" not in out
+
+
+def test_an_id_with_a_control_character_in_a_row_without_a_breach_does_not_stop_the_draft(tmp_path):
+    """T4: only a row with a breach to list must be nameable."""
+    root = _legacy_without_exceptions(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"ev-005,", b"ev\x1b-005,").replace(
+        b"ev-001,warden-01,work_date,1742,quoted", b"ev-001,warden-01,work_date,1742,rumoured"))
+    code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
+    assert code == 0 and out == "id,rule\nev-001,tier-unknown\n"

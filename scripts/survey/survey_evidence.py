@@ -9,13 +9,12 @@ from __future__ import annotations
 
 import os
 import re
-import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import check_attribution
 from survey_core import (
-    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, sha256_bytes,
+    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, sha256_bytes, unsafe_chars,
 )
 from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, read_rows_hashed, search
 
@@ -459,12 +458,12 @@ def current_breaches(study) -> tuple:
         ids[r["id"]] = ids.get(r["id"], 0) + 1
     breaches, stops = [], []
     for n, r in rows.rows:
-        bad = [ch for ch in r["id"] if unicodedata.category(ch)[0] == "C" or unicodedata.category(ch) in ("Zl", "Zp")]
-        if bad:
+        found = row_breaches(study, r, ids, persons, units, kinds, vocab or [])
+        if found and unsafe_chars(r["id"]):  # only a row with a breach to list must be nameable
             stops.append(Finding("exceptions-draft", f"{rp.repo_rel}:{n}", f"id {q(r['id'])} holds a control, format "
                                  "or line-separator character; a printed draft could not name it exactly"))
             continue
-        for rule, msg in row_breaches(study, r, ids, persons, units, kinds, vocab or []):
+        for rule, msg in found:
             if rule in UNLISTABLE:
                 stops.append(Finding(rule, f"{rp.repo_rel}:{n}", f"{msg}; a breach of {rule} cannot be listed (4.1, "
                                      "lines 357-358), so no exceptions file can name this row"))
