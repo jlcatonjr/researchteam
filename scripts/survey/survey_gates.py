@@ -22,7 +22,7 @@ import survey_ledger
 import survey_verify
 from survey_core import (
     GATES, MAX_JSON_BYTES, Finding, canonical_json, file_identity, file_sha256, load_json_strict, read_capped,
-    reason, sha256_bytes,
+    q, reason, sha256_bytes,
 )
 
 __all__ = ["GATES"]  # re-exported: the commands take the gate list from here or from survey_core
@@ -168,13 +168,14 @@ def row_author(row: dict) -> str:
 
 def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     """Why the deciding row cannot clear the gate under the tools' own rules (6.2 and the operator's decisions of
-    2026-11-25), or ``""``. Values from the log are quoted raw; every command escapes them where it prints (@security case 45)."""
+    2026-11-25), or ``""``. Values from the log are quoted with ``q()`` (cut at its length); every command escapes them
+    where it prints (@security case 45)."""
     if row is None:
         return ("no row in the ledger log names this action; the operator signs the action survey-manifest prints "
                 "(6.2)")
     at = f"ledger log line {row['_line']}"
     if row["action_reviewed"] != act:
-        return (f"the latest row for this action ({at}) names '{row['action_reviewed']}', not exactly the "
+        return (f"the latest row for this action ({at}) names {q(row['action_reviewed'])}, not exactly the "
                 "action; the tools compare actions exactly, case included (@security case 46)")
     verdict, conditions = row["verdict"], row["conditions_verified"]
     if CHECKOUT_MARK in conditions.lower():
@@ -183,8 +184,8 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     if verdict == "HALT":
         return f"the latest row for this action ({at}) is a HALT"
     if not (verdict == "PASS" or (verdict == "CONDITIONAL PASS" and conditions.strip().lower() == "verified")):
-        return (f"the row that decides ({at}) has verdict '{verdict}' with conditions_verified "
-                f"'{conditions}'; only a PASS, or a CONDITIONAL PASS whose conditions are verified, clears "
+        return (f"the row that decides ({at}) has verdict {q(verdict)} with conditions_verified "
+                f"{q(conditions)}; only a PASS, or a CONDITIONAL PASS whose conditions are verified, clears "
                 "(6.2, lines 889-891)")
     filled = [c for c in EMPTY_COLUMNS if row.get(c, "").strip()]
     if filled:
@@ -192,14 +193,14 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
                 "(a stricter default the session adopted, Q6)")
     key_id = row["key_id"]
     if not KEY_ID.fullmatch(key_id) or ".." in key_id:
-        return (f"the row that decides ({at}) names the key id '{key_id}', which is not a plain file stem "
+        return (f"the row that decides ({at}) names the key id {q(key_id)}, which is not a plain file stem "
                 "(@security case 44)")
     if f"{key_id}.pub.pem" not in keys:
-        return (f"the row that decides ({at}) names the key '{key_id}', which is not a key file in the "
+        return (f"the row that decides ({at}) names the key {q(key_id)}, which is not a key file in the "
                 "ledger folder's authorized-verify-keys/ (6.2, line 862)")
     author = row_author(row)
     if author not in approvers:
-        return (f"the row that decides ({at}) is by '{author}', who is not on the ledger folder's approver "
+        return (f"the row that decides ({at}) is by {q(author)}, who is not on the ledger folder's approver "
                 "list (6.2, lines 841-842)")
     return ""
 
@@ -262,7 +263,7 @@ def verify_signoff(study, gate: str, manifest_sha256: str, ledger, verifier) -> 
         return UNAVAILABLE, "the ledger folder changed while agentteams checked it; run again", {}
     evidence = {"line": row["_line"], "author": row_author(row), "key_id": row["key_id"], "verifier": result.info}
     if result.outcome == survey_verify.CLEARED:
-        return CLEARED, f"signed by '{evidence['author']}' with key '{row['key_id']}' (ledger log " \
+        return CLEARED, f"signed by {q(evidence['author'])} with key {q(row['key_id'])} (ledger log " \
                         f"line {row['_line']})", evidence
     if result.outcome == survey_verify.NOT_CLEARED:
         return UNCLEARED, NOT_CLEARED, {"verifier": result.info}

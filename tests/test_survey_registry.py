@@ -311,8 +311,8 @@ def test_gate_entries_record_each_state_as_gate_status_gives_it(tmp_path):
     study = _study(root)
     entries = prov.gate_entries(study, ("S0", "S8"))
     assert entries["S8"] == {"state": "NOT DECLARED", "mode": "", "enforce": ""}
-    status = survey_gates.gate_status(study, "S0", survey_ledger.check_ledger(study))[0]
-    assert entries["S0"]["state"] == status.state and status.state in ("UNCLEARED", "UNAVAILABLE", "CLEARED")
+    # No manifest has been requested for S0, so the gate reads UNCLEARED (step F, 6.1), with or without agentteams.
+    assert entries["S0"]["state"] == "UNCLEARED"
     assert entries["S0"]["enforce"] == "blocking" and len(entries["S0"]["manifest_sha256"]) == 64
 
 

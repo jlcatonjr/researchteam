@@ -542,7 +542,7 @@ def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
             for action in actions:
                 for gate in family_gates(action):
                     led.family_halts.setdefault(gate, []).append(
-                        f"a HALT row on '{action}' in {rel}/{LOG}:{line} names the {FAMILY} family, which "
+                        f"a HALT row on {q(action)} in {rel}/{LOG}:{line} names the {FAMILY} family, which "
                         "binds this gate. Interim rule (operator decision, 2026-11-25): any such HALT row blocks, "
                         "signed or not, and a retraction does not count until agentteams offers a public call that "
                         "judges it under that log's own rules. Whether this HALT still stands cannot be verified "

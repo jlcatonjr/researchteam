@@ -61,7 +61,8 @@ def gate_entry(status) -> dict:
 
 def gate_entries(study, gates: tuple) -> dict:
     """The ``gates`` field for a stage that depends on *gates*, with each state as ``survey_gates.gate_status``
-    returns it (in this version never ``CLEARED``)."""
+    returns it (since step F, ``CLEARED`` where a valid sign-off verifies; otherwise ``UNCLEARED`` or
+    ``UNAVAILABLE``)."""
     from survey_gates import gate_status
     from survey_ledger import check_ledger
 

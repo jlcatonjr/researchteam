@@ -96,6 +96,8 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/survey/survey_provenance.py",
     "scripts/survey/survey_identity.py",
     "scripts/survey/survey_registry.py",
+    # Step B part 2b: the batch merge (4.1, 4.4).
+    "scripts/survey/survey_rows.py",
     # Step F: sign-off verification (6.2), reaching agentteams only as a child process.
     "scripts/survey/survey_verify.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
