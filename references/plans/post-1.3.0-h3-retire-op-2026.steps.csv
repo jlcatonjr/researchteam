@@ -3,16 +3,17 @@ step,agent,action,inputs,outputs,status,notes,depends_on
 2,orchestrator,Search for lookups of every op-2026 row's action id in both logs,repository; agentteams 1.3.0,table in the plan,done,no op-2026 id is looked up by code; one text match in the cut scripts,
 3,orchestrator,Rehearse the removal in scratch copies; run every check; check the backup folders,team folders; group file; registry,rehearsal record in the plan,done,every needed row clears without the key; the active registry entry becomes unbound and no audit reports it,2
 4,orchestrator,Read the release/1.x key stores and logs,remote branches,note for P4,done,release/1.0 to 1.2 depend wholly on op-2026; release/1.3 holds both keys,
-5,security,Review phase 1; state the preconditions of each later step,1;2;3;4,verdict,pending,read-only,3;4
+5,security,Review phase 1; state the preconditions of each later step,1;2;3;4,verdict,done,CONDITIONAL PASS: conditions C1 to C6 in the plan; cleared for the picker and drafting script one only,3;4
 6,orchestrator,Ask the operator P2; P3; P4 in the picker,5,answers recorded,pending,,5
 7,git-operations,Re-registration of the branch-deletion exception against its opr-2026-11 row; keyed on the action id,6; agentteams 1.3.0,script part,pending,use an agentteams gate if one exists; leaves any other entry and the cap alone,6
-8,git-operations,@security records the clearance for the re-registration; then operator script one: re-register (and a new cooldown decision if P2 asks); audit; clearance checks,7,tracked copy and operator copy,pending,@security reviews the script; clearance recorded before the run (the registry entry is a trust record),7
+8,git-operations,@security records the clearance for the re-registration; then operator script one: re-register (and a new cooldown decision if P2 asks); audit; clearance checks,7,tracked copy and operator copy,pending,@security reviews the script; clearance recorded before the run (the registry entry is a trust record); clearance id exception-rebind:repo-setting:delete-branch-on-merge:jlcatonjr/researchteam (C1); autosync paused (C4),7
 9,operator,Run script one,8,changed registry (and log),pending,no H4 signature between this run and its merge,8
 10,orchestrator,Verify; commit; first pull request; @security PASS naming the paths; operator's answer; merge; CI on main,9,merge commit,pending,PS-2,9
-11,security,Record the clearance for the removal; name the main commit and the two files,10,recorded clearance,pending,C-5: before the act,10
+11,security,Record the clearance for the removal; name the main commit and the two files,10,recorded clearance,pending,C-5: before the act; clearance id key-retire:op-2026 (C2); four further tests first,10
+11a,orchestrator,Before C2: regeneration in a scratch copy without the key; runtime hooks without the key; binding check on the committed registry; docs/release-policy.md marks the cited cooldown rows as history,10,results in the plan; a docs pull request,pending,@security condition,10
 12,git-operations,Operator script two: remove op-2026 from the two key stores; run the checks; restore on failure,11,tracked copy and operator copy,pending,@security reviews; autosync paused by the operator from the run to the merge,11
 13,operator,Run script two,12,two key files removed,pending,no H4 signature between this run and its merge,12
 14,orchestrator,Verify; commit; second pull request; @security PASS; operator's answer; merge; CI; tell the coordinator,13,merge commit,pending,PS-2,13
 15,orchestrator,release/1.x as ruled in P4: left alone or recorded for the next tagged release on the line,6;14,record,pending,no pull request against a release branch,14
-16,git-operations,The next cut script stops requiring s10-release-cooldown-restored as a text line; or checks signatures,6 (P2); the script template,note in the plan for the next release's script,pending,carried to the next release plan,6
+16,git-operations,The next cut script stops requiring s10-release-cooldown-restored as a text line; or checks signatures,6 (P2); the script template,note in the plan for the next release's script,pending,blocking for the next cut (@security),6
 17,operator,Disposition of the old private key,14,recorded as done by the operator,pending,the session never reads; moves or deletes it,14

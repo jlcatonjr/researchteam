@@ -144,3 +144,48 @@ the binding check.
 - The re-bound entry's expiry: the entry says 2027-02-18; the re-signed row's own 90 days would run to
   2027-02-20. The plan keeps 2027-02-18, the earlier date.
 - Whether agentteams' audit should check bindings is a request for agentteams, sent as information.
+
+## `@security` on phase 1 (2026-11-25): CONDITIONAL PASS
+
+Cleared: the operator's decisions and the drafting of script one. Not cleared: running script one, or any key
+removal. Conditions, binding on phases 2 and 3:
+
+- **C1, clearance before script one.** Action `exception-rebind:repo-setting:delete-branch-on-merge:jlcatonjr/researchteam`.
+  It names the base `main` commit, the script's tracked path and hash, the old entry and its row hash, and the new
+  binding (key `opr-2026-11`, the 2026-11-22 row, expiry 2027-02-18). No new signed row is needed: the re-signed
+  row is the same operator decision. The expiry stays 2027-02-18, which is what was signed.
+- **Script one** calls only the registry functions of the agentteams the lock pins, never edits the JSON by
+  hand, and is run by the operator. Before it writes: both keys present; the registry's hash is the one the
+  clearance names; exactly one active entry for the action; the 2026-11-22 row is the newest of its id and
+  verifies; no unretracted HALT on `branch-delete`, the `repo-setting` family or the action. After it writes:
+  exactly one active entry, bound to the new row, same expiry and lineage; the old entry retired with a reason
+  naming the new id, not deleted; the sunset entry and the group sequence byte-identical; the count of active
+  relaxing exceptions unchanged; the decisions log byte-identical; only the registry file changed; the binding
+  check passes, also in a scratch copy with the old key removed; the exception audit, the integrity check, the
+  frozen-key audit and the group verification pass.
+- **The sunset entry is left unchanged.** It is inert history; that its row is revoked at removal is recorded
+  here and nowhere in the registry.
+- **C2, clearance before script two.** Action `key-retire:op-2026`. It names phase 2's merge commit with green
+  CI, both key files with their hashes, script two's hash, the rows the removal revokes, and the operator's
+  answers P2, P3 and P4. The deletion also has the operator's confirmation in the picker (S-4).
+- **Tests that must pass before C2,** none of which the phase 1 rehearsal ran: a regeneration
+  (`agentteams --update --merge`) in a scratch copy with the key removed neither restores the key nor touches the
+  two key stores or the registry (a regeneration that restored it would make the autosync's trust-root gate
+  refuse every sync); the runtime hooks with the key removed; the binding check on the committed registry; the
+  test checks on the pull request head.
+- **C3.** If the key is retired before H4 is signed, the App has no authorization in this repository from the
+  removal until H4's row; the operator confirms the App is idle or suspended. H4's row is a new id under the new
+  key, never a re-sign of the pilot.
+- **C4.** The autosync is paused by the operator for both windows (script one also writes under
+  `.github/agents/references/`), and open autosync pull requests are closed before each run. No H4 signature in
+  either window.
+- **C5.** The old private key is the operator's: kept offline while the older release lines may still need a
+  patch, never used for a `main` row again. The session never touches it.
+- **C6.** The release coordinator is told before and after, as information.
+- **P2, `@security`'s view:** both cooldown rows lapse. The cooldown rests on Rule S-10's text and the first-party
+  carve-out on the signed group file, so a new decision would add nothing. Two conditions: `docs/release-policy.md`
+  marks the rows it cites as history, and step 16 (the cut script no longer matching a revoked row as text) is
+  blocking for the next cut.
+- **P4, `@security`'s view:** leave `release/1.0` to `1.2` alone. A pull request that brings `op-2026` back onto
+  `main` (a forward-port from those lines, for example) is a HALT.
+- The generated memory indexes mention `op-2026` until they are next rebuilt through the normal path.
