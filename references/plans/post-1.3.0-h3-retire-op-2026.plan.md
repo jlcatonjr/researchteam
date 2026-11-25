@@ -280,3 +280,27 @@ time; its third review is running.
   others; an existing folder is reused only if everything in it, links included, is root's and every link stays
   inside; the interpreter is the root-owned framework build; the one build tool is installed by hash and the
   build runs without downloading anything else to run.
+
+## Correction (2026-11-25): the root-owned install in use, and script 32 withdrawn
+
+The section "Finding: how the existing root-owned install was built" above rests on a wrong premise that the
+session gave `@security`: that the install in use was built by the October script in this repository. It was not.
+
+- **What is true, read from the install itself.** The root-owned agentteams install the operator scripts use is
+  version 1.2.1, built on the root-owned framework Python with hash-pinned wheels, and nothing in its tree is
+  owned by anyone but root or writable by others. It was built on 2026-11-21 by the managing repository's own
+  reviewed procedure, after that repository's security review of the interpreter question and the operator's
+  ruling to rebuild. Earlier installs, built on the other interpreter, sit beside it and are not the ones in use.
+- **So `@security`'s three recommendations (re-check what was signed, consider rotating the key, stop using the
+  install) do not follow for the install in use.** They were answers to the session's wrong description. Whether
+  anything is owed for signatures made with the earlier installs was the managing repository's review of
+  2026-11-21 and is not reopened here; the release coordinator has been asked nothing about it.
+- **Script 32 is withdrawn and was not handed over.** Building the trusted install is the managing repository's
+  procedure, with its own review; a second builder here would be the wrong shape. The branch
+  `chore/root-owned-agentteams-1.3.0` stays as the record of the draft and its four reviews. The operator's
+  ruling "Build a root-owned 1.3.0" stands; it is carried out by asking the release coordinator for a 1.3.0
+  build by that procedure (asked 2026-11-25, as a question).
+- **What does not change:** script 31 needs agentteams 1.3.0 and waits for that install. Scripts 29 and 30 ran
+  their checks with the 1.2.1 install; that fact stands as recorded.
+- **Lesson for the session:** a claim about how something outside this repository was built is checked against
+  the thing itself before it is given to a reviewer or to the operator.
