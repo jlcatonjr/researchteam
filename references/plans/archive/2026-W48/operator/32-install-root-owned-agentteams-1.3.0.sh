@@ -28,24 +28,53 @@ CONSTRAINTS_PATH="docs/release/constraints-2026-11-13.txt"
 CONSTRAINTS_SHA="3a5d948a7af99b9b7280b074669b1742a285612b1a4a21009fc1f45415337c55"
 case "$ROOT_HOME" in /*) ;; *) die "ROOT_HOME must be an absolute path (the tracked copy holds a placeholder and does not run)" ;; esac
 case "$ROOT_HOME/" in "$HOME"/*) die "ROOT_HOME must be outside your home folder" ;; esac
-case "$ROOT_HOME" in *..*|*//*) die "ROOT_HOME must be a plain path" ;; esac
-owner() { /usr/bin/stat -f %Su "$1"; }
-# Anything not owned by root, or writable by group or others, under a folder (links themselves excepted).
-loose() { /usr/bin/find "$1" \( ! -user root -o -perm +022 \) ! -type l -print -quit 2>/dev/null; }
-[ -x "$PY" ] || die "need the python.org Python 3.13 at $PY"
-[ "$(owner "$PY")" = root ] || die "$PY is not root-owned"
-[ -z "$(loose "$PY_HOME")" ] || die "something under $PY_HOME is not root-owned or is writable by others: $(loose "$PY_HOME")"
-PARENT="$(/usr/bin/dirname "$ROOT_HOME")"
-[ -d "$PARENT" ] && [ ! -L "$PARENT" ] || die "$PARENT must be an existing folder, not a link"
-[ "$(owner "$PARENT")" = root ] || die "$PARENT is not root-owned"
-[ -z "$(/usr/bin/find "$PARENT" -maxdepth 0 -perm +022 -print)" ] || die "$PARENT is writable by group or others"
-[ ! -L "$ROOT_HOME" ] || die "$ROOT_HOME is a link"
+case "$ROOT_HOME" in *..*|*//*|*[[:space:]]*) die "ROOT_HOME must be a plain path without spaces" ;; esac
 # Everything run as root gets an empty environment and root's own home: no variable, user site-packages or pip
 # configuration of yours reaches it. Nothing run as root starts in /tmp or in a folder you can write.
 asroot() { sudo /usr/bin/env -i PATH=/usr/bin:/bin HOME=/var/root GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1 PIP_CONFIG_FILE=/dev/null "$@"; }
 sg() { asroot /usr/bin/git -c core.hooksPath=/dev/null -c core.fsmonitor=false -c safe.directory="$SRC" "$@"; }
 vgit() { ngit -c safe.directory="$SRC" "$@"; }
+owner() { /usr/bin/stat -f %Su "$1"; }
+# loose DIR: the first thing under DIR that is not owned by root (links included), or that is writable by group or
+# others (a link's own mode is not meaningful, so only its owner is tested). Run as root, so nothing is skipped as
+# unreadable; if find itself fails, the run stops.
+loose() {
+  local out
+  out="$(asroot /usr/bin/find "$1" \( ! -user root -o \( ! -type l -perm +022 \) \) -print)" || die "cannot inspect $1; nothing was installed"
+  printf '%s\n' "$out" | /usr/bin/head -1
+}
+# rooted DIR: DIR and every folder above it is a real folder owned by root and not writable by group or others, so
+# no part of the path can be swapped by a process running as you.
+rooted() {
+  local d="$1"
+  while :; do
+    [ -d "$d" ] && [ ! -L "$d" ] || die "$d must be an existing folder, not a link"
+    [ "$(owner "$d")" = root ] || die "$d is not root-owned"
+    [ -z "$(/usr/bin/find "$d" -maxdepth 0 -perm +022 -print)" ] || die "$d is writable by group or others"
+    [ "$d" = / ] && break
+    d="$(/usr/bin/dirname "$d")"
+  done
+}
+# links_inside DIR ALLOWED...: every link under DIR resolves inside one of the ALLOWED folders.
+links_inside() {
+  asroot "$PY" -I -c 'import os, sys
+root, allowed = sys.argv[1], [os.path.realpath(a) + os.sep for a in sys.argv[2:]]
+bad = []
+for d, dirs, files in os.walk(root, followlinks=False):
+    for n in dirs + files:
+        p = os.path.join(d, n)
+        if os.path.islink(p) and not any((os.path.realpath(p) + os.sep).startswith(a) for a in allowed):
+            bad.append(p)
+print("\n".join(bad[:5])); sys.exit(1 if bad else 0)' "$@" || die "a link under $1 points outside the allowed folders; nothing was installed"
+}
 cd /
+echo "The checks below run as root and ask for your sudo password."
+[ -x "$PY" ] && [ ! -L "$PY_HOME" ] || die "need the python.org Python 3.13 at $PY"
+rooted "$PY_HOME"
+[ -z "$(loose "$PY_HOME")" ] || die "something under $PY_HOME is not root-owned or is writable by others: $(loose "$PY_HOME")"
+links_inside "$PY_HOME" /Library/Frameworks/Python.framework
+rooted "$(/usr/bin/dirname "$ROOT_HOME")"
+[ ! -L "$ROOT_HOME" ] || die "$ROOT_HOME is a link"
 
 TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
 ngit -C "$MAIN" cat-file -e "$CONSTRAINTS_COMMIT:$CONSTRAINTS_PATH" 2>/dev/null || ngit -C "$MAIN" fetch --quiet --no-tags "https://github.com/$REPO" "$CONSTRAINTS_COMMIT" || die "cannot find commit $CONSTRAINTS_COMMIT"
@@ -55,9 +84,11 @@ ngit -C "$MAIN" show "$CONSTRAINTS_COMMIT:$CONSTRAINTS_PATH" > "$TMP/constraints
 say "A root-owned agentteams $AT_TAG install at $ROOT_HOME"
 confirm "Create or reuse $ROOT_HOME (root-owned; asks for your sudo password)?"
 asroot /bin/mkdir -p "$ROOT_HOME" && asroot /usr/sbin/chown root:wheel "$ROOT_HOME" && asroot /bin/chmod 755 "$ROOT_HOME"
+rooted "$ROOT_HOME"
 # An existing folder is reused only if nothing in it could have been planted: a clone's own .git/config, or a
-# venv's interpreter, would otherwise be run as root below.
+# venv's interpreter, would otherwise be run as root below. Links count: each must be root's and stay inside.
 [ -z "$(loose "$ROOT_HOME")" ] || die "$ROOT_HOME already holds something not root-owned or writable by others ($(loose "$ROOT_HOME")); nothing was installed; tell the researchteam session"
+links_inside "$ROOT_HOME" "$ROOT_HOME" /Library/Frameworks/Python.framework
 if [ ! -d "$SRC/.git" ]; then
   sg clone --quiet --no-checkout --no-tags "$AT_REPO_URL.git" "$SRC"
 fi
@@ -83,16 +114,26 @@ asroot /bin/cp "$TMP/constraints.txt" "$ROOT_HOME/constraints.txt"
 [ "$(/usr/bin/shasum -a 256 "$ROOT_HOME/constraints.txt" | cut -d' ' -f1)" = "$CONSTRAINTS_SHA" ] || die "the copied constraints file differs"
 cd /
 [ -x "$ROOT_HOME/venv/bin/python" ] || asroot "$PY" -I -m venv --copies "$ROOT_HOME/venv"
-# The package's build backend runs as root here, on the source verified above. Its build requirement is pinned in
-# agentteams' own pyproject.toml; pip's --constraint does not reach the isolated build environment.
+# The package's build backend runs as root here, on the source verified above. The build tool is the one
+# agentteams' pyproject.toml pins at this tag (setuptools==84.2.1), installed first by hash, and the build then
+# runs without pip's isolated build environment, so nothing unpinned is downloaded and run as root.
+# S-10 for setuptools 84.2.1: released 2026-10-20 (past the 14-day cooldown); no advisory listed by PyPI on
+# 2026-11-25; the wheel's sha256 below is PyPI's for setuptools-84.2.1-py3-none-any.whl.
+grep -qF 'requires = ["setuptools==84.2.1"]' "$SRC/pyproject.toml" || die "agentteams at $AT_TAG does not pin setuptools==84.2.1 as its only build requirement; stop"
+printf 'setuptools==84.2.1 --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2\n' > "$TMP/build-requirements.txt"
+asroot /bin/cp "$TMP/build-requirements.txt" "$ROOT_HOME/build-requirements.txt"
+[ "$(/usr/bin/shasum -a 256 "$ROOT_HOME/build-requirements.txt" | cut -d' ' -f1)" = "$(/usr/bin/shasum -a 256 "$TMP/build-requirements.txt" | cut -d' ' -f1)" ] || die "the copied build requirements differ"
 asroot "$ROOT_HOME/venv/bin/python" -I -m pip --isolated --disable-pip-version-check install --quiet --no-cache-dir \
-  --constraint "$ROOT_HOME/constraints.txt" "$SRC[signing]"
+  --require-hashes --only-binary :all: -r "$ROOT_HOME/build-requirements.txt"
+asroot "$ROOT_HOME/venv/bin/python" -I -m pip --isolated --disable-pip-version-check install --quiet --no-cache-dir \
+  --no-build-isolation --constraint "$ROOT_HOME/constraints.txt" "$SRC[signing]"
 asroot /usr/sbin/chown -R root:wheel "$ROOT_HOME" && asroot /bin/chmod -R go-w "$ROOT_HOME"
 
 say "Checks"
 [ "$(owner "$ROOT_HOME/venv/bin/agentteams")" = root ] || die "the install is not root-owned"
 [ "$(owner "$ROOT_HOME/venv/bin/python")" = root ] || die "the interpreter is not root-owned"
 [ -z "$(loose "$ROOT_HOME")" ] || die "something under $ROOT_HOME is not root-owned or is writable by group or others: $(loose "$ROOT_HOME")"
+links_inside "$ROOT_HOME" "$ROOT_HOME" /Library/Frameworks/Python.framework
 ver="$(cd / && "$ROOT_HOME/venv/bin/python" -I -c 'import agentteams, cryptography; print(agentteams.__version__)')" || die "agentteams or cryptography does not import from the new install"
 [ "$ver" = "1.3.0" ] || die "the new install reports agentteams $ver, not 1.3.0"
 loc="$(cd / && "$ROOT_HOME/venv/bin/python" -I -c 'import agentteams, os; print(os.path.realpath(agentteams.__file__))')"
