@@ -77,6 +77,16 @@ def safe(text: str) -> str:
     return "".join(out)
 
 
+def reason(exc: BaseException) -> str:
+    """What went wrong, for an output line, without the path an OSError names (@security S4, S8, A2): an OSError gives
+    its ``strerror``, or else its class name (never its message, which may hold a path); anything else its message."""
+    if isinstance(exc, OSError):
+        if exc.strerror:
+            return exc.strerror
+        return type(exc).__name__  # a bare message may itself hold a path (@security A2)
+    return str(exc)
+
+
 class SurveyUsageError(Exception):
     """A usage or environment error: no such project, no repository root. Exit 2."""
 
@@ -334,7 +344,7 @@ def load_json_strict(data: bytes, where: str) -> tuple:
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError as exc:
-        return None, [Finding("json", where, f"not UTF-8: {exc}")]
+        return None, [Finding("json", where, f"not UTF-8: {reason(exc)}")]
     try:
         return json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_no_constant), []
     except _DuplicateKey as exc:
@@ -342,13 +352,13 @@ def load_json_strict(data: bytes, where: str) -> tuple:
     except RecursionError:
         return None, [Finding("json", where, "nested too deeply to read")]
     except ValueError as exc:
-        return None, [Finding("json", where, f"not valid JSON: {exc}")]
+        return None, [Finding("json", where, f"not valid JSON: {reason(exc)}")]
 
 
 def print_findings(findings, stream=None) -> None:
     stream = stream or sys.stdout
     for f in findings:
-        print(f.line(), file=stream)
+        print(safe(f.line()), file=stream)
 
 
 # --------------------------------------------------------------------------- command lines

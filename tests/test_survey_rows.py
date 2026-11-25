@@ -751,7 +751,8 @@ def test_a_read_error_partway_through_a_row_file_is_a_finding(tmp_path, monkeypa
 
     monkeypatch.setattr(tb, "open_text_capped", lambda path, cap: Failing("id\n"))
     rows = tb.read_rows(tmp_path / "any.csv", "any.csv", ("id",), "columns")
-    assert [f.rule for f in rows.findings] == ["columns"] and "device went away" in rows.findings[0].message
+    # an OSError's bare message may hold a path, so only its class name is printed (@security A2)
+    assert [f.rule for f in rows.findings] == ["columns"] and rows.findings[0].message == "cannot be read: OSError"
 
 
 def test_a_usage_error_is_printed_escaped(tmp_path):
