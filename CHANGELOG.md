@@ -30,6 +30,17 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     the CI gate (step H). The check table, with the points where the contract is silent, is
     `references/plans/post-1.3.0-h5-step-a-check-table.md`.
 
+- **Docs: the release policy gives the order for moving a derived repository to a new line.** No rule changes.
+  `docs/release-policy.md` told a derived repository to run `--write-lock` with both tags and did not say that a
+  locked repository must first drop both `.tag=` lines (said in the 1.2.0 and 1.3.0 changelog sections), that the
+  lock writer needs the new agentteams installed, or that a workspace with signed rows needs agentteams'
+  `signing` extra (both said only in the 1.3.0 section). The policy now has one passage, "Moving a derived
+  repository to a new line", that the 1.1, 1.2 and 1.3 line sections point to. It also covers a move within a
+  line: plain researchteam is installed, and the agentteams already locked is kept. The three bullets about
+  researchteam's own lock now say whose lock they mean. "Autosync and Layer 2" says the workflow is enabled,
+  proposes the agentteams update as one evergreen pull request and merges nothing, and keeps the 1.0-era pause
+  and the pause during the 1.3.0 cut as dated history; `docs/CONTRIBUTING.md` says the same.
+
 ## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
 
 The first release of the 1.3 line. It is `1.3.0rc1` plus: this section, the release notes, the cut record and the
