@@ -111,3 +111,34 @@ pull request.
   so step C adds callers and no second definition.
 - The metaplan's waves change accordingly: wave 2 is B part 1 and step F; B part 2 follows B part 1's merge and
   runs beside step F if F is still open; step C waits for B part 2.
+
+## Step C: what the contract leaves open, and what the reference tool does (2026-11-25; data)
+
+`@technical-validator` on step C part 1 (pull request #270): the code and adjudication checks match 4.2 as written,
+but line 400 plainly requires raw agreement, Cohen's κ and Gwet's AC1, and the text does not define the last two
+well enough to compute; and 4.2 does not say where final rows go or what the rollup's output is. The first
+integrating project's session described how its reference tool behaves (behaviour only):
+
+- **Agreement.** NA codes and the missing value count as ordinary categories. A unit enters only when it has both
+  passes. AC1's number of categories is the number of codes that occur in the outcome's pairs, not the number
+  the codebook allows. κ is unweighted, also for ordered levels. With no pairs all three are not-a-number; where
+  chance agreement is 1, κ and AC1 are reported as 1.0 by convention. Output is one plain line per outcome with
+  three decimals. Its users warn that counting NA and missing as categories with the category count taken from
+  the data makes AC1 look much better than κ on sparse outcomes, and that 1.0 for the undefined case is a
+  convention.
+- **Final codes.** Written to a separate file named on the command line; the file with passes A and B is never
+  rewritten. An agreed unit's final row is pass A's row with the coder given as "agreed" and a note that says so,
+  and says when the two passes cited different evidence. A disagreement or a missing pass needs an adjudication,
+  whose coder, basis, reporter, evidence and note the final row carries. A unit with no pass rows is silently
+  absent.
+- **Rollup.** Written to a file named on the command line: the person, the study's rollup keys, the author kind
+  where the study has attributions, one column per coded outcome that has a rollup rule, and the `__types` column
+  where the study asks for it. NA codes and the missing value are skipped before the rule is applied; a cell with
+  nothing left gets the missing value. It refuses an input without the finalising step's record.
+- **Records.** Both outputs carry a provenance record that lists gate S5 only.
+- **A problem from use, for a later contract version.** When a later ruling recodes a pass so that the passes
+  agree, the earlier adjudication becomes an error and must be removed for finalising to run, and the final row
+  shows "agreed" with no pointer to the ruling.
+
+These go to the operator as decisions; where the operator follows the reference, the tools match it, and where
+not, the difference is recorded for the step D comparison.
