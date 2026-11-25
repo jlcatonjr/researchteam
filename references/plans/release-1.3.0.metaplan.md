@@ -347,3 +347,13 @@ second pass.
   PR #261); `@security` is reading that change.
 - **Next:** the dry run's report; then the operator's answer on merging #261 and closing #156, script 30, and
   the resume of the autosync.
+- **Both downstream dry runs against `v1.3.0-rc.1` passed (2026-11-24).** The two repositories next in the
+  release order each reported no blocker; one note (agentteams' `signing` extra is needed for the group file to
+  verify) was added to the `1.3.0` upgrade steps.
+- **The final's release files are merged.** PR #261 at head `5a105f9` (operator's picker answer "Merge #261 at
+  5a105f9"; `@security` PASS at that head naming `CLAUDE.md` and the scaffold template; both test checks green),
+  merge commit `570724f5792412c2427763b4c6b102e33a9493e9`, whose tree equals the approved head. Both test checks
+  pass on it on `main`. PR #156 is closed as superseded (operator's answer, D9).
+- **With the operator:** script 30 (move `release/1.3` forward to `570724f` and sign `v1.3.0`; the go, D8). Its
+  read-only refusals were rehearsed on the merge commit and all hold. After it: the read-back, the message to the
+  release coordinator, the resume of the autosync (script 28), the archive branches and the close-out audit.
