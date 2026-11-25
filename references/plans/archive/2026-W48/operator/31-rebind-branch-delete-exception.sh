@@ -88,11 +88,11 @@ from agentteams.cli.exception_registry import (load_registry, active_relaxing_ex
                                                 retire_exception, audit_exceptions)
 from agentteams.cli.sandbox_relaxation_gate import _unbound_reason, _decision_binding, SANDBOX_EXCEPTION_TTL_DAYS
 from agentteams.cli.s10_exempt_gate import _split
+from agentteams.cli.decision_log import _assert_no_unretracted_halt
 
 wt, team_rel, action, old_id, old_binding, new_binding, new_key, expires, mode = sys.argv[1:10]
 team = Path(wt) / team_rel
-version = tuple(int(p) for p in agentteams.__version__.split(".")[:2])
-assert version >= (1, 3), f"agentteams {agentteams.__version__} is older than 1.3.0"
+assert agentteams.__version__ == "1.3.0", f"agentteams is {agentteams.__version__}; this script was reviewed against 1.3.0, the version toolchain.lock pins"
 print("  agentteams", agentteams.__version__)
 csv.field_size_limit(10**8)
 now = datetime.now(timezone.utc)
@@ -102,24 +102,18 @@ def rows_of(dirpath):
         return list(csv.DictReader(fh))
 
 def standing_halts():
-    """Unretracted HALT rows on branch-delete, the repo-setting family or the action, in every team log."""
+    """Unretracted HALTs on branch-delete, the repo-setting family or the action, in every team log, by agentteams'
+    own scan: a retraction counts only when it is authentic and carries evidence, and lineage ancestors are followed."""
     found = []
     for rel in (".github/agents", ".claude/agents", ".codex/agents", ".goose/recipes"):
-        path = Path(wt) / rel / "references" / "security-decisions.log.csv"
-        if not path.is_file():
+        team_dir = Path(wt) / rel
+        if not (team_dir / "references" / "security-decisions.log.csv").is_file():
             continue
-        with open(path, newline="", encoding="utf-8") as fh:
-            rows = list(csv.DictReader(fh))
-        for i, r in enumerate(rows):
-            act = (r.get("action_reviewed") or "").strip()
-            if (r.get("verdict") or "").strip().upper() != "HALT":
-                continue
-            if not (act == "branch-delete" or act.startswith("branch-delete:") or act == "repo-setting"
-                    or act.startswith("repo-setting:") or act == action):
-                continue
-            if not any((n.get("verdict") or "").strip().upper() == "HALT-RETRACTED"
-                       and (n.get("action_reviewed") or "").strip() == act for n in rows[i + 1:]):
-                found.append(f"{rel}: {act}")
+        for act in ("branch-delete", "repo-setting", action):
+            try:
+                _assert_no_unretracted_halt(team_dir, action=act)
+            except RuntimeError as exc:
+                found.append(f"{rel}: {act}: {str(exc)[:160]}")
     return found
 
 def new_entry(row, issued):
@@ -137,7 +131,7 @@ def without_old_key(entry):
             pem.unlink()
         return _unbound_reason(copy, entry, now=now, ttl_days=SANDBOX_EXCEPTION_TTL_DAYS)
 
-rows = [r for r in rows_of(team) if (r.get("action_reviewed") or "") == action]
+rows = [r for r in rows_of(team) if (r.get("action_reviewed") or "").strip() == action]
 assert len(rows) == 2, f"expected two rows for {action} (old key, new key), found {len(rows)}"
 row = rows[-1]
 assert (row.get("verdict") or "") == "PASS" and (row.get("sig_scheme") or "") == "ed25519", "the newest row is not an Ed25519-signed PASS"
@@ -211,6 +205,10 @@ group_verifies || die "the signed toolchain group does not verify before the cha
 echo; echo "== 2) the change"
 read -r -p "Retire the entry bound to the $OLD_KEY row and register the same exception against the $NEW_KEY row (expiry unchanged, $EXPIRES)? [y/N] " ok
 [[ "$ok" == "y" ]] || { echo "  nothing changed"; exit 0; }
+# The registry may have changed while the question waited; and from here to the end of the checks an interrupt must
+# not leave it half-changed (the exit trap removes the backup), so INT, TERM and HUP are ignored until then.
+[[ "$(sha "$reg")" == "$REG_SHA" ]] || die "$reg changed while the question waited; nothing changed by this script"
+trap '' INT TERM HUP
 rebind apply || { restore; die "the re-binding or one of its checks failed; tell the researchteam session"; }
 
 echo; echo "== 3) checks after"
@@ -219,7 +217,9 @@ group_verifies || { restore; die "after the change the toolchain group no longer
 changed="$("${GIT[@]}" status --porcelain)"
 [[ "$changed" == " M $reg" ]] || { restore; die "unexpected changes in the worktree (expected only $reg): $changed"; }
 "${GIT[@]}" --no-pager diff --stat
+trap - INT TERM HUP
 echo "  registry sha256 now: $(sha "$reg")"
+echo "  If this run is ever cut off part-way: git -C $WT checkout -- $reg  puts the registry back."
 echo "Done: 1 entry retired, 1 entry registered against the $NEW_KEY row. Nothing was signed, committed or pushed."
 echo "Tell the researchteam session: it commits the registry on $BR, pushes it, has @security review that head and"
 echo "asks you to approve the merge. The autosync stays paused until that merge."
