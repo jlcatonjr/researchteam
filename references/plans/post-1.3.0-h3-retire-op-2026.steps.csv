@@ -1,8 +1,8 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-1,orchestrator,Close step 7 of key-rotation-resign-2026-11 with evidence,decisions logs on main,updated steps file,pending,plan record only,
-2,orchestrator,Search for lookups of every op-2026 row's action id in both logs,repository; agentteams 1.3.0,table in the plan,pending,read-only,
-3,orchestrator,Rehearse the removal in scratch copies; run every check; check the backup folders,team folders; group file; registry,rehearsal record in the plan,pending,read-only; copies deleted; public keys only; after H1; waits for the metaplan's wave 0 (H1),2
-4,orchestrator,Read the release/1.x key stores and logs,remote branches,note for P4,pending,read-only,
+1,orchestrator,Close step 7 of key-rotation-resign-2026-11 with evidence,decisions logs on main,updated steps file,done,rows on main through PR #245 (1933260) and PR #254 (c92fc56),
+2,orchestrator,Search for lookups of every op-2026 row's action id in both logs,repository; agentteams 1.3.0,table in the plan,done,no op-2026 id is looked up by code; one text match in the cut scripts,
+3,orchestrator,Rehearse the removal in scratch copies; run every check; check the backup folders,team folders; group file; registry,rehearsal record in the plan,done,every needed row clears without the key; the active registry entry becomes unbound and no audit reports it,2
+4,orchestrator,Read the release/1.x key stores and logs,remote branches,note for P4,done,release/1.0 to 1.2 depend wholly on op-2026; release/1.3 holds both keys,
 5,security,Review phase 1; state the preconditions of each later step,1;2;3;4,verdict,pending,read-only,3;4
 6,orchestrator,Ask the operator P2; P3; P4 in the picker,5,answers recorded,pending,,5
 7,git-operations,Re-registration of the branch-deletion exception against its opr-2026-11 row; keyed on the action id,6; agentteams 1.3.0,script part,pending,use an agentteams gate if one exists; leaves any other entry and the cap alone,6

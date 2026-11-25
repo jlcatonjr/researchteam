@@ -94,3 +94,53 @@ still present, so a failure here costs nothing.
   be answered "retire before H4 is signed"; what is not done is retiring with a question unanswered.
 
 Steps: `post-1.3.0-h3-retire-op-2026.steps.csv`.
+
+## Phase 1 record (2026-11-25; read-only, rehearsed in a scratch copy of `main` at `61c1962`, deleted afterwards)
+
+**Step 1.** The seven re-signed rows reached `main` through pull request #245 (merge `1933260`); the 1.3 line row
+through #254 (merge `c92fc56`). Step 7 of the re-sign plan is closed.
+
+**Step 2, lookups.** No `op-2026` row's action id is looked up by code in this repository or in agentteams 1.3.0.
+- agentteams takes the newest row of an id when it checks a clearance, and an ancestor in `derives_from` only has
+  to exist as a row; ancestors are not signature-checked. So no row that must keep clearing depends on an
+  `op-2026` signature: the newest rows of the seven re-signed ids, of `release-line-agentteams-1.3` and of the
+  toolchain group's parent all carry `opr-2026-11`.
+- `s10-release-cooldown-restored` is matched as text only, by the 1.3.0 cut scripts; the match still succeeds
+  with the key gone. `s10-release-cooldown-deprecated` appears in documents and history only.
+- The pin rows, the release-key exemption rows, `release-line-agentteams-1.1`, `fleet-agent-pilot-2026-11` and
+  `codex-orchestrator-only-native-render` appear in documents and archived operator scripts only.
+
+**Step 3, rehearsal.** `op-2026` removed from the two stores that hold it (`.github`, `.codex`); the `.claude` and
+`.goose` stores hold no key; the backup folders are ignored by git and hold no key file.
+
+| Check | With the key | Key removed |
+|---|---|---|
+| `--verify-toolchain-pin`, `--verify-toolchain-group` | exit 0 (sequence 5) | exit 0 |
+| Clearance of the seven re-signed ids, `release-line-agentteams-1.3`, the `.codex` root row | clear | clear |
+| Clearance of every id signed only with `op-2026` | clear, apart from two refused for other reasons | refused: no verify key |
+| `--audit-exceptions`, `--verify-integrity`, the frozen-key audit | exit 0 | exit 0 |
+| `researchteam doctor`, `validate` | exit 0 | exit 0 |
+| Key and log tests (four files) | 109 passed, 1 skipped | the same |
+| Registry binding, checked directly | both entries bound | **both entries bound to a row that no longer verifies** |
+
+**The finding that matters.** Removing the key ends the binding of the active branch-deletion entry, and no
+check the repository runs reports it: `--audit-exceptions` looks at lapse and the cap, not at the binding, and
+still prints "healthy". The re-registration of phase 2 is therefore required, and its success is checked with the
+binding check directly, not with the audit.
+
+**What the re-registration writes.** agentteams 1.3.0 has no command for it and no gate for the `repo-setting`
+kind. A script calls its registry functions: the entry's `decision_key_id` becomes `opr-2026-11`, its
+`decision_sha256` the hash of the 2026-11-22 row, and its `id` changes with the signature, so the old entry is
+retired in the same step or there would be two. Tried in memory with the key removed: the re-bound entry passes
+the binding check.
+
+**Step 4, release branches.** `release/1.0`, `1.1` and `1.2` hold only `op-2026`: every signed row there, and on
+1.1 and 1.2 the group file (sequence 1), depend on it. The key cannot be removed there without breaking them.
+`release/1.3` equals `main`'s state at the tag and holds both keys.
+
+**Questions phase 1 adds for the operator and `@security`.**
+- The sunset entry (`s10-cooldown-exempt:jlcatonjr/agentteams`) also becomes unbound, silently. Leave it, or note
+  in the entry that its row is revoked?
+- The re-bound entry's expiry: the entry says 2027-02-18; the re-signed row's own 90 days would run to
+  2027-02-20. The plan keeps 2027-02-18, the earlier date.
+- Whether agentteams' audit should check bindings is a request for agentteams, sent as information.
