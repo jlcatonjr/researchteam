@@ -1,0 +1,2 @@
+unit_id,person_id,author_kind,work,locator,status,genre,basis,note
+p-001,warden-01,person,logbook-01,logbook-01#p3,firm,logbook,own,

@@ -1,0 +1,93 @@
+{
+  "schema_version": "0",
+  "id": "minimal-author",
+  "title": "A minimal invented author study",
+  "question": "What did the invented wardens hold?",
+  "status": "draft",
+  "identity": {
+    "registry": "registry.csv",
+    "overrides": "overrides.csv"
+  },
+  "unit": {
+    "kind": "author"
+  },
+  "enumerations": [
+    {
+      "id": "list",
+      "label": "",
+      "window": {
+        "from": null,
+        "to": null
+      },
+      "log": "log.csv",
+      "stopping_rule": {
+        "kind": "closed-list"
+      }
+    }
+  ],
+  "evidence": {
+    "file": "evidence.csv",
+    "format": "survey-evidence-0",
+    "tiers": [
+      "t",
+      "ne"
+    ],
+    "counted_tiers": [
+      "t"
+    ],
+    "not_established_tier": "ne"
+  },
+  "outcomes": [
+    {
+      "key": "view",
+      "label": "View",
+      "source": {
+        "kind": "evidence-attribute",
+        "attribute": "view"
+      },
+      "scale": "nominal",
+      "levels": [
+        {
+          "code": "a",
+          "label": "A"
+        },
+        {
+          "code": "b",
+          "label": "B"
+        }
+      ],
+      "rollup": "none"
+    }
+  ],
+  "attributes": [
+    {
+      "key": "era",
+      "label": "Era",
+      "kind": "period",
+      "bucketer": {
+        "kind": "period"
+      }
+    }
+  ],
+  "periods": {
+    "basis": [],
+    "cuts": [
+      1800
+    ],
+    "labels": [
+      "before",
+      "after"
+    ]
+  },
+  "frame_rules": {
+    "exclude": [],
+    "change_log": "changes.jsonl"
+  },
+  "signoffs": {
+    "ledger": "agentteams-clearance:repo:gates",
+    "gates": {}
+  },
+  "vantage": {
+    "module": "pkg.mod:attr"
+  }
+}
