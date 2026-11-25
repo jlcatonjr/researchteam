@@ -45,9 +45,7 @@ sys.dont_write_bytecode = _saved
 FAKE_PEM = ("-----BEGIN PUBLIC KEY-----\n"
             "MCowBQYDK2VwAyEAaW52ZW50ZWQtdGVzdC1ibG9jay1ub3QtYS1rZXk=\n"
             "-----END PUBLIC KEY-----\n")
-LOG_HEADER = ("date,action_reviewed,verdict,scope,conditions,conditions_verified,evidence,author,derives_from,"
-              "effect_class,effect_grants,effect_targets,effect_relaxes,effect_destructive,effect_cross_repo,"
-              "effect_bulk,text_digest,sig_scheme,key_id,prev_digest,signature\n")
+LOG_HEADER = ",".join(survey_ledger.LOG_HEADER) + "\n"  # exactly what agentteams 1.3.0 writes for a new log
 
 
 def git_init(root: Path) -> None:

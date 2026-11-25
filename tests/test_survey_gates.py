@@ -208,6 +208,35 @@ def test_no_component_of_the_ledger_path_is_a_link(tmp_path):
     assert "ledger-link" in _ledger_rules(root)
 
 
+#: The header agentteams 1.3.0 writes for a new decisions log, spelled out here independently of the constant.
+EXACT_HEADER = ("timestamp,requesting_agent,date,action_reviewed,verdict,scope,conditions,conditions_verified,"
+                "evidence,author,derives_from,effect_class,effect_grants,effect_targets,effect_relaxes,"
+                "effect_destructive,effect_cross_repo,effect_bulk,text_digest,sig_scheme,key_id,prev_digest,"
+                "signature\n")
+#: Step A's first fixture header: the signed columns without timestamp and requesting_agent. agentteams refuses it.
+OLD_FIXTURE_HEADER = EXACT_HEADER[len("timestamp,requesting_agent,"):]
+
+
+def test_the_log_header_is_exactly_agentteams_new_log_header(tmp_path):
+    assert ",".join(ledger_mod.LOG_HEADER) + "\n" == EXACT_HEADER
+    root = make_repo(tmp_path)  # the fixture writes a header-only log with that header
+    folder = root / STUDY_REL / "ledger" / "references"
+    assert (folder / "security-decisions.log.csv").read_text() == EXACT_HEADER
+    assert _ledger_rules(root) == set()
+
+
+def test_agentteams_accepts_the_fixtures_header_only_log(tmp_path):
+    """Where agentteams is importable: its public log check passes the fixture's log, and its own new-log header is
+    the toolkit's constant."""
+    governance_logs = pytest.importorskip("agentteams.governance_logs",
+                                          reason="agentteams is not installed in this interpreter")
+    decision_log = pytest.importorskip("agentteams.cli.decision_log", reason="agentteams is not installed")
+    root = make_repo(tmp_path)
+    log = root / STUDY_REL / "ledger" / "references" / "security-decisions.log.csv"
+    assert governance_logs.check_log(log) == []
+    assert ("timestamp", "requesting_agent", *decision_log.SIGNED_DECISION_COLUMNS) == ledger_mod.LOG_HEADER
+
+
 @pytest.mark.parametrize("damage,rule", [
     (lambda r: shutil.rmtree(r), "ledger-layout"),
     (lambda r: (r / "agent-privilege.json").unlink(), "ledger-privilege"),
@@ -216,6 +245,8 @@ def test_no_component_of_the_ledger_path_is_a_link(tmp_path):
     (lambda r: (r / "security-decisions.log.csv").write_text("date,action_reviewed,verdict\n"), "ledger-log"),
     (lambda r: (r / "security-decisions.log.csv").write_text(
         "action_reviewed,verdict,signature,sig_scheme,key_id,derives_from\na,b\n"), "ledger-log"),
+    (lambda r: (r / "security-decisions.log.csv").write_text(OLD_FIXTURE_HEADER), "ledger-log"),
+    (lambda r: (r / "security-decisions.log.csv").write_text(" " + EXACT_HEADER), "ledger-log"),
     (lambda r: (r / "security-decisions.log.csv").write_bytes(b"\xff\xfe"), "ledger-log"),
     (lambda r: shutil.rmtree(r / "authorized-verify-keys"), "ledger-keys"),
     (lambda r: (r / "authorized-verify-keys" / "notes.txt").write_text("x"), "ledger-keys"),

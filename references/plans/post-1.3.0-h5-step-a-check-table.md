@@ -149,7 +149,7 @@ complete against `SEMANTIC_RULES`.
 | 6.2, 849 | The folder exists | `ledger-missing` | gates `test_the_ledger_value[agentteams-clearance:absent-ledger-missing]` |
 | 6.2, 850 | `references/` | `ledger-layout` | gates `test_structural_errors_of_the_ledger_folder[…ledger-layout]` |
 | 6.2, 851 | `agent-privilege.json`, a JSON object | `ledger-privilege` | gates `[…ledger-privilege]` (two cases) |
-| 6.2, 852 | `security-decisions.log.csv` with the signature columns; readable; rows as wide as the header | `ledger-log` | gates `[…ledger-log]` (four cases) |
+| 6.2, 852 | `security-decisions.log.csv` with the signature columns: the header is exactly the one agentteams 1.3.0 writes for a new log (`survey_ledger.LOG_HEADER`: `timestamp,requesting_agent,` then agentteams' `SIGNED_DECISION_COLUMNS`; operator decision, 2026-11-25); a header-only log is valid; readable; rows as wide as the header | `ledger-log` | gates `[…ledger-log]` (six cases), `test_the_log_header_is_exactly_agentteams_new_log_header`, `test_agentteams_accepts_the_fixtures_header_only_log` (skipped without agentteams) |
 | 6.2, 853 | `authorized-verify-keys/<key_id>.pub.pem`; another name in the store (proposal 11) | `ledger-keys`, `ledger-keys-empty` | gates `[…ledger-keys]` (three cases), `[…ledger-keys-empty]` |
 | 6.2, 853-854 | A key or approver file is read only when it is a regular file (not a link, FIFO or device); a store is listed only when it is a plain directory | `ledger-keys`, `ledger-approvers` | gates `test_a_symlinked_key_file_is_not_read`, `test_a_fifo_key_file_is_not_opened` (skipped without `os.mkfifo`), `test_a_symlinked_key_store_is_not_listed`, `test_a_symlinked_approver_list_is_not_read` |
 | 6.2, 853-854 | Every capped read opens with `O_NOFOLLOW` and `O_NONBLOCK` (where the platform has them) and decides regular-file-ness and size by `fstat` on the open descriptor | `NotARegularFile` / `OSError` | core `test_read_capped_refuses_a_link_without_following_it`, `test_read_capped_refuses_a_fifo_without_blocking` (skipped without `os.mkfifo`), `test_read_capped_refuses_a_directory` |
@@ -208,8 +208,8 @@ complete against `SEMANTIC_RULES`.
 10. **A ledger folder inside `.git/` or at (or under) a generated team location.** Refused (`ledger-location`).
 11. **A key store holding anything but `<key_id>.pub.pem` regular files; an empty key store; an empty approver list.**
     Refused (`ledger-keys`, `ledger-keys-empty`, `ledger-approvers-empty`); agentteams falls back to default
-    authors on an empty list. The log's "signature columns" (line 852) are taken as `action_reviewed, verdict,
-    signature, sig_scheme, key_id, derives_from`.
+    authors on an empty list. *(The log's "signature columns", line 852, are no longer a proposal: the operator
+    decided on 2026-11-25 that the header is exactly agentteams 1.3.0's new-log header; see the 6.2 row above.)*
 12. **A backslash, a NUL or a drive letter in a path.** Refused (`path-backslash`, `path-nul`, `path-absolute`).
 13. **A key given twice in one JSON object.** Refused (`json-duplicate-key`); a JSON parser otherwise keeps the
     last silently.

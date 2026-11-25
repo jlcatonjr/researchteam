@@ -5,6 +5,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit: the sign-off log's header is agentteams' own.** Step A required only some signature columns,
+  and its test fixture wrote a header without `timestamp` and `requesting_agent`. agentteams 1.3.0 refuses such a log
+  as malformed, and `--sign-decision` will not extend it, so an operator who copied the fixture could not sign.
+  The header of `<ledger>/references/security-decisions.log.csv` must now be exactly the one agentteams 1.3.0 writes
+  for a new log (`survey_ledger.LOG_HEADER`; operator decision, 2026-11-25); any other header is a malformed ledger
+  (`ledger-log`), and a header-only log is valid. The fixture writes that header.
+
 - **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
   `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define
   that is present:
@@ -27,6 +34,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   are step B part 2. The check table is `references/plans/post-1.3.0-h5-step-b-check-table.md`.
 - Survey toolkit, step A follow-ups: a `parent_team` with a `..` segment says so; the example study's S0 manifest
   hash is pinned in a test; a `study.json` reached through a link inside the repository is tested to load.
+
 - **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
   The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
   own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)
