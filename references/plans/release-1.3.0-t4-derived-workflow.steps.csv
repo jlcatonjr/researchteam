@@ -1,0 +1,7 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,technical-validator,Read issue #176 against the scaffold and its tests,the issue text supplied by the orchestrator (gh issue view 176); scaffold lines 84 and 242,finding: fixed or what is missing,done,"2026-11-24: #176 read against the scaffold at 440b526; both checkouts set persist-credentials false, the gate job is contents: read since the job split, tests assert it; nothing missing",
+2,primary-producer,Shallow fetch with one retry in the release-locked check; fail closed; tests,issue #228; researchteam/_release.py,scaffold change; tests,done,"2026-11-24: --depth=1 --filter=tree:0, one --depth=1 retry, fail closed; three tests",
+3,security,PASS naming researchteam/scaffold/agentteams-sync-derived.yml (and .github/workflows/ if touched),PR diff,PASS,done,2026-11-24: @security PASS at 31b7ccf naming the scaffold path; posted on PR #259,2
+4,code-hygiene,Audit the change,PR diff,verdict,done,"2026-11-24: @code-hygiene, no blocking finding; test-helper fixes applied; the optional fetch timeout not taken",2
+5,orchestrator,Ask the operator for the merge naming PR and head,3;4,answer,done,2026-11-24: operator's picker answer 'Merge #259 at 31b7ccf',3;4
+6,git-operations,Merge with --match-head-commit; verify; close #228; close #176 with step 1's evidence,5;1,merge commit; closed issues,done,2026-11-24: PR #259 merged as 440b526; #228 closed by the merge; #176 closed with the evidence,5;1

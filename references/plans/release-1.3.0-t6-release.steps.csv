@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Ask D10 and D11; freeze review,T1 to T4 merged or dropped,freeze record,done,"freeze declared at 440b526 (operator, 2026-11-24); D10, D11 answered",
+2,primary-producer,Release-prep PR: changelog; notes; policy text; install instructions; tracked script copy,1,PR,done,"candidate release-prep PR #260 merged at 26ee061 (operator approval, 2026-11-24); install instructions moved to the final's PR (branch release/final-1.3.0)",1
+3,git-operations,Close PR #156 as superseded,2; D9,closed PR,done,closed with the operator's answer after #261 merged,2
+4,git-operations,Candidate cut script creating release/1.3; newest 1.2.N pinned; refusals incl. the copied-core network comparison,2,operator script,done,script 29 reviewed by @security and the coordinator; handed to the operator 2026-11-24,2
+5,orchestrator,Operator runs the script; read back tag; peel; branch; verification; main contains the tag,4,v1.3.0-rc.1,done,"operator ran script 29; v1.3.0-rc.1 = tag object 22359c74, peel 26ee0611; release/1.3 and main at the peel; verified; pre-release",4
+6,orchestrator,Wait for the downstream dry-run pin report; candidate fixes by PR; next candidate by fast-forward inside the next script,5,report,done,both downstream dry runs passed; no further candidate,5
+7,git-operations,Final cut script with the same refusals; marks Latest,6,operator script,done,"script 30 on main (PR #261, merged 570724f); @security PASS; operator copy built and handed over",6
+8,orchestrator,Operator go and run; read-back; main contains the tag; tell the coordinator,7,v1.3.0; message,done,"operator ran script 30 on 2026-11-25; v1.3.0 = tag object 68d0dcd8, peel 570724f5; verified; Latest; coordinator told",7
+9,git-operations,Push the soak and rehearsal branches to archive/,8,archive branches,done,"nothing to archive: the soak checkout (a separate worktree, last at 440b526) is clean; rehearsals were read-only",8
+10,work-summarizer,Work summary,8,workSummaries/daily,done,workSummaries/daily/2026-11-24.md and 2026-11-25.md (written by the orchestrator),8
+11,conflict-auditor,Close-out audit,10,findings,done,"2026-11-25: no blocking finding; seven advisory, fixed in the records",10

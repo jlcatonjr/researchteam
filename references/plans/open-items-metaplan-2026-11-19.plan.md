@@ -65,6 +65,10 @@ How it was carried out, the audits and every operator answer: `open-items-execut
   (`open-1119-p4-test-triage.md`) led to PR #233, which fixes two test files that failed when run alone.
 - Still outside the four plans, not started: the agentteams `v1.2.2` pin move, and issue #228.
 
+## Update, 2026-11-20 (third): P1 phases 1 and 2 run under the 1.3.0 metaplan
+Where this file says P1 phases 1 and 2 are blocked on others, read: they are carried by
+`release-1.3.0.metaplan.md` and its targets T1, T2 and T6.
+
 ## Rules that shape the schedule
 - Every merge into `main` or `release/*` needs the operator's live answer naming the PR and its head. Work is
   batched into few PRs, but never so that one review can stall unrelated work.

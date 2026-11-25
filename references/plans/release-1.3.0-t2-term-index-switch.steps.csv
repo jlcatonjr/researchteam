@@ -1,0 +1,11 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+0,security,Clearance naming the agentteams dev commit for a draft-only rehearsal,D2,recorded clearance,superseded,"2026-11-24: no rehearsal against dev; the signed v1.3.0 was already out, so the swap was built directly against the tag",
+1,primary-producer,Rehearsal: build the swap against agentteams dev on a draft branch; manifest marked provisional,0; design note; seam table,draft PR,superseded,2026-11-24: as step 0,0
+2,technical-validator,Re-check design note section 8 against the signed v1.3.0,T1 B9,checklist result,done,2026-11-24: design note section 8 and the seam table re-checked against agentteams 1.3.0 as installed; nothing blocks; Python floor 3.11 upstream and the MIT licence noted,1
+3,primary-producer,Swap PR: copied core as bytes; manifest rebuilt from the signed tag; adapters; loader; reader; offline check; doctor; byte-exact sync; upgrade-first message,2,PR,done,2026-11-24: PR #256 merged as e15b3fb; @code-hygiene and @security reviews applied; adoption record docs/release/adopt-term-index-core-v1.3.0.decision-spec.json,2
+4,primary-producer,CI job running the network comparison on PRs touching scripts/term-index-core/,3,workflow change,done,"2026-11-24: .github/workflows/term-core.yml, in PR #256; the judging code comes from the base branch",3
+5,primary-producer,PS-2 path-list PR,D4,PR,done,2026-11-24: PR #255 (da0257f) for scripts/term-index-core/; PR #257 (07db582) for scripts/check_term_core.py and scripts/term_index_engine.py (operator: 'Add both'),
+6,primary-producer,Replace the private imports or record why they stay,T1 B9; seam table deliverable 2,code change or recorded reason,done,2026-11-24: both private imports stay; agentteams 1.3.0 has no public equivalent; reason recorded in researchteam/_frozen.py,2
+7,primary-producer,Docs: placement as built; layering rule,3,docs,done,2026-11-24: docs/term-index-protocol.md describes the placement as built and the layering rule (in PR #256),3
+8,orchestrator,Ask the operator for each merge naming PR and head,3;4;5;6;7,answers,done,"2026-11-24: picker answers for #255, #256 and #257, each naming PR and head",3;4;6;7
+9,git-operations,Merge each with --match-head-commit; verify,8,merge commits,done,2026-11-24: merged with --match-head-commit; each merge commit's tree equals the approved head,8
