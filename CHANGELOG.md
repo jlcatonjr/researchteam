@@ -17,10 +17,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     `survey-validate` reports them too.
   The provenance record of contract 4.6 is written in one shared module (`make_record`, `check_current`,
   `write_all`, `check_output_target`), for later steps' outputs too. A record also lists a declared input that was
-  absent at build, so its appearing later makes the output stale. No output is written under `.git`, `.github` or a
-  team location, over the specification or any file it declares, or into the ledger folder. The registry holds the
-  ids a merge folded in, so evidence may still carry them; it records how many legacy exceptions the evidence is read
-  with. Candidates are indexed by word and capped at 1000 shown. A study with a vantage module, or with evidence in a plugin format,
+  absent at build, so its appearing later makes the output stale. An output and its record are written only inside
+  the study's own folder (checked by path, real path and device and inode), never over the specification or a file
+  it declares, never inside a declared folder or the ledger folder, and never under `.git`, `.github` or a team
+  location. The registry holds the ids a merge folded in, so evidence may still carry them; it records how many
+  legacy exceptions the evidence is read with; a value with a control character or line break refuses the build.
+  Candidates are indexed by word; only undecided ones are listed, at most 1000 shown. A study with a vantage module, or with evidence in a plugin format,
   is refused: this version loads no project code. The batch merge (`survey-rows`) is step B part 2b. The check table
   is `references/plans/post-1.3.0-h5-step-b2-check-table.md`.
 - Survey toolkit, step B part 1 follow-ups: `B.C`, `B.C.E` and `B. C.` count as BC; a century range
