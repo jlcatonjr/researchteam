@@ -213,3 +213,45 @@ removal. Conditions, binding on phases 2 and 3:
   `…@c4c40701ad95ad92` and registers `…@dc79fe00692848c4` (key `opr-2026-11`, expiry unchanged); the binding
   verifies, also in a copy with `op-2026` removed; the decisions log is byte-identical; a second run refuses.
 - `@security` is reviewing it for the clearance of condition C1.
+
+## Clearance for script one (`@security`, 2026-11-25): CONDITIONAL PASS, conditions operational
+
+Recorded here and on the branch's pull request before hand-over, as `@security` ruled for this step (it is not
+destructive, the file is tracked, and no gate looks the clearance up; an unsigned log row would not count while
+decision signing is active).
+
+- Action: `exception-rebind:repo-setting:delete-branch-on-merge:jlcatonjr/researchteam`.
+- Base `main` commit `f97e9d39661702c0cb9011df71bd9873209063d1`; reviewed head
+  `0341dd4d6e15c9b2286c48e49bd708cd9afad340` of `chore/rebind-branch-delete-exception`.
+- Script `references/plans/archive/2026-W48/operator/31-rebind-branch-delete-exception.sh`, sha256
+  `f3633962676553f8d26ea2f28edad03d03e98d8fa603ca14c24da75c13aa114d`. The operator's copy differs in the one
+  line that names the root-owned install; the session checks that by diff.
+- Old entry `…@c4c40701ad95ad92`, binding `3a11d65b797a84bd50a7ca75154d7b43b658d0029ea00c0ee7a0ea1f5f64e78a`.
+- New binding: key `opr-2026-11`, `decision_sha256`
+  `9e98e66d76d394d3086046fdcae23be07970cc6e8cb8234c4c4216e2313d7154`, expiry `2027-02-18T23:59:59+00:00`.
+- Registry sha256 before: `06d670bb49849be76ddbdfee0378944a1fcc48e2689ec162759e65321e7412bc`.
+- Still to hold at the run: the autosync paused and no autosync pull request open; no App-authorization
+  signature in the window; afterwards the session runs the integrity check, the frozen-key audit, the exception
+  audit and the binding check on the result and posts the outputs on the pull request; on any failure the
+  registry is restored from git and nothing is committed; the merge needs `@security`'s PASS naming
+  `.github/agents/`.
+- The first review (head `73b4206`) required three fixes, all made: the HALT scan is agentteams' own, in every
+  team log; the agentteams version must be exactly 1.3.0; the registry's hash is checked again just before the
+  change and interrupts are ignored until the checks after it have run. One small gap is accepted: if `git
+  status` itself fails after the change, the script stops without restoring; `git checkout` of the file recovers.
+- **How the removal's clearance will be recorded (C2):** a row the operator signs with `opr-2026-11`, committed
+  before script two runs and checked by it; the picker confirmation of the deletion as well.
+
+## Finding: the root-owned install is older than the lock (2026-11-25)
+
+- The operator's root-owned agentteams install reports 1.2.1. Script 31 needs 1.3.0, the version `toolchain.lock`
+  pins: tried in a scratch copy against 1.2.1, the binding check fails (its arguments differ), so the version
+  check is doing its job.
+- The 1.3.0 cut scripts (29, 30) ran their pin verification and clearance check with that 1.2.1 install. Both
+  passed and nothing suggests a wrong result, but it means the release was checked by the previous agentteams,
+  not the one it pins. Recorded here; the next cut script names the version it expects.
+- Operator ruling (picker, 2026-11-25): **"Build a root-owned 1.3.0".** Script 32 builds a second root-owned
+  install from the signed tag `v1.3.0`, beside the existing one, which is not touched. Tracked copy on the branch
+  `chore/root-owned-agentteams-1.3.0` (head `58bc8db`); `@security` is reviewing it. Where it is installed is not
+  recorded (PS-1).
+- Order for the operator: script 32; then script 28 `pause`; then script 31.
