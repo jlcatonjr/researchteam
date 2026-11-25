@@ -141,8 +141,8 @@ def deciding_row(rows: list, act: str):
     ``HALT-RETRACTED`` rows skipped, the first whose ``action_reviewed`` is the action or the action followed by one
     of ``- _ . :``, compared case-insensitively. Using agentteams' rule means both pick the same row; the tools then
     require that row to name exactly the action the tools computed (:func:`row_refusal`), so a row for another study
-    or another hash never decides. A check spends nothing (6.2, line 889): the log has no ``consumed`` column (the
-    exact header, ``survey_ledger.LOG_HEADER``), and the tools do not rely on a clearance being spent."""
+    or another hash never decides. The exact header (``survey_ledger.LOG_HEADER``) has no ``consumed`` column, so such
+    a log is refused; a check spends nothing (6.2, line 889)."""
     want = act.strip().lower()
     suffixed = tuple(want + sep for sep in "-_.:")
     for row in reversed(rows):
