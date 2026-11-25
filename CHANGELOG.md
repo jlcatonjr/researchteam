@@ -15,6 +15,17 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   --draft-exceptions` prints a first exceptions file of a legacy study's current breaches for a person to review, and
   writes nothing. Messages that quote sign-off log cells now cut long values like every other message. The check
   table is `references/plans/post-1.3.0-h5-step-b3-check-table.md`.
+
+- **CI: the survey sign-off tests run with agentteams installed** (operator decision, 2026-11-25). The `tests` job
+  installs no agentteams, so every test in which a survey gate reads `CLEARED` was skipped in CI. A second job in
+  `.github/workflows/tests.yml`, `survey sign-off (3.13)`, installs agentteams at the commit `toolchain.lock` pins
+  (from its git commit, with `--no-deps`) and its signing backend from a new hash-locked file,
+  `.github/ci/requirements-agentteams.txt`, then runs `tests/test_survey_verify.py` and
+  `tests/test_survey_gates.py` and fails if any of them is skipped. The locked versions are those of
+  `docs/release/constraints-2026-11-13.txt` plus the one build requirement agentteams pins;
+  `tests/test_ci_survey_signoff.py` keeps the two equal. The job is read-only, like `tests`. It is not a required
+  check: making it one is a ruleset change, which is the operator's.
+
 - **Survey toolkit, step B part 2a: the identity registry** (`scripts/survey/survey_provenance.py`,
   `survey_identity.py`, `survey_registry.py`). New bridge command `survey-registry <project>`:
   - it builds `identity.registry` from the persons of the evidence and attribution files, applying the overrides file
