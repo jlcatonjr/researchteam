@@ -6,7 +6,9 @@ Columns: ``unit_id, person_id, author_kind, work, locator, status``, one column 
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from survey_core import Finding
 from survey_tables import read_rows
@@ -26,24 +28,23 @@ class Attribution:
     units: dict = field(default_factory=dict)
     persons: list = field(default_factory=list)  # every non-empty person_id, in file order
     findings: list = field(default_factory=list)
-    read: bool = False
 
 
-def check_attribution(study, registry_persons: set | None) -> Attribution:
-    """Every check of 4.3. *registry_persons* are the person ids the registry holds; when there is no registry
-    (it is built from this file and the evidence, 4.4), the person ids of those two files stand in for it, which
-    can only refuse more, never less."""
+def check_attribution(study, registry_persons: set | None, evidence_persons: set) -> Attribution:
+    """Every check of 4.3, in one pass over the file. *registry_persons* are the person ids the registry holds.
+    When there is no registry, the person ids of its own sources (this file and the evidence file, 4.4 lines
+    509-511) stand in for it, which can only refuse more, never less. A file that is not there is not read: it may
+    be absent only in a draft, and section 3's file check reports it otherwise."""
     spec = study.spec
     rp = study.paths.get("/unit/attribution/file")
     out = Attribution()
-    if rp is None:
+    if rp is None or not os.path.lexists(rp.real):
         return out
     where = rp.repo_rel
-    rows = read_rows(study.repo_root / rp.repo_rel, where, columns(spec), "attribution-columns")
+    rows = read_rows(Path(rp.real), where, columns(spec), "attribution-columns")
     out.findings += rows.findings
     if rows.findings:
         return out
-    out.read = True
     add = lambda rule, n, msg: out.findings.append(Finding(rule, f"{where}:{n}", msg))  # noqa: E731
     att = spec["unit"]["attribution"]
     kinds = ["person", *spec["unit"].get("collective", {}).get("kinds", [])]
@@ -65,20 +66,19 @@ def check_attribution(study, registry_persons: set | None) -> Attribution:
             if "|" in value:
                 add("attribution-separator", n, f"a '|' in {col} {value!r} (4.7)")
         if r["status"] not in att["statuses"]:
-            add("attribution-status", n, f"status {r['status']!r} is not one of {', '.join(att['statuses'])}")
+            add("attribution-status", n, f"status {r['status']!r} is not one of {att['statuses']!r}")
         if r["author_kind"] not in kinds:
-            add("attribution-author-kind", n, f"author_kind {r['author_kind']!r} is not one of {', '.join(kinds)}")
+            add("attribution-author-kind", n, f"author_kind {r['author_kind']!r} is not one of {kinds!r}")
         elif pid:
             kind_of.setdefault(pid, set()).add(r["author_kind"])
         for key, codes in level_sets.items():
             if r[key] == "" or r[key] not in codes:
-                add("attribution-passage-attribute", n, f"{key} {r[key]!r} is not one of its level codes "
-                    f"({', '.join(codes)})")
+                add("attribution-passage-attribute", n, f"{key} {r[key]!r} is not one of its level codes {codes!r}")
     for pid, ks in kind_of.items():
         if len(ks) > 1:
             out.findings.append(Finding("attribution-author-kinds", where,
-                                        f"person {pid!r} has more than one author_kind: {', '.join(sorted(ks))}"))
-    persons = registry_persons if registry_persons is not None else set(out.persons)
+                                        f"person {pid!r} has more than one author_kind: {sorted(ks)!r}"))
+    persons = registry_persons if registry_persons is not None else set(out.persons) | set(evidence_persons)
     for uid in out.units:
         if uid in persons:
             out.findings.append(Finding("attribution-unit-is-person", where, f"unit_id {uid!r} is also a person_id "

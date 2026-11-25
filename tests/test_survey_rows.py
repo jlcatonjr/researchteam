@@ -72,7 +72,7 @@ def test_the_invented_study_passes_every_row_check(tmp_path):
     assert report.findings == [] and report.rows == 5 and report.exceptions == 0
     code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
     assert code == 0 and "evidence: 5 row(s); read with 0 legacy exception(s)" in out
-    assert "not re-found: re-finding is not in this version" in out
+    assert "quotations: 4 counted quotation(s) not re-found (0 reported); re-finding is not in this version" in out
 
 
 def test_the_good_row_passes(tmp_path):
@@ -159,7 +159,7 @@ def test_the_vocabulary_spares_quotes_unless_told_otherwise(tmp_path):
 
 def test_vocabulary_is_matched_on_folded_text(tmp_path):
     root = make_repo(tmp_path)
-    _evidence(root, add=[_with(note="OBVIOU­SLY")])  # a soft hyphen and capitals fold away
+    _evidence(root, add=[_with(note="OBVIOU\u00adSLY")])  # a soft hyphen and capitals fold away
     assert _rules(root) == {"vocabulary"}
 
 
@@ -261,7 +261,8 @@ URL_ROW = _with(id="ev-300", locator="https://archive.invalid/letter-9", url="ht
 def _receipt(root, row, **over):
     rid = ev.receipt_id(row["url"], row["quote"])
     doc = {"url": row["url"], "quote": row["quote"], "fetched_at": "2026-01-01T00:00:00Z",
-           "quote_fold_sha256": "x", "status": 200, "found": True, "receipt_id": rid}
+           "quote_fold_sha256": "x", "status": 200, "final_url": row["url"], "content_type": "text/html",
+           "found": True, "reason": "", "receipt_id": rid}
     doc.update(over)
     folder = root / ROWS / "receipts"
     folder.mkdir(exist_ok=True)
@@ -382,11 +383,21 @@ def test_an_unreadable_or_headless_row_file(tmp_path, data):
     assert "columns" in _rules(root)
 
 
-def test_a_row_file_reached_through_a_final_link_is_not_read(tmp_path):
+def test_a_row_file_reached_through_a_link_inside_the_repository_is_read(tmp_path):
+    """Rule 1.6, as step A treats a covered file: a link that resolves inside the repository is followed, and the
+    file is opened at its resolved place."""
     root = make_repo(tmp_path)
     os.replace(root / ROWS / "evidence.csv", root / ROWS / "real.csv")
     os.symlink("real.csv", root / ROWS / "evidence.csv")
-    assert "columns" in _rules(root)
+    assert _report(root).findings == [] and _report(root).rows == 5
+
+
+def test_a_row_file_linked_outside_the_repository_is_refused(tmp_path):
+    root = make_repo(tmp_path)
+    (tmp_path / "outside.csv").write_bytes((root / ROWS / "evidence.csv").read_bytes())
+    (root / ROWS / "evidence.csv").unlink()
+    os.symlink(tmp_path / "outside.csv", root / ROWS / "evidence.csv")
+    assert "path-outside" in {f.rule for f in sp.load_study("tidebell", root).findings}
 
 
 def test_validate_writes_nothing_and_is_deterministic(tmp_path):
@@ -451,7 +462,7 @@ def test_match_all_collects_every_bucket():
 
 def test_patterns_search_the_folded_value():
     rows = _rows([("*", "cafe quay", "", "north")])
-    assert tb.bucket_first(rows, [("harbour", "  CAFÉ\n QUAY ")], None, "NE") == "north"
+    assert tb.bucket_first(rows, [("harbour", "  CAF\u00c9\n QUAY ")], None, "NE") == "north"
 
 
 # --------------------------------------------------------------------------- years and periods (4.8)
@@ -481,3 +492,202 @@ def test_an_unknown_basis_is_refused():
 @pytest.mark.parametrize("year,period", [(1700, 1), (1749, 1), (1750, 2), (1799, 2), (1800, 3), (2000, 3)])
 def test_a_year_equal_to_a_cut_begins_the_later_period(year, period):
     assert tb.period_of(year, [1750, 1800]) == period
+
+
+# --------------------------------------------------------------------------- review fixes (step B part 1)
+def test_a_forged_header_cannot_add_an_output_line(tmp_path):
+    """S1: a header cell holding a line feed or ESC is quoted, and the output line escapes every control
+    character."""
+    root = make_repo(tmp_path)
+    (root / ROWS / "evidence.csv").write_text('"id\nOK: forged","\x1b[2Jx"\n', encoding="utf-8")
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1
+    assert "\nOK: forged" not in out and "\x1b" not in out
+    assert all(not line.startswith("OK") for line in out.splitlines())
+
+
+def test_control_characters_from_any_file_value_are_escaped(tmp_path):
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(attribute_kind="shoe\x1b[31m\nsize\u2028x", tier="t\u202e")])
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1
+    for bad in ("\x1b", "\u2028", "\u202e", "shoe\nsize"):
+        assert bad not in out
+    assert "\\x1b" in out and "\\u202e" in out
+
+
+def test_a_control_character_in_a_declared_path_is_escaped(tmp_path):
+    """S6: a path declared in study.json reaches the output escaped."""
+    from survey_support import survey_status
+    root = make_repo(tmp_path, lambda s: s["evidence"].update(file="rows/evi\x1bdence.csv"))
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1 and "\x1b" not in out and "evi\\x1bdence" in out
+    root2 = make_repo(tmp_path / "b", lambda s: s["signoffs"].update(ledger="agentteams-clearance:led\nger"))
+    out2 = run(survey_status, "--root", str(root2), "tidebell")[1]
+    assert "led\nger" not in out2
+
+
+@pytest.mark.parametrize("text", ["a{1,4294967296}", "(" * 2000 + ")" * 2000, "x" * 1001],
+                         ids=["huge-repeat", "deep-nesting", "over-long"])
+def test_a_pattern_that_cannot_be_compiled_is_a_finding_whatever_it_raises(tmp_path, text):
+    """S2, S3: a huge repeat count, nesting deeper than the engine allows, an over-long pattern."""
+    root = make_repo(tmp_path)
+    (root / STUDY_REL / "rules" / "forbidden.txt").write_text(text + "\n", encoding="utf-8")
+    assert "vocabulary-file" in _rules(root)
+    _table(root, "harbour.csv", [["harbour", text, "", "north", "n"]])
+    assert "table-pattern" in _rules(root)
+
+
+@pytest.mark.parametrize("exc", [OverflowError, RecursionError, ValueError])
+def test_every_compile_failure_is_caught(monkeypatch, exc):
+    def boom(*_a, **_k):
+        raise exc("raised for the test")
+    monkeypatch.setattr(tb.re, "compile", boom)
+    pattern, why = tb.compile_pattern("x")
+    assert pattern is None and exc.__name__ in why
+
+
+def test_too_many_patterns_and_too_long_text(tmp_path, monkeypatch):
+    root = make_repo(tmp_path)
+    monkeypatch.setattr(ev, "MAX_PATTERNS", 1)
+    (root / STUDY_REL / "rules" / "forbidden.txt").write_text("a\nb\n", encoding="utf-8")
+    assert "vocabulary-file" in _rules(root)
+    monkeypatch.setattr(tb, "MAX_MATCH_CHARS", 10)
+    (root / STUDY_REL / "rules" / "forbidden.txt").write_text("zzz\n", encoding="utf-8")
+    found = [f for f in _report(root).findings if f.rule == "vocabulary"]
+    assert found and "not checked" in found[0].message
+    with pytest.raises(ValueError):
+        tb.bucket_first(_rows([("*", "x", "", "a")]), [("k", "y" * 11)], None, "NE")
+
+
+def test_an_upper_case_table_pattern_is_refused(tmp_path):
+    """T13: values are folded to lower case first, so an upper-case pattern could never match."""
+    root = make_repo(tmp_path)
+    _table(root, "harbour.csv", [["harbour", "North", "", "north", "n"]])
+    assert "table-pattern" in _rules(root)
+    _table(root, "harbour.csv", [["harbour", r"\Snorth\W", "", "north", "n"]])  # escapes are not letters
+    assert "table-pattern" not in _rules(root)
+
+
+def test_a_nul_in_a_cell_is_a_finding(tmp_path):
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(note="a\x00b")])
+    assert "cell-nul" in _rules(root)
+
+
+def test_line_numbers_follow_quoted_multi_line_cells(tmp_path):
+    """S4: a row's line is the line it starts on."""
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(id="ev-500", note="two\nlines"), _with(id="")])
+    found = [f for f in _report(root).findings if f.rule == "id-empty"]
+    assert [f.where for f in found] == [f"{ROWS}/evidence.csv:9"]
+
+
+def test_a_row_file_over_the_cap_is_not_read(tmp_path, monkeypatch):
+    root = make_repo(tmp_path)
+    monkeypatch.setattr(tb, "MAX_CSV_BYTES", 100)
+    found = [f for f in _report(root).findings if f.rule == "columns"]
+    assert found and "larger than 100 bytes" in found[0].message
+
+
+def test_the_row_file_cap_is_64_mib():
+    assert tb.MAX_CSV_BYTES == 64 * 1024 * 1024
+
+
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="os.mkfifo is not available here")
+def test_a_row_file_that_is_a_fifo_is_not_opened(tmp_path):
+    root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    (root / ROWS / "evidence.csv").unlink()
+    os.mkfifo(root / ROWS / "evidence.csv")  # a blocking open would hang the test
+    assert "columns" in _rules(root)
+
+
+def test_a_draft_may_lack_the_attribution_and_vocabulary_files(tmp_path):
+    """T1: a missing input file is an error "unless status is draft" (section 3, line 217)."""
+    root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    (root / ROWS / "attribution.csv").unlink()
+    assert {f.rule for f in _report(root).findings} <= {"unit-unknown"}  # the units it named are gone
+    root2 = make_repo(tmp_path / "b", lambda s: s.update(status="draft"))
+    (root2 / STUDY_REL / "rules" / "forbidden.txt").unlink()
+    assert _report(root2).findings == []
+
+
+@pytest.mark.parametrize("key", ev.RECEIPT_REQUIRED)
+def test_a_receipt_missing_a_required_key_is_malformed(tmp_path, key):
+    """T2: of a receipt's thirteen keys only sha256, context and wayback may be absent (4.4, lines 480-486)."""
+    root = make_repo(tmp_path)
+    _evidence(root, add=[URL_ROW])
+    rid = _receipt(root, URL_ROW)
+    path = root / ROWS / "receipts" / f"{rid}.json"
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    del doc[key]
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    assert "receipt-malformed" in _rules(root)
+
+
+def test_ten_receipt_keys_are_required():
+    assert len(ev.RECEIPT_REQUIRED) == 10 and set(ev.RECEIPT_OPTIONAL) == {"sha256", "context", "wayback"}
+
+
+def test_an_uncounted_row_that_cites_a_receipt_needs_the_receipts_declared(tmp_path):
+    """T8: line 223 and line 771 have no tier limit."""
+    root = make_repo(tmp_path, lambda s: s["evidence"].pop("receipts"))
+    _evidence(root, add=[dict(URL_ROW, tier="not-established", quote="", note="tried", basis="")])
+    assert "receipts-undeclared" in _rules(root)
+
+
+def test_an_uncounted_row_with_a_broken_receipt_fails_but_one_without_needs_none(tmp_path):
+    root = make_repo(tmp_path)
+    uncounted = dict(URL_ROW, tier="not-established", quote="", note="tried", basis="")
+    _evidence(root, add=[uncounted])
+    assert _rules(root) == set()  # its quotation need not be re-found (5.4, line 773)
+    rid = ev.receipt_id(uncounted["url"], uncounted["quote"])
+    (root / ROWS / "receipts").mkdir()
+    (root / ROWS / "receipts" / f"{rid}.json").write_text("{", encoding="utf-8")
+    assert "receipt-malformed" in _rules(root)
+
+
+def test_a_broken_receipt_is_an_error_in_a_legacy_study_too(tmp_path):
+    """T9: a receipt that is there and broken is not a row "that predates receipts" (5.4, line 775)."""
+    root = _legacy(tmp_path, [], add=[URL_ROW])
+    _receipt(root, URL_ROW, url="https://elsewhere.invalid")
+    assert "receipt-malformed" in _rules(root)
+
+
+def test_excused_counts_and_unfindable_totals_print_on_a_failing_run(tmp_path):
+    """T10."""
+    root = _legacy(tmp_path, [["ev-100", "counted-basis"]], add=[_with(basis=""), _with(id="ev-101", tier="x"),
+                                                               dict(URL_ROW, id="ev-102")])
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1
+    assert "breaches excused by rule: counted-basis 1" in out
+    assert "quotations: 6 counted quotation(s) not re-found (1 reported)" in out
+
+
+def test_a_pipe_in_a_person_id_is_an_error(tmp_path):
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(person_id="warden|01", unit_id="warden|01")])
+    assert "id-separator" in _rules(root)
+
+
+def test_a_counted_row_without_a_locator_is_refused(tmp_path):
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(locator="")])
+    assert "locator-missing" in _rules(root)
+    legacy = _legacy(tmp_path / "legacy", [], add=[_with(locator="")])
+    report = _report(legacy)
+    assert report.findings == [] and [f.rule for f in report.reported] == ["locator-missing"]
+
+
+@pytest.mark.parametrize("value", ["350 BC", "350 B.C.", "AD 1200", "1200 CE", "350 bce", "4th C.", "4th century",
+                                   "4th c", "4 th c.", "12th cent."])
+def test_year_forms_4_8_does_not_cover_are_refused(value):
+    """T12: 4.8 reads "4th c." and runs of digits; it says nothing of eras or other century spellings."""
+    with pytest.raises(tb.YearUndecided):
+        tb.year_of(value, "work_date")
+
+
+@pytest.mark.parametrize("value,year", [("c. 1750", 1750), ("ca. 1750", 1750), ("4th c.", 350),
+                                        ("the cedar log, 1742", 1742)])
+def test_ordinary_values_are_not_mistaken_for_eras(value, year):
+    assert tb.year_of(value, "work_date") == year

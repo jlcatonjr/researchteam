@@ -2,20 +2,19 @@
 exceptions, the forbidden vocabulary (5.3), and the form and presence of a fetch-receipt citation (5.4, section 3).
 
 Re-finding a quotation, at a text-store locus or inside a receipt, is step G: :func:`refind_quotation` is the seam.
-Nothing here fetches, and nothing is inferred (rule 1.3): a check reads the cells as written.
+Nothing here fetches, and nothing is inferred (rule 1.3): a check reads the cells as written. Every file is opened
+at its resolved place under rule 1.6, and every value from a file is quoted with ``repr`` in a message.
 """
 from __future__ import annotations
 
 import os
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from survey_attribution import check_attribution
-from survey_attribution import columns as attribution_columns
-from survey_core import (
-    MAX_JSON_BYTES, Finding, fold, load_json_strict, read_capped, sha256_bytes,
-)
-from survey_tables import check_table, read_rows
+from survey_core import MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, read_capped, sha256_bytes
+from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, search
 
 COLUMNS = ("id", "person_id", "attribute_kind", "value", "tier", "source_id", "citation", "locator", "quote", "url",
            "access", "via", "audit", "basis", "reporter", "unit_id", "note", "downgraded_from")
@@ -31,8 +30,14 @@ REGISTRY_COLUMNS = ("person_id", "display_name", "identity_id", "merged_from")
 EXCEPTION_COLUMNS = ("id", "rule")
 #: A text-store locus (5.4): ``<work slug>#p<N>``, the slug as section 3 defines one.
 LOCUS = re.compile(r"[a-z0-9][a-z0-9_-]*#p[0-9]+")
-RECEIPT_KEYS = {"url", "quote", "fetched_at", "quote_fold_sha256", "status", "final_url", "content_type", "sha256",
-                "found", "context", "reason", "wayback", "receipt_id"}
+#: A fetch receipt's fields (4.4, lines 480-481); ``sha256``, ``context`` and ``wayback`` may be absent (485-486).
+RECEIPT_KEYS = ("url", "quote", "fetched_at", "quote_fold_sha256", "status", "final_url", "content_type", "sha256",
+                "found", "context", "reason", "wayback", "receipt_id")
+RECEIPT_OPTIONAL = ("sha256", "context", "wayback")
+RECEIPT_REQUIRED = tuple(k for k in RECEIPT_KEYS if k not in RECEIPT_OPTIONAL)
+#: Receipt problems that 5.4 lets a legacy study report instead of failing: the quotation "cannot be re-found"
+#: because the row predates receipts (lines 773-775). A receipt that is there but broken is an error everywhere.
+LEGACY_REPORTABLE = ("receipt-missing", "receipt-url")
 
 
 @dataclass
@@ -42,14 +47,14 @@ class EvidenceReport:
     excused: dict = field(default_factory=dict)  # rule -> count of listed breaches (4.1, line 356)
     exceptions: int = 0  # lines in the exceptions file it was read with
     reported: list = field(default_factory=list)  # 5.4: reported, not errors (a legacy study's unfindable rows)
-    not_refound: int = 0  # rows whose quotation step A/B could not re-find (the step G seam)
+    not_refound: int = 0  # counted rows whose quotation this version could not re-find (the step G seam)
 
 
 # --------------------------------------------------------------------------- the declared attribute kinds
 def declared_kinds(spec: dict) -> set:
     """The attribute kinds the specification declares: ``evidence.attribute_kinds``, and those the outcomes and
-    attributes use (4.1, lines 314-315), the period's ``basis`` included (4.7 reads ``work_date`` and
-    ``life_dates`` rows for the period attribute)."""
+    attributes use (4.1, line 314), the period attribute included: it reads ``work_date`` and ``life_dates`` rows
+    (4.7, lines 626 and 630; 3, lines 269-270), which ``periods.basis`` names."""
     kinds = set(spec["evidence"].get("attribute_kinds", []))
     for o in spec["outcomes"]:
         if o["source"]["kind"] == "evidence-attribute":
@@ -65,12 +70,9 @@ def read_registry(study) -> tuple:
     """The person ids the registry holds, or None when there is no registry. Returns ``(persons, findings)``.
     Building the registry is not in this module."""
     rp = study.paths.get("/identity/registry")
-    if rp is None:
+    if rp is None or not os.path.lexists(rp.real):
         return None, []
-    path = study.repo_root / rp.repo_rel
-    if not os.path.lexists(path):
-        return None, []
-    rows = read_rows(path, rp.repo_rel, REGISTRY_COLUMNS, "registry-columns")
+    rows = read_rows(Path(rp.real), rp.repo_rel, REGISTRY_COLUMNS, "registry-columns")
     if rows.findings:
         return set(), rows.findings
     persons, findings = set(), []
@@ -84,13 +86,14 @@ def read_registry(study) -> tuple:
 
 # --------------------------------------------------------------------------- vocabulary (5.3)
 def read_vocabulary(study) -> tuple:
-    """The compiled forbidden-vocabulary patterns, or None when no vocabulary is declared."""
+    """The compiled forbidden-vocabulary patterns, or None when none is declared or (in a draft) the file is not
+    there. Matched without regard to case (5.3, line 753)."""
     rp = study.paths.get("/vocabulary/forbidden")
-    if rp is None:
+    if rp is None or not os.path.lexists(rp.real):
         return None, []
     where = rp.repo_rel
     try:
-        data = read_capped(study.repo_root / rp.repo_rel, MAX_JSON_BYTES)
+        data = read_capped(Path(rp.real), MAX_JSON_BYTES)
     except OSError as exc:
         return [], [Finding("vocabulary-file", where, f"cannot be read: {exc}")]
     if data is None:
@@ -103,10 +106,14 @@ def read_vocabulary(study) -> tuple:
     for n, line in enumerate(text.splitlines(), start=1):
         if line.strip() == "" or line.lstrip().startswith("#"):
             continue
-        try:
-            patterns.append((n, re.compile(line, re.IGNORECASE)))
-        except re.error as exc:
-            findings.append(Finding("vocabulary-file", f"{where}:{n}", f"{line!r} does not compile: {exc}"))
+        if len(patterns) >= MAX_PATTERNS:
+            findings.append(Finding("vocabulary-file", where, f"more than {MAX_PATTERNS} patterns"))
+            break
+        pattern, why = compile_pattern(line, re.IGNORECASE)
+        if pattern is None:
+            findings.append(Finding("vocabulary-file", f"{where}:{n}", f"{line!r} {why}"))
+        else:
+            patterns.append((n, pattern))
     return patterns, findings
 
 
@@ -118,57 +125,52 @@ def receipt_id(url: str, quote: str) -> str:
 
 
 def cites_receipt(row: dict) -> bool:
-    """A row whose ``locator`` is not a text-store locus is checked against the fetch receipt for its ``url`` and
-    quote (5.4, lines 770-772)."""
-    return LOCUS.fullmatch(row["locator"]) is None
+    """A row with a ``locator`` that is not a text-store locus is checked against the fetch receipt for its ``url``
+    and quote (5.4, lines 770-772). An empty locator is not given (section 4, line 276): it cites nothing."""
+    return row["locator"] != "" and LOCUS.fullmatch(row["locator"]) is None
 
 
 def refind_quotation(study, row: dict, receipt: dict | None) -> bool | None:
     """THE RE-FIND SEAM (step G). Whether the quotation occurs at its locus, or in its receipt. Step B does not
-    re-find: it returns None ("not checked"), and nothing counts it as found."""
+    re-find: it returns None ("not checked"), and nothing counts it as found. A receipt's own ``found`` field is not
+    read either: whether a ``found: false`` receipt fails the row is step G's to decide with the re-find."""
     return None
 
 
-def _check_receipt(study, row: dict, where: str, legacy: bool, report: EvidenceReport) -> list:
-    """The citation's form and presence, which need no network. Returns findings; in a legacy study an absent or
-    unusable receipt is reported and counted, not an error (5.4, lines 773-775)."""
+def receipt_problem(study, row: dict) -> tuple:
+    """What is wrong with a receipt-citing row's receipt, as ``(rule, message)``, or ``None`` (and the receipt).
+    Needs no network: the receipt's place, presence, shape, and that it is this row's."""
     if "receipts" not in study.spec["evidence"]:
-        return [Finding("receipts-undeclared", where, "the row cites a fetch receipt (its locator is not a "
-                        "<work slug>#p<N> locus) but evidence.receipts is not declared (section 3)")]
-    rp = study.paths["/evidence/receipts"]
-    problem = None
+        return ("receipts-undeclared", "the row cites a fetch receipt (its locator is not a <work slug>#p<N> locus) "
+                "but evidence.receipts is not declared (section 3, line 223)"), None
     if row["url"] == "":
-        problem = ("receipt-url", "the row cites a fetch receipt but has no url to find it by (5.4)")
-    else:
-        rid = receipt_id(row["url"], row["quote"])
-        rel = f"{rp.repo_rel}/{rid}.json"
-        path = study.repo_root / rel
-        if not os.path.lexists(path):
-            problem = ("receipt-missing", f"no fetch receipt {rel}; the quotation cannot be re-found (5.4)")
-        else:
-            try:
-                data = read_capped(path, MAX_JSON_BYTES)
-            except OSError as exc:
-                data, problem = None, ("receipt-malformed", f"{rel} cannot be read: {exc}")
-            if data is not None:
-                doc, errs = load_json_strict(data, rel)
-                if errs or not isinstance(doc, dict) or set(doc) - RECEIPT_KEYS:
-                    problem = ("receipt-malformed", f"{rel} is not a fetch receipt object (4.4)")
-                elif doc.get("receipt_id") != rid or doc.get("url") != row["url"] or \
-                        not isinstance(doc.get("quote"), str) or \
-                        fold(doc["quote"], spaces=False) != fold(row["quote"], spaces=False):
-                    problem = ("receipt-malformed", f"{rel} is not the receipt of this row's url and quote")
-                else:
-                    if refind_quotation(study, row, doc) is None:
-                        report.not_refound += 1
-            elif problem is None:
-                problem = ("receipt-malformed", f"{rel} is larger than {MAX_JSON_BYTES} bytes")
-    if problem is None:
-        return []
-    if legacy:
-        report.reported.append(Finding(problem[0], where, problem[1] + " (reported: a legacy study, 5.4)"))
-        return []
-    return [Finding(problem[0], where, problem[1])]
+        return ("receipt-url", "the row cites a fetch receipt but has no url to find it by (5.4)"), None
+    rp = study.paths["/evidence/receipts"]
+    rid = receipt_id(row["url"], row["quote"])
+    rel = f"{rp.repo_rel}/{rid}.json"
+    place = os.path.join(rp.real, f"{rid}.json")
+    if not os.path.lexists(place):
+        return ("receipt-missing", f"no fetch receipt {rel}; the quotation cannot be re-found (5.4)"), None
+    real = os.path.realpath(place)
+    if not inside(real, os.path.realpath(study.repo_root)):
+        return ("receipt-malformed", f"{rel} resolves outside the repository (rule 1.6)"), None
+    try:
+        data = read_capped(Path(real), MAX_JSON_BYTES)
+    except OSError as exc:
+        return ("receipt-malformed", f"{rel} cannot be read: {exc}"), None
+    if data is None:
+        return ("receipt-malformed", f"{rel} is larger than {MAX_JSON_BYTES} bytes"), None
+    doc, errs = load_json_strict(data, rel)
+    if errs or not isinstance(doc, dict):
+        return ("receipt-malformed", f"{rel} is not a JSON object"), None
+    extra = sorted(set(doc) - set(RECEIPT_KEYS))
+    missing = [k for k in RECEIPT_REQUIRED if k not in doc]
+    if extra or missing:
+        return ("receipt-malformed", f"{rel} is not a 4.4 receipt (missing {missing!r}, extra {extra!r})"), None
+    if doc["receipt_id"] != rid or doc["url"] != row["url"] or not isinstance(doc["quote"], str) or \
+            fold(doc["quote"], spaces=False) != fold(row["quote"], spaces=False):
+        return ("receipt-malformed", f"{rel} is not the receipt of this row's url and quote"), None
+    return None, doc
 
 
 # --------------------------------------------------------------------------- the row checks (4.1)
@@ -227,7 +229,12 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
                 continue
             folded = fold(row[col])
             for line, pattern in vocab:
-                if pattern.search(folded):
+                try:
+                    hit = search(pattern, folded)
+                except ValueError as exc:
+                    add("vocabulary", f"column {col} was not checked: {exc} (contract silent; refused)")
+                    break
+                if hit:
                     add("vocabulary", f"column {col} matches forbidden pattern {pattern.pattern!r} (line {line})")
                     break
     return out
@@ -236,9 +243,9 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
 def _read_exceptions(study) -> tuple:
     """The legacy exceptions file: ``{(id, rule): line}``, and its findings."""
     rp = study.paths.get("/evidence/legacy_exceptions")
-    if rp is None:
+    if rp is None or not os.path.lexists(rp.real):
         return {}, []
-    rows = read_rows(study.repo_root / rp.repo_rel, rp.repo_rel, EXCEPTION_COLUMNS, "exceptions-columns")
+    rows = read_rows(Path(rp.real), rp.repo_rel, EXCEPTION_COLUMNS, "exceptions-columns")
     if rows.findings:
         return {}, rows.findings
     listed, findings = {}, []
@@ -272,22 +279,18 @@ def check_row_files(study) -> EvidenceReport:
     rp = study.paths.get("/evidence/file")
     if spec["evidence"]["format"] == "plugin":
         report.findings.append(Finding("evidence-plugin", rp.repo_rel, "evidence in a plugin format is read through "
-                                       "its reader plug-in, which this version does not load; the rows are not "
-                                       "checked"))
-    elif os.path.lexists(study.repo_root / rp.repo_rel):  # absent only in a draft (section 3's file check)
-        rows = read_rows(study.repo_root / rp.repo_rel, rp.repo_rel, COLUMNS, "columns")
+                                       "its reader plug-in, which this version does not load, so the rows cannot be "
+                                       "checked; not implemented (fails closed)"))
+    elif os.path.lexists(rp.real):  # absent only in a draft (section 3's file check)
+        rows = read_rows(Path(rp.real), rp.repo_rel, COLUMNS, "columns")
         report.findings += rows.findings
         if rows.findings:
             rows = None
 
     units = {}
     if spec["unit"]["kind"] in ("passage", "work"):
-        stand_in = persons
-        if stand_in is None:  # the registry's own sources stand in (4.4); this can only refuse more
-            stand_in = set(_attribution_persons(study))
-            if rows is not None:
-                stand_in |= {r["person_id"] for _n, r in rows.rows}
-        att = check_attribution(study, stand_in)
+        evidence_persons = {r["person_id"] for _n, r in rows.rows} if rows is not None else set()
+        att = check_attribution(study, persons, evidence_persons)
         report.findings += att.findings
         units = att.units
     if rows is None:
@@ -308,7 +311,7 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
     report.findings += exc_findings
     report.exceptions = len(listed)
     legacy = spec["status"] == "legacy"
-    counted = spec["evidence"]["counted_tiers"]
+    counted_tiers = spec["evidence"]["counted_tiers"]
     ids: dict = {}
     for _n, r in rows.rows:
         ids[r["id"]] = ids.get(r["id"], 0) + 1
@@ -323,11 +326,7 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
                 report.excused[rule] = report.excused.get(rule, 0) + 1
                 continue
             report.findings.append(Finding(rule, at, msg))
-        if r["tier"] in counted:
-            if cites_receipt(r):
-                report.findings += _check_receipt(study, r, at, legacy, report)
-            elif refind_quotation(study, r, None) is None:
-                report.not_refound += 1
+        _check_citation(study, r, at, r["tier"] in counted_tiers, legacy, report)
     if listed:
         exc_rel = study.paths["/evidence/legacy_exceptions"].repo_rel
         for key, line in sorted(listed.items(), key=lambda kv: kv[1]):
@@ -337,15 +336,47 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
                                                "than is true (4.1)"))
 
 
+def _check_citation(study, row: dict, at: str, counted: bool, legacy: bool, report: EvidenceReport) -> None:
+    """Where a row's quotation is to be re-found (5.4). Every receipt-citing row, counted or not, needs the
+    receipts declared and a usable receipt where one is there (line 771 has no tier limit); a counted row also needs
+    a locator and its receipt (line 773). In a legacy study a counted row that predates receipts (no receipt, no
+    url) is reported, not failed (lines 773-775)."""
+    if counted and row["locator"] == "":
+        finding = Finding("locator-missing", at, "a counted row without a locator: its quotation can be re-found "
+                          "neither at a locus nor through a receipt (contract silent; refused)")
+        if legacy:  # a row that predates receipts cannot be made re-findable (5.4, lines 774-775)
+            report.reported.append(Finding(finding.rule, at, finding.message + " (reported: a legacy study, 5.4)"))
+            report.not_refound += 1
+        else:
+            report.findings.append(finding)
+        return
+    if not cites_receipt(row):
+        if counted and refind_quotation(study, row, None) is None:
+            report.not_refound += 1
+        return
+    problem, receipt = receipt_problem(study, row)
+    if problem is not None and problem[0] in LEGACY_REPORTABLE and not counted:
+        return  # an uncounted row's quotation need not be re-found (5.4, line 773)
+    if problem is None:
+        if counted and refind_quotation(study, row, receipt) is None:
+            report.not_refound += 1
+        return
+    if legacy and problem[0] in LEGACY_REPORTABLE:
+        report.reported.append(Finding(problem[0], at, problem[1] + " (reported: a legacy study, 5.4)"))
+        report.not_refound += 1
+        return
+    report.findings.append(Finding(problem[0], at, problem[1]))
+
+
 def check_tables(study) -> list:
     """Every bucket table the attributes name (4.8)."""
     findings = []
     for i, a in enumerate(study.spec["attributes"]):
         rp = study.paths.get(f"/attributes/{i}/bucketer/table")
-        if rp is None or not os.path.lexists(study.repo_root / rp.repo_rel):
+        if rp is None or not os.path.lexists(rp.real):
             continue
         allowed = a.get("flags") if a["kind"] == "flags" else a.get("levels")
-        _rows, errs = check_table(study.repo_root / rp.repo_rel, rp.repo_rel, allowed)
+        _rows, errs = check_table(Path(rp.real), rp.repo_rel, allowed)
         findings += errs
         fallback = a["bucketer"].get("fallback")
         if fallback is not None and allowed is not None and fallback not in allowed:
@@ -353,12 +384,3 @@ def check_tables(study) -> list:
                                     f"fallback {fallback!r} is not one of the attribute's levels (contract silent; "
                                     "refused)"))
     return findings
-
-
-def _attribution_persons(study) -> set:
-    rp = study.paths.get("/unit/attribution/file")
-    if rp is None or not os.path.lexists(study.repo_root / rp.repo_rel):
-        return set()
-    rows = read_rows(study.repo_root / rp.repo_rel, rp.repo_rel, attribution_columns(study.spec),
-                     "attribution-columns")
-    return {r["person_id"] for _n, r in rows.rows}

@@ -1,67 +1,114 @@
-"""Row files and bucket tables (contract section 4 and 4.8): the shared CSV reader, the bucket-table checks and
-bucketer, and the year and period rule.
+"""Row files and bucket tables (contract section 4 and 4.8): the shared CSV reader, the project-pattern compiler,
+the bucket-table checks and bucketer, and the year and period rule.
 
 Every row file is CSV, UTF-8, "with exactly the columns listed, in this order. A missing or extra column is an
-error. An empty cell means "not given"; a tool never treats it as a value" (section 4, lines 275-276).
+error. An empty cell means "not given"; a tool never treats it as a value" (section 4, lines 275-276). A row file is
+opened at its resolved place under rule 1.6, like every file a specification names.
 """
 from __future__ import annotations
 
 import csv
-import io
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, fold, read_capped
+from survey_core import Finding, TooLarge, fold, open_text_capped
 
-#: The most bytes read from one row file. The cap is the toolkit's own (a proposal).
-MAX_CSV_BYTES = 256 * 1024 * 1024
+#: The toolkit's own limits (proposals): the bytes of one row file; the length of one project pattern; the number
+#: of patterns in one file; the length of the folded text one pattern is searched in.
+MAX_CSV_BYTES = 64 * 1024 * 1024
+MAX_PATTERN_CHARS = 1000
+MAX_PATTERNS = 10000
+MAX_MATCH_CHARS = 65536
 
 TABLE_COLUMNS = ("field", "pattern", "unless", "bucket", "note")
 
 
 @dataclass
 class Rows:
-    """A row file as read: its header, its rows as dicts (line number kept), and what was wrong with its shape."""
+    """A row file as read: its header, its rows as dicts (with the line each starts on), and what was wrong."""
 
     header: list = field(default_factory=list)
     rows: list = field(default_factory=list)  # (line number, {column: cell})
     findings: list = field(default_factory=list)
 
 
+def _cells(values) -> str:
+    return ", ".join(map(repr, values)) or "none"
+
+
 def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
     """Read a CSV row file that must have exactly *columns*, in order. A header that differs, or a row whose width
-    differs from the header's (a blank line included), is a finding with id *rule*. The file is read only when it
-    is a regular file of at most MAX_CSV_BYTES."""
+    differs from the header's (4, line 276), is a finding with id *rule*; so is a blank line. A cell holding a NUL
+    is a ``cell-nul`` finding. The file is streamed, at most MAX_CSV_BYTES, and only when it is a regular file.
+    Line numbers are those a row starts on, so a quoted cell over several lines does not shift them."""
     out = Rows()
     try:
-        data = read_capped(path, MAX_CSV_BYTES)
+        stream = open_text_capped(path, MAX_CSV_BYTES)
+    except TooLarge:
+        out.findings.append(Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read"))
+        return out
     except OSError as exc:
         out.findings.append(Finding(rule, where, f"cannot be read: {exc}"))
         return out
-    if data is None:
-        out.findings.append(Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read"))
-        return out
     try:
-        records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline="")))
-    except (UnicodeDecodeError, csv.Error) as exc:
-        out.findings.append(Finding(rule, where, f"not UTF-8 CSV: {exc}"))
-        return out
-    if not records:
+        with stream:
+            reader = csv.reader(stream)
+            start = 1
+            for record in reader:
+                line, start = start, reader.line_num + 1
+                if any("\x00" in cell for cell in record):
+                    out.findings.append(Finding("cell-nul", f"{where}:{line}", "a cell holds a NUL character"))
+                    continue
+                if line == 1:
+                    out.header = record
+                    if tuple(record) != tuple(columns):
+                        out.findings.append(Finding(rule, f"{where}:1", "the columns are not exactly "
+                                                    f"{', '.join(columns)}, in this order (found {_cells(record)})"))
+                        return out
+                    continue
+                if len(record) != len(columns):
+                    out.findings.append(Finding(rule, f"{where}:{line}", f"has {len(record)} fields; the columns are "
+                                                f"{len(columns)}"))
+                    continue
+                out.rows.append((line, dict(zip(columns, record))))
+    except TooLarge:
+        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")])
+    except UnicodeDecodeError as exc:
+        return Rows(findings=[Finding(rule, where, f"not UTF-8: {exc}")])
+    except csv.Error as exc:
+        rid = "cell-nul" if "NUL" in str(exc) else rule  # Python 3.10's csv refuses a NUL itself
+        return Rows(findings=[Finding(rid, where, f"not CSV: {exc}")])
+    if not out.header and not out.findings:
         out.findings.append(Finding(rule, where, f"has no header; the columns are {', '.join(columns)}"))
-        return out
-    out.header = records[0]
-    if tuple(out.header) != tuple(columns):
-        out.findings.append(Finding(rule, f"{where}:1", f"the columns are not exactly {', '.join(columns)}, in this "
-                                    f"order (found {', '.join(out.header) or 'none'})"))
-        return out
-    for n, record in enumerate(records[1:], start=2):
-        if len(record) != len(columns):
-            out.findings.append(Finding(rule, f"{where}:{n}", f"has {len(record)} fields; the columns are "
-                                        f"{len(columns)}"))
-            continue
-        out.rows.append((n, dict(zip(columns, record))))
     return out
+
+
+# --------------------------------------------------------------------------- project patterns
+_ESCAPE = re.compile(r"\\.", re.S)
+
+
+def compile_pattern(text: str, flags: int = 0, *, lower_only: bool = False) -> tuple:
+    """Compile a pattern a project wrote. Returns ``(pattern, None)`` or ``(None, why)``. Refused: a pattern longer
+    than MAX_PATTERN_CHARS, one the regular-expression engine cannot compile for any reason (an error, a repeat
+    count too large, nesting too deep), and, with *lower_only*, one with an upper-case letter outside an escape: it
+    is searched in folded, lower-cased text (4.8), where it could never match."""
+    if len(text) > MAX_PATTERN_CHARS:
+        return None, f"is longer than {MAX_PATTERN_CHARS} characters"
+    if lower_only and any(ch.isupper() for ch in _ESCAPE.sub("", text)):
+        return None, "has an upper-case letter; values are folded to lower case before they are searched (4.8)"
+    try:
+        return re.compile(text, flags), None
+    except (re.error, OverflowError, RecursionError, ValueError) as exc:
+        return None, f"does not compile: {type(exc).__name__}: {exc}"
+
+
+def search(pattern: re.Pattern, folded: str) -> bool:
+    """Search folded text no longer than MAX_MATCH_CHARS; raises ValueError for longer text, which the caller
+    reports."""
+    if len(folded) > MAX_MATCH_CHARS:
+        raise ValueError(f"the text is longer than {MAX_MATCH_CHARS} characters")
+    return pattern.search(folded) is not None
 
 
 # --------------------------------------------------------------------------- bucket tables (4.8)
@@ -76,15 +123,17 @@ class TableRow:
 
 def check_table(path: Path, where: str, allowed: list | None) -> tuple:
     """Read and check a bucket table. Returns ``(rows, findings)``. Errors (4.8, lines 686-687): other columns, an
-    empty table, a row without ``pattern``, ``bucket`` or ``note``, an expression that does not compile. And, the
-    toolkit's own refusal: a ``bucket`` that is not one of the attribute's declared levels or flags (*allowed*,
-    when declared)."""
+    empty table, a row without ``pattern``, ``bucket`` or ``note``, an expression that does not compile. And the
+    toolkit's own refusals: a ``bucket`` outside the attribute's declared levels or flags (*allowed*, when
+    declared), an upper-case or over-long pattern, more than MAX_PATTERNS rows."""
     read = read_rows(path, where, TABLE_COLUMNS, "table-columns")
     findings, rows = list(read.findings), []
     if read.findings:
         return rows, findings
     if not read.rows:
         return rows, [Finding("table-empty", where, "a bucket table has at least one row (4.8)")]
+    if len(read.rows) > MAX_PATTERNS:
+        return rows, [Finding("table-pattern", where, f"more than {MAX_PATTERNS} rows")]
     for n, r in read.rows:
         at = f"{where}:{n}"
         missing = [c for c in ("pattern", "bucket", "note") if r[c] == ""]
@@ -95,13 +144,14 @@ def check_table(path: Path, where: str, allowed: list | None) -> tuple:
         for col in ("pattern", "unless"):
             if r[col] == "":
                 continue
-            try:
-                compiled[col] = re.compile(r[col])
-            except re.error as exc:
-                findings.append(Finding("table-pattern", at, f"{col} {r[col]!r} does not compile: {exc}"))
+            pattern, why = compile_pattern(r[col], lower_only=True)
+            if pattern is None:
+                findings.append(Finding("table-pattern", at, f"{col} {r[col]!r} {why}"))
+            else:
+                compiled[col] = pattern
         if allowed is not None and r["bucket"] not in allowed:
             findings.append(Finding("table-bucket", at, f"bucket {r['bucket']!r} is not one of the attribute's "
-                                    f"declared values ({', '.join(allowed)})"))
+                                    f"declared values ({_cells(allowed)})"))
         if "pattern" in compiled and (r["unless"] == "" or "unless" in compiled):
             rows.append(TableRow(n, r["field"], compiled["pattern"], compiled.get("unless"), r["bucket"]))
     return (rows if not findings else []), findings
@@ -111,15 +161,16 @@ def _fires(row: TableRow, kind: str, value: str) -> bool:
     if row.field != "*" and row.field != kind:
         return False
     folded = fold(value)  # spaces kept (4.8)
-    if not row.pattern.search(folded):
+    if not search(row.pattern, folded):
         return False
-    return not (row.unless is not None and row.unless.search(folded))
+    return not (row.unless is not None and search(row.unless, folded))
 
 
 def bucket_first(rows: list, values: list, fallback: str | None, missing: str) -> str:
     """``match: "first"`` (4.8): rows are tried in order, and the first row that fires on any of the values decides.
     If none fires, the bucketer's ``fallback``, or the attribute's missing value. *values* is a list of
-    ``(attribute_kind, value)``; an empty value is not given and never fires."""
+    ``(attribute_kind, value)``; an empty value is not given and never fires. A value whose folded text is longer
+    than MAX_MATCH_CHARS raises ValueError."""
     for row in rows:
         if any(_fires(row, kind, v) for kind, v in values if v != ""):
             return row.bucket
@@ -132,8 +183,15 @@ def bucket_all(rows: list, values: list) -> set:
 
 
 # --------------------------------------------------------------------------- years and periods (4.8)
+class YearUndecided(ValueError):
+    """The value has a form 4.8 does not say how to read: an era marker (``BC``, ``AD``, ``BCE``, ``CE``) or a century
+    written otherwise than ``<n>th c.``. Refused rather than read; the caller reports it."""
+
+
 _RUN = re.compile(r"(?<![0-9])(-?)([0-9]+)(?![0-9])")
 _CENTURY = re.compile(r"(?<![0-9])([0-9]{1,2})(?:st|nd|rd|th) c\.")
+_CENTURY_LIKE = re.compile(r"(?<![0-9])[0-9]+\s*(?:st|nd|rd|th)\s*(?:c\b|c\.|cent|century)", re.I)
+_ERA_WORDS = re.compile(r"(?<![A-Za-z])(?:BC|BCE|AD|CE|B\.C\.|A\.D\.|B\.C\.E\.|C\.E\.)(?![A-Za-z])", re.I)
 
 
 def _runs(value: str) -> list:
@@ -152,9 +210,15 @@ def _runs(value: str) -> list:
 
 def year_of(value: str, basis: str) -> int | None:
     """The year one value gives (4.8): for ``work_date`` the first run of three or four digits, for ``life_dates``
-    the largest; else a stated century (``4th c.``) gives its middle year; else none."""
+    the largest; else a stated century (``4th c.``) gives its middle year; else none. Raises YearUndecided for an
+    era marker or another century spelling, which 4.8 does not cover (step D reports it)."""
     if basis not in ("work_date", "life_dates"):
         raise ValueError(f"unknown basis {basis!r}")
+    if _ERA_WORDS.search(value):
+        raise YearUndecided(f"{value!r} has an era marker; 4.8 does not say how to read it")
+    stated = {m.start() for m in _CENTURY.finditer(value)}
+    if any(m.start() not in stated for m in _CENTURY_LIKE.finditer(value)):
+        raise YearUndecided(f"{value!r} states a century otherwise than '<n>th c.'; 4.8 does not say how to read it")
     years = _runs(value)
     if not years:
         years = [(int(m.group(1)) - 1) * 100 + 50 for m in _CENTURY.finditer(value) if int(m.group(1)) >= 1]

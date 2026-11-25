@@ -16,7 +16,7 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_core import SurveyUsageError, parse_args, print_findings, usage_exit  # noqa: E402
+from survey_core import SurveyUsageError, parse_args, print_findings, safe, usage_exit  # noqa: E402
 from survey_evidence import EvidenceReport, check_row_files  # noqa: E402
 from survey_gates import GATES, gate_status  # noqa: E402
 from survey_ledger import check_ledger  # noqa: E402
@@ -50,19 +50,21 @@ def main(argv=None) -> int:
     except SurveyUsageError as exc:
         return usage_exit(exc)
     for f in rows.reported:
-        print(f"REPORTED [{f.rule}] {f.where}: {f.message}")
-    if findings:
-        print_findings(findings)
-        print(f"FAIL: {study.spec_rel}: {len(findings)} error(s)")
-        return 1
-    for reason in notes:
-        print(f"note: the gates read UNAVAILABLE: {reason}")
-    print(f"OK: {study.spec_rel} is well-formed (specification, ledger folder, manifest files, row files).")
+        print(f.line("REPORTED"))
+    print_findings(findings)
+    # Printed on every run, failing runs included: a listed breach "is reported, with counts by rule" (4.1, line 356)
+    # and an unfindable quotation in a legacy study is "reported and counted" (5.4, line 774).
     excused = ", ".join(f"{rule} {n}" for rule, n in sorted(rows.excused.items())) or "none"
     print(f"evidence: {rows.rows} row(s); read with {rows.exceptions} legacy exception(s); breaches excused by rule: "
           f"{excused}")
-    if rows.not_refound:
-        print(f"note: {rows.not_refound} counted quotation(s) not re-found: re-finding is not in this version")
+    print(f"quotations: {rows.not_refound} counted quotation(s) not re-found ({len(rows.reported)} reported); "
+          "re-finding is not in this version")
+    if findings:
+        print(f"FAIL: {study.spec_rel}: {len(findings)} error(s)")
+        return 1
+    for reason in notes:
+        print(safe(f"note: the gates read UNAVAILABLE: {reason}"))
+    print(f"OK: {study.spec_rel} is well-formed (specification, ledger folder, manifest files, row files).")
     return 0
 
 
