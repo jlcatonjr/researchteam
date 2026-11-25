@@ -255,3 +255,28 @@ decision signing is active).
   `chore/root-owned-agentteams-1.3.0` (head `58bc8db`); `@security` is reviewing it. Where it is installed is not
   recorded (PS-1).
 - Order for the operator: script 32; then script 28 `pause`; then script 31.
+
+## Finding: how the existing root-owned install was built (`@security`, 2026-11-25)
+
+Reviewing script 32, `@security` found defects that its model, the October script that built the existing
+root-owned install, also has. Script 32 was refused twice (HALT at `58bc8db` and at `361b044`) and rewritten each
+time; its third review is running.
+
+- **What was wrong in the model.** Steps run as root started in a world-writable folder with `python -m`, an
+  existing folder was reused without checking who owned what was in it, the operator's environment reached root's
+  Python, and the interpreter's standard library came from a location the operator's own account can write.
+- **What follows for the existing install.** It was never protected from a process running as the operator, at
+  build time or at any signing since. There is no evidence that anything was tampered with. Its build integrity
+  cannot be shown after the fact.
+- **`@security`'s recommendations, for the operator to rule on:**
+  - (a) re-check that every tag and every signed decision row made with it says exactly what the operator
+    approved. The session can do the comparison for the rows (each against its tracked decision spec) and the
+    tags (each against the commit and message its cut script names), read-only;
+  - (b) the operator decides whether to rotate the keys that install handled (the decision key `opr-2026-11`;
+    the release key was used by `git`, not by that install);
+  - (c) no further signing with it: signing waits for the new install, and later signing scripts point to it.
+- **What script 32 does differently.** Every root command runs with an empty environment from `/`; the target
+  folder, each folder above it and the interpreter's home must be real folders owned by root and not writable by
+  others; an existing folder is reused only if everything in it, links included, is root's and every link stays
+  inside; the interpreter is the root-owned framework build; the one build tool is installed by hash and the
+  build runs without downloading anything else to run.
