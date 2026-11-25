@@ -1,0 +1,266 @@
+{
+  "schema_version": "1",
+  "id": "tidebell-survey",
+  "title": "Tide-bell signalling among the lamp-wardens of an invented coast",
+  "question": "What did the lamp-wardens of the invented Marrow Coast hold about ringing the tide-bell at slack water, and on what evidence?",
+  "status": "active",
+  "vocabulary": {
+    "forbidden": "rules/forbidden.txt"
+  },
+  "identity": {
+    "registry": "rows/registry.csv",
+    "overrides": "rows/overrides.csv",
+    "stop_words": "rules/stop_words.txt"
+  },
+  "unit": {
+    "kind": "passage",
+    "attribution": {
+      "file": "rows/attribution.csv",
+      "statuses": [
+        "firm",
+        "doubtful"
+      ],
+      "counted_statuses": [
+        "firm"
+      ]
+    },
+    "passage_attributes": [
+      {
+        "key": "genre",
+        "label": "Genre",
+        "levels": [
+          {
+            "code": "logbook",
+            "label": "Logbook"
+          },
+          {
+            "code": "letter",
+            "label": "Letter"
+          },
+          {
+            "code": "draft",
+            "label": "Draft"
+          }
+        ]
+      }
+    ],
+    "rollup_by": [
+      "genre"
+    ],
+    "rollup_types": "genre",
+    "exclude_from_rollup": {
+      "genre": [
+        "draft"
+      ]
+    },
+    "collective": {
+      "kinds": [
+        "guild"
+      ],
+      "analysis": "apart"
+    }
+  },
+  "enumerations": [
+    {
+      "id": "harbour-archive",
+      "label": "The invented harbour archive",
+      "window": {
+        "from": 1700,
+        "to": 1850
+      },
+      "seeds": [
+        "warden-01"
+      ],
+      "query_plan": "plans/query_plan.md",
+      "log": "rows/enumeration-log.csv",
+      "stopping_rule": {
+        "kind": "saturation",
+        "rounds_without_new": 2,
+        "min_new_share": 0.05
+      }
+    }
+  ],
+  "evidence": {
+    "file": "rows/evidence.csv",
+    "format": "survey-evidence-0",
+    "tiers": [
+      "quoted",
+      "paraphrased",
+      "not-established"
+    ],
+    "counted_tiers": [
+      "quoted",
+      "paraphrased"
+    ],
+    "not_established_tier": "not-established",
+    "receipts": "rows/receipts",
+    "attribute_kinds": [
+      "work_date",
+      "life_dates",
+      "harbour",
+      "duty",
+      "bell_metal"
+    ]
+  },
+  "outcomes": [
+    {
+      "key": "slack_bell",
+      "label": "Ringing the bell at slack water",
+      "source": {
+        "kind": "codes",
+        "codes_file": "rows/codes-slack_bell.csv",
+        "adjudications": "rows/adjudications-slack_bell.csv"
+      },
+      "codebook": "codebooks/slack_bell.md",
+      "scale": "ordinal",
+      "levels": [
+        {
+          "code": "against",
+          "label": "Against",
+          "order": 1
+        },
+        {
+          "code": "tolerates",
+          "label": "Tolerates",
+          "order": 2
+        },
+        {
+          "code": "for",
+          "label": "For",
+          "order": 3
+        }
+      ],
+      "na_codes": [
+        "NA"
+      ],
+      "rollup": "max-order"
+    },
+    {
+      "key": "bell_metal",
+      "label": "Preferred bell metal",
+      "source": {
+        "kind": "evidence-attribute",
+        "attribute": "bell_metal"
+      },
+      "scale": "nominal",
+      "levels": [
+        {
+          "code": "bronze",
+          "label": "Bronze"
+        },
+        {
+          "code": "iron",
+          "label": "Iron"
+        }
+      ],
+      "rollup": "none"
+    }
+  ],
+  "attributes": [
+    {
+      "key": "harbour",
+      "label": "Home harbour",
+      "kind": "categorical",
+      "source_attributes": [
+        "harbour"
+      ],
+      "bucketer": {
+        "kind": "table",
+        "table": "tables/harbour.csv",
+        "match": "first",
+        "fallback": "other"
+      },
+      "levels": [
+        "north",
+        "south",
+        "other"
+      ]
+    },
+    {
+      "key": "duties",
+      "label": "Duties",
+      "kind": "flags",
+      "source_attributes": [
+        "duty"
+      ],
+      "bucketer": {
+        "kind": "table",
+        "table": "tables/duties.csv",
+        "match": "all"
+      },
+      "flags": [
+        "lamp",
+        "bell"
+      ]
+    },
+    {
+      "key": "era",
+      "label": "Era",
+      "kind": "period",
+      "bucketer": {
+        "kind": "period"
+      }
+    }
+  ],
+  "periods": {
+    "basis": [
+      "work_date",
+      "life_dates"
+    ],
+    "cuts": [
+      1750,
+      1800
+    ],
+    "labels": [
+      "early",
+      "middle",
+      "late"
+    ],
+    "strata": {
+      "1": "before the invented lamp ordinance"
+    }
+  },
+  "frame_rules": {
+    "exclude": [
+      {
+        "rule": "not-on-question",
+        "reason": "a cell with no code says nothing on the question"
+      }
+    ],
+    "change_log": "rows/frame-changes.jsonl"
+  },
+  "analysis": {
+    "plan": "analysis/plan.md"
+  },
+  "signoffs": {
+    "ledger": "agentteams-clearance:ledger",
+    "gates": {
+      "S0": {
+        "covers": [
+          "rules/forbidden.txt",
+          "rules/stop_words.txt",
+          "tables/harbour.csv",
+          "tables/duties.csv",
+          "plans/query_plan.md"
+        ],
+        "enforce": "blocking",
+        "mode": "prospective"
+      },
+      "S5": {
+        "covers": [
+          "codebooks/slack_bell.md"
+        ],
+        "enforce": "blocking",
+        "mode": "prospective"
+      },
+      "S6": {
+        "covers": [
+          "analysis/plan.md",
+          "repo:Projects/tidebell/analysis/plan.md"
+        ],
+        "enforce": "build-only",
+        "mode": "retroactive"
+      }
+    }
+  }
+}

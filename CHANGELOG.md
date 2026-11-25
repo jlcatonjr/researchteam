@@ -5,6 +5,31 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
+  The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
+  own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)
+  is generated from the validator's rule table; a test keeps the tracked file equal to the generator's output. The
+  gate list, the manifest builder (6.1), the rule that turns a gate's state into "runs" or "refuses", and the
+  structural checks of the ledger folder (6.2). Three bridge commands, each taking a project: `survey-validate`,
+  `survey-status` and `survey-manifest <gate>`; the bridge refuses a `--root` argument. Standard library only,
+  Python 3.10 to 3.13. The files, and the contract `docs/survey-toolkit.md` they cite, are synced with the
+  scholarly profile.
+  - **Nothing verifies a signature yet.** A gate reads `UNCLEARED` when its files changed since its manifest file
+    was written (step A's stand-in for the `agentteams` sign-off request, which it does not read), and
+    `UNAVAILABLE` otherwise; it never reads `CLEARED`. A team directory reached through a symbolic link (or with a
+    link inside it), or a `parent_team` with one of the faults 6.2 lists, leaves the gates `UNAVAILABLE` without
+    failing a command; a `parent_team` value that is no path at all is a malformed ledger. No command of this step
+    is a gated stage.
+  - The manifest file is written beside the ledger's log, as `<ledger>/references/<study id>.<gate>.manifest.json`.
+    A manifest carries each path as declared, so a path with a `.` or empty segment is refused. Two spellings of one
+    file are one file (by device and inode). Every capped read opens without following a link or blocking on a FIFO
+    and checks the open file is regular. The ledger's keys and approvers are compared with a team directory only when
+    it has both an approver and a verify key; one that lacks either "has neither" (6.2). A ledger inside `.git` or a
+    generated team location is refused, by case-folded name and by device and inode.
+  - Not in this step: the row checks of section 4 (step B), sign-off verification and the HALT scan (step F), and
+    the CI gate (step H). The check table, with the points where the contract is silent, is
+    `references/plans/post-1.3.0-h5-step-a-check-table.md`.
+
 - **Docs: the release policy gives the order for moving a derived repository to a new line.** No rule changes.
   `docs/release-policy.md` told a derived repository to run `--write-lock` with both tags and did not say that a
   locked repository must first drop both `.tag=` lines (said in the 1.2.0 and 1.3.0 changelog sections), that the

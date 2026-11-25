@@ -1,0 +1,2 @@
+id,person_id,attribute_kind,value,tier,source_id,citation,locator,quote,url,access,via,audit,basis,reporter,unit_id,note,downgraded_from
+ev-001,warden-01,work_date,1742,quoted,src-1,Invented logbook,logbook-01#p3,the bell at slack,,,,,own,,p-001,,
