@@ -81,21 +81,22 @@ def _states(root):
     return {g: gates.gate_status(study, g, led)[0] for g in gates.GATES}
 
 
-def test_before_any_request_a_declared_gate_is_unavailable(tmp_path):
+def test_before_any_request_a_declared_gate_is_uncleared(tmp_path):
+    """Operator decision Q7: with no request there is nothing to verify."""
     states = _states(make_repo(tmp_path))
-    assert {g: s.state for g, s in states.items()} == {"S0": "UNAVAILABLE", "S5": "UNAVAILABLE",
-                                                       "S6": "UNAVAILABLE", "S8": "NOT DECLARED"}
-    assert gates.NO_VERIFICATION in states["S0"].reason
+    assert {g: s.state for g, s in states.items()} == {"S0": "UNCLEARED", "S5": "UNCLEARED",
+                                                       "S6": "UNCLEARED", "S8": "NOT DECLARED"}
+    assert "no sign-off request" in states["S0"].reason
 
 
 def test_a_change_to_a_covered_file_after_the_request_is_uncleared(tmp_path):
     root = make_repo(tmp_path)
     assert run(survey_manifest, "--root", str(root), "tidebell", "S5")[0] == 0
-    assert _states(root)["S5"].state == "UNAVAILABLE"
+    assert _states(root)["S5"].state == "UNCLEARED"  # a request, and no row for it
     (root / STUDY_REL / "codebooks" / "slack_bell.md").write_text("an edit\n")
     st = _states(root)
-    assert st["S5"].state == "UNCLEARED" and "changed since the stored manifest file was written" in st["S5"].reason
-    assert st["S0"].state == "UNAVAILABLE"  # no request for S0 was made
+    assert st["S5"].state == "UNCLEARED" and "changed since the request" in st["S5"].reason
+    assert "no sign-off request" in st["S0"].reason  # no request for S0 was made
 
 
 def test_an_edit_to_the_specification_unclears_every_requested_gate(tmp_path):
@@ -104,7 +105,8 @@ def test_an_edit_to_the_specification_unclears_every_requested_gate(tmp_path):
         run(survey_manifest, "--root", str(root), "tidebell", g)
     edit_spec(root, lambda s: s.update(title="A changed invented title"))
     st = _states(root)
-    assert st["S0"].state == st["S5"].state == "UNCLEARED" and st["S6"].state == "UNAVAILABLE"
+    assert st["S0"].state == st["S5"].state == "UNCLEARED" and "changed since the request" in st["S0"].reason
+    assert "no sign-off request" in st["S6"].reason
 
 
 def test_a_covered_file_removed_after_the_request_is_uncleared(tmp_path):
@@ -128,21 +130,6 @@ def test_a_malformed_ledger_leaves_every_gate_unavailable(tmp_path):
     (root / LEDGER / "references" / "security-waivers.log.csv").write_text("x\n")
     st = _states(root)
     assert all(st[g].state == "UNAVAILABLE" and "ledger" in st[g].reason for g in ("S0", "S5", "S6"))
-
-
-def test_no_gate_ever_reads_cleared_in_this_version(tmp_path):
-    root = make_repo(tmp_path)
-    for g in ("S0", "S5", "S6"):
-        run(survey_manifest, "--root", str(root), "tidebell", g)
-    out = run(survey_status, "--root", str(root), "tidebell")[1]
-    assert "CLEARED" not in out.replace("UNCLEARED", "").replace("reads CLEARED", "")
-
-
-def test_the_verification_seam_says_why_it_cannot_clear(tmp_path):
-    root = make_repo(tmp_path)
-    study = _study(root)
-    assert gates.verify_signoff(study, "S0", "0" * 64, ledger_mod.check_ledger(study)) == \
-        ("UNAVAILABLE", gates.NO_VERIFICATION)
 
 
 # --------------------------------------------------------------------------- runs or refuses (6.1)
@@ -390,8 +377,8 @@ def test_status_prints_hash_state_enforce_and_mode_and_the_environment(tmp_path)
     study = _study(root)
     s0 = _sha(gates.build_manifest(study, "S0"))
     assert code == 0
-    assert f"S0: UNAVAILABLE manifest_sha256={s0} enforce=blocking mode=prospective" in out
-    assert "S6: UNAVAILABLE" in out and "enforce=build-only mode=retroactive" in out
+    assert f"S0: UNCLEARED manifest_sha256={s0} enforce=blocking mode=prospective" in out
+    assert "S6: UNCLEARED" in out and "enforce=build-only mode=retroactive" in out
     assert "S8: NOT DECLARED" in out
     import unicodedata
     assert f"unicodedata {unicodedata.unidata_version}" in out
@@ -522,7 +509,7 @@ def test_the_bridge_runs_the_three_commands_isolated(tmp_path):
     res = _bridge(root, "survey-manifest", "tidebell", "S0")
     assert res.returncode == 0 and "action: survey-signoff/S0/tidebell-survey:sha256-" in res.stdout
     res = _bridge(root, "survey-status", "tidebell")
-    assert res.returncode == 0 and "S0: UNAVAILABLE" in res.stdout
+    assert res.returncode == 0 and "S0: UNCLEARED" in res.stdout
     assert not list((root / "scripts" / "survey").glob("__pycache__"))
 
 
