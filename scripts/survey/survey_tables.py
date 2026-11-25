@@ -215,29 +215,42 @@ _CENTURY = re.compile(r"(?<![0-9])" + _ORDINAL + r"(?:\s*-\s*" + _ORDINAL + r")?
                       r"\s*(?:centuries|century|cent\.?|c\.?)(?![A-Za-z])(" + _BC + r")?", re.I)
 
 
-def _grouped(value: str, start: int, end: int) -> bool:
-    """Whether the run ``value[start:end]`` is part of a number grouped by thousands with ``,`` or ``.`` (``1,750``,
-    ``1.750``, ``12,750``): a run of exactly three digits after a separator that follows a lead of one to three
-    digits, or a run of one to three digits before a separator and a group of exactly three digits. Anything else
-    (``12.03.1750``, ``1742,1790``, ``1750.5``) leaves the run its own number (4.8, line 699)."""
-    def digits_back(i):  # length of the digit run ending just before index i
-        k = i
+def _chain(value: str, start: int, end: int) -> tuple:
+    """The digit groups joined to the run ``value[start:end]`` by ``,`` or ``.``, as ``(groups, separators)``: the
+    whole chain, in order (``12.03.750`` -> ``["12", "03", "750"]``, ``[".", "."]``)."""
+    groups, seps = [value[start:end]], []
+    i = start
+    while i >= 2 and value[i - 1] in ",." and value[i - 2].isdigit():
+        k = i - 1
         while k > 0 and value[k - 1].isdigit():
             k -= 1
-        return i - k
-
-    def digits_ahead(i):  # length of the digit run starting at index i
-        k = i
+        groups.insert(0, value[k:i - 1])
+        seps.insert(0, value[i - 1])
+        i = k
+    j = end
+    while j + 1 < len(value) and value[j] in ",." and value[j + 1].isdigit():
+        k = j + 1
         while k < len(value) and value[k].isdigit():
             k += 1
-        return k - i
+        groups.append(value[j + 1:k])
+        seps.append(value[j])
+        j = k
+    return groups, seps
 
-    length = end - start
-    if length == 3 and start >= 2 and value[start - 1] in ",." and 1 <= digits_back(start - 1) <= 3:
-        return True
-    if 1 <= length <= 3 and end + 1 < len(value) and value[end] in ",." and digits_ahead(end + 1) == 3:
-        return True
-    return False
+
+def _grouped(value: str, start: int, end: int) -> bool:
+    """Whether the run ``value[start:end]`` is part of a number grouped by thousands. The whole chain the run is
+    joined to by ``,`` or ``.`` must be one: one separator throughout, every group after the first exactly three
+    digits, and a lead of one or two digits, or of three when two or more groups follow (``1,750``, ``12,750``,
+    ``1.234.567``, ``123,456,789``). Any other chain (``12.03.750``, ``450,500``, ``1742,1790``, ``1750.5``) is a
+    list of numbers, and each run is its own (4.8, line 699)."""
+    groups, seps = _chain(value, start, end)
+    if len(groups) < 2 or len(set(seps)) != 1:
+        return False
+    if any(len(g) != 3 for g in groups[1:]):
+        return False
+    lead = len(groups[0])
+    return lead in (1, 2) or (lead == 3 and len(groups) >= 3)
 
 
 def _runs(value: str) -> list:

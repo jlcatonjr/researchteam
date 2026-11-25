@@ -270,8 +270,8 @@ def test_candidates_are_listed_and_never_applied(tmp_path):
     before = tree(root)
     code, out, _ = run(survey_registry, "--root", str(root), "tidebell", "--candidates")
     assert code == 0 and tree(root) == before
-    assert "candidate similar: warden-01 ~ warden-02 (undecided)" in out
-    assert "candidate similar: guild-01 ~ warden-01 (undecided)" in out  # they share the word "01"
+    assert "candidate similar: warden-01 ~ warden-02\n" in out
+    assert "candidate similar: guild-01 ~ warden-01\n" in out  # they share the word "01"
 
 
 def test_stop_words_leave_words_out(tmp_path):
@@ -284,7 +284,7 @@ def test_a_candidate_named_by_an_override_is_decided(tmp_path):
     root = make_repo(tmp_path)
     _overrides(root, [_row("warden-01", "guild-01", "distinct")])
     out = run(survey_registry, "--root", str(root), "tidebell", "--candidates")[1]
-    assert "guild-01 ~ warden-01 (decided)" in out
+    assert "guild-01 ~ warden-01" not in out and "1 already decided" in out
 
 
 def test_kinds_of_candidates():
@@ -392,14 +392,15 @@ def test_the_registry_may_not_be_written_over_a_protected_file(tmp_path, target)
     before = tree(root)
     code, out, _ = _build(root)
     assert code == 1 and "nothing was written" in out
-    assert any(why in out for why in ("which the specification names", "no output goes there"))
+    assert any(why in out for why in ("which the specification names", "no output goes there",
+                                      "is not inside the study's folder", "a folder that holds a file a gate covers"))
     assert tree(root) == before
 
 
 def test_a_declared_path_equal_to_the_records_name_is_refused(tmp_path):
-    root = make_repo(tmp_path, lambda s: s["identity"].update(stop_words="rows/registry.csv.provenance.json"))
-    (root / RECORD).write_text("warden\n", encoding="utf-8")
-    edit_spec(root, lambda s: s["signoffs"]["gates"]["S0"]["covers"].append("rows/registry.csv.provenance.json"))
+    root = make_repo(tmp_path, lambda s: s.update(vantage={"module": None,
+                                                          "guide": "rows/registry.csv.provenance.json"}))
+    (root / RECORD).write_text("an invented guide\n", encoding="utf-8")
     before = tree(root)
     code, out, _ = _build(root)
     assert code == 1 and "the specification names" in out and tree(root) == before
@@ -415,9 +416,11 @@ def test_evidence_may_carry_a_merged_alias(tmp_path):
 
 
 def test_a_merge_stays_valid_after_the_aliass_rows_are_rewritten(tmp_path):
-    """T1: rows rewritten to the target; the merge row, recorded in the overrides file, stays valid (proposal)."""
+    """T1/T2: rows rewritten to the target; the merge row stays valid, because the registry already records the
+    alias in the target's merged_from (proposal 4)."""
     root = make_repo(tmp_path)
     _overrides(root, [_row("warden-02", "warden-01", "merge")])
+    assert _build(root)[0] == 0  # the registry now records warden-02 as merged into warden-01
     for name in ("evidence.csv", "attribution.csv"):
         path = root / ROWS / name
         path.write_bytes(path.read_bytes().replace(b"warden-02", b"warden-01"))
@@ -543,3 +546,110 @@ def test_a_distinct_row_names_project_persons_on_both_sides(tmp_path):
     _overrides(root, [_row("warden-99", "warden-01", "distinct")])
     code, out, _ = _build(root)
     assert code == 1 and "[overrides-alias]" in out
+
+
+# --------------------------------------------------------------------------- second review of part 2a
+@pytest.mark.parametrize("target", ["repo:CLAUDE.md", "repo:.claude/settings.json",
+                                    "repo:scripts/claude_researchteam_bridge.sh", "repo:toolchain.lock",
+                                    "repo:.agentteams/toolchain-group.json"])
+def test_an_output_outside_the_study_folder_is_refused(tmp_path, target):
+    """S1: the allowlist. An output and its record lie inside the study's own folder."""
+    root = make_repo(tmp_path, lambda s: s["identity"].update(registry=target))
+    rel = target[len("repo:"):]
+    (root / rel).parent.mkdir(parents=True, exist_ok=True)
+    (root / rel).write_text("an invented file that must survive\n", encoding="utf-8")
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "is not inside the study's folder" in out and tree(root) == before
+
+
+def test_a_repo_rooted_output_inside_the_study_folder_is_accepted(tmp_path):
+    root = make_repo(tmp_path, lambda s: s["identity"].update(registry="repo:Projects/tidebell/rows/registry.csv"))
+    assert _build(root)[0] == 0
+
+
+def test_a_study_relative_registry_elsewhere_in_the_study_is_accepted(tmp_path):
+    root = make_repo(tmp_path, lambda s: s["identity"].update(registry="identity/people.csv"))
+    (root / STUDY_REL / "identity").mkdir()
+    assert _build(root)[0] == 0 and (root / STUDY_REL / "identity" / "people.csv.provenance.json").is_file()
+
+
+def test_an_nfd_spelling_of_a_declared_file_is_refused(tmp_path):
+    """S1: names are compared after NFC and case-folding."""
+    import unicodedata
+    nfc = "rows/caf\u00e9.csv"
+    root = make_repo(tmp_path, lambda s: s.update(corpus={"text": "rows/receipts", "works": nfc}))
+    (root / STUDY_REL / "rows" / "receipts").mkdir()
+    (root / STUDY_REL / nfc).write_text("x\n", encoding="utf-8")
+    edit_spec(root, lambda s: s["identity"].update(registry=unicodedata.normalize("NFD", nfc)))
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "which the specification names" in out and tree(root) == before
+
+
+def test_an_output_inside_a_declared_folder_is_refused(tmp_path):
+    root = make_repo(tmp_path, lambda s: s["identity"].update(registry="rows/receipts/registry.csv"))
+    (root / ROWS / "receipts").mkdir()
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "which the specification declares" in out and tree(root) == before
+
+
+def test_a_study_at_the_repository_root_writes_no_output(tmp_path):
+    study = sp.load_study("tidebell", make_repo(tmp_path))
+    study.spec_rel = "study.json"  # as if the study's folder were the repository root
+    with pytest.raises(prov.WriteRefused, match="repository root"):
+        prov.check_output_target(study, "registry.csv")
+
+
+@pytest.mark.parametrize("cell", ["warden\n01", "warden\x0b01", "warden\u202801", "warden\x0001"])
+def test_a_registry_value_with_a_control_character_or_line_break_is_refused(tmp_path, cell):
+    """S2: the contract gives person_id no pattern; a cell that would break the registry's lines is refused."""
+    root = make_repo(tmp_path)
+    header = (root / ROWS / "evidence.csv").read_bytes().split(b"\n", 1)[0]
+    row = ('ev-900,"' + cell + '",harbour,x,not-established,,,,,,,,,,,"' + cell + '",tried,\n').encode("utf-8")
+    (root / ROWS / "evidence.csv").write_bytes(header + b"\n" + row)
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and tree(root) == before
+    assert "[registry-value]" in out or "[cell-nul]" in out
+
+
+def test_deciding_the_shown_candidates_reveals_the_next(tmp_path):
+    """T1: decided pairs take no place in the cap."""
+    crowd = [f"crew-{i:03d}" for i in range(60)]  # every pair shares "crew": 1770 pairs
+    names = {p: p for p in crowd}
+    first = ident.candidates(crowd, names, set(), ident.Overrides(), limit=1000)
+    assert len(first.shown) == 1000 and first.more == 770
+    decided = ident.Overrides()
+    decided.rows = [(n, {"alias_id": c.person_id, "target_id": c.other_id, "decision": "distinct"})
+                    for n, c in enumerate(first.shown)]
+    second = ident.candidates(crowd, names, set(), decided, limit=1000)
+    assert second.decided == 1000 and len(second.shown) == 770 and second.more == 0
+    assert {(c.person_id, c.other_id) for c in second.shown}.isdisjoint({(c.person_id, c.other_id)
+                                                                         for c in first.shown})
+
+
+def test_a_merge_alias_that_appears_nowhere_is_refused(tmp_path):
+    """T2: not a person, not in any row, not in the registry's merged_from: a mistyped alias."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-2", "warden-01", "merge")])
+    code, out, _ = _build(root)
+    assert code == 1 and "[overrides-alias]" in out
+
+
+def test_a_link_to_a_person_linked_elsewhere_is_a_chain(tmp_path):
+    """T4: links A->B and B->C would show A as B, not as the identity the registry records."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-02", "warden-01", "link"), _row("warden-01", "guild-01", "link")])
+    code, out, _ = _build(root)
+    assert code == 1 and "[overrides-chain]" in out
+
+
+def test_check_current_compares_the_tool_and_schema_version(tmp_path):
+    """S3."""
+    root = make_repo(tmp_path)
+    _build(root)
+    assert prov.check_current(root, RECORD, expect_tool="survey-registry", expect_schema_version="1").built
+    cur = prov.check_current(root, RECORD, expect_tool="survey-rows", expect_schema_version="0")
+    assert not cur.built and len(cur.reasons) == 2

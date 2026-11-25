@@ -777,7 +777,9 @@ def test_a_century_range_reads_both_centuries():
 
 
 @pytest.mark.parametrize("value,year", [("1,750", None), ("1.750", None), ("12,750", None), ("1,234,567", None),
-                                        ("12.03.1750", 1750), ("1750.5", 1750), ("2,1750", 1750),
+                                        ("1.234.567", None), ("123,456,789", None),
+                                        ("12.03.1750", 1750), ("12.03.750", 750), ("450,500", 450),
+                                        ("1750.5", 1750), ("2,1750", 1750),
                                         ("in 1742.", 1742), ("1742, 1790", 1742), ("1742,1790", 1742)])
 def test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number(value, year):
     """(c) only a number grouped by thousands (a one-to-three-digit lead, a separator, a group of exactly three
@@ -801,3 +803,8 @@ def test_step_a_messages_cut_a_long_declared_path(tmp_path):
 
 def test_a_comma_list_of_years_gives_the_first_and_the_largest():
     assert tb.year_of("1742,1790", "work_date") == 1742 and tb.year_of("1742,1790", "life_dates") == 1790
+
+
+def test_a_list_of_three_digit_years_gives_the_first_and_the_largest():
+    """T5: 450,500 is a list, not 450 thousand and 500."""
+    assert tb.year_of("450,500", "work_date") == 450 and tb.year_of("450,500", "life_dates") == 500

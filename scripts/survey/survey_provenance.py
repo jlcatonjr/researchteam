@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -126,10 +127,14 @@ class Currency:
     reasons: list
 
 
-def check_current(root: Path, rel: str) -> Currency:
+def check_current(root: Path, rel: str, expect_tool: str | None = None,
+                  expect_schema_version: str | None = None) -> Currency:
     """Read the record at *rel* and compare each ``inputs`` and ``plugins`` entry with the file as it is now (4.6,
     lines 566-568). Missing, malformed, or any mismatch: not built, with the reasons. An input recorded as absent
-    (``"sha256": ""``, a declared file that was not there at build time) that is there now is a mismatch too."""
+    (``"sha256": ""``, a declared file that was not there at build time) that is there now is a mismatch too. With
+    *expect_tool* or *expect_schema_version*, a record written by another tool, or for another ``schema_version``,
+    is not built either. (4.6 has no field for the toolkit's own version, so a record written by an older release of
+    the same tool cannot be told apart: a proposal.)"""
     path = root / rel
     if not os.path.lexists(path):
         return Currency(False, [f"the record {q(rel)} is missing"])
@@ -144,6 +149,10 @@ def check_current(root: Path, rel: str) -> Currency:
     if errs:
         return Currency(False, [f.message for f in errs])
     reasons = []
+    if expect_tool is not None and doc["tool"] != expect_tool:
+        reasons.append(f"the record was written by {q(doc['tool'])}, not {q(expect_tool)}")
+    if expect_schema_version is not None and doc["schema_version"] != expect_schema_version:
+        reasons.append(f"the record is for schema_version {q(doc['schema_version'])}, not {q(expect_schema_version)}")
     root_real = os.path.realpath(root)
     for entry in [*doc["inputs"], *({"path": p["file"], "sha256": p["sha256"]} for p in doc["plugins"])]:
         name = q(entry["path"])
@@ -174,38 +183,103 @@ def check_current(root: Path, rel: str) -> Currency:
 RESERVED_TOPS = (".github",)
 
 
-def check_output_target(study, rel: str, own_pointer: str | None = None) -> None:
-    """Refuse (WriteRefused) an output target that would write over something it must not (rule 1.2; rule 1.3 for
-    the overrides file). Every writer calls this before it writes anything. Refused:
+def _norm(path: str) -> str:
+    """A path as names are compared here: Unicode NFC, then case-folded."""
+    return unicodedata.normalize("NFC", path).casefold()
 
-    - a place at or under ``.git``, ``.github`` or a generated team location, by case-folded name and by device and
-      inode (the ledger's reserved places, with ``.github`` as a whole);
-    - the specification, or any path the specification declares (every file and folder, every gate's ``covers``),
-      other than the output's own declared path *own_pointer*: compared by device and inode where the file exists,
-      and by case-folded repository-relative path otherwise;
-    - a place at or under the ledger folder."""
+
+def _within(rel: str, folder: str) -> bool:
+    """Whether *rel* is *folder* or inside it, comparing normalised repository-relative paths."""
+    a, b = _norm(rel), _norm(folder)
+    return a == b or a.startswith(b + "/")
+
+
+def _nearest_existing(root: Path, rel: str) -> Path:
+    """The deepest existing folder on the way to *rel* (the repository root at worst)."""
+    parts = rel.split("/")[:-1]
+    here = root
+    for part in parts:
+        nxt = here / part
+        if not os.path.isdir(nxt):
+            break
+        here = nxt
+    return here
+
+
+def check_output_target(study, rel: str, own_pointer: str | None = None) -> None:
+    """Refuse (WriteRefused) an output target that is not an allowed place. Every writer calls this, for each output
+    and each record, before it writes anything.
+
+    **Allowlist.** An output lies inside the study's own folder, the folder that holds ``study.json`` (4.4 and 4.6
+    only ever place an output in the study; a proposal). This is checked three ways, and all must agree: the
+    repository-relative path (NFC, case-folded) is under the study folder's; the real path of the nearest existing
+    parent is inside the study folder's real path; and walking up from that parent reaches the study folder (device
+    and inode) before the repository root. A study whose folder is the repository root has no such place.
+
+    **Within the study folder**, still refused: the specification, any other declared path (other than the output's
+    own, *own_pointer*), anything inside a declared folder or inside a folder that holds a covered file (other than
+    the study folder itself), and anything in the ledger folder: by NFC, case-folded path, and by device and inode
+    where the file exists.
+
+    **Second layer**: the reserved places (``.git``, ``.github``, the generated team locations), by name and by
+    identity, whatever the first layer said."""
     from survey_ledger import LEDGER_PREFIX, reserved_by_identity, reserved_by_name
 
     root = study.repo_root
-    parts = [p.casefold() for p in rel.split("/")]
-    if reserved_by_name(rel) or parts[0] in RESERVED_TOPS or reserved_by_identity(root, rel) or \
-            any(os.path.exists(root / top) and _under(root, rel, root / top) for top in RESERVED_TOPS):
-        raise WriteRefused(f"{q(rel)} is under .git, .github or a generated team location; no output goes there")
+    study_rel = study.study_rel
+    refuse = lambda why: WriteRefused(f"{q(rel)} {why}")  # noqa: E731
+    if study_rel in ("", "."):
+        raise refuse("cannot be written: the study's folder is the repository root, and an output lies inside the "
+                     "study's own folder")
+    study_dir = root.joinpath(*study_rel.split("/"))
+    study_real = os.path.realpath(study_dir)
+    parent = _nearest_existing(root, rel)
+    by_path = _within(rel, study_rel) and _norm(rel) != _norm(study_rel)
+    by_real = inside(os.path.realpath(parent), study_real)
+    by_walk = False
+    if os.path.isdir(study_dir):
+        study_id = file_identity(study_real)
+        here = Path(os.path.abspath(parent))
+        root_abs = Path(os.path.abspath(root))
+        while True:
+            if file_identity(os.path.realpath(here)) == study_id:
+                by_walk = True
+                break
+            if here == root_abs or here.parent == here:
+                break
+            here = here.parent
+    if not (by_path and by_real and by_walk):
+        raise refuse(f"is not inside the study's folder {q(study_rel)}; an output and its record lie there "
+                     "(a repo:-rooted output outside it is refused)")
+
     target_real = os.path.realpath(root.joinpath(*rel.split("/")))
     target_id = file_identity(target_real) if os.path.exists(target_real) else None
     declared = [(study.spec_rel, os.path.realpath(root / study.spec_rel))]
     declared += [(rp.repo_rel, rp.real) for ptr, rp in study.paths.items() if ptr != own_pointer]
     for other_rel, other_real in declared:
-        same = other_rel.casefold() == rel.casefold() or other_real == target_real or (
+        same = _norm(other_rel) == _norm(rel) or other_real == target_real or (
             target_id is not None and os.path.exists(other_real) and file_identity(other_real) == target_id)
         if same:
-            raise WriteRefused(f"{q(rel)} is the same file as {q(other_rel)}, which the specification names; an "
-                               "output never writes over a declared file")
+            raise refuse(f"is the same file as {q(other_rel)}, which the specification names; an output never "
+                         "writes over a declared file")
+        if _within(rel, other_rel) or inside(target_real, other_real):
+            raise refuse(f"is inside {q(other_rel)}, which the specification declares; an output is not written "
+                         "into another declared location")
+    for ptr, rp in study.paths.items():
+        if "/covers/" in ptr and "/" in rp.repo_rel:
+            folder = rp.repo_rel.rsplit("/", 1)[0]
+            if _norm(folder) != _norm(study_rel) and _within(rel, folder):
+                raise refuse(f"is in {q(folder)}, a folder that holds a file a gate covers")
     ledger = study.spec["signoffs"]["ledger"]
     if ledger.startswith(LEDGER_PREFIX):
-        rp, errors = resolve_path(ledger[len(LEDGER_PREFIX):], study.study_rel, root, "ledger")
-        if rp is not None and (rel.casefold() + "/").startswith(rp.repo_rel.casefold() + "/"):
-            raise WriteRefused(f"{q(rel)} is in the ledger folder; no output goes there")
+        lp, _errors = resolve_path(ledger[len(LEDGER_PREFIX):], study.study_rel, root, "ledger")
+        if lp is not None and (_within(rel, lp.repo_rel) or inside(target_real, lp.real)):
+            raise refuse("is in the ledger folder; no output goes there")
+
+    parts = [_norm(p) for p in rel.split("/")]
+    if reserved_by_name(rel) or any(p in RESERVED_TOPS for p in parts[:1]) or reserved_by_identity(root, rel) or \
+            any(os.path.exists(root / top) and _under(root, rel, root / top) for top in RESERVED_TOPS):
+        raise refuse("is under .git, .github or a generated team location; no output goes there")
 
 
 def _under(root: Path, rel: str, top: Path) -> bool:

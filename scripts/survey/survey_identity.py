@@ -14,6 +14,7 @@ import csv
 import io
 import os
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -94,9 +95,20 @@ class Overrides:
         return {frozenset((r["alias_id"], r["target_id"])) for _n, r in self.rows}
 
 
-def read_overrides(study, persons: list) -> Overrides:
+def previous_merges(study) -> dict:
+    """``{merged id: target}`` as the registry now on disk records them (its ``merged_from`` cells), or ``{}``."""
+    rp = study.paths.get("/identity/registry")
+    if rp is None or not os.path.lexists(rp.real):
+        return {}
+    rows, _digest = read_rows_hashed(Path(rp.real), rp.repo_rel, REGISTRY_COLUMNS, "registry-columns")
+    return {m: r["person_id"] for _n, r in rows.rows for m in r["merged_from"].split(MERGED_SEPARATOR) if m}
+
+
+def read_overrides(study, persons: list, merged_before: dict | None = None) -> Overrides:
     """Read and check the overrides file. Without a vantage module the identity source holds the project's own
-    persons (5.2), so a ``link`` target, a ``merge`` target and a ``distinct`` target are all project persons."""
+    persons (5.2), so a ``link`` target, a ``merge`` target and a ``distinct`` target are all project persons. A
+    ``merge`` alias that no longer occurs in the rows is accepted only when the registry already records it as merged
+    into that target (*merged_before*): its rows were rewritten to the target. Otherwise it is a mistyped alias."""
     out = Overrides()
     rp = study.paths.get("/identity/overrides")
     if rp is None:
@@ -126,9 +138,11 @@ def read_overrides(study, persons: list) -> Overrides:
         if decision not in DECISIONS:
             add("overrides-decision", n, f"decision {q(decision)} is not one of {', '.join(DECISIONS)} (line 493)")
             continue
-        if alias not in known and decision != "merge":
+        if alias not in known and not (decision == "merge" and (merged_before or {}).get(alias) == target):
             add("overrides-alias", n, f"alias_id {q(alias)} is not a person of the project (line 496: a link names "
-                "\"the project's person\"; for distinct, the contract is silent)")
+                "\"the project's person\"; line 497: a merge, \"two of the project's ids\"; for distinct the "
+                "contract is silent); a merged alias whose rows were rewritten must already be in the registry's "
+                "merged_from of its target")
             continue
         if target not in known:
             add("overrides-target", n, f"target_id {q(target)} is not a person of the project, which is the identity "
@@ -160,6 +174,7 @@ def read_overrides(study, persons: list) -> Overrides:
             add("overrides-conflict", n, f"a distinct row for a pair that is also {bound_pairs[pair][1]}ed (line "
                 f"{bound_pairs[pair][0]}; lines 502-503)")
     merged_away = {a for a, (_n, d) in binding.items() if d == "merge"}
+    link_of = {r["alias_id"]: r["target_id"] for _n, r in good if r["decision"] == "link"}
     linked_to: dict = {}
     for n, r in good:
         if r["decision"] == "merge" and r["target_id"] in merged_away:
@@ -169,6 +184,10 @@ def read_overrides(study, persons: list) -> Overrides:
             if r["target_id"] in merged_away:
                 add("overrides-chain", n, f"link target {q(r['target_id'])} is merged into another person (contract "
                     "silent; refused)")
+            elif link_of.get(r["target_id"], r["target_id"]) != r["target_id"]:
+                add("overrides-chain", n, f"link target {q(r['target_id'])} is itself linked to "
+                    f"{q(link_of[r['target_id']])}; a link names the identity \"as the registry records them\" (5.2, "
+                    "line 733), so link to that one (refused)")
             if r["alias_id"] in merged_away:
                 continue
             linked_to.setdefault(r["target_id"], []).append((n, r["alias_id"]))
@@ -207,6 +226,21 @@ def identity_name(identity_id: str) -> str:
     """The ``display_name`` of an identity (4.4, line 513). Without a vantage module the identity source holds the
     project's own persons, whose only name is their id, so a person linked to another shows that person's id."""
     return identity_id
+
+
+def unsafe_values(rows: list, where: str) -> list:
+    """Findings for any registry cell holding a control character, a line or paragraph separator, or a NUL. The
+    contract gives a ``person_id`` no pattern (only "no ``|``", 4.1 line 309; 4.3 line 438), so these are refused
+    before anything is written (a proposal): the registry never holds a cell with a line break in it."""
+    out = []
+    for r in rows:
+        for col in REGISTRY_COLUMNS:
+            bad = sorted({ch for ch in r[col] if unicodedata.category(ch) in ("Cc", "Zl", "Zp")})
+            if bad:
+                codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
+                out.append(Finding("registry-value", where, f"{col} {q(r[col])} of person {q(r['person_id'])} holds "
+                                   f"a control character or a line separator ({codes}); the registry is not written"))
+    return out
 
 
 def registry_bytes(rows: list) -> bytes:
@@ -264,6 +298,7 @@ class CandidateList:
     shown: list
     more: int  # candidates beyond the shown ones
     more_is_lower_bound: bool  # counting stopped at MAX_COUNTED
+    decided: int = 0  # pairs an override row already names: not listed
 
 
 def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides,
@@ -272,8 +307,9 @@ def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides
     folded names are equal), ``similar`` (the names share a word that is not a stop word). Without a vantage module
     the identity source is the project's own persons, and the search "compares those persons with one another"
     (5.2, lines 733-734): each pair of persons once, so ``same-id`` cannot arise here. A pair is listed with its
-    strongest kind and marked decided when an override row names it (line 506). A candidate is never a link (lines
-    526-527): nothing here writes or applies one. *names* maps each person to its name.
+    strongest kind. A pair an override row names is decided (line 506): it is not listed and takes no place in the
+    cap, so deciding the shown candidates always reveals the next ones. A candidate is never a link (lines 526-527):
+    nothing here writes or applies one. *names* maps each person to its name.
 
     Persons are indexed by folded name and by word, so only persons that share one are compared. The order is fixed
     (kind, then the two ids); the first *limit* are shown and the rest counted, up to *counted*."""
@@ -287,13 +323,16 @@ def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides
         words[p] = tokens(names[p], stop_words)
         for t in words[p]:
             by_token.setdefault(t, []).append(p)
-    shown, total = [], 0
+    shown, total, decided_count = [], 0, 0
 
     def emit(a, b, kind) -> bool:
-        nonlocal total
+        nonlocal total, decided_count
+        if frozenset((a, b)) in decided:
+            decided_count += 1  # decided pairs are not candidates any more and take no place in the cap
+            return True
         total += 1
         if len(shown) < limit:
-            shown.append(Candidate(a, b, kind, frozenset((a, b)) in decided))
+            shown.append(Candidate(a, b, kind, False))
         return total < counted
 
     going = True
@@ -314,4 +353,4 @@ def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides
             if not emit(a, b, "similar"):
                 going = False
                 break
-    return CandidateList(shown, total - len(shown), not going)
+    return CandidateList(shown, total - len(shown), not going, decided_count)
