@@ -30,9 +30,14 @@ def _read_url(url: str, timeout: int) -> bytes:
 
 def fetch_raw(repo: str, ref: str, path: str) -> str:
     """Fetch a single file from GitHub raw content delivery."""
+    return fetch_raw_bytes(repo, ref, path).decode("utf-8")
+
+
+def fetch_raw_bytes(repo: str, ref: str, path: str) -> bytes:
+    """Fetch a single file from GitHub raw content delivery, as the exact bytes served."""
     url = f"{GITHUB_RAW_BASE}/{repo}/{ref}/{path}"
     try:
-        return _read_url(url, timeout=20).decode("utf-8")
+        return _read_url(url, timeout=20)
     except urllib.error.HTTPError as exc:
         raise RuntimeError(
             f"Failed to fetch '{path}' from {repo}@{ref}: HTTP {exc.code}"

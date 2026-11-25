@@ -152,8 +152,13 @@ jobs:
             vdir="$(mktemp -d)"
             export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_NOSYSTEM=1  # neutralised config
             git init -q --bare "$vdir/rt.git"
-            git -C "$vdir/rt.git" fetch -q --no-tags "$RT_GIT" "refs/tags/$tag:refs/tags/$tag" || {
-              echo "release-locked: tag $tag not found in $RT_GIT" >&2; exit 1; }
+            # Shallow, and without trees or blobs where the server allows it: the tag object and the commit
+            # it names are all the checks below read. A full fetch downloads researchteam's whole history to
+            # verify one tag (#228). The second attempt covers a git or a server that refuses object
+            # filters, as researchteam's own verify_tag does. A fetch that fails both ways fails the check.
+            git -C "$vdir/rt.git" fetch -q --no-tags --depth=1 --filter=tree:0 "$RT_GIT" "refs/tags/$tag:refs/tags/$tag" \
+              || git -C "$vdir/rt.git" fetch -q --no-tags --depth=1 "$RT_GIT" "refs/tags/$tag:refs/tags/$tag" || {
+              echo "release-locked: tag $tag not found in $RT_GIT (or it could not be fetched)" >&2; exit 1; }
             if [ "$(git -C "$vdir/rt.git" cat-file -t "refs/tags/$tag")" != "tag" ]; then
               echo "release-locked: $tag is not an annotated tag" >&2; exit 1
             fi

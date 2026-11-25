@@ -47,11 +47,28 @@ How collaborators work within this policy (branches, installs, contributions, ba
   (`release-line-agentteams-1.2`), separate from the pin review. As for 1.1, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.2 tag> --sync-extras`.
 - researchteam 1.2.0 is the agentteams 1.2 pin release. The term-index core switch (`docs/term-index-protocol.md`,
-  "Planned placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
+  "Placement") is planned for researchteam 1.3, pinned to agentteams 1.3 (operator ruling, 2026-11-19,
   replacing the 2026-11-17 plan to carry it in 1.2.0).
-- The survey toolkit (`docs/survey-toolkit.md`, a draft contract) is also planned for researchteam 1.3 (operator
-  ruling, 2026-11-19).
+- The survey toolkit's contract (`docs/survey-toolkit.md`, frozen as version 1 on 2026-11-23) ships in researchteam
+  1.3 (operator ruling, 2026-11-19). Its tools are planned for the minor release after 1.3.0 (operator ruling,
+  2026-11-23).
 - Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag, as for 1.1.
+
+### The 1.3 line
+- researchteam 1.3 pins agentteams 1.3 (operator ruling, 2026-11-24, in researchteam's session picker), with no
+  interim pin to agentteams 1.2.2. `release/1.3` is cut from `main` at `1.3.0rc1`, after the agentteams 1.3 pin has
+  merged to `main`. The 1.3 candidate and final tags (`v1.3.0-rc.N`, `v1.3.0`, `v1.3.N`) are cut and signed **on
+  `release/1.3` only**, and each tag is merged forward into `main` as above. 1.3.0 is released as a candidate and
+  then the final (operator ruling, 2026-11-24).
+- `release/1.2` stays open for `v1.2.N` backports and keeps its own tags; it does not move to agentteams 1.3.
+- Moving `toolchain.lock` from the 1.2 line to the 1.3 line is a trust change with its own `@security` row
+  (`release-line-agentteams-1.3`), separate from the pin review. As before, the move drops the `agentteams.tag=`
+  line and starts a new lock with `--write-lock --tag agentteams=<1.3 tag> --sync-extras`. The new lock follows only
+  verified signed tags on the 1.3 line.
+- researchteam 1.3 carries the term-index core switch (`docs/term-index-protocol.md`, "Placement") and
+  the survey toolkit's contract (`docs/survey-toolkit.md`, version 1), as ruled under "The 1.2 line". The survey
+  tools follow in the minor release after 1.3.0.
+- Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag, as for 1.2.
 
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
@@ -98,8 +115,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
     `cargo audit` or an OSV.dev query may be adopted inside the cooldown.
   - **First-party toolchain group.** The cooldown does not apply to releases of the repositories the
     operator-signed `.agentteams/toolchain-group.json` lists (agentteams, researchteam, baseAgent, mathAgents), in
-    the workspaces it lists. Until it lapses on 2027-02-01, the legacy `s10-cooldown-exempt:jlcatonjr/agentteams`
-    entry also covers agentteams. Such a release-key tag may be adopted the day it is published once it passes the
+    the workspaces it lists. The legacy `s10-cooldown-exempt:jlcatonjr/agentteams` registry entry was retired on
+    2026-11-20 as redundant with the group. Such a release-key tag may be adopted the day it is published once it passes the
     signature and remote-object checks (`agentteams --verify-toolchain-pin`), and its exact `name==version`, and
     any dependency it changes, passes the known-vulnerability search (OSV/GHSA, including MAL-* entries).
   Every pin move records that search in its row or, for a group-member move, in the PR's `@security` review. Third-party packages wait out the cooldown unless the
@@ -141,10 +158,13 @@ The agent session then merges, as long as:
 - every review the change needs (`@security`, `@code-hygiene` for code, `@conflict-auditor`) is recorded in the
   PR;
 - no HALT or unmet condition stands.
+- while automatic head-branch deletion is on (PS-2, "Exception: automatic head-branch deletion"): the agent has
+  checked by hand that no other session or worktree still works on the head branch and that no open PR is based
+  on it, and the operator's approval was asked with the statement that the head branch is deleted at the merge.
 
 PS-2 in `.claude/CLAUDE.md` is the authority on what is delegated and what is excluded. It excludes force-pushes
 and history rewrites, `--admin` merges and ruleset bypasses, changes to settings, secrets, collaborators, branch protection or rulesets,
 executor-opened remediation PRs (S-VM), and writes to other repositories. Its deletion rules (S-4,
-`branch-delete`) also apply.
+`branch-delete`) also apply, with the one dated exception PS-2 states for the head branch of a merged pull request.
 
 Releases still need an operator-signed tag, so the agent prepares the tag command and the operator signs it.

@@ -5,6 +5,192 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
+
+The first release of the 1.3 line. It is `1.3.0rc1` plus: this section, the release notes, the cut record and the
+operator's cut script (a tracked copy under `references/plans/`), the install instructions (below) with a new test
+that guards them, and one wording correction in `docs/term-index-protocol.md`. Nothing that runs in a derived
+repository differs from the candidate: no synced script, no workflow, no package code. What a derived repository
+does receive differently is text: `docs/researchteam-framework.md`, `docs/term-index-protocol.md` and the install
+line in the managed `CLAUDE.md` block (and its scaffold template). researchteam 1.3 pins agentteams 1.3: this release pins
+agentteams **`v1.3.0`** (`536306d2`). The changes and the five upgrade notes are listed under `1.3.0rc1` below.
+
+Derived repositories take it in this order, because an older researchteam does not sync the term-index core and
+the lock writer runs the installed code:
+1. Verify both signed tags first (Rule S-9): researchteam `v1.3.0` and agentteams `v1.3.0`, each in a clone,
+   against the release key in `~/.config/agentteams/allowed_signers` and with repository config neutralised
+   (`docs/CONTRIBUTING.md`, "Verifying a release", gives the command). Note the commit each peels to; agentteams
+   `v1.3.0` peels to `536306d2502e3db338846677f2d37489531ac8e7`.
+2. Install both with the interpreter that runs `check_toolchain.py` (Python 3.11 or later):
+   `python3 -m pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
+   The `update` extra installs agentteams at the commit above. The lock writer refuses `--tag agentteams=v1.3.0`
+   while another agentteams is installed, and `researchteam update` would regenerate the team with the old one.
+   A workspace with signed decision rows or a toolchain-group file also needs agentteams' `signing` extra in that
+   interpreter, as `scripts/bootstrap_toolchain.sh` installs it. Without it the group file does not verify, and
+   the S-10 cooldown applies to the release (seen in a downstream dry run against the candidate).
+3. `researchteam update --ref v1.3.0`, then
+   `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.3.0 --tag agentteams=v1.3.0`. A locked
+   repository leaves two release lines at once, researchteam 1.2 and agentteams 1.2, and `check_toolchain.py`
+   refuses a cross-line `--tag` for each pin. So drop both the `researchteam.tag=` and the `agentteams.tag=` line
+   from `toolchain.lock` before `--write-lock`. Both line moves are trust changes and get that repository's own
+   `@security` review.
+
+`release/1.2` stays open for `v1.2.N` backports.
+
+- **Install instructions name the newest stable release** (reported by a derived repository, 2026-11-12).
+  - **Defect:** `docs/researchteam-framework.md`, which `researchteam update` syncs to every derived repository,
+    still installed `researchteam.git@v1.0.2` and called it the newest `v1.0.N`, in every release from 1.1.1 to
+    1.2.1. The same stale tag was in `README.md`, `docs/CONTRIBUTING.md`, the docs site (`docs_src/`) and the
+    managed `CLAUDE.md` block (and its scaffold template), and `CONTRIBUTING.md` still described the 1.1 line as
+    release candidates.
+  - **Fix:** they name `v1.3.0`. A repository on an older line installs that line's newest tag.
+    `CONTRIBUTING.md` describes the four release branches, the backport request, the rulesets and the autosync as
+    they are.
+  - **Guard:** `tests/test_install_pins.py` fails when these files name any tag other than the highest final
+    release heading in this file, so the release-prep pull request that adds a heading must move them too.
+- **Docs: the term-index repair note names the right version.** `docs/term-index-protocol.md` said a researchteam
+  "older than 1.3.0" lacks the core's file list; the candidate `1.3.0rc1` already has it, so the text now says
+  "older than 1.3.0rc1".
+
+## 1.3.0rc1 (tag `v1.3.0-rc.1`, on `release/1.3`)
+
+The first release candidate of the 1.3 line. researchteam 1.3 pins agentteams 1.3: this candidate pins agentteams
+**`v1.3.0`** (`536306d2`). `release/1.3` is cut at this commit; `release/1.2` stays open for `v1.2.N` backports and
+keeps agentteams 1.2. It is a candidate: derived repositories wait for `v1.3.0`, apart from the dry-run pin check
+the next repository in the release order runs against it.
+
+**Upgrading a derived repository (at `v1.3.0`, not at this candidate).**
+
+1. **Install the new researchteam first, then run `researchteam update`.** An older researchteam does not sync
+   `scripts/term-index-core/`, and the term index refuses to run without it; `validate`, `term-check` and
+   `researchteam doctor` say "upgrade researchteam first" in that state. A repository that has not yet synced the
+   new engine keeps working, and doctor only warns there.
+2. **The term index runs a pinned copy of agentteams' core.** It is checked against its manifest before it runs
+   and needs no installed agentteams. Do not edit the files under `scripts/term-index-core/`: a changed byte stops
+   `term-check`, `term-build` and `validate`, and doctor reports a failure. Two edge cases read differently (a
+   linked or oversized `terms.json`; a symlinked `terminology/index/`); see the term-index entry below.
+3. **agentteams 1.3.0.** The agent team is regenerated. An overwrite render (`researchteam materialize`,
+   `agentteams --overwrite`) now stops before any write when it would drop agents the orchestrator routes to,
+   unless they are named with `--accept-routing-loss`. A file-bound clearance checked in any team directory is
+   now refused by an unretracted HALT in the repository's other team logs. Both are in agentteams' own changelog
+   for 1.3.0 (its issues #392 and #578); read it before an overwrite.
+4. **The autosync workflow** fetches a release tag shallowly. It reaches a repository through
+   `researchteam update --workflow` and that repository's own review.
+5. **Python.** researchteam still supports Python 3.10; agentteams 1.3.0 itself needs 3.11 or later, so the
+   `update` and `research` extras do too.
+
+- **Derived autosync workflow: the release-locked check fetches the tag shallowly.**
+  `researchteam/scaffold/agentteams-sync-derived.yml` fetched researchteam's whole history to verify one tag. It
+  now fetches with `--depth=1 --filter=tree:0` and retries once with `--depth=1`, as `verify_tag` does; a fetch
+  that fails both ways fails the check. Every check after the fetch is unchanged, and no credential is involved.
+  A derived repository receives the new workflow only through its own sync (`researchteam update --workflow`)
+  and its own review of that change.
+
+- **Survey toolkit: the per-study sign-off log is specified (open point 1 closed).** Section 6.2 of
+  `docs/survey-toolkit.md` now gives the log's folder layout, a gates-only team dir as agentteams 1.3.0 documents
+  it, and the HALT rule: an unretracted HALT in the repository's team logs binds a study's sign-off. Only an
+  Ed25519 row by a key in the folder clears a gate, and a waiver file there is an error. The text says what a
+  sign-off proves while its keys live in the repository; a trust root outside it is a new open point. The
+  sign-off tools will require agentteams 1.3.0 or later. The contract stays version 1.
+
+- **Governance: the term-index loader and engine join the paths that need a `@security` PASS (PS-2).**
+  `scripts/check_term_core.py` decides which bytes of the pinned core run, and `scripts/term_index_engine.py` decides
+  whether that loader is used, so a pull request that touches either is merged only with a `@security` PASS naming
+  it (operator ruling, 2026-11-24). The projected copies of the project rules are re-synced.
+
+- **Term index: the engine now runs a pinned copy of agentteams' term-index core.** `scripts/term-index-core/` holds
+  `term_index.py` and `_term_text.py` from the signed agentteams tag `v1.3.0` as exact bytes, its MIT licence and a
+  manifest (`PINNED.json`) naming the tag, the commit and each file's sha256. `scripts/term_index_engine.py` is
+  reduced to adapters over that core. The core is loaded only after its bytes match the manifest, it needs no
+  installed agentteams, and it may import nothing but the standard library and its own two modules.
+  - `term-check`, `term-build` and `validate` refuse to run on a copy that does not match its manifest, and
+    `researchteam doctor` reports a mismatch as a failure. `term-core-check` runs the check alone.
+  - `python -m researchteam._term_core_upstream` compares the copy with the signed tag over the network; the
+    offline check proves only that the copy matches its manifest.
+  - `researchteam update` syncs the directory byte for byte, as one set that is checked against its manifest
+    before anything is written, and refuses to write through a symlink.
+  - CI: a new workflow, `term-core.yml`, runs the network comparison on every pull request and push that touches
+    the directory or the code that checks it. It takes the comparing code from the base branch, so a pull
+    request cannot pass by changing that code alone. Three limits: a pull request that edits the workflow file
+    itself runs its own version of it (PS-2's `@security` PASS for workflow paths covers that); the pull request
+    that introduced the job ran its own copy of the code; and the job is not a required check.
+  - A repository still on the engine from before the switch gets a doctor warning, not a failure.
+  - Generated indexes, findings and exit codes are unchanged, with these exceptions. A register that is a link, not
+    a regular file, or larger than the size limit is refused with one combined message. A symlinked
+    `terminology/index/` is now reported as `[STALE]` instead of passing.
+  - `assess` takes `reuse` by keyword only.
+
+- **Governance: `scripts/term-index-core/` joins the paths that need a `@security` PASS (PS-2).** The directory
+  holds the term-index core copied from agentteams and its manifest. A pull request that touches it is merged
+  only with a `@security` PASS naming it (operator ruling, 2026-11-24). The rule was in place before the
+  directory landed. The projected copies of the project rules are re-synced.
+
+- **Toolchain: agentteams v1.3.0 is pinned, the first pin on the 1.3 line.** `toolchain.lock`, the `update` and
+  `research` extras and the autosync ref name `536306d`, the commit the signed tag `v1.3.0` peels to. The move off
+  the 1.2 line is recorded by the operator-signed row `release-line-agentteams-1.3`; the review of the pin itself is
+  `docs/release/pin-agentteams-v1.3.0.decision-spec.json`. The agent team is regenerated on all four surfaces: the
+  generated instruction sections say more exactly what `agentteams --verify-toolchain-pin` proves and name
+  `@git-operations` as the owner of the pull-request lifecycle, and the work-summary hook and the codex role gate
+  are stricter. A derived repository receives the pin at its next sync.
+
+- **Synced files no longer name other repositories.** Eleven files that `researchteam update` copies into every
+  derived repository (eight protocol and policy documents under `docs/`, and three scripts' header comments) named
+  particular derived repositories, their projects or their commits as the origin of a pattern. They now say "a
+  derived research repository" or similar. No behaviour changes. A derived repository receives the new wording at
+  its next sync.
+
+- **CI: the concept-map layout and component tests now run.** `tests.yml` installs Graphviz from the runner's
+  Ubuntu archive and checks that Node 20 or later is present, and fails when either is missing, so those tests no
+  longer skip in CI. The pytest summary lists any test that was skipped.
+
+- **Survey toolkit: the contract is frozen as version 1.** `docs/survey-toolkit.md` is no longer a draft. The first
+  project had its S0 and S5 gates signed and merged its first evidence rows on 2026-11-23, which was the condition
+  for the freeze. Ten changes that project's run brought out are taken (section 12): the frame of a passage or work
+  study and its passage list (new section 4.7), the cell as the frame's unit, a registry seeded from the attribution
+  file and renewed by an evidence merge (or the merge is refused), person-level rows with new row checks, no empty
+  enumeration rounds, period columns named after the period attribute, an analysis-engine pin that may be a file
+  only S6 covers, and a plain statement of what a re-found quotation proves. Bucket tables and the year rule are
+  written down for the first time (4.8). `schema_version` is `"1"`; `"0"` is read identically. No survey tool is
+  implemented yet.
+
+- **Governance: the toolchain-group file is re-signed for this repository alone (sequence 5).**
+  `.agentteams/toolchain-group.json` is now signed with the decision key `opr-2026-11` and lists this workspace only;
+  the group and its `derives_from` are unchanged. The exception registry's `toolchain_group_sequence` is 5, so the
+  sequence 1 file (signed with `op-2026`) is refused as a rollback. Part of the key rotation.
+
+- **Concept map: a reusable, interactive map of a debate (#247).** `templates/concept-map/` adds a contract
+  (`researchteam.concept-map`, version 1.0), an exporter (`scripts/build_concept_map.py`) and a dependency-free
+  component (`concept-map.js`, `concept-map.css`). A project writes one JSON spec of actors (writers or groups, each
+  tied to person ids from its register), topics (claims and findings) and typed lines (in the example: affirms,
+  denies, documented, inferred). The exporter checks it fail-closed, writes the Graphviz DOT and SVG for the static
+  figure, gets the layout from Graphviz and computes who each topic ties to, with direction. A line between a group
+  box and a topic must say whom it speaks for (`only`) or be marked reviewed (`all_members`); until then the build
+  lists it under REVIEW. The component draws the map, makes every node a focusable button and reports the selection;
+  the host lists the people in its own panel. The procedure around it (drafting, a two-round independent audit, a
+  second pass and an audit log) is `docs/concept-map-protocol.md`, synced to scholarly derived repositories. Like the
+  bibliography explorer, the template is vendored, not synced. A `/concept-map` skill (`.claude/skills/concept-map/`)
+  is hand-written in this repository and `researchteam update` does not sync it either. Tests:
+  `tests/test_concept_map.py` and a Node component test; the Graphviz and Node tests skip where those programs are
+  missing. First integrated by a derived project.
+
+- **Governance: merged pull-request heads may be deleted automatically (#234).** PS-2 in `.claude/CLAUDE.md` has
+  a new exception: once the operator turns on the repository setting "Automatically delete head branches", GitHub
+  deletes a pull request's head branch when it merges, with no deletion record and no hold checks for that one
+  deletion. The agent checks holds by hand before it asks for a merge approval, and a deleted head is restored
+  from `refs/pull/<n>/head`. Every other deletion is gated as before. The exception rests on the operator-signed
+  decision `repo-setting:delete-branch-on-merge:jlcatonjr/researchteam` and ends on 2027-02-18, or earlier on a
+  HALT, or when the decision stops verifying or its registry entry is no longer active. Nothing switches the setting off automatically; the operator does that with a handoff script.
+- **Governance: the legacy cooldown exemption for agentteams is retired (#234).** The exception registry entry
+  `s10-cooldown-exempt:jlcatonjr/agentteams` is now `sunset`. It was redundant with the operator-signed
+  first-party toolchain group, which still lifts the Rule S-10 cooldown for agentteams releases. The registry
+  allows one active relaxing exception, and the slot now holds the decision above.
+- **Bibliography explorer: contract 1.1.** `evidence.csv` may carry three optional columns, `basis`, `reporter`
+  and `note`. The exporter (`scripts/build_bibliography_explorer.py`) carries them into the explorer file and the
+  component shows them beside each piece of evidence. One new error: a `reporter` on a row with no `basis`. The
+  change is additive: inputs written for 1.0 still export, and the file's `schema_version` is now `1.1`. A
+  project that vendors the explorer takes the exporter and the component from the same commit
+  (`templates/bibliography-explorer/CONTRACT.md`, section 7). This is step 2 of `docs/survey-toolkit.md`,
+  section 10; no survey tool is added.
 - **Docs: the cut script's identity and signing-key checks are release policy (#231).** `docs/release-policy.md`,
   "Tags", now says the cut script sets the tagger email itself (the operator account's GitHub no-reply address),
   refuses to sign unless the release key is registered as a signing key on that account, and reports GitHub's
@@ -15,7 +201,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   `subprocess.run` at import and was first imported after a test had faked it. `tests/conftest.py` now imports
   it before any test runs. One test no longer reaches the network. No code under test changed.
 - **Tests: characterization tests for the term index (#232).** `tests/test_term_index_characterization.py` pins
-  today's behaviour at the points the planned switch to the agentteams term-index core (1.3.0) could change.
+  the behaviour at the points the switch to the agentteams term-index core (1.3.0) could change.
 
 ## 1.2.1 (tag `v1.2.1`, on `release/1.2`)
 

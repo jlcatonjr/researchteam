@@ -234,8 +234,9 @@ rule stands on its own, whatever number the project's constraint-relaxing rule c
   cap and sunset, a project's own clauses included.
 - **What it lifts.** Only Rule S-10's 14-day cooldown and a pin move's per-release operator decision row,
   for releases of group members. It never lifts the vulnerability search, Rule S-9's signed-tag check
-  (`agentteams --verify-toolchain-pin` checks it and fails closed; the project's dependency gate should run
-  it), the latest-stable rule, a `@security` review, or any other rule.
+  (`agentteams --verify-toolchain-pin` checks it and fails closed in every tier: exit 0 only if at least one
+  pin was checked and every checked pin verifies; it checks signed tags, not release age, so it never clears
+  the cooldown; the project's dependency gate should run it), the latest-stable rule, a `@security` review, or any other rule.
 
 agentteams ships and restores this section on every `--update --merge`; a project's own rules stay where
 they are.
@@ -249,8 +250,7 @@ GitHub management through the `gh` and `git` CLIs is authorized for this team by
 question.
 
 - **Who does what.** `@git-operations` runs git and the `gh` writes: branches, pushes of work branches, pull
-  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@pr-manager` owns
-  the pull-request lifecycle and never merges; `@pr-notifier` proposes the notices. The orchestrator coordinates and
+  requests, issue comments, labels and closing, re-running CI, and checking CI and Pages runs. `@git-operations` also owns the pull-request lifecycle. The orchestrator coordinates and
   may run read-only `gh` queries itself (`gh pr view`, `gh pr checks`, `gh run list`, `gh issue view`). Every other
   agent routes GitHub work through these roles. When the operator has activated the `github-read` / `github-write`
   MCP servers, the same split applies (`github-write` has no merge).
@@ -362,8 +362,10 @@ No project-specific style rules defined.
   - Green CI means the checks `tests (3.10)` and `tests (3.13)` are present and pass on the head. No checks at
     all does not count as green.
   - A PR that touches `.github/workflows/`, `.github/agents/`, the Constitutional sections of
-    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, or a pin in `pyproject.toml` needs a `@security` PASS
-    that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
+    `.claude/CLAUDE.md` or `CLAUDE.md`, `toolchain.lock`, a pin in `pyproject.toml`, `scripts/term-index-core/`
+    (the copied term-index core and its manifest), `scripts/check_term_core.py` (its check and loader) or
+    `scripts/term_index_engine.py` (the engine that calls the loader; operator rulings, 2026-11-24) needs a
+    `@security` PASS that names those paths. Without it, the PR is not merged under PS-2. A PR can change its own CI, so CI alone
     is not enough there.
   - Each such merge commit says "Merged under PS-2 by the agent session" in its body and names the operator's
     approval, so it can be told apart from an operator merge made with the same token.
@@ -391,6 +393,25 @@ No project-specific style rules defined.
   - Deletions still follow S-4 and need the operator's explicit confirmation. Remote branch deletion needs the
     operator's signed `branch-delete` grant or a recorded `@security` `--branch-cleanup` PASS. PS-2 replaces
     neither.
+  - Exception: automatic head-branch deletion (operator ruling, 2026-11-20; signed decision
+    `repo-setting:delete-branch-on-merge:jlcatonjr/researchteam`, which expires on 2027-02-18). While that
+    decision is in force and the repository setting "Automatically delete head branches" is on:
+    - GitHub deletes the head branch of any pull request in this repository when it merges, whatever its base.
+      GitHub retargets a pull request that was based on that branch.
+    - No deletion record is written, and none of the hold checks run (owner, link, open pull request, worktree,
+      pin, session).
+    - A deleted head is restored from `refs/pull/<n>/head`.
+    - Before asking for a merge approval, the agent checks by hand that no other session or worktree still
+      works on the head branch and that no open pull request is based on it. The question says that the head
+      branch is deleted at the merge.
+    - Every other deletion still needs the signed grant or the `--branch-cleanup` PASS: local branches,
+      branches never opened as a pull request, any deletion an agent runs, and anything under `release/` or
+      `archive/` (which the rulesets protect in any case).
+    - The exception ends on its expiry date, or at once on an unretracted HALT on `branch-delete`, on the
+      `repo-setting` family or on that decision, or when the decision stops verifying or its registry entry is
+      no longer active. Nothing turns the setting off automatically. The agent tells the operator when any of
+      these happens, and the operator turns the setting off with the handoff script.
+    - Only the operator changes the setting, on or off. The agent never does (see "Never under PS-2").
   - PS-2 does not change who signs. Tags and decision rows need the operator's keys, so the agent prepares
     them and hands them over.
   - A `@security` HALT still stops the work (C-2). PS-2 grants no writes to other repositories.

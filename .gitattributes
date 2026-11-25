@@ -1,1 +1,4 @@
 .git_archival.txt  export-subst
+# The pinned copy of the agentteams term-index core (docs/term-index-protocol.md): exact upstream bytes,
+# hashed in PINNED.json. No line-ending conversion, keyword expansion or filter may touch them.
+scripts/term-index-core/** -text -ident -filter

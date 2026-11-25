@@ -911,7 +911,7 @@ When your part is done, hand off to the named Codex custom agent (spawn it, or t
 - Hand off to `code-hygiene` ("Code Hygiene Audit"): prompt "Run a code hygiene audit. Provide scope or 'full' for all rules."; auto-send no.
 - Hand off to `adversarial` ("Adversarial Review"): prompt "Challenge the presuppositions underlying this plan before execution."; auto-send no.
 - Hand off to `conflict-auditor` ("Conflict Audit"): prompt "Detect contradictions across project files. Provide scope if targeted."; auto-send no.
-- Hand off to `conflict-resolution` ("Resolve Conflicts"): prompt "Make ACCEPT/REJECT/REVISE decisions on flagged conflicts."; auto-send no.
+- Hand off to `conflict-resolution` ("Resolve Conflicts"): prompt "Decide each flagged conflict: REJECT/ACCEPT/REVISE, or NO-CONFLICT when the claims do not contradict."; auto-send no.
 - Hand off to `cleanup` ("Clean Up Artifacts"): prompt "Remove stale build artifacts, orphaned files, or abandoned drafts."; auto-send no.
 - Hand off to `agent-updater` ("Update Agent Docs"): prompt "Project structure or conventions have changed. Sync all affected agent files."; auto-send no.
 - Hand off to `agent-refactor` ("Refactor Agent Docs"): prompt "Check agent docs for reference extraction opportunities and spec compliance."; auto-send no.

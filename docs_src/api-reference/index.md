@@ -31,6 +31,7 @@ Reference for the `researchteam` package and its helper scripts.
 | [`_notes`](notes.md) | Upstream-authored `researchteam:notes` blocks synced into agents' Project-Specific Notes |
 | [`_release`](release.md) | Signed release-tag verification and release-line pins in `toolchain.lock` |
 | [`_agentteams_provenance`](agentteams-provenance.md) | Refuses to render with an unreviewed `agentteams` install |
+| [`_term_core_upstream`](term-core-upstream.md) | Compares the pinned term-index core with the signed agentteams tag it names (network, opt-in) |
 
 ## Data and transport
 

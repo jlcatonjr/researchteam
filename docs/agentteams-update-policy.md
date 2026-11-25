@@ -349,8 +349,8 @@ silently.
 > below therefore applies only to the remaining `overwrite`-strategy files in `MANAGED_FILES`
 > (docs, scripts, prompts); the discipline rules remain the durable belt for those.
 >
-> **Update (2026-W41): the `above-notes` strategy and `researchteam:notes` blocks (OrthodoxLLM
-> Item 1).**
+> **Update (2026-W41): the `above-notes` strategy and `researchteam:notes` blocks (a derived
+> repository's request, item 1).**
 >
 > - **The advisor.** `.github/agents/interpretation-advisor.agent.md` is managed for scholarly
 >   instances with `above-notes`: upstream owns everything above `## Project-Specific Notes`, front
@@ -375,7 +375,7 @@ silently.
 protection*, and nothing announced it. The fence closes that class in code; the rules below stay in
 force for the rest of `MANAGED_FILES` and as defense-in-depth.
 
-**This is not hypothetical.** On 2026-08-07 a sync of SocialScienceHumanities dropped that
+**This is not hypothetical.** On 2026-08-07 a sync of a derived research repository dropped that
 repo's source-corpus and LaTeX ignore patterns, exposing **1041 corpus files (198 MB)** that
 had been correctly ignored moments earlier — one `git add -A` away from entering history.
 Nothing was committed, and the patterns were restored, but the exposure was created by a

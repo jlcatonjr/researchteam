@@ -1,0 +1,8 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Generate the re-sign specs from the live rows; write the plan; rehearse with a throwaway key,decisions log on main; coordinator's rule (data),docs/release/key-rotation-2026-11/; plan,done,Seven specs; rehearsal passed in a scratch copy; nothing real signed,
+2,security,Review the specs and the list of rows,step 1,verdict,done,CONDITIONAL PASS on the specs and list: field diff recorded; the note names the old row by text_digest and signature prefix; the doubtful rows ruled by the operator; the group file and the registry entry are findings for the retirement,1
+3,orchestrator,Send the specs to the coordinator for checking,step 1,review notes,done,The coordinator found the first seven specs faithful; it recommended letting the pilot row lapse and covering the .codex log,1
+4,orchestrator,Ask the operator which doubtful rows are re-signed,steps 2 and 3,final list,done,Six ids and seven signatures; the pilot row and the Codex render row lapse; signing day 2026-11-22,2;3
+5,git-operations,Write the signing script; @security reviews it,step 4,operator script,done,Script 25; @security CONDITIONAL PASS for the run at fc242f3 and for the merge,4
+6,operator,Run the signing script in a terminal outside the agent session,step 5,appended signed rows,done,The operator ran script 25 at fc242f3 on 2026-11-22: seven prompts answered; all seven rows cleared; the toolchain group still verifies,5
+7,orchestrator,Verify the rows; commit; ask the operator for the merge; tell the coordinator,step 6,merge commit,pending,,6

@@ -2,7 +2,9 @@
 """Gate for docs/term-index-protocol.md: is each project's term register sound and its index current?
 
 Purpose: the read-only check. It builds the index in memory with term_index_engine.py and
-    compares it with the committed files. It never writes a file.
+    compares it with the committed files (the comparison is the pinned core's). It never writes a file.
+    Importing the engine checks the pinned core against scripts/term-index-core/PINNED.json first; a copy
+    that does not verify stops the check with exit 2.
 Lifecycle: UTILITY
 Created: 2026-11-16
 
@@ -76,89 +78,35 @@ def bib_keys(proj: Path) -> set[str]:
     return keys
 
 
-def _generated_file_problems(proj: Path, files: dict[str, bytes], compare_bytes: bool) -> list[str]:
-    """Generated files that are missing, are not regular files, or (optionally) differ from a fresh build."""
-    tdir, out = proj / "terminology", []
-    for rel, data in sorted(files.items()):
-        path = tdir / rel
-        if path.is_symlink() or not path.is_file():
-            out.append(f"terminology/{engine.shown(rel)}: missing")
-        elif compare_bytes and path.read_bytes() != data:
-            out.append(f"terminology/{engine.shown(rel)}: differs from a fresh build although the inputs are unchanged")
-    out += [f"terminology/{engine.shown(rel)}: not a file the builder writes"
-            for rel in sorted(engine.stray_index_files(proj, files))]
-    return out
-
-
-def freshness(proj: Path, a: engine.Assessment) -> tuple[list, list]:
-    """Compare the committed index with the fresh one in `a`. Returns (defects, reviews)."""
-    old = engine.read_manifest(proj)
-    if old is None:
-        return [("STALE", "no usable index manifest (run: term-build)")], []
-    changes = [] if old.get("register_sha256") == a.register_sha256 else ["the register changed"]
-    old_docs, new_docs = old["documents"], a.manifest["documents"]
-    for rel in sorted(set(old_docs) | set(new_docs)):
-        name = engine.shown(rel)
-        if rel not in old_docs:
-            changes.append(f"{name}: entered the scope")
-        elif rel not in new_docs:
-            changes.append(f"{name}: left the scope")
-        elif old_docs[rel] != new_docs[rel]:
-            changes.append(f"{name}: changed")
-    if changes:
-        return [("STALE", f"{c} since the index was built (run: term-build)") for c in changes], []
-    same_generator = old.get("generator") == a.manifest["generator"]
-    # A different generator may write different bytes for the same inputs, so only then is the byte
-    # comparison skipped. A missing or stray generated file is a defect either way.
-    defects = [("STALE", f"{msg} (edited by hand, or incomplete; run: term-build)")
-               for msg in _generated_file_problems(proj, a.files, compare_bytes=same_generator)]
-    reviews = [] if same_generator else [
-        ("REBUILD", "the inputs are unchanged but the index was built by another generator version (run: term-build)")]
-    return defects, reviews
-
-
-def usage_findings(proj: Path, a: engine.Assessment) -> tuple[list, list]:
-    defects, reviews = [], []
-    used: set[str] = set()
-    quoted = 0
-    for rel, (_, occs) in sorted(a.docs.items()):
-        used |= {o["term"] for o in occs if o["kind"] != "discouraged"}
-        quoted += sum(1 for o in occs if o["kind"] == "discouraged" and o["quoted"])
-        for o in engine.disc_violations(a.register, rel, occs):
-            defects.append(("DISC", f"{engine.shown(rel)}:{o['line']}:{o['column']} term '{o['term']}': a "
-                                    "discouraged form outside a quotation, with no 'allow' entry"))
+def source_check(proj: Path):
+    """The `[SRC]` check the core runs for each term whose `source` is a list of keys: every key must be in a
+    .bib file under the project. The keys are read once, before the core runs, as they always were."""
     known = bib_keys(proj)
-    for term in a.register["terms"]:
-        src = term.get("source")
-        if src is None:
-            reviews.append(("NOSRC", f"term '{term['id']}': the definition has no 'source'"))
-        elif isinstance(src, list):
-            defects += [("SRC", f"term '{term['id']}': source key {n} is not in the project's .bib")
-                        for n, key in enumerate(src, 1) if key not in known]
-        if term["id"] not in used:
-            reviews.append(("UNUSED", f"term '{term['id']}': no occurrence of the label or a variant"))
-    if quoted:
-        reviews.append(("QUOTED", f"{quoted} discouraged form(s) inside quotations (exempt; listed so that "
-                                  "quoting stays visible)"))
-    return defects, reviews
+
+    def validate(_proj: Path, term: dict) -> list:
+        return [("SRC", f"term '{term['id']}': source key {n} is not in the project's .bib")
+                for n, key in enumerate(term["source"], 1) if key not in known]
+    return validate
 
 
 def check_project(proj: Path, named: bool, require: bool) -> tuple[bool, list, list]:
-    """Return (a register was checked, defects, reviews)."""
-    a = engine.assess(proj)
-    if a.status in (engine.MISSING, engine.FOREIGN):
+    """Return (a register was checked, defects, reviews).
+
+    A missing or foreign register is handled here, so the NOREG hint names researchteam's command; the core
+    checks only a register that loads (design note, section 10, point 10). The register is read twice, the
+    documents once.
+    """
+    status = engine.load_register(proj).status
+    if status in (engine.MISSING, engine.FOREIGN):
         tdir = proj / "terminology"
         if (tdir / "term-index.json").exists() or (tdir / "index").exists():
             return False, [("ORPHAN", "generated index files exist but there is no term register")], []
         if named or (require and engine.is_research_project(proj)):
-            hint = "its terms.json is not a researchteam register" if a.status == engine.FOREIGN else "run: term-init"
+            hint = "its terms.json is not a researchteam register" if status == engine.FOREIGN else "run: term-init"
             return False, [("NOREG", f"the project has no term register ({hint})")], []
         return False, [], []
-    if a.status == engine.BAD:
-        return True, a.problems, []
-    fresh_defects, fresh_reviews = freshness(proj, a)
-    usage_defects, usage_reviews = usage_findings(proj, a)
-    return True, a.problems + fresh_defects + usage_defects, fresh_reviews + usage_reviews
+    validator = source_check(proj) if status == engine.OK else None
+    return engine.check_register(proj, source_validator=validator)
 
 
 def run(argv: list[str]) -> int:

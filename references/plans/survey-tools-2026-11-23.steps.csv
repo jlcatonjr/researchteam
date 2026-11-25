@@ -1,0 +1,9 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+A,orchestrator,Specification validator; JSON Schema; manifest builder; survey-validate and survey-status; invented example study,contract sections 3 6.1 7,scripts/survey/ and tests,pending,Starts after researchteam 1.3.0 is released (operator ruling 2026-11-23),
+B,orchestrator,Row checks with rule ids and legacy exceptions; batch merge; registry; table bucketer and year rule,contract 4.1 4.3 4.4 4.8,scripts/survey/ and tests,pending,,A
+C,orchestrator,Agreement; fail-closed finalising; rollup; provenance records,contract 4.2 4.6,scripts/survey/ and tests,pending,,B
+D,orchestrator,Frame; dropped list; passage list; frame-change log; post-steps,contract 4.4 4.5 4.7,scripts/survey/ and tests,pending,Ends with a comparison against the reference tool on the invented study,C
+E,orchestrator,Explorer projection to contract 1.1 tables,contract section 9,scripts/survey/ and tests,pending,,D
+F,orchestrator,Sign-off verification and stage refusal,contract section 6,scripts/survey/ and tests,pending,The agentteams gates-only log pattern is documented since 1.3.0 (contract 6.2; settled 2026-11-24); needs agentteams 1.3.0 or later; security review,A
+G,orchestrator,Enumeration log; packets; quote re-finding and receipts; query-plan runner,contract 4.4 5.4 7,scripts/survey/ and tests,pending,Security review for fetch receipts,F
+H,orchestrator,Agents rendered from the brief; bridge commands in the managed block; CI gate,contract sections 7 8,agents and CLAUDE.md block and workflow,pending,Security review of every grant and of the workflow,G

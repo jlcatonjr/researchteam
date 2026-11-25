@@ -3,7 +3,9 @@
 
 Export tests copy the invented example inputs to tmp_path, change one thing and run the exporter.
 """
+import csv
 import hashlib
+import io
 import json
 import re
 import shutil
@@ -213,6 +215,51 @@ def test_quote_is_kept_exactly_and_other_cells_are_trimmed(inputs):
     assert ev["ev-003"]["value"] == "Mirrowmere"
 
 
+def test_evidence_basis_reporter_and_note_are_carried(inputs):
+    """Contract 1.1: the three optional evidence columns reach the explorer file; empty cells are omitted."""
+    doc, run, _ = export(inputs)
+    assert run.errors == [] and doc["schema_version"] == "1.1"
+    ev = {e["id"]: e for e in doc["evidence"]}
+    assert (ev["ev-005"]["basis"], ev["ev-005"]["reporter"], ev["ev-005"]["note"]) == \
+        ("reported", "the encyclopedia's anonymous editor", "The entry names no source for this.")
+    assert ev["ev-006"]["basis"] == "own" and "reporter" not in ev["ev-006"] and "note" not in ev["ev-006"]
+    assert not {"basis", "reporter", "note"} & set(ev["ev-001"])
+
+
+@pytest.mark.parametrize("kept", [[], ["note"], ["basis", "reporter"]])
+def test_an_evidence_file_without_the_optional_columns_is_valid(inputs, kept):
+    """An input written for contract 1.0 (thirteen columns) still exports, as does any subset of the three."""
+    path = inputs / "evidence.csv"
+    rows = list(csv.DictReader(io.StringIO(path.read_text(encoding="utf-8"), newline="")))
+    columns = [c for c in rows[0] if c not in {"basis", "reporter", "note"} or c in kept]
+    out = io.StringIO(newline="")
+    writer = csv.DictWriter(out, columns, extrasaction="ignore", lineterminator="\n")
+    writer.writeheader()
+    writer.writerows(rows)
+    path.write_text(out.getvalue(), encoding="utf-8")
+    doc, run, _ = export(inputs)
+    assert run.errors == []
+    carried = {k for e in doc["evidence"] for k in e} & {"basis", "reporter", "note"}
+    assert carried == set(kept)
+
+
+def test_a_reporter_column_without_a_basis_column_is_an_error(inputs):
+    edit(inputs / "evidence.csv", "via,audit,basis,reporter,note", "via,audit,reporter,note")
+    for row_id in ("ev-005", "ev-006", "ev-009"):
+        edit(inputs / "evidence.csv", {"ev-005": "reported,the", "ev-006": "own,,", "ev-009": "reported,Ionuţ"}[row_id],
+             {"ev-005": "the", "ev-006": ",", "ev-009": "Ionuţ"}[row_id])
+    _, run, _ = export(inputs)
+    assert len([e for e in run.errors if "reporter is given without a basis" in e]) == 2
+
+
+def test_component_shows_the_evidence_basis_reporter_and_note():
+    """Rule 5. A static check, because CI has no JavaScript runtime."""
+    source = (TEMPLATE / "explorer.js").read_text(encoding="utf-8")
+    for shown in ("row(L.evidenceBasis, ev.basis)", "row(L.reporter, ev.reporter)", "row(L.evidenceNote, ev.note)",
+                  '  evidenceBasis: "', '  reporter: "', '  evidenceNote: "'):
+        assert shown in source, shown
+
+
 CASES = [
     ("persons.csv", "ionut_glasswright,person", "ada-wickmere,person", "used twice"),
     ("persons.csv", "middle,1842", "middle,1742", "outside the period"),
@@ -224,6 +271,9 @@ CASES = [
     ("evidence.csv", "ev-003,ada-wickmere,origin,Mirrowmere,confirmed,brask-fictive-1950", "ev-003,ada-wickmere,origin,Mirrowmere,confirmed,no-such-key", "names no .bib entry"),
     ("evidence.csv", "ev-016,unnamed-apprentice,role,not established,not-established,,\"Searched: guild register (fictional)\"", "ev-016,unnamed-apprentice,role,not established,not-established,,", "neither source_id nor citation"),
     ("evidence.csv", "https://example.org/encyclopedia/quillon", "javascript:alert(1)", "not an http"),
+    ("evidence.csv", "reported,the encyclopedia's anonymous editor", ",the encyclopedia's anonymous editor", "reporter is given without a basis"),
+    ("evidence.csv", "via,audit,basis,reporter,note", "via,audit,basis,reporter,note,extra", "columns must be exactly"),
+    ("evidence.csv", "via,audit,basis,reporter,note", "via,audit,basis,reporter,basis", "repeated: basis"),
     ("codes.csv", "Not established,false,,\nionut", "Yes,true,,\nionut", "needs evidence"),
     ("codes.csv", "true,,ev-001", "true,,ev-009", "belongs to another person"),
     ("bios.json", "She was master of the guild.\",\n", "She led the guild.\",\n", "differs from the clauses"),

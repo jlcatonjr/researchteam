@@ -1,0 +1,28 @@
+{
+ "format": "researchteam-pinned-copy/1",
+ "upstream": {
+  "repository": "jlcatonjr/agentteams",
+  "tag": "v1.3.0",
+  "commit": "536306d2502e3db338846677f2d37489531ac8e7"
+ },
+ "entry": "term_index",
+ "files": [
+  {
+   "upstream_path": "agentteams/_term_text.py",
+   "local_path": "scripts/term-index-core/_term_text.py",
+   "sha256": "24e1c8dcdb82eefdb6bc300bc568fc7019ce5601e0174e8f38f850cc190ac6ea"
+  },
+  {
+   "upstream_path": "agentteams/term_index.py",
+   "local_path": "scripts/term-index-core/term_index.py",
+   "sha256": "027acea9d782650d4260a7ae9371dccd2fe4454f873351750ac3b5ceec9833bb"
+  }
+ ],
+ "data_files": [
+  {
+   "upstream_path": "LICENSE",
+   "local_path": "scripts/term-index-core/LICENSE",
+   "sha256": "3724643f977baef433bba6c8927d99c5af94b827a9c93013df18f2bc8a0ed082"
+  }
+ ]
+}

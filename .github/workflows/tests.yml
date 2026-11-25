@@ -40,10 +40,30 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --require-hashes -r .github/ci/requirements-test.txt
 
+      # Graphviz and Node, so the concept-map layout tests and the component test run instead of skipping
+      # (operator decision, 2026-11-23). Graphviz comes from the runner's own Ubuntu archive; Node is the one
+      # the runner image ships, so no action and no download from elsewhere is added. The step fails when
+      # either is missing: a skipped test must not pass for a run one.
+      # S-10 record (2026-11-23): on the runner image ubuntu-26.04 the step installed graphviz 14.1.2-1ubuntu1
+      # and its own libraries at the same version (libcdt6, libcgraph8, libgvc7, libgvpr2, libpathplan4,
+      # libxdot4, libgvplugin-gd8, libgvplugin-pango8); Node was the image's v24.22.3. OSV, queried for
+      # graphviz in Ubuntu:26.04:LTS at that version, lists one advisory: CVE-2019-9904 (Ubuntu priority low,
+      # no fix released): deep recursion on a crafted graph can exhaust the stack and end the process. Here
+      # `dot` reads only DOT text the repository's own exporter writes, on a runner with no secrets, so the
+      # worst case is a failed job. An apt package cannot be pinned to an exact version, so this record is
+      # renewed whenever the step is changed or the runner's Ubuntu release moves.
+      - name: Install Graphviz; check Node
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends graphviz
+          dot -V
+          node --version
+          node -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)'
+
       - name: Run the test suite
         env:
           PYTHONPATH: .
-        run: python -m pytest -q tests
+        run: python -m pytest -q -rs tests
 
       - name: Bridge validate (fence pairing, placeholders)
         run: bash scripts/claude_researchteam_bridge.sh validate

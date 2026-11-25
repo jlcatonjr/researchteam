@@ -16,17 +16,17 @@ touching your research content.
 
 ```bash
 # base CLI only — layer-2 file sync, no agent regeneration
-pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam @ git+https://github.com/jlcatonjr/researchteam.git@v1.3.0"
 
 # recommended — pulls agentteams in, enabling the layer-1 (agent-team) pass
-pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@v1.3.0"
 
 # adds agentteams' research extra (web search, curated-source rating, claim verification)
-pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.0.2"
+pip install "researchteam[research] @ git+https://github.com/jlcatonjr/researchteam.git@v1.3.0"
 ```
 
-These install the signed `v1.0.2` tag, the newest `v1.0.N` (1.0.1 or later is required to resume the
-AgentTeams Autosync). For a verified install (a separate checkout of the tag, its
+These install the signed `v1.3.0` tag, the newest stable release (the 1.3 line, which pins agentteams `v1.3.0`).
+A repository on an older line installs that line's newest tag instead (`v1.2.N`, `v1.1.N` or `v1.0.N`). For a verified install (a separate checkout of the tag, its
 signature checked with repository config neutralised), see researchteam `docs/CONTRIBUTING.md`, "Using researchteam".
 
 `agentteams` is not on PyPI and is never installed standalone — routing it through the `[update]`
@@ -223,7 +223,7 @@ omits can therefore give the surfaces different agent rosters. The two that matt
   and `package.json`.
 
 `researchteam update` warns when either is missing and a native surface is present. Declare both in
-`brief.json` to get one roster everywhere. One scan rule for every surface (masterTeacher ticket 4.4)
+`brief.json` to get one roster everywhere. One scan rule for every surface (a consuming project's ticket)
 was planned for 1.0.1 but has not shipped (not in 1.0.1, 1.0.2 or the 1.1.0 release candidates); until it does,
 declare both fields.
 

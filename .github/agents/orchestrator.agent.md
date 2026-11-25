@@ -59,7 +59,7 @@ handoffs:
     send: false
   - label: Resolve Conflicts
     agent: conflict-resolution
-    prompt: "Make ACCEPT/REJECT/REVISE decisions on flagged conflicts."
+    prompt: "Decide each flagged conflict: REJECT/ACCEPT/REVISE, or NO-CONFLICT when the claims do not contradict."
     send: false
   - label: Clean Up Artifacts
     agent: cleanup

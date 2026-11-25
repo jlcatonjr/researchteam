@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bootstrap_toolchain.sh — build .venv with the researchteam / agentteams commits pinned in
 # toolchain.lock, so every user of this repository runs the toolchain it was last verified with.
-# Managed by researchteam (layer 2); adapted from OrthodoxLLM a291cf2.
+# Managed by researchteam (layer 2); adapted from a derived repository's script.
 #
 #   bash scripts/bootstrap_toolchain.sh            # install the pinned commits from GitHub
 #   bash scripts/bootstrap_toolchain.sh --local    # editable installs from local checkouts:

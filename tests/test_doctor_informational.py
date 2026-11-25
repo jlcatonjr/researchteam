@@ -79,8 +79,9 @@ HOOK = {"type": "command", "command": 'python3 "$CLAUDE_PROJECT_DIR/scripts/buil
 
 def _term_repo(tmp_path, register=True, text="A term register.\n"):
     (tmp_path / "scripts").mkdir()
-    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py"):
+    for name in ("term_index_engine.py", "build_term_index.py", "check_term_index.py", "check_term_core.py"):
         shutil.copy(ROOT / "scripts" / name, tmp_path / "scripts")
+    shutil.copytree(ROOT / "scripts" / "term-index-core", tmp_path / "scripts" / "term-index-core")
     if register:
         proj = tmp_path / "Projects" / "Demo"
         (proj / "terminology").mkdir(parents=True)
