@@ -5,6 +5,14 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Docs: the release policy gives the order for moving a derived repository to a new line.** No rule changes.
+  `docs/release-policy.md` told a derived repository to run `--write-lock` with both tags and did not say that a
+  locked repository must first drop both `.tag=` lines, that the lock writer needs the new agentteams installed,
+  or that a workspace with signed rows needs agentteams' `signing` extra. The 1.2.0 and 1.3.0 changelog sections
+  said so; the policy now has one passage, "Moving a derived repository to a new line", that the 1.1, 1.2 and 1.3
+  line sections point to. "Autosync and Layer 2" says the workflow is enabled and keeps the 1.0-era pause, and
+  the pause during the 1.3.0 cut, as dated history.
+
 ## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
 
 The first release of the 1.3 line. It is `1.3.0rc1` plus: this section, the release notes, the cut record and the

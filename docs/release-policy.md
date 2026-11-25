@@ -22,6 +22,28 @@ How collaborators work within this policy (branches, installs, contributions, ba
   on `main` that is `1.1.0rc(N+1).devN`; at the `v1.1.0-rc.2` commit itself it builds `1.1.0rc2`. setuptools-scm's guess-next-dev
   replaces the hand-set `1.1.0.dev0` of the shared policy.
 
+### Moving a derived repository to a new line
+A derived repository moves to a new researchteam line (1.1, 1.2, 1.3) in this order. The lock writer runs the
+installed code, so the installs come before the lock.
+1. **Verify both signed tags** (Rule S-9): the researchteam tag and the agentteams tag it pins, each against the
+   release key, with repository config neutralised (`CONTRIBUTING.md`, "Verifying a release"). Note the commit
+   each peels to.
+2. **Install both at those commits,** in the interpreter that runs `scripts/check_toolchain.py`:
+   `researchteam[update]` at the researchteam tag's commit installs the agentteams commit that release pins. A
+   workspace with signed decision rows or a toolchain-group file also needs agentteams' `signing` extra there
+   (as `scripts/bootstrap_toolchain.sh` installs it); without it the group file does not verify and the S-10
+   cooldown applies to the release. `scripts/check_toolchain.py` refuses `--tag <name>=<tag>` when the installed
+   commit is not the commit that tag peels to.
+3. **`researchteam update --ref <researchteam tag>`.**
+4. **Drop both `.tag=` lines from `toolchain.lock`** (`researchteam.tag=` and `agentteams.tag=`). A locked
+   repository leaves two release lines at once, and `scripts/check_toolchain.py` refuses a `--tag` on another
+   line, or an older one, under an existing lock.
+5. **`python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag> --tag agentteams=<tag>`.**
+6. **Both line moves are trust changes** and get the repository's own `@security` review.
+
+The order agentteams → researchteam → derived holds throughout. A move within a line (a patch release) keeps the
+`.tag=` lines and needs only steps 1 to 3 and 5. Each release's changelog section repeats what is specific to it.
+
 ### The 1.1 line
 - researchteam 1.1 pins agentteams 1.1. `release/1.1` is cut from `main` at `1.1.0rc1`, after the agentteams 1.1 pin
   has merged to `main`. The 1.1 RC and final tags (`v1.1.0-rc.N`, `v1.1.0`, `v1.1.N`) are cut and signed **on
@@ -34,9 +56,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - The S-10 cooldown is in force again, with a carve-out for this toolchain's own repositories (see Pins). The
   release-key exemptions from before the 2026-10-26 deprecation (`s10-release-key-exemption`,
   `s10-release-key-exemption-1.1`) stay in the log as history; the local-lineage carve-out replaces them.
-- Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag
-  (`researchteam update --ref <tag>`, then `python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag>
-  --tag agentteams=<agentteams tag>`), which keeps the order agentteams → researchteam → derived.
+- Derived repositories move to 1.1 only by pinning a verified researchteam 1.1 tag, in the order given under
+  "Moving a derived repository to a new line".
 
 ### The 1.2 line
 - researchteam 1.2 pins agentteams 1.2 (operator ruling, 2026-11-19). `release/1.2` is cut from `main` at `1.2.0rc1`,
@@ -52,7 +73,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - The survey toolkit's contract (`docs/survey-toolkit.md`, frozen as version 1 on 2026-11-23) ships in researchteam
   1.3 (operator ruling, 2026-11-19). Its tools are planned for the minor release after 1.3.0 (operator ruling,
   2026-11-23).
-- Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag, as for 1.1.
+- Derived repositories move to 1.2 only by pinning a verified researchteam 1.2 tag ("Moving a derived repository
+  to a new line").
 
 ### The 1.3 line
 - researchteam 1.3 pins agentteams 1.3 (operator ruling, 2026-11-24, in researchteam's session picker), with no
@@ -68,7 +90,8 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - researchteam 1.3 carries the term-index core switch (`docs/term-index-protocol.md`, "Placement") and
   the survey toolkit's contract (`docs/survey-toolkit.md`, version 1), as ruled under "The 1.2 line". The survey
   tools follow in the minor release after 1.3.0.
-- Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag, as for 1.2.
+- Derived repositories move to 1.3 only by pinning a verified researchteam 1.3 tag ("Moving a derived repository
+  to a new line").
 
 ## Tags
 - Annotated tags, **SSH-signed by the operator** with the agentteams release key, RSA
@@ -125,9 +148,13 @@ How collaborators work within this policy (branches, installs, contributions, ba
   moves them together (`--write-lock --sync-extras`); a derived repository's `pyproject.toml` is never rewritten.
 
 ## Autosync and Layer 2
-- During the joint cut, the weekly `agentteams-sync` schedule is disabled (`gh workflow disable`), and
-  soak syncs are operator-dispatched with `force=true`. Under shared-policy draft 9 (operator ruling 2026-10-18) it stays disabled until researchteam v1.0.1 is tagged
-  and consumers pin it.
+- The AgentTeams Autosync workflow (`.github/workflows/agentteams-sync.yml`) is enabled. It runs weekly and on
+  dispatch, and proposes a pin move as a pull request; it merges nothing.
+- History: during the joint 1.0 cut the schedule was disabled (`gh workflow disable`) and soak syncs were
+  operator-dispatched with `force=true`; under shared-policy draft 9 (operator ruling 2026-10-18) it stayed
+  disabled until researchteam v1.0.1 was tagged and consumers pinned it. For the 1.3.0 cut the operator disabled
+  the workflow on 2026-11-24, after `main` was frozen, and enabled it again on 2026-11-25, after the final tag.
+  Enabling and disabling a workflow is a repository setting, so only the operator does it.
 - Under a release lock, the gate follows verified tags on the line and never `main`. Derived repositories
   sync Layer 2 from the verified researchteam tag named in their lock.
 
