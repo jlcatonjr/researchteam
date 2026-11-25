@@ -277,7 +277,7 @@ them with `python3 -B -I`.
 | `survey_validate.py`, `survey_status.py`, `survey_manifest.py` | The three commands |
 | `survey_tables.py` | Step B. The shared CSV reader of section 4, the bucket-table checks and bucketer (4.8), and the year and period rule |
 | `survey_attribution.py` | Step B. The attribution file's checks (4.3) |
-| `survey_provenance.py` | Step B part 2. The provenance record of 4.6 (`make_record`, `gate_entries`, `check_record_shape`, `check_current`, which also treats a recorded-absent input that is now there as stale), where an output may go (`check_output_target`: only inside the study's own folder, never a declared or covered file or inside a declared folder, not in the ledger folder, and never under `.git`, `.github` or a team location) and the one way outputs are written (`write_all`: every target checked, temporary files in the same folders, mode 0644, every target checked again, then `os.replace` in order) |
+| `survey_provenance.py` | Step B part 2. The provenance record of 4.6 (`make_record`, `gate_entries`, `check_record_shape`, `check_current`, which also treats a recorded-absent input that is now there as stale), where an output may go (`check_output_target`: only inside the study's own folder, never a declared or covered file or inside a declared folder, not in the ledger folder, and never under `.git`, `.github` or a team location) and the one way outputs are written (`write_all`: every target checked, temporary files in the same folders, mode 0644, every target checked again, then `os.replace` in order; on Linux and macOS relative to a descriptor on the checked folder) |
 | `survey_identity.py` | Step B part 2. The project's persons, the overrides file's checks (4.4), the registry's rows, stop words and candidates |
 | `survey_registry.py` | Step B part 2. The `survey-registry` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
@@ -293,7 +293,7 @@ persons (5.2), so every override target is a project person and `display_name` i
 `overrides-columns`, `overrides-empty`, `overrides-decision`, `overrides-alias`, `overrides-target`,
 `overrides-self`, `overrides-repeat`, `overrides-second`, `overrides-conflict`, `overrides-chain`,
 `overrides-shared-identity`; `survey-validate` reports them too. A registry value with a control character or line
-break refuses the build (`registry-value`). `--candidates` lists the undecided pairs of persons whose folded names are
+break, or a format character such as a bidirectional override, refuses the build (`registry-value`). A merge alias must be an id of the project's rows; the registry holds merged ids, so rows keep it. `--candidates` lists the undecided pairs of persons whose folded names are
 equal (`exact`) or share a word that is not a stop word (`similar`), at most 1000; a pair an override row names is
 decided and not listed. It writes nothing. A study with a vantage module (`identity-vantage`) or plugin evidence is
 refused: this version does not load project code.

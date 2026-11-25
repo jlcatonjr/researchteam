@@ -20,13 +20,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   absent at build, so its appearing later makes the output stale. An output and its record are written only inside
   the study's own folder (checked by path, real path and device and inode), never over the specification or a file
   it declares, never inside a declared folder or the ledger folder, and never under `.git`, `.github` or a team
-  location. The registry holds the ids a merge folded in, so evidence may still carry them; it records how many
-  legacy exceptions the evidence is read with; a value with a control character or line break refuses the build.
+  location; where the platform allows, the write is made relative to the folder that was checked. The registry holds
+  the ids a merge folded in, so evidence keeps them (a merge alias must be an id of the project's rows); it records
+  how many legacy exceptions the evidence is read with; a value with a control, format or line-break character
+  refuses the build. The build reads only its declared inputs.
   Candidates are indexed by word; only undecided ones are listed, at most 1000 shown. A study with a vantage module, or with evidence in a plugin format,
   is refused: this version loads no project code. The batch merge (`survey-rows`) is step B part 2b. The check table
   is `references/plans/post-1.3.0-h5-step-b2-check-table.md`.
 - Survey toolkit, step B part 1 follow-ups: `B.C`, `B.C.E` and `B. C.` count as BC; a century range
-  (`4th-5th centuries`) reads both centuries; a run grouped with `,` or `.` (`1,750`) is not read as a year; quoted
+  (`4th-5th centuries`) reads both centuries; a number grouped by thousands (`1,750`, `1,750.5`) gives no year, while
+  a list (`450,500`, `12.03.1750`) gives one from each run; quoted
   values are cut in every message, step A's included.
 - **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
   `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define

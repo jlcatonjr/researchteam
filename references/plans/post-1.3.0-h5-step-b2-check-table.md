@@ -48,7 +48,7 @@ another." A vantage module's `identities()` is project code; this version does n
 | 505-506 | "The registry links and merges only from this file"; a candidate is decided only when a row names that pair | — | `test_a_merge_folds_the_alias_into_the_target`, `test_a_link_records_the_identity`, `test_a_candidate_named_by_an_override_is_decided` |
 | 496 | A `link` row's alias is "the project's person": an alias that is not a project person is refused | `overrides-alias` | `[overrides-alias]` |
 | (proposal 1) | A `distinct` row's alias must be a project person (the text is silent for `distinct`) | `overrides-alias` | `test_a_distinct_row_names_project_persons_on_both_sides` |
-| 497 (proposal 4) | A `merge` row's alias may be absent from the rows only when the registry on disk already lists it in that target's `merged_from` (its rows were rewritten to the target); an alias that appears nowhere is a mistyped alias | `overrides-alias` | `test_a_merge_stays_valid_after_the_aliass_rows_are_rewritten`, `test_a_merge_alias_that_appears_nowhere_is_refused` |
+| 497 | A `merge` joins "two of the project's ids": its alias must be a project person (an id in the project's rows), as for a link. The registry holds merged ids, so the alias's rows keep the alias; a merge row whose alias no longer appears in any row is refused, and the message names the remedy (keep the alias in the rows, or remove the merge row). The build reads only its declared inputs: no old registry | `overrides-alias` | `test_a_merge_whose_alias_was_rewritten_out_of_the_rows_is_refused`, `test_a_merge_alias_that_appears_nowhere_is_refused`, `test_the_build_reads_no_old_registry` |
 | (proposal 2) | A merge whose target is itself merged; a link to a merged person; a link to a person who is linked to another (5.2, line 733: identities "as the registry records them") | `overrides-chain` | `[overrides-chain]`, `test_more_overrides_breaches[...]` (link to a merged person), `test_a_link_to_a_person_linked_elsewhere_is_a_chain` |
 | (proposal 3) | Two persons linked to one identity | `overrides-shared-identity` | `[overrides-shared-identity]` |
 | 7, 925 | `survey-validate` checks the overrides file, a row file of 4.4 | the ids above | `test_each_overrides_check_refuses_and_writes_nothing[...]` (second half) |
@@ -67,10 +67,10 @@ another." A vantage module's `identities()` is project code; this version does n
 | 521-523; 566-567 | The registry first, its record last. Interrupted between them: if no input changed, the new registry is the old one byte for byte and the old record is still true; if an input changed, appeared or went, the old record no longer matches and the registry reads as not built. Both targets are checked again after the temporary files are written and before either replace, so a refused write changes nothing | — | `test_an_interruption_before_the_record_leaves_the_registry_not_built`, `test_an_interrupted_registry_write_leaves_the_old_file`, `test_a_write_refused_at_either_last_check_changes_nothing[...]`, `test_an_os_error_while_writing_is_a_refusal` |
 | 1.2 | Fail closed: any finding refuses and nothing is written | — | `test_each_overrides_check_refuses_and_writes_nothing[...]`, `test_a_malformed_source_file_refuses` |
 | 1.5 | Deterministic: rows in code-point order of `person_id`, LF, the same bytes in two repositories; a second build changes nothing | — | `test_the_build_is_deterministic` |
-| 1.6; plan | Written as survey-manifest writes: no link on the way (checked again just before writing), a regular file or nothing there, a temporary file in the same folder, mode 0644, `os.replace` | — | `test_a_link_on_the_way_to_the_registry_refuses`, `test_a_registry_path_that_is_a_directory_refuses`, `test_outputs_are_mode_0644` |
+| 1.6; plan | Written as survey-manifest writes: no link on the way (checked again just before writing), a regular file or nothing there, a temporary file in the same folder, mode 0644, `os.replace`. Where the platform allows (POSIX with `O_DIRECTORY`, `O_NOFOLLOW` and descriptor-relative `open`, `rename`, `unlink`: Linux and macOS), the folder is opened once and checked to be the folder that was checked (device and inode), the temporary file is created in it with `O_EXCL`, and the replace is relative to it, so a swapped parent cannot redirect the write; elsewhere the path code is used | — | `test_a_link_on_the_way_to_the_registry_refuses`, `test_a_registry_path_that_is_a_directory_refuses`, `test_outputs_are_mode_0644`, `test_writes_go_through_the_folder_descriptor_where_supported`, `test_the_plain_path_writes_still_work`, `test_a_folder_swapped_while_it_is_opened_is_refused` |
 | 1.2, 1.3 (proposal 14) | **Allowlist**: an output and its record lie inside the study's own folder, checked three ways that must agree (NFC, case-folded path; real path of the nearest existing parent; a walk up to the study folder's device and inode before the repository root); a study at the repository root writes no output; a `repo:` output outside the study folder is refused | — | `test_an_output_outside_the_study_folder_is_refused[...]` (`CLAUDE.md`, `.claude/settings.json`, the bridge script, `toolchain.lock`, `.agentteams/toolchain-group.json`), `test_a_repo_rooted_output_inside_the_study_folder_is_accepted`, `test_a_study_relative_registry_elsewhere_in_the_study_is_accepted`, `test_a_study_at_the_repository_root_writes_no_output` |
 | 1.2, 1.3 (proposal 14) | **Within the study folder**: never the specification, another declared path or a covered file; never inside a declared folder or a folder that holds a covered file (other than the study folder); never in the ledger folder; NFC and case-folded names, and device and inode. **Second layer**: never at or under `.git`, `.github` or a generated team location | — | `test_the_registry_may_not_be_written_over_a_protected_file[...]` (eleven cases), `test_a_declared_path_equal_to_the_records_name_is_refused`, `test_an_nfd_spelling_of_a_declared_file_is_refused`, `test_an_output_inside_a_declared_folder_is_refused` |
-| (proposal 16) | A registry value (an id, a name, `merged_from`) holding a control character, a line or paragraph separator, or a NUL refuses the build; the registry never holds a cell with a line break | `registry-value` (toolkit) | `test_a_registry_value_with_a_control_character_or_line_break_is_refused[...]` |
+| (proposal 16) | A registry value (an id, a name, `merged_from`) holding a control character, a format character (a bidirectional override, a zero-width character), a line or paragraph separator, or a NUL refuses the build; the registry never holds a cell with a line break | `registry-value` (toolkit) | `test_a_registry_value_with_a_control_character_or_line_break_is_refused[...]`, `test_a_registry_value_with_a_format_character_is_refused[...]` |
 
 ## Candidates (4.4, lines 524-530; 5.2, lines 733-734)
 
@@ -82,7 +82,7 @@ another." A vantage module's `identities()` is project code; this version does n
 | 529-530 | Stop words: one per line; words left out when names are compared; without the file, no word is left out | `stop-words-file` (toolkit, unreadable file) | `test_stop_words_leave_words_out`, `test_candidates_are_listed_and_never_applied` (empty file) |
 | 506; 7, 928 | A candidate is decided when an override row names the pair; a decided pair is not listed and takes no place in the cap, so deciding the shown ones reveals the next (proposal 15) | — | `test_a_candidate_named_by_an_override_is_decided`, `test_deciding_the_shown_candidates_reveals_the_next` |
 | (proposal 5) | A word is a run of letters and digits of the folded name (`_`, `-` and white space separate words); the names are the `person_id`s | — | `test_candidates_are_listed_and_never_applied`, `test_underscores_separate_words` |
-| (proposal 15) | Persons are indexed by folded name and by word, so only persons sharing one are compared; at most `MAX_CANDIDATES` (1000) undecided candidates are shown, in the fixed order, and the rest counted up to `MAX_COUNTED` (100000) | — | `test_candidates_scale_and_are_capped` |
+| (proposal 15) | Persons are indexed by folded name and by word, so only persons sharing one are compared; at most `MAX_CANDIDATES` (1000) undecided candidates are shown, in the fixed order, and the rest counted up to `MAX_COUNTED` (100000); once counting stops, the undecided and decided counts are printed as lower bounds ("at least") | — | `test_candidates_scale_and_are_capped`, `test_the_decided_count_is_a_lower_bound_when_counting_stops` |
 
 ## Command and bridge (section 7, line 928)
 
@@ -97,7 +97,7 @@ another." A vantage module's `identities()` is project code; this version does n
 |---|---|---|
 | (a) | `BC` also read in the forms `B.C`, `B.C.E`, `B. C.`, `B C` | `test_more_bc_spellings_are_negative[...]` |
 | (b) | A century range (`4th-5th centuries`) reads both centuries: the first for `work_date`, the largest for `life_dates` (proposal 14 of part 1, now in proposal 7 here) | `test_a_century_range_reads_both_centuries` |
-| (c) | Only a whole chain grouped by thousands is part of a longer number: one separator throughout, every later group exactly three digits, a lead of one or two digits, or of three with two or more groups after it (`1,750`, `12,750`, `1.234.567`, `123,456,789`). Any other chain is a list: `12.03.750` reads 750, `450,500` reads 450 / 500, `12.03.1750` 1750, `1742,1790` 1742 / 1790, `1750.5` 1750 (proposal 8) | `test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number[...]`, `test_a_comma_list_of_years_gives_the_first_and_the_largest` |
+| (c) | Only a whole chain grouped by thousands is part of a longer number: one separator throughout, every later group exactly three digits, a lead of one or two digits, or of three with two or more groups after it (`1,750`, `12,750`, `1.234.567`, `123,456,789`). Any other chain is a list: `12.03.750` reads 750, `450,500` reads 450 / 500, `123,456` 123 / 456, `12.03.1750` 1750, `1742,1790` 1742 / 1790, `1750.5` 1750. Where the last separator differs, the groups before it are judged as the grouping: `1,750.5`, `1,234.56`, `1,750,000` give no year (proposal 8) | `test_a_decimal_part_after_a_grouped_number[...]`, `test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number[...]`, `test_a_comma_list_of_years_gives_the_first_and_the_largest` |
 | (d) | `q()` cuts the text of any value, not only a string | `test_long_lists_in_messages_are_cut_too` |
 | (e) | The part 1 table's `locator-missing` row cites line 276 | — |
 | (f) | Step A's messages quote file content through `q()` | `test_step_a_messages_cut_a_long_declared_path` |
@@ -126,11 +126,11 @@ another." A vantage module's `identities()` is project code; this version does n
 3. **Two persons linked to one identity** are refused (`overrides-shared-identity`): they would be one person, which
    is a merge.
 4. **Merged ids in the registry**: `merged_from` is `;`-separated and sorted, and every id in it is held by the
-   registry, resolving to the row's person, so an evidence row may still carry a merged alias (4.1, line 308). A merge
-   row whose alias no longer occurs in the rows stays valid only while the registry on disk already lists the alias in
-   that target's `merged_from`: line 497 does not say whether the alias must still occur. Later readers must map a
-   merged alias to its target where they read a person: 4.3's `author_kind` per person (line 437), 4.7's `author`
-   and person-level rows (and 4.3's unit-id check, line 434); 4.7 does not say so.
+   registry, resolving to the row's person, so evidence rows keep a merged alias (4.1, line 308) and nothing needs
+   rewriting. Later readers must map a merged alias to its target where they read a person: 4.3's `author_kind` per
+   person (line 437), 4.7's `author` and person-level rows (and 4.3's unit-id check, line 434); 4.7 does not say so.
+   (Decided, not proposed: a merge row whose alias appears in no row is refused, because a merge joins "two of the
+   project's ids", line 497.)
 5. **Words for `similar`**: runs of letters and digits of the folded name (`_`, `-` and white space separate words),
    stop words removed; the names compared are the `person_id`s, the only names the project's own rows carry.
 6. **The command line**: `survey-registry <project>` builds; `--candidates` lists and writes nothing.
@@ -138,7 +138,10 @@ another." A vantage module's `identities()` is project code; this version does n
    `life_dates` (extends part 1's proposal 14).
 8. **A number grouped by thousands** is "part of a longer number" (line 699) only as a whole chain: one separator,
    every later group exactly three digits, a lead of one or two digits, or of three with two or more groups after it.
-   Any other chain is a list of numbers, each read on its own (`450,500` -> 450 / 500; `12.03.750` -> 750).
+   Where the last separator differs from the earlier ones, the part after it is a decimal part and the groups before
+   it are judged as the grouping (`1,750.5`, `1,234.56`: no year). Any other chain is a list of numbers, each read on
+   its own: `450,500` -> 450 / 500, `12.03.750` -> 750, and the tools' reading of a three-digit lead with one group,
+   `123,456` -> 123, then 456.
 9. **A change against line 563**: a record lists every *declared* input, not only "the files the tool actually read";
    one that was absent at build is listed with `"sha256": ""`, and its appearing later makes the output not built.
    Reason: an input that appears after the build (a new overrides file, a first evidence file) changes what the build
@@ -152,15 +155,19 @@ another." A vantage module's `identities()` is project code; this version does n
 13. **A link to a different person without a vantage module** is a merge in all but name: the identity is a project
     person, and the linked person shows its id. Propose: without a vantage module, a link names only the alias itself
     (or is not allowed), and two persons who are one are written as a merge.
-14. **An output and its record lie inside the study's folder; a `repo:` output outside it is an error.** 4.4 and 4.6
-    only ever place an output in the study. Within the folder an output is never the specification, a declared or
-    covered file, inside a declared folder or a folder holding a covered file, or in the ledger folder; and never
-    under `.git`, `.github` or a generated team location. A study at the repository root writes no output.
+14. **A change against rule 1.6 for output paths: an output and its record lie inside the study's folder, and a
+    `repo:` output outside it is an error.** Section 3 (line 99) and rule 1.6 allow a `repo:` path for
+    `identity.registry` anywhere in the repository. For an output that is too wide: a specification could then name
+    any repository file (a team instruction, a lock file, a script) as the registry, and the build would write over
+    it. 4.4 and 4.6 only ever place an output in the study. Within the folder an output is never the specification, a
+    declared or covered file, inside a declared folder or a folder holding a covered file, or in the ledger folder;
+    and never under `.git`, `.github` or a generated team location. A study at the repository root writes no output.
 15. **The candidate listing**: undecided candidates only, at most 1000 shown in the fixed order and the rest counted
     up to 100000; a pair an override row names is decided and not listed, so deciding the shown ones reveals the next
     (section 7 says the tool "lists candidates"; it names no listing of decided ones).
-16. **Registry values**: no `person_id`, name or `merged_from` cell may hold a control character, a line or paragraph
-    separator, or a NUL (the contract gives `person_id` no pattern beyond "no `|`").
+16. **Registry values**: no `person_id`, name or `merged_from` cell may hold a control character, a format character
+    (a bidirectional override, a zero-width character: one id could be made to look like another), a line or
+    paragraph separator, or a NUL (the contract gives `person_id` no pattern beyond "no `|`").
 17. **A toolkit version in the record**: 4.6 names the `tool` and the study's `schema_version`, not the toolkit's
     release, so a record written by an older release of the same tool reads as built; `check_current` can compare the
     tool and the schema version only.
