@@ -16,6 +16,11 @@ work signed and merged; it changes nothing in the row.
 
 ## When the operator asks
 
+The numbered items below are the prose form of the steps file, where item 0 and item 1 are step 2, item 2 is
+step 3, item 3 is step 4, item 4 is step 5, item 5 is steps 6 and 7, item 6 is step 8 and item 7 is steps 9 and 10.
+
+0. Confirm that the spec and script 26 on the branch name the key `opr-2026-11` and no other (the pilot row of
+   2026-11-14 named `op-2026`).
 1. Merge `main` into the branch. The decisions log on the branch must be `main`'s bytes exactly; the
    toolchain-group file (sequence 5) and the exception registry must be `main`'s.
 2. Set the spec's two dates and the script's date and spec hash to the signing day the operator names. Nothing
@@ -33,8 +38,12 @@ work signed and merged; it changes nothing in the row.
 ## Relation to H3
 
 The 2026-11-22 ruling says the replacement for the pilot row is drafted and reviewed before `op-2026` is retired.
-It is drafted and reviewed. Whether it must also be signed first is decision P3 of the metaplan. If H3's
-retirement runs first, step 1 here also takes the key stores and the re-registered registry entry from `main`.
+It is drafted and reviewed. Whether it must also be signed first is decision P3 of the metaplan. H3 now has two
+pull requests (re-register, then remove the key); H4's row is appended either before H3's first or between the
+two, never while one of them is open with log or registry changes. If H3's first pull request is merged first,
+step 1 here takes the re-registered registry entry from `main`, and H4's registration adds its own entry and the
+cap of two without touching that entry. If H4 is merged first, H3's re-registration keys on the branch-deletion
+action id and leaves H4's entry and the cap alone.
 
 ## Risk
 

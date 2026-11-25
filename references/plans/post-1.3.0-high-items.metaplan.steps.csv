@@ -1,12 +1,14 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-M1,orchestrator,Write the metaplan and the six target plans,the 2026-11-25 list; existing plans,plans in references/plans/,pending,,
-M2,adversarial,Challenge the metaplan and target plans,M1,findings,pending,read-only,M1
-M3,conflict-auditor,Consistency audit of the metaplan and target plans,M1,findings,pending,read-only,M1
+M1,orchestrator,Write the metaplan and the six target plans,the 2026-11-25 list; existing plans,plans in references/plans/,done,pushed as 789bc4e,
+M2,adversarial,Challenge the metaplan and target plans,M1,findings,done,CONDITIONAL: six blocking; twelve advisory,M1
+M3,conflict-auditor,Consistency audit of the metaplan and target plans,M1,findings,done,three blocking; thirteen advisory; no private detail,M1
 M4,orchestrator,Revise the plans from M2 and M3; push,M2;M3,revised plans,pending,,M2;M3
-M5,orchestrator,Wave 1: H1; H2; H3 phase 1; H5 step A,M4,two pull requests; audit record,pending,parallel worktrees,M4
-M6,orchestrator,Wave 2: H5 step B; H6; H3 phase 2,M5 and the operator's merges,pull requests; operator scripts,pending,,M5
-M7,orchestrator,Wave 3: H5 step C; H3 phase 3,M6,pull requests; key retired or date moved,pending,operator signs,M6
-M8,orchestrator,Wave 4: H5 step D with the reference comparison,M7,pull request,pending,,M7
-M9,orchestrator,H4 when the operator asks,operator's word,signed row merged,pending,joins the running wave,M4
-M10,work-summarizer,Work summary for each day worked,each wave,workSummaries/daily,pending,,M5
-M11,conflict-auditor,Close-out audit,M8;M9,findings,pending,read-only,M8
+M5,orchestrator,Wave 0: H1 alone,M4,checks recorded in the H1 plan,pending,,M4
+M6,orchestrator,Wave 1: H2 pull request; H5 step A,M5,two pull requests,pending,parallel worktrees,M5
+M7,orchestrator,Wave 2: H5 step B; H6 (step F),the H5-A merge,pull requests,pending,starts when A is merged,M6
+M8,orchestrator,Wave 3: H5 step C,the H5-B merge,pull request,pending,,M7
+M9,orchestrator,Wave 4: H5 step D with the reference comparison on the pull request head,the H5-C merge,pull request,pending,,M8
+M10,orchestrator,H3 on its own track: phase 1; then 2; then 3,M4,audit record; operator steps; key retired or date moved,pending,not held to the waves,M4
+M11,orchestrator,H4 when the operator asks,operator's word,signed row merged,pending,own track,M4
+M12,work-summarizer,Work summary for each day worked,each wave,workSummaries/daily,pending,,M5
+M13,conflict-auditor,Close-out audit,M9;M10;M11,findings,pending,read-only,M9;M10;M11

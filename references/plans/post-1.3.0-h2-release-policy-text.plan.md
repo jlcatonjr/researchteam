@@ -1,7 +1,7 @@
 # H2: `docs/release-policy.md`, the line-move lock step and the autosync section (2026-11-25)
 
 Metaplan: `post-1.3.0-high-items.metaplan.md`. Source: two advisory findings of `@conflict-auditor` on pull
-request #261 (2026-11-24), carried forward at the 1.3.0 close-out.
+request #261 (2026-11-24), carried forward at the 1.3.0 close-out, and one point from the downstream dry runs.
 
 **Problem.**
 1. The policy tells a derived repository to move to a new line with `--write-lock --tag researchteam=<tag>
@@ -18,8 +18,9 @@ request #261 (2026-11-24), carried forward at the 1.3.0 close-out.
   line sections point to, with the order: verify both tags; install both at the tags' commits (with the `signing`
   extra where rows or a group file are signed); `researchteam update --ref <tag>`; drop both `.tag=` lines;
   `--write-lock` with both tags; the repository's own `@security` review of two line moves;
-- the autosync section rewritten to the present procedure (active; paused by the operator for a cut; resumed
-  after the final tag), keeping the release-lock sentence.
+- the autosync section rewritten to the present state (the workflow is active), keeping the release-lock
+  sentence. The pause during the 1.3.0 cut is written as what was done for 1.3.0, by the operator's script,
+  unless the operator rules that it is standing procedure (metaplan decision P11, asked with the merge).
 The 1.0-era statements that are history are moved into a dated sentence, not deleted without trace.
 
 **Not changed.** No rule changes. `docs/release-policy.md` is not a synced file and not a PS-2 path; the section

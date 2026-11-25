@@ -14,7 +14,15 @@ and the contract differ, the contract is right.
   error and every rule id has a test that triggers it.
 - Where the contract's text is silent, the step stops on that point and records a proposed contract change; it
   does not invent behaviour. The proposal goes to the operator, not into the code.
-- Supported Python: 3.10 to 3.13, as the two test checks run.
+- Supported Python: 3.10 to 3.13, as the two test checks run. Folded text (rule 1.10) depends on the Unicode
+  database, which differs between Python versions, so the provenance record carries
+  `unicodedata.unidata_version`, a test pins the folding of a fixed sample, and a byte comparison between two
+  runs (step D's included) is made on the same Python version and says which.
+- Fixtures that need team folders, key stores or logs are built by the tests in temporary git repositories. No
+  test reads researchteam's own team folders, so a change to those (H3) cannot break a survey test.
+- The JSON Schema is generated from the validator's own rule table and tested without a new dependency: it is
+  well-formed, every rule's field appears in it, and the shared valid and invalid specifications give the same
+  verdict from the validator. A run against a schema library is local and recorded in the pull request.
 - Delivery: the new files are added to the scholarly managed files in `researchteam/_manifest.py` and the
   commands to `scripts/claude_researchteam_bridge.sh`, each in the step that makes the command work. The managed
   block of `CLAUDE.md` and the agents are step H, not here.
@@ -26,19 +34,28 @@ and the contract differ, the contract is right.
 
 | Step | Contract | Delivers | Commands |
 |---|---|---|---|
-| A | 3, 6.1, 7 | The specification loader and validator with every section 3 check; the published JSON Schema generated from the same rules and tested against them; the gate list and the manifest builder (6.1); the invented example study and the shared valid and invalid specifications of section 3 as fixtures | `survey-validate`, `survey-status`, `survey-manifest` |
+| A | 3, 6.1, the structural part of 6.2, 7 | The specification loader and validator with every section 3 check; the published JSON Schema; the gate list, the manifest builder and the three gate states (6.1); the function that turns a gate's state and `enforce` into "runs" or "refuses"; every check of the ledger folder that needs no signature (6.2); the invented example study and the shared valid and invalid specifications of section 3 as fixtures | `survey-validate`, `survey-status`, `survey-manifest` |
 | B | 4.1, 4.3, 4.4, 4.8 | Evidence and attribution row checks with rule ids and legacy exceptions; the batch merge; the identity registry (candidates, overrides, build, the record a merge renews); the table bucketer and the year rule | `survey-rows`, `survey-registry` |
 | C | 4.2, 4.6 | Agreement between the two passes; fail-closed finalising; the rollup; the provenance record every output carries | `survey-agreement`, `survey-finalize`, `survey-rollup` |
 | D | 4.4, 4.5, 4.7 | The frame of a passage or work study, its dropped list and passage list; the frame-change log and post-steps; refusal in an author study | `survey-frame` |
 
-**Step A before signing exists.** `survey-status` reports each gate's manifest hash, `enforce` and `mode`. Until
-step F (H6) lands, a gate's state is reported as `UNAVAILABLE` with the reason that sign-off verification is not
-in this version; `survey-validate`'s ledger-folder check (6.2) is in A only as far as section 7 requires it of
-`survey-validate`, and the plan for A lists exactly which 6.2 checks that is after reading the section. No stage
-in A to D refuses on a gate; that state is printed by `survey-status`, as the 2026-11-23 plan requires.
+**Step A before verification exists.** The line between A and F is: A does everything that needs only the
+standard library, F does signatures. So in A:
+- `survey-status` reports each gate's manifest hash, `enforce`, `mode` and state. The state follows 6.1: a gate
+  whose files have changed since a request was made is `UNCLEARED`, whatever can be verified; otherwise, with no
+  verification in this version, it is `UNAVAILABLE` ("signatures cannot be verified here"), with that reason.
+  Step A never reports `CLEARED`.
+- `survey-validate` makes every structural check of the ledger folder that 6.2 lists.
+- The refusal function exists and is tested: a blocking gate that is `UNCLEARED` or `UNAVAILABLE` refuses (6.1,
+  rule 1.7). No command of steps A to C is a gated stage under 6.1. Step D's post-steps are (4.5), and call it:
+  in a study with a blocking S6 they refuse until H6 is merged and agentteams 1.3.0 or later is installed.
+- `survey-manifest` is in A because `survey-status` needs the manifest builder and the command only prints what
+  it builds. The 2026-11-23 plan and the contract's section 10 name only `survey-validate` and `survey-status`
+  for this step; this is a recorded widening of step A by one command, with no signing.
 
-**Step D ends with the comparison.** The first project's session is asked to run its reference tool and
-researchteam's on the invented study and report differences in the frame's bytes. A difference is settled by the
+**Step D ends with the comparison, before its merge.** The first project's session is asked to run its reference
+tool and researchteam's, at the pull request's head, on the invented study and on the same Python version, and
+report differences in the frame's bytes. A difference is settled by the
 contract's text; where the text is silent it becomes a proposal. researchteam's session does not read that
 project's repository.
 
@@ -54,7 +71,9 @@ project's repository.
 ## Parallelism
 
 A is the base and is built alone. After A is merged: B (this plan) and F (H6) run in parallel. C waits for B, D
-for C. Inside a step, the build is one worktree and one author; the reviews run in parallel.
+for C. C writes the gate's state into provenance records (4.6), so it starts from a `main` that has H6, or its
+pull request says that states are still unverified. Inside a step, the build is one worktree and one author; the
+reviews run in parallel.
 
 ## Risks
 
