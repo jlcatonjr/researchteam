@@ -4,7 +4,7 @@ M2,adversarial,Review the metaplan and each target,M1 files,findings,done,CONDIT
 M3,conflict-auditor,Consistency check of the metaplan and each target against the repository's rules and records,M1 files,findings,done,15 findings; 5 blocking; all adopted in version 2,M1
 M4,security,Review the steps that touch a trust root or cross repositories,M1 files,findings,done,CONDITIONAL PASS; 7 conditions; all adopted in version 2; cleared for nothing,M1
 M5,orchestrator,Revise; record how each finding was resolved; track the plans by PR; send paths and sha256 to the coordinator,M2;M3;M4,version 3; message,done,2026-11-20; draft PR #237; second @conflict-auditor pass adopted; the PR merge needs the operator's live answer,M2;M3;M4
-M6,orchestrator,Ask the operator D1 to D4 and D6 and D9 in the picker; record the answers,M5,answers recorded in this plan,pending,nothing below starts on a proposed class,M5
+M6,orchestrator,Ask the operator D1 to D4 and D6 and D9 in the picker; record the answers,M5,answers recorded in this plan,done,"D1 to D4, D6 and D9 answered in the picker, 2026-11-24",M5
 M7,git-operations,T5: interim pin to agentteams v1.2.2,D2,PR,dropped,D2 answered 2026-11-24: no interim pin to agentteams 1.2.2 and no researchteam 1.2.2,M6
 M8,primary-producer,T4: shallow tag fetch in the derived workflow scaffold; close #176 as already fixed,D2,PR,done,2026-11-24: PR #259 merged as 440b526; #228 and #176 closed,M6
 M9,primary-producer,T3: plan record; explorer contract 1.1,D2,PRs,done,plan record reconciled; explorer contract 1.1 merged as PR #238 on 2026-11-20,M6
@@ -13,9 +13,9 @@ M11,git-operations,T1 part A: soak agentteams v1.3.0-rc.1 on a draft branch; tra
 M12,git-operations,T1 part B: pin PR to the signed agentteams v1.3.0,signed upstream final; D1; D5,PR,done,"2026-11-24: PR #254 merged as c92fc56 (pin 536306d, tag v1.3.0)",M6;M7;M11
 M13,primary-producer,T2: swap PR on the pinned commit with the manifest rebuilt from the signed tag; CI job; docs; private imports,M12,PRs,done,2026-11-24: PR #256 merged as e15b3fb (swap and CI job); PS-2 paths in #255 and #257,M12;M10
 M14,primary-producer,T3: write open point 1 against the released gates-only pattern,upstream #578 released,PR,done,2026-11-24: PR #258 merged as 41d76d9,M6
-M15,orchestrator,Ask D10 and D11; freeze review against section 4 step 3,M8;M9;M12;M13;M14,freeze record,pending,each input merged or recorded as dropped or moved to 1.3.x,M8;M9;M12;M13;M14
-M16,primary-producer,T6: release prep PR (the lead writes the changelog); git-operations prepares the candidate cut script; operator runs it,M15,v1.3.0-rc.1,pending,,M15
-M17,orchestrator,Wait for the downstream dry-run pin report; candidate fixes only,v1.3.0-rc.1,report,pending,,M16
-M18,git-operations,T6: final cut script; operator go; read-back; tell the coordinator,M17,v1.3.0,pending,,M17
-M19,work-summarizer,Work summary,M18,workSummaries/daily,pending,,M18
-M20,conflict-auditor,Close-out audit,M19,findings,pending,read-only,M19
+M15,orchestrator,Ask D10 and D11; freeze review against section 4 step 3,M8;M9;M12;M13;M14,freeze record,done,"freeze declared at 440b526, 2026-11-24",M8;M9;M12;M13;M14
+M16,primary-producer,T6: release prep PR (the lead writes the changelog); git-operations prepares the candidate cut script; operator runs it,M15,v1.3.0-rc.1,done,#260 merged 26ee061; v1.3.0-rc.1 cut 2026-11-24,M15
+M17,orchestrator,Wait for the downstream dry-run pin report; candidate fixes only,v1.3.0-rc.1,report,done,"both downstream dry runs passed, 2026-11-24",M16
+M18,git-operations,T6: final cut script; operator go; read-back; tell the coordinator,M17,v1.3.0,done,#261 merged 570724f; v1.3.0 cut 2026-11-25 (tag object 68d0dcd8); coordinator told,M17
+M19,work-summarizer,Work summary,M18,workSummaries/daily,done,workSummaries/daily/2026-11-24.md and 2026-11-25.md,M18
+M20,conflict-auditor,Close-out audit,M19,findings,done,"close-out audit 2026-11-25: no blocking finding; seven advisory, fixed in the records",M19

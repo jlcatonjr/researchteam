@@ -304,7 +304,7 @@ second pass.
   (`materialize`) render does not apply to this upstream repository, which refuses it; the downstream dry run on
   the candidate covers it.
 - **D10 answered: the autosync is paused** from the freeze to the final. Enabling or disabling a workflow is a
-  repository setting, so the operator runs script 28 (`archive/2026-W48/operator/28-pause-autosync.sh`). The stale
+  repository setting, so the operator runs script 28 (`references/plans/archive/2026-W48/operator/28-pause-autosync.sh`). The stale
   autosync PR #246 is closed as superseded.
 - **Pending conditions, operator ruling:** the candidate cut script refuses on a `pending` condition in any
   decision row added since `v1.2.1` and reports older ones without refusing. One older row is pending (2026-10-22,
@@ -368,5 +368,12 @@ second pass.
 - **Left:** the operator resumes the autosync (script 28, `resume`); the soak and rehearsal branches go to
   `archive/`; the work summary and the close-out audit; this plans branch (PR #237) is merged as the record.
 - **The autosync is resumed** (operator, script 28 `resume`, 2026-11-25); read back as `active`.
-- **Archive branches: none needed.** The soak ran in a detached worktree at the frozen `main` commit `440b526`
-  with no local changes, and the cut rehearsals were read-only; nothing unpublished exists.
+- **Archive branches: none needed.** The soak used a separate checkout (before the pin, and again at the frozen
+  `main` commit `440b526`); it holds no local changes. The cut rehearsals were read-only. Nothing unpublished
+  exists.
+- **Close-out audit (`@conflict-auditor`, 2026-11-25):** no blocking finding. Corrections to earlier sections of
+  this file: PR #234, listed above as a draft, merged as `bcec0ca` on 2026-11-20, so the freeze criterion on it
+  was met; the `brief.json` check named above as a T1 step is step B5 of the T1 list. The step lists are closed:
+  T5's rows are `dropped`, and the metaplan's rows M6 and M15 to M20 are `done`.
+- **Carried forward, outside this plan:** the two advisory findings on `docs/release-policy.md`; the App
+  authorization row; the survey tools; the requests sent to agentteams.
