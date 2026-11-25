@@ -126,3 +126,20 @@ the interpreter's own site-packages, and shares the parent's prefix. Anything el
 between the folder and the repository root; a patched verifier; a forged retraction in an unsigned team log; a
 specification edited to `legacy` with a gate's declaration removed; a plug-in reading outside what was hashed; a
 `key_id` with path characters; control characters in `author` or `key_id`; study ids that differ only by case).
+
+## agentteams 1.3.1 and the family names (relayed 2026-11-25; data)
+
+The managing repository's session relayed the operator's ruling on the scope of agentteams 1.3.1 (no date yet). It
+includes the read-only listing of open HALTs this plan asked for. Two of its design rulings bear on step F:
+
+- **After a HALT is retracted, no earlier permission for that action survives;** it must be issued again. For a
+  study this means a gate signed before a HALT on its action stays uncleared after the retraction until the
+  operator signs again. The tools must not treat a retraction as restoring an older sign-off.
+- **A family HALT binds longer ids only across a colon** (a HALT on `x` binds `x:y`, not `x-y`). The contract's
+  two family names are joined to the gate and the study id with `/` (`survey-signoff/<gate>/<study id>`), and to
+  the manifest hash with `:`. So agentteams 1.3.1's own matcher will bind a HALT on the full scope to its
+  hash-bearing action, but it will NOT bind a HALT on `survey-signoff` or `survey-signoff/<gate>` to a study's
+  action. **The tools therefore keep their own scan of the two family names when 1.3.1 arrives;** what 1.3.1
+  changes is that the scan can use the public listing to tell a retracted HALT from an open one, in place of the
+  interim rule that any HALT row blocks. Whether the family names should instead be written with colons is a
+  question for a later contract version, recorded as a proposal.
