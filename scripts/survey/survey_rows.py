@@ -193,20 +193,23 @@ def merge(root: Path, project: str, batch_arg: str) -> int:
 def draft_exceptions(root: Path, project: str) -> int:
     """A first exceptions file "from the current breaches for a person to review; it never adds to an existing one"
     (4.1, lines 364-365). It is printed, not written: the text names no place for a draft, and the exceptions file
-    itself is covered by a gate, so it is the person who saves it there (proposal)."""
+    itself is covered by a gate, so it is the person who saves it there (proposal). A legacy study that declares
+    ``evidence.legacy_exceptions`` already has one (section 3 makes a declared file an input that exists, line 217),
+    so the draft is for a legacy study that does not declare one yet; the person saves it, declares it and covers it
+    by a gate."""
     study = load_study(project, root)
     if study.spec is None or not study.ok:
         print_findings(study.findings)
         return refuse(f"{study.spec_rel} is malformed")
     spec = study.spec
-    if spec["status"] != "legacy" or "legacy_exceptions" not in spec["evidence"]:
-        return refuse("a first exceptions file is for a legacy study that declares evidence.legacy_exceptions (4.1, "
-                      "line 363)")
+    if spec["status"] != "legacy":
+        return refuse("a first exceptions file is for a legacy study (4.1, line 363)")
+    if "legacy_exceptions" in spec["evidence"]:
+        exc = study.paths["/evidence/legacy_exceptions"]
+        return refuse(f"the study already declares the exceptions file {q(exc.repo_rel)}; the tool never adds to an "
+                      "existing one (4.1, line 365)")
     if spec["evidence"]["format"] == "plugin":
         return refuse("evidence in a plugin format is not read in this version")
-    exc = study.paths["/evidence/legacy_exceptions"]
-    if os.path.lexists(exc.real):
-        return refuse(f"{q(exc.repo_rel)} already exists; the tool never adds to an existing one (4.1, line 365)")
     breaches, stops = current_breaches(study)
     if stops:
         print_findings(stops)
@@ -218,8 +221,8 @@ def draft_exceptions(root: Path, project: str) -> int:
         writer.writerow(row)
     for line in buf.getvalue().splitlines():
         print(safe(line))
-    print(safe(f"# {len(breaches)} breach(es); a draft for a person to review and save as {exc.repo_rel}; "
-               "nothing was written"), file=sys.stderr)
+    print(safe(f"# {len(breaches)} breach(es); a draft for a person to review, save, declare as "
+               "evidence.legacy_exceptions and cover by a gate; nothing was written"), file=sys.stderr)
     return 0
 
 
