@@ -163,3 +163,13 @@ on `main` apply. Four gates are signed there with the current decision key.
   `references/` as the tools write and read them (the tools' location is step A's proposal 1; the contract's text
   does not fix it). With no manifest where the tools look, a gate reads "no request", `UNCLEARED`. The manifests'
   bytes, and so the signed hashes, do not depend on where the files sit.
+
+**Operator's decisions on that check (picker, 2026-11-25).**
+- **Header: "Same columns, any order".** The tools require exactly agentteams 1.3.0's set of columns for a study's
+  sign-off log, the hash-chain column included, and no longer their order. This replaces the "exact header" half
+  of the earlier decision; "every row Ed25519" stands. The first project's log lacks the chain column, so it
+  must gain it before its gates can clear; that is done on the project's side, through the managing repository's
+  operator scripts, and whether its existing signatures stay valid is confirmed there.
+- **Manifests: "Project moves its manifests".** The tools keep one place, the sign-off folder's `references/`.
+  The first project copies its manifest files there when it adopts the tools; nothing is signed again, since the
+  hashes do not depend on where the files sit. The place stays a contract proposal.
