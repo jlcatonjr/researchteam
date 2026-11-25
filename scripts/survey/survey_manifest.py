@@ -62,7 +62,10 @@ def main(argv=None) -> int:
     if os.path.lexists(path):
         if not os.path.isfile(path) or os.path.islink(path):
             return refuse(f"{rel} exists and is not a regular file")
-        old = read_capped(path, MAX_JSON_BYTES) or b""
+        try:
+            old = read_capped(path, MAX_JSON_BYTES) or b""
+        except OSError as exc:
+            return refuse(f"{rel} cannot be read: {exc}")
         problems = check_stored_manifest(old, gate, project, rel)
         if problems:
             print_findings(problems)

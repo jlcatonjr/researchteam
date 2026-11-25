@@ -663,7 +663,7 @@ def load_study(project: str, repo_root: Path) -> Study:
     if not spec_path.is_file():
         raise SurveyUsageError(f"{spec_rel} is not a file")
     try:
-        data = read_capped(spec_path, MAX_JSON_BYTES)
+        data = read_capped(Path(os.path.realpath(spec_path)), MAX_JSON_BYTES)  # links inside the repository are allowed
     except OSError as exc:
         raise SurveyUsageError(f"{spec_rel} cannot be read: {exc}") from exc
     study = Study(project, repo_root, spec_rel, data or b"", None)

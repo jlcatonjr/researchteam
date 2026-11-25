@@ -5,10 +5,11 @@ Step A makes every check of the folder that needs no signature. Two kinds of res
 - **findings**: the folder is malformed (the ``agentteams-clearance:`` form, the path rule, a link on the way, the
   four parts of the layout, a waivers file, the shape of the key store and the approver list, keys and approvers
   that differ from the team's). ``survey-validate`` fails and ``survey-status`` exits 1.
-- **unavailable**: reasons the HALT scan of 6.2 could not be made (a team directory reached through a symbolic
-  link, a ``parent_team`` that is absolute, leaves the repository, is not a team directory, names the folder itself
-  or declares a parent of its own). By 6.2 these leave every gate ``UNAVAILABLE``; they do not make the folder
-  malformed.
+- **unavailable**: reasons the HALT scan of 6.2 could not be made, exactly the causes lines 910-913 list (a team
+  directory reached through a symbolic link, a ``parent_team`` that is absolute, leaves the repository, is not a
+  team directory, names the folder itself or declares a parent of its own). By 6.2 these leave every gate
+  ``UNAVAILABLE``; the toolkit reads them as not making the folder malformed. A ``parent_team`` value that is no
+  usable path at all is a ``ledger-privilege`` finding.
 
 Reading rows for HALTs and verifying signatures need ``agentteams`` and are step F (:func:`survey_gates.verify_signoff`).
 Nothing here reads a file that is not a regular file, or lists a directory that is not a plain one.
@@ -24,7 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, inside, load_json_strict, read_capped, resolve_path,
+    MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped, resolve_path,
     symlink_components,
 )
 
@@ -125,6 +126,28 @@ def _git_roots(path: Path) -> list:
     return roots
 
 
+def reserved_by_name(repo_rel: str) -> bool:
+    """Whether *repo_rel* is inside ``.git`` or at or under a generated team location, comparing case-folded names
+    (so ``.GIT/`` and ``.Claude/agents`` count on a case-insensitive file system, and are refused everywhere)."""
+    parts = [p.casefold() for p in repo_rel.split("/")]
+    if ".git" in parts:
+        return True
+    return any(parts[: len(loc.split("/"))] == loc.casefold().split("/") for loc in TEAM_LOCATIONS)
+
+
+def reserved_by_identity(root: Path, repo_rel: str) -> bool:
+    """Whether the folder, or a folder above it, is the same directory (device and inode) as the repository's
+    existing ``.git`` or a generated team location."""
+    reserved = {file_identity(os.path.realpath(root / name)) for name in (".git", *TEAM_LOCATIONS)
+                if os.path.exists(root / name)}
+    parts = repo_rel.split("/")
+    for i in range(len(parts)):
+        here = root.joinpath(*parts[: i + 1])
+        if os.path.exists(here) and file_identity(os.path.realpath(here)) in reserved:
+            return True
+    return False
+
+
 def check_ledger(study) -> Ledger:
     """Every check of 6.2 that needs no signature (see the module's docstring for the two kinds of result)."""
     declared = study.spec["signoffs"]["ledger"]
@@ -143,8 +166,7 @@ def check_ledger(study) -> Ledger:
     if links:
         add("ledger-link", where, f"no component of the ledger path may be a symbolic link: {', '.join(links)}")
         return led
-    if ".git" in rp.repo_rel.split("/") or any(rp.repo_rel == loc or rp.repo_rel.startswith(loc + "/")
-                                               for loc in TEAM_LOCATIONS):
+    if reserved_by_name(rp.repo_rel) or reserved_by_identity(root, rp.repo_rel):
         add("ledger-location", where, f"{rp.repo_rel!r} is inside .git or a generated team location; the ledger "
             "folder is a team dir of its own (6.2)")
         return led
@@ -167,7 +189,7 @@ def check_ledger(study) -> Ledger:
         add("ledger-waiver", at(WAIVERS), "a waivers log in the ledger folder is an error; no gate clears while it "
             "is there (6.2)")
 
-    parent = _check_parent(study, folder, privilege, led)
+    parent = _check_parent(study, folder, privilege, led, at(PRIVILEGE))
     teams = _team_dirs(study, folder, led)
     if parent is not None:
         teams.append((os.path.relpath(parent, root).replace(os.sep, "/"), parent))
@@ -268,44 +290,67 @@ def _check_approvers(path: Path, where: str, add) -> None:
             "authors, so an empty list is refused")
 
 
-def _check_parent(study, folder: Path, privilege, led: Ledger) -> Path | None:
-    """The ``parent_team`` rules of 6.2. Each breach leaves the gates UNAVAILABLE (lines 910-913); it is not an
-    error of the folder. Returns the parent team dir when it is sound."""
+def _check_parent(study, folder: Path, privilege, led: Ledger, where: str) -> Path | None:
+    """The ``parent_team`` rules of 6.2. The causes lines 910-913 list (absolute, leaves the repository, is not a team
+    directory, names the folder itself, declares a parent of its own, reached through a symbolic link) leave the gates
+    UNAVAILABLE and are not errors of the folder. A value that is none of those, but is no usable path at all (not
+    a string, empty, a NUL, ``repo:``-rooted, a backslash or a ``.`` segment), is a bad value in the folder's own
+    ``agent-privilege.json``: a ``ledger-privilege`` finding. Returns the parent team dir when it is sound."""
     if not privilege or PARENT_TEAM_KEY not in privilege:
         return None
     value = privilege[PARENT_TEAM_KEY]
-    bad = lambda why: led.unavailable.append(f"parent_team {value!r} {why}")  # noqa: E731
+    unavailable = lambda why: led.unavailable.append(f"parent_team {value!r} {why}")  # noqa: E731
+    malformed = lambda why: led.findings.append(  # noqa: E731
+        Finding("ledger-privilege", where, f"parent_team {value!r} {why}"))
     if not isinstance(value, str) or not value:
-        bad("is not a non-empty string")
+        malformed("is not a non-empty string")
         return None
     if value.startswith(REPO_PREFIX):
-        bad("is not a path relative to the repository root")
+        malformed("is a path relative to the repository root, without a repo: prefix")
         return None
     rp, errors = resolve_path(value, "", study.repo_root, "parent_team")
     if errors:
         rules = {f.rule for f in errors}
-        bad("is absolute" if "path-absolute" in rules else
-            "leaves the repository" if rules & {"path-dotdot", "path-outside"} else
-            "is not a usable path: " + "; ".join(f.message for f in errors))
-        return None
-    if symlink_components(study.repo_root, rp.repo_rel):
-        bad("is reached through a symbolic link")
+        if "path-absolute" in rules:
+            unavailable("is absolute")
+        elif rules & {"path-dotdot", "path-outside"}:
+            unavailable("leaves the repository")
+        else:
+            malformed("is not a usable path: " + "; ".join(f.message for f in errors))
         return None
     target = study.repo_root / rp.repo_rel
+    if symlink_components(study.repo_root, rp.repo_rel) or _linked_inside(target):
+        unavailable("is reached through a symbolic link")
+        return None
     if not is_team_dir(target):
-        bad("is not a team directory")
+        unavailable("is not a team directory")
         return None
     if os.path.realpath(target) == os.path.realpath(folder):
-        bad("names the ledger folder itself")
+        unavailable("names the ledger folder itself")
         return None
-    doc = _read_json_object(target / PRIVILEGE, f"{rp.repo_rel}/{PRIVILEGE}", "", lambda *a: None, "")
-    if is_regular(target / PRIVILEGE) and doc is None:
-        bad(f"has an unreadable {PRIVILEGE}")
-        return None
+    doc = None
+    if os.path.lexists(target / PRIVILEGE):
+        try:
+            data = read_capped(target / PRIVILEGE, MAX_JSON_BYTES)
+            doc, errs = load_json_strict(data or b"", "parent_team")
+        except OSError:
+            errs = ["unreadable"]
+        if errs or not isinstance(doc, dict):
+            unavailable(f"has an unreadable {PRIVILEGE}")
+            return None
     if doc is not None and PARENT_TEAM_KEY in doc:
-        bad("declares a parent of its own")
+        unavailable("declares a parent of its own")
         return None
     return target
+
+
+def _linked_inside(team: Path) -> bool:
+    """Whether a part of the team dir the comparison reads (``references/``, its key store, its approver list,
+    its privilege file) is a symbolic link: a link there must not redirect what is read."""
+    for rel in ("references", KEYS, APPROVERS, PRIVILEGE):
+        if os.path.islink(team / rel):
+            return True
+    return False
 
 
 def _team_dirs(study, folder: Path, led: Ledger) -> list:
@@ -319,7 +364,8 @@ def _team_dirs(study, folder: Path, led: Ledger) -> list:
             if not os.path.lexists(path):
                 continue
             parts = loc.split("/")
-            if any(os.path.islink(groot.joinpath(*parts[: i + 1])) for i in range(len(parts))):
+            if any(os.path.islink(groot.joinpath(*parts[: i + 1])) for i in range(len(parts))) or \
+                    _linked_inside(path):
                 rel = os.path.relpath(path, study.repo_root).replace(os.sep, "/")
                 led.unavailable.append(f"the team directory {rel} is reached through a symbolic link")
                 continue
@@ -329,9 +375,10 @@ def _team_dirs(study, folder: Path, led: Ledger) -> list:
 
 
 def _check_parity(folder: Path, teams: list, add) -> None:
-    """Where a team has an approver list naming an approver, the folder's list names the same approvers; where a
-    team has a verify key, the folder's keys are the same files (6.2, operator ruling 2026-11-24). Each kind is
-    compared on its own: a team with approvers and no key file leaves the keys to the folder, and the reverse."""
+    """6.2 (lines 869-873): where the repository's team directory has an approver list naming at least one approver
+    and at least one verify key, the folder's list names the same approvers and the folder's keys are the same
+    files. "A team directory with only the comment-only list agentteams generates, or with no key file, has
+    neither; the folder is then the only place they live": a team that lacks either kind is compared on neither."""
     mine_names = read_approvers(folder / APPROVERS)
     mine_keys = read_keys(folder / KEYS)
     for rel, team in teams:
@@ -342,7 +389,9 @@ def _check_parity(folder: Path, teams: list, add) -> None:
             add("ledger-parity", rel, f"the comparison was not made: the team's approver list or keys cannot be "
                 f"read ({exc})")
             continue
-        if names and names != mine_names:
+        if not (names and keys):
+            continue  # the team has neither (6.2); the folder is the only place they live
+        if names != mine_names:
             add("ledger-parity", rel, "the ledger's approver list does not name the same approvers as this team's")
-        if keys and keys != mine_keys:
+        if keys != mine_keys:
             add("ledger-parity", rel, "the ledger's verify keys are not the same files as this team's")

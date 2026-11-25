@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
 import unicodedata
 from dataclasses import dataclass
@@ -120,10 +121,35 @@ def sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+class NotARegularFile(OSError):
+    """The path is not a regular file (a link, FIFO, socket, device or directory), so it was not read."""
+
+
 def read_capped(path: Path, cap: int) -> bytes | None:
-    """The file's bytes, or None when it holds more than *cap* bytes. Raises OSError as reading does."""
-    with open(path, "rb") as fh:
-        data = fh.read(cap + 1)
+    """The bytes of the regular file at *path*, or None when it holds more than *cap* bytes.
+
+    The file is opened without following a final symbolic link (``O_NOFOLLOW``, where the platform has it) and
+    without blocking on a FIFO (``O_NONBLOCK``); whether it is a regular file, and its size, are decided by
+    ``fstat`` on the open descriptor, so nothing can swap the file between the check and the read. Raises
+    NotARegularFile for anything but a regular file, and OSError as opening does (a link gives ``ELOOP``)."""
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
+    fd = os.open(path, flags)
+    try:
+        st = os.fstat(fd)
+        if not stat.S_ISREG(st.st_mode):
+            raise NotARegularFile(f"{path.name if hasattr(path, 'name') else path} is not a regular file")
+        if st.st_size > cap:
+            return None
+        chunks, total = [], 0
+        while total <= cap:  # O_NONBLOCK does not affect reads of a regular file
+            chunk = os.read(fd, min(_CHUNK, cap + 1 - total))
+            if not chunk:
+                break
+            chunks.append(chunk)
+            total += len(chunk)
+    finally:
+        os.close(fd)
+    data = b"".join(chunks)
     return None if len(data) > cap else data
 
 

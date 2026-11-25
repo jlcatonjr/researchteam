@@ -258,11 +258,10 @@ def test_a_sound_parent_team(tmp_path):
 
 @pytest.mark.parametrize("setup,value,why", [
     (None, "/governance/team", "is absolute"), (None, "../elsewhere", "leaves the repository"),
-    (None, "governance/none", "is not a team directory"), (None, 7, "non-empty string"),
+    (None, "governance/none", "is not a team directory"),
     ("self", f"{LEDGER}", "names the ledger folder itself"),
     ("own-parent", "governance/team", "declares a parent of its own"),
-    ("link", "governance/linked", "symbolic link"), (None, "governance/te\x00am", "NUL"),
-    (None, "repo:governance/team", "not a path relative to the repository root"),
+    ("link", "governance/linked", "symbolic link"), ("inner-link", "governance/team", "symbolic link"),
 ])
 def test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors(tmp_path, setup, value, why):
     """6.2, lines 910-913: these leave the gate UNAVAILABLE; the contract does not make them errors."""
@@ -270,6 +269,9 @@ def test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors(tmp_pa
     _team(root, "governance/team", privilege={"parent_team": ".github/agents"} if setup == "own-parent" else {})
     if setup == "link":
         os.symlink("team", root / "governance" / "linked")
+    if setup == "inner-link":  # L1: a link inside the team dir must not redirect what is read
+        shutil.move(str(root / "governance/team/references"), str(root / "elsewhere"))
+        os.symlink(root / "elsewhere", root / "governance/team/references")
     _with_parent(root, value)
     led = ledger_mod.check_ledger(_study(root))
     assert led.findings == [] and any(why in r for r in led.unavailable), led.unavailable
@@ -277,6 +279,30 @@ def test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors(tmp_pa
                for g, st in _states(root).items() if g != "S8")
     assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
     assert run(survey_status, "--root", str(root), "tidebell")[0] == 0
+
+
+@pytest.mark.parametrize("value", [7, "", None, ["governance/team"], "governance/te\x00am", "repo:governance/team",
+                                   "governance\\team", "./governance/team", "governance//team"])
+def test_a_parent_team_value_that_is_no_path_is_a_malformed_ledger(tmp_path, value):
+    """Not one of the causes 6.2 lists: a bad value in the folder's own agent-privilege.json."""
+    root = make_repo(tmp_path)
+    _team(root, "governance/team")
+    _with_parent(root, value)
+    led = ledger_mod.check_ledger(_study(root))
+    assert any(f.rule == "ledger-privilege" and "parent_team" in f.message for f in led.findings), led.findings
+    assert run(survey_status, "--root", str(root), "tidebell")[0] == 1
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 1
+
+
+def test_a_link_inside_a_generated_team_dir_leaves_the_gates_unavailable(tmp_path):
+    root = make_repo(tmp_path)
+    _team(root, ".github/agents", approvers="someone-else\n", keys={"op-other": FAKE_PEM})
+    (root / "other-refs").mkdir()
+    shutil.move(str(root / ".github/agents/references/security-approvers.txt"), str(root / "other-refs/a.txt"))
+    os.symlink(root / "other-refs/a.txt", root / ".github/agents/references/security-approvers.txt")
+    led = ledger_mod.check_ledger(_study(root))
+    assert led.findings == []  # the comparison was not redirected through the link, and not made
+    assert any(".github/agents" in r and "symbolic link" in r for r in led.unavailable)
 
 
 def test_a_team_directory_reached_through_a_link_leaves_the_gates_unavailable(tmp_path):
@@ -313,7 +339,7 @@ def test_a_team_with_only_a_comment_list_and_no_key_has_neither(tmp_path):
 
 def test_the_parent_team_is_compared_too(tmp_path):
     root = make_repo(tmp_path)
-    _team(root, "governance/team", approvers="someone-else\n")
+    _team(root, "governance/team", approvers="someone-else\n", keys={"op-test": FAKE_PEM})
     _with_parent(root, "governance/team")
     assert "ledger-parity" in _ledger_rules(root)
 
@@ -522,26 +548,30 @@ def test_a_symlinked_approver_list_is_not_read(tmp_path):
     assert "ledger-approvers" in _ledger_rules(root)
 
 
-def test_a_team_with_approvers_and_no_key_file_compares_approvers_only(tmp_path):
+@pytest.mark.parametrize("approvers,keys,compared", [
+    ("operator\n", {"op-test": FAKE_PEM}, True),        # both: both are compared
+    ("operator\n", None, False),                         # approvers only: "has neither"
+    ("# generated\n", {"op-test": FAKE_PEM}, False),     # comment-only list with a key: "has neither"
+    ("# generated\n", None, False),                      # neither
+])
+def test_the_team_is_compared_only_when_it_has_both_approvers_and_a_key(tmp_path, approvers, keys, compared):
+    """6.2, lines 870-873: a team directory with only the comment-only list, or with no key file, has neither."""
     root = make_repo(tmp_path)
-    _team(root, ".github/agents", approvers="operator\n")  # no key file: the folder is where the keys live
-    assert _ledger_rules(root) == set()
-    (root / ".github/agents/references/security-approvers.txt").write_text("someone\n", encoding="utf-8")
-    assert "ledger-parity" in _ledger_rules(root)
-
-
-def test_a_team_with_keys_and_a_comment_only_list_compares_keys_only(tmp_path):
-    root = make_repo(tmp_path)
-    _team(root, ".github/agents", approvers="# generated\n", keys={"op-test": FAKE_PEM})
-    assert _ledger_rules(root) == set()  # the folder's approvers are the only ones
-    (root / ".github/agents/references/authorized-verify-keys/op-test.pub.pem").write_text(
-        FAKE_PEM.replace("MCow", "MCox"), encoding="utf-8")
-    assert "ledger-parity" in _ledger_rules(root)
+    _team(root, ".github/agents", approvers=approvers, keys=keys)
+    assert _ledger_rules(root) == set()  # equal to the folder's, or not compared
+    refs = root / ".github/agents/references"
+    if "operator" in approvers:
+        (refs / "security-approvers.txt").write_text("someone-else\n", encoding="utf-8")
+    if keys:
+        (refs / "authorized-verify-keys/op-test.pub.pem").write_text(FAKE_PEM.replace("MCow", "MCox"),
+                                                                     encoding="utf-8")
+    found = [f for f in ledger_mod.check_ledger(_study(root)).findings if f.rule == "ledger-parity"]
+    assert (len(found) == 2) if compared else (found == [])
 
 
 def test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so(tmp_path):
     root = make_repo(tmp_path)
-    _team(root, ".github/agents", approvers="someone-else\n")
+    _team(root, ".github/agents", approvers="someone-else\n", keys={"op-test": FAKE_PEM})
     (_refs(root) / "security-waivers.log.csv").write_text("", encoding="utf-8")
     led = ledger_mod.check_ledger(_study(root))
     assert "ledger-parity" not in rules(led.findings)
@@ -550,9 +580,8 @@ def test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so(tmp_path):
 
 def test_an_unreadable_team_list_is_reported_not_skipped(tmp_path):
     root = make_repo(tmp_path)
-    _team(root, ".github/agents")
-    (root / "names.txt").write_text("operator\n", encoding="utf-8")
-    os.symlink(root / "names.txt", root / ".github/agents/references/security-approvers.txt")
+    _team(root, ".github/agents", keys={"op-test": FAKE_PEM})
+    (root / ".github/agents/references/security-approvers.txt").mkdir()  # there, but not a regular file
     led = ledger_mod.check_ledger(_study(root))
     assert any(f.rule == "ledger-parity" and "not made" in f.message for f in led.findings)
 
@@ -620,3 +649,26 @@ def test_the_bridge_refuses_a_root_option(tmp_path):
     for args in (("--root", str(tmp_path), "tidebell"), ("--root=/elsewhere", "tidebell"), ("tidebell", "--root")):
         res = _bridge(root, "survey-status", *args)
         assert res.returncode == 2 and "--root is not accepted" in res.stderr
+
+
+@pytest.mark.parametrize("rel", [".GIT/gates", ".Git", "x/.git/y", ".Claude/agents", ".GITHUB/Agents/gates",
+                                 ".github/agents", ".goose/RECIPES/x"])
+def test_reserved_locations_are_compared_by_case_folded_name(rel):
+    assert ledger_mod.reserved_by_name(rel)
+
+
+@pytest.mark.parametrize("rel", ["gates", ".github/survey-gates", ".claude/agentsx", "git/x"])
+def test_ordinary_locations_are_not_reserved(rel):
+    assert not ledger_mod.reserved_by_name(rel)
+
+
+def test_reserved_locations_are_compared_by_identity_on_disk(tmp_path):
+    root = make_repo(tmp_path)
+    (root / ".claude" / "agents").mkdir(parents=True)
+    if not os.path.exists(root / ".CLAUDE" / "AGENTS"):
+        pytest.skip("this file system is case-sensitive")
+    assert ledger_mod.reserved_by_identity(root, ".CLAUDE/AGENTS/gates")
+    assert ledger_mod.reserved_by_identity(root, ".GIT")
+    assert not ledger_mod.reserved_by_identity(root, f"{STUDY_REL}/ledger")
+    led_root = make_repo(tmp_path / "b", lambda s: s["signoffs"].update(ledger="agentteams-clearance:repo:.GIT/gates"))
+    assert "ledger-location" in _ledger_rules(led_root)

@@ -117,6 +117,25 @@ def test_json_nested_too_deeply_is_a_finding_not_a_crash():
     assert value is None and findings[0].rule == "json" and "deep" in findings[0].message
 
 
+def test_read_capped_refuses_a_link_without_following_it(tmp_path):
+    (tmp_path / "f").write_bytes(b"data")
+    os.symlink(tmp_path / "f", tmp_path / "link")
+    with pytest.raises(OSError):
+        core.read_capped(tmp_path / "link", 100)
+
+
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="os.mkfifo is not available here")
+def test_read_capped_refuses_a_fifo_without_blocking(tmp_path):
+    os.mkfifo(tmp_path / "fifo")  # with no writer, a blocking open would hang the test
+    with pytest.raises(core.NotARegularFile):
+        core.read_capped(tmp_path / "fifo", 100)
+
+
+def test_read_capped_refuses_a_directory(tmp_path):
+    with pytest.raises(OSError):
+        core.read_capped(tmp_path, 100)
+
+
 def test_read_capped_refuses_a_file_over_the_cap(tmp_path):
     (tmp_path / "f").write_bytes(b"12345")
     assert core.read_capped(tmp_path / "f", 5) == b"12345"
