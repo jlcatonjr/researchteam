@@ -263,7 +263,8 @@ A pass proves the copy matches the manifest, not that the manifest matches upstr
 
 The specification validator, the gates and the ledger checks of the position-survey contract
 ([`docs/survey-toolkit.md`](https://github.com/jlcatonjr/researchteam/blob/main/docs/survey-toolkit.md), version 1,
-sections 3, 6.1, 6.2 and 7). Standard library only, Python 3.10 to 3.13; no network, no clock, no child process.
+sections 3, 6.1, 6.2 and 7). Standard library only, Python 3.10 to 3.13; no network, no clock. The only child
+process is `survey_verify.py`'s agentteams check (step F).
 The modules import one another by file name, and each command puts its own folder on `sys.path`, so the bridge runs
 them with `python3 -B -I`.
 
@@ -272,7 +273,7 @@ them with `python3 -B -I`.
 | `survey_core.py` | Findings (error id, place, message), folded text (rule 1.10), canonical JSON and the manifest's file hashing (6.1), the repository root, the path rule (1.6), the command-line helper |
 | `survey_spec.py` | The rule table of `study.json`, the shape walker, the checks beyond shape (`SEMANTIC_RULES`), and the loader that also checks files and gate coverage |
 | `survey_ledger.py` | The structural checks of the ledger folder (6.2) that need no signature |
-| `survey_gates.py` | The gate list, the manifest builder, the three states, the verification seam (`verify_signoff`, replaced in a later step) and `stage_decision` (runs or refuses, 6.1) |
+| `survey_gates.py` | The gate list, the manifest builder, the three states, sign-off verification (`verify_signoff`, step F), `require_gate` and `stage_decision` (runs or refuses, 6.1) |
 | `survey_schema.py`, `study.schema.json` | The JSON Schema (2020-12) of `study.json`, generated from the rule table; `--check` exits 1 when the tracked file differs |
 | `survey_validate.py`, `survey_status.py`, `survey_manifest.py` | The three commands |
 | `survey_tables.py` | Step B. The shared CSV reader of section 4, the bucket-table checks and bucketer (4.8), and the year and period rule |
@@ -281,6 +282,7 @@ them with `python3 -B -I`.
 | `survey_identity.py` | Step B part 2. The project's persons, the overrides file's checks (4.4), the registry's rows, stop words and candidates |
 | `survey_registry.py` | Step B part 2. The `survey-registry` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
+| `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
 ### The identity registry (step B part 2)
 
@@ -348,7 +350,7 @@ Paths: `path-empty`, `path-absolute`, `path-dotdot`, `path-outside`, and the too
 declared. JSON: `json` (including nesting too deep to read), `json-duplicate-key`, `too-large`. Beyond shape: the
 ids of `SEMANTIC_RULES`. Ledger: `ledger-form`, `ledger-link`, `ledger-location`, `ledger-missing`,
 `ledger-layout`, `ledger-privilege`, `ledger-log`, `ledger-keys`, `ledger-keys-empty`, `ledger-approvers`,
-`ledger-approvers-empty`, `ledger-waiver`, `ledger-parity`. Manifest files: `manifest-malformed`.
+`ledger-approvers-empty`, `ledger-waiver`, `ledger-parity`, `ledger-scheme` (step F). Manifest files: `manifest-malformed`.
 
 The specification and every JSON file are read only up to `MAX_JSON_BYTES` (16 MiB), the ledger's log up to
 `MAX_LOG_BYTES` (64 MiB); a larger file is refused unread. Each such read opens with `O_NOFOLLOW` and `O_NONBLOCK`
@@ -362,15 +364,37 @@ is then the only place they live. A link inside a team directory where the compa
 
 ### Gate states
 
-No signature is verified in this version, so no gate reads `CLEARED`. A sign-off request is an `agentteams`
-record, which this version does not read; in its place, a gate whose manifest built now differs from the manifest
-file `survey-manifest` last wrote is `UNCLEARED`. Otherwise it is `UNAVAILABLE`, with the reason. A malformed ledger
-folder or manifest file also leaves it `UNAVAILABLE` and makes the run fail. So does anything that would stop the
-HALT scan of 6.2: a team directory reached through a symbolic link, or a `parent_team` that is absolute, leaves the
-repository, is not a team directory, names the folder itself or declares a parent of its own. Those are printed as
-reasons and do not make `survey-status` or `survey-validate` fail. A `parent_team` value that is no path at all (not
-a string, empty, a NUL, `repo:`-rooted, a backslash or a `.` segment) is a malformed ledger (`ledger-privilege`). A gate the specification does not declare is
-shown as `NOT DECLARED`.
+Since step F, a gate reads `CLEARED` when its request (the manifest file `survey-manifest` wrote) is exactly the
+manifest built now, the row that decides passes the tools' own rules, and agentteams 1.3.0 or later, run as a child
+process of the same interpreter, clears the action. The tools' rules on that row: it names the action exactly; it is
+a `PASS`, or a `CONDITIONAL PASS` whose conditions are verified; it is not marked as signed from a checkout; its
+`derives_from`, `scope` and `effect_*` columns are empty; its `key_id` is a plain stem naming a key file in the
+folder; its author is on the folder's approver list. Every row of the folder's log must be `ed25519`
+(`ledger-scheme`). The order of the states, and the reasons, are in the docstring of `survey_gates.gate_status` and
+in the check table `references/plans/post-1.3.0-h6-step-f-check-table.md`. In short:
+
+- a request whose manifest changed since it was written is `UNCLEARED`, decided first;
+- a malformed ledger folder or manifest file, anything that would stop the HALT scan of 6.2 (a team directory
+  reached through a symbolic link, a `parent_team` with one of the faults 6.2 lists, more than one git root above the
+  folder, a team log that cannot be read), or a HALT row on `survey-signoff` or `survey-signoff/<gate>` in any
+  scanned log, or on any id that contains that name once letter case, separators and format characters are set
+  aside, except a study's exact scope or action (the interim rule: signed or not, retracted or not), leaves the gate
+  `UNAVAILABLE`;
+- no request is `UNCLEARED`, also when the manifest cannot be built;
+- otherwise agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography` is `UNAVAILABLE`,
+  decided before the tools' rules on the row (rule 1.7);
+- a deciding row that fails the tools' rules is `UNCLEARED`;
+- an answer from agentteams in any way but one well-formed JSON line is `UNAVAILABLE`.
+
+Reasons that stop the HALT scan are printed and do not make `survey-status` or `survey-validate` fail. A
+`parent_team` value that is no path at all (not a string, empty, a NUL, `repo:`-rooted, a backslash or a `.`
+segment) is a malformed ledger (`ledger-privilege`). A gate the specification does not declare is shown as
+`NOT DECLARED`. `survey-status` also prints where the verifying agentteams is installed (inside or outside the work
+tree), what a sign-off proves (6.2), and the two gaps no tool can close. Every value read from a log is escaped.
+
+A gated stage calls `survey_gates.require_gate`: a `blocking` gate runs the stage only when `CLEARED`; a `build-only`
+gate runs it in every state and records the state, except that a malformed ledger folder refuses both (operator
+decision, 2026-11-25).
 
 ### Output files
 

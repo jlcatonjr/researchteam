@@ -307,10 +307,13 @@ def test_candidates_refuse_a_vantage_study(tmp_path):
 # --------------------------------------------------------------------------- the provenance module (shared)
 def test_gate_entries_record_each_state_as_gate_status_gives_it(tmp_path):
     root = make_repo(tmp_path)
-    entries = prov.gate_entries(_study(root), ("S0", "S8"))
+    from survey_support import survey_gates, survey_ledger
+    study = _study(root)
+    entries = prov.gate_entries(study, ("S0", "S8"))
     assert entries["S8"] == {"state": "NOT DECLARED", "mode": "", "enforce": ""}
-    assert entries["S0"]["state"] == "UNAVAILABLE" and entries["S0"]["enforce"] == "blocking"
-    assert len(entries["S0"]["manifest_sha256"]) == 64
+    status = survey_gates.gate_status(study, "S0", survey_ledger.check_ledger(study))[0]
+    assert entries["S0"]["state"] == status.state and status.state in ("UNCLEARED", "UNAVAILABLE", "CLEARED")
+    assert entries["S0"]["enforce"] == "blocking" and len(entries["S0"]["manifest_sha256"]) == 64
 
 
 @pytest.mark.parametrize("doc", [

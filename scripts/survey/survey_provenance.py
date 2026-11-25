@@ -27,8 +27,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from survey_core import (
-    MAX_JSON_BYTES, Finding, canonical_json, file_identity, inside, load_json_strict, q, read_capped, resolve_path,
-    sha256_bytes, symlink_components,
+    MAX_JSON_BYTES, Finding, canonical_json, file_identity, inside, load_json_strict, q, read_capped, reason,
+    resolve_path, sha256_bytes, symlink_components,
 )
 
 SUFFIX = ".provenance.json"
@@ -141,7 +141,7 @@ def check_current(root: Path, rel: str, expect_tool: str | None = None,
     try:
         data = read_capped(path, MAX_JSON_BYTES)
     except OSError as exc:
-        return Currency(False, [f"the record {q(rel)} cannot be read: {exc.strerror or type(exc).__name__}"])
+        return Currency(False, [f"the record {q(rel)} cannot be read: {reason(exc)}"])
     if data is None:
         return Currency(False, [f"the record {q(rel)} is larger than {MAX_JSON_BYTES} bytes"])
     doc, errs = load_json_strict(data, rel)
@@ -170,7 +170,7 @@ def check_current(root: Path, rel: str, expect_tool: str | None = None,
         try:
             now = read_capped(Path(place), MAX_INPUT_BYTES)
         except OSError as exc:
-            reasons.append(f"{name} cannot be read: {exc.strerror or type(exc).__name__}")
+            reasons.append(f"{name} cannot be read: {reason(exc)}")
             continue
         if now is None or sha256_bytes(now) != entry["sha256"]:
             reasons.append(f"{name} changed since the output was built")

@@ -96,6 +96,8 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/survey/survey_provenance.py",
     "scripts/survey/survey_identity.py",
     "scripts/survey/survey_registry.py",
+    # Step F: sign-off verification (6.2), reaching agentteams only as a child process.
+    "scripts/survey/survey_verify.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",

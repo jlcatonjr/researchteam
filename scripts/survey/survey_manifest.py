@@ -7,6 +7,7 @@ usage error. On a refusal nothing is written (rule 1.2).
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 import tempfile
@@ -18,8 +19,8 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
-    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, safe, sha256_bytes, symlink_components,
-    usage_exit,
+    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, reason, safe, sha256_bytes,
+    symlink_components, usage_exit,
 )
 from survey_gates import (  # noqa: E402
     GATES, ManifestError, action, build_manifest, check_stored_manifest, manifest_rel, scope,
@@ -56,7 +57,7 @@ def main(argv=None) -> int:
     try:
         data = build_manifest(study, gate)
     except ManifestError as exc:
-        return refuse(f"the manifest cannot be built: {exc}")
+        return refuse(f"the manifest cannot be built: {reason(exc)}")
     rel = manifest_rel(ledger.rel, spec["id"], gate)
     path = root / rel
     state = "wrote"
@@ -66,7 +67,7 @@ def main(argv=None) -> int:
         try:
             old = read_capped(path, MAX_JSON_BYTES) or b""
         except OSError as exc:
-            return refuse(f"{rel} cannot be read: {exc}")
+            return refuse(f"{rel} cannot be read: {reason(exc)}")
         problems = check_stored_manifest(old, gate, project, rel)
         if problems:
             print_findings(problems)
@@ -96,6 +97,16 @@ def main(argv=None) -> int:
     print(f"mode: {spec['signoffs']['gates'][gate]['mode']}")
     print("The operator signs the action above with agentteams (an Ed25519 row in the ledger folder, 6.2), from a")
     print("trusted install outside every agent's write root. This tool signs nothing and writes no ledger row.")
+    act = action(gate, spec["id"], digest)
+    print("sign: save this spec as <spec.json> (fill in the approver, the date and the key id):")
+    print("  " + safe(json.dumps({"action_reviewed": act, "author": "<approver on the ledger's list>", "date": "<YYYY-MM-DD>",
+                             "evidence": "<what was reviewed>", "key_id": "<key_id of a key in the ledger folder>"},
+                            sort_keys=True)))
+    print(safe(f"sign: AGENTTEAMS_DECISION_ED25519_KEYFILE=<operator key file> agentteams --sign-decision "
+               f"<spec.json> --output {ledger.rel}"))
+    print("sign: without a terminal, run it again with --confirm-review-sha256 <the review digest it printed>.")
+    print("sign: never pass --allow-checkout-signing (such a row does not clear a study gate) and never export")
+    print("      AGENTTEAMS_DECISION_SIGNING_KEY (it makes every decisions log the process touches signing-active).")
     print(safe(f"verify: agentteams --check-clearance {scope(gate, spec['id'])} --clearance-file {rel} "
                f"--output {ledger.rel}"))
     return 0

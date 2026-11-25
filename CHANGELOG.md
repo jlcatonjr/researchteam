@@ -31,6 +31,54 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   (`4th-5th centuries`) reads both centuries; a number grouped by thousands (`1,750`, `1,750.5`) gives no year, while
   a list (`450,500`, `12.03.1750`) gives one from each run; quoted
   values are cut in every message, step A's included.
+- **Survey toolkit, step F: sign-off verification and stage refusal** (`scripts/survey/`, contract 6.1 and 6.2;
+  check table `references/plans/post-1.3.0-h6-step-f-check-table.md`). A gate can now read `CLEARED`.
+  - **agentteams is reached only as a child process.** The new `survey_verify.py` runs `sys.executable -B -I -c`, one
+    fixed snippet calling agentteams' public `check_file_clearance`, with an allowlisted environment: a minimal
+    `PATH`, `LC_ALL`, and an empty temporary `HOME` and `TMPDIR`. No `AGENTTEAMS_*`, `XDG_*` or `GIT_*` variable
+    passes through, so no shared-secret key is found. It decides from the exit status and one JSON line, never from
+    message text.
+  - **The tools' own rules come first.** They enforce the contract's rules themselves, in addition to agentteams'
+    check:
+    - every row of the folder's log is `ed25519` (`ledger-scheme`);
+    - the row that decides names exactly the action the tools computed (so a row for a study id that extends this
+      one never decides) and is a `PASS`, or a `CONDITIONAL PASS` whose conditions are verified;
+    - it does not carry agentteams' checkout-signing mark;
+    - its `derives_from`, `scope` and `effect_*` columns are empty;
+    - its `key_id` is a plain stem naming a key file in the folder;
+    - its author is on the folder's list.
+  - **The interim family-HALT rule.** A HALT row on a family name in any log the HALT scan covers blocks the gates
+    it names (`UNAVAILABLE`), signed or not, retracted or not. A study's exact scope, optionally with exactly
+    `:sha256-<64 hex>`, is exempt, judged on the raw cell. Every other id is squashed (NFKD, non-spacing marks and
+    format characters dropped, lower-cased, only `a-z0-9` kept): it names gate `g` when it contains
+    `surveysignoff<g>`, else every gate when it contains `surveysignoff`. No public
+    call exists yet to judge a retraction under each log's own rules (asked of agentteams).
+  - **Other states.**
+    - More than one git root above the ledger folder: `UNAVAILABLE`.
+    - No request: `UNCLEARED`, also when the manifest cannot be built.
+    - Otherwise, agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography`:
+      `UNAVAILABLE`, before the tools' row rules (rule 1.7).
+  - **Stages.** A `build-only` gated stage now refuses when the sign-off folder is malformed (`stage_decision`, new
+    `require_gate`).
+  - **Output.**
+    - `survey-status` prints where the verifying agentteams is installed (inside or outside the work tree), what a
+      sign-off proves (6.2), and that no tool can detect every edit to a log's history.
+    - `survey-manifest` prints the operator's signing spec and command, with placeholders.
+    - Every value read from a log is escaped before it is printed.
+  - **The child.** It runs with `-B -I` in a session of its own; on a timeout or an over-long answer the whole
+    process group is stopped. Its answer counts only with `cleared` exactly true, the package exactly at
+    `<purelib>/agentteams/__init__.py`, and its output read through a bounded read. `survey-status` says whether the
+    verifier and its interpreter are inside the work tree. No message names an absolute path.
+  - **Tests.** The signing tests generate an Ed25519 key pair at run time. They skip, with the reason, where
+    agentteams 1.3.0 or `cryptography` is absent, which includes the current CI.
+
+- **Survey toolkit: the sign-off log's header is agentteams' own.** Step A required only some signature columns,
+  and its test fixture wrote a header without `timestamp` and `requesting_agent`. agentteams 1.3.0 refuses such a log
+  as malformed, and `--sign-decision` will not extend it, so an operator who copied the fixture could not sign.
+  The header of `<ledger>/references/security-decisions.log.csv` must now be exactly the one agentteams 1.3.0 writes
+  for a new log (`survey_ledger.LOG_HEADER`; operator decision, 2026-11-25); any other header is a malformed ledger
+  (`ledger-log`), and a header-only log is valid. The fixture writes that header.
+
 - **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
   `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define
   that is present:
@@ -53,6 +101,7 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   are step B part 2. The check table is `references/plans/post-1.3.0-h5-step-b-check-table.md`.
 - Survey toolkit, step A follow-ups: a `parent_team` with a `..` segment says so; the example study's S0 manifest
   hash is pinned in a test; a `study.json` reached through a link inside the repository is tested to load.
+
 - **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
   The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
   own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)

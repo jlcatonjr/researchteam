@@ -22,7 +22,7 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
-    SurveyUsageError, parse_args, print_findings, read_capped, safe, sha256_bytes, usage_exit,
+    SurveyUsageError, parse_args, print_findings, read_capped, reason, safe, sha256_bytes, usage_exit,
 )
 from survey_evidence import read_exceptions_hashed  # noqa: E402
 from survey_identity import (  # noqa: E402
@@ -72,7 +72,7 @@ def build(root: Path, project: str) -> int:
         check_output_target(study, rel, own_pointer="/identity/registry")
         check_output_target(study, rec_rel)
     except WriteRefused as exc:
-        return refuse(f"{exc}; nothing was written")
+        return refuse(f"{reason(exc)}; nothing was written")
     rows = build_rows(persons.persons, overrides)
     unsafe = unsafe_values(rows, rel)
     if unsafe:
@@ -98,9 +98,9 @@ def build(root: Path, project: str) -> int:
             # (write_all), so nothing changes at all.
             write_all(root, [(rel, data), (rec_rel, record)])
     except WriteRefused as exc:
-        return refuse(f"{exc}; nothing was written")
+        return refuse(f"{reason(exc)}; nothing was written")
     except OSError as exc:
-        return refuse(f"{exc.strerror or type(exc).__name__}; the write did not complete")
+        return refuse(f"{reason(exc)}; the write did not complete")
     state = "unchanged" if unchanged else "wrote"
     merged = sum(1 for r in rows if r["merged_from"])
     linked = sum(1 for r in rows if r["identity_id"])

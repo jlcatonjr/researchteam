@@ -67,7 +67,8 @@ Commands:
   survey-status <project>
                 Print each survey gate's manifest hash, state, enforce and mode. Exits 0 whatever
                 the states; 1 only when the specification, a manifest or the ledger is malformed.
-                No signature is verified yet: a gate reads UNCLEARED or UNAVAILABLE, never CLEARED.
+                A gate reads CLEARED only where agentteams 1.3.0 or later verifies its sign-off;
+                without a usable agentteams it reads UNAVAILABLE.
   survey-manifest <project> <gate>
                 Write the gate's manifest file into the ledger folder and print what the operator
                 signs. Signs nothing and writes no ledger row.

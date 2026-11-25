@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import columns as attribution_columns
-from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped
+from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped, reason
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS
 from survey_evidence import REGISTRY_COLUMNS
 from survey_provenance import ABSENT
@@ -260,7 +260,7 @@ def read_stop_words(study) -> tuple:
             return set(), [Finding("stop-words-file", rp.repo_rel, f"larger than {MAX_JSON_BYTES} bytes")]
         text = data.decode("utf-8")
     except (OSError, UnicodeDecodeError) as exc:
-        return set(), [Finding("stop-words-file", rp.repo_rel, f"cannot be read: {exc}")]
+        return set(), [Finding("stop-words-file", rp.repo_rel, f"cannot be read: {reason(exc)}")]
     return {fold(line) for line in text.splitlines() if line.strip()}, []
 
 

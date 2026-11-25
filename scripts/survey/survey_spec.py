@@ -17,7 +17,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    GATES, MAX_JSON_BYTES, Finding, SurveyUsageError, inside, load_json_strict, q, read_capped, resolve_path,
+    GATES, MAX_JSON_BYTES, Finding, SurveyUsageError, inside, load_json_strict, q, read_capped, reason,
+    resolve_path,
 )
 
 SLUG = "^[a-z0-9][a-z0-9_-]*$"
@@ -666,7 +667,7 @@ def load_study(project: str, repo_root: Path) -> Study:
     try:
         data = read_capped(Path(spec_real), MAX_JSON_BYTES)  # links inside the repository are allowed
     except OSError as exc:
-        raise SurveyUsageError(f"{spec_rel} cannot be read: {exc}") from exc
+        raise SurveyUsageError(f"{spec_rel} cannot be read: {reason(exc)}") from exc
     study = Study(project, repo_root, spec_rel, data or b"", None)
     if data is None:
         study.findings.append(Finding("too-large", spec_rel, f"larger than {MAX_JSON_BYTES} bytes; not read"))

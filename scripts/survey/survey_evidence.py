@@ -13,7 +13,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import check_attribution
-from survey_core import MAX_JSON_BYTES, Finding, q, fold, inside, load_json_strict, read_capped, sha256_bytes
+from survey_core import (
+    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, sha256_bytes,
+)
 from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, read_rows_hashed, search
 
 COLUMNS = ("id", "person_id", "attribute_kind", "value", "tier", "source_id", "citation", "locator", "quote", "url",
@@ -99,13 +101,13 @@ def read_vocabulary(study) -> tuple:
     try:
         data = read_capped(Path(rp.real), MAX_JSON_BYTES)
     except OSError as exc:
-        return [], [Finding("vocabulary-file", where, f"cannot be read: {exc}")]
+        return [], [Finding("vocabulary-file", where, f"cannot be read: {reason(exc)}")]
     if data is None:
         return [], [Finding("vocabulary-file", where, f"larger than {MAX_JSON_BYTES} bytes")]
     try:
         text = data.decode("utf-8")
     except UnicodeDecodeError as exc:
-        return [], [Finding("vocabulary-file", where, f"not UTF-8: {exc}")]
+        return [], [Finding("vocabulary-file", where, f"not UTF-8: {reason(exc)}")]
     patterns, findings = [], []
     for n, line in enumerate(text.splitlines(), start=1):
         if line.strip() == "" or line.lstrip().startswith("#"):
@@ -161,7 +163,7 @@ def receipt_problem(study, row: dict) -> tuple:
     try:
         data = read_capped(Path(real), MAX_JSON_BYTES)
     except OSError as exc:
-        return ("receipt-malformed", f"{rel} cannot be read: {exc}"), None
+        return ("receipt-malformed", f"{rel} cannot be read: {reason(exc)}"), None
     if data is None:
         return ("receipt-malformed", f"{rel} is larger than {MAX_JSON_BYTES} bytes"), None
     doc, errs = load_json_strict(data, rel)
@@ -236,7 +238,7 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
                 try:
                     hit = search(pattern, folded)
                 except ValueError as exc:
-                    add("vocabulary", f"column {col} was not checked: {exc} (contract silent; refused)")
+                    add("vocabulary", f"column {col} was not checked: {reason(exc)} (contract silent; refused)")
                     break
                 if hit:
                     add("vocabulary", f"column {col} matches forbidden pattern {q(pattern.pattern)} (line {line})")

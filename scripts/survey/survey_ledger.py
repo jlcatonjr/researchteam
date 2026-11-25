@@ -17,16 +17,18 @@ Nothing here reads a file that is not a regular file, or lists a directory that 
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import os
 import re
 import stat
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped, resolve_path,
-    q, symlink_components,
+    GATES, MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, q, read_capped,
+    reason, resolve_path, symlink_components,
 )
 
 LEDGER_PREFIX = "agentteams-clearance:"
@@ -38,9 +40,20 @@ KEYS = "references/authorized-verify-keys"
 APPROVERS = "references/security-approvers.txt"
 WAIVERS = "references/security-waivers.log.csv"
 PARENT_TEAM_KEY = "parent_team"
-#: Columns the log must carry. 6.2 says "with the signature columns"; the set is the one agentteams 1.3.0
-#: requires before it appends a signed row, plus the two every decision row is matched on.
-LOG_COLUMNS = ("action_reviewed", "verdict", "signature", "sig_scheme", "key_id", "derives_from")
+#: The header the log must have, exactly (6.2 "with the signature columns"; operator decision, 2026-11-25: adopt
+#: agentteams' own new-log header): agentteams 1.3.0's new-log header, ``timestamp`` and ``requesting_agent`` followed
+#: by its ``SIGNED_DECISION_COLUMNS``.
+LOG_HEADER = (
+    "timestamp", "requesting_agent", "date", "action_reviewed", "verdict", "scope", "conditions",
+    "conditions_verified", "evidence", "author", "derives_from", "effect_class", "effect_grants", "effect_targets",
+    "effect_relaxes", "effect_destructive", "effect_cross_repo", "effect_bulk", "text_digest", "sig_scheme", "key_id",
+    "prev_digest", "signature",
+)
+#: The only signature scheme a row of a study's sign-off log may carry (6.2; operator decision Q5, 2026-11-25).
+SIG_SCHEME = "ed25519"
+#: The family names whose HALT binds every sign-off, or every sign-off of one gate (6.2, lines 894-895).
+FAMILY = "survey-signoff"
+FAMILY_SQUASHED = "surveysignoff"
 KEY_FILE = re.compile(r"([A-Za-z0-9._-]+)\.pub\.pem")
 PEM_BEGIN = b"-----BEGIN PUBLIC KEY-----"
 PEM_END = b"-----END PUBLIC KEY-----"
@@ -55,6 +68,9 @@ class Ledger:
     rel: str | None = None
     findings: list = field(default_factory=list)
     unavailable: list = field(default_factory=list)  # reasons the HALT scan cannot be made (6.2)
+    rows: list = field(default_factory=list)  # the folder log's rows, as {column: cell}, with "_line" (step F)
+    log_sha256: str = ""  # the SHA-256 of the folder log's bytes as they were read for ``rows``
+    family_halts: dict = field(default_factory=dict)  # gate -> reasons a family-name HALT blocks it (step F)
 
     @property
     def ok(self) -> bool:
@@ -83,6 +99,26 @@ def is_plain_dir(path: Path) -> bool:
 def is_team_dir(path: Path) -> bool:
     """An agentteams team dir holds ``references/agent-privilege.json`` or ``references/build-log.json``."""
     return os.path.isfile(path / PRIVILEGE) or os.path.isfile(path / "references" / "build-log.json")
+
+
+def read_approver_bytes(path: Path) -> bytes:
+    """The approver list's bytes; raises as :func:`read_approvers` does."""
+    if not is_regular(path):
+        raise ValueError("not a regular file")
+    data = read_capped(path, MAX_JSON_BYTES)
+    if data is None:
+        raise ValueError(f"larger than {MAX_JSON_BYTES} bytes")
+    return data
+
+
+def parse_approvers(data: bytes) -> set:
+    """The names in an approver list's bytes (see :func:`read_approvers`). Raises UnicodeDecodeError."""
+    names = set()
+    for line in data.decode("utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#"):
+            names.add(s.lower().lstrip("@").strip())
+    return names
 
 
 def read_approvers(path: Path) -> set:
@@ -182,7 +218,7 @@ def check_ledger(study) -> Ledger:
 
     privilege = _read_json_object(folder / PRIVILEGE, at(PRIVILEGE), "ledger-privilege", add,
                                   "missing, or not a regular file; it makes the folder a team dir")
-    _check_log(folder / LOG, at(LOG), add)
+    led.rows, led.log_sha256 = _check_log(folder / LOG, at(LOG), add)
     _check_key_store(folder / KEYS, at(KEYS), add)
     _check_approvers(folder / APPROVERS, at(APPROVERS), add)
     if os.path.lexists(folder / WAIVERS):
@@ -198,6 +234,7 @@ def check_ledger(study) -> Ledger:
                                "because the ledger folder has errors")
     else:
         _check_parity(folder, teams, add)
+    _scan_family_halts(study, folder, parent, led)
     return led
 
 
@@ -208,7 +245,7 @@ def _read_json_object(path: Path, where: str, rule: str, add, missing: str):
     try:
         data = read_capped(path, MAX_JSON_BYTES)
     except OSError as exc:
-        add(rule, where, f"cannot be read: {exc}")
+        add(rule, where, f"cannot be read: {reason(exc)}")
         return None
     if data is None:
         add(rule, where, f"larger than {MAX_JSON_BYTES} bytes")
@@ -220,29 +257,50 @@ def _read_json_object(path: Path, where: str, rule: str, add, missing: str):
     return doc
 
 
-def _check_log(path: Path, where: str, add) -> None:
+def _check_log(path: Path, where: str, add) -> tuple:
+    """The folder log's structure. Returns ``(rows, sha256 of the bytes read)``: the rows as ``{column: cell}`` (with
+    ``_line``, the 1-based line of the record) when the structure is sound, else ``([], "")``."""
     if not is_regular(path):
         add("ledger-log", where, "missing, or not a regular file")
-        return
+        return [], ""
     try:
         data = read_capped(path, MAX_LOG_BYTES)
         if data is None:
             add("ledger-log", where, f"larger than {MAX_LOG_BYTES} bytes; not read")
-            return
-        rows = list(csv.reader(io.StringIO(data.decode("utf-8"), newline="")))
+            return [], ""
+        records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline=""), strict=True))
     except (OSError, UnicodeDecodeError, csv.Error) as exc:
-        add("ledger-log", where, f"cannot be read or parsed: {exc}")
-        return
-    if not rows:
+        add("ledger-log", where, f"cannot be read or parsed: {reason(exc)}")
+        return [], ""
+    if not records:
         add("ledger-log", where, "has no header")
-        return
-    header = [c.strip() for c in rows[0]]
-    missing = [c for c in LOG_COLUMNS if c not in header]
-    if missing:
-        add("ledger-log", where, f"lacks the signature column(s) {', '.join(missing)} (6.2)")
-    for n, row in enumerate(rows[1:], start=2):
-        if row and len(row) != len(header):
-            add("ledger-log", f"{where}:{n}", f"has {len(row)} fields; the header has {len(header)}")
+        return [], ""
+    header = records[0]
+    sound = True
+    if tuple(header) != LOG_HEADER:
+        sound = False
+        add("ledger-log", where, "the header is not exactly the one agentteams 1.3.0 writes for a new log: "
+            + ",".join(LOG_HEADER))
+    rows = []
+    for n, record in enumerate(records[1:], start=2):
+        if not record:
+            continue
+        if len(record) != len(header):
+            sound = False
+            add("ledger-log", f"{where}:{n}", f"has {len(record)} fields; the header has {len(header)}")
+            continue
+        row = dict(zip(header, record))
+        row["_line"] = n
+        rows.append(row)
+    if not sound:
+        return [], ""
+    for row in rows:
+        # Operator decision Q5 (2026-11-25): every row of a study's sign-off log is Ed25519, HALT rows included. A
+        # row of any other scheme (the shared-secret scheme, or none) makes the log malformed (6.2, lines 861-865).
+        if row["sig_scheme"] != SIG_SCHEME:
+            add("ledger-scheme", f"{where}:{row['_line']}", f"sig_scheme is '{row['sig_scheme']}'; every row "
+                f"of a study's sign-off log must be {SIG_SCHEME} (6.2)")
+    return rows, hashlib.sha256(data).hexdigest()
 
 
 def _check_key_store(store: Path, where: str, add) -> None:
@@ -253,7 +311,7 @@ def _check_key_store(store: Path, where: str, add) -> None:
     try:
         entries = sorted(os.listdir(store))
     except OSError as exc:
-        add("ledger-keys", where, f"cannot be listed: {exc}")
+        add("ledger-keys", where, f"cannot be listed: {reason(exc)}")
         return
     for name in entries:
         entry, at = store / name, f"{where}/{name}"
@@ -265,7 +323,7 @@ def _check_key_store(store: Path, where: str, add) -> None:
             try:
                 data = read_capped(entry, MAX_KEY_BYTES)
             except OSError as exc:
-                add("ledger-keys", at, f"cannot be read: {exc}")
+                add("ledger-keys", at, f"cannot be read: {reason(exc)}")
                 continue
             data = (data or b"").strip()
             if not (data.startswith(PEM_BEGIN) and data.endswith(PEM_END)):
@@ -283,11 +341,10 @@ def _check_approvers(path: Path, where: str, add) -> None:
     try:
         names = read_approvers(path)
     except (OSError, UnicodeDecodeError, ValueError) as exc:
-        add("ledger-approvers", where, f"cannot be read: {exc}")
+        add("ledger-approvers", where, f"cannot be read: {reason(exc)}")
         return
     if not names:
-        add("ledger-approvers-empty", where, "names no approver; agentteams would then fall back to its default "
-            "authors, so an empty list is refused")
+        add("ledger-approvers-empty", where, "an empty or comment-only approver list is an error")
 
 
 def _check_parent(study, folder: Path, privilege, led: Ledger, where: str) -> Path | None:
@@ -377,10 +434,13 @@ def _team_dirs(study, folder: Path, led: Ledger) -> list:
 
 
 def _check_parity(folder: Path, teams: list, add) -> None:
-    """6.2 (lines 869-873): where the repository's team directory has an approver list naming at least one approver
-    and at least one verify key, the folder's list names the same approvers and the folder's keys are the same
-    files. "A team directory with only the comment-only list agentteams generates, or with no key file, has
-    neither; the folder is then the only place they live": a team that lacks either kind is compared on neither."""
+    """6.2, lines 869-873. Lines 869-872 read: "Where the repository's own team directory has an approver list that
+    names at least one approver, or at least one verify key, the folder's list names the same approvers and the
+    folder's keys are the same files, and a difference is an error." Lines 872-873 read: "A team directory with only
+    the comment-only list ``agentteams`` generates, or with no key file, has neither; the folder is then the only
+    place they live." Read together, a team that lacks either kind has neither and is compared on neither; one that
+    has both is compared on both. The tension between "or" and "has neither" is step A's proposal 21
+    (``references/plans/post-1.3.0-h5-step-a-check-table.md``)."""
     mine_names = read_approvers(folder / APPROVERS)
     mine_keys = read_keys(folder / KEYS)
     for rel, team in teams:
@@ -389,7 +449,7 @@ def _check_parity(folder: Path, teams: list, add) -> None:
             keys = read_keys(team / KEYS)
         except (OSError, UnicodeDecodeError, ValueError) as exc:
             add("ledger-parity", rel, f"the comparison was not made: the team's approver list or keys cannot be "
-                f"read ({exc})")
+                f"read ({reason(exc)})")
             continue
         if not (names and keys):
             continue  # the team has neither (6.2); the folder is the only place they live
@@ -397,3 +457,123 @@ def _check_parity(folder: Path, teams: list, add) -> None:
             add("ledger-parity", rel, "the ledger's approver list does not name the same approvers as this team's")
         if keys != mine_keys:
             add("ledger-parity", rel, "the ledger's verify keys are not the same files as this team's")
+
+
+# --------------------------------------------------------------------------- the interim family-HALT scan (step F)
+def squashed(text: str) -> str:
+    """An id reduced for the family match (@security S1, A3): NFKD-normalised (so a fullwidth spelling becomes ASCII
+    and a precomposed ``ü`` becomes ``u`` plus a combining mark), then every non-spacing mark (category ``Mn``) and
+    format character (``Cf``, such as a zero-width space) dropped, lower-cased, and every character that is not
+    ``a``-``z`` or ``0``-``9`` removed. ``Survey-SignOff/S0``, ``survey_signoff s0`` and ``sürvey-signoff/S0`` all
+    become ``surveysignoffs0``."""
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if unicodedata.category(ch) not in ("Mn", "Cf")).lower()
+    return re.sub(r"[^a-z0-9]+", "", text)
+
+
+#: A study's scope or action, exactly: ``survey-signoff/<gate>/<study id>``, optionally followed by exactly
+#: ``:sha256-<64 lower-case hex>``. A HALT on one of these is judged by agentteams' own check in the child, not by
+#: the family scan; anything else after a colon is not exempt.
+_STUDY_ID = re.compile(r"survey-signoff/(?:%s)/[a-z0-9][a-z0-9_-]*(?::sha256-[0-9a-f]{64})?" % "|".join(GATES))
+
+
+def family_gates(action: str) -> tuple:
+    """The gates a HALT row's action names as a family (6.2, line 895, widened as a session-adopted default).
+
+    A study's exact scope or action (:data:`_STUDY_ID`), matched on the raw cell with nothing before or after it, is
+    exempt; a padded or otherwise altered one falls through to the family match. Otherwise the id is reduced by
+    :func:`squashed`; it names gate ``<g>`` when the result contains ``surveysignoff<g>`` (``survey-signoff/S0``,
+    ``survey-signoff/S0-2026``, ``Survey SignOff S0``), and otherwise every gate when it contains ``surveysignoff``
+    (``survey-signoff``, ``survey-signoff:freeze``, ``freeze-survey-signoff``). Look-alike letters from other scripts
+    are not caught (a residual gap)."""
+    if _STUDY_ID.fullmatch(action):  # the raw cell: no strip, no normalisation (@security B1)
+        return ()
+    have = squashed(action)
+    named = tuple(g for g in GATES if FAMILY_SQUASHED + g.lower() in have)
+    if named:
+        return named
+    return GATES if FAMILY_SQUASHED in have else ()
+
+
+def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
+    """Operator decision Q1 (2026-11-25), a strict interim scan. 6.2 (lines 907-909) makes the two family names the
+    tools' own check. agentteams 1.3.1 will bind a family HALT to longer ids only across a colon, and the contract's
+    family names are joined with ``/``, so this scan stays after 1.3.1. No public call yet lists a log's open HALTs
+    under that log's own rules (asked of agentteams). So the tools
+    read every log the HALT scan of 6.2 covers (the folder's own, the generated team locations under the repository
+    root, and a sound ``parent_team``), in either column schema, and ANY HALT row on a family name blocks the gates
+    it names, signed or not, retracted or not. A log that cannot be read leaves every gate ``UNAVAILABLE``.
+
+    @security case 39: the generated locations are fixed places under each enclosing git root (6.2, lines 898-901).
+    More than one git root above the folder means more than one set of team logs whose HALTs bind; the tools read
+    only the study's own repository, so they refuse to judge (``UNAVAILABLE``) rather than miss one."""
+    root = study.repo_root
+    seen, roots = set(), []
+    for candidate in _git_roots(folder):
+        ident = os.path.realpath(candidate)
+        if ident not in seen:
+            seen.add(ident)
+            roots.append(candidate)
+    if len(roots) != 1 or os.path.realpath(roots[0]) != os.path.realpath(root):
+        led.unavailable.append(f"{len(roots)} git roots enclose the ledger folder (a repository inside another, "
+                               "or a planted .git); the tools read the team logs of the study's repository only, "
+                               "so they cannot tell that no HALT binds (6.2)")
+        return
+    dirs = [(led.rel or "the ledger folder", folder)]
+    for loc in TEAM_LOCATIONS:
+        if is_plain_dir(root / loc):
+            dirs.append((loc, root / loc))
+    if parent is not None:
+        dirs.append((os.path.relpath(parent, root).replace(os.sep, "/"), parent))
+    for rel, team in dirs:
+        log = team / LOG
+        if not os.path.lexists(log):
+            continue
+        try:
+            rows = _read_any_log(log)
+        except (OSError, UnicodeDecodeError, csv.Error, ValueError) as exc:
+            why = reason(exc)  # no path (S4, S8)
+            led.unavailable.append(f"the decisions log of {rel} cannot be read for HALTs ({why}); a HALT "
+                                   "the tools cannot read must block, never vanish (6.2)")
+            continue
+        for line, actions, verdicts in rows:
+            if "halt" not in verdicts:
+                continue
+            for action in actions:
+                for gate in family_gates(action):
+                    led.family_halts.setdefault(gate, []).append(
+                        f"a HALT row on '{action}' in {rel}/{LOG}:{line} names the {FAMILY} family, which "
+                        "binds this gate. Interim rule (operator decision, 2026-11-25): any such HALT row blocks, "
+                        "signed or not, and a retraction does not count until agentteams offers a public call that "
+                        "judges it under that log's own rules. Whether this HALT still stands cannot be verified "
+                        "here, so the gate is UNAVAILABLE (6.1, line 816)")
+
+
+def _read_any_log(path: Path) -> list:
+    """``[(line, {actions}, {verdicts})]`` of a decisions log in either schema (``action_reviewed`` or ``decision``;
+    ``verdict`` or ``status``). Actions are kept as the raw cells, so the study-scope exemption is decided on exactly
+    what the log holds; verdicts are stripped and lower-cased. Raises when the log cannot be read whole: not a regular
+    file, too large, not UTF-8, a quote left open, a record wider or narrower than its header, or neither an action
+    nor a verdict column."""
+    if not is_regular(path):
+        raise ValueError("not a regular file")
+    data = read_capped(path, MAX_LOG_BYTES)
+    if data is None:
+        raise ValueError(f"larger than {MAX_LOG_BYTES} bytes")
+    records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline=""), strict=True))
+    if not records:
+        return []
+    header = [c.strip().lower() for c in records[0]]
+    acts = [i for i, c in enumerate(header) if c in ("action_reviewed", "decision")]
+    verds = [i for i, c in enumerate(header) if c in ("verdict", "status")]
+    if not acts or not verds:
+        raise ValueError("the header has no action_reviewed/decision or no verdict/status column")
+    out = []
+    for n, record in enumerate(records[1:], start=2):
+        if not record:
+            continue
+        if len(record) != len(header):
+            raise ValueError(f"record {n} has {len(record)} fields; the header has {len(header)}")
+        out.append((n, {record[i] for i in acts if record[i].strip()},
+                    {record[i].strip().lower() for i in verds}))
+    return out
