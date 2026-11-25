@@ -5,6 +5,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
+  `survey-rows <project> <batch>`: a batch of evidence rows (a file inside the study's folder, with the evidence
+  columns) is checked together with the evidence file it joins, every row check of the merged file included, and
+  appended in batch order; no legacy exception covers a batch row, and a merge into a plugin format is refused. The
+  merge refuses unless the registry is built and a build over the merged file gives the registry's present rows (so a
+  registry edited by hand is found); then it writes the evidence file and renews the registry's provenance record,
+  last. Everything is checked before anything is written; a refusal changes nothing. `survey-rows <project>
+  --draft-exceptions` prints a first exceptions file of a legacy study's current breaches for a person to review, and
+  writes nothing. Messages that quote sign-off log cells now cut long values like every other message. The check
+  table is `references/plans/post-1.3.0-h5-step-b3-check-table.md`.
 - **Survey toolkit, step B part 2a: the identity registry** (`scripts/survey/survey_provenance.py`,
   `survey_identity.py`, `survey_registry.py`). New bridge command `survey-registry <project>`:
   - it builds `identity.registry` from the persons of the evidence and attribution files, applying the overrides file
