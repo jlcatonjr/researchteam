@@ -1,0 +1,125 @@
+"""``survey-registry <project> [--candidates]`` (contract section 7, line 928; 4.4): build the identity registry,
+applying the recorded overrides; or, with ``--candidates``, list candidate matches for a person to review.
+
+Building writes the registry (``identity.registry``) and then its provenance record (4.6), last, beside it, so an
+interrupted run leaves the registry not built and never wrongly current (4.4, lines 521-523). It refuses, and writes
+nothing, when the specification is malformed, a source file is malformed, an override row breaks a rule of 4.4, or
+the study needs what this version does not load (a vantage module, a plugin evidence reader). Listing candidates
+writes nothing at all: a candidate is never a link, and the overrides file is the project's (rule 1.3).
+
+Exit 0 when built (or unchanged) or listed, 1 when refused, 2 on a usage error. Not a gated stage (6.1).
+"""
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+HERE = Path(__file__).resolve().parent
+if str(HERE) not in sys.path:
+    sys.path.insert(0, str(HERE))
+sys.dont_write_bytecode = True
+
+from survey_core import SurveyUsageError, parse_args, print_findings, safe, sha256_bytes, usage_exit  # noqa: E402
+from survey_identity import (  # noqa: E402
+    build_rows, candidates, identity_refusals, project_persons, read_overrides, read_stop_words, registry_bytes,
+)
+from survey_provenance import (  # noqa: E402
+    WriteRefused, check_writable, make_record, record_bytes, record_rel, write_atomic,
+)
+from survey_spec import load_study  # noqa: E402
+
+PROG = "survey_registry.py"
+TOOL = "survey-registry"
+
+
+def refuse(msg: str) -> int:
+    print(safe(f"REFUSED: {msg}"))
+    return 1
+
+
+def prepare(root: Path, project: str):
+    """Everything a build needs, worked out before anything is written. Returns ``(study, persons, overrides,
+    findings)``."""
+    study = load_study(project, root)
+    if study.spec is None or not study.ok:
+        return study, None, None, list(study.findings)
+    findings = identity_refusals(study)
+    if findings:
+        return study, None, None, findings
+    persons = project_persons(study)
+    overrides = read_overrides(study, persons.persons)
+    return study, persons, overrides, persons.findings + overrides.findings
+
+
+def build(root: Path, project: str) -> int:
+    study, persons, overrides, findings = prepare(root, project)
+    if findings:
+        print_findings(findings)
+        return refuse(f"{study.spec_rel}: the registry was not built; nothing was written")
+    rp = study.paths["/identity/registry"]
+    rel, rec_rel = rp.repo_rel, record_rel(rp.repo_rel)
+    rows = build_rows(persons.persons, overrides)
+    data = registry_bytes(rows)
+    inputs = [(study.spec_rel, sha256_bytes(study.spec_bytes)), *persons.inputs, *overrides.inputs]
+    record = record_bytes(make_record(study, rel, TOOL, inputs, gates={}, plugins=[], legacy_exceptions=0))
+    try:
+        check_writable(root, rel)
+        check_writable(root, rec_rel)
+    except WriteRefused as exc:
+        return refuse(f"{exc}; nothing was written")
+    unchanged = all(os.path.isfile(root / r) and (root / r).read_bytes() == b for r, b in ((rel, data),
+                                                                                             (rec_rel, record)))
+    if not unchanged:
+        try:
+            # The record holds no hash of the registry (4.6, line 565), so an old record could still match the
+            # inputs while a new registry stood beside it. It is removed first and written again last: a run
+            # interrupted anywhere leaves the registry not built, never wrongly current (4.4, lines 521-523).
+            if os.path.lexists(root / rec_rel):
+                os.unlink(root / rec_rel)
+            write_atomic(root, rel, data)
+            write_atomic(root, rec_rel, record)
+        except WriteRefused as exc:
+            return refuse(f"{exc}")
+    state = "unchanged" if unchanged else "wrote"
+    merged = sum(1 for r in rows if r["merged_from"])
+    linked = sum(1 for r in rows if r["identity_id"])
+    print(safe(f"{state}: {rel} ({len(rows)} person(s); {linked} linked; {merged} with merges)"))
+    print(safe(f"{state}: {rec_rel}"))
+    return 0
+
+
+def list_candidates(root: Path, project: str) -> int:
+    study, persons, overrides, findings = prepare(root, project)
+    stop_words, sw_findings = (read_stop_words(study) if study.spec is not None and study.ok else (set(), []))
+    findings += sw_findings
+    if findings:
+        print_findings(findings)
+        return refuse(f"{study.spec_rel}: candidates were not listed")
+    names = {p: p for p in persons.persons}  # the only names the project's own rows carry (4.4, lines 513-514)
+    found = candidates(persons.persons, names, stop_words, overrides)
+    for c in found:
+        status = "decided" if c.decided else "undecided"
+        print(safe(f"candidate {c.kind}: {c.person_id} ~ {c.other_id} ({status})"))
+    undecided = sum(1 for c in found if not c.decided)
+    print(f"candidates: {len(found)} ({undecided} undecided). A candidate is never a link: a person decides each in "
+          "the overrides file (link, merge or distinct), with a reason.")
+    return 0
+
+
+def main(argv=None) -> int:
+    args = list(sys.argv[1:] if argv is None else argv)
+    listing = "--candidates" in args
+    args = [a for a in args if a != "--candidates"]
+    try:
+        root, project, _ = parse_args(args, PROG)
+    except SurveyUsageError as exc:
+        return usage_exit(exc)
+    try:
+        return list_candidates(root, project) if listing else build(root, project)
+    except SurveyUsageError as exc:
+        return usage_exit(exc)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

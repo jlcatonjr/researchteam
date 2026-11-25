@@ -92,6 +92,10 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/survey/survey_tables.py",
     "scripts/survey/survey_attribution.py",
     "scripts/survey/survey_evidence.py",
+    # Step B part 2: the provenance record (4.6), the identity files and survey-registry (4.4).
+    "scripts/survey/survey_provenance.py",
+    "scripts/survey/survey_identity.py",
+    "scripts/survey/survey_registry.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",

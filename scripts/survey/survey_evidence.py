@@ -293,6 +293,7 @@ def check_row_files(study) -> EvidenceReport:
         att = check_attribution(study, persons, evidence_persons)
         report.findings += att.findings
         units = att.units
+    report.findings += _check_overrides(study)
     if rows is None:
         return report
     report.rows = len(rows.rows)
@@ -301,6 +302,18 @@ def check_row_files(study) -> EvidenceReport:
                                        "the registry does not exist; a missing registry is itself an error (4.1)"))
     _check_rows(study, rows, rp.repo_rel, persons, units, vocab or [], report)
     return report
+
+
+def _check_overrides(study) -> list:
+    """The overrides file (4.4, lines 491-506), when it is there. Imported here, not at the top: the identity module
+    reads the evidence columns from this one."""
+    from survey_identity import identity_refusals, project_persons, read_overrides
+
+    rp = study.paths.get("/identity/overrides")
+    if rp is None or not os.path.lexists(rp.real) or identity_refusals(study):
+        return []
+    persons = project_persons(study)
+    return read_overrides(study, persons.persons).findings if not persons.findings else []
 
 
 def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, report: EvidenceReport) -> None:

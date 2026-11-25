@@ -58,6 +58,7 @@ never `CLEARED`. The commands work on the repository the bridge is in; a `--root
 | `survey-validate <project>` | Check the specification (every check of section 3, and the path rule), the ledger folder's structure (6.2) and the gates' manifest files. Writes nothing. Exit 1 on any error |
 | `survey-status <project>` | Print each gate's manifest hash, state, `enforce` and `mode`, and any reason the gates read `UNAVAILABLE`. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed |
 | `survey-manifest <project> <gate>` | Write the gate's manifest into the ledger folder's `references/`, beside the log, and print the scope and action the operator signs. Signs nothing and writes no ledger row |
+| `survey-registry <project> [--candidates]` | Build the identity registry (`identity.registry`) from the evidence and attribution files, applying the recorded overrides, and write its provenance record beside it, last. With `--candidates`, list possible matches (`same-id`, `exact`, `similar`) for a person to decide in the overrides file; nothing is written and nothing is applied. Refuses, writing nothing, on any error, and in a study with a vantage module or plugin evidence (not loaded in this version) |
 
 ## Literature library
 
