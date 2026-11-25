@@ -14,7 +14,8 @@ from pathlib import Path
 
 from survey_attribution import check_attribution
 from survey_core import (
-    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, sha256_bytes, unsafe_chars,
+    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, safe, sha256_bytes,
+    unsafe_chars,
 )
 from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, read_rows_hashed, search
 
@@ -479,9 +480,12 @@ def current_breaches(study) -> tuple:
     breaches, stops = [], []
     for n, r in rows.rows:
         found = row_breaches(study, r, ids, persons, units, kinds, vocab or [])
-        if found and unsafe_chars(r["id"]):  # only a row with a breach to list must be nameable
-            stops.append(Finding("exceptions-draft", f"{rp.repo_rel}:{n}", f"id {q(r['id'])} holds a control, format "
-                                 "or line-separator character; a printed draft could not name it exactly"))
+        # Only a row with a breach to list must be nameable, and exactly: an id the printed draft would show escaped
+        # (a control, format or private-use character: anything safe() changes) cannot be saved back as itself.
+        if found and (unsafe_chars(r["id"]) or safe(r["id"]) != r["id"]):
+            stops.append(Finding("exceptions-draft", f"{rp.repo_rel}:{n}", f"id {q(r['id'])} holds a character the "
+                                 "printed draft would show escaped (control, format, private-use or line-separator); "
+                                 "a saved draft could not name it exactly"))
             continue
         for rule, msg in found:
             if rule in UNLISTABLE:
