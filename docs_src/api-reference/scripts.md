@@ -281,6 +281,7 @@ them with `python3 -B -I`.
 | `survey_provenance.py` | Step B part 2. The provenance record of 4.6 (`make_record`, `gate_entries`, `check_record_shape`, `check_current`, which also treats a recorded-absent input that is now there as stale), where an output may go (`check_output_target`: only inside the study's own folder, never a declared or covered file or inside a declared folder, not in the ledger folder, and never under `.git`, `.github` or a team location) and the one way outputs are written (`write_all`: every target checked, temporary files in the same folders, mode 0644, every target checked again, then `os.replace` in order; on Linux and macOS relative to a descriptor on the checked folder) |
 | `survey_identity.py` | Step B part 2. The project's persons, the overrides file's checks (4.4), the registry's rows, stop words and candidates |
 | `survey_registry.py` | Step B part 2. The `survey-registry` command |
+| `survey_rows.py` | Step B part 2b. The `survey-rows` command: the batch merge, and `--draft-exceptions` |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
 | `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
@@ -299,6 +300,18 @@ break, or a format character such as a bidirectional override, refuses the build
 equal (`exact`) or share a word that is not a stop word (`similar`), at most 1000; a pair an override row names is
 decided and not listed. It writes nothing. A study with a vantage module (`identity-vantage`) or plugin evidence is
 refused: this version does not load project code.
+
+### The batch merge (step B part 2b)
+
+`survey-rows <project> <batch>` merges a batch of evidence rows into the evidence file (4.1, 4.4). The batch is a
+path relative to the study's folder (or `repo:`-rooted) that must lie inside it, be a regular file other than the
+evidence file, and have exactly the evidence columns; an empty batch is refused (`batch-place`, `batch-empty`, and
+the row-file ids). The merged file is the evidence file's bytes as they are with the batch's rows appended in batch
+order; every check of 4.1, 4.3 and 4.8 runs over it, no legacy exception covers a batch row, and a merge into a
+`plugin` format is refused. The registry must be built (its record current) and a build over the merged file must
+give its present rows, which also finds a registry edited by hand. Then the evidence file is written and the
+registry's renewed record, last; an interruption between them leaves the registry not built. Row files are read as strict CSV; the merged file must read back, cell for cell, as the file's rows and then the batch's; a batch is read without following a link; a batch cell may hold a TAB or a line break in a text column but no control, format or line-separator character in an identifier column, no lone CR, and no other control or format character (`batch-control`); the files read are checked again just before writing, so two merges at once cannot lose one. `--draft-exceptions`
+prints a legacy study's current breaches as a first exceptions file, `id,rule`, and writes nothing.
 
 ### Row files (step B)
 

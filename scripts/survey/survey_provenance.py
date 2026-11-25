@@ -61,7 +61,8 @@ def gate_entry(status) -> dict:
 
 def gate_entries(study, gates: tuple) -> dict:
     """The ``gates`` field for a stage that depends on *gates*, with each state as ``survey_gates.gate_status``
-    returns it (in this version never ``CLEARED``)."""
+    returns it (since step F, ``CLEARED`` where a valid sign-off verifies; otherwise ``UNCLEARED`` or
+    ``UNAVAILABLE``)."""
     from survey_gates import gate_status
     from survey_ledger import check_ledger
 
@@ -331,22 +332,42 @@ DIR_FD_WRITES = (os.name == "posix" and hasattr(os, "O_DIRECTORY") and hasattr(o
                  and {os.open, os.rename, os.unlink} <= os.supports_dir_fd)
 
 
-def write_all(root: Path, outputs: list) -> None:
+def write_all(root: Path, outputs: list, guards: dict | None = None) -> None:
     """Write several outputs, each as survey-manifest writes a manifest, in the order given: every target is checked
     (no link on the way, a regular file or nothing there), every temporary file is written in its target's folder
     (mode 0644), every target is checked again, and only then is each temporary file moved into place, in order. A
     refusal at any check leaves every file as it was; only an interruption between two replaces leaves the earlier
     ones replaced and the later ones not (the caller orders them so that this is safe). The temporary files are
-    removed on every failure. The caller has already called :func:`check_output_target` for each."""
+    removed on every failure. The caller has already called :func:`check_output_target` for each.
+
+    *guards* maps a repository-relative path to the SHA-256 its bytes had when the caller read them (``None``: it was
+    absent). Just before the first replace, each is read again through the capped reader and the write is refused if
+    any changed, so that two runs at once cannot silently lose one's work (@security S2)."""
     for rel, _data in outputs:
         check_writable(root, rel)
     if DIR_FD_WRITES:
-        _write_all_dir_fd(root, outputs)
+        _write_all_dir_fd(root, outputs, guards or {})
     else:
-        _write_all_paths(root, outputs)
+        _write_all_paths(root, outputs, guards or {})
 
 
-def _write_all_paths(root: Path, outputs: list) -> None:
+def check_guards(root: Path, guards: dict) -> None:
+    """Refuse (WriteRefused) when a file the caller read has changed, appeared or gone since it was read."""
+    for rel, expected in guards.items():
+        path = root.joinpath(*rel.split("/"))
+        if not os.path.lexists(path):
+            now = None
+        else:
+            try:
+                data = read_capped(path, MAX_INPUT_BYTES)
+            except OSError as exc:
+                raise WriteRefused(f"{q(rel)} cannot be read again before writing: {reason(exc)}") from exc
+            now = sha256_bytes(data) if data is not None else "too-large"
+        if now != expected:
+            raise WriteRefused(f"{q(rel)} changed while this run was being prepared; nothing was written")
+
+
+def _write_all_paths(root: Path, outputs: list, guards: dict) -> None:
     temps = []
     try:
         for rel, data in outputs:
@@ -357,6 +378,7 @@ def _write_all_paths(root: Path, outputs: list) -> None:
             os.chmod(tmp, 0o644)
         for rel, _data in outputs:
             check_writable(root, rel)  # again, just before anything lands
+        check_guards(root, guards)
         for (rel, _data), tmp in zip(outputs, temps):
             replace(tmp, str(root / rel), None)
     finally:
@@ -365,7 +387,7 @@ def _write_all_paths(root: Path, outputs: list) -> None:
                 os.unlink(tmp)
 
 
-def _write_all_dir_fd(root: Path, outputs: list) -> None:
+def _write_all_dir_fd(root: Path, outputs: list, guards: dict) -> None:
     folders = {}  # folder path -> open descriptor
     temps = []  # (descriptor, temporary name)
     try:
@@ -392,6 +414,7 @@ def _write_all_dir_fd(root: Path, outputs: list) -> None:
             now, held = os.stat(folder), os.fstat(dfd)
             if (now.st_dev, now.st_ino) != (held.st_dev, held.st_ino):
                 raise WriteRefused(f"the folder of an output changed after it was checked: {q(folder.name)}")
+        check_guards(root, guards)
         for (rel, _data), (dfd, name) in zip(outputs, temps):
             replace(name, (root / rel).name, dfd)
     finally:

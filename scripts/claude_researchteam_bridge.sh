@@ -76,6 +76,11 @@ Commands:
                 Build the identity registry from the study's rows, applying the recorded overrides,
                 and write its provenance record; with --candidates, list possible matches for a person
                 to review (never applied). Refuses, writing nothing, on any error.
+  survey-rows <project> <batch> | --draft-exceptions
+                Check a batch of evidence rows (a file inside the study's folder) together with the
+                evidence file and append it, renewing the registry's record; refuses, writing nothing,
+                unless every row passes and the registry is built and unchanged. --draft-exceptions
+                prints a first exceptions file for a legacy study and writes nothing.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -360,6 +365,10 @@ case "$cmd" in
   survey-registry)
     shift
     command_survey survey_registry.py "$@"
+    ;;
+  survey-rows)
+    shift
+    command_survey survey_rows.py "$@"
     ;;
   code-query)
     shift

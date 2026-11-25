@@ -40,8 +40,9 @@ def _cells(values) -> str:
 
 def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
     """Read a CSV row file that must have exactly *columns*, in order. A header that differs, or a row whose width
-    differs from the header's (4, line 276), is a finding with id *rule*; so is a blank line. A cell holding a NUL
-    is a ``cell-nul`` finding. The file is streamed, at most MAX_CSV_BYTES, and only when it is a regular file.
+    differs from the header's (4, line 276), is a finding with id *rule*; so is a blank line, and so is CSV that a
+    strict reader rejects (an unterminated quote, text after a closing quote). A cell holding a NUL is a ``cell-nul``
+    finding. The file is streamed, at most MAX_CSV_BYTES, and only when it is a regular file.
     Line numbers are those a row starts on, so a quoted cell over several lines does not shift them."""
     try:
         stream = open_text_capped(path, MAX_CSV_BYTES)
@@ -65,11 +66,19 @@ def read_rows_hashed(path: Path, where: str, columns: tuple, rule: str) -> tuple
         sha256_bytes(data)
 
 
+def rows_from_bytes(data: bytes, where: str, columns: tuple, rule: str) -> tuple:
+    """As :func:`read_rows_hashed`, over bytes already in hand (a merged file not yet written)."""
+    return _parse(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8", newline=""), where, columns, rule), \
+        sha256_bytes(data)
+
+
 def _parse(stream, where: str, columns: tuple, rule: str) -> Rows:
     out = Rows()
     try:
         with stream:
-            reader = csv.reader(stream)
+            # strict: an unterminated quote, or text after a closing quote, is an error, not a guess (a lenient
+            # reader would let a crafted batch close a quote the file left open; @security S1)
+            reader = csv.reader(stream, strict=True)
             start = 1
             for record in reader:
                 line, start = start, reader.line_num + 1

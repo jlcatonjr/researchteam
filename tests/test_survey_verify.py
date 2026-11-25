@@ -349,6 +349,9 @@ def test_a_log_with_an_extra_column_is_malformed(tmp_path):
     (".github/agents", "survey-signoff/S0/tidebell-survey ", {"S0"}),
     (".github/agents", "survey-signoff/S0/tidebell-survey\n", {"S0"}),
     (".github/agents", " survey-signoff/S0/tidebell-survey", {"S0"}),
+    (".github/agents", "survey-signoff/S0/tidebell-survey\r", {"S0"}),
+    (".github/agents", "survey-signoff/S0/tidebell-survey\t", {"S0"}),
+    (".github/agents", "\tsurvey-signoff/S0/tidebell-survey", {"S0"}),
     # @security A3: a combining mark, decomposed or precomposed, does not hide the family name
     (".github/agents", "su\u0308rvey-signoff", ALL),
     (".github/agents", "s\u00fcrvey-signoff", ALL),
@@ -566,7 +569,8 @@ def test_status_escapes_every_value_from_a_log(tmp_path):
     out = buf.getvalue()
     assert code == 0 and "\x1b" not in out
     assert "S0: CLEARED" not in out.splitlines()
-    assert "evil\\x0as0: cleared\\x1b[2j" in out  # the author as agentteams reads it, lower-cased, escaped
+    # the author as agentteams reads it, lower-cased, quoted with q() (repr escapes the line feed and the escape)
+    assert "'evil\\ns0: cleared\\x1b[2j'" in out
 
 
 def test_status_prints_the_limit_the_gaps_and_the_verifier(tmp_path):

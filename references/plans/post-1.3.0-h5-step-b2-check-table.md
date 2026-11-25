@@ -181,3 +181,6 @@ another." A vantage module's `identities()` is project code; this version does n
   merged file would change the registry's rows", 4.4, lines 517-521). Adding it to `survey-validate` now (a
   `registry-stale` finding) would change what validate reads and fail every study whose registry predates the build
   rules, so it is left for 2b.
+- **Since part 2b**, `survey-rows` makes that comparison: before a merge it works out the registry a build over
+  the merged file would give and refuses when its rows differ from the registry on disk, so a registry that differs
+  from a fresh build (a hand edit included) is found there (`tests/test_survey_merge.py::test_a_hand_edited_registry_is_found`).

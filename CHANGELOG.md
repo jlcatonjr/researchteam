@@ -5,6 +5,22 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
+  `survey-rows <project> <batch>`: a batch of evidence rows (a file inside the study's folder, with the evidence
+  columns) is checked together with the evidence file it joins, every row check of the merged file included, and
+  appended in batch order; no legacy exception covers a batch row, and a merge into a plugin format is refused. The
+  merge refuses unless the registry is built and a build over the merged file gives the registry's present rows (so a
+  registry edited by hand is found); then it writes the evidence file and renews the registry's provenance record,
+  last. Everything is checked before anything is written; a refusal changes nothing. The merged file must read
+  back, cell for cell, as the file's rows followed by the batch's; every row file is now read as strict CSV (an
+  unterminated quote is an error); the files a merge read are checked again just before it writes, so two merges at
+  once cannot lose one; a batch is read without following a link; a batch cell follows the file's rules (a line
+  break or TAB in a text cell is accepted; an identifier cell, a lone CR, and control, format or line-separator
+  characters are refused); a registry whose bytes differ from what a build gives is refused. `survey-rows <project>
+  --draft-exceptions` prints a first exceptions file of a legacy study's current breaches for a person to review, and
+  writes nothing. Messages that quote sign-off log cells now cut long values like every other message. The check
+  table is `references/plans/post-1.3.0-h5-step-b3-check-table.md`.
+
 - **CI: the survey sign-off tests run with agentteams installed** (operator decision, 2026-11-25). The `tests` job
   installs no agentteams, so every test in which a survey gate reads `CLEARED` was skipped in CI. A second job in
   `.github/workflows/tests.yml`, `survey sign-off (3.13)`, installs agentteams at the commit `toolchain.lock` pins
