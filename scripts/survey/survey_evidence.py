@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -442,6 +443,10 @@ def current_breaches(study) -> tuple:
         return [], rows.findings
     persons, reg_findings = read_registry(study)
     vocab, vocab_findings = read_vocabulary(study)
+    if persons is None:  # no check is skipped because a file is absent (4.1, lines 313-315)
+        reg_findings = reg_findings + [Finding("registry-missing", study.paths["/identity/registry"].repo_rel,
+                                               "the registry does not exist; a missing registry is itself an error "
+                                               "(4.1, line 315), and person-unknown cannot be judged without it")]
     if reg_findings or vocab_findings:
         return [], reg_findings + vocab_findings
     units = {}
@@ -454,6 +459,11 @@ def current_breaches(study) -> tuple:
         ids[r["id"]] = ids.get(r["id"], 0) + 1
     breaches, stops = [], []
     for n, r in rows.rows:
+        bad = [ch for ch in r["id"] if unicodedata.category(ch)[0] == "C" or unicodedata.category(ch) in ("Zl", "Zp")]
+        if bad:
+            stops.append(Finding("exceptions-draft", f"{rp.repo_rel}:{n}", f"id {q(r['id'])} holds a control, format "
+                                 "or line-separator character; a printed draft could not name it exactly"))
+            continue
         for rule, msg in row_breaches(study, r, ids, persons, units, kinds, vocab or []):
             if rule in UNLISTABLE:
                 stops.append(Finding(rule, f"{rp.repo_rel}:{n}", f"{msg}; a breach of {rule} cannot be listed (4.1, "

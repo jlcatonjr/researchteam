@@ -350,3 +350,175 @@ def test_the_bridge_runs_survey_rows_and_refuses_root(tmp_path):
                          capture_output=True, text=True, env=env)
     assert res.returncode == 2 and "--root is not accepted" in res.stderr
     assert not list((root / "scripts" / "survey").glob("__pycache__"))
+
+
+# --------------------------------------------------------------------------- review of part 2b
+@pytest.mark.parametrize("tail", [b'ev-009,warden-01,harbour,"unclosed\n', b'ev-009,warden-01,harbour,"unclosed'])
+def test_an_evidence_file_ending_in_an_unclosed_quote_is_refused(tmp_path, tail):
+    """S1: a strict parse rejects it, and nothing is written."""
+    root = _repo(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes() + tail)
+    out = _refused(root)
+    assert "not strict CSV" in out or "[columns]" in out
+
+
+def test_a_batch_crafted_to_close_an_open_quote_is_refused(tmp_path, monkeypatch):
+    """S1: even past the strict parse, the read-back compares cell for cell, so the file's last row cannot change."""
+    from survey_support import survey_tables as tb
+    root = _repo(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes() + b'ev-009,warden-01,harbour,"open')
+    real = tb.rows_from_bytes
+    calls = []
+
+    def lenient_first_reads(data, where, columns, rule):  # let the file and the batch through as a lenient reader would
+        calls.append(where)
+        import csv, io
+        if len(calls) <= 2:
+            rows = tb.Rows()
+            for n, rec in enumerate(csv.reader(io.StringIO(data.decode(), newline="")), start=1):
+                if n == 1:
+                    rows.header = rec
+                elif len(rec) == len(columns):
+                    rows.rows.append((n, dict(zip(columns, rec))))
+            return rows, "x"
+        return real(data, where, columns, rule)
+    monkeypatch.setattr(survey_rows, "rows_from_bytes", lenient_first_reads)
+    name = _batch(root, b'close",x,x,x,x,x,x,x,x,x,x,x,x,x,x\n' + GOOD)
+    out = _refused(root, name)
+    assert "does not read back" in out
+
+
+def test_a_normal_merge_is_still_the_file_followed_by_the_batch(tmp_path):
+    root = _repo(tmp_path)
+    before = (root / EVIDENCE).read_bytes()
+    name = _batch(root, GOOD)
+    assert _merge(root, name)[0] == 0
+    assert (root / EVIDENCE).read_bytes() == before + GOOD
+
+
+def test_a_file_changed_between_the_checks_and_the_write_is_refused(tmp_path, monkeypatch):
+    """S2: two merges at once; the second must not silently drop the first one's rows."""
+    root = _repo(tmp_path)
+    real = prov.check_writable
+    calls = []
+
+    def another_merge_lands(r, rel):
+        calls.append(rel)
+        if len(calls) == 3:  # the first late check: another run has just appended a row
+            path = root / EVIDENCE
+            path.write_bytes(path.read_bytes() + GOOD)
+        real(r, rel)
+    monkeypatch.setattr(prov, "check_writable", another_merge_lands)
+    before_record = (root / RECORD).read_bytes()
+    code, out, _ = _merge(root)
+    assert code == 1 and "changed while this run was being prepared" in out
+    assert (root / EVIDENCE).read_bytes().endswith(GOOD) and (root / RECORD).read_bytes() == before_record
+
+
+@pytest.mark.parametrize("which", ["registry", "record"])
+def test_a_registry_or_record_changed_before_the_write_is_refused(tmp_path, monkeypatch, which):
+    root = _repo(tmp_path)
+    target = root / (ROWS + "/registry.csv" if which == "registry" else RECORD)
+    real = prov.check_writable
+    calls = []
+
+    def touch(r, rel):
+        calls.append(rel)
+        if len(calls) == 3:
+            target.write_bytes(target.read_bytes() + b"\n")
+        real(r, rel)
+    monkeypatch.setattr(prov, "check_writable", touch)
+    before = (root / EVIDENCE).read_bytes()
+    code, out, _ = _merge(root)
+    assert code == 1 and "changed while this run was being prepared" in out
+    assert (root / EVIDENCE).read_bytes() == before
+
+
+def test_a_batch_reached_through_a_link_inside_the_study_is_refused(tmp_path):
+    """S3: a batch is read without following a link on its path."""
+    root = _repo(tmp_path)
+    (root / STUDY_REL / "incoming").mkdir()
+    shutil.copy(root / STUDY_REL / "batch-01.csv", root / STUDY_REL / "incoming" / "b.csv")
+    os.symlink("incoming", root / STUDY_REL / "linked")
+    out = _refused(root, "linked/b.csv")
+    assert "symbolic link" in out
+    os.symlink("batch-01.csv", root / STUDY_REL / "final-link.csv")
+    out = _refused(root, "final-link.csv")
+    assert "symbolic link" in out
+
+
+@pytest.mark.parametrize("cell", [b'"two\nlines"', b'"carriage\rreturn"', b"tab\there", b"bell\x07", "zero​width".encode()])
+def test_a_batch_cell_with_a_control_character_is_refused(tmp_path, cell):
+    """S4: legal quoted CSV, but it splits a line for a line-by-line reader."""
+    root = _repo(tmp_path)
+    name = _batch(root, GOOD.replace(b"North Quay", cell))
+    out = _refused(root, name)
+    assert "[batch-control]" in out
+
+
+def test_an_existing_row_with_a_line_break_is_not_rejudged(tmp_path):
+    """S4: only batch rows are judged."""
+    root = make_repo(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"searched the invented register; nothing on the metal",
+                                               b'"searched the invented register;\nnothing on the metal"'))
+    assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
+    name = _batch(root, GOOD)
+    assert _merge(root, name)[0] == 0
+
+
+def test_a_registry_with_the_same_rows_but_other_bytes_is_refused(tmp_path):
+    """T1: a hand edit that keeps the rows (line endings, quoting) would be rewritten by the next build."""
+    root = _repo(tmp_path)
+    reg = root / ROWS / "registry.csv"
+    reg.write_bytes(reg.read_bytes().replace(b"\n", b"\r\n"))
+    out = _refused(root)
+    assert "its bytes are not" in out and "survey-registry" in out
+
+
+def test_the_draft_study_refuses_a_merge_while_the_registry_is_not_built(tmp_path):
+    """T2: decided by 4.4, line 517 ("It refuses unless the registry is built"), in a draft too."""
+    root = _repo(tmp_path, lambda s: s.update(status="draft"), build=False)
+    _refused(root, needle="the registry is not built")
+
+
+def test_an_lf_file_with_a_crlf_inside_a_quoted_cell_stays_lf(tmp_path):
+    """T3: the line ending is read from the header line only."""
+    root = make_repo(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"searched the invented register; nothing on the metal",
+                                               b'"searched the invented register;\r\nnothing on the metal"'))
+    assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
+    name = _batch(root, GOOD)
+    assert _merge(root, name)[0] == 0
+    assert path.read_bytes().endswith(b",,\n" + GOOD)
+
+
+def test_a_successful_merge_reports_excused_breaches_and_reported_rows(tmp_path):
+    """T5: 4.1, lines 355-356, and 5.4, line 774."""
+    root = _legacy(tmp_path, b"ev-003,counted-basis\n")
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b",reported,harbour clerk,p-002", b",,,p-002"))
+    assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
+    name = _batch(root, GOOD)
+    code, out, _ = _merge(root, name)
+    assert code == 0 and "read with 1 legacy exception(s); breaches excused by rule: counted-basis 1" in out
+
+
+def test_no_exceptions_draft_without_a_registry(tmp_path):
+    """T6: a missing registry is itself an error (4.1, line 315); person-unknown cannot be judged without it."""
+    root = _legacy_without_exceptions(tmp_path)
+    (root / ROWS / "registry.csv").unlink()
+    code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
+    assert code == 1 and "[registry-missing]" in out
+
+
+def test_no_exceptions_draft_for_an_id_with_a_control_character(tmp_path):
+    """T7: the printed draft could not name such an id exactly, so it is refused, naming the row."""
+    root = _legacy_without_exceptions(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"ev-005,", b"ev\x1b-005,"))
+    code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
+    assert code == 1 and "[exceptions-draft]" in out and f"{EVIDENCE}:6" in out and "\x1b" not in out
