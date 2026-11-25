@@ -142,3 +142,20 @@ integrating project's session described how its reference tool behaves (behaviou
 
 These go to the operator as decisions; where the operator follows the reference, the tools match it, and where
 not, the difference is recorded for the step D comparison.
+
+**Operator's decisions for step C (picker, 2026-11-25).**
+- **Agreement: "Standard definitions".** As the reference tool, with two changes: AC1's number of categories is
+  every code the codebook allows for the outcome, and an undefined statistic is reported as `undefined`, not 1.0.
+  So: NA codes and the missing value are categories; a unit enters only with both passes; κ is unweighted; three
+  decimals; one plain line per outcome. Numbers will differ from the reference tool's on some outcomes, and the
+  difference is recorded for the step D comparison.
+- **Final codes: "Separate file, as the reference".** The output path is an argument, inside the study's folder and
+  not a file the study declares; the file with passes A and B is only read. A field for it is proposed for a
+  later contract version.
+- **Agreed rows: "As the reference".** Pass A's row, the coder given as `agreed`, the note `agreed` or
+  `agreed; evidence differed`.
+- **A unit with no pass: "Refuse to finalise".** Stricter than the reference: finalising stops and lists every
+  unit that has neither pass.
+- **Rollup: "As the reference".** The same columns and rules, the output path an argument inside the study's
+  folder, and an input without the finalising step's record refused.
+- **Gates listed: "S5 only, as the reference".** Neither command refuses on a gate; the records carry S5's state.
