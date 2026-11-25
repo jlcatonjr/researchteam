@@ -14,7 +14,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   - the registry's presence and shape ("a missing registry is itself an error"); the registry is not built yet;
   - the forbidden vocabulary, matched on folded text;
   - bucket tables, with the bucketer (`match` first and all) and the year and period rule as functions for later
-    steps;
+    steps (a run of three or four digits, else a stated century in any of its usual spellings; a year marked BC or
+    BCE is negative and not read);
   - the form and presence of a fetch-receipt citation (a row whose locator is not a `<work slug>#p<N>` locus; a
     receipt must carry the ten required keys of 4.4). Nothing re-finds a quotation yet: that is step G.
   Row files are streamed (at most 64 MiB) and opened at their resolved place under rule 1.6. Every output line

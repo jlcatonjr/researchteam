@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import check_attribution
-from survey_core import MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, read_capped, sha256_bytes
+from survey_core import MAX_JSON_BYTES, Finding, q, fold, inside, load_json_strict, read_capped, sha256_bytes
 from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, search
 
 COLUMNS = ("id", "person_id", "attribute_kind", "value", "tier", "source_id", "citation", "locator", "quote", "url",
@@ -78,7 +78,7 @@ def read_registry(study) -> tuple:
     persons, findings = set(), []
     for n, r in rows.rows:
         if r["person_id"] == "" or r["person_id"] in persons:
-            findings.append(Finding("registry-person", f"{rp.repo_rel}:{n}", f"person_id {r['person_id']!r} is empty "
+            findings.append(Finding("registry-person", f"{rp.repo_rel}:{n}", f"person_id {q(r['person_id'])} is empty "
                                     "or repeated"))
         persons.add(r["person_id"])
     return persons, findings
@@ -111,7 +111,7 @@ def read_vocabulary(study) -> tuple:
             break
         pattern, why = compile_pattern(line, re.IGNORECASE)
         if pattern is None:
-            findings.append(Finding("vocabulary-file", f"{where}:{n}", f"{line!r} {why}"))
+            findings.append(Finding("vocabulary-file", f"{where}:{n}", f"{q(line)} {why}"))
         else:
             patterns.append((n, pattern))
     return patterns, findings
@@ -166,7 +166,7 @@ def receipt_problem(study, row: dict) -> tuple:
     extra = sorted(set(doc) - set(RECEIPT_KEYS))
     missing = [k for k in RECEIPT_REQUIRED if k not in doc]
     if extra or missing:
-        return ("receipt-malformed", f"{rel} is not a 4.4 receipt (missing {missing!r}, extra {extra!r})"), None
+        return ("receipt-malformed", f"{rel} is not a 4.4 receipt (missing {q(missing)}, extra {q(extra)})"), None
     if doc["receipt_id"] != rid or doc["url"] != row["url"] or not isinstance(doc["quote"], str) or \
             fold(doc["quote"], spaces=False) != fold(row["quote"], spaces=False):
         return ("receipt-malformed", f"{rel} is not the receipt of this row's url and quote"), None
@@ -184,11 +184,11 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
     if row["id"] == "":
         add("id-empty", "an empty id")
     elif ids[row["id"]] > 1:
-        add("id-duplicate", f"id {row['id']!r} is repeated")
+        add("id-duplicate", f"id {q(row['id'])} is repeated")
     if row["attribute_kind"] not in kinds:
-        add("attribute-kind", f"attribute_kind {row['attribute_kind']!r} is not declared")
+        add("attribute-kind", f"attribute_kind {q(row['attribute_kind'])} is not declared")
     if persons is not None and row["person_id"] not in persons:
-        add("person-unknown", f"person_id {row['person_id']!r} is not in the registry")
+        add("person-unknown", f"person_id {q(row['person_id'])} is not in the registry")
     uid = row["unit_id"]
     if not passage and uid != "":
         add("unit-id", "a unit_id in an author study")
@@ -197,22 +197,22 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
     if passage and uid != "":
         if uid in units:
             if units[uid]["person_id"] != row["person_id"]:
-                add("unit-person", f"unit {uid!r} is attributed to {units[uid]['person_id']!r}, not to "
-                    f"{row['person_id']!r}")
+                add("unit-person", f"unit {q(uid)} is attributed to {q(units[uid]['person_id'])}, not to "
+                    f"{q(row['person_id'])}")
         elif uid != row["person_id"]:
-            add("unit-unknown", f"unit_id {uid!r} is neither an attribution unit nor the row's person_id")
+            add("unit-unknown", f"unit_id {q(uid)} is neither an attribution unit nor the row's person_id")
     if "|" in row["person_id"] or "|" in uid:
         add("id-separator", "a '|' in person_id or unit_id (4.7)")
     tier = row["tier"]
     if tier not in ev["tiers"]:
-        add("tier-unknown", f"tier {tier!r} is not declared")
+        add("tier-unknown", f"tier {q(tier)} is not declared")
     counted = tier in ev["counted_tiers"]
     if counted and row["quote"] == "":
         add("counted-quote", "a counted row without a quote")
     if counted and row["citation"] == "" and row["source_id"] == "":
         add("counted-citation", "a counted row with neither citation nor source_id")
     if counted and row["basis"] not in ("own", "reported"):
-        add("counted-basis", f"a counted row whose basis {row['basis']!r} is not own or reported")
+        add("counted-basis", f"a counted row whose basis {q(row['basis'])} is not own or reported")
     if row["basis"] == "reported" and row["reporter"] == "":
         add("reported-reporter", "a reported row without a reporter")
     if row["basis"] == "own" and row["reporter"] != "":
@@ -235,7 +235,7 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
                     add("vocabulary", f"column {col} was not checked: {exc} (contract silent; refused)")
                     break
                 if hit:
-                    add("vocabulary", f"column {col} matches forbidden pattern {pattern.pattern!r} (line {line})")
+                    add("vocabulary", f"column {col} matches forbidden pattern {q(pattern.pattern)} (line {line})")
                     break
     return out
 
@@ -252,13 +252,13 @@ def _read_exceptions(study) -> tuple:
     for n, r in rows.rows:
         at = f"{rp.repo_rel}:{n}"
         if r["rule"] in UNLISTABLE:
-            findings.append(Finding("exceptions-unlistable", at, f"rule {r['rule']!r} cannot be listed (4.1)"))
+            findings.append(Finding("exceptions-unlistable", at, f"rule {q(r['rule'])} cannot be listed (4.1)"))
         elif r["rule"] not in RULES:
-            findings.append(Finding("exceptions-rule", at, f"{r['rule']!r} is not a rule id of 4.1"))
+            findings.append(Finding("exceptions-rule", at, f"{q(r['rule'])} is not a rule id of 4.1"))
         elif r["id"] == "":
             findings.append(Finding("exceptions-id", at, "an exception names no row id"))
         elif (r["id"], r["rule"]) in listed:
-            findings.append(Finding("exceptions-duplicate", at, f"({r['id']!r}, {r['rule']!r}) is listed twice"))
+            findings.append(Finding("exceptions-duplicate", at, f"({q(r['id'])}, {q(r['rule'])}) is listed twice"))
         else:
             listed[(r["id"], r["rule"])] = n
     return listed, findings
@@ -331,8 +331,8 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
         exc_rel = study.paths["/evidence/legacy_exceptions"].repo_rel
         for key, line in sorted(listed.items(), key=lambda kv: kv[1]):
             if key not in used:
-                report.findings.append(Finding("exceptions-stale", f"{exc_rel}:{line}", f"row {key[0]!r} does not "
-                                               f"break rule {key[1]!r} (or is gone); the file must not claim more "
+                report.findings.append(Finding("exceptions-stale", f"{exc_rel}:{line}", f"row {q(key[0])} does not "
+                                               f"break rule {q(key[1])} (or is gone); the file must not claim more "
                                                "than is true (4.1)"))
 
 
@@ -343,7 +343,7 @@ def _check_citation(study, row: dict, at: str, counted: bool, legacy: bool, repo
     url) is reported, not failed (lines 773-775)."""
     if counted and row["locator"] == "":
         finding = Finding("locator-missing", at, "a counted row without a locator: its quotation can be re-found "
-                          "neither at a locus nor through a receipt (contract silent; refused)")
+                          "neither at a locus nor through a receipt (5.4)")
         if legacy:  # a row that predates receipts cannot be made re-findable (5.4, lines 774-775)
             report.reported.append(Finding(finding.rule, at, finding.message + " (reported: a legacy study, 5.4)"))
             report.not_refound += 1
@@ -381,6 +381,6 @@ def check_tables(study) -> list:
         fallback = a["bucketer"].get("fallback")
         if fallback is not None and allowed is not None and fallback not in allowed:
             findings.append(Finding("table-fallback", f"{study.spec_rel}#/attributes/{i}/bucketer/fallback",
-                                    f"fallback {fallback!r} is not one of the attribute's levels (contract silent; "
+                                    f"fallback {q(fallback)} is not one of the attribute's levels (contract silent; "
                                     "refused)"))
     return findings

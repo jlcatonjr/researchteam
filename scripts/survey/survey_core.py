@@ -50,6 +50,19 @@ class Finding:
         return safe(f"{label} [{self.rule}] {self.where}: {self.message}")
 
 
+#: The most characters of a value a message quotes; a longer value is cut and marked, in messages only, never in a
+#: check (a proposal: a file with huge cells or many bad rows cannot flood the output).
+MAX_QUOTED_CHARS = 200
+
+
+def q(value) -> str:
+    """A value from a file, quoted for a message: ``repr`` of at most MAX_QUOTED_CHARS characters, with ``…``
+    after it when cut."""
+    if isinstance(value, str) and len(value) > MAX_QUOTED_CHARS:
+        return repr(value[:MAX_QUOTED_CHARS]) + "\u2026"
+    return repr(value)
+
+
 def safe(text: str) -> str:
     """*text* with every control, format, surrogate, private-use or line/paragraph-separator character escaped
     (``\\xNN``, ``\\uNNNN``), so that what a file holds cannot add a line or move the cursor in the output."""
@@ -362,5 +375,5 @@ def parse_args(argv: list, prog: str, extra: tuple = ()) -> tuple:
 
 
 def usage_exit(exc: Exception) -> int:
-    print(f"error: {exc}", file=sys.stderr)
+    print(safe(f"error: {exc}"), file=sys.stderr)
     return 2

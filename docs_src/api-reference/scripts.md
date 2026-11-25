@@ -299,7 +299,7 @@ that predates receipts (no receipt, no url, no locator) is printed as `REPORTED`
 is there and broken is an error. Every run, failing or not, prints how many rows it read, how many exceptions it was
 read with, the excused breaches by rule, and how many counted quotations were not re-found. Row files are streamed
 (`MAX_CSV_BYTES`, 64 MiB) and opened at their resolved place under rule 1.6; project patterns are capped
-(`MAX_PATTERN_CHARS`, `MAX_PATTERNS`, `MAX_MATCH_CHARS`); every output line escapes control characters. Evidence in a `plugin` format is not checked: this
+(`MAX_PATTERN_CHARS`, `MAX_PATTERNS`, `MAX_MATCH_CHARS`); every output line escapes control characters, and a quoted value is cut at `MAX_QUOTED_CHARS` (200) characters. The caps bound the size of a pattern and of the text it is searched in, not the time a search takes: a project's own pattern can still be slow, and the files that hold patterns (the vocabulary file, the bucket tables) are covered by gate S0. Evidence in a `plugin` format is not checked: this
 version does not load the reader plug-in, and says so as an error. Nothing re-finds a quotation yet (step G); the
 count of counted quotations not re-found is printed. The batch merge (`survey-rows`) and the registry
 (`survey-registry`) are not in this version.

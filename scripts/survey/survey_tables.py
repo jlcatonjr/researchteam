@@ -12,7 +12,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, TooLarge, fold, open_text_capped
+from survey_core import Finding, TooLarge, fold, open_text_capped, q
 
 #: The toolkit's own limits (proposals): the bytes of one row file; the length of one project pattern; the number
 #: of patterns in one file; the length of the folded text one pattern is searched in.
@@ -34,7 +34,7 @@ class Rows:
 
 
 def _cells(values) -> str:
-    return ", ".join(map(repr, values)) or "none"
+    return ", ".join(map(q, values)) or "none"
 
 
 def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
@@ -76,6 +76,8 @@ def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
         return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")])
     except UnicodeDecodeError as exc:
         return Rows(findings=[Finding(rule, where, f"not UTF-8: {exc}")])
+    except OSError as exc:  # a read that fails partway through the file
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {exc}")])
     except csv.Error as exc:
         rid = "cell-nul" if "NUL" in str(exc) else rule  # Python 3.10's csv refuses a NUL itself
         return Rows(findings=[Finding(rid, where, f"not CSV: {exc}")])
@@ -125,7 +127,8 @@ def check_table(path: Path, where: str, allowed: list | None) -> tuple:
     """Read and check a bucket table. Returns ``(rows, findings)``. Errors (4.8, lines 686-687): other columns, an
     empty table, a row without ``pattern``, ``bucket`` or ``note``, an expression that does not compile. And the
     toolkit's own refusals: a ``bucket`` outside the attribute's declared levels or flags (*allowed*, when
-    declared), an upper-case or over-long pattern, more than MAX_PATTERNS rows."""
+    declared), an upper-case or over-long pattern, more than MAX_PATTERNS rows. It searches no text, so it never
+    raises the ValueError that :func:`search` raises for text over MAX_MATCH_CHARS: every problem is a finding."""
     read = read_rows(path, where, TABLE_COLUMNS, "table-columns")
     findings, rows = list(read.findings), []
     if read.findings:
@@ -146,11 +149,11 @@ def check_table(path: Path, where: str, allowed: list | None) -> tuple:
                 continue
             pattern, why = compile_pattern(r[col], lower_only=True)
             if pattern is None:
-                findings.append(Finding("table-pattern", at, f"{col} {r[col]!r} {why}"))
+                findings.append(Finding("table-pattern", at, f"{col} {q(r[col])} {why}"))
             else:
                 compiled[col] = pattern
         if allowed is not None and r["bucket"] not in allowed:
-            findings.append(Finding("table-bucket", at, f"bucket {r['bucket']!r} is not one of the attribute's "
+            findings.append(Finding("table-bucket", at, f"bucket {q(r['bucket'])} is not one of the attribute's "
                                     f"declared values ({_cells(allowed)})"))
         if "pattern" in compiled and (r["unless"] == "" or "unless" in compiled):
             rows.append(TableRow(n, r["field"], compiled["pattern"], compiled.get("unless"), r["bucket"]))
@@ -170,7 +173,7 @@ def bucket_first(rows: list, values: list, fallback: str | None, missing: str) -
     """``match: "first"`` (4.8): rows are tried in order, and the first row that fires on any of the values decides.
     If none fires, the bucketer's ``fallback``, or the attribute's missing value. *values* is a list of
     ``(attribute_kind, value)``; an empty value is not given and never fires. A value whose folded text is longer
-    than MAX_MATCH_CHARS raises ValueError."""
+    than MAX_MATCH_CHARS raises ValueError: the caller (the frame, step D) must turn it into a finding."""
     for row in rows:
         if any(_fires(row, kind, v) for kind, v in values if v != ""):
             return row.bucket
@@ -178,29 +181,29 @@ def bucket_first(rows: list, values: list, fallback: str | None, missing: str) -
 
 
 def bucket_all(rows: list, values: list) -> set:
-    """``match: "all"`` (4.8): every row that fires adds its bucket; no fallback."""
+    """``match: "all"`` (4.8): every row that fires adds its bucket; no fallback. Raises ValueError for a value over
+    MAX_MATCH_CHARS, as :func:`bucket_first` does; the caller must turn it into a finding."""
     return {row.bucket for row in rows if any(_fires(row, kind, v) for kind, v in values if v != "")}
 
 
 # --------------------------------------------------------------------------- years and periods (4.8)
-class YearUndecided(ValueError):
-    """The value has a form 4.8 does not say how to read: an era marker (``BC``, ``AD``, ``BCE``, ``CE``) or a century
-    written otherwise than ``<n>th c.``. Refused rather than read; the caller reports it."""
-
-
-_RUN = re.compile(r"(?<![0-9])(-?)([0-9]+)(?![0-9])")
-_CENTURY = re.compile(r"(?<![0-9])([0-9]{1,2})(?:st|nd|rd|th) c\.")
-_CENTURY_LIKE = re.compile(r"(?<![0-9])[0-9]+\s*(?:st|nd|rd|th)\s*(?:c\b|c\.|cent|century)", re.I)
-_ERA_WORDS = re.compile(r"(?<![A-Za-z])(?:BC|BCE|AD|CE|B\.C\.|A\.D\.|B\.C\.E\.|C\.E\.)(?![A-Za-z])", re.I)
+_BC = r"\s*(?:b\.c\.e\.|b\.c\.|bce|bc)(?![A-Za-z])"
+#: A run of digits, with an optional sign before it and an optional BC/BCE marker after it.
+_RUN = re.compile(r"(?<![0-9])(-?)([0-9]+)(?![0-9])(" + _BC + r")?", re.I)
+#: A stated century: an ordinal number followed, as a whole token, by c, c., cent, cent., century or centuries,
+#: in any case; an optional BC/BCE marker after it makes the century negative.
+_CENTURY = re.compile(r"(?<![0-9])([0-9]{1,2})(?:st|nd|rd|th)\s*(?:centuries|century|cent\.?|c\.?)(?![A-Za-z])"
+                      r"(" + _BC + r")?", re.I)
 
 
 def _runs(value: str) -> list:
-    """Runs of three or four digits that are not part of a longer number and not negative. A run directly after a
-    ``-`` that follows no digit is negative (``-350``); after a digit it is the end of a range (``1740-1790``)."""
+    """Runs of three or four digits that are not part of a longer number and not negative (4.8, lines 699-701).
+    Negative: a ``-`` directly before the run that follows no digit (``-350``; after a digit, ``1740-1790`` is a
+    range), or a BC/BCE marker directly after it (``350 BC``)."""
     years = []
     for m in _RUN.finditer(value):
-        sign, digits = m.group(1), m.group(2)
-        if len(digits) not in (3, 4):
+        sign, digits, bc = m.group(1), m.group(2), m.group(3)
+        if len(digits) not in (3, 4) or bc:
             continue
         if sign and (m.start() == 0 or not value[m.start() - 1].isdigit()):
             continue
@@ -208,20 +211,21 @@ def _runs(value: str) -> list:
     return years
 
 
+def _centuries(value: str) -> list:
+    """The middle years of the centuries a value states (``4th c.`` -> 350); a century marked BC/BCE is negative
+    and not read."""
+    return [(int(m.group(1)) - 1) * 100 + 50 for m in _CENTURY.finditer(value)
+            if int(m.group(1)) >= 1 and not m.group(2)]
+
+
 def year_of(value: str, basis: str) -> int | None:
-    """The year one value gives (4.8): for ``work_date`` the first run of three or four digits, for ``life_dates``
-    the largest; else a stated century (``4th c.``) gives its middle year; else none. Raises YearUndecided for an
-    era marker or another century spelling, which 4.8 does not cover (step D reports it)."""
+    """The year one value gives (4.8, lines 699-702): for ``work_date`` the first run of three or four digits that
+    is not part of a longer number, for ``life_dates`` the largest; only where a value has no such run, a stated
+    century gives its middle year (the first stated, or the largest, by the same basis); else none. Two-digit and
+    negative years are not read."""
     if basis not in ("work_date", "life_dates"):
-        raise ValueError(f"unknown basis {basis!r}")
-    if _ERA_WORDS.search(value):
-        raise YearUndecided(f"{value!r} has an era marker; 4.8 does not say how to read it")
-    stated = {m.start() for m in _CENTURY.finditer(value)}
-    if any(m.start() not in stated for m in _CENTURY_LIKE.finditer(value)):
-        raise YearUndecided(f"{value!r} states a century otherwise than '<n>th c.'; 4.8 does not say how to read it")
-    years = _runs(value)
-    if not years:
-        years = [(int(m.group(1)) - 1) * 100 + 50 for m in _CENTURY.finditer(value) if int(m.group(1)) >= 1]
+        raise ValueError(f"unknown basis {q(basis)}")
+    years = _runs(value) or _centuries(value)
     if not years:
         return None
     return years[0] if basis == "work_date" else max(years)

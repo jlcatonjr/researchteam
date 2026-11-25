@@ -10,7 +10,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding
+from survey_core import Finding, q
 from survey_tables import read_rows
 
 BASE = ("unit_id", "person_id", "author_kind", "work", "locator", "status")
@@ -55,7 +55,7 @@ def check_attribution(study, registry_persons: set | None, evidence_persons: set
         if uid == "":
             add("attribution-unit-empty", n, "an empty unit_id")
         elif uid in out.units:
-            add("attribution-unit-duplicate", n, f"unit_id {uid!r} is repeated")
+            add("attribution-unit-duplicate", n, f"unit_id {q(uid)} is repeated")
         else:
             out.units[uid] = r
         if pid == "":
@@ -64,24 +64,24 @@ def check_attribution(study, registry_persons: set | None, evidence_persons: set
             out.persons.append(pid)
         for col, value in (("unit_id", uid), ("person_id", pid)):
             if "|" in value:
-                add("attribution-separator", n, f"a '|' in {col} {value!r} (4.7)")
+                add("attribution-separator", n, f"a '|' in {col} {q(value)} (4.7)")
         if r["status"] not in att["statuses"]:
-            add("attribution-status", n, f"status {r['status']!r} is not one of {att['statuses']!r}")
+            add("attribution-status", n, f"status {q(r['status'])} is not one of {q(att['statuses'])}")
         if r["author_kind"] not in kinds:
-            add("attribution-author-kind", n, f"author_kind {r['author_kind']!r} is not one of {kinds!r}")
+            add("attribution-author-kind", n, f"author_kind {q(r['author_kind'])} is not one of {q(kinds)}")
         elif pid:
             kind_of.setdefault(pid, set()).add(r["author_kind"])
         for key, codes in level_sets.items():
             if r[key] == "" or r[key] not in codes:
-                add("attribution-passage-attribute", n, f"{key} {r[key]!r} is not one of its level codes {codes!r}")
+                add("attribution-passage-attribute", n, f"{key} {q(r[key])} is not one of its level codes {q(codes)}")
     for pid, ks in kind_of.items():
         if len(ks) > 1:
             out.findings.append(Finding("attribution-author-kinds", where,
-                                        f"person {pid!r} has more than one author_kind: {sorted(ks)!r}"))
+                                        f"person {q(pid)} has more than one author_kind: {q(sorted(ks))}"))
     persons = registry_persons if registry_persons is not None else set(out.persons) | set(evidence_persons)
     for uid in out.units:
         if uid in persons:
-            out.findings.append(Finding("attribution-unit-is-person", where, f"unit_id {uid!r} is also a person_id "
+            out.findings.append(Finding("attribution-unit-is-person", where, f"unit_id {q(uid)} is also a person_id "
                                         "the registry holds; a passage would be indistinguishable from a person-level "
                                         "evidence row (4.1)"))
     return out

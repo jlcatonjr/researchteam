@@ -91,8 +91,9 @@ being built, not on a gate. No step-B code calls `stage_decision`.
 | 4.4, 480-486 | A receipt has the thirteen keys; only `sha256`, `context` and `wayback` may be absent; the ten others are required | `receipt-malformed` | `test_a_receipt_missing_a_required_key_is_malformed[...]` (ten cases), `test_ten_receipt_keys_are_required` |
 | 4.4, 483-484 | The receipt id: first 24 hex of SHA-256 of the URL, a line feed and the quote folded without spaces | — | `test_the_receipt_id_follows_4_4` |
 | 5.4, 773 (proposal 9) | A counted receipt-citing row with no `url`, or with no receipt file: its quotation cannot be re-found. A receipt that is there but is not a 4.4 receipt of this row's url and quote, or resolves outside the repository, is an error in any tier | `receipt-url`, `receipt-missing`, `receipt-malformed` (toolkit) | `test_receipt_citation_errors[...]` (five cases), `test_a_cited_receipt_that_is_present_passes`, `test_an_uncounted_row_with_a_broken_receipt_fails_but_one_without_needs_none` |
-| (proposal 18) | A counted row with an empty `locator`: its quotation can be re-found neither at a locus nor through a receipt | `locator-missing` (toolkit); reported in a legacy study | `test_a_counted_row_without_a_locator_is_refused` |
-| 5.4, 773-775 | In a legacy study a counted row that predates receipts (no receipt, no url, no locator) "is reported and counted, and is not an error". A receipt that is there and broken is not such a row: `receipt-malformed` fails a legacy study too | printed `REPORTED [...]` | `test_a_legacy_study_reports_an_unfindable_quotation`, `test_a_broken_receipt_is_an_error_in_a_legacy_study_too` |
+| 5.4, 773-774 | A counted row with an empty `locator`: its quotation can be re-found neither at a locus nor through a receipt, and lines 773-774 decide the outcome (an error in a draft or active study, reported and counted in a legacy one); only the id is the toolkit's | `locator-missing` (toolkit id) | `test_a_counted_row_without_a_locator_is_refused` |
+| 5.4, 773-775 | In a legacy study a counted row that predates receipts (no receipt, no url, no locator) "is reported and counted, and is not an error" | printed `REPORTED [...]` | `test_a_legacy_study_reports_an_unfindable_quotation` |
+| (proposal 20) | A receipt that is there and broken (`receipt-malformed`) fails a legacy study too. This tightens lines 773-775, which say a counted row whose quotation cannot be re-found "at a locus or in a receipt" is not an error in a legacy study | `receipt-malformed` | `test_a_broken_receipt_is_an_error_in_a_legacy_study_too` |
 | 4.1, 356; 5.4, 774 | Excused breaches by rule, and counted quotations not re-found (and how many were reported), printed on every run, failing runs included | — | `test_excused_counts_and_unfindable_totals_print_on_a_failing_run` |
 | 5.4, 768-776 | Re-finding the quotation at a locus or inside a receipt, and what a receipt's own `found: false` means | **not implemented** (step G); seam `survey_evidence.refind_quotation`, which returns "not checked" and does not read `found` | `test_the_refind_seam_never_counts_a_quotation_as_found` |
 
@@ -132,9 +133,10 @@ The contract gives these no ids; they are the toolkit's own. None can be listed 
 | 693-695 | `match: "all"`: every row that fires adds its bucket; no fallback | — | `test_match_all_collects_every_bucket` |
 | 690, 207-208 | The per-kind default: `first` for a categorical attribute; a flags table bucketer with no `match` is refused by step A (`match-missing-flags`, its proposal 7) | step A's id | step A's `test_each_check_beyond_shape_is_triggered[match-missing-flags]` |
 | 699-700 | One value: `work_date` the first run of three or four digits not part of a longer number; `life_dates` the largest | — | `test_a_year_from_one_value[...]` |
-| 700-701 (proposal 14) | No such run: a stated century (`4th c.`) gives its middle year | — | `[4th c.-…]`, `[1st c.-…]` |
+| 699-701 | A run of three or four digits is read whatever words stand around it (`AD 1200`, `1200 CE`, `c. 1750`, `Epistulae ad Familiares, 1742`, `ce livre, 1750`, `5th centre, 1750`) | — | `test_values_read_by_the_run_rule[...]` |
+| 700-701 | Only where a value has no such run, a stated century gives its middle year. `4th c.` is the text's example; accepted spellings: an ordinal of one or two digits (`1st`, `2nd`, `3rd`, `4th`, …) followed, as a whole token and in any case, by `c`, `c.`, `cent`, `cent.`, `century` or `centuries` (`4th c`, `4th C.`, `4th century`, `12th cent.`, `4th-5th centuries`). An ordinary word after an ordinal is not a century (`5th centre`, `4th cell`). Several centuries: the first for `work_date`, the largest for `life_dates` (proposal 14) | — | `test_a_stated_century_gives_its_middle_year[...]`, `test_an_ordinary_word_after_an_ordinal_is_not_a_century[...]`, `test_a_run_of_digits_comes_before_a_stated_century` |
 | 701 (proposal 14) | Two-digit and negative years are not read (a `-` after a non-digit is a sign; after a digit, a range) | — | `[in 42-…]`, `[-350-…]`, `[1701-1768-…]` |
-| 700-701 (proposal 14) | A value with an era marker (`BC`, `BCE`, `AD`, `CE`, dotted or not) or a century written otherwise than `<n>th c.` (`4th C.`, `4th century`, `12th cent.`): 4.8 does not say how to read it, so it is refused (`YearUndecided`), not read as a plain number | `YearUndecided` (step D reports it) | `test_year_forms_4_8_does_not_cover_are_refused[...]`, `test_ordinary_values_are_not_mistaken_for_eras[...]` |
+| 701 (proposal 14) | A number marked BC or BCE (`350 BC`, `350 B.C.E.`, `4th c. BC`; a whole token after the number, any case, dotted or not) is negative, so it is not read; another run in the same value still is | — | `test_a_year_marked_bc_is_negative_and_not_read[...]`, `test_a_bc_run_does_not_hide_another_run` |
 | 703-704 | Several values: `life_dates` the largest year | — | `test_life_dates_take_the_largest_year_among_values` |
 | 705-706 | A year equal to a cut begins the later period | — | `test_a_year_equal_to_a_cut_begins_the_later_period` |
 | 703 | `work_date` years combine by the cell (4.7) | **not implemented** (step D, the frame) | — |
@@ -190,11 +192,18 @@ The contract gives these no ids; they are the toolkit's own. None can be listed 
     the attribute declares them).
 13. **An upper-case bucket pattern**: refused, because it is searched in folded, lower-cased text (4.8 says
     nothing on case; 5.3 says vocabulary is matched "without regard to case").
-14. **The year reader's edges**: only `<n>(st|nd|rd|th) c.` is read as a century; an era marker or another century
-    spelling is refused, not read; a `-` directly before a run and after a non-digit makes it negative.
+14. **BC and BCE, and several centuries in one value.** 4.8 says negative years are not read (line 701) but not how
+    a value marks one. Step B reads a number followed by `BC` or `BCE` (a whole token, any case, dotted or not) as
+    negative, so it gives no year, and a `-` directly before a run and after a non-digit as a sign. Where a value
+    states several centuries and no run, the first is read for `work_date` and the largest for `life_dates`, as for
+    runs; the text speaks of "a stated century" only. (The text decides precedence: a century is read only where
+    there is no run.)
 15. **The split of step B** at the registry, because the merge needs the 4.6 record (see the top of this file).
 16. **A NUL in a cell**: an error (`cell-nul`).
 17. **Limits on project patterns**: 1000 characters a pattern, 10000 patterns a file, 65536 characters of folded
     text a search.
-18. **A counted row without a `locator`**: refused (reported in a legacy study).
-19. **Escaped output**: control characters in any output line are escaped (the contract fixes no output form).
+18. *(Settled by lines 773-774: a counted row without a `locator` cannot be re-found; only the id `locator-missing` is the toolkit's.)*
+19. **Escaped output**: control characters in any output line are escaped, and a quoted value is cut at
+    `MAX_QUOTED_CHARS` (200) characters in messages only (the contract fixes no output form).
+20. **A broken receipt in a legacy study** is an error (`receipt-malformed`), tightening lines 773-775: a receipt that
+    is there but unusable is not a row "that predates receipts".

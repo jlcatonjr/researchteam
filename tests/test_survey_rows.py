@@ -471,7 +471,8 @@ def test_patterns_search_the_folded_value():
     ("written 1742, copied 1790", "life_dates", 1790), ("1701-1768", "life_dates", 1768),
     ("1701-1768", "work_date", 1701), ("about 850", "work_date", 850),
     ("12345", "work_date", None), ("in 42", "work_date", None), ("-350", "work_date", None),
-    ("c. -350 to -120", "life_dates", None), ("c. -350 to 120", "life_dates", 120), ("4th c.", "work_date", 350), ("1st c.", "life_dates", 50),
+    ("c. -350 to -120", "life_dates", None), ("c. -350 to 120", "life_dates", 120),
+    ("4th c.", "work_date", 350), ("1st c.", "life_dates", 50),
     ("4th c. and 12th c.", "life_dates", 1150), ("4th c. and 12th c.", "work_date", 350),
     ("in 1750 (4th c.)", "work_date", 1750), ("no date", "life_dates", None), ("", "work_date", None),
 ])
@@ -679,15 +680,76 @@ def test_a_counted_row_without_a_locator_is_refused(tmp_path):
     assert report.findings == [] and [f.rule for f in report.reported] == ["locator-missing"]
 
 
-@pytest.mark.parametrize("value", ["350 BC", "350 B.C.", "AD 1200", "1200 CE", "350 bce", "4th C.", "4th century",
-                                   "4th c", "4 th c.", "12th cent."])
-def test_year_forms_4_8_does_not_cover_are_refused(value):
-    """T12: 4.8 reads "4th c." and runs of digits; it says nothing of eras or other century spellings."""
-    with pytest.raises(tb.YearUndecided):
-        tb.year_of(value, "work_date")
-
-
-@pytest.mark.parametrize("value,year", [("c. 1750", 1750), ("ca. 1750", 1750), ("4th c.", 350),
-                                        ("the cedar log, 1742", 1742)])
-def test_ordinary_values_are_not_mistaken_for_eras(value, year):
+@pytest.mark.parametrize("value,year", [
+    ("AD 1200", 1200), ("1200 CE", 1200), ("c. 1750", 1750), ("ca. 1750", 1750),
+    ("Epistulae ad Familiares, 1742", 1742), ("ce livre, 1750", 1750),  # "ad" and "ce" are ordinary words here
+    ("5th centre, 1750", 1750),  # "centre" is not a century word; the run rule reads 1750
+    ("the cedar log, 1742", 1742),
+])
+def test_values_read_by_the_run_rule(value, year):
+    """4.8, line 699: the first run of three or four digits, whatever words stand around it."""
     assert tb.year_of(value, "work_date") == year
+
+
+@pytest.mark.parametrize("value,year", [
+    ("4th c.", 350), ("4th c", 350), ("4th C.", 350), ("4th century", 350), ("4TH CENTURY", 350),
+    ("12th cent.", 1150), ("12th cent", 1150), ("1st c.", 50), ("2nd c.", 150), ("3rd century", 250),
+    ("4th-5th centuries", 450), ("21st c.", 2050),
+])
+def test_a_stated_century_gives_its_middle_year(value, year):
+    """4.8, lines 700-701: "4th c." is the text's example of a stated century, not its only spelling."""
+    assert tb.year_of(value, "work_date") == year
+
+
+@pytest.mark.parametrize("value", ["5th centre", "4th cell", "4th", "the 4th chapter", "4th cc."])
+def test_an_ordinary_word_after_an_ordinal_is_not_a_century(value):
+    assert tb.year_of(value, "work_date") is None
+
+
+@pytest.mark.parametrize("value", ["350 BC", "350 bc", "350 B.C.", "350 BCE", "350 B.C.E.", "4th c. BC"])
+def test_a_year_marked_bc_is_negative_and_not_read(value):
+    """4.8, line 701: negative years are not read; BC/BCE after a number marks it negative (proposal 14)."""
+    assert tb.year_of(value, "work_date") is None and tb.year_of(value, "life_dates") is None
+
+
+def test_a_bc_run_does_not_hide_another_run():
+    assert tb.year_of("350 BC and 1200", "work_date") == 1200
+
+
+def test_a_run_of_digits_comes_before_a_stated_century():
+    """4.8, line 700: a century is read only "where a value has no such run"."""
+    assert tb.year_of("in 1750 (4th c.)", "work_date") == 1750
+    assert tb.year_of("4th c., copied 1750", "life_dates") == 1750
+    assert tb.year_of("4th c. and 12th c.", "life_dates") == 1150
+    assert tb.year_of("4th c. and 12th c.", "work_date") == 350
+
+
+def test_a_long_value_is_cut_in_messages_only(tmp_path):
+    """S3: a message quotes at most MAX_QUOTED_CHARS of a value; the check still sees the whole value."""
+    from survey_support import survey_core as core
+    root = make_repo(tmp_path)
+    _evidence(root, add=[_with(attribute_kind="k" * 5000)])
+    found = [f for f in _report(root).findings if f.rule == "attribute-kind"]
+    assert found and "k" * 201 not in found[0].message and "\u2026" in found[0].message
+    assert core.q("x" * 10) == "'xxxxxxxxxx'"
+    assert core.q("x" * 300) == repr("x" * core.MAX_QUOTED_CHARS) + "\u2026"
+
+
+def test_a_read_error_partway_through_a_row_file_is_a_finding(tmp_path, monkeypatch):
+    """S2: an OSError while the rows are read is a finding, not a traceback."""
+    import io as _io
+
+    class Failing(_io.StringIO):
+        def __next__(self):
+            raise OSError("device went away")
+
+    monkeypatch.setattr(tb, "open_text_capped", lambda path, cap: Failing("id\n"))
+    rows = tb.read_rows(tmp_path / "any.csv", "any.csv", ("id",), "columns")
+    assert [f.rule for f in rows.findings] == ["columns"] and "device went away" in rows.findings[0].message
+
+
+def test_a_usage_error_is_printed_escaped(tmp_path):
+    """S1: a project name holding a control character reaches stderr escaped."""
+    root = make_repo(tmp_path)
+    code, _out, err = run(survey_validate, "--root", str(root), "tide\x1bbell")
+    assert code == 2 and "\x1b" not in err and "\\x1b" in err
