@@ -166,7 +166,7 @@ copy inside the repository you are checking, or confirm the fingerprint with Jim
 
 - **researchteam is pinned to agentteams** through `toolchain.lock`. That pin moves only to a verified agentteams tag, and only Jim moves it.
 - **Downstream use.** mathAgents pins researchteam the same way, by a verified tag's commit.
-- **Autosync.** The AgentTeams Autosync workflow proposes pin moves as pull requests. Jim pauses it while a release is being cut and resumes it after the final tag.
+- **Autosync.** The AgentTeams Autosync workflow proposes the agentteams update as one evergreen pull request and merges nothing. Jim paused it while 1.3.0 was cut and enabled it again after the final tag (release policy, "Autosync and Layer 2").
 
 ## Questions
 

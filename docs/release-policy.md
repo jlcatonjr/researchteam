@@ -46,7 +46,7 @@ The order agentteams → researchteam → derived holds throughout.
 A move within a line (a patch release) is shorter and keeps the `.tag=` lines. A derived repository locks
 agentteams separately and may be on a later patch of it than the researchteam release pins, so it does not
 install the `update` extra here: verify the researchteam tag, install plain researchteam at the commit it peels
-to, run `researchteam update --ref <tag>`, then `--write-lock` with `--tag researchteam=<tag>` and
+to (the environment keeps agentteams' `signing` extra where step 2 requires it), run `researchteam update --ref <tag>`, then `--write-lock` with `--tag researchteam=<tag>` and
 `--tag agentteams=<the tag already locked>`. Each release's changelog section says what is specific to it.
 
 ### The 1.1 line
@@ -54,7 +54,7 @@ to, run `researchteam update --ref <tag>`, then `--write-lock` with `--tag resea
   has merged to `main`. The 1.1 RC and final tags (`v1.1.0-rc.N`, `v1.1.0`, `v1.1.N`) are cut and signed **on
   `release/1.1` only**, and each tag is merged forward into `main` as above.
 - `release/1.0` stays open for `v1.0.N` backports and keeps its own tags; it does not move to agentteams 1.1.
-- Moving `toolchain.lock` from the 1.0 line to the 1.1 line is a trust change with its own `@security` row
+- Moving researchteam's own `toolchain.lock` from the 1.0 line to the 1.1 line is a trust change with its own `@security` row
   (`release-line-agentteams-1.1`), separate from the pin row. `check_toolchain.py` refuses a cross-line move under
   an existing lock, so the move drops the `agentteams.tag=` line and starts a new lock with
   `--write-lock --tag agentteams=<1.1 tag> --sync-extras`.
@@ -69,7 +69,7 @@ to, run `researchteam update --ref <tag>`, then `--write-lock` with `--tag resea
   after the agentteams 1.2 pin has merged to `main`. The 1.2 RC and final tags (`v1.2.0-rc.N`, `v1.2.0`, `v1.2.N`)
   are cut and signed **on `release/1.2` only**, and each tag is merged forward into `main` as above.
 - `release/1.1` stays open for `v1.1.N` backports and keeps its own tags; it does not move to agentteams 1.2.
-- Moving `toolchain.lock` from the 1.1 line to the 1.2 line is a trust change with its own `@security` row
+- Moving researchteam's own `toolchain.lock` from the 1.1 line to the 1.2 line is a trust change with its own `@security` row
   (`release-line-agentteams-1.2`), separate from the pin review. As for 1.1, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.2 tag> --sync-extras`.
 - researchteam 1.2.0 is the agentteams 1.2 pin release. The term-index core switch (`docs/term-index-protocol.md`,
@@ -88,7 +88,7 @@ to, run `researchteam update --ref <tag>`, then `--write-lock` with `--tag resea
   `release/1.3` only**, and each tag is merged forward into `main` as above. 1.3.0 is released as a candidate and
   then the final (operator ruling, 2026-11-24).
 - `release/1.2` stays open for `v1.2.N` backports and keeps its own tags; it does not move to agentteams 1.3.
-- Moving `toolchain.lock` from the 1.2 line to the 1.3 line is a trust change with its own `@security` row
+- Moving researchteam's own `toolchain.lock` from the 1.2 line to the 1.3 line is a trust change with its own `@security` row
   (`release-line-agentteams-1.3`), separate from the pin review. As before, the move drops the `agentteams.tag=`
   line and starts a new lock with `--write-lock --tag agentteams=<1.3 tag> --sync-extras`. The new lock follows only
   verified signed tags on the 1.3 line.
