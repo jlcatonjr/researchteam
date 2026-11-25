@@ -572,7 +572,13 @@ def test_an_upper_case_table_pattern_is_refused(tmp_path):
 
 def test_a_nul_in_a_cell_is_a_finding(tmp_path):
     root = make_repo(tmp_path)
-    _evidence(root, add=[_with(note="a\x00b")])
+    # The csv writer of Python 3.10 cannot write a NUL, so the cell is written with a marker and the NUL is put
+    # into the file's bytes afterwards.
+    _evidence(root, add=[_with(note="aNULMARKERb")])
+    path = root / ROWS / "evidence.csv"
+    data = path.read_bytes()
+    assert data.count(b"NULMARKER") == 1
+    path.write_bytes(data.replace(b"NULMARKER", b"\x00"))
     assert "cell-nul" in _rules(root)
 
 
