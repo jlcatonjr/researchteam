@@ -37,10 +37,11 @@ vgit() { ngit -c safe.directory="$SRC" "$@"; }
 owner() { /usr/bin/stat -f %Su "$1"; }
 # loose DIR: the first thing under DIR that is not owned by root (links included), or that is writable by group or
 # others (a link's own mode is not meaningful, so only its owner is tested). Run as root, so nothing is skipped as
-# unreadable; if find itself fails, the run stops.
+# unreadable. It is always called inside $(...), where an exit would end only that subshell, so a failed find is
+# reported as output: the caller sees a non-empty answer and stops.
 loose() {
   local out
-  out="$(asroot /usr/bin/find "$1" \( ! -user root -o \( ! -type l -perm +022 \) \) -print)" || die "cannot inspect $1; nothing was installed"
+  out="$(asroot /usr/bin/find "$1" \( ! -user root -o \( ! -type l -perm +022 \) \) -print)" || { printf 'cannot inspect %s\n' "$1"; return 1; }
   printf '%s\n' "$out" | /usr/bin/head -1
 }
 # rooted DIR: DIR and every folder above it is a real folder owned by root and not writable by group or others, so
@@ -116,17 +117,21 @@ cd /
 [ -x "$ROOT_HOME/venv/bin/python" ] || asroot "$PY" -I -m venv --copies "$ROOT_HOME/venv"
 # The package's build backend runs as root here, on the source verified above. The build tool is the one
 # agentteams' pyproject.toml pins at this tag (setuptools==84.2.1), installed first by hash, and the build then
-# runs without pip's isolated build environment, so nothing unpinned is downloaded and run as root.
+# runs without pip's isolated build environment, so nothing unpinned is downloaded and run as root. Every dependency
+# must come as a wheel (--only-binary), so no other package's build code runs either; the local source still builds
+# (rehearsed as an ordinary user in a scratch folder on 2026-11-25: agentteams 1.3.0, wheels only).
 # S-10 for setuptools 84.2.1: released 2026-10-20 (past the 14-day cooldown); no advisory listed by PyPI on
 # 2026-11-25; the wheel's sha256 below is PyPI's for setuptools-84.2.1-py3-none-any.whl.
 grep -qF 'requires = ["setuptools==84.2.1"]' "$SRC/pyproject.toml" || die "agentteams at $AT_TAG does not pin setuptools==84.2.1 as its only build requirement; stop"
-printf 'setuptools==84.2.1 --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2\n' > "$TMP/build-requirements.txt"
-asroot /bin/cp "$TMP/build-requirements.txt" "$ROOT_HOME/build-requirements.txt"
-[ "$(/usr/bin/shasum -a 256 "$ROOT_HOME/build-requirements.txt" | cut -d' ' -f1)" = "$(/usr/bin/shasum -a 256 "$TMP/build-requirements.txt" | cut -d' ' -f1)" ] || die "the copied build requirements differ"
+# Written by root straight into the root-owned folder and checked against a fixed hash: no file you can write is
+# compared with or copied from.
+BUILD_REQ_SHA="0d5ab27e0fa2cc72eeb7a0b3fa12dba6f34bbc8df2c7dac705c08aafb18c20d7"
+printf 'setuptools==84.2.1 --hash=sha256:ca140b45d5325a9478f880e351484f62fef15f336462e449ca0c03c873d589c2\n' | asroot /usr/bin/tee "$ROOT_HOME/build-requirements.txt" >/dev/null
+[ "$(/usr/bin/shasum -a 256 "$ROOT_HOME/build-requirements.txt" | cut -d' ' -f1)" = "$BUILD_REQ_SHA" ] || die "the build requirements file is not the reviewed one"
 asroot "$ROOT_HOME/venv/bin/python" -I -m pip --isolated --disable-pip-version-check install --quiet --no-cache-dir \
   --require-hashes --only-binary :all: -r "$ROOT_HOME/build-requirements.txt"
 asroot "$ROOT_HOME/venv/bin/python" -I -m pip --isolated --disable-pip-version-check install --quiet --no-cache-dir \
-  --no-build-isolation --constraint "$ROOT_HOME/constraints.txt" "$SRC[signing]"
+  --no-build-isolation --only-binary :all: --constraint "$ROOT_HOME/constraints.txt" "$SRC[signing]"
 asroot /usr/sbin/chown -R root:wheel "$ROOT_HOME" && asroot /bin/chmod -R go-w "$ROOT_HOME"
 
 say "Checks"
