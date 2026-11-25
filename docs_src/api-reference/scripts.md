@@ -282,6 +282,8 @@ them with `python3 -B -I`.
 | `survey_identity.py` | Step B part 2. The project's persons, the overrides file's checks (4.4), the registry's rows, stop words and candidates |
 | `survey_registry.py` | Step B part 2. The `survey-registry` command |
 | `survey_rows.py` | Step B part 2b. The `survey-rows` command: the batch merge, and `--draft-exceptions` |
+| `survey_codes.py` | Step C. The codes and adjudications files' checks (4.2) and raw agreement between passes A and B |
+| `survey_agreement.py` | Step C. The `survey-agreement` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
 | `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
@@ -300,6 +302,20 @@ break, or a format character such as a bidirectional override, refuses the build
 equal (`exact`) or share a word that is not a stop word (`similar`), at most 1000; a pair an override row names is
 decided and not listed. It writes nothing. A study with a vantage module (`identity-vantage`) or plugin evidence is
 refused: this version does not load project code.
+
+### Codes and agreement (step C, part 1)
+
+`survey-validate` also checks each coded outcome's codes file and adjudications file (4.2). Codes rows: the pass is
+`A`, `B` or `final`; the outcome is declared with source `codes` and names this file; the code is a level code, an NA
+code or the missing value; a code other than the missing value has evidence and a basis (`own` or `reported`); a
+reported code has a reporter; every evidence id exists and belongs to the coded unit's author; one row per unit,
+outcome and pass; a `final` row needs both passes unless it is the adjudication of a missing pass; every row has a
+coder (rule 1.3); the unit is an attribution unit (or, in an author study, a registry person) and `person_id` its
+author. Adjudications: checked like codes rows, with a coder and a note; none for a unit on which A and B agree; where a
+pass is missing the note begins `missing pass: A, ` or `missing pass: B, ` and gives a reason; one per unit. Ids:
+`codes-*`, `adjudication-*`. `survey-agreement <project>` prints, per coded outcome, raw agreement as "k of n units
+with both passes" and the units with one pass only; Cohen's κ and Gwet's AC1 are not computed (the contract gives no
+formula). It writes nothing. Finalising and the rollup are not in this version.
 
 ### The batch merge (step B part 2b)
 

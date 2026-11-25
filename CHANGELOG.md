@@ -5,6 +5,18 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step C part 1: codes and agreement** (`scripts/survey/survey_codes.py`, `survey_agreement.py`).
+  `survey-validate` now also checks each coded outcome's codes file and adjudications file (contract 4.2): passes
+  `A`, `B` and `final`, allowed codes, evidence and basis for every code but the missing value, reporters, evidence
+  that exists and belongs to the coded unit's author, one row per unit, outcome and pass, a final row only with both
+  passes or from a missing-pass adjudication, a coder on every row; adjudications with a coder and a note, none for a
+  unit on which the passes agree, and a `missing pass: A, ` or `missing pass: B, ` note with a reason where a pass is
+  missing. New bridge command `survey-agreement <project>`: raw agreement between passes A and B per outcome, as "k
+  of n units", with the units that have one pass only; it writes nothing. Cohen's κ and Gwet's AC1 are not computed:
+  the contract names them without a formula, and the check table proposes the formulas. Finalising and the rollup are
+  step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
+  for an id holding a character the printed draft would escape. The check table is
+  `references/plans/post-1.3.0-h5-step-c-check-table.md`.
 - **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
   `survey-rows <project> <batch>`: a batch of evidence rows (a file inside the study's folder, with the evidence
   columns) is checked together with the evidence file it joins, every row check of the merged file included, and

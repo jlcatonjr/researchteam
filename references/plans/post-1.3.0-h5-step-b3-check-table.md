@@ -57,7 +57,7 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
 | 363 | Only in a legacy study | — | `test_a_first_exceptions_file_is_for_a_legacy_study` |
 | 357-358 | A breach of `columns`, `id-empty` or `id-duplicate` cannot be listed, so no draft is written while one stands | the rule's id | `test_no_first_exceptions_file_while_an_unlistable_breach_stands` |
 | 313-315 | "None of them is skipped because an optional declaration or file is absent … a missing registry is itself an error": no draft without a registry (`person-unknown` could not be judged) | `registry-missing` | `test_no_exceptions_draft_without_a_registry` |
-| (proposal 11) | No draft while the id of a row with a breach to list holds a control, format or line-separator character: a printed draft (escaped) could not name it exactly; the row is named. A row without a breach is not judged | `exceptions-draft` (toolkit) | `test_no_exceptions_draft_for_an_id_with_a_control_character`, `test_an_id_with_a_control_character_in_a_row_without_a_breach_does_not_stop_the_draft` |
+| (proposal 11) | No draft while the id of a row with a breach to list holds a character the printed draft would show escaped (control, format, line-separator, and private use: anything `safe()` changes); the row is named. A row without a breach is not judged | `exceptions-draft` (toolkit) | `test_no_exceptions_draft_for_an_id_with_a_control_character`, `test_an_id_with_a_control_character_in_a_row_without_a_breach_does_not_stop_the_draft` |
 
 ## Command and bridge (section 7, line 929)
 
@@ -117,11 +117,12 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
    "CSV, UTF-8" (section 4, line 275), a quotation is reported "as it stands" (5.3, line 755), and folding makes each
    run of white space one space (rule 1.10). Refused: in an identifier column (`id`, `person_id`, `unit_id`,
    `source_id`, `attribute_kind`, `tier`, `basis`, `locator`, `url`, the values compared exactly or matched as a
-   whole) any control, format or line-separator character, white space included; in every column a lone CR, and Cc
-   (bar TAB, LF and CR LF in text), Cf, Zl and Zp. Private use (Co) and unassigned (Cn) are not refused: Co is used in
-   scholarly transcriptions, and Cn changes with the running Python's Unicode data (rule 1.5). Rows already in the
-   file are not judged again. A note, not a rule: anything that reads the evidence file line by line must use a CSV
-   reader, since a cell may span lines.
+   whole) any control, format or line-separator character, TAB and line breaks included (a plain space is
+   accepted); in every column a lone CR, and Cc (bar TAB, LF and CR LF in text: so NEL, U+0085, is refused even in a
+   text column), Cf, Zl and Zp. Private use (Co) and unassigned (Cn) are not refused: Co is used in scholarly
+   transcriptions, and Cn changes with the running Python's Unicode data (rule 1.5). Rows already in the file are not
+   judged again. A note, not a rule: anything that reads the evidence file line by line must use a CSV reader, since
+   a cell may span lines.
 9. **Strict CSV** (reading section 4, line 275, "CSV, UTF-8"): the shared row reader rejects only what standard CSV
    does not allow, an unterminated quote and text after a closing quote, everywhere. This changed no verdict on the
    invented study or any existing test.
