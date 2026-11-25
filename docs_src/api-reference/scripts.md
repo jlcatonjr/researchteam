@@ -287,16 +287,19 @@ the vocabulary file and the bucket tables. Evidence errors carry the rule ids of
 `id-duplicate`, `attribute-kind`, `person-unknown`, `unit-id`, `unit-unknown`, `unit-person`, `id-separator`,
 `tier-unknown`, `counted-quote`, `counted-citation`, `counted-basis`, `reported-reporter`, `own-reporter`, `ne-quote`,
 `ne-note`, `vocabulary`). The other ids are the toolkit's own: `registry-missing`, `registry-columns`,
-`registry-person`, `vocabulary-file`, `evidence-plugin`; `exceptions-columns`, `exceptions-rule`,
+`registry-person`, `vocabulary-file`, `evidence-plugin`, `cell-nul`, `locator-missing`; `exceptions-columns`, `exceptions-rule`,
 `exceptions-unlistable`, `exceptions-id`, `exceptions-duplicate`, `exceptions-stale`; `receipts-undeclared`,
 `receipt-url`, `receipt-missing`, `receipt-malformed`; `attribution-columns`, `attribution-unit-empty`,
 `attribution-unit-duplicate`, `attribution-unit-is-person`, `attribution-person-empty`, `attribution-separator`,
 `attribution-status`, `attribution-author-kind`, `attribution-passage-attribute`, `attribution-author-kinds`;
 `table-columns`, `table-empty`, `table-row`, `table-pattern`, `table-bucket`, `table-fallback`.
 
-In a legacy study a breach listed in `evidence.legacy_exceptions` is counted and does not fail, and a missing or
-unusable fetch receipt is printed as `REPORTED`, not an error (5.4). The run prints how many rows it read, how many
-exceptions it was read with and the excused breaches by rule. Evidence in a `plugin` format is not checked: this
+In a legacy study a breach listed in `evidence.legacy_exceptions` is counted and does not fail, and a counted row
+that predates receipts (no receipt, no url, no locator) is printed as `REPORTED`, not an error (5.4); a receipt that
+is there and broken is an error. Every run, failing or not, prints how many rows it read, how many exceptions it was
+read with, the excused breaches by rule, and how many counted quotations were not re-found. Row files are streamed
+(`MAX_CSV_BYTES`, 64 MiB) and opened at their resolved place under rule 1.6; project patterns are capped
+(`MAX_PATTERN_CHARS`, `MAX_PATTERNS`, `MAX_MATCH_CHARS`); every output line escapes control characters. Evidence in a `plugin` format is not checked: this
 version does not load the reader plug-in, and says so as an error. Nothing re-finds a quotation yet (step G); the
 count of counted quotations not re-found is printed. The batch merge (`survey-rows`) and the registry
 (`survey-registry`) are not in this version.

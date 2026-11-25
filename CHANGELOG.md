@@ -15,9 +15,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   - the forbidden vocabulary, matched on folded text;
   - bucket tables, with the bucketer (`match` first and all) and the year and period rule as functions for later
     steps;
-  - the form and presence of a fetch-receipt citation (a counted row whose locator is not a `<work slug>#p<N>`
-    locus). Nothing re-finds a quotation yet: that is step G.
-  Evidence in a `plugin` format is not read (the reader plug-in is not loaded), and `survey-validate` fails for it.
+  - the form and presence of a fetch-receipt citation (a row whose locator is not a `<work slug>#p<N>` locus; a
+    receipt must carry the ten required keys of 4.4). Nothing re-finds a quotation yet: that is step G.
+  Row files are streamed (at most 64 MiB) and opened at their resolved place under rule 1.6. Every output line
+  escapes control characters, so a file cannot forge a line. Project patterns are capped in length and number, and
+  every compile failure is a finding. The excused breaches and the quotations not re-found are printed on every run.
+  Evidence in a `plugin` format is not read (the reader plug-in is not loaded: not implemented), and
+  `survey-validate` fails for it.
   The batch merge (`survey-rows`), the identity registry (`survey-registry`) and writing a first exceptions file
   are step B part 2. The check table is `references/plans/post-1.3.0-h5-step-b-check-table.md`.
 - Survey toolkit, step A follow-ups: a `parent_team` with a `..` segment says so; the example study's S0 manifest
