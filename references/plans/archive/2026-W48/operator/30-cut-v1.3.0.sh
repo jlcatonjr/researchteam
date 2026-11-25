@@ -46,6 +46,7 @@ ngit merge-base --is-ancestor "$SHA" refs/remotes/origin/main || die "$SHA is no
 # The cut commit is the release-prep PR's merge commit and nothing later, merged at the head that was reviewed.
 PREP_PR="<final release-prep PR number>"     # filled in the runnable copy once the PR exists
 PR_HEAD="<reviewed head of the final release-prep PR>"   # filled in the runnable copy once this file is committed
+[[ "$PREP_PR" =~ ^[1-9][0-9]*$ ]] || die "PREP_PR is not a pull-request number"
 [ "$(gh pr view "$PREP_PR" -R "$REPO" --json state,headRefOid -q '"\(.state) \(.headRefOid)"')" = "MERGED $PR_HEAD" ] || die "PR #$PREP_PR is not merged at the reviewed head $PR_HEAD"
 PR_MERGE="$(gh pr view "$PREP_PR" -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #$PREP_PR"
 [ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #$PREP_PR (${PR_MERGE:-none})"
@@ -65,7 +66,7 @@ done
 # instructions. No pin, lock, workflow, agent, script or package file may differ. The files outside the release
 # folders are named one by one; researchteam update copies documents from docs/ and the managed CLAUDE.md block
 # into every derived repository, where agents follow them, so those are limited further below.
-RC="v1.3.0-rc.1"; RC_OBJ="<v1.3.0-rc.1 tag object>"   # filled in once the candidate is cut
+RC="v1.3.0-rc.1"; RC_OBJ="22359c747fd2bd86e8af826e31fd84ca476181ab"   # read back from the remote after the cut, 2026-11-24
 [ "$(ngit rev-parse "refs/tags/$RC")" = "$RC_OBJ" ] || die "local $RC is not tag object $RC_OBJ"
 [ "$(ngit ls-remote "$RT_URL" "refs/tags/$RC" | cut -f1)" = "$RC_OBJ" ] || die "remote $RC is not tag object $RC_OBJ"
 verify_tag "$MAIN" "$RC"
