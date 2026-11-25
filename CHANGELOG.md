@@ -36,6 +36,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
       sign-off proves (6.2), and that no tool can detect every edit to a log's history.
     - `survey-manifest` prints the operator's signing spec and command, with placeholders.
     - Every value read from a log is escaped before it is printed.
+  - **After review.** A family HALT is any id whose tokens contain `survey signoff` (all gates) or
+    `survey signoff <gate>` (that gate), except a study's scope or action. Without a usable agentteams every gate with
+    a current request reads `UNAVAILABLE`, before the tools' row rules (rule 1.7); no request reads `UNCLEARED`, also
+    when the manifest cannot be built. The child runs with `-B -I`; its answer counts only with `cleared` exactly
+    true and the package exactly at `<purelib>/agentteams/__init__.py`; its output is read through a bounded read.
+    `survey-status` also says whether the verifier's interpreter is inside the work tree. No message names an
+    absolute path.
   - **Tests.** The signing tests generate an Ed25519 key pair at run time. They skip, with the reason, where
     agentteams 1.3.0 or `cryptography` is absent, which includes the current CI.
 

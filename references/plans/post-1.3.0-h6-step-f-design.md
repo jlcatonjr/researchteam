@@ -74,22 +74,22 @@ The gate state is decided in this order (step A's order, with steps 7 to 9 new):
 | 3a | No request yet (no manifest file), agentteams usable | `UNCLEARED`, reason "no sign-off request: run survey-manifest" | 0 / 0 / blocking refuses | 815 (Q7) | Step 8. Step A reported `UNAVAILABLE` here only because it could verify nothing |
 | 4 | A row with a **non-Ed25519 scheme** (the shared-secret HMAC scheme), anywhere in the folder log | malformed ledger (operator decision Q5) | status 1, validate 1; blocking refuses | 861-865 | **The tools' own rule:** every row must be `ed25519`. 6.2 (line 864) notes that agentteams also accepts a shared-secret row; the tools do not count one |
 | 5 | `key_id` names a key **not in the folder**: missing, or present only in a team dir | `UNCLEARED` | 0 / 0 / blocking refuses | 862 | agentteams loads the key from the folder's store only ("no Ed25519 verify key …") **(run)**. A key file that exists but cannot be read leaves the gate `UNAVAILABLE` (step A already reads every key file) |
-| 6 | Author **not on the approver list** | `UNCLEARED` | 0 / 0 / blocking refuses | 841-842, 863 | agentteams author check against the folder's `security-approvers.txt` **(run)**. An empty or comment-only list is already a step A error, because agentteams then falls back to the authors `security` and `@security` **(run)** |
+| 6 | Author **not on the approver list** | `UNCLEARED` | 0 / 0 / blocking refuses | 841-842, 863 | agentteams author check against the folder's `security-approvers.txt` **(run)**. An empty or comment-only approver list is an error (`ledger-approvers-empty`). |
 | 7 | A **waiver file** in the folder | `UNAVAILABLE` | **status 1, validate 1**; blocking refuses (build-only: Q9) | 866-868 | **The tools' own rule:** a waiver file is an error (step A's `ledger-waiver`), checked again after the agentteams call |
 | 8 | Unretracted **HALT in the folder's own log** on the action or the scope | `UNCLEARED` | 0 / 0 / blocking refuses | 894-897 | agentteams **(run)** |
 | 8a | The same, on `survey-signoff` or `survey-signoff/<gate>` | `UNCLEARED` | 0 / 0 / blocking refuses | 895, 907-909 | **The tools' own check** (agentteams does not bind a shorter name **(run)**). Needs Q1 |
 | 9 | Unretracted HALT in a **repository team log** (the five generated locations under every enclosing `.git` root, and `parent_team`) **on the action or the scope** | `UNCLEARED` | 0 / 0 / blocking refuses | 898-905 | agentteams `halt_scan_dirs` and `check_file_clearance` **(run)** |
 | 9a | … **on a family name** | `UNCLEARED` | 0 / 0 / blocking refuses | 907-909 | The tools' own check. Needs Q1 |
-| 9b | … **on an ancestor** named in the sign-off row's `derives_from` | Folder log: `UNCLEARED` (agentteams follows the lineage within that log). Team log: **not bound** by agentteams, which builds each log's lineage from that log's own rows only | 0 / 0 / blocking refuses (folder) | not in the contract | A `derives_from` that names an id the folder log does not record fails closed in agentteams. Step F proposes refusing a sign-off row with a non-empty `derives_from` (Q6), which makes this row moot |
+| 9b | … **on an ancestor** named in the sign-off row's `derives_from` | Not reachable: a sign-off row with a non-empty `derives_from` is refused (Q6). | — | not in the contract | — |
 | 9c | HALT on **another study** whose id extends this one with `-` or `_` (a HALT on `…/S0/demo-2` against study `demo`) | `UNCLEARED` (over-binding) | 0 / 0 / blocking refuses | 906-907 say a HALT on another action does not bind | agentteams' `action_matches` prefix rule **(run)**. Fails safe, but differs from the text (Q2) |
 | 10 | The HALT is **retracted** by a `HALT-RETRACTED` row that is valid in its own log | As if there were no HALT, except that a HALT on the **exact action** stays the latest decision for it, so the gate is `UNCLEARED` until a **new** Ed25519 PASS follows the retraction | 0 / 0 / per state | 910 | agentteams for the action and the scope; Q1 for the family names. A retraction that is unsigned in a signing-active log, has no evidence, or comes from an unapproved author retracts nothing |
-| 11 | A `consumed` mark in the folder log | malformed ledger | status 1, validate 1; blocking refuses | 852, 889 | **The tools' own rule:** the log has exactly agentteams' new-log header, which has no `consumed` column. A check spends nothing (line 889), and the tools do not rely on a clearance being spent |
+| 11 | A `consumed` mark in the folder log | malformed ledger | status 1, validate 1; blocking refuses | 852, 889 | **The tools' own rule:** the exact header has no `consumed` column, so such a log is refused; a check spends nothing (line 889) |
 | 12 | **CONDITIONAL PASS**, conditions `pending` | `UNCLEARED` | 0 / 0 / blocking refuses | 890-891 | agentteams **(run)** |
 | 12a | **CONDITIONAL PASS**, `conditions_verified = verified`, Ed25519 and otherwise valid | `CLEARED` | 0 / 0 / runs | 890 | agentteams, plus the tools' scheme check |
 | 13 | **Malformed folder log**: fails step A's structure | `UNAVAILABLE` | **status 1, validate 1** | 816-817, 910-913 | step A `ledger-log` (step F extends the structure: section 6) |
 | 13a | Folder log passes the tools' structure but agentteams refuses it | `UNCLEARED` (the tools read only the child's `cleared` answer, never its message) | status 0, validate 0 | 816-817 | A gate state, not a finding, so that exit codes never depend on whether agentteams is installed. The tools' stricter structure makes this rare |
 | 13b | A **team log** (generated location or `parent_team`) unreadable or malformed | `UNAVAILABLE` | status 0, validate 0 | 910-913 | The tools pre-check every scanned log with the standard library (and with `check_log` when agentteams is present). Step A proposal 20 keeps exit 0 |
-| 14 | **agentteams absent** from the tools' interpreter, or `cryptography` absent | `UNAVAILABLE` (or `UNCLEARED` when the request is stale) | 0 / 0 / blocking refuses | 1.7 (44-46); 816 | `importlib.metadata.version("agentteams")` and `importlib.util.find_spec("cryptography")`, standard library, with no import of agentteams |
+| 14 | **agentteams absent** from the tools' interpreter, or `cryptography` absent | `UNAVAILABLE` (or `UNCLEARED` when there is no request or the request is stale). *Revised after review (T1): this is decided before rows 3, 5, 6 and 12, which read `UNCLEARED` only where agentteams is usable* | 0 / 0 / blocking refuses | 1.7 (44-46); 816 | `importlib.metadata.version("agentteams")` and `importlib.util.find_spec("cryptography")`, standard library, with no import of agentteams |
 | 15 | **agentteams older than 1.3.0**, or a version that cannot be parsed | `UNAVAILABLE`, with the version in the reason | 0 / 0 / blocking refuses | 915-917 | Same lookup. `1.3.0` or later, by leading integers; anything else fails closed |
 | 16 | **Files changed since the request** (or a covered file now missing) | `UNCLEARED` | 0 / 0 / blocking refuses | 817-818 | Step 3 of the order, standard library only, before the ledger and before agentteams (step A's test `test_uncleared_holds_even_when_the_ledger_is_malformed` stays true) |
 | 17 | `mode: retroactive` | As for prospective | status prints the mode; outputs record it | 828-829; 4.6 | `mode` is a field of the manifest, so a change of mode is a stale request (row 16) |
@@ -133,9 +133,7 @@ The gate state is decided in this order (step A's order, with steps 7 to 9 new):
   | `signature` | the hex Ed25519 signature |
   | `derives_from`, `scope`, `effect_*` | empty |
 
-  The minter shows the row's derived class as `non-relaxing` and "needs operator: False" **(run)**. The row still
-  takes the Ed25519 branch, because its signed `sig_scheme` is `ed25519`
-  (`decision_log._assert_authorizing_row_is_authentic`, the "rc.11" branch).
+  Every row of the folder log must be `ed25519` (Q5).
 - **The operator's signing command.** Line 881 of the contract gives it; `survey-manifest` today prints only the
   scope, the action, the mode and the verify command. Step F makes `survey-manifest` also print the spec (to stdout,
   writing no file) and this command:
@@ -285,17 +283,8 @@ interpreter, so it stays out of the tools' process. On Python 3.10 agentteams ca
   override. If the operator decides that the tools must refuse rows
   carrying that mark (Q4), the tests can no longer use the minter from the repository's environment, and only the
   next option remains.
-- **Building the payload with `cryptography` directly** is possible, but the format is **not public**. It is:
-
-  - the fields `date`, `action_reviewed`, `verdict`, `conditions_verified`, `author` and `prev_digest`;
-  - then, for each non-empty one of `derives_from`, `sig_scheme`, `key_id`, `scope`, the seven `effect_*` columns
-    and `text_digest`, a token `name=value`;
-  - each value stripped and joined with `|`, Ed25519 over UTF-8, hex.
-
-  It lives only in the private `decision_log._DECISION_SIGNATURE_FIELDS`, `_OPTIONAL_SIGNED_AXES` and
-  `_decision_signature_values`. agentteams' documentation does not describe it; `--sign-decision` only displays the
-  values. A test that copies it breaks silently when agentteams changes it, although the failure is fail-closed (the
-  gate stops clearing). **Use the minter.**
+- **Building the row directly** with agentteams' own payload builder is what the tests do (`tests/survey_signing.py`
+  explains why and how); the payload format is not public, so it is not described here.
 - **What runs in CI.** The two test checks install only `.github/ci/requirements-test.txt`, which has neither
   agentteams nor `cryptography`, on Python 3.10 and 3.13.
 
@@ -341,7 +330,7 @@ step A's structural checks; **residual** = not detectable by any tool and held o
 | 7 | Key file removed from the folder, or present only in a team dir | at **(run)** |
 | 8 | A key and an approver planted in the folder, with a row signed by that key | **residual** (6.2, lines 874-880; open point 7). Parity with the team's store when the team has keys and approvers (A) |
 | 9 | Approver list edited after signing to drop the signer | at **(run)**. Edited to add a new author: residual, as 8 |
-| 10 | Approver list empty or comments only: agentteams falls back to `security` / `@security` **(run)** | A (`ledger-approvers-empty`) |
+| 10 | Approver list empty or comments only | A: an empty or comment-only approver list is an error (`ledger-approvers-empty`) |
 | 11 | A row signed with the shared-secret HMAC scheme | **tools**: every row must be `ed25519` (6.2, 861-865) |
 | 12 | An HMAC row relabelled `sig_scheme=ed25519` | at: `sig_scheme` is signed, so verification fails |
 | 13 | A waiver file in the folder | A and **tools**: a waiver file is an error (6.2, 866-868), checked again after the call |
@@ -353,7 +342,7 @@ step A's structural checks; **residual** = not detectable by any tool and held o
 | 19 | A retraction that is unsigned in a signing-active log, carries no evidence, or comes from an unapproved author | at |
 | 20 | A `CONDITIONAL PASS` with conditions pending | at **(run)** |
 | 21 | Another verdict (`USED`, unknown) as the latest matching row | at |
-| 22 | A `consumed` mark in the folder log | **tools**: the exact header has no `consumed` column (6.2, line 852); a check spends nothing (line 889), and the tools do not rely on a clearance being spent |
+| 22 | A `consumed` mark in the folder log | **tools**: the exact header has no `consumed` column, so such a log is refused; a check spends nothing (6.2, lines 852 and 889) |
 | 23 | (merged into 22) | — |
 | 24 | Rows out of date order | Dates are never compared, and file order decides (no clock, rule 1.5) |
 | 25 | Edits to a log's history | **residual**: no tool can detect every edit to a log's history; review of the ledger folder's history is the control (6.2, lines 874-880) |
@@ -392,7 +381,7 @@ step A's structural checks; **residual** = not detectable by any tool and held o
 **`survey_ledger.py`.** Standard library; the new structural rules make a malformed ledger, so status and validate
 exit 1.
 
-- **Header.** The folder log's header must be one agentteams accepts and writes for a new log: `timestamp`,
+- **Header.** The folder log's header must be exactly the one agentteams writes for a new log: `timestamp`,
   `requesting_agent` and then `SIGNED_DECISION_COLUMNS`. At least, it must contain the six legacy required columns
   and `author`, `sig_scheme`, `key_id`, `signature`, `prev_digest` and `text_digest`.
 - **No other schema.** No `decision`, `status`, `owner` or `plan_slug` column, and no column named twice.

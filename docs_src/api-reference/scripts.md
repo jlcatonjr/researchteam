@@ -358,10 +358,13 @@ in the check table `references/plans/post-1.3.0-h6-step-f-check-table.md`. In sh
 - a malformed ledger folder or manifest file, anything that would stop the HALT scan of 6.2 (a team directory
   reached through a symbolic link, a `parent_team` with one of the faults 6.2 lists, more than one git root above the
   folder, a team log that cannot be read), or a HALT row on `survey-signoff` or `survey-signoff/<gate>` in any
-  scanned log (the interim rule: signed or not, retracted or not), leaves the gate `UNAVAILABLE`;
-- no request, or a deciding row that fails the tools' rules, is `UNCLEARED`;
-- agentteams absent (always on Python 3.10), older than 1.3.0, without `cryptography`, or answering in any way but
-  one well-formed JSON line, is `UNAVAILABLE`.
+  scanned log, or on any id whose tokens contain that name (the interim rule: signed or not, retracted or not), leaves
+  the gate `UNAVAILABLE`;
+- no request is `UNCLEARED`;
+- otherwise agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography` is `UNAVAILABLE`,
+  decided before the tools' rules on the row (rule 1.7);
+- a deciding row that fails the tools' rules is `UNCLEARED`;
+- an answer from agentteams in any way but one well-formed JSON line is `UNAVAILABLE`.
 
 Reasons that stop the HALT scan are printed and do not make `survey-status` or `survey-validate` fail. A
 `parent_team` value that is no path at all (not a string, empty, a NUL, `repo:`-rooted, a backslash or a `.`
