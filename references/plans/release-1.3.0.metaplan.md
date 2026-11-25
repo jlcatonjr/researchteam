@@ -329,3 +329,11 @@ second pass.
   proceed; it is holding, and was told this session leads T6.
 - **The autosync is paused.** The operator ran script 28 on 2026-11-24; the workflow reads back as
   `disabled_manually`. It is resumed with the same script (`resume`) after `v1.3.0` is final.
+- **The final's release files are drafted (2026-11-24), while the candidate cut is with the operator.** Draft PR
+  #261 (`release/final-1.3.0`): the `1.3.0` changelog section and release notes, install instructions naming
+  `v1.3.0` with a guard test (supersedes #156), `docs/CONTRIBUTING.md` brought up to date, "older than 1.3.0rc1"
+  in `docs/term-index-protocol.md`, and the tracked copy of the final cut script (30). The bridge script's comment
+  keeps "older than 1.3.0", so that no synced script differs between the candidate and the final.
+  `@security` gave CONDITIONAL PASS and `@conflict-auditor` two blocking findings at `7d48b81`; both sets are
+  addressed in `4bbeeb8`, and `@security`'s second read is running. The PR stays a draft until the candidate is
+  cut and the downstream dry run has reported. Script 30 needs the candidate's tag object before hand-over.

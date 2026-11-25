@@ -1,11 +1,11 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-1,orchestrator,Ask D10 and D11; freeze review,T1 to T4 merged or dropped,freeze record,pending,waits for T1 to T4,
-2,primary-producer,Release-prep PR: changelog; notes; policy text; install instructions; tracked script copy,1,PR,pending,the lead writes the changelog; @security and @conflict-auditor; operator approves; git-operations merges,1
+1,orchestrator,Ask D10 and D11; freeze review,T1 to T4 merged or dropped,freeze record,done,"freeze declared at 440b526 (operator, 2026-11-24); D10, D11 answered",
+2,primary-producer,Release-prep PR: changelog; notes; policy text; install instructions; tracked script copy,1,PR,done,"candidate release-prep PR #260 merged at 26ee061 (operator approval, 2026-11-24); install instructions moved to the final's PR (branch release/final-1.3.0)",1
 3,git-operations,Close PR #156 as superseded,2; D9,closed PR,pending,only with the operator's agreement,2
-4,git-operations,Candidate cut script creating release/1.3; newest 1.2.N pinned; refusals incl. the copied-core network comparison,2,operator script,pending,@security reviews before hand-over,2
-5,orchestrator,Operator runs the script; read back tag; peel; branch; verification; main contains the tag,4,v1.3.0-rc.1,pending,operator signs,4
+4,git-operations,Candidate cut script creating release/1.3; newest 1.2.N pinned; refusals incl. the copied-core network comparison,2,operator script,done,script 29 reviewed by @security and the coordinator; handed to the operator 2026-11-24,2
+5,orchestrator,Operator runs the script; read back tag; peel; branch; verification; main contains the tag,4,v1.3.0-rc.1,pending,"with the operator: script 29 not yet run (no release/1.3, no tag on the remote at last check)",4
 6,orchestrator,Wait for the downstream dry-run pin report; candidate fixes by PR; next candidate by fast-forward inside the next script,5,report,pending,,5
-7,git-operations,Final cut script with the same refusals; marks Latest,6,operator script,pending,@security reviews before hand-over,6
+7,git-operations,Final cut script with the same refusals; marks Latest,6,operator script,in-progress,script 30 drafted on release/final-1.3.0 with the final's release files; @security and @conflict-auditor reading; the candidate's tag object is filled in after the cut,6
 8,orchestrator,Operator go and run; read-back; main contains the tag; tell the coordinator,7,v1.3.0; message,pending,operator signs,7
 9,git-operations,Push the soak and rehearsal branches to archive/,8,archive branches,pending,,8
 10,work-summarizer,Work summary,8,workSummaries/daily,pending,,8
