@@ -286,7 +286,8 @@ python3 scripts/survey/survey_schema.py [--check]
 ```
 
 `<project>` names `Projects/<project>/study.json`. `--root` is the repository root (default: the repository the
-script sits in); it must hold `.git`. `<gate>` is `S0`, `S5`, `S6` or `S8`.
+script sits in); it must hold `.git`. It exists for tests: the bridge refuses it and always works on its own
+repository. `<gate>` is `S0`, `S5`, `S6` or `S8`.
 
 ### Errors
 
@@ -295,23 +296,32 @@ the toolkit's own (section 3 gives none) and stable; the check table
 (`references/plans/post-1.3.0-h5-step-a-check-table.md`) maps each to its contract line. Shape: `type`, `required`,
 `unknown-key`, `enum`, `pattern`, `empty`, `min-items`, `minimum`, `maximum`, and the conditionals
 `saturation-fields`, `reader-missing`, `reader-unexpected`, `present-code-missing`, `present-code-unexpected`.
-Paths: `path-empty`, `path-absolute`, `path-dotdot`, `path-backslash`, `path-outside`. JSON: `json`,
-`json-duplicate-key`. Beyond shape: the ids of `SEMANTIC_RULES`. Ledger: `ledger-form`, `ledger-link`,
-`ledger-missing`, `ledger-layout`, `ledger-privilege`, `ledger-log`, `ledger-keys`, `ledger-keys-empty`,
-`ledger-approvers`, `ledger-approvers-empty`, `ledger-waiver`, `ledger-parent`, `ledger-team-link`,
-`ledger-parity`. Manifest files: `manifest-malformed`.
+Paths: `path-empty`, `path-absolute`, `path-dotdot`, `path-outside`, and the toolkit's own refusals
+`path-backslash`, `path-nul` and `path-segment` (a `.` or empty segment), so that a manifest carries each path as
+declared. JSON: `json` (including nesting too deep to read), `json-duplicate-key`, `too-large`. Beyond shape: the
+ids of `SEMANTIC_RULES`. Ledger: `ledger-form`, `ledger-link`, `ledger-location`, `ledger-missing`,
+`ledger-layout`, `ledger-privilege`, `ledger-log`, `ledger-keys`, `ledger-keys-empty`, `ledger-approvers`,
+`ledger-approvers-empty`, `ledger-waiver`, `ledger-parity`. Manifest files: `manifest-malformed`.
+
+The specification and every JSON file are read only up to `MAX_JSON_BYTES` (16 MiB), the ledger's log up to
+`MAX_LOG_BYTES` (64 MiB); a larger file is refused unread. A key or approver file that is not a regular file (a
+link, FIFO or device), or a key store that is not a plain directory, is never read.
 
 ### Gate states
 
-No signature is verified in this version, so no gate reads `CLEARED`. A gate whose manifest built now differs from
-the manifest file `survey-manifest` wrote (the request the operator signs) is `UNCLEARED`, whatever else holds;
-otherwise it is `UNAVAILABLE`, with the reason. A malformed ledger folder or manifest file also leaves it
-`UNAVAILABLE`. A gate the specification does not declare is shown as `NOT DECLARED`.
+No signature is verified in this version, so no gate reads `CLEARED`. A sign-off request is an `agentteams`
+record, which this version does not read; in its place, a gate whose manifest built now differs from the manifest
+file `survey-manifest` last wrote is `UNCLEARED`. Otherwise it is `UNAVAILABLE`, with the reason. A malformed ledger
+folder or manifest file also leaves it `UNAVAILABLE` and makes the run fail. So does anything that would stop the
+HALT scan of 6.2: a team directory reached through a symbolic link, or a `parent_team` that is absolute, leaves the
+repository, is not a team directory, names the folder itself or declares a parent of its own. Those are printed as
+reasons and do not make `survey-status` or `survey-validate` fail. A gate the specification does not declare is
+shown as `NOT DECLARED`.
 
 ### Output files
 
-Only `survey-manifest` writes: `<ledger folder>/<study id>.<gate>.manifest.json`, canonical JSON, replaced
-atomically. It refuses, writing nothing, when the specification or the ledger is malformed, the gate is not declared,
+Only `survey-manifest` writes: `<ledger folder>/references/<study id>.<gate>.manifest.json`, beside the log,
+canonical JSON, mode 0644, replaced atomically after a last check that no component of its folder is a link. It refuses, writing nothing, when the specification or the ledger is malformed, the gate is not declared,
 a covered file is missing or not a regular file, or the path holds something other than a well-formed manifest of
 this gate. `survey_schema.py` without `--check` writes `study.schema.json`.
 
@@ -320,7 +330,7 @@ this gate. `survey_schema.py` without `--check` writes `study.schema.json`.
 | Script | 0 | 1 | 2 |
 |--------|---|---|---|
 | `survey_validate.py` | Well-formed | Any error | Usage error, no project, no `.git` at the root |
-| `survey_status.py` | Printed, whatever the states | The specification, a manifest file or the ledger is malformed | As above |
+| `survey_status.py` | Printed, whatever the states (including `UNAVAILABLE` for a reason the HALT scan cannot be made) | The specification, a manifest file or the ledger is malformed | As above |
 | `survey_manifest.py` | Written, or unchanged | Refused | As above, or an unknown gate |
 
 ---

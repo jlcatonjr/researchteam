@@ -50,14 +50,14 @@ The survey toolkit's first commands (`scripts/survey/`), against the frozen cont
 [`docs/survey-toolkit.md`](https://github.com/jlcatonjr/researchteam/blob/main/docs/survey-toolkit.md), version 1.
 Each takes a project whose specification is `Projects/<project>/study.json`. They are synced to scholarly-profile
 repositories only; without `scripts/survey/` each exits 1 and says to upgrade researchteam. No command verifies a
-signature yet: a gate reads `UNCLEARED` (its files changed since its manifest was written) or `UNAVAILABLE`, never
-`CLEARED`.
+signature yet: a gate reads `UNCLEARED` (its files changed since its manifest file was written) or `UNAVAILABLE`,
+never `CLEARED`. The commands work on the repository the bridge is in; a `--root` argument is refused (exit 2).
 
 | Command | What it does |
 |---|---|
 | `survey-validate <project>` | Check the specification (every check of section 3, and the path rule), the ledger folder's structure (6.2) and the gates' manifest files. Writes nothing. Exit 1 on any error |
-| `survey-status <project>` | Print each gate's manifest hash, state, `enforce` and `mode`. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed |
-| `survey-manifest <project> <gate>` | Write the gate's manifest into the ledger folder and print the scope and action the operator signs. Signs nothing and writes no ledger row |
+| `survey-status <project>` | Print each gate's manifest hash, state, `enforce` and `mode`, and any reason the gates read `UNAVAILABLE`. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed |
+| `survey-manifest <project> <gate>` | Write the gate's manifest into the ledger folder's `references/`, beside the log, and print the scope and action the operator signs. Signs nothing and writes no ledger row |
 
 ## Literature library
 

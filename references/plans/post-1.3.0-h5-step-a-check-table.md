@@ -22,8 +22,10 @@ and the point is listed under *Proposed contract changes* at the end.
 | 1.6, 41 | `..` segment | `path-dotdot` | core `test_path_rule_errors[../x-...]`; spec `test_paths_in_the_specification_follow_rule_1_6` |
 | 1.6, 41 | Resolves outside the repository through a link | `path-outside` | core `test_a_path_that_leaves_the_repository_through_a_link_is_an_error` |
 | 1.6, 42 | In a draft as much as in an active study | `path-dotdot` in a draft | spec `test_a_draft_is_held_to_the_path_rule_too` |
-| 1.6, 43 | Two paths are the same file when they resolve to the same place | — | core `test_paths_are_study_relative_or_repo_rooted`; spec `test_coverage_is_judged_on_resolved_paths`; gates `test_the_manifest_is_exactly_the_6_1_object` |
-| 1.6 (silent) | A backslash in a path | `path-backslash` | core `test_path_rule_errors[sub\\f.csv-...]` |
+| 1.6, 43 | Two paths are the same file when they resolve to the same place, however each is written: an existing file by device and inode (`file_identity`), so two spellings on a case-insensitive file system are one file; a missing one by its real path | — | core `test_paths_are_study_relative_or_repo_rooted`, `test_two_spellings_on_a_case_insensitive_file_system_are_one_file` (skipped on a case-sensitive file system), `test_a_place_that_does_not_exist_is_identified_by_its_real_path`; spec `test_coverage_is_judged_on_resolved_paths`; gates `test_the_manifest_is_exactly_the_6_1_object`, `test_repeats_are_removed_by_file_identity_not_spelling` |
+| 1.6 (proposal 12) | A backslash in a path | `path-backslash` | core `test_path_rule_errors[sub\\f.csv-...]` |
+| 1.6 (proposal 12) | A NUL in a path | `path-nul` | core `test_path_rule_errors[sub/\x00f.csv-...]` |
+| 1.6, 6.1 804 (proposal 2) | A `.` or empty segment (doubled or trailing slash): refused, so a manifest carries the path as declared | `path-segment` | core `test_path_rule_errors[./sub/f.csv-...]` and three more; spec `test_dot_segments_in_a_declared_path_are_refused` |
 | 1.6 (silent) | `repo:` with nothing after it | `path-empty` | core `test_path_rule_errors[repo:-...]` |
 | 1.7, 44 | Standard library only; Python 3.10 grammar | — | core `test_the_code_is_python_3_10_syntax_and_standard_library_only` |
 | 1.8, 47 | Invented example study only | fixture `tests/fixtures/survey/example/` | spec `test_the_invented_example_study_is_valid` |
@@ -35,10 +37,13 @@ and the point is listed under *Proposed contract changes* at the end.
 | Section, line | What is checked | Error id or message | Test |
 |---|---|---|---|
 | 3, 79 | Location `Projects/<project>/study.json` | exit 2 `no specification at …` | gates `test_manifest_usage_errors_exit_2[absent-S0]` |
+| 3, 79 | A project name is matched whole (a trailing line feed does not pass) | exit 2 | spec `test_a_project_name_with_a_trailing_line_feed_is_refused` |
+| (proposal 15) | A specification over `MAX_JSON_BYTES` (16 MiB) is not read | `too-large` | spec `test_a_specification_over_the_cap_is_not_read` |
+| (proposal 15) | JSON nested too deeply to parse | `json` | core `test_json_nested_too_deeply_is_a_finding_not_a_crash` |
 | 3, 80 | Unknown keys at every level (not inside `analysis`, `merges`, `strata`, `exclude_from_rollup`) | `unknown-key` | spec `test_shared_invalid_specifications_fail_with_the_named_rule[unknown-key--*]` |
 | 3, 80 | `schema_version` `"1"` or `"0"`, read identically | `enum` | spec `[enum--schema-version-2]`, `test_schema_version_0_is_read_like_1` |
 | 3, 83 | A draft only by `status` | — | spec `test_a_draft_may_name_files_that_do_not_exist_yet` |
-| 3, 85 | A JSON Schema (2020-12) published beside the validator | `scripts/survey/study.schema.json` | spec `test_the_tracked_schema_is_the_generators_output`, `test_every_rule_table_field_appears_in_the_schema` |
+| 3, 85 | A JSON Schema (2020-12) published beside the validator | `scripts/survey/study.schema.json` | spec `test_the_tracked_schema_is_the_generators_output`, `test_every_rule_table_field_appears_in_the_schema`, `test_the_schemas_required_and_enum_sets_equal_the_rule_tables` (no schema library needed) |
 | 3, 86 | A shared set of valid and invalid specifications | `tests/fixtures/survey/specs/` | spec `test_shared_valid_specifications_pass_the_shape_checks`, `test_shared_invalid_specifications_fail_with_the_named_rule`, `test_a_json_schema_library_gives_the_same_verdict` (skipped without a library) |
 | 3, 89 | `slug` pattern | `pattern` | spec `[pattern--id-not-slug]` |
 | 3, 91-179 | Types | `type` | spec `[type--cuts-string]`, `[type--window-float]`, `[type--vantage-module-string]`, `[type--analysis-array]` |
@@ -55,7 +60,7 @@ and the point is listed under *Proposed contract changes* at the end.
 | 3, 183 | `title`, `question`, every path, a plug-in's `version` not empty | `empty` | spec `[empty--title]`, `[empty--path]`, `[empty--plugin-version]` |
 | 3, 184 | Plug-in `attr` pattern | `pattern` | spec `[pattern--plugin-attr]` |
 | 3, 184 | A bucketer carries only the fields of its own kind | `unknown-key` | spec `[unknown-key--bucketer-foreign-field]` |
-| (silent) | A key given twice in one JSON object; `NaN` | `json-duplicate-key`, `json` | spec `test_malformed_json_and_duplicate_keys_are_errors`; core `test_strict_json_refuses_duplicate_keys_and_nan` |
+| (proposal 13) | A key given twice in one JSON object; `NaN` | `json-duplicate-key`, `json` | spec `test_malformed_json_and_duplicate_keys_are_errors`; core `test_strict_json_refuses_duplicate_keys_and_nan` |
 
 ## Checks beyond shape (section 3, lines 186-227)
 
@@ -100,30 +105,32 @@ complete against `SEMANTIC_RULES`.
 | 215 | `saturation` without both fields | `saturation-fields` |
 | 216 | `legacy-unrecorded` in a study that is not `legacy` | `legacy-unrecorded-status` |
 | 217-219 | A referenced input file that does not exist, unless `draft`; the six that may be absent | `file-missing` (also `test_files_that_a_stage_writes_may_be_absent`, `test_a_draft_may_name_files_that_do_not_exist_yet`) |
-| 220-222 | A plug-in, bucket table, vocabulary or stop-words file not covered by S0, judged on resolved paths | `not-covered-s0` (also `test_coverage_is_judged_on_resolved_paths`) |
-| 223 | Evidence that cites a fetch receipt when `evidence.receipts` is not declared | **not implemented**: needs the evidence rows (step B), and the contract does not say how a row cites a receipt (proposal 4) |
+| 220-222 | A plug-in, bucket table, vocabulary or stop-words file not covered by S0, judged by file identity | `not-covered-s0` (also `test_coverage_is_judged_on_resolved_paths`, and `test_plugin_files_must_be_covered_by_s0[reader]`, `[bucketer]`, `[vantage]` for `/evidence/reader/file`, `/attributes/*/bucketer/plugin/file`, `/vantage/module/file`) |
+| 223 | Evidence that cites a fetch receipt when `evidence.receipts` is not declared | **not implemented: step B.** 5.4 (lines 770-772) decides what citing is: a row whose `locator` is not a text-store locus (`<work slug>#p<N>`) is checked against the fetch receipt for its `url` and quote. The check reads evidence rows, which step B reads |
 | 224 | `legacy_exceptions` in a study that is not `legacy` | `legacy-exceptions-status` |
 | 224-225 | `legacy_exceptions` naming a file no gate covers | `legacy-exceptions-uncovered` |
 | 226 | A `post_steps` file that no gate covers | `post-step-uncovered` |
-| 227 | A gate that covers no file | `covers-empty` |
+| 227 (proposal 8) | A gate that covers no file, in every status | `covers-empty` |
 | 227 | A `covers` path that does not exist, unless `draft` | `covers-missing` |
-| 803 (silent) | A `covers` path that exists but is not a regular file | `covers-not-file` |
-| 122 (silent) | `evidence.reader` when `format` is not `plugin` | `reader-unexpected` (also spec `[reader-unexpected--csv-format]`) |
+| 803 (proposal 6) | A `covers` path that exists but is not a regular file | `covers-not-file` |
+| 122 (proposal 5) | `evidence.reader` when `format` is not `plugin` | `reader-unexpected` (also spec `[reader-unexpected--csv-format]`) |
+| 4.8 690, 207-208 (proposal 7) | A flags attribute's table bucketer without `match` (its default would be `first`) | `match-missing-flags` |
 
 ## Gates and manifests (6.1)
 
 | Section, line | What is checked | Error id or message | Test |
 |---|---|---|---|
-| 6.1, 786-791 | The gate list S0, S5, S6, S8 | `GATES`; exit 2 on another | gates `test_manifest_usage_errors_exit_2[tidebell-S1]` |
+| 6.1, 786-791 | The gate list S0, S5, S6, S8, defined once (`survey_core.GATES`) | `GATES`; exit 2 on another | gates `test_manifest_usage_errors_exit_2[tidebell-S1]`, `test_the_gate_names_have_one_definition` |
 | 6.1, 796-800 | Manifest fields `kind, gate, project, mode, schema_version, files` | — | gates `test_the_manifest_is_exactly_the_6_1_object`, `test_the_manifest_carries_schema_version_0_and_the_mode` |
-| 6.1, 803 | Specification first, `covers` in declared order, repeats removed | — | gates `test_covers_keep_their_declared_order`, `test_a_repeat_of_the_specification_in_covers_is_removed`, `test_the_manifest_is_exactly_the_6_1_object` |
-| 6.1, 804-805 | Entry `{path, sha256}`, repository-relative path with forward slashes, lower-case hex | — | gates `test_the_manifest_is_exactly_the_6_1_object` |
+| 6.1, 803 | Specification first, `covers` in declared order, repeats removed (by file identity) | — | gates `test_covers_keep_their_declared_order`, `test_a_repeat_of_the_specification_in_covers_is_removed`, `test_the_manifest_is_exactly_the_6_1_object`, `test_repeats_are_removed_by_file_identity_not_spelling` |
+| 6.1, 804-805 | Entry `{path, sha256}`: the repository-relative path as declared (the declared text, after the study folder or with `repo:` removed; never normalised), forward slashes, lower-case hex | — | gates `test_the_manifest_is_exactly_the_6_1_object`, `test_manifest_paths_are_carried_as_declared` |
+| 6.1, 807 | Files hashed in chunks; a CRLF split across two chunks still becomes LF | — | core `test_hashing_in_chunks_keeps_a_crlf_split_across_chunks` |
 | 6.1, 806 | Canonical JSON | — | core `test_canonical_json_sorts_keys_has_no_white_space_and_one_line_feed` |
 | 6.1, 807-809 | CRLF→LF for text files by the fixed suffix list, case-sensitive | — | core `test_text_is_by_suffix_alone_case_sensitive`, `test_text_files_hash_with_crlf_made_lf_and_others_as_they_are`; gates `test_crlf_in_a_covered_text_file_does_not_change_the_manifest` |
 | 6.1, 810-811 | Gate identity = SHA-256 of the manifest file's bytes, shown by every command | `manifest_sha256=` | gates `test_status_prints_hash_state_enforce_and_mode_and_the_environment`, `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 6.1, 815 | `CLEARED` | **not reachable in step A** (no verification; seam `survey_gates.verify_signoff`) | gates `test_no_gate_ever_reads_cleared_in_this_version`, `test_the_verification_seam_says_why_it_cannot_clear` |
 | 6.1, 816-817 | `UNAVAILABLE`: signatures cannot be verified; ledger malformed | `UNAVAILABLE` with the reason | gates `test_before_any_request_a_declared_gate_is_unavailable`, `test_a_malformed_ledger_leaves_every_gate_unavailable` |
-| 6.1, 817-818 | Files changed since a request: `UNCLEARED` whether or not signatures can be verified | `UNCLEARED` | gates `test_a_change_to_a_covered_file_after_the_request_is_uncleared`, `test_an_edit_to_the_specification_unclears_every_requested_gate`, `test_a_covered_file_removed_after_the_request_is_uncleared`, `test_uncleared_holds_even_when_the_ledger_is_malformed` |
+| 6.1, 817-818; 1.5, 38-39 | Files changed since a request: `UNCLEARED` whether or not signatures can be verified. A request is an `agentteams` record (rule 1.5: "the date in a sign-off request, which is a field of `agentteams`"), which step A does not read. **Step A's stand-in:** the manifest file `survey-manifest` last wrote; a gate whose manifest now differs from it, or one of whose listed files is gone, is `UNCLEARED`, and the reason says it is the stored file that was compared. Step F must revisit the order (a code comment in `gate_status` says so): `CLEARED` is "a valid signature exists for the current manifest hash" (815) | `UNCLEARED` | gates `test_a_change_to_a_covered_file_after_the_request_is_uncleared`, `test_an_edit_to_the_specification_unclears_every_requested_gate`, `test_a_covered_file_removed_after_the_request_is_uncleared`, `test_uncleared_holds_even_when_the_ledger_is_malformed` |
 | 6.1, 820-821 | Undeclared gate: refuses, except in a legacy study (records `NOT DECLARED`) | `stage_decision` | gates `test_stage_decision_follows_the_6_1_table[NOT DECLARED-*]` |
 | 6.1, 823-826 | `blocking` / `build-only` × states | `stage_decision` | gates `test_stage_decision_follows_the_6_1_table`, `test_stage_decision_refuses_unknown_values` |
 | 6.1, 828-829 | `mode` written into the manifest | — | gates `test_the_manifest_is_exactly_the_6_1_object` |
@@ -134,23 +141,27 @@ complete against `SEMANTIC_RULES`.
 | Section, line | What is checked | Error id or message | Test |
 |---|---|---|---|
 | 6.2, 833-834 | Scope `survey-signoff/<gate>/<study id>`, action `<scope>:sha256-<hash>` | printed by `survey-manifest` | gates `test_scope_and_action_are_the_6_2_names`, `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
+| 6.2, 835 (proposal 1) | The manifest file goes beside the log: `<ledger>/references/<study id>.<gate>.manifest.json`, mode 0644, written atomically after a last check for links | — | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs`, `test_the_manifest_file_is_mode_0644`, `test_manifest_refuses_when_the_folder_becomes_a_link_before_writing` |
 | 6.2, 838 | `signoffs.ledger` is `agentteams-clearance:<path>` | `ledger-form` | gates `test_the_ledger_value[ledger-ledger-form]` and two more |
+| (proposal 10) | The ledger folder inside `.git/` or at (or under) a generated team location | `ledger-location` | gates `test_a_ledger_inside_git_or_a_team_location_is_refused` (three cases) |
 | 6.2, 857-858 | `<path>` under rule 1.6, `repo:` allowed | path ids | gates `test_the_ledger_value[…path-absolute]`, `[…path-dotdot]`, `test_a_repo_rooted_ledger` |
 | 6.2, 858-859 | No component is a symbolic link | `ledger-link` | gates `test_no_component_of_the_ledger_path_is_a_link` |
 | 6.2, 849 | The folder exists | `ledger-missing` | gates `test_the_ledger_value[agentteams-clearance:absent-ledger-missing]` |
 | 6.2, 850 | `references/` | `ledger-layout` | gates `test_structural_errors_of_the_ledger_folder[…ledger-layout]` |
 | 6.2, 851 | `agent-privilege.json`, a JSON object | `ledger-privilege` | gates `[…ledger-privilege]` (two cases) |
 | 6.2, 852 | `security-decisions.log.csv` with the signature columns; readable; rows as wide as the header | `ledger-log` | gates `[…ledger-log]` (four cases) |
-| 6.2, 853 | `authorized-verify-keys/<key_id>.pub.pem` | `ledger-keys`, `ledger-keys-empty` | gates `[…ledger-keys]` (three cases), `[…ledger-keys-empty]` |
+| 6.2, 853 | `authorized-verify-keys/<key_id>.pub.pem`; another name in the store (proposal 11) | `ledger-keys`, `ledger-keys-empty` | gates `[…ledger-keys]` (three cases), `[…ledger-keys-empty]` |
+| 6.2, 853-854 | A key or approver file is read only when it is a regular file (not a link, FIFO or device); a store is listed only when it is a plain directory | `ledger-keys`, `ledger-approvers` | gates `test_a_symlinked_key_file_is_not_read`, `test_a_fifo_key_file_is_not_opened` (skipped without `os.mkfifo`), `test_a_symlinked_key_store_is_not_listed`, `test_a_symlinked_approver_list_is_not_read` |
+| (proposal 15) | The log over `MAX_LOG_BYTES` (64 MiB) and a JSON file over `MAX_JSON_BYTES` are not read | `ledger-log`, `ledger-privilege` | gates `test_the_ledger_log_and_json_files_are_size_capped` |
 | 6.2, 854 | `security-approvers.txt` | `ledger-approvers`, `ledger-approvers-empty` | gates `[…ledger-approvers]`, `[…ledger-approvers-empty]` |
 | 6.2, 866-868 | A waivers log in the folder is an error; gates `UNAVAILABLE` | `ledger-waiver` | gates `[…ledger-waiver]`, `test_a_malformed_ledger_leaves_every_gate_unavailable` |
-| 6.2, 869-873 | Folder approvers and keys the same as the team's where the team has any; a comment-only list and no key means neither | `ledger-parity` | gates `test_the_folder_names_the_same_approvers_and_keys_as_the_team`, `test_different_key_files_are_a_parity_error`, `test_a_team_with_only_a_comment_list_and_no_key_has_neither`, `test_the_parent_team_is_compared_too` |
-| 6.2, 902-904, 911-913 | `parent_team`: absolute, leaves the repository, not a team dir, the folder itself, a parent of its own, through a link | `ledger-parent` | gates `test_parent_team_rules` (seven cases), `test_a_sound_parent_team` |
-| 6.2, 911 | A team directory reached through a symbolic link | `ledger-team-link` | gates `test_a_team_directory_reached_through_a_link_is_an_error` |
+| 6.2, 869-873 | Per kind: where a team's approver list names an approver, the folder's names the same; where a team has a verify key, the folder's keys are the same files. A team with a comment-only list leaves the approvers to the folder; a team with no key file leaves the keys to it. Not compared when the folder already has errors (and the reason is reported); a team file that cannot be read is reported, not skipped | `ledger-parity` | gates `test_the_folder_names_the_same_approvers_and_keys_as_the_team`, `test_different_key_files_are_a_parity_error`, `test_a_team_with_only_a_comment_list_and_no_key_has_neither`, `test_a_team_with_approvers_and_no_key_file_compares_approvers_only`, `test_a_team_with_keys_and_a_comment_only_list_compares_keys_only`, `test_the_parent_team_is_compared_too`, `test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so`, `test_an_unreadable_team_list_is_reported_not_skipped` |
+| 6.2, 902-904, 910-913 | `parent_team` absolute, leaving the repository, not a team dir, the folder itself, declaring a parent of its own, reached through a link (also NUL, `repo:`, not a string): **leaves every gate `UNAVAILABLE`, with the reason; not an error.** The text makes these UNAVAILABLE causes and says nothing of an error, so `survey-validate` passes and `survey-status` exits 0. Path checks reuse `resolve_path` | reason printed per gate and as `ledger note:` | gates `test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors` (nine cases), `test_a_sound_parent_team` |
+| 6.2, 911, 926, 941-942 | A team directory reached through a symbolic link: **leaves every gate `UNAVAILABLE`, with the reason; not an error** | reason | gates `test_a_team_directory_reached_through_a_link_leaves_the_gates_unavailable` |
 | 6.2, 861-865 | A sign-off row is Ed25519, key in the folder, author on the list; latest matching row | **not implemented** (needs signature verification; step F, seam `verify_signoff`) | — |
 | 6.2, 881-886 | Signing and verifying with `agentteams` | **not implemented** (step F); `survey-manifest` prints the `--check-clearance` command | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 6.2, 889-892 | Conditional verdicts, consumed PASS, replaced keys | **not implemented** (step F) | — |
-| 6.2, 894-910 | The HALT scan of the folder's log, the generated team logs and `parent_team`'s log; retractions | **not implemented** (step F: retractions are judged under each log's own signing rules). Step A checks only the structure the scan relies on (`ledger-parent`, `ledger-team-link`) | — |
+| 6.2, 894-910 | The HALT scan of the folder's log, the generated team logs and `parent_team`'s log; retractions | **not implemented** (step F: retractions are judged under each log's own signing rules). Step A checks only the structure the scan relies on (a linked team dir, an unusable `parent_team`), as UNAVAILABLE reasons | — |
 | 6.2, 910-913 | A team log that cannot be read or parsed leaves the gate `UNAVAILABLE` | **not implemented** for the team logs (step F); implemented for the folder's own log (`ledger-log`) | — |
 | 6.2, 915-917 | `agentteams` 1.3.0 or later, else `UNAVAILABLE` | **not implemented** (step F); every gate is `UNAVAILABLE` or `UNCLEARED` in step A anyway | — |
 
@@ -160,6 +171,8 @@ complete against `SEMANTIC_RULES`.
 |---|---|---|---|
 | 7, 921 | Bridge commands, each taking a project | `survey-validate`, `survey-status`, `survey-manifest` | gates `test_the_bridge_runs_the_three_commands_isolated`, `test_the_bridge_needs_a_project` |
 | plan | The bridge refuses clearly without `scripts/survey/` | exit 1, message names `scripts/survey/` | gates `test_the_bridge_refuses_clearly_without_the_survey_tools` |
+| review | The bridge works on its own repository only: a `--root` argument is refused | exit 2 | gates `test_the_bridge_refuses_a_root_option` |
+| 10, 989 | The tools and their contract reach a derived repository with the scholarly profile (`docs/survey-toolkit.md` is synced) | — | spec `test_the_survey_files_are_scholarly_managed` |
 | 7, 925 | `survey-validate` checks the specification, every row file present and the ledger's folder; writes nothing | exit 0 / 1 | spec `test_each_check_beyond_shape_is_triggered`; gates `test_structural_errors_of_the_ledger_folder`, `test_validate_and_status_write_nothing` |
 | 7, 925 | "every row file present": the row checks of section 4 | **not implemented** (step B); `survey-validate` says so in one line | — |
 | 7, 926 | `survey-status` prints hash, state, `enforce`, `mode`; exit 0 whatever the states | — | gates `test_status_prints_hash_state_enforce_and_mode_and_the_environment`, `test_status_exits_0_whatever_the_states` |
@@ -167,38 +180,57 @@ complete against `SEMANTIC_RULES`.
 | 7, 927 | `survey-manifest <gate>` writes the manifest and prints what the operator signs | `<ledger>/<study id>.<gate>.manifest.json` | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 7, 941-943 | CI: `survey-validate` fails the build; gate state never does | **not implemented** (step H; a CI change is a PS-2 path) | — |
 
-## Proposed contract changes (points where the text is silent or ambiguous)
+## Proposed contract changes (behaviours the contract does not fix, or fixes ambiguously)
 
 1. **Where the manifest file goes and what it is called** (6.2, line 835: "a per-study log beside the manifests").
-   Read as: in the log's folder, the folder `signoffs.ledger` names (the heading at line 844 calls that folder "the
-   log's folder"). The name `<study id>.<gate>.manifest.json` is the toolkit's. Propose fixing both in the contract.
-2. **What "a request" is** (6.1, line 817). Read as: the manifest file `survey-manifest` wrote. A gate whose current
-   manifest differs from it, or one of whose files has disappeared, is `UNCLEARED`. Propose saying so.
-3. **What "project" holds in a manifest** (6.1, line 799). Taken as the project argument (the directory under
+   The log is a file, `<ledger>/references/security-decisions.log.csv` (line 852), so "beside" it is read as the
+   same directory: `<ledger>/references/<study id>.<gate>.manifest.json`. The other reading, `<ledger>/` beside
+   `references/`, takes "log" to mean the folder; the sentence was written before the folder's layout was settled
+   (2026-11-24), so the text does not decide it firmly. The literal reading was kept, and it also puts the files
+   the operator signs inside the folder a repository protects from agent writes. The name is the toolkit's.
+   Propose fixing both.
+2. **Paths "as declared"** (6.1, line 804). A manifest carries the declared text, joined to the study folder or with
+   `repo:` removed, never normalised. A `.` or empty segment (doubled or trailing slash) is refused
+   (`path-segment`) instead of being carried or rewritten. Propose: the contract says which spellings are allowed.
+3. **What a sign-off request is, for change detection** (6.1, line 817; rule 1.5, lines 38-39). The contract is
+   not silent: a request is an `agentteams` record. Step A does not read it, and uses the stored manifest file as a
+   stand-in (see the 6.1 rows). Propose: the contract says how a tool without `agentteams` detects change, or that it
+   does not.
+4. **What "project" holds in a manifest** (6.1, line 799). Taken as the project argument (the directory under
    `Projects/`), not the study `id`. Propose naming it.
-4. **How an evidence row cites a fetch receipt** (section 3, line 223). Not defined; the check waits for step B and
-   a definition (5.4 suggests: a counted row whose `locator` is not a text-store locus).
 5. **`evidence.reader` when `format` is not `plugin`.** Refused (`reader-unexpected`).
 6. **A `covers` path that exists but is not a regular file.** Refused (`covers-not-file`): a manifest hashes files.
-7. **"A gate that covers no file, … unless status is draft"** (line 227). Read as: an empty `covers` is an error in
-   every status; only a missing path is excused in a draft.
-8. **A missing ledger folder in a draft.** An error in every status: section 3's draft clause speaks of input files.
-9. **The log's "signature columns"** (line 852). Taken as `action_reviewed, verdict, signature, sig_scheme, key_id,
-   derives_from` (agentteams 1.3.0 requires the last four before it appends a signed row).
-10. **An approver list or key store with no entry in the folder.** Refused (`ledger-approvers-empty`,
-    `ledger-keys-empty`): agentteams falls back to default authors on an empty list.
-11. **Which team directories the parity rule compares** (lines 869-873, "the repository's own team directory").
-    Taken as every team dir at a generated location under the study's repository root, and `parent_team`.
-12. **A path with a backslash or a drive letter** (rule 1.6, and "with forward slashes" at line 804). Refused
-    (`path-backslash`, `path-absolute`). `.` segments and doubled slashes are accepted and normalised lexically
-    in the manifest's path; the contract's "as declared" may mean they should be kept.
+7. **A flags attribute's table bucketer with no `match`.** 4.8 (line 690) makes `first` the default and lines
+   207-208 forbid `first` on a flags attribute; refused (`match-missing-flags`) rather than read as either.
+8. **"A gate that covers no file, … unless status is draft"** (line 227). Read as: an empty `covers` is an error in
+   every status (`covers-empty`); only a missing path is excused in a draft.
+9. **A missing ledger folder in a draft.** An error in every status: section 3's draft clause speaks of input files.
+10. **A ledger folder inside `.git/` or at (or under) a generated team location.** Refused (`ledger-location`).
+11. **A key store holding anything but `<key_id>.pub.pem` regular files; an empty key store; an empty approver list.**
+    Refused (`ledger-keys`, `ledger-keys-empty`, `ledger-approvers-empty`); agentteams falls back to default
+    authors on an empty list. The log's "signature columns" (line 852) are taken as `action_reviewed, verdict,
+    signature, sig_scheme, key_id, derives_from`.
+12. **A backslash, a NUL or a drive letter in a path.** Refused (`path-backslash`, `path-nul`, `path-absolute`).
 13. **A key given twice in one JSON object.** Refused (`json-duplicate-key`); a JSON parser otherwise keeps the
     last silently.
-14. **Specification location other than `Projects/<project>/study.json`** (line 79, "unless the project says
+14. **Which team directories the keys-and-approvers comparison uses** (lines 869-873, "the repository's own team
+    directory"). Taken as every team dir at a generated location under the study's repository root, and a sound
+    `parent_team`.
+15. **Size caps** (the toolkit's own): 16 MiB for the specification, a manifest file and the ledger's JSON files
+    (`MAX_JSON_BYTES`), 64 MiB for the ledger's log (`MAX_LOG_BYTES`), 64 KiB for a key file. A larger file is
+    refused unread (`too-large`, `ledger-log`, `ledger-privilege`, `manifest-malformed`).
+16. **Extra output lines.** `survey-status` prints a `study …` line, an `environment: python …, unicodedata …`
+    line, a `ledger:` line, `ledger note:` lines, a `reason:` line per gate and a closing note; `survey-validate`
+    prints an `OK`/`FAIL` line and notes; `survey-manifest` prints the scope, action, mode and the `agentteams
+    --check-clearance` command. Section 7 fixes only what each prints at least.
+17. **Specification location other than `Projects/<project>/study.json`** (line 79, "unless the project says
     otherwise"). How a project says so is not defined; the commands accept only the default.
-15. **Not fixed, and not checked:** duplicate enumeration ids; `counted_statuses` a subset of `statuses`; a
+18. **Not fixed, and not checked:** duplicate enumeration ids; `counted_statuses` a subset of `statuses`; a
     categorical attribute without `levels` or a flags attribute without `flags`; `values` required for the
     `unit-ids` and `id-contains` rules; `window.from` ≤ `window.to`; duplicate tiers or bases. None is an error in
     section 3, so step A accepts them.
-16. **What a combining mark is** (rule 1.10). Taken as Unicode general category M (Mn, Mc, Me); a hyphen is
+19. **What a combining mark is** (rule 1.10). Taken as Unicode general category M (Mn, Mc, Me); a hyphen is
     U+002D only.
+
+Settled, no longer a proposal: how an evidence row cites a fetch receipt is decided by 5.4 (lines 770-772); the
+check is step B's.
