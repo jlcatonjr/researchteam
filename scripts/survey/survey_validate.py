@@ -23,29 +23,32 @@ PROG = "survey_validate.py"
 
 
 def validate(root: Path, project: str) -> tuple:
-    """Every step-A check. Returns ``(study, findings)``."""
+    """Every step-A check. Returns ``(study, findings, notes)``: notes are the reasons the gates read UNAVAILABLE
+    that are not errors (6.2: what the HALT scan would read)."""
     study = load_study(project, root)
     findings = list(study.findings)
     if study.spec is None or not study.ok:
-        return study, findings
+        return study, findings, []
     ledger = check_ledger(study)
     findings += ledger.findings
     for gate in GATES:
         _st, extra = gate_status(study, gate, ledger)
         findings += extra
-    return study, findings
+    return study, findings, list(ledger.unavailable)
 
 
 def main(argv=None) -> int:
     try:
         root, project, _ = parse_args(sys.argv[1:] if argv is None else argv, PROG)
-        study, findings = validate(root, project)
+        study, findings, notes = validate(root, project)
     except SurveyUsageError as exc:
         return usage_exit(exc)
     if findings:
         print_findings(findings)
         print(f"FAIL: {study.spec_rel}: {len(findings)} error(s)")
         return 1
+    for reason in notes:
+        print(f"note: the gates read UNAVAILABLE: {reason}")
     print(f"OK: {study.spec_rel} is well-formed (specification, ledger folder, manifest files).")
     print("note: row checks (section 4) are not in this version; gate state is reported by survey-status.")
     return 0

@@ -20,6 +20,9 @@ FIXTURES = ROOT / "tests" / "fixtures" / "survey"
 EXAMPLE = FIXTURES / "example"
 PROJECT = "tidebell"
 STUDY_REL = f"Projects/{PROJECT}"
+LEDGER = f"{STUDY_REL}/ledger"
+#: Where survey-manifest writes a gate's manifest: beside the log, in the ledger's references/ (6.2).
+MANIFEST_DIR = f"{LEDGER}/references"
 
 _saved = sys.dont_write_bytecode
 sys.dont_write_bytecode = True  # importing the survey modules leaves no __pycache__ in scripts/survey
@@ -52,11 +55,12 @@ def git_init(root: Path) -> None:
 def build_ledger(folder: Path, *, approvers: str = "operator\n", keys=None, privilege=None, log=LOG_HEADER) -> None:
     refs = folder / "references"
     (refs / "authorized-verify-keys").mkdir(parents=True, exist_ok=True)
-    (refs / "agent-privilege.json").write_text(json.dumps(privilege if privilege is not None else {}) + "\n")
-    (refs / "security-decisions.log.csv").write_text(log)
-    (refs / "security-approvers.txt").write_text(approvers)
+    doc = privilege if privilege is not None else {}
+    (refs / "agent-privilege.json").write_text(json.dumps(doc) + "\n", encoding="utf-8")
+    (refs / "security-decisions.log.csv").write_text(log, encoding="utf-8")
+    (refs / "security-approvers.txt").write_text(approvers, encoding="utf-8")
     for key_id, pem in (keys if keys is not None else {"op-test": FAKE_PEM}).items():
-        (refs / "authorized-verify-keys" / f"{key_id}.pub.pem").write_text(pem)
+        (refs / "authorized-verify-keys" / f"{key_id}.pub.pem").write_text(pem, encoding="utf-8")
 
 
 def make_repo(tmp_path: Path, mutate=None, *, ledger: bool = True) -> Path:
@@ -82,7 +86,7 @@ def load_spec(root: Path) -> dict:
 def edit_spec(root: Path, mutate) -> None:
     spec = load_spec(root)
     mutate(spec)  # edits in place; its return value is ignored
-    spec_path(root).write_text(json.dumps(spec, indent=2) + "\n")
+    spec_path(root).write_text(json.dumps(spec, indent=2) + "\n", encoding="utf-8")
 
 
 def run(module, *args) -> tuple:

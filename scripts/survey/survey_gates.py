@@ -2,10 +2,12 @@
 state into "runs" or "refuses".
 
 Step A verifies no signature, so it never reports ``CLEARED``. A gate whose files have changed since a request was
-made is ``UNCLEARED`` (6.1). The *request* is the manifest file ``survey-manifest`` wrote into the ledger folder:
-it is what the operator is asked to sign. When the manifest built now differs from that file, the files changed
-since the request. Otherwise the state is ``UNAVAILABLE``, because signature verification is not in this version.
-Step F replaces :func:`verify_signoff` and nothing else.
+made is ``UNCLEARED`` (6.1). A sign-off *request* is an ``agentteams`` record (rule 1.5 calls its date a field of
+``agentteams``), which step A does not read. As its stand-in, step A compares the manifest built now with the
+manifest file ``survey-manifest`` last wrote (the bytes the operator is asked to sign): when they differ, the
+covered files changed since that manifest was written. Otherwise the state is ``UNAVAILABLE``, because signature
+verification is not in this version. Step F replaces :func:`verify_signoff` and revisits the order in
+:func:`gate_status`.
 """
 from __future__ import annotations
 
@@ -13,9 +15,12 @@ import os
 from dataclasses import dataclass
 from pathlib import Path
 
-from survey_core import Finding, canonical_json, file_sha256, load_json_strict, sha256_bytes
+from survey_core import (
+    GATES, MAX_JSON_BYTES, Finding, canonical_json, file_identity, file_sha256, load_json_strict, read_capped,
+    sha256_bytes,
+)
 
-GATES = ("S0", "S5", "S6", "S8")
+__all__ = ["GATES"]  # re-exported: the commands take the gate list from here or from survey_core
 CLEARED, UNCLEARED, UNAVAILABLE = "CLEARED", "UNCLEARED", "UNAVAILABLE"
 NOT_DECLARED = "NOT DECLARED"  # 4.6
 MANIFEST_KIND = "survey-signoff"
@@ -34,9 +39,9 @@ def action(gate: str, study_id: str, manifest_sha256: str) -> str:
 
 
 def manifest_rel(ledger_rel: str, study_id: str, gate: str) -> str:
-    """Where a gate's manifest file is written: in the ledger folder, beside the log (6.2). The file name is the
-    toolkit's own; the contract does not give one."""
-    return f"{ledger_rel}/{study_id}.{gate}.manifest.json"
+    """Where a gate's manifest file is written: beside the log (6.2: "a per-study log beside the manifests"), and
+    the log is ``<ledger>/references/security-decisions.log.csv``. The file name is the toolkit's own."""
+    return f"{ledger_rel}/references/{study_id}.{gate}.manifest.json"
 
 
 class ManifestError(Exception):
@@ -47,13 +52,13 @@ def manifest_files(study, gate: str) -> list:
     """The specification first, then the gate's ``covers`` in declared order, repeats removed (two paths are the same
     file when they resolve to the same place, rule 1.6). Each entry is ``(repo_rel, real path)``."""
     spec_real = os.path.realpath(study.repo_root / study.spec_rel)
-    files, seen = [(study.spec_rel, spec_real)], {spec_real}
+    files, seen = [(study.spec_rel, spec_real)], {file_identity(spec_real)}
     covers = study.spec["signoffs"]["gates"][gate]["covers"]
     for i in range(len(covers)):
         rp = study.paths[f"/signoffs/gates/{gate}/covers/{i}"]
-        if rp.real in seen:
+        if rp.identity in seen:
             continue
-        seen.add(rp.real)
+        seen.add(rp.identity)
         files.append((rp.repo_rel, rp.real))
     return files
 
@@ -64,7 +69,10 @@ def build_manifest(study, gate: str) -> bytes:
     for rel, real in manifest_files(study, gate):
         if not os.path.isfile(real):
             raise ManifestError(f"{rel} is missing or is not a regular file")
-        entries.append({"path": rel, "sha256": file_sha256(Path(real), rel)})
+        try:
+            entries.append({"path": rel, "sha256": file_sha256(Path(real), rel)})
+        except OSError as exc:
+            raise ManifestError(f"{rel} cannot be read: {exc}") from exc
     g = study.spec["signoffs"]["gates"][gate]
     return canonical_json({
         "kind": MANIFEST_KIND, "gate": gate, "project": study.project, "mode": g["mode"],
@@ -102,7 +110,7 @@ class GateStatus:
     manifest_sha256: str = ""  # empty when the manifest cannot be built
     state: str = NOT_DECLARED
     reason: str = ""
-    request_sha256: str = ""  # the manifest file's hash, when one was written
+    request_sha256: str = ""  # the stored manifest file's hash, when one was written
 
 
 def verify_signoff(study, gate: str, manifest_sha256: str, ledger) -> tuple:
@@ -115,9 +123,10 @@ def verify_signoff(study, gate: str, manifest_sha256: str, ledger) -> tuple:
 def gate_status(study, gate: str, ledger) -> tuple:
     """The gate's state (6.1) and any finding that makes the run malformed (a malformed manifest file).
 
-    Order: no declaration; the manifest file malformed (``UNAVAILABLE``); the files changed since the request,
-    including a covered file that is now missing (``UNCLEARED``, whatever else holds); the ledger malformed
-    (``UNAVAILABLE``); the manifest cannot be built (``UNAVAILABLE``); otherwise what :func:`verify_signoff` says."""
+    Order: no declaration; the manifest file malformed (``UNAVAILABLE``); the covered files changed since the stored
+    manifest was written, including a covered file now missing (``UNCLEARED``); the ledger malformed
+    (``UNAVAILABLE``); a reason the HALT scan could not be made (``UNAVAILABLE``, not a malformed ledger: 6.2); the
+    manifest cannot be built (``UNAVAILABLE``); otherwise what :func:`verify_signoff` says."""
     gates = study.spec["signoffs"]["gates"]
     if gate not in gates:
         return GateStatus(gate, False), []
@@ -139,27 +148,39 @@ def gate_status(study, gate: str, ledger) -> tuple:
             if not os.path.isfile(path) or os.path.islink(path):
                 findings.append(Finding("manifest-malformed", rel, "not a regular file"))
             else:
-                data = path.read_bytes()
-                findings += check_stored_manifest(data, gate, study.project, rel)
+                try:
+                    data = read_capped(path, MAX_JSON_BYTES)
+                except OSError as exc:
+                    data, findings = None, [Finding("manifest-malformed", rel, f"cannot be read: {exc}")]
+                if data is None and not findings:
+                    findings.append(Finding("manifest-malformed", rel, f"larger than {MAX_JSON_BYTES} bytes"))
+                if data is not None:
+                    findings += check_stored_manifest(data, gate, study.project, rel)
                 if not findings:
                     stored = sha256_bytes(data)
                     st.request_sha256 = stored
     if findings:
         st.state, st.reason = UNAVAILABLE, "the gate's manifest file is malformed"
     elif stored is not None and (cannot_build or stored != st.manifest_sha256):
-        # 6.1: UNCLEARED whether or not signatures can be verified, so before the ledger's state is looked at.
+        # 6.1: UNCLEARED "whether or not signatures can be verified", so step A decides it before the ledger's state.
+        # STEP F MUST REVISIT THIS ORDER: CLEARED is "a valid signature exists for the current manifest hash" (6.1),
+        # and the request is an agentteams record, not this file. A signature over the current hash may exist although
+        # the stored manifest file is older, so the stored file cannot decide UNCLEARED once signatures are read.
         st.state = UNCLEARED
         now = f"now: {cannot_build}" if cannot_build else f"now {st.manifest_sha256}"
-        st.reason = (f"the covered files changed since the request (requested manifest sha256 {stored}, {now}); "
-                     "run survey-manifest and have the new manifest signed")
+        st.reason = (f"the covered files changed since the stored manifest file was written (stored manifest sha256 "
+                     f"{stored}, {now}); step A reads that file in place of the agentteams sign-off request. Run "
+                     "survey-manifest and have the new manifest signed")
     elif not ledger.ok:
         st.state, st.reason = UNAVAILABLE, "the ledger folder is malformed (see the errors above)"
+    elif ledger.unavailable:
+        st.state, st.reason = UNAVAILABLE, "the HALT scan cannot be made: " + "; ".join(ledger.unavailable)
     elif cannot_build:
         st.state, st.reason = UNAVAILABLE, f"the manifest cannot be built: {cannot_build}"
     else:
         st.state, st.reason = verify_signoff(study, gate, st.manifest_sha256, ledger)
         if stored is None:
-            st.reason += "; no manifest has been requested yet"
+            st.reason += "; no manifest file has been written yet"
     return st, findings
 
 
@@ -168,6 +189,9 @@ RUNS, REFUSES = "runs", "refuses"
 
 def stage_decision(state: str, enforce: str, declared: bool, legacy: bool) -> tuple:
     """Whether a stage runs, by the table and sentences of 6.1. Returns ``(RUNS|REFUSES, what the output records)``.
+
+    No step-A command is a gated stage; the later steps call this (step D's post-steps, 4.5; step G's enumeration
+    and packets).
 
     - A gate the specification does not declare: the stage refuses, except in a ``legacy`` study, where it runs and
       its output records ``NOT DECLARED``.

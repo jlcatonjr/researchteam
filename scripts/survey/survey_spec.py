@@ -12,15 +12,17 @@ from __future__ import annotations
 
 import os
 import re
+import stat
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, ResolvedPath, load_json_strict, resolve_path
+from survey_core import (
+    GATES, MAX_JSON_BYTES, Finding, SurveyUsageError, inside, load_json_strict, read_capped, resolve_path,
+)
 
 SLUG = "^[a-z0-9][a-z0-9_-]*$"
 PLUGIN_ATTR = "^[A-Za-z_][A-Za-z0-9_]*$"
 PERIOD_NUMBER = "^[1-9][0-9]*$"
-GATE_NAMES = ("S0", "S5", "S6", "S8")
 MIXED = "mixed"  # the reserved output code (4.2)
 DEFAULT_MISSING = "NE"
 
@@ -47,11 +49,6 @@ class Int(Node):
 class Num(Node):
     minimum: float | None = None
     maximum: float | None = None
-
-
-@dataclass
-class Bool(Node):
-    pass
 
 
 @dataclass
@@ -92,7 +89,6 @@ class Obj(Node):
 @dataclass
 class MapOf(Node):
     values: Node
-    key_pattern: str | None = None
     key_enum: tuple | None = None
 
 
@@ -227,7 +223,7 @@ STUDY = Obj({
     "analysis": O(AnyObject()),
     "signoffs": R(Obj({
         "ledger": R(STR),
-        "gates": R(MapOf(Ref("Gate"), key_enum=GATE_NAMES)),
+        "gates": R(MapOf(Ref("Gate"), key_enum=GATES)),
     })),
 })
 
@@ -256,7 +252,9 @@ def _type_name(value) -> str:
 
 
 def _fullmatch(pattern: str, value: str) -> bool:
-    """A table pattern is anchored with ^ and $ for the schema; the validator matches the whole string."""
+    """A table pattern is anchored with ^ and $ for the schema; the validator matches the whole string, so that a
+    trailing line feed cannot pass as Python's ``$`` would let it."""
+    assert pattern.startswith("^") and pattern.endswith("$") and not pattern.endswith("\\$"), pattern
     return re.fullmatch(pattern[1:-1], value) is not None
 
 
@@ -293,10 +291,6 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
         if node.maximum is not None and value > node.maximum:
             out.append(Finding("maximum", where, f"{value} is greater than {node.maximum}"))
         return
-    if isinstance(node, Bool):
-        if not isinstance(value, bool):
-            out.append(Finding("type", where, f"expected a boolean, found {_type_name(value)}"))
-        return
     if isinstance(node, Null):
         if value is not None:
             out.append(Finding("type", where, f"expected null, found {_type_name(value)}"))
@@ -323,8 +317,6 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
                 out.append(Finding("unknown-key", _ptr(where, key),
                                    f"{key!r} is not one of {', '.join(node.key_enum)}"))
                 continue
-            if node.key_pattern and not _fullmatch(node.key_pattern, key):
-                out.append(Finding("pattern", _ptr(where, key), f"key {key!r} does not match {node.key_pattern}"))
             check_shape(node.values, value[key], _ptr(where, key), out, paths)
         return
     if isinstance(node, AnyOf):
@@ -387,7 +379,7 @@ def check_shape(node: Node, value, where: str, out: list, paths: list) -> None:
 def _describe(node: Node) -> str:
     if isinstance(node, Ref):
         return node.name
-    return {Str: "a string", Int: "an integer", Num: "a number", Bool: "a boolean", Null: "null",
+    return {Str: "a string", Int: "an integer", Num: "a number", Null: "null",
             Arr: "an array"}.get(type(node), "an object")
 
 
@@ -422,6 +414,8 @@ SEMANTIC_RULES = (
     ("match-all", 207, "match all on the bucketer of an attribute that is not of kind flags"),
     ("match-first-flags", 207, "match first on the bucketer of a flags attribute"),
     ("fallback-flags", 208, "a fallback on the bucketer of a flags attribute"),
+    ("match-missing-flags", 690, "a flags attribute's table bucketer without match (the default is first; "
+                                 "contract silent, refused)"),
     ("outcome-codes-distinct", 209, "an outcome's level codes, NA codes and missing value not all different"),
     ("attribute-missing", 210, "an attribute whose missing value is one of its levels or flags"),
     ("rollup-by-pipe", 211, "a | in a level code of a rollup_by level set"),
@@ -450,7 +444,7 @@ MAY_BE_ABSENT = (
     re.compile(r"^/evidence/receipts$"),
     re.compile(r"^/outcomes/\d+/source/adjudications$"),
 )
-_COVERS = re.compile(r"^/signoffs/gates/(S0|S5|S6|S8)/covers/\d+$")
+_COVERS = re.compile(r"^/signoffs/gates/(%s)/covers/\d+$" % "|".join(map(re.escape, GATES)))
 #: The files that gate S0 must cover (section 3, line 220; 5.1, 5.3).
 MUST_BE_S0 = (
     re.compile(r"^/evidence/reader/file$"),
@@ -586,6 +580,9 @@ def check_semantics(spec: dict) -> list[Finding]:
             add("match-all", f"{at}/bucketer/match", "match 'all' is for a flags attribute only (4.8)")
         if a["kind"] == "flags" and b.get("match") == "first":
             add("match-first-flags", f"{at}/bucketer/match", "a flags attribute's bucketer matches 'all' (4.8)")
+        if a["kind"] == "flags" and b["kind"] == "table" and "match" not in b:
+            add("match-missing-flags", f"{at}/bucketer", "a flags attribute's table bucketer must say match 'all': "
+                "without it the default is 'first' (4.8), which a flags attribute cannot use")
         if a["kind"] == "flags" and "fallback" in b:
             add("fallback-flags", f"{at}/bucketer/fallback", "a flags attribute's bucketer has no fallback (4.8)")
         missing = a.get("missing", DEFAULT_MISSING)
@@ -636,15 +633,15 @@ class Study:
         return not self.findings
 
     def covered(self, gate: str) -> set:
-        """Real paths the gate covers."""
-        return {rp.real for ptr, rp in self.paths.items() if ptr.startswith(f"/signoffs/gates/{gate}/covers/")}
+        """The identities (rule 1.6) of the files the gate covers."""
+        return {rp.identity for ptr, rp in self.paths.items() if ptr.startswith(f"/signoffs/gates/{gate}/covers/")}
 
 
 SPEC_NAME = "study.json"
-PROJECT_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._ -]*$")
+PROJECT_NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._ -]*")
 
 
-def locate(project: str, repo_root: Path) -> str:
+def locate(project: str) -> str:
     """The repository-relative path of a project's specification: ``Projects/<project>/study.json`` (section 3)."""
     return f"Projects/{project}/{SPEC_NAME}"
 
@@ -652,11 +649,9 @@ def locate(project: str, repo_root: Path) -> str:
 def load_study(project: str, repo_root: Path) -> Study:
     """Load and check a project's specification: shape, paths (rule 1.6), checks beyond shape, and the checks that
     read the file system. Raises SurveyUsageError when the project or its specification cannot be found."""
-    from survey_core import SurveyUsageError, inside
-
-    if not PROJECT_NAME.match(project) or project in (".", ".."):
+    if not PROJECT_NAME.fullmatch(project) or project in (".", ".."):
         raise SurveyUsageError(f"{project!r} is not a project name (a directory name under Projects/)")
-    spec_rel = locate(project, repo_root)
+    spec_rel = locate(project)
     spec_path = repo_root / spec_rel
     root_real = os.path.realpath(repo_root)
     if not os.path.lexists(spec_path):
@@ -667,8 +662,14 @@ def load_study(project: str, repo_root: Path) -> Study:
         return study
     if not spec_path.is_file():
         raise SurveyUsageError(f"{spec_rel} is not a file")
-    data = spec_path.read_bytes()
-    study = Study(project, repo_root, spec_rel, data, None)
+    try:
+        data = read_capped(spec_path, MAX_JSON_BYTES)
+    except OSError as exc:
+        raise SurveyUsageError(f"{spec_rel} cannot be read: {exc}") from exc
+    study = Study(project, repo_root, spec_rel, data or b"", None)
+    if data is None:
+        study.findings.append(Finding("too-large", spec_rel, f"larger than {MAX_JSON_BYTES} bytes; not read"))
+        return study
     spec, errors = load_json_strict(data, spec_rel)
     if errors:
         study.findings += errors
@@ -699,7 +700,7 @@ def check_files(study: Study) -> list[Finding]:
         if _COVERS.match(ptr):
             if not exists and not draft:
                 out.append(Finding("covers-missing", where(ptr), f"{rp.declared!r} does not exist"))
-            elif exists and not os.path.isfile(rp.real):
+            elif exists and not _is_regular(rp.real):
                 out.append(Finding("covers-not-file", where(ptr), f"{rp.declared!r} is not a regular file, so a "
                                    "manifest cannot hash it"))
             continue
@@ -707,20 +708,23 @@ def check_files(study: Study) -> list[Finding]:
             out.append(Finding("file-missing", where(ptr), f"{rp.declared!r} does not exist"))
     s0 = study.covered("S0")
     for ptr, rp in study.paths.items():
-        if any(p.match(ptr) for p in MUST_BE_S0) and rp.real not in s0:
+        if any(p.match(ptr) for p in MUST_BE_S0) and rp.identity not in s0:
             out.append(Finding("not-covered-s0", where(ptr), f"{rp.declared!r} must be covered by gate S0 "
                                "(section 3; 5.1, 5.3)"))
     any_gate = set().union(*(study.covered(g) for g in spec["signoffs"]["gates"])) if spec["signoffs"]["gates"] \
         else set()
     rp = study.paths.get("/evidence/legacy_exceptions")
-    if rp is not None and rp.real not in any_gate:
+    if rp is not None and rp.identity not in any_gate:
         out.append(Finding("legacy-exceptions-uncovered", where("/evidence/legacy_exceptions"),
                            f"{rp.declared!r} is covered by no gate"))
     for ptr, rp in study.paths.items():
-        if ptr.startswith("/frame_rules/post_steps/") and rp.real not in any_gate:
+        if ptr.startswith("/frame_rules/post_steps/") and rp.identity not in any_gate:
             out.append(Finding("post-step-uncovered", where(ptr), f"{rp.declared!r} is covered by no gate (4.5)"))
     return out
 
 
-def resolved(study: Study, ptr: str) -> ResolvedPath | None:
-    return study.paths.get(ptr)
+def _is_regular(real: str) -> bool:
+    try:
+        return stat.S_ISREG(os.stat(real).st_mode)
+    except OSError:
+        return False

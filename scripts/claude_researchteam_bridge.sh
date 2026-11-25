@@ -244,6 +244,13 @@ command_survey() {
     echo "then run researchteam update." >&2
     exit 1
   fi
+  local arg
+  for arg in "$@"; do
+    if [[ "$arg" == --root* ]]; then
+      echo "The survey commands work on this repository only; --root is not accepted here." >&2
+      exit 2
+    fi
+  done
   python3 -B -I "$script" "$@"
 }
 

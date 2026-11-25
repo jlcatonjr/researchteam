@@ -171,6 +171,7 @@ SEMANTIC_CASES = {
     "match-all": _set(["attributes", 0, "bucketer", "match"], "all"),
     "match-first-flags": _set(["attributes", 1, "bucketer", "match"], "first"),
     "fallback-flags": _set(["attributes", 1, "bucketer", "fallback"], "none"),
+    "match-missing-flags": _pop(["attributes", 1, "bucketer", "match"]),
     "outcome-codes-distinct": _set(CO + ["missing"], "NA"),
     "attribute-missing": _set(["attributes", 0, "missing"], "north"),
     "rollup-by-pipe": _set(["unit", "passage_attributes", 0, "levels", 0, "code"], "log|book"),
@@ -286,3 +287,101 @@ def test_a_dangling_link_is_a_missing_file(tmp_path):
     os.symlink("nowhere.csv", root / "Projects" / "tidebell" / "rows" / "dangling.csv")
     edit_spec(root, _set(["evidence", "file"], "rows/dangling.csv"))
     assert "file-missing" in rules(_validate(root).findings)
+
+
+@pytest.mark.parametrize("case", ["reader", "bucketer", "vantage"])
+def test_plugin_files_must_be_covered_by_s0(tmp_path, case):
+    """Section 3 line 220, 5.1: a reader, a plug-in bucketer and the vantage module must be covered by S0."""
+    plugin = {"file": "plugins/p.py", "attr": "thing", "version": "1"}
+
+    def mutate(s):
+        if case == "reader":
+            s["evidence"].update(format="plugin", reader=plugin)
+        elif case == "bucketer":
+            s["attributes"][0]["bucketer"] = {"kind": "plugin", "plugin": plugin}
+        else:
+            s["vantage"] = {"module": plugin}
+    root = make_repo(tmp_path, mutate)
+    (root / "Projects" / "tidebell" / "plugins").mkdir()
+    (root / "Projects" / "tidebell" / "plugins" / "p.py").write_text("thing = None\n", encoding="utf-8")
+    pointer = {"reader": "/evidence/reader/file", "bucketer": "/attributes/0/bucketer/plugin/file",
+               "vantage": "/vantage/module/file"}[case]
+    found = [f for f in _validate(root).findings if f.rule == "not-covered-s0"]
+    assert [f.where.split("#")[1] for f in found] == [pointer]
+    edit_spec(root, lambda s: s["signoffs"]["gates"]["S0"]["covers"].append("plugins/p.py"))
+    assert _validate(root).findings == []
+
+
+def test_a_project_name_with_a_trailing_line_feed_is_refused(tmp_path):
+    root = make_repo(tmp_path)
+    assert run(survey_validate, "--root", str(root), "tidebell\n")[0] == 2
+
+
+def test_a_specification_over_the_cap_is_not_read(tmp_path, monkeypatch):
+    root = make_repo(tmp_path)
+    monkeypatch.setattr(sp, "MAX_JSON_BYTES", 100)
+    assert rules(_validate(root).findings) == {"too-large"}
+
+
+def test_dot_segments_in_a_declared_path_are_refused(tmp_path):
+    root = make_repo(tmp_path, _set(["evidence", "file"], "./rows/evidence.csv"))
+    assert "path-segment" in rules(_validate(root).findings)
+
+
+def _schema_sets(s, required, enums, path="$"):
+    """Collect every ``required`` list and every ``enum``/``const`` set in a generated schema, by location."""
+    if isinstance(s, dict):
+        if "required" in s and "if" not in path.rsplit(".", 1)[-1]:
+            required.add((path, tuple(s["required"])))
+        if "enum" in s:
+            enums.add(tuple(s["enum"]))
+        if "const" in s:
+            enums.add((s["const"],))
+        for k, v in s.items():
+            _schema_sets(v, required, enums, f"{path}.{k}")
+    elif isinstance(s, list):
+        for i, v in enumerate(s):
+            _schema_sets(v, required, enums, f"{path}[{i}]")
+
+
+def _table_sets(node, required, enums, seen=None):
+    seen = set() if seen is None else seen
+    if isinstance(node, sp.Ref):
+        if node.name not in seen:
+            seen.add(node.name)
+            _table_sets(sp.DEFS[node.name], required, enums, seen)
+    elif isinstance(node, sp.Str) and node.enum is not None:
+        enums.add(tuple(node.enum))
+    elif isinstance(node, sp.Obj):
+        req = tuple(k for k, (_n, r) in node.props.items() if r)
+        if req:
+            required.add(req)
+        for c in node.conds:
+            required.add(tuple(c.then_required))
+            enums.add((c.equals,))
+        for _k, (sub, _r) in node.props.items():
+            _table_sets(sub, required, enums, seen)
+    elif isinstance(node, sp.Arr):
+        _table_sets(node.items, required, enums, seen)
+    elif isinstance(node, sp.MapOf):
+        if node.key_enum:
+            enums.add(tuple(node.key_enum))
+        _table_sets(node.values, required, enums, seen)
+    elif isinstance(node, (sp.AnyOf,)):
+        for o in node.options:
+            _table_sets(o, required, enums, seen)
+    elif isinstance(node, sp.ByKind):
+        for v in node.variants.values():
+            _table_sets(v, required, enums, seen)
+
+
+def test_the_schemas_required_and_enum_sets_equal_the_rule_tables():
+    """Without a schema library (CI has none): the schema says what the validator's table says."""
+    s_req, s_enum = set(), set()
+    _schema_sets(schema.generate(), s_req, s_enum)
+    t_req, t_enum = set(), set()
+    _table_sets(sp.STUDY, t_req, t_enum)
+    schema_required = {r for _p, r in s_req} - {(c,) for c in ("format", "kind", "rollup")}
+    cond_fields = {("format",), ("kind",), ("rollup",)}
+    assert schema_required | cond_fields >= t_req and schema_required - t_req <= cond_fields
+    assert s_enum == t_enum

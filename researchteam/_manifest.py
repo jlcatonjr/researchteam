@@ -78,6 +78,7 @@ SCHOLARLY_MANAGED_FILES = [
     # Survey toolkit, step A (docs/survey-toolkit.md, version 1): the shared core, the specification validator and
     # its generated JSON Schema, the ledger checks, the gates, and the three commands the bridge runs. Every file
     # of scripts/survey/ is listed: the commands import one another by file name.
+    "docs/survey-toolkit.md",                      # the contract the tools implement and their messages cite
     "scripts/survey/survey_core.py",
     "scripts/survey/survey_spec.py",
     "scripts/survey/survey_ledger.py",

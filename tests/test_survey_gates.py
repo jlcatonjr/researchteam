@@ -10,11 +10,12 @@ import sys
 import pytest
 
 from survey_support import (
-    FAKE_PEM, ROOT, STUDY_REL, build_ledger, edit_spec, git_init, make_repo, rules, run, survey_gates as gates,
+    FAKE_PEM, LEDGER, ROOT, STUDY_REL, build_ledger, edit_spec, make_repo, rules, run, survey_gates as gates,
     survey_ledger as ledger_mod, survey_manifest, survey_spec as sp, survey_status, survey_validate, tree,
 )
+from survey_support import survey_core as core
 
-LEDGER = f"{STUDY_REL}/ledger"
+MDIR = f"{LEDGER}/references"  # where survey-manifest writes (beside the log, 6.2)
 
 
 def _study(root):
@@ -93,7 +94,7 @@ def test_a_change_to_a_covered_file_after_the_request_is_uncleared(tmp_path):
     assert _states(root)["S5"].state == "UNAVAILABLE"
     (root / STUDY_REL / "codebooks" / "slack_bell.md").write_text("an edit\n")
     st = _states(root)
-    assert st["S5"].state == "UNCLEARED" and "changed since the request" in st["S5"].reason
+    assert st["S5"].state == "UNCLEARED" and "changed since the stored manifest file was written" in st["S5"].reason
     assert st["S0"].state == "UNAVAILABLE"  # no request for S0 was made
 
 
@@ -255,25 +256,39 @@ def test_a_sound_parent_team(tmp_path):
     assert _ledger_rules(root) == set()
 
 
-@pytest.mark.parametrize("setup,value", [
-    (None, "/governance/team"), (None, "../elsewhere"), (None, "governance/none"), (None, 7),
-    ("self", f"{LEDGER}"), ("own-parent", "governance/team"), ("link", "governance/linked"),
+@pytest.mark.parametrize("setup,value,why", [
+    (None, "/governance/team", "is absolute"), (None, "../elsewhere", "leaves the repository"),
+    (None, "governance/none", "is not a team directory"), (None, 7, "non-empty string"),
+    ("self", f"{LEDGER}", "names the ledger folder itself"),
+    ("own-parent", "governance/team", "declares a parent of its own"),
+    ("link", "governance/linked", "symbolic link"), (None, "governance/te\x00am", "NUL"),
+    (None, "repo:governance/team", "not a path relative to the repository root"),
 ])
-def test_parent_team_rules(tmp_path, setup, value):
+def test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors(tmp_path, setup, value, why):
+    """6.2, lines 910-913: these leave the gate UNAVAILABLE; the contract does not make them errors."""
     root = make_repo(tmp_path)
     _team(root, "governance/team", privilege={"parent_team": ".github/agents"} if setup == "own-parent" else {})
     if setup == "link":
         os.symlink("team", root / "governance" / "linked")
     _with_parent(root, value)
-    assert "ledger-parent" in _ledger_rules(root)
+    led = ledger_mod.check_ledger(_study(root))
+    assert led.findings == [] and any(why in r for r in led.unavailable), led.unavailable
+    assert all(st.state == "UNAVAILABLE" and why in st.reason
+               for g, st in _states(root).items() if g != "S8")
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
+    assert run(survey_status, "--root", str(root), "tidebell")[0] == 0
 
 
-def test_a_team_directory_reached_through_a_link_is_an_error(tmp_path):
+def test_a_team_directory_reached_through_a_link_leaves_the_gates_unavailable(tmp_path):
     root = make_repo(tmp_path)
     _team(root, "real-team")
     (root / ".claude").mkdir()
     os.symlink(root / "real-team", root / ".claude" / "agents")
-    assert "ledger-team-link" in _ledger_rules(root)
+    code, out, _ = run(survey_status, "--root", str(root), "tidebell")
+    assert code == 0
+    assert "S0: UNAVAILABLE" in out and "the team directory .claude/agents is reached through a symbolic link" in out
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 0 and "note: the gates read UNAVAILABLE" in out
 
 
 def test_the_folder_names_the_same_approvers_and_keys_as_the_team(tmp_path):
@@ -342,7 +357,7 @@ def test_status_exits_non_zero_only_when_something_is_malformed(tmp_path, break_
     elif break_it == "ledger":
         (_refs(root) / "security-waivers.log.csv").write_text("")
     else:
-        (root / LEDGER / "tidebell-survey.S0.manifest.json").write_text('{"kind": "survey-signoff"}\n')
+        (root / MDIR / "tidebell-survey.S0.manifest.json").write_text('{"kind": "survey-signoff"}\n')
     code, out, _ = run(survey_status, "--root", str(root), "tidebell")
     assert code == 1 and "FAIL" in out
 
@@ -357,7 +372,7 @@ def test_status_exits_non_zero_only_when_something_is_malformed(tmp_path, break_
 ])
 def test_a_malformed_manifest_file(tmp_path, content):
     root = make_repo(tmp_path)
-    (root / LEDGER / "tidebell-survey.S0.manifest.json").write_bytes(content)
+    (root / MDIR / "tidebell-survey.S0.manifest.json").write_bytes(content)
     code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
     assert code == 1 and "[manifest-malformed]" in out
     assert _states(root)["S0"].state == "UNAVAILABLE"
@@ -367,7 +382,7 @@ def test_manifest_writes_the_file_and_prints_what_the_operator_signs(tmp_path):
     root = make_repo(tmp_path)
     before = tree(root)
     code, out, _ = run(survey_manifest, "--root", str(root), "tidebell", "S0")
-    rel = f"{LEDGER}/tidebell-survey.S0.manifest.json"
+    rel = f"{MDIR}/tidebell-survey.S0.manifest.json"
     data = (root / rel).read_bytes()
     digest = _sha(data)
     assert code == 0 and data == gates.build_manifest(_study(root), "S0")
@@ -384,13 +399,13 @@ def test_manifest_writes_the_file_and_prints_what_the_operator_signs(tmp_path):
 def test_manifest_is_deterministic(tmp_path):
     root = make_repo(tmp_path)
     first = run(survey_manifest, "--root", str(root), "tidebell", "S0")
-    data = (root / LEDGER / "tidebell-survey.S0.manifest.json").read_bytes()
+    data = (root / MDIR / "tidebell-survey.S0.manifest.json").read_bytes()
     second = run(survey_manifest, "--root", str(root), "tidebell", "S0")
-    assert (root / LEDGER / "tidebell-survey.S0.manifest.json").read_bytes() == data
+    assert (root / MDIR / "tidebell-survey.S0.manifest.json").read_bytes() == data
     assert first[1].replace("wrote:", "unchanged:") == second[1]
     other = make_repo(tmp_path / "again")
     run(survey_manifest, "--root", str(other), "tidebell", "S0")
-    assert (other / LEDGER / "tidebell-survey.S0.manifest.json").read_bytes() == data
+    assert (other / MDIR / "tidebell-survey.S0.manifest.json").read_bytes() == data
 
 
 @pytest.mark.parametrize("setup,needle", [
@@ -399,8 +414,8 @@ def test_manifest_is_deterministic(tmp_path):
     (lambda root: edit_spec(root, lambda s: s.update(colour="x")), "malformed"),
     (lambda root: (edit_spec(root, lambda s: s.update(status="draft")),
                    (root / STUDY_REL / "codebooks" / "slack_bell.md").unlink()), "cannot be built"),
-    (lambda root: (root / LEDGER / "tidebell-survey.S5.manifest.json").write_text("{}"), "remove it first"),
-    (lambda root: (root / LEDGER / "tidebell-survey.S5.manifest.json").mkdir(), "not a regular file"),
+    (lambda root: (root / MDIR / "tidebell-survey.S5.manifest.json").write_text("{}"), "remove it first"),
+    (lambda root: (root / MDIR / "tidebell-survey.S5.manifest.json").mkdir(), "not a regular file"),
 ])
 def test_manifest_refuses_and_writes_nothing(tmp_path, setup, needle):
     root = make_repo(tmp_path)
@@ -466,6 +481,142 @@ def test_the_bridge_needs_a_project(tmp_path):
     assert _bridge(root, "survey-status").returncode == 2
 
 
-def test_git_init_helper_builds_a_repository(tmp_path):
-    git_init(tmp_path / "r")
-    assert (tmp_path / "r" / ".git").is_dir()
+
+
+# --------------------------------------------------------------------------- review fixes
+def test_a_symlinked_key_file_is_not_read(tmp_path):
+    root = make_repo(tmp_path)
+    keys = _refs(root) / "authorized-verify-keys"
+    (root / "elsewhere.pem").write_text(FAKE_PEM, encoding="utf-8")
+    (keys / "op-test.pub.pem").unlink()
+    os.symlink(root / "elsewhere.pem", keys / "op-test.pub.pem")
+    led = ledger_mod.check_ledger(_study(root))
+    assert {"ledger-keys", "ledger-keys-empty"} <= rules(led.findings)
+    assert ledger_mod.read_keys(keys) == {}
+
+
+@pytest.mark.skipif(not hasattr(os, "mkfifo"), reason="os.mkfifo is not available here")
+def test_a_fifo_key_file_is_not_opened(tmp_path):
+    root = make_repo(tmp_path)
+    keys = _refs(root) / "authorized-verify-keys"
+    os.mkfifo(keys / "op-fifo.pub.pem")  # opening it for reading would block: the test hangs if the tool opens it
+    led = ledger_mod.check_ledger(_study(root))
+    assert any(f.rule == "ledger-keys" and "op-fifo" in f.where for f in led.findings)
+    assert set(ledger_mod.read_keys(keys)) == {"op-test.pub.pem"}
+
+
+def test_a_symlinked_key_store_is_not_listed(tmp_path):
+    root = make_repo(tmp_path)
+    refs = _refs(root)
+    shutil.move(str(refs / "authorized-verify-keys"), str(root / "store"))
+    os.symlink(root / "store", refs / "authorized-verify-keys")
+    assert "ledger-keys" in rules(ledger_mod.check_ledger(_study(root)).findings)
+    assert ledger_mod.read_keys(refs / "authorized-verify-keys") == {}
+
+
+def test_a_symlinked_approver_list_is_not_read(tmp_path):
+    root = make_repo(tmp_path)
+    (root / "names.txt").write_text("operator\n", encoding="utf-8")
+    (_refs(root) / "security-approvers.txt").unlink()
+    os.symlink(root / "names.txt", _refs(root) / "security-approvers.txt")
+    assert "ledger-approvers" in _ledger_rules(root)
+
+
+def test_a_team_with_approvers_and_no_key_file_compares_approvers_only(tmp_path):
+    root = make_repo(tmp_path)
+    _team(root, ".github/agents", approvers="operator\n")  # no key file: the folder is where the keys live
+    assert _ledger_rules(root) == set()
+    (root / ".github/agents/references/security-approvers.txt").write_text("someone\n", encoding="utf-8")
+    assert "ledger-parity" in _ledger_rules(root)
+
+
+def test_a_team_with_keys_and_a_comment_only_list_compares_keys_only(tmp_path):
+    root = make_repo(tmp_path)
+    _team(root, ".github/agents", approvers="# generated\n", keys={"op-test": FAKE_PEM})
+    assert _ledger_rules(root) == set()  # the folder's approvers are the only ones
+    (root / ".github/agents/references/authorized-verify-keys/op-test.pub.pem").write_text(
+        FAKE_PEM.replace("MCow", "MCox"), encoding="utf-8")
+    assert "ledger-parity" in _ledger_rules(root)
+
+
+def test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so(tmp_path):
+    root = make_repo(tmp_path)
+    _team(root, ".github/agents", approvers="someone-else\n")
+    (_refs(root) / "security-waivers.log.csv").write_text("", encoding="utf-8")
+    led = ledger_mod.check_ledger(_study(root))
+    assert "ledger-parity" not in rules(led.findings)
+    assert any("comparison" in r and "not made" in r for r in led.unavailable)
+
+
+def test_an_unreadable_team_list_is_reported_not_skipped(tmp_path):
+    root = make_repo(tmp_path)
+    _team(root, ".github/agents")
+    (root / "names.txt").write_text("operator\n", encoding="utf-8")
+    os.symlink(root / "names.txt", root / ".github/agents/references/security-approvers.txt")
+    led = ledger_mod.check_ledger(_study(root))
+    assert any(f.rule == "ledger-parity" and "not made" in f.message for f in led.findings)
+
+
+@pytest.mark.parametrize("value", ["agentteams-clearance:repo:.git/gates", "agentteams-clearance:repo:.github/agents",
+                                   "agentteams-clearance:repo:.claude/agents/gates"])
+def test_a_ledger_inside_git_or_a_team_location_is_refused(tmp_path, value):
+    root = make_repo(tmp_path, lambda s: s["signoffs"].update(ledger=value))
+    assert "ledger-location" in _ledger_rules(root)
+
+
+def test_the_ledger_log_and_json_files_are_size_capped(tmp_path, monkeypatch):
+    root = make_repo(tmp_path)
+    monkeypatch.setattr(ledger_mod, "MAX_LOG_BYTES", 10)
+    monkeypatch.setattr(ledger_mod, "MAX_JSON_BYTES", 1)
+    found = {(f.rule, "larger than" in f.message) for f in ledger_mod.check_ledger(_study(root)).findings}
+    assert ("ledger-log", True) in found and ("ledger-privilege", True) in found
+
+
+def test_the_manifest_file_is_mode_0644(tmp_path):
+    root = make_repo(tmp_path)
+    run(survey_manifest, "--root", str(root), "tidebell", "S0")
+    assert os.stat(root / MDIR / "tidebell-survey.S0.manifest.json").st_mode & 0o777 == 0o644
+
+
+def test_manifest_refuses_when_the_folder_becomes_a_link_before_writing(tmp_path, monkeypatch):
+    root = make_repo(tmp_path)
+    real_check = survey_manifest.check_ledger
+
+    def check_then_swap(study):
+        led = real_check(study)
+        refs = root / MDIR
+        shutil.move(str(refs), str(root / "moved-refs"))
+        os.symlink(root / "moved-refs", refs)
+        return led
+    monkeypatch.setattr(survey_manifest, "check_ledger", check_then_swap)
+    code, out, _ = run(survey_manifest, "--root", str(root), "tidebell", "S0")
+    assert code == 1 and "symbolic link" in out
+    assert not (root / "moved-refs" / "tidebell-survey.S0.manifest.json").exists()
+
+
+def test_manifest_paths_are_carried_as_declared(tmp_path):
+    root = make_repo(tmp_path, lambda s: s["signoffs"]["gates"]["S5"]["covers"].append(
+        "repo:Projects/tidebell/plans/query_plan.md"))
+    files = [f["path"] for f in json.loads(gates.build_manifest(_study(root), "S5"))["files"]]
+    assert files[-1] == "Projects/tidebell/plans/query_plan.md"
+
+
+def test_repeats_are_removed_by_file_identity_not_spelling(tmp_path):
+    root = make_repo(tmp_path)
+    if not os.path.exists(root / STUDY_REL / "CODEBOOKS" / "slack_bell.md"):
+        pytest.skip("this file system is case-sensitive")
+    edit_spec(root, lambda s: s["signoffs"]["gates"]["S5"]["covers"].append("CODEBOOKS/slack_bell.md"))
+    files = json.loads(gates.build_manifest(_study(root), "S5"))["files"]
+    assert [f["path"] for f in files] == [f"{STUDY_REL}/study.json", f"{STUDY_REL}/codebooks/slack_bell.md"]
+
+
+def test_the_gate_names_have_one_definition():
+    assert gates.GATES is core.GATES and sp.GATES is core.GATES
+    assert sp._COVERS.pattern == r"^/signoffs/gates/(S0|S5|S6|S8)/covers/\d+$"
+
+
+def test_the_bridge_refuses_a_root_option(tmp_path):
+    root = _repo_with_scripts(tmp_path)
+    for args in (("--root", str(tmp_path), "tidebell"), ("--root=/elsewhere", "tidebell"), ("tidebell", "--root")):
+        res = _bridge(root, "survey-status", *args)
+        assert res.returncode == 2 and "--root is not accepted" in res.stderr

@@ -17,7 +17,9 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_core import SurveyUsageError, parse_args, print_findings, sha256_bytes, usage_exit  # noqa: E402
+from survey_core import (  # noqa: E402
+    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, read_capped, sha256_bytes, symlink_components, usage_exit,
+)
 from survey_gates import (  # noqa: E402
     GATES, ManifestError, action, build_manifest, check_stored_manifest, manifest_rel, scope,
 )
@@ -60,7 +62,7 @@ def main(argv=None) -> int:
     if os.path.lexists(path):
         if not os.path.isfile(path) or os.path.islink(path):
             return refuse(f"{rel} exists and is not a regular file")
-        old = path.read_bytes()
+        old = read_capped(path, MAX_JSON_BYTES) or b""
         problems = check_stored_manifest(old, gate, project, rel)
         if problems:
             print_findings(problems)
@@ -68,10 +70,15 @@ def main(argv=None) -> int:
         if old == data:
             state = "unchanged"
     if state == "wrote":
+        # The folder was checked above; check again just before writing that no component became a link.
+        links = symlink_components(root, rel.rsplit("/", 1)[0])
+        if links:
+            return refuse(f"a component of {rel} is a symbolic link: {', '.join(links)}")
         fd, tmp = tempfile.mkstemp(prefix=".survey-manifest-", dir=path.parent)
         try:
             with os.fdopen(fd, "wb") as fh:
                 fh.write(data)
+            os.chmod(tmp, 0o644)
             os.replace(tmp, path)
         except BaseException:
             if os.path.exists(tmp):

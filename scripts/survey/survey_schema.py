@@ -19,7 +19,7 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_spec import (  # noqa: E402
-    DEFS, SEMANTIC_RULES, STUDY, AnyObject, AnyOf, Arr, Bool, ByKind, Int, MapOf, Null, Num, Obj, Ref, Str,
+    DEFS, SEMANTIC_RULES, STUDY, AnyObject, AnyOf, Arr, ByKind, Int, MapOf, Null, Num, Obj, Ref, Str,
 )
 
 SCHEMA_FILE = HERE / "study.schema.json"
@@ -52,8 +52,6 @@ def to_schema(node) -> dict:
         if node.maximum is not None:
             s["maximum"] = node.maximum
         return s
-    if isinstance(node, Bool):
-        return {"type": "boolean"}
     if isinstance(node, Null):
         return {"type": "null"}
     if isinstance(node, AnyObject):
@@ -67,8 +65,6 @@ def to_schema(node) -> dict:
         s = {"type": "object", "additionalProperties": to_schema(node.values)}
         if node.key_enum is not None:
             s["propertyNames"] = {"enum": list(node.key_enum)}
-        elif node.key_pattern:
-            s["propertyNames"] = {"pattern": node.key_pattern}
         return s
     if isinstance(node, AnyOf):
         return {"anyOf": [to_schema(o) for o in node.options]}

@@ -66,15 +66,29 @@ def _resolve(repo, declared):
 def test_paths_are_study_relative_or_repo_rooted(repo):
     a, _ = _resolve(repo, "sub/f.csv")
     b, _ = _resolve(repo, "repo:Projects/p/sub/f.csv")
-    c, _ = _resolve(repo, "./sub//f.csv")
-    assert a.repo_rel == b.repo_rel == c.repo_rel == "Projects/p/sub/f.csv"
-    assert a.real == b.real == c.real  # the same file, however each is written
+    assert a.repo_rel == b.repo_rel == "Projects/p/sub/f.csv"  # the declared text, joined to the study folder
+    assert a.real == b.real and a.identity == b.identity  # the same file, however each is written
+
+
+def test_two_spellings_on_a_case_insensitive_file_system_are_one_file(repo):
+    if not os.path.exists(repo / "Projects" / "p" / "SUB" / "F.csv"):
+        pytest.skip("this file system is case-sensitive")
+    a, _ = _resolve(repo, "sub/f.csv")
+    b, _ = _resolve(repo, "SUB/F.csv")
+    assert a.identity == b.identity and b.repo_rel == "Projects/p/SUB/F.csv"
+
+
+def test_a_place_that_does_not_exist_is_identified_by_its_real_path(repo):
+    a, _ = _resolve(repo, "sub/none.csv")
+    assert a.identity == ("path", a.real)
 
 
 @pytest.mark.parametrize("declared,rule", [
     ("/etc/passwd", "path-absolute"), ("repo:/etc/passwd", "path-absolute"), ("C:/x", "path-absolute"),
     ("../x", "path-dotdot"), ("sub/../../x", "path-dotdot"), ("repo:../x", "path-dotdot"),
     ("sub\\f.csv", "path-backslash"), ("", "path-empty"), ("repo:", "path-empty"),
+    ("./sub/f.csv", "path-segment"), ("sub//f.csv", "path-segment"), ("sub/", "path-segment"),
+    ("repo:./x", "path-segment"), ("sub/\x00f.csv", "path-nul"),
 ])
 def test_path_rule_errors(repo, declared, rule):
     rp, findings = _resolve(repo, declared)
@@ -96,6 +110,31 @@ def test_strict_json_refuses_duplicate_keys_and_nan():
     assert core.load_json_strict(b'{"a":1,"a":2}', "w")[1][0].rule == "json-duplicate-key"
     assert core.load_json_strict(b'{"a":NaN}', "w")[1][0].rule == "json"
     assert core.load_json_strict(b"\xff", "w")[1][0].rule == "json"
+
+
+def test_json_nested_too_deeply_is_a_finding_not_a_crash():
+    value, findings = core.load_json_strict(b"[" * 200000 + b"]" * 200000, "w")
+    assert value is None and findings[0].rule == "json" and "deep" in findings[0].message
+
+
+def test_read_capped_refuses_a_file_over_the_cap(tmp_path):
+    (tmp_path / "f").write_bytes(b"12345")
+    assert core.read_capped(tmp_path / "f", 5) == b"12345"
+    assert core.read_capped(tmp_path / "f", 4) is None
+
+
+def test_hashing_in_chunks_keeps_a_crlf_split_across_chunks(tmp_path, monkeypatch):
+    monkeypatch.setattr(core, "_CHUNK", 4)
+    raw = b"abc\r\ndef\r\r\n\rghi\r"
+    for name in ("x.md", "x.bin"):
+        (tmp_path / name).write_bytes(raw)
+    assert core.file_sha256(tmp_path / "x.md", "x.md") == hashlib.sha256(raw.replace(b"\r\n", b"\n")).hexdigest()
+    assert core.file_sha256(tmp_path / "x.bin", "x.bin") == hashlib.sha256(raw).hexdigest()
+
+
+def test_the_soft_hyphen_is_written_as_an_escape():
+    source = (SURVEY / "survey_core.py").read_text(encoding="utf-8")
+    assert "\u00ad" not in source and core.SOFT_HYPHEN == "\u00ad"
 
 
 def test_the_code_is_python_3_10_syntax_and_standard_library_only():

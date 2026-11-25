@@ -2,8 +2,10 @@
 ``mode``. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed;
 2 on a usage error. Writes nothing.
 
-This version verifies no signature: a gate reads ``UNCLEARED`` when its files changed since its manifest was
-requested, and ``UNAVAILABLE`` otherwise. It never reads ``CLEARED``.
+This version verifies no signature: a gate reads ``UNCLEARED`` when its files changed since its manifest file was
+written, and ``UNAVAILABLE`` otherwise. It never reads ``CLEARED``. A reason the HALT scan of 6.2 cannot be made
+(a team directory reached through a link, an unusable ``parent_team``) leaves the gates ``UNAVAILABLE`` and is
+printed; it does not make the exit status non-zero.
 """
 from __future__ import annotations
 
@@ -39,6 +41,8 @@ def main(argv=None) -> int:
     print(f"study {spec['id']} ({study.spec_rel}): status {spec['status']}, schema_version {spec['schema_version']}")
     print(f"environment: python {env['python']}, unicodedata {env['unicodedata']}")
     print(f"ledger: {ledger.rel or spec['signoffs']['ledger']}")
+    for reason in ledger.unavailable:
+        print(f"ledger note: {reason}")
     malformed = list(ledger.findings)
     for gate in GATES:
         st, extra = gate_status(study, gate, ledger)
