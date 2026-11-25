@@ -1,0 +1,930 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Survey study specification (study.json), contract version 1",
+  "description": "Generated from the rule table of scripts/survey/survey_spec.py by survey_schema.py; do not edit. A description for editors: the validator (survey-validate) is the authority (docs/survey-toolkit.md, section 3). It also makes these checks, which this schema cannot express, and the path rule (1.6): key-duplicate (a key used twice among the outcomes and attributes together); level-duplicate (a level code used twice within an outcome); max-order-scale (rollup max-order without scale ordinal); max-order-order (rollup max-order with a level that has no order); merge-source (a merge whose source is not a declared level code or NA code); cuts-order (cuts not strictly ascending); labels-count (labels not one longer than cuts); strata-key (a strata key that is not a period number from 1 to the number of labels); codes-outcome-missing (a passage or work study with no outcome whose source is codes); counted-tiers-subset (counted_tiers not a subset of tiers); ne-tier-undeclared (not_established_tier not in tiers); ne-tier-counted (not_established_tier counted); present-code-missing (rollup any-present without a present_code); present-code-level (a present_code that is not a level code of the outcome); present-code-unexpected (a present_code on a rollup other than any-present); exclude-key (an exclude_from_rollup key that is not a passage_attributes key); exclude-value (an exclude_from_rollup value that is not one of that key's level codes); mixed-code (a level, NA or missing code equal to the reserved code mixed); any-present-order (rollup any-present on an ordinal outcome with a level that has no order); rollup-types-key (a rollup_types that is not a passage_attributes key); rollup-by-key (a rollup_by entry that is not a passage_attributes key); period-multiple (more than one attribute of kind period); period-bucketer (a period attribute whose bucketer is not of kind period, or the reverse); frame-column-duplicate (two frame columns with the same name (4.7)); match-all (match all on the bucketer of an attribute that is not of kind flags); match-first-flags (match first on the bucketer of a flags attribute); fallback-flags (a fallback on the bucketer of a flags attribute); outcome-codes-distinct (an outcome's level codes, NA codes and missing value not all different); attribute-missing (an attribute whose missing value is one of its levels or flags); rollup-by-pipe (a | in a level code of a rollup_by level set); exclude-rule-cells (a passage or work study with an exclude rule other than not-on-question); attribution-missing (a passage or work study without unit.attribution); saturation-fields (a saturation stopping rule without rounds_without_new and min_new_share); legacy-unrecorded-status (a legacy-unrecorded stopping rule in a study that is not legacy); reader-missing (evidence.format plugin without evidence.reader); reader-unexpected (evidence.reader when evidence.format is not plugin (contract silent; refused)); file-missing (a referenced input file that does not exist, unless status is draft); not-covered-s0 (a plug-in, bucket table, vocabulary file or stop-words file not covered by gate S0); legacy-exceptions-status (evidence.legacy_exceptions in a study that is not legacy); legacy-exceptions-uncovered (evidence.legacy_exceptions naming a file that no gate covers); post-step-uncovered (a post_steps file that no gate covers); covers-empty (a gate that covers no file); covers-missing (a covers path that does not exist, unless status is draft); covers-not-file (a covers path that is not a regular file (cannot be hashed; contract silent)).",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "enum": [
+        "1",
+        "0"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9_-]*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "active",
+        "legacy"
+      ]
+    },
+    "vantage": {
+      "type": "object",
+      "properties": {
+        "module": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Plugin"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "guide": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "inclusion": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "module"
+      ]
+    },
+    "vocabulary": {
+      "type": "object",
+      "properties": {
+        "forbidden": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "exempt_columns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "forbidden"
+      ]
+    },
+    "corpus": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "works": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "text"
+      ]
+    },
+    "identity": {
+      "type": "object",
+      "properties": {
+        "registry": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "overrides": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "stop_words": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "registry",
+        "overrides"
+      ]
+    },
+    "unit": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "passage",
+            "work",
+            "author"
+          ]
+        },
+        "attribution": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+            },
+            "statuses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "counted_statuses": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "file",
+            "statuses",
+            "counted_statuses"
+          ]
+        },
+        "passage_attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LevelSet"
+          }
+        },
+        "rollup_by": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rollup_types": {
+          "type": "string"
+        },
+        "exclude_from_rollup": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "collective": {
+          "type": "object",
+          "properties": {
+            "kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "analysis": {
+              "enum": [
+                "apart",
+                "with-authors"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kinds",
+            "analysis"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ]
+    },
+    "enumerations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "window": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "to": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to"
+            ]
+          },
+          "seeds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "query_plan": {
+            "type": "string",
+            "minLength": 1,
+            "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+          },
+          "log": {
+            "type": "string",
+            "minLength": 1,
+            "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+          },
+          "stopping_rule": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "enum": [
+                  "saturation",
+                  "exhaustive-corpus",
+                  "closed-list",
+                  "legacy-unrecorded"
+                ]
+              },
+              "rounds_without_new": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "min_new_share": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "saturation"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "rounds_without_new",
+                    "min_new_share"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "label",
+          "window",
+          "log",
+          "stopping_rule"
+        ]
+      },
+      "minItems": 1
+    },
+    "evidence": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "format": {
+          "enum": [
+            "survey-evidence-0",
+            "plugin"
+          ]
+        },
+        "reader": {
+          "$ref": "#/$defs/Plugin"
+        },
+        "tiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "counted_tiers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "not_established_tier": {
+          "type": "string"
+        },
+        "receipts": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "legacy_exceptions": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "attribute_kinds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "format",
+        "tiers",
+        "counted_tiers",
+        "not_established_tier"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "format": {
+                "const": "plugin"
+              }
+            },
+            "required": [
+              "format"
+            ]
+          },
+          "then": {
+            "required": [
+              "reader"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "reader"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "outcomes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "source": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "evidence-attribute"
+                  },
+                  "attribute": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "attribute"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "codes"
+                  },
+                  "codes_file": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+                  },
+                  "adjudications": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+                  }
+                },
+                "additionalProperties": false,
+                "required": [
+                  "kind",
+                  "codes_file",
+                  "adjudications"
+                ]
+              }
+            ]
+          },
+          "codebook": {
+            "type": "string",
+            "minLength": 1,
+            "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+          },
+          "scale": {
+            "enum": [
+              "nominal",
+              "ordinal"
+            ]
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Level"
+            },
+            "minItems": 2
+          },
+          "na_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "missing": {
+            "type": "string"
+          },
+          "merges": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "rollup": {
+            "enum": [
+              "single-code",
+              "mixed-if-conflict",
+              "max-order",
+              "any-present",
+              "none"
+            ]
+          },
+          "present_code": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "label",
+          "source",
+          "scale",
+          "levels",
+          "rollup"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "rollup": {
+                  "const": "any-present"
+                }
+              },
+              "required": [
+                "rollup"
+              ]
+            },
+            "then": {
+              "required": [
+                "present_code"
+              ]
+            },
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "present_code"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "attributes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9_-]*$"
+          },
+          "label": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "categorical",
+              "flags",
+              "period"
+            ]
+          },
+          "source_attributes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "bucketer": {
+            "$ref": "#/$defs/Bucketer"
+          },
+          "levels": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "flags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "missing": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "key",
+          "label",
+          "kind",
+          "bucketer"
+        ]
+      },
+      "minItems": 1
+    },
+    "periods": {
+      "type": "object",
+      "properties": {
+        "basis": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "work_date",
+              "life_dates"
+            ]
+          }
+        },
+        "cuts": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "minItems": 1
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 2
+        },
+        "strata": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "basis",
+        "cuts",
+        "labels"
+      ]
+    },
+    "frame_rules": {
+      "type": "object",
+      "properties": {
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "rule": {
+                "enum": [
+                  "institutions",
+                  "not-on-question",
+                  "unit-ids",
+                  "id-contains"
+                ]
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "reason": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false,
+            "required": [
+              "rule",
+              "reason"
+            ]
+          }
+        },
+        "change_log": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "post_steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "exclude",
+        "change_log"
+      ]
+    },
+    "analysis": {
+      "type": "object"
+    },
+    "signoffs": {
+      "type": "object",
+      "properties": {
+        "ledger": {
+          "type": "string"
+        },
+        "gates": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/Gate"
+          },
+          "propertyNames": {
+            "enum": [
+              "S0",
+              "S5",
+              "S6",
+              "S8"
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "ledger",
+        "gates"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "title",
+    "question",
+    "status",
+    "identity",
+    "unit",
+    "enumerations",
+    "evidence",
+    "outcomes",
+    "attributes",
+    "periods",
+    "frame_rules",
+    "signoffs"
+  ],
+  "$defs": {
+    "Level": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "order": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "label"
+      ]
+    },
+    "LevelSet": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "label": {
+          "type": "string"
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Level"
+          },
+          "minItems": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "label",
+        "levels"
+      ]
+    },
+    "Plugin": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "type": "string",
+          "minLength": 1,
+          "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+        },
+        "attr": {
+          "type": "string",
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "file",
+        "attr",
+        "version"
+      ]
+    },
+    "Bucketer": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "table"
+            },
+            "table": {
+              "type": "string",
+              "minLength": 1,
+              "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+            },
+            "match": {
+              "enum": [
+                "first",
+                "all"
+              ]
+            },
+            "fallback": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "table"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "period"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "plugin"
+            },
+            "plugin": {
+              "$ref": "#/$defs/Plugin"
+            },
+            "fallback": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "plugin"
+          ]
+        }
+      ]
+    },
+    "Gate": {
+      "type": "object",
+      "properties": {
+        "covers": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "description": "a path under rule 1.6: relative to the study's folder, or repo:-rooted"
+          }
+        },
+        "enforce": {
+          "enum": [
+            "blocking",
+            "build-only"
+          ]
+        },
+        "mode": {
+          "enum": [
+            "prospective",
+            "retroactive"
+          ]
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "covers",
+        "enforce",
+        "mode"
+      ]
+    }
+  }
+}
