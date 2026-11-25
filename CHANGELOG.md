@@ -25,6 +25,9 @@ the lock writer runs the installed code:
    `python3 -m pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
    The `update` extra installs agentteams at the commit above. The lock writer refuses `--tag agentteams=v1.3.0`
    while another agentteams is installed, and `researchteam update` would regenerate the team with the old one.
+   A workspace with signed decision rows or a toolchain-group file also needs agentteams' `signing` extra in that
+   interpreter, as `scripts/bootstrap_toolchain.sh` installs it. Without it the group file does not verify, and
+   the S-10 cooldown applies to the release (seen in a downstream dry run against the candidate).
 3. `researchteam update --ref v1.3.0`, then
    `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.3.0 --tag agentteams=v1.3.0`. A locked
    repository leaves two release lines at once, researchteam 1.2 and agentteams 1.2, and `check_toolchain.py`
