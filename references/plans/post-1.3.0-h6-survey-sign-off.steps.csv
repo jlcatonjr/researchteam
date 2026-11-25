@@ -1,6 +1,7 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
-F1,orchestrator,List the public agentteams 1.3.0 calls verification needs; state table from contract 6.1 and 6.2,agentteams 1.3.0; docs/survey-toolkit.md,table in the pull request description,in-progress,design note being written on feat/survey-tools-f: state table; public and private agentteams calls; test keys,post-1.3.0-h5-survey-tools-a-d:A7
-F2,security,Read the state table and add cases that must not clear,F1,cases,pending,read-only; before the code is final,F1
+F1,orchestrator,List the public agentteams 1.3.0 calls verification needs; state table from contract 6.1 and 6.2,agentteams 1.3.0; docs/survey-toolkit.md,table in the pull request description,done,design note e8519c7 on feat/survey-tools-f; one contract rule has no public agentteams route; operator's six decisions recorded in the plan,post-1.3.0-h5-survey-tools-a-d:A7
+F2,security,Read the state table and add cases that must not clear,F1,cases,done,CONDITIONAL PASS on the design; cases 39 to 46 added; which questions are the operator's,F1
+F2a,primary-producer,Fix step A's sign-off log header (the fixture and the structural check) so agentteams accepts and can sign into the log,F1 finding,branch fix/survey-ledger-log-header; pull request; merge,pending,before step F's code; not a PS-2 path,F2
 F3,primary-producer,Fixtures in a temporary git repository with a run-time throwaway key; failing tests; signature verification; HALT scan; status reports real states,F1;F2,branch feat/survey-tools-f,pending,standard library only; agentteams optional,F2
 F4,technical-validator,Compare states and refusals with section 6,F3,findings,pending,read-only,F3
 F5,code-hygiene,Audit the code,F3,findings,pending,read-only,F3
@@ -8,3 +9,5 @@ F6,security,Review the whole step,F3,verdict,pending,PASS required before the op
 F7,orchestrator,Fix findings; merge main; full suite; local run of the CLEARED path recorded in the pull request; validate; pull request; conflict-auditor close,F4;F5;F6,pull request,pending,,F4;F5;F6
 F8,git-operations,Merge after the operator's live answer; check main,F7,merge commit,pending,PS-2,F7
 F9,orchestrator,Ask the first project's session to run survey-status on its study,F8,report (data),pending,,F8
+F10,git-operations,"CI job that installs agentteams at the pinned commit with its signing backend, so the CLEARED path runs in CI",operator decision 2026-11-25; F3,its own pull request to .github/workflows/,pending,PS-2 path: @security PASS naming it; hash-pinned installs under S-10,F3
+F11,orchestrator,Ask agentteams for a public read-only call listing the unretracted HALT ids of a team directory; ask the first project's session to check its sign-off log against the stricter structure,operator decisions 2026-11-25,answers (data),pending,,F2

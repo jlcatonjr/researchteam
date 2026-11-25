@@ -69,3 +69,59 @@ the bridge script with them, so whichever of B and F merges second merges `main`
   own tool reports is a finding for both sides, and data to this session.
 
 Steps: `post-1.3.0-h6-survey-sign-off.steps.csv`.
+
+## Step F1: the design note, `@security`'s read, and the operator's decisions (2026-11-25)
+
+Design note: `references/plans/post-1.3.0-h6-step-f-design.md` on the branch `feat/survey-tools-f` (commit
+`e8519c7`). Its claims marked as run were checked against agentteams 1.3.0's own command line with an invented
+folder and a throwaway key. `@security` read it: CONDITIONAL PASS; code may start once the operator has answered
+six questions; the code gets its own `@security` review.
+
+**Findings that shape the step.**
+- The contract's HALT rule for the two family names has no public route in agentteams 1.3.0, and the private one
+  binds too widely (one study's HALT would stop every study's gates).
+- A sign-off is bound to its manifest only through the signed action id, which carries the manifest's hash.
+- agentteams would clear things the contract forbids (a shared-secret row when its key is reachable, any matching
+  waiver, a consumed row with a copy appended), so the tools enforce those rules themselves.
+- The folder-log header in step A's test fixture lacks two columns agentteams requires; agentteams rejects such a
+  log and will not sign into it. Step A never reports `CLEARED`, so nothing wrong was accepted; it is fixed in a
+  small pull request before step F (branch `fix/survey-ledger-log-header`).
+- Two gaps no tool can close: rows cut off the end of the log, and a deleted `consumed` mark. Review and branch
+  protection hold them; the status output says so.
+
+**Operator's decisions (picker, 2026-11-25).**
+- **Family HALT: "Strict interim scan".** The tools read every team log the HALT scan covers and treat any HALT
+  row on the two family names as blocking every gate, signed or not, retracted or not; a log that cannot be read
+  leaves the gates `UNAVAILABLE`. A retracted family HALT therefore keeps blocking until agentteams offers a
+  public call; the session confirms none exists today, says so in the reason text, and asks agentteams for the
+  call.
+- **Log structure: "Adopt both rules".** A study's sign-off log has the header agentteams writes for a new log,
+  and every row is Ed25519. The first project's session is asked to check its log against the rule before the
+  merge; if its log would fail, the question returns to the operator.
+- **A malformed sign-off folder and a `build-only` stage: "Refuse".** Recorded as a contract proposal, since the
+  gate table read alone says the stage runs.
+- **Identical manifests in two repositories: "Accept for now".** A known limit of contract version 1; a
+  repository identity in the manifest is proposed for version 2.
+- **CI: "Add the CI job".** A job that installs agentteams at the pinned commit with its signing backend, so the
+  `CLEARED` path runs in CI. Its own pull request to the workflow, with `@security`'s PASS naming the path and
+  hash-pinned installs vetted under Rule S-10.
+- **Where the verifying agentteams lives: "Report it, do not refuse".** `survey-status` prints the verifier's
+  location and whether it is inside the work tree; a gate may read `CLEARED` from such an install, with that note.
+
+**Adopted without asking, as `@security` marked them fail-safe:** a HALT on a study id that extends another
+blocks both (accepted, documented); agentteams is reached as a child process of the tools' own interpreter, never
+imported; rows marked as signed from a checkout are refused; a sign-off row must have empty `derives_from`,
+`scope` and effect columns; a declared gate with no request reads `UNCLEARED`; files put back to an earlier
+signed state read `UNCLEARED` until the manifest is rewritten; the child runs with an allowlisted environment and
+an empty home folder, so a retraction signed with a shared secret never counts.
+
+**How `CLEARED` is decided.** The child runs one fixed snippet under `-I` that calls agentteams' public
+file-clearance check and prints one JSON line. A gate is `CLEARED` only if the child exits 0, prints exactly one
+JSON object, says cleared, names the action the tools computed, reports agentteams 1.3.0 or later imported from
+the interpreter's own site-packages, and shares the parent's prefix. Anything else is `UNCLEARED` or
+`UNAVAILABLE`. No failure text is parsed.
+
+**Cases that must not clear:** the note's section 5, with `@security`'s additions 39 to 46 (a planted `.git`
+between the folder and the repository root; a patched verifier; a forged retraction in an unsigned team log; a
+specification edited to `legacy` with a gate's declaration removed; a plug-in reading outside what was hashed; a
+`key_id` with path characters; control characters in `author` or `key_id`; study ids that differ only by case).
