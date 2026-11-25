@@ -1,0 +1,13 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Close step 7 of key-rotation-resign-2026-11 with evidence,decisions logs on main,updated steps file,pending,,
+2,orchestrator,Search for lookups of every op-2026 row's action id,repository; installed agentteams 1.3.0,table in the plan,pending,read-only,
+3,orchestrator,Rehearse the retirement in scratch copies; run every check,team folders; group file; registry,rehearsal record in the plan,pending,read-only; copies deleted; public keys only,2
+4,orchestrator,Read the release/1.x key stores and logs,remote branches,note for P4,pending,read-only,
+5,security,Review phase 1; state the preconditions,1;2;3;4,verdict,pending,read-only,3;4
+6,orchestrator,Ask the operator P2; P3; P4 in the picker,5,answers recorded,pending,,5
+7,git-operations,Decision spec for s10-release-cooldown-restored if P2 says re-sign,6,docs/release/key-rotation-2026-11/,pending,,6
+8,git-operations,Re-registration step for the branch-deletion exception,6; agentteams 1.3.0,script part,pending,use an agentteams gate if one exists,6
+9,git-operations,Operator script: sign; re-register; remove the key; run the checks,7;8,tracked copy and operator copy,pending,@security reviews and records the clearance (C-5),7;8
+10,operator,Run the script in a terminal outside the agent session,9,changed logs; stores; registry,pending,operator signs,9
+11,orchestrator,Verify; commit; pull request; @security PASS naming the paths; operator's answer; merge; tell the coordinator,10,merge commit,pending,PS-2,10
+12,orchestrator,release/1.x branches as ruled in P4,6;11,pull requests or a recorded no-change,pending,,11

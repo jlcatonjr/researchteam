@@ -1,0 +1,12 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+M1,orchestrator,Write the metaplan and the six target plans,the 2026-11-25 list; existing plans,plans in references/plans/,pending,,
+M2,adversarial,Challenge the metaplan and target plans,M1,findings,pending,read-only,M1
+M3,conflict-auditor,Consistency audit of the metaplan and target plans,M1,findings,pending,read-only,M1
+M4,orchestrator,Revise the plans from M2 and M3; push,M2;M3,revised plans,pending,,M2;M3
+M5,orchestrator,Wave 1: H1; H2; H3 phase 1; H5 step A,M4,two pull requests; audit record,pending,parallel worktrees,M4
+M6,orchestrator,Wave 2: H5 step B; H6; H3 phase 2,M5 and the operator's merges,pull requests; operator scripts,pending,,M5
+M7,orchestrator,Wave 3: H5 step C; H3 phase 3,M6,pull requests; key retired or date moved,pending,operator signs,M6
+M8,orchestrator,Wave 4: H5 step D with the reference comparison,M7,pull request,pending,,M7
+M9,orchestrator,H4 when the operator asks,operator's word,signed row merged,pending,joins the running wave,M4
+M10,work-summarizer,Work summary for each day worked,each wave,workSummaries/daily,pending,,M5
+M11,conflict-auditor,Close-out audit,M8;M9,findings,pending,read-only,M8

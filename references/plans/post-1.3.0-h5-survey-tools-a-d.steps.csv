@@ -1,0 +1,13 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+A1,orchestrator,Check table for step A from contract sections 3; 6.1; 7 and 12,docs/survey-toolkit.md,table in the pull request description,pending,the table is the test list,
+A2,primary-producer,Fixtures; failing tests; loader; validator; schema; manifest builder; three commands; manifest and bridge entries,A1,branch feat/survey-tools-a,pending,standard library only,A1
+A3,technical-validator,Compare the tool and the table with the contract,A2,findings,pending,read-only,A2
+A4,code-hygiene,Audit the code,A2,findings,pending,read-only,A2
+A5,security,Path handling (rule 1.6) and file reads,A2,verdict,pending,read-only,A2
+A6,orchestrator,Fix findings; full suite; validate; open the pull request; conflict-auditor close,A3;A4;A5,pull request,pending,,A3;A4;A5
+A7,git-operations,Merge after the operator's live answer; check main,A6,merge commit,pending,PS-2,A6
+B1,orchestrator,Step B the same way: table; build; reviews; pull request; merge,A7; contract 4.1 4.3 4.4 4.8,merge commit,pending,branch feat/survey-tools-b,A7
+C1,orchestrator,Step C the same way,B1; contract 4.2 4.6,merge commit,pending,branch feat/survey-tools-c,B1
+D1,orchestrator,Step D the same way,C1; contract 4.4 4.5 4.7,merge commit,pending,branch feat/survey-tools-d,C1
+D2,orchestrator,Ask the first project's session for the frame comparison on the invented study,D1,report (data),pending,differences settled by the contract's text,D1
+X1,orchestrator,After each merged step: ask the first project's session to run it on its own study,each merge,reports (data),pending,,A7

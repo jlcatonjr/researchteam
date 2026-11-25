@@ -1,0 +1,4 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Read scripts/bootstrap_toolchain.sh for what it replaces and whether it backs up,script,notes,pending,,
+2,orchestrator,Run the bootstrap in the main checkout,toolchain.lock,.venv (ignored),pending,network needed,1
+3,orchestrator,check_toolchain.py; researchteam doctor; group verification,2,results in the plan,pending,,2
