@@ -75,10 +75,21 @@ def test_scope_and_action_are_the_6_2_names():
 
 
 # --------------------------------------------------------------------------- the three states (6.1)
+class _Usable(gates.survey_verify.Verifier):
+    """A verifier that reports agentteams as usable here but must never be asked: these tests reach no row the tools
+    would let through, so the states do not depend on whether agentteams is installed."""
+
+    def probe(self):
+        return ""
+
+    def check(self, *args):
+        raise AssertionError("the agentteams check must not be reached in these tests")
+
+
 def _states(root):
     study = _study(root)
     led = ledger_mod.check_ledger(study)
-    return {g: gates.gate_status(study, g, led)[0] for g in gates.GATES}
+    return {g: gates.gate_status(study, g, led, _Usable())[0] for g in gates.GATES}
 
 
 def test_before_any_request_a_declared_gate_is_uncleared(tmp_path):
@@ -509,7 +520,8 @@ def test_the_bridge_runs_the_three_commands_isolated(tmp_path):
     res = _bridge(root, "survey-manifest", "tidebell", "S0")
     assert res.returncode == 0 and "action: survey-signoff/S0/tidebell-survey:sha256-" in res.stdout
     res = _bridge(root, "survey-status", "tidebell")
-    assert res.returncode == 0 and "S0: UNCLEARED" in res.stdout
+    # UNCLEARED where agentteams is usable (no row), UNAVAILABLE where it is not (rule 1.7)
+    assert res.returncode == 0 and ("S0: UNCLEARED" in res.stdout or "S0: UNAVAILABLE" in res.stdout)
     assert not list((root / "scripts" / "survey").glob("__pycache__"))
 
 

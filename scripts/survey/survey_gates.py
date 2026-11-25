@@ -36,12 +36,12 @@ NOT_CLEARED = (
     "agentteams' own check (6.2) did not clear this action: it found no Ed25519 PASS it accepts for the current "
     "manifest hash, or an unretracted HALT on the scope or the action in the ledger log, a generated team log or the "
     "parent_team's log. A HALT on a study id that extends this one with '-', '_', '.' or ':' (demo-2 against demo) "
-    "also blocks it (operator decision Q2). A retraction signed with a shared secret never counts here: the check "
+    "also blocks it (a stricter default the session adopted, Q2). A retraction signed with a shared secret never counts here: the check "
     "runs with an empty HOME, so no shared-secret key is found (Q11)")
 #: agentteams' checkout-signing mark: ``--allow-checkout-signing`` writes it into the signed ``conditions_verified``
-#: (agentteams 1.3.0, ``operator_signing.sign_decision``). Such a row is refused (operator decision Q4).
+#: (agentteams 1.3.0, ``operator_signing.sign_decision``). Such a row is refused (a stricter default the session adopted, Q4).
 CHECKOUT_MARK = "signed-from-checkout"
-#: Row columns that must be empty in a sign-off row (operator decision Q6): no lineage, no scope column, no declared
+#: Row columns that must be empty in a sign-off row (a stricter default the session adopted, Q6): no lineage, no scope column, no declared
 #: effect. Each is a signed axis in agentteams and would change what the row authorizes or which HALTs bind it.
 EMPTY_COLUMNS = ("derives_from", "scope", "effect_class", "effect_grants", "effect_targets", "effect_relaxes",
                  "effect_destructive", "effect_cross_repo", "effect_bulk")
@@ -177,7 +177,7 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     verdict, conditions = row["verdict"], row["conditions_verified"]
     if CHECKOUT_MARK in conditions.lower():
         return (f"the row that decides ({at}) was signed from a checkout (agentteams' --allow-checkout-signing "
-                "mark); the operator signs from a trusted install (6.2, line 840; operator decision Q4)")
+                "mark); the operator signs from a trusted install (6.2, line 840; a stricter default the session adopted, Q4)")
     if verdict == "HALT":
         return f"the latest row for this action ({at}) is a HALT"
     if not (verdict == "PASS" or (verdict == "CONDITIONAL PASS" and conditions.strip().lower() == "verified")):
@@ -187,7 +187,7 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     filled = [c for c in EMPTY_COLUMNS if row.get(c, "").strip()]
     if filled:
         return (f"the row that decides ({at}) fills {', '.join(filled)}; a sign-off row leaves them empty "
-                "(operator decision Q6)")
+                "(a stricter default the session adopted, Q6)")
     key_id = row["key_id"]
     if not KEY_ID.fullmatch(key_id) or ".." in key_id:
         return (f"the row that decides ({at}) names the key id '{key_id}', which is not a plain file stem "
@@ -202,53 +202,68 @@ def row_refusal(row, act: str, keys: dict, approvers: set) -> str:
     return ""
 
 
+def _reason(exc: Exception) -> str:
+    """An exception's reason without the path it names (@security S8): ``strerror`` for an OSError."""
+    if isinstance(exc, OSError):
+        return exc.strerror or type(exc).__name__
+    return str(exc)
+
+
 def _snapshot(folder: Path, request: Path):
-    """Hashes of everything the check depends on in the folder: the request, the log, the keys, the approver list,
-    and whether the folder holds a waiver file (an error, 6.2). None when any of them cannot be read."""
-    try:
-        parts = []
-        for path in (request, folder / survey_ledger.LOG, folder / survey_ledger.APPROVERS):
-            data = read_capped(path, survey_ledger.MAX_LOG_BYTES)
-            parts.append(None if data is None else sha256_bytes(data))
-        keys = survey_ledger.read_keys(folder / survey_ledger.KEYS)
-        parts.append(tuple(sorted((name, sha256_bytes(data)) for name, data in keys.items())))
-        parts.append(os.path.lexists(folder / survey_ledger.WAIVERS))
-        return tuple(parts)
-    except OSError:
-        return None
+    """Everything the check depends on in the folder, read once: ``(digest, keys, approvers)``. *digest* holds the
+    hashes of the request, the log, the approver list and the keys, and whether the folder holds a waiver file (an
+    error, 6.2); *keys* and *approvers* are what the tools' rules are then applied to, so what is compared is what
+    was snapshotted (@security S7). Raises OSError, UnicodeDecodeError or ValueError when something cannot be read."""
+    parts = []
+    for path in (request, folder / survey_ledger.LOG):
+        data = read_capped(path, survey_ledger.MAX_LOG_BYTES)
+        parts.append(None if data is None else sha256_bytes(data))
+    approver_bytes = survey_ledger.read_approver_bytes(folder / survey_ledger.APPROVERS)
+    parts.append(sha256_bytes(approver_bytes))
+    keys = survey_ledger.read_keys(folder / survey_ledger.KEYS)
+    parts.append(tuple(sorted((name, sha256_bytes(data)) for name, data in keys.items())))
+    parts.append(os.path.lexists(folder / survey_ledger.WAIVERS))
+    return tuple(parts), keys, survey_ledger.parse_approvers(approver_bytes)
 
 
 def verify_signoff(study, gate: str, manifest_sha256: str, ledger, verifier) -> tuple:
     """The check of 6.2 for a gate whose request is exactly the current manifest. Returns ``(state, reason,
     evidence)``.
 
-    1. The tools' own rules on the row that decides (:func:`deciding_row`, :func:`row_refusal`), with the keys and
-       the approver list the tools read: a failure is ``UNCLEARED``, whatever agentteams would say.
-    2. Whether agentteams can run here at all (``survey_verify.probe``): else ``UNAVAILABLE``.
-    3. agentteams' own check in a child process, bracketed by hashes of everything it reads in the folder: a change
-       between the two is ``UNAVAILABLE``. Only a well-formed "cleared" answer for exactly this action is
-       ``CLEARED`` (``survey_verify.interpret``)."""
+    1. Whether agentteams can run here at all (``survey_verify.probe``): else ``UNAVAILABLE``. Rule 1.7 (line 45)
+       and lines 915-917: without a usable agentteams (absent, as always on Python 3.10, or older than 1.3.0) a
+       gate's state is ``UNAVAILABLE``, so this comes before every rule that would give ``UNCLEARED`` (technical
+       review T1). Only the stale-request and no-request steps of :func:`gate_status` come earlier.
+    2. One snapshot of the folder: the request must still be the current manifest, the log the one the rows were
+       read from, and no waiver file (an error, 6.2) may be there.
+    3. The tools' own rules on the row that decides (:func:`deciding_row`, :func:`row_refusal`), with the keys and
+       approver list from that snapshot: a failure is ``UNCLEARED``.
+    4. agentteams' own check in a child process, about exactly the computed action; then a second snapshot, and any
+       difference is ``UNAVAILABLE``. Only a well-formed "cleared" answer for exactly this action is ``CLEARED``
+       (``survey_verify.interpret``)."""
     folder = study.repo_root / ledger.rel
     request = study.repo_root / manifest_rel(ledger.rel, study.spec["id"], gate)
     act = action(gate, study.spec["id"], manifest_sha256)
+    why = verifier.probe()
+    if why:
+        return UNAVAILABLE, why, {}
     try:
-        keys = survey_ledger.read_keys(folder / survey_ledger.KEYS)
-        approvers = survey_ledger.read_approvers(folder / survey_ledger.APPROVERS)
+        before, keys, approvers = _snapshot(folder, request)
     except (OSError, UnicodeDecodeError, ValueError) as exc:
-        return UNAVAILABLE, f"the ledger's keys or approver list cannot be read: {exc}", {}
+        return UNAVAILABLE, f"the ledger folder cannot be read: {_reason(exc)}", {}
+    if before[0] != manifest_sha256 or before[1] != ledger.log_sha256 or before[4]:
+        return UNAVAILABLE, "the request or the ledger folder changed since they were checked; run again", {}
     row = deciding_row(ledger.rows, act)
     why = row_refusal(row, act, keys, approvers)
     if why:
         return UNCLEARED, why, {}
-    why = verifier.probe()
-    if why:
-        return UNAVAILABLE, why, {}
-    before = _snapshot(folder, request)
-    if before is None or before[0] != manifest_sha256 or before[1] != ledger.log_sha256 or before[4]:
-        return UNAVAILABLE, "the request or the ledger folder changed since they were checked; run again", {}
     result = verifier.check(study.repo_root, Path(os.path.realpath(folder)), scope(gate, study.spec["id"]),
                             Path(os.path.realpath(request)), act)
-    if _snapshot(folder, request) != before:
+    try:
+        after = _snapshot(folder, request)[0]
+    except (OSError, UnicodeDecodeError, ValueError):
+        after = None
+    if after != before:
         return UNAVAILABLE, "the ledger folder changed while agentteams checked it; run again", {}
     evidence = {"line": row["_line"], "author": row_author(row), "key_id": row["key_id"], "verifier": result.info}
     if result.outcome == survey_verify.CLEARED:
@@ -272,15 +287,16 @@ def gate_status(study, gate: str, ledger, verifier=None) -> tuple:
        signature exists for the current manifest hash"): the signature is looked up through the request, so it can
        be found only when the request is the current manifest. When the covered files are put back to an earlier,
        signed state while the request is newer, the gate reads ``UNCLEARED`` until ``survey-manifest`` rewrites the
-       file; the rewritten file has the signed bytes, so no new signature is needed (operator decision Q8).
+       file; the rewritten file has the signed bytes, so no new signature is needed (a default the session adopted,
+       Q8; line 815 read alone would give ``CLEARED``).
     4. The ledger folder malformed: ``UNAVAILABLE``.
     5. A reason the HALT scan cannot be made (6.2, lines 910-913; more than one git root, @security case 39):
        ``UNAVAILABLE``.
     6. A HALT row on a family name in any scanned log (the interim rule, operator decision Q1): ``UNAVAILABLE``.
-    7. The manifest cannot be built (and there is no request): ``UNAVAILABLE``.
-    8. No request: ``UNCLEARED`` (operator decision Q7): there is nothing to verify.
-    9. :func:`verify_signoff`: the tools' rules (``UNCLEARED``), then agentteams (``UNAVAILABLE`` when it cannot
-       run here, on Python 3.10 for one), then ``CLEARED``, ``UNCLEARED`` or ``UNAVAILABLE``."""
+    7. No request: ``UNCLEARED`` (a default the session adopted, Q7): there is nothing to verify. This includes a
+       manifest that cannot be built now, which is not one of the causes of ``UNAVAILABLE`` line 816 lists (T5).
+    8. :func:`verify_signoff`: agentteams usable here, else ``UNAVAILABLE`` (rule 1.7; on Python 3.10 always);
+       then the tools' rules (``UNCLEARED``); then ``CLEARED``, ``UNCLEARED`` or ``UNAVAILABLE``."""
     verifier = verifier if verifier is not None else survey_verify.Verifier()
     gates = study.spec["signoffs"]["gates"]
     if gate not in gates:
@@ -328,10 +344,10 @@ def gate_status(study, gate: str, ledger, verifier=None) -> tuple:
         st.state, st.reason = UNAVAILABLE, "the HALT scan cannot be made: " + "; ".join(ledger.unavailable)
     elif gate in ledger.family_halts:
         st.state, st.reason = UNAVAILABLE, "; ".join(ledger.family_halts[gate])
-    elif cannot_build:
-        st.state, st.reason = UNAVAILABLE, f"the manifest cannot be built: {cannot_build}"
     elif stored is None:
-        st.state, st.reason = UNCLEARED, "no sign-off request: run survey-manifest, then have its action signed"
+        st.state = UNCLEARED  # Q7; with a manifest that cannot be built too (T5: not a cause line 816 lists)
+        st.reason = "no sign-off request: run survey-manifest, then have its action signed" + (
+            f" (the manifest cannot be built now: {cannot_build})" if cannot_build else "")
     else:
         st.state, st.reason, st.evidence = verify_signoff(study, gate, st.manifest_sha256, ledger, verifier)
     return st, findings

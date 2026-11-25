@@ -100,6 +100,26 @@ def is_team_dir(path: Path) -> bool:
     return os.path.isfile(path / PRIVILEGE) or os.path.isfile(path / "references" / "build-log.json")
 
 
+def read_approver_bytes(path: Path) -> bytes:
+    """The approver list's bytes; raises as :func:`read_approvers` does."""
+    if not is_regular(path):
+        raise ValueError("not a regular file")
+    data = read_capped(path, MAX_JSON_BYTES)
+    if data is None:
+        raise ValueError(f"larger than {MAX_JSON_BYTES} bytes")
+    return data
+
+
+def parse_approvers(data: bytes) -> set:
+    """The names in an approver list's bytes (see :func:`read_approvers`). Raises UnicodeDecodeError."""
+    names = set()
+    for line in data.decode("utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#"):
+            names.add(s.lower().lstrip("@").strip())
+    return names
+
+
 def read_approvers(path: Path) -> set:
     """The names on an approver list: one per line, ``#`` comments and blank lines skipped, compared as agentteams
     compares an author (lower-cased, a leading ``@`` removed). Raises OSError, UnicodeDecodeError, or ValueError
@@ -323,8 +343,7 @@ def _check_approvers(path: Path, where: str, add) -> None:
         add("ledger-approvers", where, f"cannot be read: {exc}")
         return
     if not names:
-        add("ledger-approvers-empty", where, "names no approver; agentteams would then fall back to its default "
-            "authors, so an empty list is refused")
+        add("ledger-approvers-empty", where, "an empty or comment-only approver list is an error")
 
 
 def _check_parent(study, folder: Path, privilege, led: Ledger, where: str) -> Path | None:
@@ -414,10 +433,13 @@ def _team_dirs(study, folder: Path, led: Ledger) -> list:
 
 
 def _check_parity(folder: Path, teams: list, add) -> None:
-    """6.2 (lines 869-873): where the repository's team directory has an approver list naming at least one approver
-    and at least one verify key, the folder's list names the same approvers and the folder's keys are the same
-    files. "A team directory with only the comment-only list agentteams generates, or with no key file, has
-    neither; the folder is then the only place they live": a team that lacks either kind is compared on neither."""
+    """6.2, lines 869-873. Line 870 reads: "Where the repository's own team directory has an approver list that
+    names at least one approver, or at least one verify key, the folder's list names the same approvers and the
+    folder's keys are the same files, and a difference is an error." Lines 872-873 read: "A team directory with only
+    the comment-only list ``agentteams`` generates, or with no key file, has neither; the folder is then the only
+    place they live." Read together, a team that lacks either kind has neither and is compared on neither; one that
+    has both is compared on both. The tension between "or" and "has neither" is step A's proposal 21
+    (``references/plans/post-1.3.0-h5-step-a-check-table.md``)."""
     mine_names = read_approvers(folder / APPROVERS)
     mine_keys = read_keys(folder / KEYS)
     for rel, team in teams:
@@ -438,25 +460,42 @@ def _check_parity(folder: Path, teams: list, add) -> None:
 
 # --------------------------------------------------------------------------- the interim family-HALT scan (step F)
 def tokens(text: str) -> list:
-    """An id's tokens: lower-cased, split at every run of characters that are not letters or digits and between a
-    letter and a digit (``survey_Signoff/s0`` -> ``survey signoff s 0``)."""
-    text = re.sub(r"(?<=[a-z])(?=[0-9])|(?<=[0-9])(?=[a-z])", " ", text.strip().lower())
+    """An id's tokens: split at every run of characters that are not letters or digits, between a letter and a
+    digit, and at a lower-to-upper case change (as agentteams' own HALT-side token rule does), then lower-cased
+    (``survey_Signoff/s0`` and ``SurveySignoff/S0`` -> ``survey signoff s 0``). Splitting more only widens the
+    family scan, which errs towards blocking."""
+    text = re.sub(r"(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])", " ", text.strip())
+    text = re.sub(r"(?<=[a-z])(?=[0-9])|(?<=[0-9])(?=[a-z])", " ", text.lower())
     return [t for t in re.split(r"[^a-z0-9]+", text) if t]
 
 
+def _contains_run(have: list, want: list) -> bool:
+    return any(have[k:k + len(want)] == want for k in range(len(have) - len(want) + 1))
+
+
+#: A study's scope or action: ``survey-signoff/<gate>/<study id>`` then the end or ``:``. HALTs on these are
+#: judged by agentteams' own check in the child, not by the family scan.
+_STUDY_ID = re.compile(r"survey-signoff/(?:%s)/[a-z0-9][a-z0-9_-]*(?::.*)?" % "|".join(g.lower() for g in GATES),
+                       re.S)
+
+
 def family_gates(action: str) -> tuple:
-    """The gates a HALT row's action names as a family: all of them for ``survey-signoff``, one for
-    ``survey-signoff/<gate>``; none for any other id. The action matches a family name when, stripped and
-    lower-cased, it equals the name or has exactly the name's tokens (other spellings are caught; a longer id, such
-    as one study's scope, is not a family name)."""
-    norm = action.strip().lower()
-    if norm == FAMILY or tokens(norm) == tokens(FAMILY):
-        return GATES
-    for gate in GATES:
-        name = f"{FAMILY}/{gate}".lower()
-        if norm == name or tokens(norm) == tokens(name):
-            return (gate,)
-    return ()
+    """The gates a HALT row's action names as a family (6.2, line 895; @security S1).
+
+    The id is split into :func:`tokens`. It names gate ``<g>`` when its tokens contain
+    ``survey signoff <g's tokens>`` as a run (``survey-signoff/S0``, ``survey-signoff/S0-2026``,
+    ``Survey Signoff S0``); otherwise it names every gate when they contain ``survey signoff`` as a run
+    (``survey-signoff``, ``survey-signoff:freeze``, ``freeze-survey-signoff``). The exception is an id that is a
+    study's scope or action, ``survey-signoff/<gate>/<study id>`` optionally followed by ``:`` and more: a HALT on
+    that is judged by agentteams' own check in the child."""
+    if _STUDY_ID.fullmatch(action.strip().lower()):
+        return ()
+    have = tokens(action)
+    family = tokens(FAMILY)
+    named = tuple(g for g in GATES if _contains_run(have, family + tokens(g)))
+    if named:
+        return named
+    return GATES if _contains_run(have, family) else ()
 
 
 def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
@@ -494,7 +533,8 @@ def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
         try:
             rows = _read_any_log(log)
         except (OSError, UnicodeDecodeError, csv.Error, ValueError) as exc:
-            led.unavailable.append(f"the decisions log of {rel} cannot be read for HALTs ({exc}); a HALT "
+            why = (exc.strerror or type(exc).__name__) if isinstance(exc, OSError) else str(exc)  # no path (S8)
+            led.unavailable.append(f"the decisions log of {rel} cannot be read for HALTs ({why}); a HALT "
                                    "the tools cannot read must block, never vanish (6.2)")
             continue
         for line, actions, verdicts in rows:
@@ -506,12 +546,13 @@ def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
                         f"a HALT row on '{action}' in {rel}/{LOG}:{line} names the {FAMILY} family, which "
                         "binds this gate. Interim rule (operator decision, 2026-11-25): any such HALT row blocks, "
                         "signed or not, and a retraction does not count until agentteams offers a public call that "
-                        "judges it under that log's own rules")
+                        "judges it under that log's own rules. Whether this HALT still stands cannot be verified "
+                        "here, so the gate is UNAVAILABLE (6.1, line 816)")
 
 
 def _read_any_log(path: Path) -> list:
     """``[(line, {actions}, {verdicts})]`` of a decisions log in either schema (``action_reviewed`` or ``decision``;
-    ``verdict`` or ``status``), stripped and lower-cased. Raises when the log cannot be read whole: not a regular
+    ``verdict`` or ``status``), stripped; verdicts lower-cased (actions keep their case for the token split). Raises when the log cannot be read whole: not a regular
     file, too large, not UTF-8, a quote left open, a record wider or narrower than its header, or neither an action
     nor a verdict column."""
     if not is_regular(path):
@@ -533,6 +574,6 @@ def _read_any_log(path: Path) -> list:
             continue
         if len(record) != len(header):
             raise ValueError(f"record {n} has {len(record)} fields; the header has {len(header)}")
-        out.append((n, {record[i].strip().lower() for i in acts if record[i].strip()},
+        out.append((n, {record[i].strip() for i in acts if record[i].strip()},
                     {record[i].strip().lower() for i in verds}))
     return out

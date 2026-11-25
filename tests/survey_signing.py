@@ -1,10 +1,10 @@
 """Signed sign-off rows for the survey toolkit's step F tests, made with a key pair generated at run time.
 
 Nothing here is a real key: each test generates a throwaway Ed25519 pair in its temporary folder, puts the public half
-in the invented ledger folder, and never writes the private half anywhere but that folder's sibling.
+in the invented ledger folder, and keeps the private half in memory only: it is never written to any file.
 
 **Why the rows are not made with ``agentteams --sign-decision``.** The tools refuse a row carrying agentteams'
-checkout-signing mark (operator decision Q4). agentteams' signer refuses to run from an install inside a git work
+checkout-signing mark (a stricter default the session adopted, Q4). agentteams' signer refuses to run from an install inside a git work
 tree (a virtual environment inside a checkout counts) unless ``--allow-checkout-signing`` is passed, and that flag
 writes the mark into the signed row. A signer outside every work tree would need a second agentteams install in the
 temporary folder (a network fetch or a wheel). So, as @security allowed for tests only, the rows are built with

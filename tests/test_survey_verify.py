@@ -14,6 +14,7 @@ Every repository, ledger folder, key and log is built in a temporary folder; no 
 """
 from __future__ import annotations
 
+import contextlib
 import csv
 import io
 import json
@@ -128,7 +129,7 @@ def test_a_stale_request_is_uncleared_before_anything_else(tmp_path):
 
 
 def test_files_put_back_to_a_signed_state_read_uncleared_until_the_request_is_rewritten(tmp_path):
-    """Operator decision Q8."""
+    """Session-adopted default Q8."""
     root = make_repo(tmp_path)
     act = _request(root)
     _append(root, action_reviewed=act)
@@ -155,6 +156,29 @@ def test_python_without_agentteams_reads_unavailable_and_blocking_stages_refuse(
     decision, record, _ = gates.require_gate(study, "S0", led, verify.Verifier())
     assert decision == "refuses" and record["state"] == "UNAVAILABLE"
     assert gates.require_gate(study, "S6", led, verify.Verifier())[0] == "runs"  # build-only still runs
+
+
+@pytest.mark.parametrize("cells", [{}, {"key_id": "op-other"}, {"author": "someone-else"},
+                                   {"verdict": "CONDITIONAL PASS", "conditions_verified": "pending"}])
+def test_without_agentteams_a_row_the_tools_would_refuse_still_reads_unavailable(tmp_path, monkeypatch, cells):
+    """T1, rule 1.7 (line 45) and lines 915-917: with no usable agentteams a gate is UNAVAILABLE, so the probe comes
+    before the tools' row rules. Only no request and a stale request read UNCLEARED (line 817; Q7)."""
+    monkeypatch.setattr(verify.importlib.util, "find_spec", lambda name: None)
+    root = make_repo(tmp_path)
+    act = _request(root)
+    if cells:
+        _append(root, action_reviewed=act, **cells)  # else: no row for the action at all
+    st = _state(root, verifier=verify.Verifier())
+    assert st.state == "UNAVAILABLE" and "agentteams is not installed" in st.reason
+    assert _state(root, "S5", verifier=verify.Verifier()).state == "UNCLEARED"  # no request for S5
+
+
+def test_no_request_and_a_manifest_that_cannot_be_built_is_uncleared(tmp_path):
+    """T5: a manifest that cannot be built is not a cause of UNAVAILABLE that line 816 lists."""
+    root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    (root / STUDY_REL / "codebooks" / "slack_bell.md").unlink()
+    st = _state(root, "S5")
+    assert st.state == "UNCLEARED" and "cannot be built" in st.reason
 
 
 def test_an_old_or_unreadable_agentteams_version_is_unavailable(monkeypatch):
@@ -246,6 +270,19 @@ def test_a_row_for_a_study_id_that_extends_this_one_never_decides(tmp_path):
     assert _state(root, verifier=fake).state == "CLEARED" and fake.actions == [act]  # only ever the exact action
 
 
+def test_a_retraction_never_restores_an_older_sign_off(tmp_path):
+    """After a retraction no earlier permission survives: PASS, HALT, HALT-RETRACTED leaves the HALT deciding, and
+    agentteams is never asked; only a new PASS after the retraction can clear."""
+    root = make_repo(tmp_path)
+    act = _request(root)
+    _append(root, action_reviewed=act)
+    _append(root, action_reviewed=act, verdict="HALT")
+    _append(root, action_reviewed=act, verdict="HALT-RETRACTED", evidence="lifted")
+    fake = FakeVerifier("cleared")
+    st = _state(root, verifier=fake)
+    assert st.state == "UNCLEARED" and fake.calls == 0
+
+
 def test_a_retraction_row_is_skipped_and_the_halt_behind_it_decides(tmp_path):
     root = make_repo(tmp_path)
     act = _request(root)
@@ -272,8 +309,8 @@ def test_every_row_of_the_folder_log_must_be_ed25519(tmp_path, scheme):
 
 
 def test_a_log_with_an_extra_column_is_malformed(tmp_path):
-    """The log has exactly agentteams' new-log header (6.2, line 852), so a ``consumed`` column is an error; the tools
-    do not rely on a clearance being spent (a check spends nothing, line 889)."""
+    """The exact header has no ``consumed`` column, so such a log is refused; a check spends nothing (6.2, lines 852
+    and 889)."""
     root = make_repo(tmp_path)
     log = _refs(root) / "security-decisions.log.csv"
     log.write_text(log.read_text().rstrip("\n") + ",consumed\n")
@@ -289,6 +326,14 @@ def test_a_log_with_an_extra_column_is_malformed(tmp_path):
     (".github/agents", "survey-signoff/S0/tidebell-survey", set()),  # a scope is not a family name (agentteams' job)
     (".github/agents", "survey-signoff/S0/other-study", set()),
     (".github/agents", "survey-signoffs", set()),
+    # @security S1: ids that extend a family name
+    (".github/agents", "survey-signoff:freeze", {"S0", "S5", "S6"}),
+    (".github/agents", "survey-signoff/S0-2026", {"S0"}),
+    (".github/agents", "freeze-survey-signoff", {"S0", "S5", "S6"}),
+    (".github/agents", "  Freeze_SURVEY  signoff  ", {"S0", "S5", "S6"}),
+    (".github/agents", "SurveySignoff/S5:hold", {"S5"}),  # a case change splits a token too
+    (".github/agents", "survey signoff s5 hold", {"S5"}),
+    (".github/agents", "SURVEY-SIGNOFF/S0/tidebell-survey:sha256-" + "ab" * 32, set()),  # an action: agentteams' job
 ])
 def test_a_family_halt_in_any_scanned_log_blocks_the_gates_it_names(tmp_path, where, action, blocked):
     root = make_repo(tmp_path)
@@ -363,6 +408,10 @@ def _line(**over):
     (0, _line(version="1.2.9"), verify.UNAVAILABLE),
     (0, _line(version="1.3.0.dev1"), verify.UNAVAILABLE),
     (0, _line(file="/elsewhere/agentteams/__init__.py"), verify.UNAVAILABLE),
+    (0, _line(file=os.path.join(sys.prefix, "lib", "site-packages", "x", "agentteams", "__init__.py")),
+     verify.UNAVAILABLE),  # S4: under purelib is not enough; exactly <purelib>/agentteams/__init__.py
+    (0, _line(file=os.path.join(sys.prefix, "lib", "site-packages", "agentteams", "cli", "__init__.py")),
+     verify.UNAVAILABLE),
     (0, _line(prefix="/another/env"), verify.UNAVAILABLE),
     (0, _line(action="B"), verify.UNAVAILABLE),
     (0, b"x" * (verify.MAX_STDOUT + 1), verify.UNAVAILABLE),
@@ -388,21 +437,50 @@ def test_the_child_snippet_calls_only_the_public_check():
 def test_the_child_runs_isolated_with_an_empty_home(tmp_path, monkeypatch):
     """The real child, with the snippet swapped for one that reports its environment."""
     monkeypatch.setattr(verify, "CHILD", "import json, os, sys; print(json.dumps({'env': dict(os.environ), "
-                                         "'home': os.listdir(os.environ['HOME']), 'flags': sys.flags.isolated}))")
+                                         "'home': os.listdir(os.environ['HOME']), 'flags': sys.flags.isolated, "
+                                         "'nobytecode': sys.flags.dont_write_bytecode}))")
     monkeypatch.setenv("AGENTTEAMS_DECISION_SIGNING_KEY", "s" * 64)
     code, out = verify.run_child(tmp_path, tmp_path, "scope", tmp_path / "m.json")
     seen = json.loads(out)
-    assert code == 0 and seen["home"] == [] and seen["flags"] == 1
+    assert code == 0 and seen["home"] == [] and seen["flags"] == 1 and seen["nobytecode"] == 1  # -B (T2)
     assert not any(k.startswith(("AGENTTEAMS_", "XDG_", "GIT_")) for k in seen["env"])
     assert not os.path.exists(seen["env"]["HOME"])  # removed afterwards
 
 
+def test_the_child_is_started_with_minus_b_and_minus_i(tmp_path, monkeypatch):
+    """T2: ``-I`` does not imply ``-B``; the child must not write ``__pycache__``."""
+    seen = {}
+
+    class Stop(Exception):
+        pass
+
+    def fake_popen(argv, **kwargs):
+        seen["argv"] = argv
+        raise Stop
+
+    monkeypatch.setattr(verify.subprocess, "Popen", fake_popen)
+    with pytest.raises(Stop):
+        verify.run_child(tmp_path, tmp_path, "scope", tmp_path / "m.json")
+    assert seen["argv"][:4] == [sys.executable, "-B", "-I", "-c"]
+
+
+def test_the_childs_stdout_is_read_through_a_bounded_read(tmp_path, monkeypatch):
+    """S5: a child that prints without end is stopped at the cap, and the answer is refused."""
+    monkeypatch.setattr(verify, "CHILD", "import sys\nwhile True: sys.stdout.write('x' * 65536)")
+    code, out = verify.run_child(tmp_path, tmp_path, "scope", tmp_path / "m.json")
+    assert len(out) == verify.MAX_STDOUT + 1
+    assert verify.interpret(code, out, "A").outcome == verify.UNAVAILABLE
+
+
 def test_the_verifier_location_never_shows_a_home_path(tmp_path):
-    inside = verify.location({"file": str(tmp_path / ".venv/lib/site-packages/agentteams/__init__.py")}, tmp_path)
-    assert inside == "inside the work tree: .venv/lib/site-packages/agentteams/__init__.py"
-    outside = verify.location({"file": "/somewhere/home/u/env/lib/python3.13/site-packages/agentteams/__init__.py"},
-                              tmp_path)
-    assert outside == "outside the work tree: site-packages/agentteams/__init__.py"
+    inside = verify.location({"file": str(tmp_path / ".venv/lib/site-packages/agentteams/__init__.py"),
+                              "prefix": str(tmp_path / ".venv")}, tmp_path)
+    assert inside == ("inside the work tree: .venv/lib/site-packages/agentteams/__init__.py; its interpreter is "
+                      "inside the work tree")  # S6
+    outside = verify.location({"file": "/somewhere/home/u/env/lib/python3.13/site-packages/agentteams/__init__.py",
+                               "prefix": "/somewhere/home/u/env"}, tmp_path)
+    assert outside == ("outside the work tree: site-packages/agentteams/__init__.py; its interpreter is outside the "
+                       "work tree")
 
 
 # --------------------------------------------------------------------------- stages (6.1; operator decision Q9)
@@ -434,7 +512,10 @@ def test_status_escapes_every_value_from_a_log(tmp_path):
     root = make_repo(tmp_path)
     act = _request(root)
     _append(root, action_reviewed=act, author="evil\nS0: CLEARED\x1b[2J")
-    code, out, _ = run(survey_status, "--root", str(root), "tidebell")
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = survey_status.main(["--root", str(root), "tidebell"], verifier=FakeVerifier("cleared"))
+    out = buf.getvalue()
     assert code == 0 and "\x1b" not in out
     assert "S0: CLEARED" not in out.splitlines()
     assert "evil\\x0as0: cleared\\x1b[2j" in out  # the author as agentteams reads it, lower-cased, escaped
@@ -547,9 +628,8 @@ def test_signed_a_row_by_a_key_not_in_the_folder_never_reaches_agentteams(signed
 
 
 def test_signed_a_valid_pass_for_a_study_that_extends_this_one_never_clears_it(signed):
-    """agentteams' design lets an id match a longer one unless the row carries a scope; a sign-off row's scope is
-    empty (operator decision Q6), so the tools require the exact action. A valid, signed PASS for study
-    ``tidebell-survey-2`` with this study's manifest hash never clears ``tidebell-survey``."""
+    """The row that decides must name exactly the action the tools computed; a signed PASS for ``tidebell-survey-2``
+    never clears ``tidebell-survey``."""
     from survey_signing import new_key, sign_row
     root, act, _pem = signed
     log = root / LEDGER / "references" / "security-decisions.log.csv"
