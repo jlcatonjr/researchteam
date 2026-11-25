@@ -57,7 +57,7 @@ def main(argv=None) -> int:
         return 1
     for reason in notes:
         print(f"note: the gates read UNAVAILABLE: {reason}")
-    print(f"OK: {study.spec_rel} is well-formed (specification, ledger folder, manifest files).")
+    print(f"OK: {study.spec_rel} is well-formed (specification, ledger folder, manifest files, row files).")
     excused = ", ".join(f"{rule} {n}" for rule, n in sorted(rows.excused.items())) or "none"
     print(f"evidence: {rows.rows} row(s); read with {rows.exceptions} legacy exception(s); breaches excused by rule: "
           f"{excused}")
