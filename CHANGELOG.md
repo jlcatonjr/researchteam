@@ -5,6 +5,43 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
+
+The first release of the 1.3 line. It is `1.3.0rc1` plus documentation only: this section, the release notes, the
+cut record, the install instructions (below) and one wording correction in `docs/term-index-protocol.md`. No
+script, workflow, scaffold file or package code differs from the candidate, apart from the install line in the
+managed `CLAUDE.md` block and its scaffold template. researchteam 1.3 pins agentteams 1.3: this release pins
+agentteams **`v1.3.0`** (`536306d2`). The changes and the five upgrade notes are listed under `1.3.0rc1` below.
+
+Derived repositories take it in this order, because an older researchteam does not sync the term-index core and
+the lock writer runs the installed code:
+1. Verify the signed tag `v1.3.0` first (Rule S-9): in a clone, `git verify-tag v1.3.0` against the release key in
+   `~/.config/agentteams/allowed_signers`, and note the commit it peels to.
+2. Install that commit with the interpreter that runs `check_toolchain.py`:
+   `python3 -m pip install "git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
+3. `researchteam update --ref v1.3.0`, then
+   `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.3.0 --tag agentteams=v1.3.0`. A locked
+   repository leaves two release lines at once, researchteam 1.2 and agentteams 1.2, and `check_toolchain.py`
+   refuses a cross-line `--tag` for each pin. So drop both the `researchteam.tag=` and the `agentteams.tag=` line
+   from `toolchain.lock` before `--write-lock`. Both line moves are trust changes and get that repository's own
+   `@security` review.
+
+`release/1.2` stays open for `v1.2.N` backports.
+
+- **Install instructions name the newest stable release** (reported by a derived repository, 2026-11-12).
+  - **Defect:** `docs/researchteam-framework.md`, which `researchteam update` syncs to every derived repository,
+    still installed `researchteam.git@v1.0.2` and called it the newest `v1.0.N`, in every release from 1.1.1 to
+    1.2.1. The same stale tag was in `README.md`, `docs/CONTRIBUTING.md`, the docs site (`docs_src/`) and the
+    managed `CLAUDE.md` block (and its scaffold template), and `CONTRIBUTING.md` still described the 1.1 line as
+    release candidates.
+  - **Fix:** they name `v1.3.0`. A repository on an older line installs that line's newest tag.
+    `CONTRIBUTING.md` describes the four release branches as they are.
+  - **Guard:** `tests/test_install_pins.py` fails when these files name any tag other than the highest final
+    release heading in this file, so the release-prep pull request that adds a heading must move them too.
+- **Docs: the term-index repair note names the right version.** `docs/term-index-protocol.md` said a researchteam
+  "older than 1.3.0" lacks the core's file list; the candidate `1.3.0rc1` already has it, so the text now says
+  "older than 1.3.0rc1".
+
 ## 1.3.0rc1 (tag `v1.3.0-rc.1`, on `release/1.3`)
 
 The first release candidate of the 1.3 line. researchteam 1.3 pins agentteams 1.3: this candidate pins agentteams

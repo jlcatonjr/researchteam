@@ -360,7 +360,7 @@ touches `scripts/term-index-core/`. A derived repository relies on the signed re
 `toolchain.lock` names for where its copy came from; one that is not release-locked syncs from `main`.
 
 To repair a failed check, restore the files from git, or receive them with `researchteam update`. Upgrade
-researchteam first: an installed researchteam older than 1.3.0 syncs the new engine but not the core (its file
+researchteam first: an installed researchteam older than 1.3.0rc1 syncs the new engine but not the core (its file
 list does not name it), so re-running its update changes nothing. The failure message names the installed
 version and says this.
 
