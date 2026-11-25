@@ -27,7 +27,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    GATES, MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped,
+    GATES, MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, q, read_capped,
     reason, resolve_path, symlink_components,
 )
 
@@ -191,7 +191,7 @@ def check_ledger(study) -> Ledger:
     led = Ledger(declared)
     add = lambda rule, w, msg: led.findings.append(Finding(rule, w, msg))  # noqa: E731
     if not declared.startswith(LEDGER_PREFIX) or declared == LEDGER_PREFIX:
-        add("ledger-form", where, f"{declared!r} is not {LEDGER_PREFIX}<path> (6.2)")
+        add("ledger-form", where, f"{q(declared)} is not {LEDGER_PREFIX}<path> (6.2)")
         return led
     rp, errors = resolve_path(declared[len(LEDGER_PREFIX):], study.study_rel, study.repo_root, where)
     if errors:
@@ -203,7 +203,7 @@ def check_ledger(study) -> Ledger:
         add("ledger-link", where, f"no component of the ledger path may be a symbolic link: {', '.join(links)}")
         return led
     if reserved_by_name(rp.repo_rel) or reserved_by_identity(root, rp.repo_rel):
-        add("ledger-location", where, f"{rp.repo_rel!r} is inside .git or a generated team location; the ledger "
+        add("ledger-location", where, f"{q(rp.repo_rel)} is inside .git or a generated team location; the ledger "
             "folder is a team dir of its own (6.2)")
         return led
     folder = root / rp.repo_rel
@@ -356,9 +356,9 @@ def _check_parent(study, folder: Path, privilege, led: Ledger, where: str) -> Pa
     if not privilege or PARENT_TEAM_KEY not in privilege:
         return None
     value = privilege[PARENT_TEAM_KEY]
-    unavailable = lambda why: led.unavailable.append(f"parent_team {value!r} {why}")  # noqa: E731
+    unavailable = lambda why: led.unavailable.append(f"parent_team {q(value)} {why}")  # noqa: E731
     malformed = lambda why: led.findings.append(  # noqa: E731
-        Finding("ledger-privilege", where, f"parent_team {value!r} {why}"))
+        Finding("ledger-privilege", where, f"parent_team {q(value)} {why}"))
     if not isinstance(value, str) or not value:
         malformed("is not a non-empty string")
         return None

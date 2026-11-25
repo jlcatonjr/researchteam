@@ -16,7 +16,7 @@ from survey_attribution import check_attribution
 from survey_core import (
     MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, sha256_bytes,
 )
-from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, search
+from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, read_rows_hashed, search
 
 COLUMNS = ("id", "person_id", "attribute_kind", "value", "tier", "source_id", "citation", "locator", "quote", "url",
            "access", "via", "audit", "basis", "reporter", "unit_id", "note", "downgraded_from")
@@ -70,6 +70,8 @@ def declared_kinds(spec: dict) -> set:
 # --------------------------------------------------------------------------- the registry, read only
 def read_registry(study) -> tuple:
     """The person ids the registry holds, or None when there is no registry. Returns ``(persons, findings)``.
+    A row holds its ``person_id`` and every id listed in its ``merged_from`` (``;``-separated): two ids a ``merge``
+    made one person (4.4, line 497) are both that person's, so evidence rows may still carry the merged id.
     Building the registry is not in this module."""
     rp = study.paths.get("/identity/registry")
     if rp is None or not os.path.lexists(rp.real):
@@ -79,10 +81,12 @@ def read_registry(study) -> tuple:
         return set(), rows.findings
     persons, findings = set(), []
     for n, r in rows.rows:
-        if r["person_id"] == "" or r["person_id"] in persons:
-            findings.append(Finding("registry-person", f"{rp.repo_rel}:{n}", f"person_id {q(r['person_id'])} is empty "
-                                    "or repeated"))
-        persons.add(r["person_id"])
+        merged = [m for m in r["merged_from"].split(";") if m != ""] if r["merged_from"] else []
+        for pid in (r["person_id"], *merged):
+            if pid == "" or pid in persons:
+                findings.append(Finding("registry-person", f"{rp.repo_rel}:{n}", f"id {q(pid)} is empty or held "
+                                        "twice (as a person_id or in merged_from)"))
+            persons.add(pid)
     return persons, findings
 
 
@@ -244,12 +248,21 @@ def row_breaches(study, row: dict, ids: dict, persons: set | None, units: dict, 
 
 def _read_exceptions(study) -> tuple:
     """The legacy exceptions file: ``{(id, rule): line}``, and its findings."""
+    listed, findings, _digest = read_exceptions_hashed(study)
+    return listed, findings
+
+
+def read_exceptions_hashed(study) -> tuple:
+    """The legacy exceptions file: ``({(id, rule): line}, findings, sha256 of the bytes read)``; the hash is None when
+    there is no file and :data:`survey_provenance.ABSENT` (``""``) when one is declared but absent."""
     rp = study.paths.get("/evidence/legacy_exceptions")
-    if rp is None or not os.path.lexists(rp.real):
-        return {}, []
-    rows = read_rows(Path(rp.real), rp.repo_rel, EXCEPTION_COLUMNS, "exceptions-columns")
+    if rp is None:
+        return {}, [], None
+    if not os.path.lexists(rp.real):
+        return {}, [], ""
+    rows, digest = read_rows_hashed(Path(rp.real), rp.repo_rel, EXCEPTION_COLUMNS, "exceptions-columns")
     if rows.findings:
-        return {}, rows.findings
+        return {}, rows.findings, digest
     listed, findings = {}, []
     for n, r in rows.rows:
         at = f"{rp.repo_rel}:{n}"
@@ -263,7 +276,7 @@ def _read_exceptions(study) -> tuple:
             findings.append(Finding("exceptions-duplicate", at, f"({q(r['id'])}, {q(r['rule'])}) is listed twice"))
         else:
             listed[(r["id"], r["rule"])] = n
-    return listed, findings
+    return listed, findings, digest
 
 
 def check_row_files(study) -> EvidenceReport:
@@ -295,6 +308,7 @@ def check_row_files(study) -> EvidenceReport:
         att = check_attribution(study, persons, evidence_persons)
         report.findings += att.findings
         units = att.units
+    report.findings += _check_overrides(study)
     if rows is None:
         return report
     report.rows = len(rows.rows)
@@ -303,6 +317,18 @@ def check_row_files(study) -> EvidenceReport:
                                        "the registry does not exist; a missing registry is itself an error (4.1)"))
     _check_rows(study, rows, rp.repo_rel, persons, units, vocab or [], report)
     return report
+
+
+def _check_overrides(study) -> list:
+    """The overrides file (4.4, lines 491-506), when it is there. Imported here, not at the top: the identity module
+    reads the evidence columns from this one."""
+    from survey_identity import identity_refusals, project_persons, read_overrides
+
+    rp = study.paths.get("/identity/overrides")
+    if rp is None or not os.path.lexists(rp.real) or identity_refusals(study):
+        return []
+    persons = project_persons(study)
+    return read_overrides(study, persons.persons).findings if not persons.findings else []
 
 
 def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, report: EvidenceReport) -> None:

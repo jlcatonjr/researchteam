@@ -56,11 +56,13 @@ MAX_QUOTED_CHARS = 200
 
 
 def q(value) -> str:
-    """A value from a file, quoted for a message: ``repr`` of at most MAX_QUOTED_CHARS characters, with ``…``
-    after it when cut."""
-    if isinstance(value, str) and len(value) > MAX_QUOTED_CHARS:
-        return repr(value[:MAX_QUOTED_CHARS]) + "\u2026"
-    return repr(value)
+    """A value from a file, quoted for a message: its ``repr``, cut after MAX_QUOTED_CHARS characters with ``…``
+    after it. A string is cut before it is quoted, so its quote marks stay; any other value (a list built from rows)
+    is cut as text."""
+    if isinstance(value, str):
+        return repr(value[:MAX_QUOTED_CHARS]) + ("\u2026" if len(value) > MAX_QUOTED_CHARS else "")
+    text = repr(value)
+    return text if len(text) <= MAX_QUOTED_CHARS else text[:MAX_QUOTED_CHARS] + "\u2026"
 
 
 def safe(text: str) -> str:
@@ -282,21 +284,21 @@ def resolve_path(declared: str, study_rel: str, repo_root: Path, where: str) -> 
     rooted = declared.startswith(REPO_PREFIX)
     rest = declared[len(REPO_PREFIX):] if rooted else declared
     if rest == "":
-        return None, [Finding("path-empty", where, f"{declared!r} names nothing after {REPO_PREFIX!r}")]
+        return None, [Finding("path-empty", where, f"{q(declared)} names nothing after {REPO_PREFIX!r}")]
     findings: list = []
     if "\x00" in rest:
-        return None, [Finding("path-nul", where, f"{declared!r} contains a NUL character")]
+        return None, [Finding("path-nul", where, f"{q(declared)} contains a NUL character")]
     if "\\" in rest:
         findings.append(Finding("path-backslash", where,
-                                f"{declared!r} contains a backslash; write paths with forward slashes"))
+                                f"{q(declared)} contains a backslash; write paths with forward slashes"))
     if rest.startswith("/") or re.match(r"^[A-Za-z]:", rest):
-        findings.append(Finding("path-absolute", where, f"{declared!r} is absolute; rule 1.6 allows only a path "
+        findings.append(Finding("path-absolute", where, f"{q(declared)} is absolute; rule 1.6 allows only a path "
                                 "relative to the study's folder or a repo:-rooted one"))
     segments = rest.replace("\\", "/").split("/")
     if ".." in segments:
-        findings.append(Finding("path-dotdot", where, f"{declared!r} has a '..' segment (rule 1.6)"))
+        findings.append(Finding("path-dotdot", where, f"{q(declared)} has a '..' segment (rule 1.6)"))
     if not rest.startswith("/") and ("." in segments or "" in segments):
-        findings.append(Finding("path-segment", where, f"{declared!r} has a '.' or empty segment (a doubled or "
+        findings.append(Finding("path-segment", where, f"{q(declared)} has a '.' or empty segment (a doubled or "
                                 "trailing slash); write the path without it"))
     if findings:
         return None, findings
@@ -305,7 +307,7 @@ def resolve_path(declared: str, study_rel: str, repo_root: Path, where: str) -> 
     real = os.path.realpath(os.path.join(root_real, *repo_rel.split("/")))
     if not inside(real, root_real):
         return None, [Finding("path-outside", where,
-                              f"{declared!r} resolves outside the repository through a link (rule 1.6)")]
+                              f"{q(declared)} resolves outside the repository through a link (rule 1.6)")]
     return ResolvedPath(declared, repo_rel, real), []
 
 
@@ -348,7 +350,7 @@ def load_json_strict(data: bytes, where: str) -> tuple:
     try:
         return json.loads(text, object_pairs_hook=_no_duplicates, parse_constant=_no_constant), []
     except _DuplicateKey as exc:
-        return None, [Finding("json-duplicate-key", where, f"the key {exc.args[0]!r} is given twice in one object")]
+        return None, [Finding("json-duplicate-key", where, f"the key {q(exc.args[0])} is given twice in one object")]
     except RecursionError:
         return None, [Finding("json", where, "nested too deeply to read")]
     except ValueError as exc:

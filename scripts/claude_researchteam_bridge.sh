@@ -72,6 +72,10 @@ Commands:
   survey-manifest <project> <gate>
                 Write the gate's manifest file into the ledger folder and print what the operator
                 signs. Signs nothing and writes no ledger row.
+  survey-registry <project> [--candidates]
+                Build the identity registry from the study's rows, applying the recorded overrides,
+                and write its provenance record; with --candidates, list possible matches for a person
+                to review (never applied). Refuses, writing nothing, on any error.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -352,6 +356,10 @@ case "$cmd" in
   survey-manifest)
     shift
     command_survey survey_manifest.py "$@"
+    ;;
+  survey-registry)
+    shift
+    command_survey survey_registry.py "$@"
     ;;
   code-query)
     shift
