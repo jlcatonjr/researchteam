@@ -23,7 +23,7 @@ from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped, reason
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS
 from survey_evidence import REGISTRY_COLUMNS
 from survey_provenance import ABSENT
-from survey_tables import read_rows_hashed
+from survey_tables import read_rows_hashed, rows_from_bytes
 
 OVERRIDE_COLUMNS = ("alias_id", "target_id", "decision", "decided_by", "reason")
 DECISIONS = ("link", "merge", "distinct")
@@ -55,10 +55,11 @@ def identity_refusals(study) -> list:
     return out
 
 
-def project_persons(study) -> Sources:
+def project_persons(study, evidence_bytes: bytes | None = None) -> Sources:
     """The persons the registry takes (4.4, lines 509-511): every ``person_id`` of the evidence file and, in a
     passage or work study, of the attribution file. A file that is not there (a draft) gives none. An empty
-    ``person_id`` is not given (section 4, line 276) and is not a person."""
+    ``person_id`` is not given (section 4, line 276) and is not a person. With *evidence_bytes*, the evidence file is
+    those bytes (a merge works out the registry a build over the merged file would give, 4.4 lines 516-518)."""
     out = Sources()
     seen = set()
     sources = [("/evidence/file", EVIDENCE_COLUMNS, "columns")]
@@ -68,10 +69,13 @@ def project_persons(study) -> Sources:
         rp = study.paths.get(ptr)
         if rp is None:
             continue
-        if not os.path.lexists(rp.real):
+        if ptr == "/evidence/file" and evidence_bytes is not None:
+            rows, digest = rows_from_bytes(evidence_bytes, rp.repo_rel, cols, rule)
+        elif not os.path.lexists(rp.real):
             out.inputs.append((rp.repo_rel, ABSENT))  # declared, absent: its appearing later makes the output stale
             continue
-        rows, digest = read_rows_hashed(Path(rp.real), rp.repo_rel, cols, rule)
+        else:
+            rows, digest = read_rows_hashed(Path(rp.real), rp.repo_rel, cols, rule)
         out.findings += rows.findings
         if digest is not None:
             out.inputs.append((rp.repo_rel, digest))
@@ -349,3 +353,63 @@ def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides
                 going = False
                 break
     return CandidateList(shown, total - len(shown), not going, decided_count)
+
+
+# --------------------------------------------------------------------------- planning a build (no writing)
+@dataclass
+class RegistryPlan:
+    """What a registry build would write, worked out without writing: the rows, the registry's bytes, its record's
+    bytes, and where both go. ``findings`` stops the build."""
+
+    rows: list = field(default_factory=list)
+    data: bytes = b""
+    record: bytes = b""
+    rel: str = ""
+    record_rel: str = ""
+    findings: list = field(default_factory=list)
+    refusal: str = ""  # a short reason to print after the findings
+
+
+TOOL = "survey-registry"
+
+
+def plan_registry(study, evidence_bytes: bytes | None = None) -> RegistryPlan:
+    """The registry and record a build would write over the study's declared inputs, with the evidence file read as
+    *evidence_bytes* when given. Used by ``survey-registry`` to build, and by ``survey-rows`` to work out "the
+    registry that a build over [the merged file] would give" (4.4, lines 516-518) and the record it renews. Writes
+    nothing. The caller checks the output targets."""
+    from survey_evidence import read_exceptions_hashed
+    from survey_provenance import make_record, record_bytes, record_rel
+    from survey_core import sha256_bytes
+
+    plan = RegistryPlan()
+    plan.findings = identity_refusals(study)
+    if plan.findings:
+        plan.refusal = "the study needs what this version does not load"
+        return plan
+    persons = project_persons(study, evidence_bytes)
+    overrides = read_overrides(study, persons.persons)
+    plan.findings = persons.findings + overrides.findings
+    if plan.findings:
+        plan.refusal = "a source file or an override row is malformed"
+        return plan
+    listed, exc_findings, exc_digest = read_exceptions_hashed(study)
+    if exc_findings:
+        plan.findings, plan.refusal = exc_findings, "the evidence's exceptions file is malformed"
+        return plan
+    rp = study.paths["/identity/registry"]
+    plan.rel, plan.record_rel = rp.repo_rel, record_rel(rp.repo_rel)
+    plan.rows = build_rows(persons.persons, overrides)
+    plan.findings = unsafe_values(plan.rows, plan.rel)
+    if plan.findings:
+        plan.refusal = "a registry value is unsafe"
+        return plan
+    plan.data = registry_bytes(plan.rows)
+    inputs = [(study.spec_rel, sha256_bytes(study.spec_bytes)), *persons.inputs, *overrides.inputs]
+    if exc_digest is not None:
+        inputs.append((study.paths["/evidence/legacy_exceptions"].repo_rel, exc_digest))
+    # The registry rests on the evidence file, so it records how many exceptions that file is read with (4.1,
+    # line 366). The build applies no row rule; the count is the exceptions file's, as every later stage reads it.
+    plan.record = record_bytes(make_record(study, plan.rel, TOOL, inputs, gates={}, plugins=[],
+                                           legacy_exceptions=len(listed)))
+    return plan

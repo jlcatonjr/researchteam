@@ -22,20 +22,15 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import (  # noqa: E402
-    SurveyUsageError, parse_args, print_findings, read_capped, reason, safe, sha256_bytes, usage_exit,
+    SurveyUsageError, parse_args, print_findings, read_capped, reason, safe, usage_exit,
 )
-from survey_evidence import read_exceptions_hashed  # noqa: E402
 from survey_identity import (  # noqa: E402
-    build_rows, candidates, identity_refusals, project_persons, read_overrides, read_stop_words, registry_bytes,
-    unsafe_values,
+    candidates, identity_refusals, plan_registry, project_persons, read_overrides, read_stop_words,
 )
-from survey_provenance import (  # noqa: E402
-    WriteRefused, check_output_target, make_record, record_bytes, record_rel, write_all,
-)
+from survey_provenance import WriteRefused, check_output_target, write_all  # noqa: E402
 from survey_spec import load_study  # noqa: E402
 
 PROG = "survey_registry.py"
-TOOL = "survey-registry"
 
 
 def refuse(msg: str) -> int:
@@ -58,34 +53,20 @@ def prepare(root: Path, project: str):
 
 
 def build(root: Path, project: str) -> int:
-    study, persons, overrides, findings = prepare(root, project)
-    if findings:
-        print_findings(findings)
+    study = load_study(project, root)
+    if study.spec is None or not study.ok:
+        print_findings(study.findings)
         return refuse(f"{study.spec_rel}: the registry was not built; nothing was written")
-    rp = study.paths["/identity/registry"]
-    rel, rec_rel = rp.repo_rel, record_rel(rp.repo_rel)
-    listed, exc_findings, exc_digest = read_exceptions_hashed(study)
-    if exc_findings:
-        print_findings(exc_findings)
-        return refuse(f"{study.spec_rel}: the evidence's exceptions file is malformed; nothing was written")
+    plan = plan_registry(study)
+    if plan.findings:
+        print_findings(plan.findings)
+        return refuse(f"{study.spec_rel}: the registry was not built ({plan.refusal}); nothing was written")
+    rel, rec_rel, data, record = plan.rel, plan.record_rel, plan.data, plan.record
     try:
         check_output_target(study, rel, own_pointer="/identity/registry")
         check_output_target(study, rec_rel)
     except WriteRefused as exc:
         return refuse(f"{reason(exc)}; nothing was written")
-    rows = build_rows(persons.persons, overrides)
-    unsafe = unsafe_values(rows, rel)
-    if unsafe:
-        print_findings(unsafe)
-        return refuse(f"{study.spec_rel}: the registry was not built; nothing was written")
-    data = registry_bytes(rows)
-    inputs = [(study.spec_rel, sha256_bytes(study.spec_bytes)), *persons.inputs, *overrides.inputs]
-    if exc_digest is not None:
-        inputs.append((study.paths["/evidence/legacy_exceptions"].repo_rel, exc_digest))
-    # The registry rests on the evidence file, so it records how many exceptions that file is read with (4.1,
-    # line 366). The build applies no row rule; the count is the exceptions file's, as every later stage reads it.
-    record = record_bytes(make_record(study, rel, TOOL, inputs, gates={}, plugins=[],
-                                      legacy_exceptions=len(listed)))
     try:
         unchanged = all(_same(root, r, b) for r, b in ((rel, data), (rec_rel, record)))
         if not unchanged:
@@ -102,6 +83,7 @@ def build(root: Path, project: str) -> int:
     except OSError as exc:
         return refuse(f"{reason(exc)}; the write did not complete")
     state = "unchanged" if unchanged else "wrote"
+    rows = plan.rows
     merged = sum(1 for r in rows if r["merged_from"])
     linked = sum(1 for r in rows if r["identity_id"])
     print(safe(f"{state}: {rel} ({len(rows)} person(s); {linked} linked; {merged} with merges)"))

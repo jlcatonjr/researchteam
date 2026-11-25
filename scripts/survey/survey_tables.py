@@ -65,6 +65,12 @@ def read_rows_hashed(path: Path, where: str, columns: tuple, rule: str) -> tuple
         sha256_bytes(data)
 
 
+def rows_from_bytes(data: bytes, where: str, columns: tuple, rule: str) -> tuple:
+    """As :func:`read_rows_hashed`, over bytes already in hand (a merged file not yet written)."""
+    return _parse(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8", newline=""), where, columns, rule), \
+        sha256_bytes(data)
+
+
 def _parse(stream, where: str, columns: tuple, rule: str) -> Rows:
     out = Rows()
     try:

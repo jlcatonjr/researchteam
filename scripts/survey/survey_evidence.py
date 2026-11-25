@@ -279,9 +279,13 @@ def read_exceptions_hashed(study) -> tuple:
     return listed, findings, digest
 
 
-def check_row_files(study) -> EvidenceReport:
+def check_row_files(study, merged=None, batch_from: int | None = None) -> EvidenceReport:
     """Every row file sections 4.1, 4.3 and 4.8 define that is present: the evidence file (with the registry it
-    needs), the attribution file, the legacy exceptions, the vocabulary file and the bucket tables."""
+    needs), the attribution file, the legacy exceptions, the vocabulary file and the bucket tables.
+
+    For a merge (4.1, lines 322-326), *merged* is the evidence file with the batch appended, as parsed rows not yet
+    written, and *batch_from* the index of its first batch row: the whole merged file is checked, and no legacy
+    exception covers a row from the batch."""
     spec = study.spec
     report = EvidenceReport()
     persons, reg_findings = read_registry(study)
@@ -296,6 +300,11 @@ def check_row_files(study) -> EvidenceReport:
         report.findings.append(Finding("evidence-plugin", rp.repo_rel, "evidence in a plugin format is read through "
                                        "its reader plug-in, which this version does not load, so the rows cannot be "
                                        "checked; not implemented (fails closed)"))
+    elif merged is not None:
+        rows = merged
+        report.findings += rows.findings
+        if rows.findings:
+            rows = None
     elif os.path.lexists(rp.real):  # absent only in a draft (section 3's file check)
         rows = read_rows(Path(rp.real), rp.repo_rel, COLUMNS, "columns")
         report.findings += rows.findings
@@ -315,7 +324,7 @@ def check_row_files(study) -> EvidenceReport:
     if persons is None:
         report.findings.append(Finding("registry-missing", study.paths["/identity/registry"].repo_rel,
                                        "the registry does not exist; a missing registry is itself an error (4.1)"))
-    _check_rows(study, rows, rp.repo_rel, persons, units, vocab or [], report)
+    _check_rows(study, rows, rp.repo_rel, persons, units, vocab or [], report, batch_from)
     return report
 
 
@@ -331,8 +340,11 @@ def _check_overrides(study) -> list:
     return read_overrides(study, persons.persons).findings if not persons.findings else []
 
 
-def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, report: EvidenceReport) -> None:
-    """The 4.1 row checks over the whole file, the legacy exceptions, and the receipt citations."""
+def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, report: EvidenceReport,
+                batch_from: int | None = None) -> None:
+    """The 4.1 row checks over the whole file, the legacy exceptions, and the receipt citations. Rows from
+    *batch_from* on are a batch: "a legacy exception never covers a batch row" (4.1, line 324), and the leniency a
+    legacy study has for rows "that predate receipts" (5.4, lines 774-775) does not reach a row added now."""
     spec = study.spec
     kinds = declared_kinds(spec)
     listed, exc_findings = _read_exceptions(study)
@@ -344,9 +356,12 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
     for _n, r in rows.rows:
         ids[r["id"]] = ids.get(r["id"], 0) + 1
     used = set()
-    for n, r in rows.rows:
+    for index, (n, r) in enumerate(rows.rows):
         at = f"{where}:{n}"
-        nameable = r["id"] != "" and ids[r["id"]] == 1
+        in_batch = batch_from is not None and index >= batch_from
+        if in_batch:
+            at = f"{where} (batch row {index - batch_from + 1})"
+        nameable = r["id"] != "" and ids[r["id"]] == 1 and not in_batch
         for rule, msg in row_breaches(study, r, ids, persons, units, kinds, vocab):
             key = (r["id"], rule)
             if nameable and key in listed:
@@ -354,7 +369,7 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
                 report.excused[rule] = report.excused.get(rule, 0) + 1
                 continue
             report.findings.append(Finding(rule, at, msg))
-        _check_citation(study, r, at, r["tier"] in counted_tiers, legacy, report)
+        _check_citation(study, r, at, r["tier"] in counted_tiers, legacy and not in_batch, report)
     if listed:
         exc_rel = study.paths["/evidence/legacy_exceptions"].repo_rel
         for key, line in sorted(listed.items(), key=lambda kv: kv[1]):
@@ -412,3 +427,37 @@ def check_tables(study) -> list:
                                     f"fallback {q(fallback)} is not one of the attribute's levels (contract silent; "
                                     "refused)"))
     return findings
+
+
+def current_breaches(study) -> tuple:
+    """The 4.1 breaches of the evidence file as it stands, as ``(id, rule)`` in file and rule order, for a first
+    exceptions file (4.1, lines 364-365), and the findings that stop one being written: a breach of a rule that
+    cannot be listed (``columns``, ``id-empty``, ``id-duplicate``), or a file that cannot be read."""
+    spec = study.spec
+    rp = study.paths["/evidence/file"]
+    if not os.path.lexists(rp.real):
+        return [], [Finding("exceptions-draft", rp.repo_rel, "there is no evidence file to read breaches from")]
+    rows = read_rows(Path(rp.real), rp.repo_rel, COLUMNS, "columns")
+    if rows.findings:
+        return [], rows.findings
+    persons, reg_findings = read_registry(study)
+    vocab, vocab_findings = read_vocabulary(study)
+    if reg_findings or vocab_findings:
+        return [], reg_findings + vocab_findings
+    units = {}
+    if spec["unit"]["kind"] in ("passage", "work"):
+        att = check_attribution(study, persons, {r["person_id"] for _n, r in rows.rows})
+        units = att.units
+    kinds = declared_kinds(spec)
+    ids: dict = {}
+    for _n, r in rows.rows:
+        ids[r["id"]] = ids.get(r["id"], 0) + 1
+    breaches, stops = [], []
+    for n, r in rows.rows:
+        for rule, msg in row_breaches(study, r, ids, persons, units, kinds, vocab or []):
+            if rule in UNLISTABLE:
+                stops.append(Finding(rule, f"{rp.repo_rel}:{n}", f"{msg}; a breach of {rule} cannot be listed (4.1, "
+                                     "lines 357-358), so no exceptions file can name this row"))
+            else:
+                breaches.append((r["id"], rule))
+    return breaches, stops
