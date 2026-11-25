@@ -8,6 +8,7 @@
 # Running this script is the operator's go for v1.3.0 (the go/no-go stays with the operator).
 # OPERATOR ONLY, plain Terminal, from any directory:
 #   /bin/bash <checkout>/tmp/by-week/2026-W48/operator/30-cut-v1.3.0.sh <40-hex reviewed main SHA>
+# (the runnable copy lives under the ignored tmp/; this tracked copy is the record and holds placeholders)
 # The session hands over one command that first checks this copy's sha256 and that the shell is not an agent's or
 # an editor's. Every run writes its own log under logs/ beside this file.
 # Run it after the final release-prep PR has merged, with that merge commit, and after the downstream dry run
@@ -48,6 +49,11 @@ PR_HEAD="<reviewed head of the final release-prep PR>"   # filled in the runnabl
 [ "$(gh pr view "$PREP_PR" -R "$REPO" --json state,headRefOid -q '"\(.state) \(.headRefOid)"')" = "MERGED $PR_HEAD" ] || die "PR #$PREP_PR is not merged at the reviewed head $PR_HEAD"
 PR_MERGE="$(gh pr view "$PREP_PR" -R "$REPO" --json mergeCommit -q .mergeCommit.oid)" || die "cannot read the merge commit of PR #$PREP_PR"
 [ "$SHA" = "$PR_MERGE" ] || die "$SHA is not the merge commit of PR #$PREP_PR (${PR_MERGE:-none})"
+# The merged tree is exactly the tree that was reviewed: nothing merged to main between the review and the merge
+# rides into the tag. (So main must still have been at the candidate's commit when the PR merged.)
+ngit fetch --quiet --no-tags "$RT_URL" "+refs/pull/$PREP_PR/head:refs/remotes/origin/pr-$PREP_PR-head" || die "cannot fetch the head of PR #$PREP_PR"
+[ "$(ngit rev-parse "refs/remotes/origin/pr-$PREP_PR-head")" = "$PR_HEAD" ] || die "the fetched head of PR #$PREP_PR is not the reviewed head $PR_HEAD"
+ngit diff --quiet "$PR_HEAD" "$SHA" || die "the tree of $SHA differs from the reviewed head $PR_HEAD; nothing was pushed or signed"
 # Both test checks must have run and passed on exactly this commit (no checks at all is not green).
 for check in "tests (3.10)" "tests (3.13)"; do
   got="$(gh api "repos/$REPO/commits/$SHA/check-runs" --paginate -q ".check_runs[] | select(.name == \"$check\" and .app.slug == \"github-actions\") | .conclusion" | sort -u | tr '\n' ' ')"
@@ -76,6 +82,8 @@ for f in CLAUDE.md researchteam/scaffold/CLAUDE.template.md; do
   [ -z "$stat_line" ] || [ "$stat_line" = "1 1" ] || die "$f changes more than one line since the candidate ($stat_line)"
   [ -z "$stat_line" ] || ngit diff --no-renames -U0 "$FROZEN" "$SHA" -- "$f" | grep -xF '+# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.3.0' >/dev/null \
     || die "the changed line in $f is not the install example naming v1.3.0"
+  [ -z "$stat_line" ] || ngit diff --no-renames -U0 "$FROZEN" "$SHA" -- "$f" | grep -xF -- '-# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.0.2' >/dev/null \
+    || die "the removed line in $f is not the old install example"
 done
 # The previous stable release is signed, is exactly the tag object recorded at its cut, and is an ancestor.
 PREV="v1.2.1"; PREV_OBJ="84dd75865cfae792c91935c008161f35ed39c048"   # read from the remote on 2026-11-24

@@ -7,18 +7,24 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
 
-The first release of the 1.3 line. It is `1.3.0rc1` plus documentation only: this section, the release notes, the
-cut record, the install instructions (below) and one wording correction in `docs/term-index-protocol.md`. No
-script, workflow, scaffold file or package code differs from the candidate, apart from the install line in the
-managed `CLAUDE.md` block and its scaffold template. researchteam 1.3 pins agentteams 1.3: this release pins
+The first release of the 1.3 line. It is `1.3.0rc1` plus: this section, the release notes, the cut record and the
+operator's cut script (a tracked copy under `references/plans/`), the install instructions (below) with a new test
+that guards them, and one wording correction in `docs/term-index-protocol.md`. Nothing that runs in a derived
+repository differs from the candidate: no synced script, no workflow, no package code. What a derived repository
+does receive differently is text: `docs/researchteam-framework.md`, `docs/term-index-protocol.md` and the install
+line in the managed `CLAUDE.md` block (and its scaffold template). researchteam 1.3 pins agentteams 1.3: this release pins
 agentteams **`v1.3.0`** (`536306d2`). The changes and the five upgrade notes are listed under `1.3.0rc1` below.
 
 Derived repositories take it in this order, because an older researchteam does not sync the term-index core and
 the lock writer runs the installed code:
-1. Verify the signed tag `v1.3.0` first (Rule S-9): in a clone, `git verify-tag v1.3.0` against the release key in
-   `~/.config/agentteams/allowed_signers`, and note the commit it peels to.
-2. Install that commit with the interpreter that runs `check_toolchain.py`:
-   `python3 -m pip install "git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
+1. Verify both signed tags first (Rule S-9): researchteam `v1.3.0` and agentteams `v1.3.0`, each in a clone,
+   against the release key in `~/.config/agentteams/allowed_signers` and with repository config neutralised
+   (`docs/CONTRIBUTING.md`, "Verifying a release", gives the command). Note the commit each peels to; agentteams
+   `v1.3.0` peels to `536306d2502e3db338846677f2d37489531ac8e7`.
+2. Install both with the interpreter that runs `check_toolchain.py` (Python 3.11 or later):
+   `python3 -m pip install "researchteam[update] @ git+https://github.com/jlcatonjr/researchteam.git@<peeled commit>"`.
+   The `update` extra installs agentteams at the commit above. The lock writer refuses `--tag agentteams=v1.3.0`
+   while another agentteams is installed, and `researchteam update` would regenerate the team with the old one.
 3. `researchteam update --ref v1.3.0`, then
    `python3 scripts/check_toolchain.py --write-lock --tag researchteam=v1.3.0 --tag agentteams=v1.3.0`. A locked
    repository leaves two release lines at once, researchteam 1.2 and agentteams 1.2, and `check_toolchain.py`
@@ -35,7 +41,8 @@ the lock writer runs the installed code:
     managed `CLAUDE.md` block (and its scaffold template), and `CONTRIBUTING.md` still described the 1.1 line as
     release candidates.
   - **Fix:** they name `v1.3.0`. A repository on an older line installs that line's newest tag.
-    `CONTRIBUTING.md` describes the four release branches as they are.
+    `CONTRIBUTING.md` describes the four release branches, the backport request, the rulesets and the autosync as
+    they are.
   - **Guard:** `tests/test_install_pins.py` fails when these files name any tag other than the highest final
     release heading in this file, so the release-prep pull request that adds a heading must move them too.
 - **Docs: the term-index repair note names the right version.** `docs/term-index-protocol.md` said a researchteam
