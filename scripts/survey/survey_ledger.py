@@ -38,9 +38,16 @@ KEYS = "references/authorized-verify-keys"
 APPROVERS = "references/security-approvers.txt"
 WAIVERS = "references/security-waivers.log.csv"
 PARENT_TEAM_KEY = "parent_team"
-#: Columns the log must carry. 6.2 says "with the signature columns"; the set is the one agentteams 1.3.0
-#: requires before it appends a signed row, plus the two every decision row is matched on.
-LOG_COLUMNS = ("action_reviewed", "verdict", "signature", "sig_scheme", "key_id", "derives_from")
+#: The header the log must have, exactly (6.2 "with the signature columns"; operator decision, 2026-11-25: adopt
+#: agentteams' own new-log header). Read from agentteams 1.3.0: ``decision_log.append_signed_decision_row`` creates a
+#: missing log with ``["timestamp", "requesting_agent", *SIGNED_DECISION_COLUMNS]``. agentteams refuses a header
+#: without ``timestamp`` and ``requesting_agent`` (its legacy schema), and ``--sign-decision`` then will not extend it.
+LOG_HEADER = (
+    "timestamp", "requesting_agent", "date", "action_reviewed", "verdict", "scope", "conditions",
+    "conditions_verified", "evidence", "author", "derives_from", "effect_class", "effect_grants", "effect_targets",
+    "effect_relaxes", "effect_destructive", "effect_cross_repo", "effect_bulk", "text_digest", "sig_scheme", "key_id",
+    "prev_digest", "signature",
+)
 KEY_FILE = re.compile(r"([A-Za-z0-9._-]+)\.pub\.pem")
 PEM_BEGIN = b"-----BEGIN PUBLIC KEY-----"
 PEM_END = b"-----END PUBLIC KEY-----"
@@ -236,10 +243,10 @@ def _check_log(path: Path, where: str, add) -> None:
     if not rows:
         add("ledger-log", where, "has no header")
         return
-    header = [c.strip() for c in rows[0]]
-    missing = [c for c in LOG_COLUMNS if c not in header]
-    if missing:
-        add("ledger-log", where, f"lacks the signature column(s) {', '.join(missing)} (6.2)")
+    header = rows[0]
+    if tuple(header) != LOG_HEADER:
+        add("ledger-log", where, "the header is not exactly the one agentteams 1.3.0 writes for a new log: "
+            + ",".join(LOG_HEADER))
     for n, row in enumerate(rows[1:], start=2):
         if row and len(row) != len(header):
             add("ledger-log", f"{where}:{n}", f"has {len(row)} fields; the header has {len(header)}")
