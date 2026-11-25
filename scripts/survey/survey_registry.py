@@ -27,7 +27,7 @@ from survey_core import (  # noqa: E402
 from survey_evidence import read_exceptions_hashed  # noqa: E402
 from survey_identity import (  # noqa: E402
     build_rows, candidates, identity_refusals, project_persons, read_overrides, read_stop_words, registry_bytes,
-    previous_merges, unsafe_values,
+    unsafe_values,
 )
 from survey_provenance import (  # noqa: E402
     WriteRefused, check_output_target, make_record, record_bytes, record_rel, write_all,
@@ -53,7 +53,7 @@ def prepare(root: Path, project: str):
     if findings:
         return study, None, None, findings
     persons = project_persons(study)
-    overrides = read_overrides(study, persons.persons, previous_merges(study))
+    overrides = read_overrides(study, persons.persons)
     return study, persons, overrides, persons.findings + overrides.findings
 
 
@@ -131,9 +131,10 @@ def list_candidates(root: Path, project: str) -> int:
     found = candidates(persons.persons, names, stop_words, overrides)
     for c in found.shown:
         print(safe(f"candidate {c.kind}: {c.person_id} ~ {c.other_id}"))
-    print(f"candidates: {len(found.shown)} undecided shown; {found.decided} already decided in the overrides file and "
-          "not listed. A candidate is never a link: a person decides each in the overrides file (link, merge or "
-          "distinct), with a reason.")
+    bound = "at least " if found.more_is_lower_bound else ""
+    print(f"candidates: {len(found.shown)} undecided shown; {bound}{found.decided} already decided in the overrides "
+          "file and not listed. A candidate is never a link: a person decides each in the overrides file (link, merge "
+          "or distinct), with a reason.")
     if found.more:
         print(f"candidates not shown: {'at least ' if found.more_is_lower_bound else ''}{found.more} more, in the "
               "same order (the listing shows the first MAX_CANDIDATES)")

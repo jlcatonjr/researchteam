@@ -318,15 +318,32 @@ def write_atomic(root: Path, rel: str, data: bytes) -> None:
     write_all(root, [(rel, data)])
 
 
+#: Whether this platform can write relative to an open folder: open the folder once (``O_DIRECTORY | O_NOFOLLOW``),
+#: create the temporary file in it with ``O_EXCL`` and replace relative to the same descriptor, so the write lands in
+#: the folder that was checked even if a parent is swapped meanwhile. Linux and macOS can; elsewhere the plain path
+#: code below is used, with the same checks, and the window between the last check and ``os.replace`` remains.
+#: ``os.replace`` takes ``src_dir_fd``/``dst_dir_fd`` wherever ``os.rename`` does (both are ``renameat``); only
+#: ``os.rename`` is listed in ``os.supports_dir_fd``.
+DIR_FD_WRITES = (os.name == "posix" and hasattr(os, "O_DIRECTORY") and hasattr(os, "O_NOFOLLOW")
+                 and {os.open, os.rename, os.unlink} <= os.supports_dir_fd)
+
+
 def write_all(root: Path, outputs: list) -> None:
     """Write several outputs, each as survey-manifest writes a manifest, in the order given: every target is checked
     (no link on the way, a regular file or nothing there), every temporary file is written in its target's folder
-    (mode 0644), every target is checked again, and only then is each temporary file moved into place with
-    ``os.replace``, in order. A refusal at any check leaves every file as it was; only an interruption between two
-    replaces leaves the earlier ones replaced and the later ones not (the caller orders them so that this is safe).
-    The caller has already called :func:`check_output_target` for each."""
+    (mode 0644), every target is checked again, and only then is each temporary file moved into place, in order. A
+    refusal at any check leaves every file as it was; only an interruption between two replaces leaves the earlier
+    ones replaced and the later ones not (the caller orders them so that this is safe). The temporary files are
+    removed on every failure. The caller has already called :func:`check_output_target` for each."""
     for rel, _data in outputs:
         check_writable(root, rel)
+    if DIR_FD_WRITES:
+        _write_all_dir_fd(root, outputs)
+    else:
+        _write_all_paths(root, outputs)
+
+
+def _write_all_paths(root: Path, outputs: list) -> None:
     temps = []
     try:
         for rel, data in outputs:
@@ -338,13 +355,52 @@ def write_all(root: Path, outputs: list) -> None:
         for rel, _data in outputs:
             check_writable(root, rel)  # again, just before anything lands
         for (rel, _data), tmp in zip(outputs, temps):
-            replace(tmp, root / rel)
+            replace(tmp, str(root / rel), None)
     finally:
         for tmp in temps:
-            if os.path.exists(tmp):
+            if os.path.lexists(tmp):
                 os.unlink(tmp)
 
 
-def replace(tmp: str, path: Path) -> None:
-    """``os.replace``; a seam tests use to interrupt a write before it lands."""
-    os.replace(tmp, path)
+def _write_all_dir_fd(root: Path, outputs: list) -> None:
+    folders = {}  # folder path -> open descriptor
+    temps = []  # (descriptor, temporary name)
+    try:
+        for rel, data in outputs:
+            folder = (root / rel).parent
+            if folder not in folders:
+                expected = os.stat(folder)  # check_writable has just found it a plain directory reached without links
+                dfd = os.open(folder, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+                folders[folder] = dfd
+                got = os.fstat(dfd)
+                if (got.st_dev, got.st_ino) != (expected.st_dev, expected.st_ino):
+                    raise WriteRefused(f"the folder of {q(rel)} changed while it was being opened")
+            dfd = folders[folder]
+            name = f".survey-{os.urandom(8).hex()}"
+            fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | getattr(os, "O_BINARY", 0), 0o644,
+                         dir_fd=dfd)
+            temps.append((dfd, name))
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(data)
+                os.fchmod(fh.fileno(), 0o644)
+        for rel, _data in outputs:
+            check_writable(root, rel)  # again, just before anything lands
+        for (rel, _data), (dfd, name) in zip(outputs, temps):
+            replace(name, (root / rel).name, dfd)
+    finally:
+        for dfd, name in temps:
+            try:
+                os.unlink(name, dir_fd=dfd)
+            except FileNotFoundError:
+                pass
+        for dfd in folders.values():
+            os.close(dfd)
+
+
+def replace(src: str, dst: str, dir_fd) -> None:
+    """``os.replace``, relative to *dir_fd* when one is given; a seam tests use to interrupt a write before it
+    lands."""
+    if dir_fd is None:
+        os.replace(src, dst)
+    else:
+        os.replace(src, dst, src_dir_fd=dir_fd, dst_dir_fd=dir_fd)

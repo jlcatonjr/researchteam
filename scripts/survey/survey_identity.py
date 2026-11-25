@@ -95,20 +95,11 @@ class Overrides:
         return {frozenset((r["alias_id"], r["target_id"])) for _n, r in self.rows}
 
 
-def previous_merges(study) -> dict:
-    """``{merged id: target}`` as the registry now on disk records them (its ``merged_from`` cells), or ``{}``."""
-    rp = study.paths.get("/identity/registry")
-    if rp is None or not os.path.lexists(rp.real):
-        return {}
-    rows, _digest = read_rows_hashed(Path(rp.real), rp.repo_rel, REGISTRY_COLUMNS, "registry-columns")
-    return {m: r["person_id"] for _n, r in rows.rows for m in r["merged_from"].split(MERGED_SEPARATOR) if m}
-
-
-def read_overrides(study, persons: list, merged_before: dict | None = None) -> Overrides:
-    """Read and check the overrides file. Without a vantage module the identity source holds the project's own
-    persons (5.2), so a ``link`` target, a ``merge`` target and a ``distinct`` target are all project persons. A
-    ``merge`` alias that no longer occurs in the rows is accepted only when the registry already records it as merged
-    into that target (*merged_before*): its rows were rewritten to the target. Otherwise it is a mistyped alias."""
+def read_overrides(study, persons: list) -> Overrides:
+    """Read and check the overrides file, from its declared inputs only. Without a vantage module the identity source
+    holds the project's own persons (5.2), so a ``link`` target, a ``merge`` target and a ``distinct`` target are all
+    project persons; and every alias is one too: a link names "the project's person" (4.4, line 496), a merge "two of
+    the project's ids" (line 497). The registry holds merged ids, so the alias's rows keep the alias."""
     out = Overrides()
     rp = study.paths.get("/identity/overrides")
     if rp is None:
@@ -138,11 +129,12 @@ def read_overrides(study, persons: list, merged_before: dict | None = None) -> O
         if decision not in DECISIONS:
             add("overrides-decision", n, f"decision {q(decision)} is not one of {', '.join(DECISIONS)} (line 493)")
             continue
-        if alias not in known and not (decision == "merge" and (merged_before or {}).get(alias) == target):
+        if alias not in known:
+            remedy = ("; keep the alias in the rows (the registry holds merged ids), or remove this merge row if the "
+                      "rows were rewritten to the target" if decision == "merge" else "")
             add("overrides-alias", n, f"alias_id {q(alias)} is not a person of the project (line 496: a link names "
-                "\"the project's person\"; line 497: a merge, \"two of the project's ids\"; for distinct the "
-                "contract is silent); a merged alias whose rows were rewritten must already be in the registry's "
-                "merged_from of its target")
+                "\"the project's person\"; line 497: a merge joins \"two of the project's ids\"; for distinct the "
+                f"contract is silent){remedy}")
             continue
         if target not in known:
             add("overrides-target", n, f"target_id {q(target)} is not a person of the project, which is the identity "
@@ -229,13 +221,14 @@ def identity_name(identity_id: str) -> str:
 
 
 def unsafe_values(rows: list, where: str) -> list:
-    """Findings for any registry cell holding a control character, a line or paragraph separator, or a NUL. The
+    """Findings for any registry cell holding a control character, a format character (a bidirectional override, a
+    zero-width character: one id could be made to look like another), a line or paragraph separator, or a NUL. The
     contract gives a ``person_id`` no pattern (only "no ``|``", 4.1 line 309; 4.3 line 438), so these are refused
     before anything is written (a proposal): the registry never holds a cell with a line break in it."""
     out = []
     for r in rows:
         for col in REGISTRY_COLUMNS:
-            bad = sorted({ch for ch in r[col] if unicodedata.category(ch) in ("Cc", "Zl", "Zp")})
+            bad = sorted({ch for ch in r[col] if unicodedata.category(ch) in ("Cc", "Cf", "Zl", "Zp")})
             if bad:
                 codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
                 out.append(Finding("registry-value", where, f"{col} {q(r[col])} of person {q(r['person_id'])} holds "
@@ -298,11 +291,11 @@ class CandidateList:
     shown: list
     more: int  # candidates beyond the shown ones
     more_is_lower_bound: bool  # counting stopped at MAX_COUNTED
-    decided: int = 0  # pairs an override row already names: not listed
+    decided: int = 0  # pairs an override row already names: not listed (a lower bound too when counting stopped)
 
 
 def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides,
-               limit: int = MAX_CANDIDATES, counted: int = MAX_COUNTED) -> CandidateList:
+               limit: int | None = None, counted: int | None = None) -> CandidateList:
     """Possible matches (4.4, lines 524-526), each with its kind: ``same-id`` (the two ids are equal), ``exact`` (the
     folded names are equal), ``similar`` (the names share a word that is not a stop word). Without a vantage module
     the identity source is the project's own persons, and the search "compares those persons with one another"
@@ -313,6 +306,8 @@ def candidates(persons: list, names: dict, stop_words: set, overrides: Overrides
 
     Persons are indexed by folded name and by word, so only persons that share one are compared. The order is fixed
     (kind, then the two ids); the first *limit* are shown and the rest counted, up to *counted*."""
+    limit = MAX_CANDIDATES if limit is None else limit
+    counted = MAX_COUNTED if counted is None else counted
     decided = overrides.pairs()
     persons = sorted(set(persons))
     by_name: dict = {}

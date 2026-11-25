@@ -234,7 +234,7 @@ def test_an_interrupted_registry_write_leaves_the_old_file(tmp_path, monkeypatch
     before = (root / REGISTRY).read_bytes()
     _overrides(root, [_row("warden-02", "warden-01", "merge")])
 
-    def interrupted(tmp, path):
+    def interrupted(*_args):
         raise KeyboardInterrupt("interrupted before os.replace")
     monkeypatch.setattr(prov, "replace", interrupted)
     with pytest.raises(KeyboardInterrupt):
@@ -251,11 +251,11 @@ def test_an_interruption_before_the_record_leaves_the_registry_not_built(tmp_pat
     calls = []
     real = prov.replace
 
-    def second_fails(tmp, path):
-        calls.append(path)
+    def second_fails(*args):
+        calls.append(args[1])
         if len(calls) == 2:
             raise KeyboardInterrupt("interrupted before the record")
-        real(tmp, path)
+        real(*args)
     monkeypatch.setattr(prov, "replace", second_fails)
     with pytest.raises(KeyboardInterrupt):
         _build(root)
@@ -415,18 +415,21 @@ def test_evidence_may_carry_a_merged_alias(tmp_path):
     assert code == 0, out
 
 
-def test_a_merge_stays_valid_after_the_aliass_rows_are_rewritten(tmp_path):
-    """T1/T2: rows rewritten to the target; the merge row stays valid, because the registry already records the
-    alias in the target's merged_from (proposal 4)."""
+def test_a_merge_whose_alias_was_rewritten_out_of_the_rows_is_refused(tmp_path):
+    """T1: a merge joins "two of the project's ids" (4.4, line 497); once the alias's rows are rewritten to the
+    target, the alias is not a project id and the merge row is refused, with the remedy in the message."""
     root = make_repo(tmp_path)
     _overrides(root, [_row("warden-02", "warden-01", "merge")])
-    assert _build(root)[0] == 0  # the registry now records warden-02 as merged into warden-01
+    assert _build(root)[0] == 0
     for name in ("evidence.csv", "attribution.csv"):
         path = root / ROWS / name
         path.write_bytes(path.read_bytes().replace(b"warden-02", b"warden-01"))
-    assert _build(root)[0] == 0
-    assert "warden-01,warden-01,,warden-02\n" in (root / REGISTRY).read_text(encoding="utf-8")
-    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "[overrides-alias]" in out
+    assert "keep the alias in the rows (the registry holds merged ids), or remove this merge row" in out
+    assert tree(root) == before
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 1
 
 
 def test_a_link_to_another_person_shows_that_persons_name(tmp_path):
@@ -463,7 +466,7 @@ def test_an_os_error_while_writing_is_a_refusal(tmp_path, monkeypatch):
     root = make_repo(tmp_path)
     before = tree(root)
 
-    def broken(tmp, path):
+    def broken(*_args):
         raise OSError(28, "No space left on device")
     monkeypatch.setattr(prov, "replace", broken)
     code, out, _ = _build(root)
@@ -653,3 +656,80 @@ def test_check_current_compares_the_tool_and_schema_version(tmp_path):
     assert prov.check_current(root, RECORD, expect_tool="survey-registry", expect_schema_version="1").built
     cur = prov.check_current(root, RECORD, expect_tool="survey-rows", expect_schema_version="0")
     assert not cur.built and len(cur.reasons) == 2
+
+
+# --------------------------------------------------------------------------- third review of part 2a
+def test_the_build_reads_no_old_registry(tmp_path):
+    """T1: the overrides check depends only on declared inputs; the registry on disk is not read by the build."""
+    root = make_repo(tmp_path)
+    _overrides(root, [_row("warden-02", "warden-01", "merge")])
+    (root / REGISTRY).write_bytes(b"not a registry at all\x00\n")
+    assert _build(root)[0] == 0
+    assert b"warden-01,warden-01,,warden-02\n" in (root / REGISTRY).read_bytes()
+
+
+@pytest.mark.parametrize("cell", ["warden\u202e10", "warden\u200b01", "warden\ufeff01"])
+def test_a_registry_value_with_a_format_character_is_refused(tmp_path, cell):
+    """S1: a bidirectional override or a zero-width character could make one id look like another."""
+    root = make_repo(tmp_path)
+    header = (root / ROWS / "evidence.csv").read_bytes().split(b"\n", 1)[0]
+    row = ("ev-900," + cell + ",harbour,x,not-established,,,,,,,,,,," + cell + ",tried,\n").encode("utf-8")
+    (root / ROWS / "evidence.csv").write_bytes(header + b"\n" + row)
+    before = tree(root)
+    code, out, _ = _build(root)
+    assert code == 1 and "[registry-value]" in out and tree(root) == before
+
+
+def test_writes_go_through_the_folder_descriptor_where_supported(tmp_path):
+    """S2: on Linux and macOS the write is made relative to the folder that was checked."""
+    import os as _os
+    if _os.name == "posix":
+        assert prov.DIR_FD_WRITES
+    root = make_repo(tmp_path)
+    assert _build(root)[0] == 0
+    assert not [p for p in (root / ROWS).iterdir() if p.name.startswith(".survey-")]
+
+
+def test_the_plain_path_writes_still_work(tmp_path, monkeypatch):
+    """S2: the fallback for platforms without descriptor-relative writes."""
+    monkeypatch.setattr(prov, "DIR_FD_WRITES", False)
+    root = make_repo(tmp_path)
+    assert _build(root)[0] == 0 and prov.check_current(root, RECORD).built
+    assert all(os.stat(root / r).st_mode & 0o777 == 0o644 for r in (REGISTRY, RECORD))
+
+
+def test_a_folder_swapped_while_it_is_opened_is_refused(tmp_path, monkeypatch):
+    """S2: the folder opened must be the folder checked (device and inode)."""
+    if not prov.DIR_FD_WRITES:
+        pytest.skip("descriptor-relative writes are not supported here")
+    root = make_repo(tmp_path)
+    before = tree(root)
+    real_stat = os.stat
+
+    def other_folder(path, *a, **k):
+        st = real_stat(path, *a, **k)
+        if str(path).endswith("/rows"):
+            return os.stat_result((st.st_mode, st.st_ino + 1, *tuple(st)[2:]))
+        return st
+    monkeypatch.setattr(prov.os, "stat", other_folder)
+    code, out, _ = _build(root)
+    monkeypatch.undo()
+    assert code == 1 and "changed while it was being opened" in out and tree(root) == before
+
+
+def test_the_decided_count_is_a_lower_bound_when_counting_stops(tmp_path):
+    """T4."""
+    crowd = [f"crew-{i:03d}" for i in range(60)]
+    ov = ident.Overrides()
+    ov.rows = [(0, {"alias_id": "crew-000", "target_id": "crew-001", "decision": "distinct"})]
+    found = ident.candidates(crowd, {p: p for p in crowd}, set(), ov, limit=5, counted=10)
+    assert found.more_is_lower_bound and found.decided == 1
+    root = make_repo(tmp_path)
+    monkeypatch_limits = (ident.MAX_CANDIDATES, ident.MAX_COUNTED)
+    try:
+        ident.MAX_CANDIDATES, ident.MAX_COUNTED = 0, 1
+        (root / STUDY_REL / "rules" / "stop_words.txt").write_text("", encoding="utf-8")
+        out = run(survey_registry, "--root", str(root), "tidebell", "--candidates")[1]
+    finally:
+        ident.MAX_CANDIDATES, ident.MAX_COUNTED = monkeypatch_limits
+    assert "at least" in out

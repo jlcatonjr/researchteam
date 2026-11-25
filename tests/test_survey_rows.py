@@ -808,3 +808,13 @@ def test_a_comma_list_of_years_gives_the_first_and_the_largest():
 def test_a_list_of_three_digit_years_gives_the_first_and_the_largest():
     """T5: 450,500 is a list, not 450 thousand and 500."""
     assert tb.year_of("450,500", "work_date") == 450 and tb.year_of("450,500", "life_dates") == 500
+
+
+@pytest.mark.parametrize("value,first,largest", [
+    ("1,750.5", None, None), ("1,234.56", None, None), ("1,750,000", None, None),
+    ("123,456", 123, 456), ("12.03.1750", 1750, 1750), ("1742,1790", 1742, 1790), ("1750.5", 1750, 1750),
+    ("450,500", 450, 500), ("12.03.750", 750, 750),
+])
+def test_a_decimal_part_after_a_grouped_number(value, first, largest):
+    """T2: where the last separator differs, the groups before it are judged as the grouping."""
+    assert tb.year_of(value, "work_date") == first and tb.year_of(value, "life_dates") == largest

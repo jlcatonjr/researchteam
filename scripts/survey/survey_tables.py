@@ -238,19 +238,28 @@ def _chain(value: str, start: int, end: int) -> tuple:
     return groups, seps
 
 
-def _grouped(value: str, start: int, end: int) -> bool:
-    """Whether the run ``value[start:end]`` is part of a number grouped by thousands. The whole chain the run is
-    joined to by ``,`` or ``.`` must be one: one separator throughout, every group after the first exactly three
-    digits, and a lead of one or two digits, or of three when two or more groups follow (``1,750``, ``12,750``,
-    ``1.234.567``, ``123,456,789``). Any other chain (``12.03.750``, ``450,500``, ``1742,1790``, ``1750.5``) is a
-    list of numbers, and each run is its own (4.8, line 699)."""
-    groups, seps = _chain(value, start, end)
-    if len(groups) < 2 or len(set(seps)) != 1:
-        return False
-    if any(len(g) != 3 for g in groups[1:]):
+def _is_grouping(groups: list, seps: list) -> bool:
+    """One separator throughout, every group after the first exactly three digits, and a lead of one or two digits,
+    or of three when two or more groups follow."""
+    if len(groups) < 2 or len(set(seps)) != 1 or any(len(g) != 3 for g in groups[1:]):
         return False
     lead = len(groups[0])
     return lead in (1, 2) or (lead == 3 and len(groups) >= 3)
+
+
+def _grouped(value: str, start: int, end: int) -> bool:
+    """Whether the run ``value[start:end]`` is part of a number grouped by thousands (4.8, line 699: "not part of a
+    longer number"). The whole chain the run is joined to by ``,`` or ``.`` must be one grouping
+    (:func:`_is_grouping`: ``1,750``, ``12,750``, ``1.234.567``, ``1,750,000``). Where the last separator differs
+    from the earlier ones, the part after it is a decimal part and the groups before it are judged as the grouping
+    (``1,750.5``, ``1,234.56``): then no run of the number is a year. Any other chain is a list of numbers, each its
+    own (``12.03.750``, ``450,500``, ``123,456``, ``1742,1790``, ``1750.5``)."""
+    groups, seps = _chain(value, start, end)
+    if _is_grouping(groups, seps):
+        return True
+    if len(seps) >= 2 and seps[-1] != seps[-2] and len(set(seps[:-1])) == 1:
+        return _is_grouping(groups[:-1], seps[:-1])
+    return False
 
 
 def _runs(value: str) -> list:
