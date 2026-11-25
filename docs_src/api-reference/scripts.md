@@ -310,7 +310,7 @@ the row-file ids). The merged file is the evidence file's bytes as they are with
 order; every check of 4.1, 4.3 and 4.8 runs over it, no legacy exception covers a batch row, and a merge into a
 `plugin` format is refused. The registry must be built (its record current) and a build over the merged file must
 give its present rows, which also finds a registry edited by hand. Then the evidence file is written and the
-registry's renewed record, last; an interruption between them leaves the registry not built. `--draft-exceptions`
+registry's renewed record, last; an interruption between them leaves the registry not built. Row files are read as strict CSV; the merged file must read back, cell for cell, as the file's rows and then the batch's; a batch is read without following a link, and a batch cell with a control character is refused (`batch-control`); the files read are checked again just before writing, so two merges at once cannot lose one. `--draft-exceptions`
 prints a legacy study's current breaches as a first exceptions file, `id,rule`, and writes nothing.
 
 ### Row files (step B)
