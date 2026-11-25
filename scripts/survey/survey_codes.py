@@ -130,6 +130,7 @@ def read_codes(study, ctx: Context) -> Codes:
     out = Codes()
     add = lambda rule, where, msg: out.findings.append(Finding(rule, where, msg))  # noqa: E731
     outcomes = coded_outcomes(study.spec)
+    order = list(outcomes)  # the order the study declares them (as the frame orders its outcome columns, line 603)
     files: dict = {}  # codes file (repo_rel) -> (ResolvedPath, [outcome keys that name it])
     for i, o in enumerate(study.spec["outcomes"]):
         if o["source"]["kind"] != "codes":
@@ -182,6 +183,7 @@ def read_codes(study, ctx: Context) -> Codes:
                     "codes rows: one row per unit and outcome, 4.2 lines 383 and 392)")
                 continue
             adj[r["unit_id"]] = (where, r)
+    out.rows = {k: out.rows[k] for k in order if k in out.rows}
     _check_passes(out, add)
     return out
 
@@ -252,7 +254,7 @@ def agreement(codes: Codes) -> list:
     value included. Cohen's κ and Gwet's AC1 are not computed: the contract names them without a formula
     (proposal)."""
     out = []
-    for outcome in sorted(codes.rows):
+    for outcome in codes.rows:  # in the order the study declares the outcomes (see read_codes)
         by_unit: dict = {}
         for _where, r in codes.rows[outcome]:
             if r["pass"] in ("A", "B"):

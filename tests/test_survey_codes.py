@@ -249,3 +249,85 @@ def test_the_bridge_runs_survey_agreement_and_refuses_root(tmp_path):
                          text=True, env=env)
     assert res.returncode == 2 and "--root is not accepted" in res.stderr
     assert not list((root / "scripts" / "survey").glob("__pycache__"))
+
+
+# --------------------------------------------------------------------------- review of part 1
+def test_a_basis_other_than_own_or_reported_is_refused(tmp_path):
+    """A1: 4.1 (line 289) gives two bases, and 4.2 (line 379) speaks of `reported`."""
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, A1.replace(b",own,", b",hearsay,"))
+    assert "codes-basis" in _rules(root)
+
+
+def _author_study(tmp_path):
+    def author(s):
+        s["unit"] = {"kind": "author"}
+        s["frame_rules"]["exclude"] = []
+    root = make_repo(tmp_path, author)
+    path = root / ROWS / "evidence.csv"
+    path.write_bytes(path.read_bytes().replace(b",p-001,", b",,").replace(b",p-002,", b",,").replace(b",p-003,", b",,")
+                     .replace(b",warden-01,,", b",,,").replace(b",warden-02,searched", b",,searched"))
+    _adj(root)
+    return root
+
+
+@pytest.mark.parametrize("line,rule", [
+    (b"warden-01,warden-01,slack_bell,for,A,coder-a,own,,ev-001,,\n", None),  # a unit is its person
+    (b"warden-99,warden-99,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-unit"),  # not a registry person
+    (b"warden-01,warden-02,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-unit-person"),
+    (b"warden-02,warden-02,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-evidence-person"),  # ev-001 is warden-01's
+])
+def test_the_unit_checks_in_an_author_study(tmp_path, line, rule):
+    """A1: in an author study a unit is a registry person, a codes row's person_id is that person, and evidence
+    belongs to the row's person_id."""
+    root = _author_study(tmp_path)
+    _codes(root, line)
+    found = _rules(root)
+    assert (rule in found) if rule else not any(r.startswith("codes-") for r in found), found
+
+
+def test_an_author_study_adjudication_unit_must_be_a_person(tmp_path):
+    root = _author_study(tmp_path)
+    _codes(root, b"warden-01,warden-01,slack_bell,for,A,coder-a,own,,ev-001,,\n")
+    _adj(root, b"warden-77,slack_bell,for,adjudicator-c,own,,ev-001,why\n")
+    assert "adjudication-unit" in _rules(root)
+
+
+def test_findings_are_capped_per_file(tmp_path):
+    """A2: a file that would give far more findings shows MAX_FINDINGS_PER_FILE and one line saying how many more;
+    the run still fails."""
+    from survey_support import survey_core as core
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, *[f"p-{i:05d},warden-01,slack_bell,perhaps,A,,own,,ev-404,,\n".encode() for i in range(2000)])
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    lines = [ln for ln in out.splitlines() if ln.startswith("ERROR") and CODES in ln]
+    assert code == 1 and len(lines) == core.MAX_FINDINGS_PER_FILE + 1
+    assert lines[-1].startswith("ERROR [findings-suppressed]") and "not shown" in lines[-1]
+    assert core.cap_findings([core.Finding("x", "f.csv:1", "m")] * 3, limit=2)[-1].message.startswith("1 more")
+
+
+def test_agreement_lists_outcomes_in_declared_order(tmp_path):
+    """A3: the order the study declares the outcomes (as the frame orders its columns, line 603); outcomes without
+    rows come last, in declared order."""
+    def three(s):
+        base = s["outcomes"][0]
+        for key in ("bell_rope", "aaa_signal"):  # declared after slack_bell; "aaa" sorts first
+            o = dict(base, key=key, label=key)
+            o["source"] = {"kind": "codes", "codes_file": f"rows/codes-{key}.csv",
+                           "adjudications": f"rows/adjudications-{key}.csv"}
+            s["outcomes"].append(o)
+    root = make_repo(tmp_path, three)
+    (root / ROWS / "codes-bell_rope.csv").write_bytes(CH)
+    (root / ROWS / "codes-aaa_signal.csv").write_bytes(CH + A1.replace(b"slack_bell", b"aaa_signal"))
+    out = run(survey_agreement, "--root", str(root), "tidebell")[1]
+    order = [ln.split(":")[0] for ln in out.splitlines() if ": raw agreement " in ln]
+    assert order == ["slack_bell", "aaa_signal", "bell_rope"]
+
+
+def test_agreement_says_it_does_not_yet_meet_line_400(tmp_path):
+    """B1: 4.2 line 400 requires κ and AC1 too; the output says the command does not yet meet it."""
+    root = make_repo(tmp_path)
+    out = run(survey_agreement, "--root", str(root), "tidebell")[1]
+    assert "does not yet meet contract 4.2 line 400" in out

@@ -377,9 +377,44 @@ def load_json_strict(data: bytes, where: str) -> tuple:
         return None, [Finding("json", where, f"not valid JSON: {reason(exc)}")]
 
 
-def print_findings(findings, stream=None) -> None:
-    stream = stream or sys.stdout
+#: The most findings reported for one file; past it, one more finding says how many were not shown (the run fails
+#: all the same). A file with many bad rows cannot flood the output (@security A2; a proposal).
+MAX_FINDINGS_PER_FILE = 1000
+
+
+def finding_file(f: Finding) -> str:
+    """The file a finding is about: its ``where`` before a line number (``:``), a JSON pointer (``#``) or a note in
+    brackets; a batch row's findings belong to the batch."""
+    where = f.where
+    if where.startswith("batch row"):
+        return "batch"
+    for sep in ("#", " (", ":"):
+        where = where.split(sep, 1)[0]
+    return where
+
+
+def cap_findings(findings, limit: int | None = None) -> list:
+    """*findings* with at most *limit* (MAX_FINDINGS_PER_FILE) per file, in order, and for each file past the limit
+    one final finding saying how many more were suppressed."""
+    limit = MAX_FINDINGS_PER_FILE if limit is None else limit
+    shown, counts, extra = [], {}, {}
     for f in findings:
+        key = finding_file(f)
+        counts[key] = counts.get(key, 0) + 1
+        if counts[key] <= limit:
+            shown.append(f)
+        else:
+            extra[key] = extra.get(key, 0) + 1
+    for key, more in extra.items():
+        shown.append(Finding("findings-suppressed", key, f"{more} more finding(s) for this file not shown (at most "
+                             f"{limit} per file); the run fails all the same"))
+    return shown
+
+
+def print_findings(findings, stream=None) -> None:
+    """Print each finding on one escaped line, at most MAX_FINDINGS_PER_FILE per file (see :func:`cap_findings`)."""
+    stream = stream or sys.stdout
+    for f in cap_findings(list(findings)):
         print(safe(f.line()), file=stream)
 
 
