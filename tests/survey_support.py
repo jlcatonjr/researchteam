@@ -81,8 +81,8 @@ def load_spec(root: Path) -> dict:
 
 def edit_spec(root: Path, mutate) -> None:
     spec = load_spec(root)
-    result = mutate(spec)
-    spec_path(root).write_text(json.dumps(result if result is not None else spec, indent=2) + "\n")
+    mutate(spec)  # edits in place; its return value is ignored
+    spec_path(root).write_text(json.dumps(spec, indent=2) + "\n")
 
 
 def run(module, *args) -> tuple:

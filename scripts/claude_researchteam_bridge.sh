@@ -61,6 +61,16 @@ Commands:
   term-core-check
                 Check the pinned agentteams term-index core (scripts/term-index-core/) against its
                 manifest, offline. term-build, term-check and term-query run this check themselves.
+  survey-validate <project>
+                Check a position survey's specification (Projects/<project>/study.json), its
+                ledger folder and its gates' manifest files. Writes nothing. See docs/survey-toolkit.md.
+  survey-status <project>
+                Print each survey gate's manifest hash, state, enforce and mode. Exits 0 whatever
+                the states; 1 only when the specification, a manifest or the ledger is malformed.
+                No signature is verified yet: a gate reads UNCLEARED or UNAVAILABLE, never CLEARED.
+  survey-manifest <project> <gate>
+                Write the gate's manifest file into the ledger folder and print what the operator
+                signs. Signs nothing and writes no ledger row.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -223,6 +233,20 @@ command_term() {
   python3 -B "$script" "$@"
 }
 
+# Survey toolkit (docs/survey-toolkit.md). The tools are synced only to scholarly-profile repositories, and this
+# bridge goes to every repository; a repository synced by an older researchteam has no scripts/survey/. $1 is the
+# command's script; the rest are passed to it. -I: the scripts put their own folder on sys.path themselves.
+command_survey() {
+  local script="scripts/survey/$1"; shift
+  if [[ ! -d "scripts/survey" || -L "scripts/survey" || ! -f "$script" ]]; then
+    echo "Survey tools not found at $script: this repository has no scripts/survey/ (it was synced by a" >&2
+    echo "researchteam without the survey toolkit, or is not a scholarly-profile repository). Upgrade researchteam," >&2
+    echo "then run researchteam update." >&2
+    exit 1
+  fi
+  python3 -B -I "$script" "$@"
+}
+
 command_code_query() {
   # Surface #2 (code index) — thin convenience over `agentteams --query-code`. NAVIGATION ONLY:
   # a hit is a candidate to open, never evidence and never a claim/link anchor. See
@@ -308,6 +332,18 @@ case "$cmd" in
   term-core-check)
     shift
     command_term scripts/check_term_core.py "$@"
+    ;;
+  survey-validate)
+    shift
+    command_survey survey_validate.py "$@"
+    ;;
+  survey-status)
+    shift
+    command_survey survey_status.py "$@"
+    ;;
+  survey-manifest)
+    shift
+    command_survey survey_manifest.py "$@"
     ;;
   code-query)
     shift
