@@ -313,7 +313,9 @@ def _check_parent(study, folder: Path, privilege, led: Ledger, where: str) -> Pa
         rules = {f.rule for f in errors}
         if "path-absolute" in rules:
             unavailable("is absolute")
-        elif rules & {"path-dotdot", "path-outside"}:
+        elif "path-dotdot" in rules:
+            unavailable("has a '..' segment, which is not followed")
+        elif "path-outside" in rules:
             unavailable("leaves the repository")
         else:
             malformed("is not a usable path: " + "; ".join(f.message for f in errors))

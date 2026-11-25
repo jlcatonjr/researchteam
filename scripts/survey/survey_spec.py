@@ -656,14 +656,15 @@ def load_study(project: str, repo_root: Path) -> Study:
     root_real = os.path.realpath(repo_root)
     if not os.path.lexists(spec_path):
         raise SurveyUsageError(f"no specification at {spec_rel}")
-    if not inside(os.path.realpath(spec_path), root_real):
+    spec_real = os.path.realpath(spec_path)  # computed once: the check and the read use the same place
+    if not inside(spec_real, root_real):
         study = Study(project, repo_root, spec_rel, b"", None)
         study.findings.append(Finding("path-outside", spec_rel, "the specification resolves outside the repository"))
         return study
-    if not spec_path.is_file():
+    if not os.path.isfile(spec_real):
         raise SurveyUsageError(f"{spec_rel} is not a file")
     try:
-        data = read_capped(Path(os.path.realpath(spec_path)), MAX_JSON_BYTES)  # links inside the repository are allowed
+        data = read_capped(Path(spec_real), MAX_JSON_BYTES)  # links inside the repository are allowed
     except OSError as exc:
         raise SurveyUsageError(f"{spec_rel} cannot be read: {exc}") from exc
     study = Study(project, repo_root, spec_rel, data or b"", None)
