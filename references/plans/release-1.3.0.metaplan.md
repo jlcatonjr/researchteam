@@ -357,3 +357,13 @@ second pass.
 - **With the operator:** script 30 (move `release/1.3` forward to `570724f` and sign `v1.3.0`; the go, D8). Its
   read-only refusals were rehearsed on the merge commit and all hold. After it: the read-back, the message to the
   release coordinator, the resume of the autosync (script 28), the archive branches and the close-out audit.
+
+## Update, 2026-11-25: `v1.3.0` is released
+
+- **The operator ran script 30 (the go, D8).** `v1.3.0` is tag object `68d0dcd826ce7a8da5aa7a44ee217bfb07299cf3`,
+  peeling to `570724f5792412c2427763b4c6b102e33a9493e9`; `release/1.3` and `main` are at that commit. Read back by
+  the session from the remote: the signature is good and by the release key, GitHub reports the tag verified, and
+  the GitHub release is final and Latest. The script refused nothing and reported the same one older pending
+  condition as at the candidate. The tag details were sent to the release coordinator.
+- **Left:** the operator resumes the autosync (script 28, `resume`); the soak and rehearsal branches go to
+  `archive/`; the work summary and the close-out audit; this plans branch (PR #237) is merged as the record.
