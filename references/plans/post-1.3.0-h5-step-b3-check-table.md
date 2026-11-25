@@ -17,7 +17,8 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
 | (proposal 1) | Where a batch is: a path argument, relative to the study's folder or `repo:`-rooted (rule 1.6), that lies inside the study's folder, with no symbolic link on any component, and is a regular file other than the evidence file, read at its repository-relative path through the capped no-follow reader (no FIFO) | `batch-place` (toolkit), the path ids | `test_where_a_batch_may_not_come_from[...]` (seven cases), `test_a_batch_linked_outside_the_repository_refuses`, `test_a_batch_that_is_a_fifo_is_not_opened`, `test_a_batch_reached_through_a_link_inside_the_study_is_refused` |
 | section 4 (proposal 9) | The evidence file and the batch are strict CSV: an unterminated quote (with or without a final line feed) or text after a closing quote is a finding, in the shared row reader and so everywhere | `columns` | `test_an_evidence_file_ending_in_an_unclosed_quote_is_refused[...]` |
 | 1.2 | The merged file reads back, cell for cell, as the file's own rows followed by exactly the batch's rows, or the merge is refused (a crafted batch cannot change the meaning of an existing row) | — | `test_a_batch_crafted_to_close_an_open_quote_is_refused`, `test_a_normal_merge_is_still_the_file_followed_by_the_batch` |
-| (proposal 8) | A batch cell holding a control, format or line-separator character (Unicode category C, or a line or paragraph separator) is refused; rows already in the file are not judged again | `batch-control` (toolkit) | `test_a_batch_cell_with_a_control_character_is_refused[...]`, `test_an_existing_row_with_a_line_break_is_not_rejudged` |
+| 4.1, 323; 4, 275; 5.3, 755; 1.10 | A batch is judged by the file's rules: a TAB, a LF or a CR LF inside a free-text cell (a quotation, a note, a citation) is accepted, as it is in the file, and the merged file is the old bytes followed by the batch rows as the CSV writer quotes them | — | `test_a_batch_with_a_line_break_or_tab_in_a_text_cell_merges[...]`, `test_an_existing_row_with_a_line_break_is_not_rejudged` |
+| (proposal 8) | Refused in a batch cell: in an identifier column (`id`, `person_id`, `unit_id`, `source_id`, `attribute_kind`, `tier`, `basis`, `locator`, `url`) any control, format or line-separator character, white space included; in every column a lone CR, and Cc (other than TAB, LF, CR LF in text), Cf, Zl and Zp. Not Co (private use) or Cn (unassigned). The same set as the registry's values (`survey_core.UNSAFE_CATEGORIES`) | `batch-control` (toolkit) | `test_a_batch_cell_with_a_character_it_may_not_hold_is_refused[...]` (eight cases), `test_a_private_use_character_is_accepted`, `test_the_registry_and_the_batch_share_one_set_of_unsafe_characters` |
 | (proposal 2) | An empty batch merges nothing and is refused | `batch-empty` (toolkit) | `test_a_malformed_or_empty_batch_refuses[empty]` |
 | section 4 (part 1) | A NUL in a batch cell | `cell-nul` | `test_a_malformed_or_empty_batch_refuses[nul]` |
 | 322-323 | "merged by the row tool … nothing is appended unless every row passes": the batch's rows are appended after the file's, in batch order; the file's own bytes are kept as they are ("appended"; existing rows never rewritten) | — | `test_a_batch_is_appended_and_the_registrys_record_renewed` |
@@ -36,7 +37,7 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
 | Line | What is checked or written | Id | Test |
 |---|---|---|---|
 | 517 | "It refuses unless the registry is built": the registry's record is there, by `survey-registry`, for this `schema_version`, and its inputs match (4.6, lines 566-567). In a `draft` study too: line 517 governs the merge over 4.6's general "in a `draft` study the mismatch is reported and the stage runs" (line 568) | — | `test_the_registry_must_be_built`, `test_a_stale_registry_refuses`, `test_the_draft_study_refuses_a_merge_while_the_registry_is_not_built` |
-| 518-521 | The registry on disk must also be byte for byte what the build gives: a registry edited by hand whose rows parse the same (line endings, quoting) is refused, naming `survey-registry` as the remedy | — | `test_a_registry_with_the_same_rows_but_other_bytes_is_refused` |
+| (proposal 14, a tightening) | The registry on disk must also be byte for byte what the build gives (lines 518-521 speak of rows): a registry edited by hand whose rows parse the same (line endings, quoting) is refused, naming `survey-registry` as the remedy, so that `survey-registry` afterwards reports "unchanged" (the record cannot see the registry's bytes, 4.6 line 565) | — | `test_a_registry_with_the_same_rows_but_other_bytes_is_refused` |
 | 517-521 | "Before writing anything it works out the merged evidence file and the registry that a build over it would give. If that registry's rows differ from the present ones … it stops, writes nothing, and says that the registry must be built first": the build of part 2a (`plan_registry`), run over the merged file in memory, compared row by row with the registry on disk | — | `test_a_batch_with_a_new_person_refuses`, `test_a_hand_edited_registry_is_found` |
 | 4.6, 565 (residual of part 2a) | A registry edited by hand, which its record cannot see (it holds no hash of the registry), is found by that comparison | — | `test_a_hand_edited_registry_is_found` |
 | 521-523 | "Otherwise it writes the evidence file and then the registry's new provenance record, last": the renewed record is the record a fresh build over the merged file writes, so `survey-registry` afterwards changes nothing | — | `test_a_batch_is_appended_and_the_registrys_record_renewed` |
@@ -56,7 +57,7 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
 | 363 | Only in a legacy study | — | `test_a_first_exceptions_file_is_for_a_legacy_study` |
 | 357-358 | A breach of `columns`, `id-empty` or `id-duplicate` cannot be listed, so no draft is written while one stands | the rule's id | `test_no_first_exceptions_file_while_an_unlistable_breach_stands` |
 | 313-315 | "None of them is skipped because an optional declaration or file is absent … a missing registry is itself an error": no draft without a registry (`person-unknown` could not be judged) | `registry-missing` | `test_no_exceptions_draft_without_a_registry` |
-| (proposal 11) | No draft while a breach's id holds a control, format or line-separator character: a printed draft (escaped) could not name it exactly; the row is named | `exceptions-draft` (toolkit) | `test_no_exceptions_draft_for_an_id_with_a_control_character` |
+| (proposal 11) | No draft while the id of a row with a breach to list holds a control, format or line-separator character: a printed draft (escaped) could not name it exactly; the row is named. A row without a breach is not judged | `exceptions-draft` (toolkit) | `test_no_exceptions_draft_for_an_id_with_a_control_character`, `test_an_id_with_a_control_character_in_a_row_without_a_breach_does_not_stop_the_draft` |
 
 ## Command and bridge (section 7, line 929)
 
@@ -111,13 +112,27 @@ gate; 4.5 (post-steps) does not concern it. So no `require_gate` call.
 6. *(Moved to "Decided by the text": the merge refuses in a draft too, by 4.4 line 517.)*
 7. **The first exceptions draft is printed, not written**: the text names no place for it, and the exceptions file is
    covered by a gate, so the person saves it, declares it as `evidence.legacy_exceptions` and covers it.
-8. **Control characters in batch cells** are refused (`batch-control`); rows already in the file are not judged.
-9. **Strict CSV**: the shared row reader rejects an unterminated quote and text after a closing quote everywhere.
-   This changed no verdict on the invented study or any existing test.
+8. **Characters a batch cell may not hold** (`batch-control`). Line breaks and TABs in non-identifier cells are
+   accepted, because the contract accepts them: a batch is judged by the file's rules (4.1, line 323), a row file is
+   "CSV, UTF-8" (section 4, line 275), a quotation is reported "as it stands" (5.3, line 755), and folding makes each
+   run of white space one space (rule 1.10). Refused: in an identifier column (`id`, `person_id`, `unit_id`,
+   `source_id`, `attribute_kind`, `tier`, `basis`, `locator`, `url`, the values compared exactly or matched as a
+   whole) any control, format or line-separator character, white space included; in every column a lone CR, and Cc
+   (bar TAB, LF and CR LF in text), Cf, Zl and Zp. Private use (Co) and unassigned (Cn) are not refused: Co is used in
+   scholarly transcriptions, and Cn changes with the running Python's Unicode data (rule 1.5). Rows already in the
+   file are not judged again. A note, not a rule: anything that reads the evidence file line by line must use a CSV
+   reader, since a cell may span lines.
+9. **Strict CSV** (reading section 4, line 275, "CSV, UTF-8"): the shared row reader rejects only what standard CSV
+   does not allow, an unterminated quote and text after a closing quote, everywhere. This changed no verdict on the
+   invented study or any existing test.
 10. **Two runs at once**: the files a merge read are read again just before the first replace, and the merge is
     refused if any changed.
-11. **No exceptions draft for an id with a control character.**
+11. **No exceptions draft while a row with a breach to list has an id with a control character** (a row without a
+    breach is not judged).
 12. **`--draft-exceptions` is an option of `survey-rows`**: section 7 (line 929) does not list it; 4.1 (line 364)
     says only "the tool".
 13. **The output lines** (`merged:`, `evidence:`, `renewed:`, `REFUSED:`, `REPORTED`) and **the size cap** of the
     merged file (`MAX_CSV_BYTES`, 64 MiB) are the toolkit's own.
+14. **A tightening of 4.4 lines 518-521: the registry's bytes, not only its rows**, must be what a build gives, so
+    that `survey-registry` afterwards reports "unchanged" (4.6, line 565: the record cannot see the registry's
+    bytes).
