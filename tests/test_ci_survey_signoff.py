@@ -51,4 +51,22 @@ def test_a_skipped_signoff_test_fails_the_job():
     text = WORKFLOW.read_text(encoding="utf-8")
     job = text[text.index("  survey-signoff:"):]
     assert "tests/test_survey_verify.py tests/test_survey_gates.py" in job
-    assert "skipped" in job and "exit 1" in job
+    assert "grep -E '^SKIPPED'" in job and "exit 1" in job
+    # exactly one skip reason is allowed, and it is one the two test files really use
+    allowed = re.findall(r"grep -vF '(: [^']+)'", job)
+    assert allowed == [": this file system is case-sensitive"]
+    reasons = set()
+    for name in ("test_survey_verify.py", "test_survey_gates.py"):
+        reasons |= set(re.findall(r'pytest\.skip\("([^"]+)"\)', (ROOT / "tests" / name).read_text(encoding="utf-8")))
+    assert "this file system is case-sensitive" in reasons
+
+
+def test_the_job_is_read_only_like_the_tests_job():
+    text = WORKFLOW.read_text(encoding="utf-8")
+    cut = text.index("  survey-signoff:")
+    tests_job, job = text[:cut], text[cut:]
+    assert "persist-credentials: false" in job
+    pinned = re.findall(r"uses: (\S+@[0-9a-f]{40})", job)
+    assert pinned and set(pinned) <= set(re.findall(r"uses: (\S+@[0-9a-f]{40})", tests_job))
+    assert "${{" not in job
+    assert "pull_request_target" not in text

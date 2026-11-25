@@ -109,13 +109,18 @@ jobs:
           python -m pip check
           python -I -c 'import agentteams, cryptography; print("agentteams", agentteams.__version__, "cryptography", cryptography.__version__)'
 
-      # Fail when a test is skipped: here a skip would mean the CLEARED path did not run after all.
-      - name: Run the sign-off tests; none may be skipped
+      # Fail when a test is skipped for want of agentteams: here that would mean the CLEARED path did not run
+      # after all. One skip reason is allowed, word for word: two tests need a case-insensitive file system,
+      # which a Linux runner does not have. pytest's -rs summary prints one "SKIPPED [n] file:line: reason"
+      # line per skip reason; every such line must carry the allowed reason.
+      - name: Run the sign-off tests; none may be skipped for want of agentteams
+        shell: bash
         env:
           PYTHONPATH: .
         run: |
           python -m pytest -q -rs tests/test_survey_verify.py tests/test_survey_gates.py | tee "$RUNNER_TEMP/signoff.txt"
           test "${PIPESTATUS[0]}" -eq 0
-          if grep -Eq '(^SKIPPED| skipped)' "$RUNNER_TEMP/signoff.txt"; then
-            echo "a sign-off test was skipped" >&2; exit 1
+          if grep -E '^SKIPPED' "$RUNNER_TEMP/signoff.txt" | grep -vF ': this file system is case-sensitive'; then
+            echo "a sign-off test was skipped for a reason other than the file system's case" >&2; exit 1
           fi
+          grep -Eq '^[0-9]+ passed' "$RUNNER_TEMP/signoff.txt" || { echo "no test passed" >&2; exit 1; }

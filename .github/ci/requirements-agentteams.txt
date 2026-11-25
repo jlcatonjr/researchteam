@@ -6,7 +6,8 @@
 # setuptools 84.2.1, the one build requirement agentteams 1.3.0 pins.
 # S-10 record for this file (2026-11-25, PyPI's own data): every version was released at least 14 days before
 # (the newest, pycparser 3.12, on 2026-10-22; setuptools 84.2.1 on 2026-10-20); none is yanked; PyPI lists no
-# advisory for any of them. The hashes are PyPI's sha256 for every file of each version. Re-vet before changing
+# advisory for any of them, and an OSV batch query for the ten exact versions (PyPI ecosystem) returned no
+# advisory and no MAL- entry. The hashes are PyPI's sha256 for every file of each version. Re-vet before changing
 # a pin, and keep the versions equal to the constraints file (tests/test_ci_survey_signoff.py checks that).
 
 setuptools==84.2.1 \
