@@ -305,3 +305,19 @@ session gave `@security`: that the install in use was built by the October scrip
   their checks with the 1.2.1 install; that fact stands as recorded.
 - **Lesson for the session:** a claim about how something outside this repository was built is checked against
   the thing itself before it is given to a reviewer or to the operator.
+
+## The root-owned agentteams 1.3.0 install exists (2026-11-25)
+
+- The managing repository's session built it by its own reviewed procedure (its script and clearance are in that
+  repository's records) and the operator ran it. Where it is installed is not recorded here (PS-1).
+- Checked by this session, read-only: the install and its interpreter are root-owned; nothing under it is owned
+  by anyone else or writable by others; it is built on the root-owned framework Python; under an empty
+  environment with `-I -P` it reports agentteams 1.3.0 and cryptography 50.0.2, imports the four modules script
+  31 uses, and imports agentteams from inside the install.
+- The operator's copy of script 31 now names it. It differs from the tracked copy (sha256 `f3633962…`) in that
+  one line only, checked by diff.
+- Rehearsed with that interpreter, under an empty environment, in a scratch export of the reviewed head
+  `0341dd4`: the check passes and the change gives the expected entry (`…@dc79fe00692848c4`, key `opr-2026-11`,
+  expiry unchanged), with the binding verifying also without the old key.
+- At hand-over: the worktree is clean at `0341dd4`; the registry there has the hash the clearance names; no
+  autosync pull request is open; the autosync is enabled and is paused by the operator first (condition C4).
