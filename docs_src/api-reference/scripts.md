@@ -277,7 +277,7 @@ them with `python3 -B -I`.
 | `survey_validate.py`, `survey_status.py`, `survey_manifest.py` | The three commands |
 | `survey_tables.py` | Step B. The shared CSV reader of section 4, the bucket-table checks and bucketer (4.8), and the year and period rule |
 | `survey_attribution.py` | Step B. The attribution file's checks (4.3) |
-| `survey_provenance.py` | Step B part 2. The provenance record of 4.6 (`make_record`, `gate_entries`, `check_record_shape`, `check_current`) and the one way outputs are written (`write_atomic`: no link on the way, a temporary file in the same folder, mode 0644, `os.replace`) |
+| `survey_provenance.py` | Step B part 2. The provenance record of 4.6 (`make_record`, `gate_entries`, `check_record_shape`, `check_current`, which also treats a recorded-absent input that is now there as stale), where an output may go (`check_output_target`: not under `.git`, `.github` or a team location, not a declared or covered file, not in the ledger folder) and the one way outputs are written (`write_all`: every target checked, temporary files in the same folders, mode 0644, every target checked again, then `os.replace` in order) |
 | `survey_identity.py` | Step B part 2. The project's persons, the overrides file's checks (4.4), the registry's rows, stop words and candidates |
 | `survey_registry.py` | Step B part 2. The `survey-registry` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
@@ -286,9 +286,9 @@ them with `python3 -B -I`.
 
 `survey-registry <project>` builds `identity.registry` from the persons of the evidence file and, in a passage or
 work study, the attribution file (4.4), applying the overrides file: a `link` sets `identity_id`, a `merge` folds the
-alias into its target's row (`merged_from`, `;`-separated). It removes the old provenance record, writes the
-registry, then writes the new record (`<registry>.provenance.json`, canonical JSON of 4.6's fields), so a run
-interrupted anywhere leaves the registry not built. Without a vantage module the identity source is the project's own
+alias into its target's row (`merged_from`, `;`-separated; the registry holds those ids too). It writes the
+registry, then its record (`<registry>.provenance.json`, canonical JSON of 4.6's fields), last; no state an
+interruption leaves reads as built wrongly. Without a vantage module the identity source is the project's own
 persons (5.2), so every override target is a project person and `display_name` is the `person_id`. Override errors:
 `overrides-columns`, `overrides-empty`, `overrides-decision`, `overrides-alias`, `overrides-target`,
 `overrides-self`, `overrides-repeat`, `overrides-second`, `overrides-conflict`, `overrides-chain`,

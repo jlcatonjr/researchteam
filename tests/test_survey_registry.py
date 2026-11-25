@@ -392,6 +392,7 @@ def test_the_registry_may_not_be_written_over_a_protected_file(tmp_path, target)
     before = tree(root)
     code, out, _ = _build(root)
     assert code == 1 and "nothing was written" in out
+    assert any(why in out for why in ("which the specification names", "no output goes there"))
     assert tree(root) == before
 
 

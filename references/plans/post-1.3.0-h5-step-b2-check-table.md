@@ -23,9 +23,11 @@ another." A vantage module's `identities()` is project code; this version does n
 | 553-558 | The record has exactly `output, tool, study, schema_version, inputs, gates, plugins, legacy_exceptions`, with their types; `gates` entries `{state, mode, enforce, manifest_sha256?}`; `inputs` entries `{path, sha256}`; `plugins` entries `{file, attr, version, sha256}` | `provenance-malformed` (toolkit) | `test_the_record_is_4_6s_shape`, `test_a_malformed_record_is_refused[...]` (six cases) |
 | 561-562 | A non-JSON output's record is beside it, named as the output with `.provenance.json` added, written in the same run | — | `test_the_record_name_is_the_output_plus_provenance_json`, `test_the_registry_is_built_from_the_rows` |
 | 563-564 | `inputs` lists the files the tool actually read, the specification among them, each as it was read: the SHA-256 of the very bytes parsed (`read_rows_hashed` reads once) | — | `test_the_record_is_4_6s_shape` |
+| (proposal 9, a change against 563) | A declared input that was absent at build is listed too, with `"sha256": ""`; its appearing later makes the output not built | — | `test_a_declared_input_absent_at_build_is_recorded_and_its_appearing_makes_the_output_stale` |
 | 565 | The record holds no hash of its output | — | `test_the_record_is_4_6s_shape` |
 | 566-567 | An output whose record is missing, or whose `inputs` or `plugins` no longer match the files, is not built | `check_current` | `test_an_input_that_changes_leaves_the_registry_not_built`, `test_a_malformed_record_file_is_not_built`, `test_a_recorded_plugin_that_changes_is_not_built` |
-| 569-571 | `gates`: each gate the stage depends on, its state as `gate_status` gives it; a gate not declared is `NOT DECLARED`; `plugins` each plug-in loaded; `legacy_exceptions` the number the evidence was read with, 0 when none | `gate_entries` | `test_gate_entries_record_each_state_as_gate_status_gives_it`, `test_the_record_is_4_6s_shape` |
+| 569-571 | `gates`: each gate the stage depends on, with its state, mode and enforce as `gate_status` gives them; a gate not declared is `NOT DECLARED`; `plugins` each plug-in loaded | `gate_entries` | `test_gate_entries_record_each_state_as_gate_status_gives_it`, `test_the_gate_mode_is_carried_into_the_record`, `test_the_record_is_4_6s_shape` |
+| 4.1, 366; 4.6, 571 | `legacy_exceptions`: the registry rests on the evidence file, so it records how many exceptions that file is read with (the exceptions file's lines), and lists the exceptions file among its inputs; a malformed exceptions file refuses the build | — | `test_the_record_counts_the_exceptions_the_evidence_is_read_with` |
 | 572 | Canonical JSON, no date | — | `test_the_record_is_4_6s_shape`, `test_the_build_is_deterministic` |
 | 573 | Nothing is added to a CSV's own columns | — | `test_the_registry_is_built_from_the_rows` (the registry has its four columns) |
 
@@ -44,7 +46,9 @@ another." A vantage module's `identities()` is project code; this version does n
 | 503-504 | The same pair and decision given twice; a pair is the same whichever id is written first | `overrides-repeat` | `[overrides-repeat]` |
 | 504-505 | The decision is always written, never read off which side `target_id` belongs to | — (the `decision` cell decides; nothing else is read) | every case above |
 | 505-506 | "The registry links and merges only from this file"; a candidate is decided only when a row names that pair | — | `test_a_merge_folds_the_alias_into_the_target`, `test_a_link_records_the_identity`, `test_a_candidate_named_by_an_override_is_decided` |
-| (proposal 1) | An `alias_id` that is not a project person | `overrides-alias` | `[overrides-alias]` |
+| 496 | A `link` row's alias is "the project's person": an alias that is not a project person is refused | `overrides-alias` | `[overrides-alias]` |
+| (proposal 1) | A `distinct` row's alias must be a project person (the text is silent for `distinct`) | `overrides-alias` | `test_a_distinct_row_names_project_persons_on_both_sides` |
+| 497 (proposal 4) | A `merge` row's alias may be absent from the rows (its rows rewritten to the target): the merge, recorded in the overrides file, stays valid | — | `test_a_merge_stays_valid_after_the_aliass_rows_are_rewritten` |
 | (proposal 2) | A merge whose target is itself merged; a link to a merged person | `overrides-chain` | `[overrides-chain]`, `test_more_overrides_breaches[...]` (link to a merged person) |
 | (proposal 3) | Two persons linked to one identity | `overrides-shared-identity` | `[overrides-shared-identity]` |
 | 7, 925 | `survey-validate` checks the overrides file, a row file of 4.4 | the ids above | `test_each_overrides_check_refuses_and_writes_nothing[...]` (second half) |
@@ -57,13 +61,14 @@ another." A vantage module's `identities()` is project code; this version does n
 | 507 | Columns `person_id, display_name, identity_id, merged_from`; written by the registry tool | — | `test_the_registry_is_built_from_the_rows` |
 | 509-511 | Persons from the evidence file and, in a passage or work study, the attribution file; a study can build before its first evidence row | — | `test_persons_come_from_the_attribution_file_before_any_evidence` |
 | 511-512 | The attribution file is one of the registry's recorded inputs | — | `test_the_record_is_4_6s_shape` |
-| 513-514 | `display_name`: the linked identity's name; a name the evidence reader supplies (a plugin format; not loaded); the `person_id` itself. Without a vantage module the identities carry no name but their id, so it is the `person_id` | — | `test_the_registry_is_built_from_the_rows` |
+| 513-514 | `display_name`: the linked identity's name; a name the evidence reader supplies (a plugin format; not loaded); the `person_id` itself. Without a vantage module the identity is a project person whose only name is its id: a person linked to another shows the other's id (proposal 13) | — | `test_the_registry_is_built_from_the_rows`, `test_a_link_to_another_person_shows_that_persons_name` |
 | 507-508 | `identity_id` is the id in the identity source: the `link` row's target | — | `test_a_link_records_the_identity` |
-| 497 | A `merge` makes two ids one person: the alias's row is folded into the target's, listed in `merged_from` (proposal 4 on the separator and on rows of the alias) | — | `test_a_merge_folds_the_alias_into_the_target`, `test_a_distinct_row_changes_no_registry_row` |
-| 521-523 | The record is written last, so an interrupted run leaves the registry not built and never wrongly current; because the record holds no hash of the registry (565), the old record is removed first | — | `test_an_interruption_before_the_record_leaves_the_registry_not_built`, `test_an_interrupted_registry_write_leaves_the_old_file` |
+| 497; 4.1, 308 | A `merge` makes two ids one person: the alias's row is folded into the target's and listed in `merged_from`; the registry holds both ids, so an evidence row may still carry the alias and pass `person-unknown` | — | `test_a_merge_folds_the_alias_into_the_target`, `test_evidence_may_carry_a_merged_alias`, `test_a_distinct_row_changes_no_registry_row` |
+| 521-523; 566-567 | The registry first, its record last. Interrupted between them: if no input changed, the new registry is the old one byte for byte and the old record is still true; if an input changed, appeared or went, the old record no longer matches and the registry reads as not built. Both targets are checked again after the temporary files are written and before either replace, so a refused write changes nothing | — | `test_an_interruption_before_the_record_leaves_the_registry_not_built`, `test_an_interrupted_registry_write_leaves_the_old_file`, `test_a_write_refused_at_either_last_check_changes_nothing[...]`, `test_an_os_error_while_writing_is_a_refusal` |
 | 1.2 | Fail closed: any finding refuses and nothing is written | — | `test_each_overrides_check_refuses_and_writes_nothing[...]`, `test_a_malformed_source_file_refuses` |
 | 1.5 | Deterministic: rows in code-point order of `person_id`, LF, the same bytes in two repositories; a second build changes nothing | — | `test_the_build_is_deterministic` |
 | 1.6; plan | Written as survey-manifest writes: no link on the way (checked again just before writing), a regular file or nothing there, a temporary file in the same folder, mode 0644, `os.replace` | — | `test_a_link_on_the_way_to_the_registry_refuses`, `test_a_registry_path_that_is_a_directory_refuses`, `test_outputs_are_mode_0644` |
+| 1.2, 1.3 (proposal 14) | An output target (the registry and its record; every later writer through `check_output_target`) is never at or under `.git`, `.github` or a generated team location (case-folded and by device and inode), never the specification or any declared path or covered file (by device and inode, and case-folded path), never in the ledger folder | — | `test_the_registry_may_not_be_written_over_a_protected_file[...]` (eleven cases), `test_a_declared_path_equal_to_the_records_name_is_refused` |
 
 ## Candidates (4.4, lines 524-530; 5.2, lines 733-734)
 
@@ -74,7 +79,8 @@ another." A vantage module's `identities()` is project code; this version does n
 | 526-527 | A candidate is never a link, whatever its kind; nothing is written | — | `test_candidates_are_listed_and_never_applied` |
 | 529-530 | Stop words: one per line; words left out when names are compared; without the file, no word is left out | `stop-words-file` (toolkit, unreadable file) | `test_stop_words_leave_words_out`, `test_candidates_are_listed_and_never_applied` (empty file) |
 | 506 | A candidate is decided when an override row names the pair | — | `test_a_candidate_named_by_an_override_is_decided` |
-| (proposal 5) | A "token" is a run of word characters (`\w+`) of the folded name; the names are the `person_id`s | — | `test_candidates_are_listed_and_never_applied` |
+| (proposal 5) | A word is a run of letters and digits of the folded name (`_`, `-` and white space separate words); the names are the `person_id`s | — | `test_candidates_are_listed_and_never_applied`, `test_underscores_separate_words` |
+| (proposal 15) | Persons are indexed by folded name and by word, so only persons sharing one are compared; at most `MAX_CANDIDATES` (1000) are shown, in the fixed order, and the rest counted up to `MAX_COUNTED` (100000) | — | `test_candidates_scale_and_are_capped` |
 
 ## Command and bridge (section 7, line 928)
 
@@ -89,7 +95,7 @@ another." A vantage module's `identities()` is project code; this version does n
 |---|---|---|
 | (a) | `BC` also read in the forms `B.C`, `B.C.E`, `B. C.`, `B C` | `test_more_bc_spellings_are_negative[...]` |
 | (b) | A century range (`4th-5th centuries`) reads both centuries: the first for `work_date`, the largest for `life_dates` (proposal 14 of part 1, now in proposal 7 here) | `test_a_century_range_reads_both_centuries` |
-| (c) | A run grouped with `,` or `.` (`1,750`, `1.750`, `1750.5`) is part of a longer number and not read (proposal 8) | `test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number[...]` |
+| (c) | Only a number grouped by thousands (`1,750`, `1.750`, `12,750`, `1,234,567`) is part of a longer number; `12.03.1750` reads 1750, `1742,1790` reads 1742 / 1790, `1750.5` reads 1750 (proposal 8) | `test_a_run_grouped_with_a_comma_or_dot_is_part_of_a_longer_number[...]`, `test_a_comma_list_of_years_gives_the_first_and_the_largest` |
 | (d) | `q()` cuts the text of any value, not only a string | `test_long_lists_in_messages_are_cut_too` |
 | (e) | The part 1 table's `locator-missing` row cites line 276 | — |
 | (f) | Step A's messages quote file content through `q()` | `test_step_a_messages_cut_a_long_declared_path` |
@@ -111,25 +117,39 @@ another." A vantage module's `identities()` is project code; this version does n
 
 ## Proposed contract changes
 
-1. **An override whose `alias_id` is not a person of the project**: refused (`overrides-alias`). Line 496 says the
-   alias is "the project's person" for `link`; the text does not say what happens otherwise.
+1. **A `distinct` row's alias** must be a person of the project (`overrides-alias`). For `link` (line 496, "the
+   project's person") and `merge` (line 497, "two of the project's ids") the text decides; for `distinct` it is silent.
 2. **Chains**: a merge whose target is itself merged, or a link to a merged person, is refused (`overrides-chain`).
 3. **Two persons linked to one identity** are refused (`overrides-shared-identity`): they would be one person, which
    is a merge.
-4. **`merged_from`** is `;`-separated and sorted (the contract names no separator); the merged alias has no row of
-   its own, so evidence rows that still carry the alias's id fail `person-unknown` until they are rewritten.
-5. **Tokens for `similar`**: runs of word characters of the folded name, stop words removed; the names compared are
-   the `person_id`s, the only names the project's own rows carry.
+4. **Merged ids in the registry**: `merged_from` is `;`-separated and sorted, and every id in it is held by the
+   registry, resolving to the row's person, so an evidence row may still carry a merged alias (4.1, line 308). A merge
+   row stays valid after the alias's rows are rewritten to the target, as long as the overrides file records it: line
+   497 does not say whether the alias must still occur in the rows.
+5. **Words for `similar`**: runs of letters and digits of the folded name (`_`, `-` and white space separate words),
+   stop words removed; the names compared are the `person_id`s, the only names the project's own rows carry.
 6. **The command line**: `survey-registry <project>` builds; `--candidates` lists and writes nothing.
 7. **A century range** (`4th-5th centuries`) states two centuries: the first for `work_date`, the largest for
    `life_dates` (extends part 1's proposal 14).
-8. **A grouped number** (`1,750`, `1.750`, `1750.5`, `1742,1790`) is "part of a longer number" and is not read.
-9. **A recorded input that was absent**: 4.6 lists only "the files the tool actually read", so a file that was
-   absent at build (for example a new overrides file) is not compared, and the registry still reads as built after
-   it appears. The batch merge recomputes the registry and would catch it (4.4, lines 517-521); `check_current` alone
-   cannot. Propose: a record also lists declared inputs that were absent.
+8. **A number grouped by thousands** (a one-to-three-digit lead, `,` or `.`, a group of exactly three digits:
+   `1,750`, `1.750`) is "part of a longer number" and is not read; any other separator leaves each run its own number.
+9. **A change against line 563**: a record lists every *declared* input, not only "the files the tool actually read";
+   one that was absent at build is listed with `"sha256": ""`, and its appearing later makes the output not built.
+   Reason: an input that appears after the build (a new overrides file, a first evidence file) changes what the build
+   would give, and without this the output would still read as built.
 10. **A gate that is not declared** has `mode` and `enforce` empty in the record (4.6 names only its state).
 11. **The registry's own CSV form**: cells quoted only where CSV needs it, LF, rows in code-point order of
     `person_id` (the contract fixes the form of the frame's files, not the registry's).
-12. **The evidence read for the registry is read with no exceptions** (`legacy_exceptions: 0`): the build applies no
-    row rule.
+12. *(Settled by 4.1, line 366: the registry records how many exceptions the evidence is read with.)*
+13. **A link to a different person without a vantage module** is a merge in all but name: the identity is a project
+    person, and the linked person shows its id. Propose: without a vantage module, a link names only the alias itself
+    (or is not allowed), and two persons who are one are written as a merge.
+14. **Where an output may be written** (`check_output_target`): never at or under `.git`, `.github` or a generated
+    team location; never the specification, a declared path or a covered file; never in the ledger folder.
+15. **The candidate listing is capped**: 1000 shown, the rest counted up to 100000.
+
+## Residual
+
+- **A hand-edited registry** cannot be told apart from a built one: the record carries no hash of its output (4.6,
+  line 565), so `check_current` cannot see a change to the registry itself. The batch merge (part 2b) recomputes the
+  registry and compares its rows before it writes, which catches it there.
