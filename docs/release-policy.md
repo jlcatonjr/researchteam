@@ -41,8 +41,13 @@ installed code, so the installs come before the lock.
 5. **`python3 scripts/check_toolchain.py --write-lock --tag researchteam=<tag> --tag agentteams=<tag>`.**
 6. **Both line moves are trust changes** and get the repository's own `@security` review.
 
-The order agentteams → researchteam → derived holds throughout. A move within a line (a patch release) keeps the
-`.tag=` lines and needs only steps 1 to 3 and 5. Each release's changelog section repeats what is specific to it.
+The order agentteams → researchteam → derived holds throughout.
+
+A move within a line (a patch release) is shorter and keeps the `.tag=` lines. A derived repository locks
+agentteams separately and may be on a later patch of it than the researchteam release pins, so it does not
+install the `update` extra here: verify the researchteam tag, install plain researchteam at the commit it peels
+to, run `researchteam update --ref <tag>`, then `--write-lock` with `--tag researchteam=<tag>` and
+`--tag agentteams=<the tag already locked>`. Each release's changelog section says what is specific to it.
 
 ### The 1.1 line
 - researchteam 1.1 pins agentteams 1.1. `release/1.1` is cut from `main` at `1.1.0rc1`, after the agentteams 1.1 pin
@@ -149,7 +154,8 @@ The order agentteams → researchteam → derived holds throughout. A move withi
 
 ## Autosync and Layer 2
 - The AgentTeams Autosync workflow (`.github/workflows/agentteams-sync.yml`) is enabled. It runs weekly and on
-  dispatch, and proposes a pin move as a pull request; it merges nothing.
+  dispatch, and proposes the agentteams update (regenerated team, lock and extras) as one evergreen pull
+  request; it merges nothing.
 - History: during the joint 1.0 cut the schedule was disabled (`gh workflow disable`) and soak syncs were
   operator-dispatched with `force=true`; under shared-policy draft 9 (operator ruling 2026-10-18) it stayed
   disabled until researchteam v1.0.1 was tagged and consumers pinned it. For the 1.3.0 cut the operator disabled
