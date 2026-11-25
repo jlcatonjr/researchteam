@@ -81,8 +81,9 @@ six questions; the code gets its own `@security` review.
 - The contract's HALT rule for the two family names has no public route in agentteams 1.3.0, and the private one
   binds too widely (one study's HALT would stop every study's gates).
 - A sign-off is bound to its manifest only through the signed action id, which carries the manifest's hash.
-- agentteams would clear things the contract forbids (a shared-secret row when its key is reachable, any matching
-  waiver, a consumed row with a copy appended), so the tools enforce those rules themselves.
+- agentteams' clearance check is looser than the contract in several respects, so the tools enforce the
+  contract's rules themselves and never rely on agentteams alone to refuse. The particulars are with agentteams
+  and are not recorded here.
 - The folder-log header in step A's test fixture lacks two columns agentteams requires; agentteams rejects such a
   log and will not sign into it. Step A never reports `CLEARED`, so nothing wrong was accepted; it is fixed in a
   small pull request before step F (branch `fix/survey-ledger-log-header`).
