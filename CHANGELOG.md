@@ -16,12 +16,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   scholarly profile.
   - **Nothing verifies a signature yet.** A gate reads `UNCLEARED` when its files changed since its manifest file
     was written (step A's stand-in for the `agentteams` sign-off request, which it does not read), and
-    `UNAVAILABLE` otherwise; it never reads `CLEARED`. A team directory reached through a symbolic link, or an
-    unusable `parent_team`, leaves the gates `UNAVAILABLE` without failing a command (6.2). No command of this step
+    `UNAVAILABLE` otherwise; it never reads `CLEARED`. A team directory reached through a symbolic link (or with a
+    link inside it), or a `parent_team` with one of the faults 6.2 lists, leaves the gates `UNAVAILABLE` without
+    failing a command; a `parent_team` value that is no path at all is a malformed ledger. No command of this step
     is a gated stage.
   - The manifest file is written beside the ledger's log, as `<ledger>/references/<study id>.<gate>.manifest.json`.
     A manifest carries each path as declared, so a path with a `.` or empty segment is refused. Two spellings of one
-    file are one file (by device and inode). Key and approver files are read only when they are regular files.
+    file are one file (by device and inode). Every capped read opens without following a link or blocking on a FIFO
+    and checks the open file is regular. The ledger's keys and approvers are compared with a team directory only when
+    it has both an approver and a verify key; one that lacks either "has neither" (6.2). A ledger inside `.git` or a
+    generated team location is refused, by case-folded name and by device and inode.
   - Not in this step: the row checks of section 4 (step B), sign-off verification and the HALT scan (step F), and
     the CI gate (step H). The check table, with the points where the contract is silent, is
     `references/plans/post-1.3.0-h5-step-a-check-table.md`.

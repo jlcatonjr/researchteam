@@ -304,8 +304,14 @@ ids of `SEMANTIC_RULES`. Ledger: `ledger-form`, `ledger-link`, `ledger-location`
 `ledger-approvers-empty`, `ledger-waiver`, `ledger-parity`. Manifest files: `manifest-malformed`.
 
 The specification and every JSON file are read only up to `MAX_JSON_BYTES` (16 MiB), the ledger's log up to
-`MAX_LOG_BYTES` (64 MiB); a larger file is refused unread. A key or approver file that is not a regular file (a
-link, FIFO or device), or a key store that is not a plain directory, is never read.
+`MAX_LOG_BYTES` (64 MiB); a larger file is refused unread. Each such read opens with `O_NOFOLLOW` and `O_NONBLOCK`
+and checks by `fstat` that the open file is regular, so a key or approver file that is a link, FIFO or device, or a
+key store that is not a plain directory, is never read.
+
+The ledger's approvers and keys are compared with a team directory (each generated location, and `parent_team`) only
+when that team names an approver and has a verify key; a team that lacks either "has neither" (6.2), and the folder
+is then the only place they live. A link inside a team directory where the comparison reads leaves the gates
+`UNAVAILABLE` instead.
 
 ### Gate states
 
@@ -315,7 +321,8 @@ file `survey-manifest` last wrote is `UNCLEARED`. Otherwise it is `UNAVAILABLE`,
 folder or manifest file also leaves it `UNAVAILABLE` and makes the run fail. So does anything that would stop the
 HALT scan of 6.2: a team directory reached through a symbolic link, or a `parent_team` that is absolute, leaves the
 repository, is not a team directory, names the folder itself or declares a parent of its own. Those are printed as
-reasons and do not make `survey-status` or `survey-validate` fail. A gate the specification does not declare is
+reasons and do not make `survey-status` or `survey-validate` fail. A `parent_team` value that is no path at all (not
+a string, empty, a NUL, `repo:`-rooted, a backslash or a `.` segment) is a malformed ledger (`ledger-privilege`). A gate the specification does not declare is
 shown as `NOT DECLARED`.
 
 ### Output files

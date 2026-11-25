@@ -143,7 +143,7 @@ complete against `SEMANTIC_RULES`.
 | 6.2, 833-834 | Scope `survey-signoff/<gate>/<study id>`, action `<scope>:sha256-<hash>` | printed by `survey-manifest` | gates `test_scope_and_action_are_the_6_2_names`, `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 6.2, 835 (proposal 1) | The manifest file goes beside the log: `<ledger>/references/<study id>.<gate>.manifest.json`, mode 0644, written atomically after a last check for links | — | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs`, `test_the_manifest_file_is_mode_0644`, `test_manifest_refuses_when_the_folder_becomes_a_link_before_writing` |
 | 6.2, 838 | `signoffs.ledger` is `agentteams-clearance:<path>` | `ledger-form` | gates `test_the_ledger_value[ledger-ledger-form]` and two more |
-| (proposal 10) | The ledger folder inside `.git/` or at (or under) a generated team location | `ledger-location` | gates `test_a_ledger_inside_git_or_a_team_location_is_refused` (three cases) |
+| (proposal 10) | The ledger folder inside `.git/` or at (or under) a generated team location, compared by case-folded name (`.GIT/`, `.Claude/agents`) and by device and inode against the existing `.git` and team folders | `ledger-location` | gates `test_a_ledger_inside_git_or_a_team_location_is_refused` (three cases), `test_reserved_locations_are_compared_by_case_folded_name`, `test_ordinary_locations_are_not_reserved`, `test_reserved_locations_are_compared_by_identity_on_disk` (skipped on a case-sensitive file system) |
 | 6.2, 857-858 | `<path>` under rule 1.6, `repo:` allowed | path ids | gates `test_the_ledger_value[…path-absolute]`, `[…path-dotdot]`, `test_a_repo_rooted_ledger` |
 | 6.2, 858-859 | No component is a symbolic link | `ledger-link` | gates `test_no_component_of_the_ledger_path_is_a_link` |
 | 6.2, 849 | The folder exists | `ledger-missing` | gates `test_the_ledger_value[agentteams-clearance:absent-ledger-missing]` |
@@ -152,12 +152,14 @@ complete against `SEMANTIC_RULES`.
 | 6.2, 852 | `security-decisions.log.csv` with the signature columns; readable; rows as wide as the header | `ledger-log` | gates `[…ledger-log]` (four cases) |
 | 6.2, 853 | `authorized-verify-keys/<key_id>.pub.pem`; another name in the store (proposal 11) | `ledger-keys`, `ledger-keys-empty` | gates `[…ledger-keys]` (three cases), `[…ledger-keys-empty]` |
 | 6.2, 853-854 | A key or approver file is read only when it is a regular file (not a link, FIFO or device); a store is listed only when it is a plain directory | `ledger-keys`, `ledger-approvers` | gates `test_a_symlinked_key_file_is_not_read`, `test_a_fifo_key_file_is_not_opened` (skipped without `os.mkfifo`), `test_a_symlinked_key_store_is_not_listed`, `test_a_symlinked_approver_list_is_not_read` |
+| 6.2, 853-854 | Every capped read opens with `O_NOFOLLOW` and `O_NONBLOCK` (where the platform has them) and decides regular-file-ness and size by `fstat` on the open descriptor | `NotARegularFile` / `OSError` | core `test_read_capped_refuses_a_link_without_following_it`, `test_read_capped_refuses_a_fifo_without_blocking` (skipped without `os.mkfifo`), `test_read_capped_refuses_a_directory` |
 | (proposal 15) | The log over `MAX_LOG_BYTES` (64 MiB) and a JSON file over `MAX_JSON_BYTES` are not read | `ledger-log`, `ledger-privilege` | gates `test_the_ledger_log_and_json_files_are_size_capped` |
 | 6.2, 854 | `security-approvers.txt` | `ledger-approvers`, `ledger-approvers-empty` | gates `[…ledger-approvers]`, `[…ledger-approvers-empty]` |
 | 6.2, 866-868 | A waivers log in the folder is an error; gates `UNAVAILABLE` | `ledger-waiver` | gates `[…ledger-waiver]`, `test_a_malformed_ledger_leaves_every_gate_unavailable` |
-| 6.2, 869-873 | Per kind: where a team's approver list names an approver, the folder's names the same; where a team has a verify key, the folder's keys are the same files. A team with a comment-only list leaves the approvers to the folder; a team with no key file leaves the keys to it. Not compared when the folder already has errors (and the reason is reported); a team file that cannot be read is reported, not skipped | `ledger-parity` | gates `test_the_folder_names_the_same_approvers_and_keys_as_the_team`, `test_different_key_files_are_a_parity_error`, `test_a_team_with_only_a_comment_list_and_no_key_has_neither`, `test_a_team_with_approvers_and_no_key_file_compares_approvers_only`, `test_a_team_with_keys_and_a_comment_only_list_compares_keys_only`, `test_the_parent_team_is_compared_too`, `test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so`, `test_an_unreadable_team_list_is_reported_not_skipped` |
-| 6.2, 902-904, 910-913 | `parent_team` absolute, leaving the repository, not a team dir, the folder itself, declaring a parent of its own, reached through a link (also NUL, `repo:`, not a string): **leaves every gate `UNAVAILABLE`, with the reason; not an error.** The text makes these UNAVAILABLE causes and says nothing of an error, so `survey-validate` passes and `survey-status` exits 0. Path checks reuse `resolve_path` | reason printed per gate and as `ledger note:` | gates `test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors` (nine cases), `test_a_sound_parent_team` |
-| 6.2, 911, 926, 941-942 | A team directory reached through a symbolic link: **leaves every gate `UNAVAILABLE`, with the reason; not an error** | reason | gates `test_a_team_directory_reached_through_a_link_leaves_the_gates_unavailable` |
+| 6.2, 869-873 | Lines 870-873: "Where the repository's own team directory has an approver list that names at least one approver, or at least one verify key, the folder's list names the same approvers and the folder's keys are the same files, and a difference is an error. A team directory with only the comment-only list `agentteams` generates, or with no key file, has neither; the folder is then the only place they live." So a team directory that lacks either kind has neither, and nothing is compared; when it has both (an approver named and a key file), both are compared. Not compared when the folder already has errors (the reason is reported); a team file that cannot be read is reported, not skipped | `ledger-parity` | gates `test_the_team_is_compared_only_when_it_has_both_approvers_and_a_key` (four cases: both, approvers only, keys only, neither), `test_the_folder_names_the_same_approvers_and_keys_as_the_team`, `test_different_key_files_are_a_parity_error`, `test_a_team_with_only_a_comment_list_and_no_key_has_neither`, `test_the_parent_team_is_compared_too`, `test_the_comparison_is_not_made_on_a_malformed_ledger_and_says_so`, `test_an_unreadable_team_list_is_reported_not_skipped` |
+| 6.2, 902-904, 910-913 | The causes the text lists (a `parent_team` that is absolute, leaves the repository, is not a team directory, names the folder itself, declares a parent of its own; and a team directory reached through a symbolic link) leave every gate `UNAVAILABLE`, with the reason. That they do not also count as a malformed ledger (so `survey-validate` passes and `survey-status` exits 0) is a reading: the text does not decide the exit status (proposal 20) | reason printed per gate and as `ledger note:` | gates `test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors` (seven cases), `test_a_sound_parent_team` |
+| 6.2, 851, 902 | A `parent_team` value that is none of those causes but no usable path at all (not a string, empty, a NUL, `repo:`-rooted, a backslash, a `.` or empty segment): a bad value in the folder's own `agent-privilege.json`, so a malformed ledger | `ledger-privilege` | gates `test_a_parent_team_value_that_is_no_path_is_a_malformed_ledger` (nine cases) |
+| 6.2, 911, 926, 941-942 | A team directory reached through a symbolic link, at any component of its generated location, or a link inside it where the comparison reads (`references/`, the key store, the approver list, the privilege file), also inside `parent_team`: leaves every gate `UNAVAILABLE` with the reason (proposal 20 on the exit status); the comparison is not redirected and not made | reason | gates `test_a_team_directory_reached_through_a_link_leaves_the_gates_unavailable`, `test_a_link_inside_a_generated_team_dir_leaves_the_gates_unavailable`, `test_parent_team_rules_leave_the_gates_unavailable_and_are_not_errors[inner-link-…]` |
 | 6.2, 861-865 | A sign-off row is Ed25519, key in the folder, author on the list; latest matching row | **not implemented** (needs signature verification; step F, seam `verify_signoff`) | — |
 | 6.2, 881-886 | Signing and verifying with `agentteams` | **not implemented** (step F); `survey-manifest` prints the `--check-clearance` command | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 6.2, 889-892 | Conditional verdicts, consumed PASS, replaced keys | **not implemented** (step F) | — |
@@ -177,7 +179,7 @@ complete against `SEMANTIC_RULES`.
 | 7, 925 | "every row file present": the row checks of section 4 | **not implemented** (step B); `survey-validate` says so in one line | — |
 | 7, 926 | `survey-status` prints hash, state, `enforce`, `mode`; exit 0 whatever the states | — | gates `test_status_prints_hash_state_enforce_and_mode_and_the_environment`, `test_status_exits_0_whatever_the_states` |
 | 7, 926 | Non-zero only when a specification, manifest or ledger is malformed | exit 1 | gates `test_status_exits_non_zero_only_when_something_is_malformed` (three cases) |
-| 7, 927 | `survey-manifest <gate>` writes the manifest and prints what the operator signs | `<ledger>/<study id>.<gate>.manifest.json` | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
+| 7, 927 | `survey-manifest <gate>` writes the manifest and prints what the operator signs | `<ledger>/references/<study id>.<gate>.manifest.json` | gates `test_manifest_writes_the_file_and_prints_what_the_operator_signs` |
 | 7, 941-943 | CI: `survey-validate` fails the build; gate state never does | **not implemented** (step H; a CI change is a PS-2 path) | — |
 
 ## Proposed contract changes (behaviours the contract does not fix, or fixes ambiguously)
@@ -189,13 +191,11 @@ complete against `SEMANTIC_RULES`.
    (2026-11-24), so the text does not decide it firmly. The literal reading was kept, and it also puts the files
    the operator signs inside the folder a repository protects from agent writes. The name is the toolkit's.
    Propose fixing both.
-2. **Paths "as declared"** (6.1, line 804). A manifest carries the declared text, joined to the study folder or with
-   `repo:` removed, never normalised. A `.` or empty segment (doubled or trailing slash) is refused
-   (`path-segment`) instead of being carried or rewritten. Propose: the contract says which spellings are allowed.
-3. **What a sign-off request is, for change detection** (6.1, line 817; rule 1.5, lines 38-39). The contract is
-   not silent: a request is an `agentteams` record. Step A does not read it, and uses the stored manifest file as a
-   stand-in (see the 6.1 rows). Propose: the contract says how a tool without `agentteams` detects change, or that it
-   does not.
+2. **Paths "as declared": adds an error to rule 1.6** (6.1, line 804). A manifest carries the declared text, joined
+   to the study folder or with `repo:` removed, never normalised. A `.` or empty segment (doubled or trailing slash)
+   is refused (`path-segment`), an error rule 1.6 does not list, instead of being carried or rewritten. Propose: the
+   contract says which spellings are allowed.
+3. *(No longer a proposal: see "Step A limitations" below.)*
 4. **What "project" holds in a manifest** (6.1, line 799). Taken as the project argument (the directory under
    `Projects/`), not the study `id`. Propose naming it.
 5. **`evidence.reader` when `format` is not `plugin`.** Refused (`reader-unexpected`).
@@ -231,6 +231,20 @@ complete against `SEMANTIC_RULES`.
     section 3, so step A accepts them.
 19. **What a combining mark is** (rule 1.10). Taken as Unicode general category M (Mn, Mc, Me); a hyphen is
     U+002D only.
+
+20. **Exit status for the causes 6.2 lists** (lines 910-913 against 926 and 941-943). The text says a linked team
+    directory and the listed `parent_team` causes leave the gate `UNAVAILABLE`; it does not say whether they also make
+    the ledger malformed. Step A reads them as not malformed: `survey-status` exits 0 and `survey-validate` passes,
+    with the reason printed. A `parent_team` value that is no path at all is a malformed ledger (`ledger-privilege`).
+    Propose: the contract says which.
+
+## Step A limitations (not proposals)
+
+- **What a sign-off request is.** The contract is not silent: rule 1.5 (lines 38-39) calls "the date in a sign-off
+  request" a field of `agentteams`, so a request is an `agentteams` record. Step A does not read `agentteams`
+  records; as its stand-in for detecting change since a request (6.1, line 817) it compares the current manifest with
+  the manifest file `survey-manifest` last wrote, and the status reason says so. Step F must revisit this, and the
+  order in `gate_status` (see the 6.1 rows).
 
 Settled, no longer a proposal: how an evidence row cites a fetch receipt is decided by 5.4 (lines 770-772); the
 check is step B's.
