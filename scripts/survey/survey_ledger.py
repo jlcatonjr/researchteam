@@ -17,6 +17,7 @@ Nothing here reads a file that is not a regular file, or lists a directory that 
 from __future__ import annotations
 
 import csv
+import hashlib
 import io
 import os
 import re
@@ -25,8 +26,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_core import (
-    MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped, resolve_path,
-    symlink_components,
+    GATES, MAX_JSON_BYTES, MAX_LOG_BYTES, REPO_PREFIX, Finding, file_identity, load_json_strict, read_capped,
+    resolve_path, symlink_components,
 )
 
 LEDGER_PREFIX = "agentteams-clearance:"
@@ -48,6 +49,10 @@ LOG_HEADER = (
     "effect_relaxes", "effect_destructive", "effect_cross_repo", "effect_bulk", "text_digest", "sig_scheme", "key_id",
     "prev_digest", "signature",
 )
+#: The only signature scheme a row of a study's sign-off log may carry (6.2; operator decision Q5, 2026-11-25).
+SIG_SCHEME = "ed25519"
+#: The family names whose HALT binds every sign-off, or every sign-off of one gate (6.2, lines 894-895).
+FAMILY = "survey-signoff"
 KEY_FILE = re.compile(r"([A-Za-z0-9._-]+)\.pub\.pem")
 PEM_BEGIN = b"-----BEGIN PUBLIC KEY-----"
 PEM_END = b"-----END PUBLIC KEY-----"
@@ -62,6 +67,9 @@ class Ledger:
     rel: str | None = None
     findings: list = field(default_factory=list)
     unavailable: list = field(default_factory=list)  # reasons the HALT scan cannot be made (6.2)
+    rows: list = field(default_factory=list)  # the folder log's rows, as {column: cell}, with "_line" (step F)
+    log_sha256: str = ""  # the SHA-256 of the folder log's bytes as they were read for ``rows``
+    family_halts: dict = field(default_factory=dict)  # gate -> reasons a family-name HALT blocks it (step F)
 
     @property
     def ok(self) -> bool:
@@ -189,7 +197,7 @@ def check_ledger(study) -> Ledger:
 
     privilege = _read_json_object(folder / PRIVILEGE, at(PRIVILEGE), "ledger-privilege", add,
                                   "missing, or not a regular file; it makes the folder a team dir")
-    _check_log(folder / LOG, at(LOG), add)
+    led.rows, led.log_sha256 = _check_log(folder / LOG, at(LOG), add)
     _check_key_store(folder / KEYS, at(KEYS), add)
     _check_approvers(folder / APPROVERS, at(APPROVERS), add)
     if os.path.lexists(folder / WAIVERS):
@@ -205,6 +213,7 @@ def check_ledger(study) -> Ledger:
                                "because the ledger folder has errors")
     else:
         _check_parity(folder, teams, add)
+    _scan_family_halts(study, folder, parent, led)
     return led
 
 
@@ -227,29 +236,50 @@ def _read_json_object(path: Path, where: str, rule: str, add, missing: str):
     return doc
 
 
-def _check_log(path: Path, where: str, add) -> None:
+def _check_log(path: Path, where: str, add) -> tuple:
+    """The folder log's structure. Returns ``(rows, sha256 of the bytes read)``: the rows as ``{column: cell}`` (with
+    ``_line``, the 1-based line of the record) when the structure is sound, else ``([], "")``."""
     if not is_regular(path):
         add("ledger-log", where, "missing, or not a regular file")
-        return
+        return [], ""
     try:
         data = read_capped(path, MAX_LOG_BYTES)
         if data is None:
             add("ledger-log", where, f"larger than {MAX_LOG_BYTES} bytes; not read")
-            return
-        rows = list(csv.reader(io.StringIO(data.decode("utf-8"), newline="")))
+            return [], ""
+        records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline=""), strict=True))
     except (OSError, UnicodeDecodeError, csv.Error) as exc:
         add("ledger-log", where, f"cannot be read or parsed: {exc}")
-        return
-    if not rows:
+        return [], ""
+    if not records:
         add("ledger-log", where, "has no header")
-        return
-    header = rows[0]
+        return [], ""
+    header = records[0]
+    sound = True
     if tuple(header) != LOG_HEADER:
+        sound = False
         add("ledger-log", where, "the header is not exactly the one agentteams 1.3.0 writes for a new log: "
             + ",".join(LOG_HEADER))
-    for n, row in enumerate(rows[1:], start=2):
-        if row and len(row) != len(header):
-            add("ledger-log", f"{where}:{n}", f"has {len(row)} fields; the header has {len(header)}")
+    rows = []
+    for n, record in enumerate(records[1:], start=2):
+        if not record:
+            continue
+        if len(record) != len(header):
+            sound = False
+            add("ledger-log", f"{where}:{n}", f"has {len(record)} fields; the header has {len(header)}")
+            continue
+        row = dict(zip(header, record))
+        row["_line"] = n
+        rows.append(row)
+    if not sound:
+        return [], ""
+    for row in rows:
+        # Operator decision Q5 (2026-11-25): every row of a study's sign-off log is Ed25519, HALT rows included. A
+        # row of any other scheme (the shared-secret scheme, or none) makes the log malformed (6.2, lines 861-865).
+        if row["sig_scheme"] != SIG_SCHEME:
+            add("ledger-scheme", f"{where}:{row['_line']}", f"sig_scheme is '{row['sig_scheme']}'; every row "
+                f"of a study's sign-off log must be {SIG_SCHEME} (6.2)")
+    return rows, hashlib.sha256(data).hexdigest()
 
 
 def _check_key_store(store: Path, where: str, add) -> None:
@@ -404,3 +434,105 @@ def _check_parity(folder: Path, teams: list, add) -> None:
             add("ledger-parity", rel, "the ledger's approver list does not name the same approvers as this team's")
         if keys != mine_keys:
             add("ledger-parity", rel, "the ledger's verify keys are not the same files as this team's")
+
+
+# --------------------------------------------------------------------------- the interim family-HALT scan (step F)
+def tokens(text: str) -> list:
+    """An id's tokens: lower-cased, split at every run of characters that are not letters or digits and between a
+    letter and a digit (``survey_Signoff/s0`` -> ``survey signoff s 0``)."""
+    text = re.sub(r"(?<=[a-z])(?=[0-9])|(?<=[0-9])(?=[a-z])", " ", text.strip().lower())
+    return [t for t in re.split(r"[^a-z0-9]+", text) if t]
+
+
+def family_gates(action: str) -> tuple:
+    """The gates a HALT row's action names as a family: all of them for ``survey-signoff``, one for
+    ``survey-signoff/<gate>``; none for any other id. The action matches a family name when, stripped and
+    lower-cased, it equals the name or has exactly the name's tokens (other spellings are caught; a longer id, such
+    as one study's scope, is not a family name)."""
+    norm = action.strip().lower()
+    if norm == FAMILY or tokens(norm) == tokens(FAMILY):
+        return GATES
+    for gate in GATES:
+        name = f"{FAMILY}/{gate}".lower()
+        if norm == name or tokens(norm) == tokens(name):
+            return (gate,)
+    return ()
+
+
+def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
+    """Operator decision Q1 (2026-11-25), a strict interim scan. agentteams 1.3.0 does not bind the two family names
+    (6.2, lines 907-909), and no public agentteams call judges a retraction under each log's own rules. So the tools
+    read every log the HALT scan of 6.2 covers (the folder's own, the generated team locations under the repository
+    root, and a sound ``parent_team``), in either column schema, and ANY HALT row on a family name blocks the gates
+    it names, signed or not, retracted or not. A log that cannot be read leaves every gate ``UNAVAILABLE``.
+
+    @security case 39: the generated locations are fixed places under each enclosing git root (6.2, lines 898-901).
+    More than one git root above the folder means more than one set of team logs whose HALTs bind; the tools read
+    only the study's own repository, so they refuse to judge (``UNAVAILABLE``) rather than miss one."""
+    root = study.repo_root
+    seen, roots = set(), []
+    for candidate in _git_roots(folder):
+        ident = os.path.realpath(candidate)
+        if ident not in seen:
+            seen.add(ident)
+            roots.append(candidate)
+    if len(roots) != 1 or os.path.realpath(roots[0]) != os.path.realpath(root):
+        led.unavailable.append(f"{len(roots)} git roots enclose the ledger folder (a repository inside another, "
+                               "or a planted .git); the tools read the team logs of the study's repository only, "
+                               "so they cannot tell that no HALT binds (6.2)")
+        return
+    dirs = [(led.rel or "the ledger folder", folder)]
+    for loc in TEAM_LOCATIONS:
+        if is_plain_dir(root / loc):
+            dirs.append((loc, root / loc))
+    if parent is not None:
+        dirs.append((os.path.relpath(parent, root).replace(os.sep, "/"), parent))
+    for rel, team in dirs:
+        log = team / LOG
+        if not os.path.lexists(log):
+            continue
+        try:
+            rows = _read_any_log(log)
+        except (OSError, UnicodeDecodeError, csv.Error, ValueError) as exc:
+            led.unavailable.append(f"the decisions log of {rel} cannot be read for HALTs ({exc}); a HALT "
+                                   "the tools cannot read must block, never vanish (6.2)")
+            continue
+        for line, actions, verdicts in rows:
+            if "halt" not in verdicts:
+                continue
+            for action in actions:
+                for gate in family_gates(action):
+                    led.family_halts.setdefault(gate, []).append(
+                        f"a HALT row on '{action}' in {rel}/{LOG}:{line} names the {FAMILY} family, which "
+                        "binds this gate. Interim rule (operator decision, 2026-11-25): any such HALT row blocks, "
+                        "signed or not, and a retraction does not count until agentteams offers a public call that "
+                        "judges it under that log's own rules")
+
+
+def _read_any_log(path: Path) -> list:
+    """``[(line, {actions}, {verdicts})]`` of a decisions log in either schema (``action_reviewed`` or ``decision``;
+    ``verdict`` or ``status``), stripped and lower-cased. Raises when the log cannot be read whole: not a regular
+    file, too large, not UTF-8, a quote left open, a record wider or narrower than its header, or neither an action
+    nor a verdict column."""
+    if not is_regular(path):
+        raise ValueError("not a regular file")
+    data = read_capped(path, MAX_LOG_BYTES)
+    if data is None:
+        raise ValueError(f"larger than {MAX_LOG_BYTES} bytes")
+    records = list(csv.reader(io.StringIO(data.decode("utf-8"), newline=""), strict=True))
+    if not records:
+        return []
+    header = [c.strip().lower() for c in records[0]]
+    acts = [i for i, c in enumerate(header) if c in ("action_reviewed", "decision")]
+    verds = [i for i, c in enumerate(header) if c in ("verdict", "status")]
+    if not acts or not verds:
+        raise ValueError("the header has no action_reviewed/decision or no verdict/status column")
+    out = []
+    for n, record in enumerate(records[1:], start=2):
+        if not record:
+            continue
+        if len(record) != len(header):
+            raise ValueError(f"record {n} has {len(record)} fields; the header has {len(header)}")
+        out.append((n, {record[i].strip().lower() for i in acts if record[i].strip()},
+                    {record[i].strip().lower() for i in verds}))
+    return out

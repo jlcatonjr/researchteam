@@ -87,6 +87,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 | `scripts/survey/survey_tables.py` | overwrite |
 | `scripts/survey/survey_attribution.py` | overwrite |
 | `scripts/survey/survey_evidence.py` | overwrite |
+| `scripts/survey/survey_verify.py` | overwrite |
 | `.github/agents/interpretation-advisor.agent.md` | `above-notes` |
 | `.github/agents/references/methodology/_TEMPLATE.methodology.guide.md` | overwrite |
 

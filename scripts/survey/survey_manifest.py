@@ -7,6 +7,7 @@ usage error. On a refusal nothing is written (rule 1.2).
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 import tempfile
@@ -96,6 +97,16 @@ def main(argv=None) -> int:
     print(f"mode: {spec['signoffs']['gates'][gate]['mode']}")
     print("The operator signs the action above with agentteams (an Ed25519 row in the ledger folder, 6.2), from a")
     print("trusted install outside every agent's write root. This tool signs nothing and writes no ledger row.")
+    act = action(gate, spec["id"], digest)
+    print("sign: save this spec as <spec.json> (fill in the approver, the date and the key id):")
+    print("  " + safe(json.dumps({"action_reviewed": act, "author": "<approver on the ledger's list>", "date": "<YYYY-MM-DD>",
+                             "evidence": "<what was reviewed>", "key_id": "<key_id of a key in the ledger folder>"},
+                            sort_keys=True)))
+    print(safe(f"sign: AGENTTEAMS_DECISION_ED25519_KEYFILE=<operator key file> agentteams --sign-decision "
+               f"<spec.json> --output {ledger.rel}"))
+    print("sign: without a terminal, run it again with --confirm-review-sha256 <the review digest it printed>.")
+    print("sign: never pass --allow-checkout-signing (such a row does not clear a study gate) and never export")
+    print("      AGENTTEAMS_DECISION_SIGNING_KEY (it makes every decisions log the process touches signing-active).")
     print(safe(f"verify: agentteams --check-clearance {scope(gate, spec['id'])} --clearance-file {rel} "
                f"--output {ledger.rel}"))
     return 0

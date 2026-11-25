@@ -348,7 +348,7 @@ def load_json_strict(data: bytes, where: str) -> tuple:
 def print_findings(findings, stream=None) -> None:
     stream = stream or sys.stdout
     for f in findings:
-        print(f.line(), file=stream)
+        print(safe(f.line()), file=stream)
 
 
 # --------------------------------------------------------------------------- command lines

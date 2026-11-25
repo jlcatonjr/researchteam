@@ -21,6 +21,7 @@ from survey_evidence import EvidenceReport, check_row_files  # noqa: E402
 from survey_gates import GATES, gate_status  # noqa: E402
 from survey_ledger import check_ledger  # noqa: E402
 from survey_spec import load_study  # noqa: E402
+from survey_verify import NotRun  # noqa: E402
 
 PROG = "survey_validate.py"
 
@@ -36,11 +37,13 @@ def validate(root: Path, project: str) -> tuple:
     ledger = check_ledger(study)
     findings += ledger.findings
     for gate in GATES:
-        _st, extra = gate_status(study, gate, ledger)
+        _st, extra = gate_status(study, gate, ledger, NotRun())  # validate reports no gate state
         findings += extra
     rows = check_row_files(study)
     findings += rows.findings
-    return study, findings, list(ledger.unavailable), rows
+    notes = list(ledger.unavailable)
+    notes += [reason for gate in GATES for reason in ledger.family_halts.get(gate, [])]
+    return study, findings, list(dict.fromkeys(notes)), rows
 
 
 def main(argv=None) -> int:
