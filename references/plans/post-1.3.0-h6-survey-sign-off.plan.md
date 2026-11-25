@@ -173,3 +173,10 @@ on `main` apply. Four gates are signed there with the current decision key.
 - **Manifests: "Project moves its manifests".** The tools keep one place, the sign-off folder's `references/`.
   The first project copies its manifest files there when it adopts the tools; nothing is signed again, since the
   hashes do not depend on where the files sit. The place stays a contract proposal.
+
+**Follow-up from the first project (2026-11-25; data).** Its study's evidence is in the built-in CSV format, not a
+reader plug-in; it does declare a vantage module. So what stops the tools on that study today is the vantage
+module (`identity-vantage`), not the evidence reader. An earlier note in this session's reports, that the first
+project uses a reader plug-in, was wrong: it came from a reviewer's reading of an example in the contract, not
+from the project. The managing repository's session will rehearse agentteams' log migration on a copy of that
+project's log when the project decides to adopt the tools, and report whether the existing signatures survive.
