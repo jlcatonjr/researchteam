@@ -30,19 +30,21 @@ CLEARED, UNCLEARED, UNAVAILABLE = "CLEARED", "UNCLEARED", "UNAVAILABLE"
 NOT_DECLARED = "NOT DECLARED"  # 4.6
 MANIFEST_KIND = "survey-signoff"
 MANIFEST_KEYS = {"kind", "gate", "project", "mode", "schema_version", "files"}
-#: Why agentteams did not clear an action. Its own message is never read (the tools decide from its exit status and
-#: one JSON line), so this says what its check covers, and the two consequences the operator accepted.
+#: Why a gate whose deciding row passed the tools' rules is not cleared by agentteams' check. Its message is never read
+#: (the tools decide from its exit status and one JSON line), so this says what 6.2 asks of the check.
 NOT_CLEARED = (
-    "agentteams' own check (6.2) did not clear this action: it found no Ed25519 PASS it accepts for the current "
-    "manifest hash, or an unretracted HALT on the scope or the action in the ledger log, a generated team log or the "
-    "parent_team's log. A HALT on a study id that extends this one with '-', '_', '.' or ':' (demo-2 against demo) "
-    "also blocks it (a stricter default the session adopted, Q2). A retraction signed with a shared secret never counts here: the check "
-    "runs with an empty HOME, so no shared-secret key is found (Q11)")
-#: agentteams' checkout-signing mark: ``--allow-checkout-signing`` writes it into the signed ``conditions_verified``
-#: (agentteams 1.3.0, ``operator_signing.sign_decision``). Such a row is refused (a stricter default the session adopted, Q4).
+    "agentteams' check (6.2) did not clear this action. 6.2 asks for a valid Ed25519 PASS for the current manifest "
+    "hash, by a key in the ledger folder and an author on its list, and no unretracted HALT on the scope or the "
+    "action in the ledger log, a generated team log or the parent_team's log. Ids are matched across '-', '_', '.' "
+    "and ':', so a HALT on a study id that extends this one (demo-2 against demo) also blocks it (a stricter default "
+    "the session adopted, Q2). A retraction signed with a shared secret never counts here: the check runs with an "
+    "empty HOME, so no shared-secret key is found (Q11)")
+#: The mark agentteams' documented ``--allow-checkout-signing`` flag records in a row's ``conditions_verified``. Such a
+#: row is refused (6.2, line 840: the operator signs from a trusted install; a stricter default the session adopted,
+#: Q4).
 CHECKOUT_MARK = "signed-from-checkout"
-#: Row columns that must be empty in a sign-off row (a stricter default the session adopted, Q6): no lineage, no scope column, no declared
-#: effect. Each is a signed axis in agentteams and would change what the row authorizes or which HALTs bind it.
+#: Row columns that must be empty in a sign-off row (a stricter default the session adopted, Q6): no lineage, no
+#: scope column, no declared effect.
 EMPTY_COLUMNS = ("derives_from", "scope", "effect_class", "effect_grants", "effect_targets", "effect_relaxes",
                  "effect_destructive", "effect_cross_repo", "effect_bulk")
 #: A key id is a plain file stem (agentteams' own pattern), and never holds ``..`` (@security case 44).
@@ -137,11 +139,11 @@ class GateStatus:
 
 def deciding_row(rows: list, act: str):
     """The row that decides (6.2, line 864: "the latest decision that matches the action"), found by the tools' own
-    reading, with agentteams 1.3.0's selection rule (``security_gate._latest_security_decision``): newest first,
-    ``HALT-RETRACTED`` rows skipped, the first whose ``action_reviewed`` is the action or the action followed by one
-    of ``- _ . :``, compared case-insensitively. Using agentteams' rule means both pick the same row; the tools then
-    require that row to name exactly the action the tools computed (:func:`row_refusal`), so a row for another study
-    or another hash never decides. The exact header (``survey_ledger.LOG_HEADER``) has no ``consumed`` column, so such
+    reading: newest first, ``HALT-RETRACTED`` rows skipped, the first whose ``action_reviewed`` is the action or the
+    action followed by one of ``- _ . :`` (ids are matched across separators), compared case-insensitively. The tools
+    then require that row to name exactly the action they computed (:func:`row_refusal`), so a row for another study
+    or another hash never decides. After a retraction no earlier permission survives: the HALT behind a retraction
+    decides, never an older PASS. The exact header (``survey_ledger.LOG_HEADER``) has no ``consumed`` column, so such
     a log is refused; a check spends nothing (6.2, line 889)."""
     want = act.strip().lower()
     suffixed = tuple(want + sep for sep in "-_.:")
@@ -155,8 +157,8 @@ def deciding_row(rows: list, act: str):
 
 
 def row_author(row: dict) -> str:
-    """The row's author as agentteams 1.3.0 reads it (``decision_log._decision_author``): the first non-empty of
-    ``requesting_agent`` and ``author``, lower-cased, a leading ``@`` removed."""
+    """The row's author: the first non-empty of ``requesting_agent`` and ``author``, lower-cased, a leading ``@``
+    removed."""
     for column in ("requesting_agent", "author"):
         value = row.get(column, "").strip()
         if value:

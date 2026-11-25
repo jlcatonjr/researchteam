@@ -56,7 +56,7 @@ never `CLEARED`. The commands work on the repository the bridge is in; a `--root
 | Command | What it does |
 |---|---|
 | `survey-validate <project>` | Check the specification (every check of section 3, and the path rule), the ledger folder's structure (6.2) and the gates' manifest files. Writes nothing. Exit 1 on any error |
-| `survey-status <project>` | Print each gate's manifest hash, state, `enforce` and `mode`, and any reason the gates read `UNAVAILABLE`. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed |
+| `survey-status <project>` | Print each gate's manifest hash, state, `enforce` and `mode`, and any reason the gates read `UNAVAILABLE`. A gate reads `CLEARED` only where agentteams 1.3.0 or later verifies its sign-off, and `UNAVAILABLE` without a usable agentteams. Exit 0 whatever the states; 1 only when the specification, a manifest file or the ledger is malformed |
 | `survey-manifest <project> <gate>` | Write the gate's manifest into the ledger folder's `references/`, beside the log, and print the scope and action the operator signs. Signs nothing and writes no ledger row |
 
 ## Literature library

@@ -435,7 +435,7 @@ def _team_dirs(study, folder: Path, led: Ledger) -> list:
 
 
 def _check_parity(folder: Path, teams: list, add) -> None:
-    """6.2, lines 869-873. Line 870 reads: "Where the repository's own team directory has an approver list that
+    """6.2, lines 869-873. Lines 869-872 read: "Where the repository's own team directory has an approver list that
     names at least one approver, or at least one verify key, the folder's list names the same approvers and the
     folder's keys are the same files, and a difference is an error." Lines 872-873 read: "A team directory with only
     the comment-only list ``agentteams`` generates, or with no key file, has neither; the folder is then the only
@@ -495,8 +495,10 @@ def family_gates(action: str) -> tuple:
 
 
 def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
-    """Operator decision Q1 (2026-11-25), a strict interim scan. agentteams 1.3.0 does not bind the two family names
-    (6.2, lines 907-909), and no public agentteams call judges a retraction under each log's own rules. So the tools
+    """Operator decision Q1 (2026-11-25), a strict interim scan. 6.2 (lines 907-909) makes the two family names the
+    tools' own check. agentteams 1.3.1 will bind a family HALT to longer ids only across a colon, and the contract's
+    family names are joined with ``/``, so this scan stays after 1.3.1. No public call yet lists a log's open HALTs
+    under that log's own rules (asked of agentteams). So the tools
     read every log the HALT scan of 6.2 covers (the folder's own, the generated team locations under the repository
     root, and a sound ``parent_team``), in either column schema, and ANY HALT row on a family name blocks the gates
     it names, signed or not, retracted or not. A log that cannot be read leaves every gate ``UNAVAILABLE``.

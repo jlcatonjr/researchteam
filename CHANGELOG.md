@@ -6,9 +6,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 ## Unreleased
 
 - **Survey toolkit, step F: sign-off verification and stage refusal** (`scripts/survey/`, contract 6.1 and 6.2;
-  design `references/plans/post-1.3.0-h6-step-f-design.md`, check table
-  `references/plans/post-1.3.0-h6-step-f-check-table.md`). A gate can now read `CLEARED`.
-  - **agentteams is reached only as a child process.** The new `survey_verify.py` runs `sys.executable -I -c`, one
+  check table `references/plans/post-1.3.0-h6-step-f-check-table.md`). A gate can now read `CLEARED`.
+  - **agentteams is reached only as a child process.** The new `survey_verify.py` runs `sys.executable -B -I -c`, one
     fixed snippet calling agentteams' public `check_file_clearance`, with an allowlisted environment: a minimal
     `PATH`, `LC_ALL`, and an empty temporary `HOME` and `TMPDIR`. No `AGENTTEAMS_*`, `XDG_*` or `GIT_*` variable
     passes through, so no shared-secret key is found. It decides from the exit status and one JSON line, never from
@@ -22,13 +21,16 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     - its `derives_from`, `scope` and `effect_*` columns are empty;
     - its `key_id` is a plain stem naming a key file in the folder;
     - its author is on the folder's list.
-  - **The interim family-HALT rule.** A HALT row on `survey-signoff` or `survey-signoff/<gate>` in any log the HALT
-    scan covers blocks the gates it names (`UNAVAILABLE`), signed or not, retracted or not. It holds until
-    agentteams offers a public call that judges a retraction.
+  - **The interim family-HALT rule.** A HALT row on a family name in any log the HALT scan covers blocks the gates
+    it names (`UNAVAILABLE`), signed or not, retracted or not. An id is squashed (format characters dropped, NFKC,
+    lower-cased, only `a-z0-9` kept): it names gate `g` when it contains `surveysignoff<g>`, else every gate when it
+    contains `surveysignoff`. A study's exact scope, optionally with exactly `:sha256-<64 hex>`, is exempt. No public
+    call exists yet to judge a retraction under each log's own rules (asked of agentteams).
   - **Other states.**
     - More than one git root above the ledger folder: `UNAVAILABLE`.
-    - No request: `UNCLEARED`.
-    - agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography`: `UNAVAILABLE`.
+    - No request: `UNCLEARED`, also when the manifest cannot be built.
+    - Otherwise, agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography`:
+      `UNAVAILABLE`, before the tools' row rules (rule 1.7).
   - **Stages.** A `build-only` gated stage now refuses when the sign-off folder is malformed (`stage_decision`, new
     `require_gate`).
   - **Output.**
@@ -36,13 +38,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
       sign-off proves (6.2), and that no tool can detect every edit to a log's history.
     - `survey-manifest` prints the operator's signing spec and command, with placeholders.
     - Every value read from a log is escaped before it is printed.
-  - **After review.** A family HALT is any id whose tokens contain `survey signoff` (all gates) or
-    `survey signoff <gate>` (that gate), except a study's scope or action. Without a usable agentteams every gate with
-    a current request reads `UNAVAILABLE`, before the tools' row rules (rule 1.7); no request reads `UNCLEARED`, also
-    when the manifest cannot be built. The child runs with `-B -I`; its answer counts only with `cleared` exactly
-    true and the package exactly at `<purelib>/agentteams/__init__.py`; its output is read through a bounded read.
-    `survey-status` also says whether the verifier's interpreter is inside the work tree. No message names an
-    absolute path.
+  - **The child.** It runs with `-B -I` in a session of its own; on a timeout or an over-long answer the whole
+    process group is stopped. Its answer counts only with `cleared` exactly true, the package exactly at
+    `<purelib>/agentteams/__init__.py`, and its output read through a bounded read. `survey-status` says whether the
+    verifier and its interpreter are inside the work tree. No message names an absolute path.
   - **Tests.** The signing tests generate an Ed25519 key pair at run time. They skip, with the reason, where
     agentteams 1.3.0 or `cryptography` is absent, which includes the current CI.
 

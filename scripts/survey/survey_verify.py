@@ -14,7 +14,7 @@ and never another one on ``PATH``. The child calls agentteams' public file-clear
 - ``AGENTTEAMS_DECISION_SIGNING_KEY`` makes every decisions log the process touches signing-active, and supplies a
   shared secret that would let a shared-secret row or retraction verify (6.2, lines 864-865 and 884-886).
 - agentteams reads a shared-secret (HMAC) key file from ``~/.config/agentteams/keys/decision-hmac.key``
-  (``signed_ledger.HMAC_KEY_DIR``, expanded with ``HOME``) when the variable is unset. The empty ``HOME`` defeats
+  (expanded with ``HOME``) when the variable is unset. The empty ``HOME`` defeats
   that, so **a HALT retraction signed with a shared secret never counts in this check** (a stricter default the session adopted, Q11). Its
   Ed25519 verify keys are read only from the team directory's ``references/authorized-verify-keys/``, never from
   ``HOME``.
@@ -47,8 +47,8 @@ MAX_STDOUT = 64 * 1024
 #: The ``PATH`` the child gets: enough for agentteams to run ``git`` if it needs to, nothing from the caller.
 CHILD_PATH = "/usr/bin:/bin"
 #: The child's interpreter flags: ``-B`` writes no ``__pycache__`` (``-I`` does not imply it), so a check never writes
-#: into an environment kept inside the work tree; ``-I`` ignores ``PYTHON*`` variables, the user site and the current
-#: directory.
+#: into an environment kept inside the work tree; ``-I`` leaves out ``PYTHON*`` variables, the user site and the
+#: current directory.
 CHILD_FLAGS = ("-B", "-I")
 
 #: The one snippet the child runs: ``python -B -I -c CHILD <team dir> <scope> <manifest file>``. It computes the action
@@ -221,7 +221,7 @@ def interpret(returncode, stdout, expected_action: str) -> ChildResult:
     if info["action"] != expected_action:
         return ChildResult(UNAVAILABLE, "the agentteams check hashed different manifest bytes than the tools", info)
     if not info["cleared"]:
-        return ChildResult(NOT_CLEARED, "agentteams found no clearance it accepts", info)
+        return ChildResult(NOT_CLEARED, "agentteams did not clear the action", info)
     return ChildResult(CLEARED, "", info)
 
 

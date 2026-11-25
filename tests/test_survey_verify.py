@@ -225,7 +225,7 @@ def test_an_error_file_appearing_during_the_check_is_unavailable(tmp_path):
     ({"author": "someone-else"}, "not on the ledger folder's approver list"),
     ({"requesting_agent": "someone-else"}, "not on the ledger folder's approver list"),
 ])
-def test_the_tools_refuse_a_row_whatever_agentteams_would_say(tmp_path, cells, needle):
+def test_the_tools_refuse_a_row_that_breaks_their_rules(tmp_path, cells, needle):
     root = make_repo(tmp_path)
     act = _request(root)
     _append(root, action_reviewed=act, **{k: (act if v == "ACTION" else v) for k, v in cells.items()})
@@ -241,9 +241,9 @@ def test_a_verified_conditional_pass_reaches_the_verifier(tmp_path):
     assert _state(root).state == "CLEARED"
 
 
-def test_the_row_that_decides_is_agentteams_latest_and_must_name_the_action_exactly(tmp_path):
-    """agentteams' selection lets a suffixed id match; the tools pick the same row and then require the exact action
-    (@security case 46: actions are compared exactly, case included)."""
+def test_the_newest_row_for_the_action_must_name_it_exactly(tmp_path):
+    """Ids are matched across separators, so a suffixed id is the latest row for the action; the tools then require
+    the exact action (@security case 46: actions are compared exactly, case included)."""
     root = make_repo(tmp_path)
     act = _request(root)
     _append(root, action_reviewed=act)
