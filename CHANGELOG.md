@@ -5,6 +5,20 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
+  The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
+  own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)
+  is generated from the validator's rule table; a test keeps the tracked file equal to the generator's output. The
+  gate list, the manifest builder (6.1), the rule that turns a gate's state into "runs" or "refuses", and the
+  structural checks of the ledger folder (6.2). Three bridge commands, each taking a project: `survey-validate`,
+  `survey-status` and `survey-manifest <gate>`. Standard library only, Python 3.10 to 3.13. The files are synced
+  with the scholarly profile.
+  - **Nothing verifies a signature yet.** A gate reads `UNCLEARED` when its files changed since its manifest was
+    written, and `UNAVAILABLE` otherwise; it never reads `CLEARED`. No command of this step is a gated stage.
+  - Not in this step: the row checks of section 4 (step B), sign-off verification and the HALT scan (step F), and
+    the CI gate (step H). The check table, with the points where the contract is silent, is
+    `references/plans/post-1.3.0-h5-step-a-check-table.md`.
+
 ## 1.3.0 (tag `v1.3.0`, on `release/1.3`)
 
 The first release of the 1.3 line. It is `1.3.0rc1` plus: this section, the release notes, the cut record and the
