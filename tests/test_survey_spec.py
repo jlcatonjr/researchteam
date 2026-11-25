@@ -228,7 +228,8 @@ def test_a_draft_may_name_files_that_do_not_exist_yet(tmp_path):
 
 
 def test_files_that_a_stage_writes_may_be_absent(tmp_path):
-    root = make_repo(tmp_path)  # registry, overrides, log, change_log, receipts and adjudications are not there
+    root = make_repo(tmp_path)  # overrides, log, change_log, receipts and adjudications are not there
+    (root / "Projects" / "tidebell" / "rows" / "registry.csv").unlink()  # nor, here, the registry
     for rel in ("rows/registry.csv", "rows/overrides.csv", "rows/enumeration-log.csv", "rows/frame-changes.jsonl",
                 "rows/receipts", "rows/adjudications-slack_bell.csv"):
         assert not (root / "Projects" / "tidebell" / rel).exists()

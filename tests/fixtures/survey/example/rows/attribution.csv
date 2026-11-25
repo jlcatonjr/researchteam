@@ -1,2 +1,4 @@
 unit_id,person_id,author_kind,work,locator,status,genre,basis,note
 p-001,warden-01,person,logbook-01,logbook-01#p3,firm,logbook,own,
+p-002,warden-02,person,register-02,register-02#p4,firm,letter,own,
+p-003,guild-01,guild,minutes-01,minutes-01#p2,doubtful,letter,own,

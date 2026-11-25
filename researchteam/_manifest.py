@@ -88,6 +88,10 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/survey/survey_validate.py",
     "scripts/survey/survey_status.py",
     "scripts/survey/survey_manifest.py",
+    # Step B: the row files (4.1 evidence, 4.3 attribution, 4.8 bucket tables and years).
+    "scripts/survey/survey_tables.py",
+    "scripts/survey/survey_attribution.py",
+    "scripts/survey/survey_evidence.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
