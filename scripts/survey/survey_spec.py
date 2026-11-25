@@ -695,7 +695,7 @@ def check_files(study: Study) -> list[Finding]:
     spec, draft = study.spec, study.spec["status"] == "draft"
     where = lambda ptr: f"{study.spec_rel}#{ptr}"  # noqa: E731
     for ptr, rp in study.paths.items():
-        exists = os.path.lexists(rp.path(study.repo_root))
+        exists = os.path.exists(rp.real)  # a dangling link names nothing
         if _COVERS.match(ptr):
             if not exists and not draft:
                 out.append(Finding("covers-missing", where(ptr), f"{rp.declared!r} does not exist"))

@@ -279,3 +279,10 @@ def test_the_survey_files_are_scholarly_managed():
     listed = {f for f in SCHOLARLY_MANAGED_FILES if f.startswith("scripts/survey/")}
     assert shipped == listed and not listed & set(FRAMEWORK_MANAGED_FILES)
     assert all((ROOT / f).is_file() for f in listed)
+
+
+def test_a_dangling_link_is_a_missing_file(tmp_path):
+    root = make_repo(tmp_path)
+    os.symlink("nowhere.csv", root / "Projects" / "tidebell" / "rows" / "dangling.csv")
+    edit_spec(root, _set(["evidence", "file"], "rows/dangling.csv"))
+    assert "file-missing" in rules(_validate(root).findings)
