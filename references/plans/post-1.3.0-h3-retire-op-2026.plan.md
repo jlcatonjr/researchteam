@@ -299,8 +299,8 @@ session gave `@security`: that the install in use was built by the October scrip
   procedure, with its own review; a second builder here would be the wrong shape. The branch
   `chore/root-owned-agentteams-1.3.0` stays as the record of the draft and its four reviews. The operator's
   ruling "Build a root-owned 1.3.0" stands; it is carried out by asking the managing repository's session for a 1.3.0
-  build by that procedure. Not yet asked: the coordinator session this session knew is no longer running, so the
-  operator is asked which session to address.
+  build by that procedure. Asked on 2026-11-25, as a question, of the managing repository's session the operator
+  named in the picker.
 - **What does not change:** script 31 needs agentteams 1.3.0 and waits for that install. Scripts 29 and 30 ran
   their checks with the 1.2.1 install; that fact stands as recorded.
 - **Lesson for the session:** a claim about how something outside this repository was built is checked against
