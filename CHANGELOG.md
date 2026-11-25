@@ -5,6 +5,23 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step B part 2a: the identity registry** (`scripts/survey/survey_provenance.py`,
+  `survey_identity.py`, `survey_registry.py`). New bridge command `survey-registry <project>`:
+  - it builds `identity.registry` from the persons of the evidence and attribution files, applying the overrides file
+    (a `link` sets `identity_id`, a `merge` folds one id into another), and writes the registry's provenance record
+    beside it, last; a run interrupted anywhere leaves the registry "not built";
+  - `--candidates` lists possible matches (`exact`, `similar`, with the study's stop words) for a person to decide in
+    the overrides file; nothing is applied and nothing is written;
+  - every check of the overrides file (a named author and a reason in every row, one link or merge per alias, no
+    repeated or self pairs, no `distinct` row for a linked or merged pair) refuses the build and writes nothing;
+    `survey-validate` reports them too.
+  The provenance record of contract 4.6 is written in one shared module (`make_record`, `check_current`,
+  `write_atomic`), for later steps' outputs too. A study with a vantage module, or with evidence in a plugin format,
+  is refused: this version loads no project code. The batch merge (`survey-rows`) is step B part 2b. The check table
+  is `references/plans/post-1.3.0-h5-step-b2-check-table.md`.
+- Survey toolkit, step B part 1 follow-ups: `B.C`, `B.C.E` and `B. C.` count as BC; a century range
+  (`4th-5th centuries`) reads both centuries; a run grouped with `,` or `.` (`1,750`) is not read as a year; quoted
+  values are cut in every message, step A's included.
 - **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
   `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define
   that is present:
