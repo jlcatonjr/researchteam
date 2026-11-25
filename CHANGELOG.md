@@ -12,8 +12,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   passes or from a missing-pass adjudication, a coder on every row; adjudications with a coder and a note, none for a
   unit on which the passes agree, and a `missing pass: A, ` or `missing pass: B, ` note with a reason where a pass is
   missing. New bridge command `survey-agreement <project>`: raw agreement between passes A and B per outcome, as "k
-  of n units", with the units that have one pass only; it writes nothing. Cohen's κ and Gwet's AC1 are not computed:
-  the contract names them without a formula, and the check table proposes the formulas. Finalising and the rollup are
+  of n units", with the units that have one pass only; it writes nothing. **It does not yet meet contract 4.2 line
+  400**, which requires Cohen's κ and Gwet's AC1 as well: the text leaves open how they are computed, and the
+  operator settles that first (the check table lists the five open points). At most 1000 findings are printed per
+  file, then one line saying how many more. Finalising and the rollup are
   step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
   for an id holding a character the printed draft would escape. The check table is
   `references/plans/post-1.3.0-h5-step-c-check-table.md`.
