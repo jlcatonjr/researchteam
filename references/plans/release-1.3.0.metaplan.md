@@ -337,3 +337,13 @@ second pass.
   `@security` gave CONDITIONAL PASS and `@conflict-auditor` two blocking findings at `7d48b81`; both sets are
   addressed in `4bbeeb8`, and `@security`'s second read is running. The PR stays a draft until the candidate is
   cut and the downstream dry run has reported. Script 30 needs the candidate's tag object before hand-over.
+- **The candidate is cut (operator, script 29, 2026-11-24 local time).** `v1.3.0-rc.1` is tag object
+  `22359c747fd2bd86e8af826e31fd84ca476181ab`, peeling to `26ee061108b95229ad74060f4456442c19dff214`; `release/1.3`
+  and `main` are at that commit. Read back by the session from the remote: the signature is good and by the
+  release key, GitHub reports the tag verified, and the GitHub release is a pre-release (Latest is still
+  `v1.2.1`). The script reported one older pending condition and refused nothing. The tag's creation used the
+  operator's admin bypass of the tag ruleset, as the ruleset intends. The tag object and peel were sent to the
+  release coordinator for the downstream dry run. Script 30's tracked copy names the tag object (`662fa69` on
+  PR #261); `@security` is reading that change.
+- **Next:** the dry run's report; then the operator's answer on merging #261 and closing #156, script 30, and
+  the resume of the autosync.
