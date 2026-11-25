@@ -9,15 +9,14 @@ and never another one on ``PATH``. The child calls agentteams' public file-clear
 
 **The child's environment is an allowlist** (``child_env``): a minimal ``PATH``, ``LC_ALL``, and ``HOME`` and
 ``TMPDIR`` set to a fresh, empty temporary folder that is removed afterwards. No ``AGENTTEAMS_*``, ``XDG_*`` or
-``GIT_*`` variable reaches it. Why each matters, read from agentteams 1.3.0:
+``GIT_*`` variable reaches it. Why each matters, per agentteams 1.3.0's documentation:
 
 - ``AGENTTEAMS_DECISION_SIGNING_KEY`` makes every decisions log the process touches signing-active, and supplies a
   shared secret that would let a shared-secret row or retraction verify (6.2, lines 864-865 and 884-886).
-- agentteams reads a shared-secret (HMAC) key file from ``~/.config/agentteams/keys/decision-hmac.key``
-  (expanded with ``HOME``) when the variable is unset. The empty ``HOME`` defeats
-  that, so **a HALT retraction signed with a shared secret never counts in this check** (a stricter default the session adopted, Q11). Its
-  Ed25519 verify keys are read only from the team directory's ``references/authorized-verify-keys/``, never from
-  ``HOME``.
+- per the same documentation, the shared-secret (HMAC) key file lives under ``~/.config/agentteams/keys/``
+  (expanded with ``HOME``) when the variable is unset. The empty ``HOME`` defeats that, so **a HALT retraction
+  signed with a shared secret never counts in this check** (a stricter default the session adopted, Q11). Ed25519
+  verify keys are those in the team directory's ``references/authorized-verify-keys/``, never in ``HOME``.
 
 **What clears** (``interpret``): exit status 0; exactly one JSON object on stdout; ``cleared`` true; the action the
 child checked equal to the one the tools computed; ``agentteams`` 1.3.0 or later; its module file exactly
@@ -131,7 +130,11 @@ def _read_bounded(stream, cap: int, out: list) -> None:
 
 
 def _kill_group(proc) -> None:
-    """Stop the child and everything it started (its own session, so one process group), where the platform can."""
+    """Stop the child and everything it started (its own session, so one process group), where the platform can.
+
+    Where ``os.killpg`` (or ``start_new_session``) is not available, only the child itself is stopped: a grandchild
+    that keeps stdout open then leaves one pipe descriptor and one reader thread behind for each such call, until it
+    exits. The check still reads ``UNAVAILABLE`` (it fails closed); only those resources wait."""
     try:
         if hasattr(os, "killpg"):
             os.killpg(proc.pid, signal.SIGKILL)
@@ -169,6 +172,7 @@ def run_child(repo_root: Path, team_dir: Path, scope: str, manifest: Path):
         except subprocess.TimeoutExpired:
             _kill_group(proc)
             returncode = None
+            proc.poll()  # a last non-blocking reap; a child that still has not exited is left to the OS
         reader.join(5)
         if reader.is_alive():
             return None, "the agentteams check did not release its output; it was stopped"

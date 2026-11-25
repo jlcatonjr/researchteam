@@ -2,8 +2,7 @@
 
 Plan: `post-1.3.0-h6-survey-sign-off.plan.md`. Contract: `docs/survey-toolkit.md`, version 1, sections 6.1 and 6.2;
 line numbers are that file's. This table is the record of step F. Each row states the tools' own rule and the
-contract line it comes from. The tools enforce the contract's rules themselves and do not rely on agentteams alone
-to refuse.
+contract line it comes from. The tools enforce the contract's rules themselves, in addition to agentteams' check.
 
 The open questions were settled on 2026-11-25:
 
@@ -69,12 +68,12 @@ Tests are in `tests/test_survey_verify.py` (step F) and `tests/test_survey_gates
 | 6 | Author (first of `requesting_agent`, `author`) not on the folder's list | `UNCLEARED` (caveat) | 841-842, 863; list from the snapshot (S7) | `…[…someone-else…]` (two cases) |
 | 7 | A waiver file in the folder, also one appearing during the check | malformed (step A): `UNAVAILABLE` | A waiver file is an error (866-868), checked again after the call | step A tests; `test_an_error_file_appearing_during_the_check_is_unavailable` |
 | 8 | The latest row for the action is a HALT (folder log) | `UNCLEARED` (caveat) | 894-897 | `test_a_retraction_row_is_skipped_and_the_halt_behind_it_decides` |
-| 8a | A HALT on a family name, in any scanned log, either column schema, signed or not, retracted or not | `UNAVAILABLE`: whether it still stands cannot be verified here (816; T3) | The interim rule (Q1). An id is squashed (format characters dropped, NFKC, lower-cased, only `a-z0-9` kept). It names gate `g` when it contains `surveysignoff<g>`, else every gate when it contains `surveysignoff`. A study's exact scope, optionally with exactly `:sha256-<64 hex>`, is exempt (S1) | `test_a_family_halt_in_any_scanned_log_blocks_the_gates_it_names` (21 cases), `test_a_family_halt_in_the_other_column_schema_or_the_parent_team_binds`, `test_a_family_halt_in_the_folder_log_binds` |
-| 9 | A HALT on the scope or the action in a generated team log or `parent_team`'s log | `UNCLEARED` (caveat) | 898-905: agentteams' check in the child | `test_signed_a_halt_in_a_team_log_binds_through_agentteams[ACTION]`, `[SCOPE]` |
+| 8a | A HALT on a family name, in any scanned log, either column schema, signed or not, retracted or not | `UNAVAILABLE`: whether it still stands cannot be verified here (816; T3) | The interim rule (Q1). A study's exact scope, optionally with exactly `:sha256-<64 hex>`, is exempt, judged on the raw cell (no strip, no normalisation; B1); a padded one is not. Every other id is squashed (NFKD, non-spacing marks and format characters dropped, lower-cased, only `a-z0-9` kept; S1, A3). It names gate `g` when it contains `surveysignoff<g>`, else every gate when it contains `surveysignoff` | `test_a_family_halt_in_any_scanned_log_blocks_the_gates_it_names` (27 cases), `test_a_family_halt_in_the_other_column_schema_or_the_parent_team_binds`, `test_a_family_halt_in_the_folder_log_binds` |
+| 9 | A HALT on this study's exact scope or action in the folder log, any of the five generated team locations, or `parent_team`'s log | `UNCLEARED` (caveat) | 898-905: exempt from the family scan and judged by agentteams' check in the child, which reads all of these logs (A1) | `test_signed_a_halt_in_a_team_log_binds_through_agentteams[ACTION]`, `[SCOPE]`, `test_signed_an_exempt_halt_binds_through_agentteams_in_every_scanned_log` (12 cases) |
 | 9b | A row with a non-empty `derives_from` | `UNCLEARED` (caveat) | Q6: `derives_from`, `scope` and `effect_*` must be empty | `…[…derives_from…]`, `[…scope…]`, `[…effect_grants…]` |
 | 9c | A HALT on a study id that extends this one (`demo-2` against `demo`) | `UNCLEARED` (caveat); the reason says so | Ids are matched across separators (Q2) | `test_signed_a_halt_in_a_team_log_binds_through_agentteams[EXTENDED]` |
 | 9d | A valid PASS for a study id that extends this one (`tidebell-survey-2`), same gate | `UNCLEARED` (caveat) | The deciding row must name exactly the computed action; the child is asked only about it | `test_a_row_for_a_study_id_that_extends_this_one_never_decides`, `test_signed_a_valid_pass_for_a_study_that_extends_this_one_never_clears_it` |
-| 10 | A HALT **on the action**, retracted, with no new PASS after it | `UNCLEARED` (caveat) until a new PASS; then `CLEARED` | After a retraction no earlier permission survives: the HALT behind the retraction decides, never an older PASS. A retracted HALT on the scope in the folder log is not a row for the action, so the older PASS reaches the child, which decides (S6) | `test_a_retraction_never_restores_an_older_sign_off`, `test_signed_a_retracted_halt_on_the_action_needs_a_new_pass` |
+| 10 | A HALT **on the action**, retracted, with no new PASS after it | `UNCLEARED` (caveat) until a new PASS; then `CLEARED` | After a retraction no earlier permission survives: the HALT behind the retraction decides, never an older PASS. For a HALT on the **scope** (not the action): a retracted HALT on the scope in the folder log is not a row for the action, so the older PASS reaches the child, which decides (S6) | `test_a_retraction_never_restores_an_older_sign_off`, `test_signed_a_retracted_halt_on_the_action_needs_a_new_pass` |
 | 10a | A retraction signed with a shared secret | It never counts: the child's `HOME` is empty, so no shared-secret key is found (Q11) | — | `test_the_childs_environment_is_an_allowlist`, `test_the_child_runs_isolated_with_an_empty_home` |
 | 11 | A `consumed` column in the folder log | malformed (`ledger-log`) | The exact header has no `consumed` column, so such a log is refused; a check spends nothing (852, 889) | `test_a_log_with_an_extra_column_is_malformed` |
 | 12 | `CONDITIONAL PASS` with conditions pending | `UNCLEARED` (caveat) | 889-891 | `…[…pending…]` |
@@ -201,8 +200,7 @@ The child runs `sys.executable -B -I -c survey_verify.CHILD <folder> <scope> <ma
   prints it.
 - **A row signed for the same project, study id and files in another repository** clears here too (Q10).
 - **A tampered verifying install inside the work tree** (case 40). `survey-status` says where the verifier is.
-- **Look-alike letters from other scripts** in a family name (Cyrillic `с` for `c`, say) are not caught. agentteams
-  would not match such ids either, so no binding HALT is missed.
+- **Look-alike letters from other scripts** in a family name (Cyrillic `с` for `c`, say) are not caught.
 - **Cases 41 and 42** (above).
 
 ## What the CI job needs

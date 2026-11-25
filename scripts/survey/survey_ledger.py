@@ -41,9 +41,8 @@ APPROVERS = "references/security-approvers.txt"
 WAIVERS = "references/security-waivers.log.csv"
 PARENT_TEAM_KEY = "parent_team"
 #: The header the log must have, exactly (6.2 "with the signature columns"; operator decision, 2026-11-25: adopt
-#: agentteams' own new-log header). Read from agentteams 1.3.0: ``decision_log.append_signed_decision_row`` creates a
-#: missing log with ``["timestamp", "requesting_agent", *SIGNED_DECISION_COLUMNS]``. agentteams refuses a header
-#: without ``timestamp`` and ``requesting_agent`` (its legacy schema), and ``--sign-decision`` then will not extend it.
+#: agentteams' own new-log header): agentteams 1.3.0's new-log header, ``timestamp`` and ``requesting_agent`` followed
+#: by its ``SIGNED_DECISION_COLUMNS``.
 LOG_HEADER = (
     "timestamp", "requesting_agent", "date", "action_reviewed", "verdict", "scope", "conditions",
     "conditions_verified", "evidence", "author", "derives_from", "effect_class", "effect_grants", "effect_targets",
@@ -462,12 +461,13 @@ def _check_parity(folder: Path, teams: list, add) -> None:
 
 # --------------------------------------------------------------------------- the interim family-HALT scan (step F)
 def squashed(text: str) -> str:
-    """An id reduced for the family match (@security S1): Unicode format characters (category ``Cf``, such as a
-    zero-width space) dropped, NFKC-normalised (so a fullwidth spelling becomes ASCII), lower-cased, and every
-    character that is not ``a``-``z`` or ``0``-``9`` removed. ``Survey-SignOff/S0`` and ``survey_signoff s0`` both
+    """An id reduced for the family match (@security S1, A3): NFKD-normalised (so a fullwidth spelling becomes ASCII
+    and a precomposed ``ü`` becomes ``u`` plus a combining mark), then every non-spacing mark (category ``Mn``) and
+    format character (``Cf``, such as a zero-width space) dropped, lower-cased, and every character that is not
+    ``a``-``z`` or ``0``-``9`` removed. ``Survey-SignOff/S0``, ``survey_signoff s0`` and ``sürvey-signoff/S0`` all
     become ``surveysignoffs0``."""
-    text = "".join(ch for ch in text if unicodedata.category(ch) != "Cf")
-    text = unicodedata.normalize("NFKC", text).lower()
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(ch for ch in text if unicodedata.category(ch) not in ("Mn", "Cf")).lower()
     return re.sub(r"[^a-z0-9]+", "", text)
 
 
@@ -480,12 +480,13 @@ _STUDY_ID = re.compile(r"survey-signoff/(?:%s)/[a-z0-9][a-z0-9_-]*(?::sha256-[0-
 def family_gates(action: str) -> tuple:
     """The gates a HALT row's action names as a family (6.2, line 895, widened as a session-adopted default).
 
-    A study's exact scope or action (:data:`_STUDY_ID`) is exempt. Otherwise the id is reduced by
+    A study's exact scope or action (:data:`_STUDY_ID`), matched on the raw cell with nothing before or after it, is
+    exempt; a padded or otherwise altered one falls through to the family match. Otherwise the id is reduced by
     :func:`squashed`; it names gate ``<g>`` when the result contains ``surveysignoff<g>`` (``survey-signoff/S0``,
     ``survey-signoff/S0-2026``, ``Survey SignOff S0``), and otherwise every gate when it contains ``surveysignoff``
     (``survey-signoff``, ``survey-signoff:freeze``, ``freeze-survey-signoff``). Look-alike letters from other scripts
     are not caught (a residual gap)."""
-    if _STUDY_ID.fullmatch(action.strip()):
+    if _STUDY_ID.fullmatch(action):  # the raw cell: no strip, no normalisation (@security B1)
         return ()
     have = squashed(action)
     named = tuple(g for g in GATES if FAMILY_SQUASHED + g.lower() in have)
@@ -550,7 +551,8 @@ def _scan_family_halts(study, folder: Path, parent, led: Ledger) -> None:
 
 def _read_any_log(path: Path) -> list:
     """``[(line, {actions}, {verdicts})]`` of a decisions log in either schema (``action_reviewed`` or ``decision``;
-    ``verdict`` or ``status``), stripped; verdicts lower-cased (actions keep their case for the token split). Raises when the log cannot be read whole: not a regular
+    ``verdict`` or ``status``). Actions are kept as the raw cells, so the study-scope exemption is decided on exactly
+    what the log holds; verdicts are stripped and lower-cased. Raises when the log cannot be read whole: not a regular
     file, too large, not UTF-8, a quote left open, a record wider or narrower than its header, or neither an action
     nor a verdict column."""
     if not is_regular(path):
@@ -572,6 +574,6 @@ def _read_any_log(path: Path) -> list:
             continue
         if len(record) != len(header):
             raise ValueError(f"record {n} has {len(record)} fields; the header has {len(header)}")
-        out.append((n, {record[i].strip() for i in acts if record[i].strip()},
+        out.append((n, {record[i] for i in acts if record[i].strip()},
                     {record[i].strip().lower() for i in verds}))
     return out

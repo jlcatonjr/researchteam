@@ -78,14 +78,12 @@ def safe(text: str) -> str:
 
 
 def reason(exc: BaseException) -> str:
-    """What went wrong, for an output line, without the path an OSError names (@security S4, S8): an OSError gives
-    its ``strerror`` (or its class name); anything else its message."""
+    """What went wrong, for an output line, without the path an OSError names (@security S4, S8, A2): an OSError gives
+    its ``strerror``, or else its class name (never its message, which may hold a path); anything else its message."""
     if isinstance(exc, OSError):
         if exc.strerror:
             return exc.strerror
-        if exc.filename is None and exc.filename2 is None:  # no path to leak: the message as raised
-            return str(exc) or type(exc).__name__
-        return type(exc).__name__
+        return type(exc).__name__  # a bare message may itself hold a path (@security A2)
     return str(exc)
 
 

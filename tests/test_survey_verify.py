@@ -344,6 +344,14 @@ def test_a_log_with_an_extra_column_is_malformed(tmp_path):
     # ... and only exactly that: anything else after a colon, or another spelling, is a family HALT
     (".github/agents", "survey-signoff/S0/tidebell-survey:hold", {"S0"}),
     (".github/agents", "SURVEY-SIGNOFF/S0/tidebell-survey:sha256-" + "ab" * 32, {"S0"}),
+    # @security B1: the exemption is decided on the raw cell, so a padded study scope is a family HALT
+    (".github/agents", "survey-signoff/S0/tidebell-survey\u3000", {"S0"}),
+    (".github/agents", "survey-signoff/S0/tidebell-survey ", {"S0"}),
+    (".github/agents", "survey-signoff/S0/tidebell-survey\n", {"S0"}),
+    (".github/agents", " survey-signoff/S0/tidebell-survey", {"S0"}),
+    # @security A3: a combining mark, decomposed or precomposed, does not hide the family name
+    (".github/agents", "su\u0308rvey-signoff", ALL),
+    (".github/agents", "s\u00fcrvey-signoff", ALL),
 ])
 def test_a_family_halt_in_any_scanned_log_blocks_the_gates_it_names(tmp_path, where, action, blocked):
     root = make_repo(tmp_path)
@@ -678,3 +686,21 @@ def test_signed_a_valid_pass_for_a_study_that_extends_this_one_never_clears_it(s
     sign_row(root / LEDGER, pem, act.replace(f"/{STUDY_ID}:", f"/{STUDY_ID}-2:"))
     st = _real(root)
     assert st.state == "UNCLEARED" and "no row in the ledger log names this action" in st.reason
+
+
+@pytest.mark.parametrize("where", [".claude/agents", ".github/agents", ".codex/agents", ".goose/recipes",
+                                   ".grok/agents", "parent_team"])
+@pytest.mark.parametrize("target", ["ACTION", "SCOPE"])
+def test_signed_an_exempt_halt_binds_through_agentteams_in_every_scanned_log(signed, where, target):
+    """@security A1: a HALT on this study's own scope or action is exempt from the family scan and left to
+    agentteams' check in the child; it blocks from each team location the scan covers and from ``parent_team``."""
+    root, act, _pem = signed
+    halted = act if target == "ACTION" else f"survey-signoff/S0/{STUDY_ID}"
+    rel = "governance/team" if where == "parent_team" else where
+    _team_log(root, rel, [f"2026-11-25,security,{halted},HALT,x,"])
+    if where == "parent_team":
+        (_refs(root) / "agent-privilege.json").write_text(json.dumps({"parent_team": rel}))
+    assert ledger_mod.check_ledger(_study(root)).family_halts == {}  # exempt: not the tools' scan
+    st = _real(root)
+    assert st.state == "UNCLEARED" and st.reason == gates.NOT_CLEARED
+

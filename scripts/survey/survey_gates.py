@@ -9,7 +9,7 @@ request is exactly the manifest built now (see :func:`gate_status` for the order
 
 **Verification** (:func:`verify_signoff`) applies the tools' own rules to the row that decides, before and
 independently of agentteams, and only then asks agentteams, in a child process (``survey_verify``), whether it
-clears the action. The tools enforce the contract's rules themselves and do not rely on agentteams alone to refuse.
+clears the action. The tools enforce the contract's rules themselves, in addition to agentteams' check.
 """
 from __future__ import annotations
 

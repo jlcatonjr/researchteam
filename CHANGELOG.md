@@ -12,8 +12,8 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     `PATH`, `LC_ALL`, and an empty temporary `HOME` and `TMPDIR`. No `AGENTTEAMS_*`, `XDG_*` or `GIT_*` variable
     passes through, so no shared-secret key is found. It decides from the exit status and one JSON line, never from
     message text.
-  - **The tools' own rules come first.** They enforce the contract's rules themselves and do not rely on agentteams
-    alone to refuse:
+  - **The tools' own rules come first.** They enforce the contract's rules themselves, in addition to agentteams'
+    check:
     - every row of the folder's log is `ed25519` (`ledger-scheme`);
     - the row that decides names exactly the action the tools computed (so a row for a study id that extends this
       one never decides) and is a `PASS`, or a `CONDITIONAL PASS` whose conditions are verified;
@@ -22,9 +22,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     - its `key_id` is a plain stem naming a key file in the folder;
     - its author is on the folder's list.
   - **The interim family-HALT rule.** A HALT row on a family name in any log the HALT scan covers blocks the gates
-    it names (`UNAVAILABLE`), signed or not, retracted or not. An id is squashed (format characters dropped, NFKC,
-    lower-cased, only `a-z0-9` kept): it names gate `g` when it contains `surveysignoff<g>`, else every gate when it
-    contains `surveysignoff`. A study's exact scope, optionally with exactly `:sha256-<64 hex>`, is exempt. No public
+    it names (`UNAVAILABLE`), signed or not, retracted or not. A study's exact scope, optionally with exactly
+    `:sha256-<64 hex>`, is exempt, judged on the raw cell. Every other id is squashed (NFKD, non-spacing marks and
+    format characters dropped, lower-cased, only `a-z0-9` kept): it names gate `g` when it contains
+    `surveysignoff<g>`, else every gate when it contains `surveysignoff`. No public
     call exists yet to judge a retraction under each log's own rules (asked of agentteams).
   - **Other states.**
     - More than one git root above the ledger folder: `UNAVAILABLE`.
