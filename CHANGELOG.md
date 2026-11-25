@@ -5,6 +5,40 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step F: sign-off verification and stage refusal** (`scripts/survey/`, contract 6.1 and 6.2;
+  design `references/plans/post-1.3.0-h6-step-f-design.md`, check table
+  `references/plans/post-1.3.0-h6-step-f-check-table.md`). A gate can now read `CLEARED`.
+  - **agentteams is reached only as a child process.** The new `survey_verify.py` runs `sys.executable -I -c`, one
+    fixed snippet calling agentteams' public `check_file_clearance`, with an allowlisted environment: a minimal
+    `PATH`, `LC_ALL`, and an empty temporary `HOME` and `TMPDIR`. No `AGENTTEAMS_*`, `XDG_*` or `GIT_*` variable
+    passes through, so no shared-secret key is found. It decides from the exit status and one JSON line, never from
+    message text.
+  - **The tools' own rules come first.** They enforce the contract's rules themselves and do not rely on agentteams
+    alone to refuse:
+    - every row of the folder's log is `ed25519` (`ledger-scheme`);
+    - the row that decides names exactly the action the tools computed (so a row for a study id that extends this
+      one never decides) and is a `PASS`, or a `CONDITIONAL PASS` whose conditions are verified;
+    - it does not carry agentteams' checkout-signing mark;
+    - its `derives_from`, `scope` and `effect_*` columns are empty;
+    - its `key_id` is a plain stem naming a key file in the folder;
+    - its author is on the folder's list.
+  - **The interim family-HALT rule.** A HALT row on `survey-signoff` or `survey-signoff/<gate>` in any log the HALT
+    scan covers blocks the gates it names (`UNAVAILABLE`), signed or not, retracted or not. It holds until
+    agentteams offers a public call that judges a retraction.
+  - **Other states.**
+    - More than one git root above the ledger folder: `UNAVAILABLE`.
+    - No request: `UNCLEARED`.
+    - agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography`: `UNAVAILABLE`.
+  - **Stages.** A `build-only` gated stage now refuses when the sign-off folder is malformed (`stage_decision`, new
+    `require_gate`).
+  - **Output.**
+    - `survey-status` prints where the verifying agentteams is installed (inside or outside the work tree), what a
+      sign-off proves (6.2), and that no tool can detect every edit to a log's history.
+    - `survey-manifest` prints the operator's signing spec and command, with placeholders.
+    - Every value read from a log is escaped before it is printed.
+  - **Tests.** The signing tests generate an Ed25519 key pair at run time. They skip, with the reason, where
+    agentteams 1.3.0 or `cryptography` is absent, which includes the current CI.
+
 - **Survey toolkit: the sign-off log's header is agentteams' own.** Step A required only some signature columns,
   and its test fixture wrote a header without `timestamp` and `requesting_agent`. agentteams 1.3.0 refuses such a log
   as malformed, and `--sign-decision` will not extend it, so an operator who copied the fixture could not sign.
