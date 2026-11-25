@@ -143,3 +143,23 @@ includes the read-only listing of open HALTs this plan asked for. Two of its des
   changes is that the scan can use the public listing to tell a retracted HALT from an open one, in place of the
   interim rule that any HALT row blocks. Whether the family names should instead be written with colons is a
   question for a later contract version, recorded as a proposal.
+
+## The first project's check of its signed log (2026-11-25; data)
+
+The first integrating project's session checked its study's sign-off log, read-only, against the rules the tools
+on `main` apply. Four gates are signed there with the current decision key.
+
+- **Holds:** every row is Ed25519; each deciding row names the exact action with the manifest hash, has empty
+  `derives_from`, `scope` and effect columns, a key in the folder's store and an author on its approver list; no
+  waivers file; no HALT row on either family name in any tracked team log. (Whether a row carries the
+  checkout-signing mark was not verified there.)
+- **Fails rule 1, the exact header.** Its log has the header an earlier agentteams wrote: the same columns as
+  the 1.3.0 new-log header except that `prev_digest` is absent, and in a different order. agentteams 1.3.0's own
+  public log check accepts that header (checked here on an invented log). Under the operator's decision of
+  2026-11-25 ("header as agentteams writes it") the tools read that log as malformed, so none of its four gates
+  could read `CLEARED` and `survey-status` would exit non-zero. The decision was conditional on this check, so
+  it returns to the operator.
+- **Differs on where manifests live.** Its manifests are in a folder of the study, not in the sign-off folder's
+  `references/` as the tools write and read them (the tools' location is step A's proposal 1; the contract's text
+  does not fix it). With no manifest where the tools look, a gate reads "no request", `UNCLEARED`. The manifests'
+  bytes, and so the signed hashes, do not depend on where the files sit.
