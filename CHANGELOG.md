@@ -5,6 +5,27 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step C part 2: final codes and the rollup** (`scripts/survey/survey_final.py`,
+  `survey_finalize.py`, `survey_rollup.py`), by the operator's decisions of 2026-11-25 (D2-D6, O1-O3). New bridge
+  command `survey-finalize <project> --out <path>`: the final codes of every coded outcome (contract 4.2 lines
+  397-400), written to a file of their own inside the study's folder (never a declared or covered file; the passes file
+  is only read), with the codes columns and `pass` = `final`. An agreed unit takes pass A's row with coder `agreed` and
+  the note `agreed`, or `agreed; evidence differed` (evidence ids compared as sets); a disagreement or a single pass
+  takes its adjudication's row. These cases refuse, and nothing is written:
+  - a disagreement or single pass without an adjudication;
+  - a unit with no pass at all (stricter than the reference tool; every such unit listed);
+  - a `final` row in the codes file that is not, cell for cell, the derived row, or that has no derived row.
+  New bridge command `survey-rollup <project> <final file> --out <path>`: passage or work codes rolled up to their
+  author by the rules of 4.2 lines 403-422, from a final file whose bytes are what finalising gives, in every status.
+  Its record must be current; in a draft study a stale record is reported and the rollup runs. `<outcome>__types`
+  lists each value once, in the attribute's declared level order. Two codes at the deciding `order` are an error. The
+  rollup reports how many authors were left out. An existing output with the same bytes is "unchanged"; one with
+  other bytes is refused. Both commands also refuse an output named as a provenance record, and a file at a record's
+  path that is not this command's record of that output. Both records list every file read, gate S5 only, and the
+  legacy-exception count. Neither command reads a fetch receipt: `check_row_files` gains a `citations` switch, off for
+  these two, that skips the 5.4 citation check, which stays with `survey-validate` and `survey-rows`. Neither command
+  is a refusing stage. Printed findings are now
+  capped by the exact file each is about. The check table is `references/plans/post-1.3.0-h5-step-c2-check-table.md`.
 - **Survey toolkit, step C part 1: codes and agreement** (`scripts/survey/survey_codes.py`, `survey_agreement.py`).
   `survey-validate` now also checks each coded outcome's codes file and adjudications file (contract 4.2): passes
   `A`, `B` and `final`, allowed codes, evidence and basis for every code but the missing value, reporters, evidence

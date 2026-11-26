@@ -7,7 +7,7 @@ module.
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from decimal import ROUND_HALF_EVEN, Decimal
 from fractions import Fraction
 from pathlib import Path
@@ -135,6 +135,7 @@ def read_codes(study, ctx: Context) -> Codes:
     outcomes = coded_outcomes(study.spec)
     order = list(outcomes)  # the order the study declares them (as the frame orders its outcome columns, line 603)
     files: dict = {}  # codes file (repo_rel) -> (ResolvedPath, [outcome keys that name it])
+    read_files: dict = {}  # each file read -> the wheres of its rows
     for i, o in enumerate(study.spec["outcomes"]):
         if o["source"]["kind"] != "codes":
             continue
@@ -146,6 +147,7 @@ def read_codes(study, ctx: Context) -> Codes:
             continue  # absent only in a draft (section 3's file check)
         rows = read_rows(Path(rp.real), rel, CODES_COLUMNS, "codes-columns")
         out.findings += rows.findings
+        read_files[rel] = {f"{rel}:{n}" for n, _r in rows.rows}
         for n, r in rows.rows:
             where = f"{rel}:{n}"
             outcome = outcomes.get(r["outcome"])
@@ -170,6 +172,7 @@ def read_codes(study, ctx: Context) -> Codes:
             continue  # it may be absent (section 3, line 219)
         rows = read_rows(Path(rp.real), rp.repo_rel, ADJUDICATION_COLUMNS, "adjudication-columns")
         out.findings += rows.findings
+        read_files[rp.repo_rel] = {f"{rp.repo_rel}:{n}" for n, _r in rows.rows}
         adj = out.adjudications.setdefault(o["key"], {})
         for n, r in rows.rows:
             where = f"{rp.repo_rel}:{n}"
@@ -188,6 +191,11 @@ def read_codes(study, ctx: Context) -> Codes:
             adj[r["unit_id"]] = (where, r)
     out.rows = {k: out.rows[k] for k in order if k in out.rows}
     _check_passes(out, add)
+    # the file each finding is about, for the cap on printed findings (display only): every row finding's where is
+    # "<file>:<line>" of a file read above
+    files_of = {where: rel for rel in read_files for where in read_files[rel]}
+    out.findings = [f if f.file or f.where not in files_of else replace(f, file=files_of[f.where])
+                    for f in out.findings]
     return out
 
 

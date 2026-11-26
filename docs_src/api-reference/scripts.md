@@ -284,6 +284,8 @@ them with `python3 -B -I`.
 | `survey_rows.py` | Step B part 2b. The `survey-rows` command: the batch merge, and `--draft-exceptions` |
 | `survey_codes.py` | Step C. The codes and adjudications files' checks (4.2) and raw agreement between passes A and B |
 | `survey_agreement.py` | Step C. The `survey-agreement` command |
+| `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), and placing a path in the study's folder |
+| `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
 | `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
@@ -318,6 +320,34 @@ pass is missing the note begins `missing pass: A, ` or `missing pass: B, ` and g
 (`survey_codes.statistics`): over the units with both passes, every code its own category, κ unweighted, AC1 with q
 the number of codes the specification allows; exact fractions, three decimals rounded half to even, `undefined` where
 a statistic is. It writes nothing. Finalising and the rollup are not in this version.
+
+### Final codes and the rollup (step C, part 2)
+
+`survey-finalize <project> --out <path>` writes the final codes of every coded outcome to a file of its own (operator
+decision D2), with a provenance record beside it listing every file read (those read only to check them included),
+gate S5 and the legacy exceptions (D6). Neither this command nor `survey-rollup` reads a fetch receipt: they run the
+row checks without the 5.4 citation check, since no final code or rollup cell rests on a receipt; `survey-validate`,
+`survey-rows` and the later quotation step keep that check. The passes file is only read. For each unit of
+the study (the attribution file's units; in an author study the registry's persons) and each coded outcome: agreed
+passes give pass A's row with `coder` `agreed`, `level` empty and `note` `agreed` or `agreed; evidence differed` (the
+evidence ids compared as sets); a disagreement, or a unit with one pass, the adjudication's coder, basis, reporter,
+evidence and note (D3); without one, or for a unit with no pass at all (D4), nothing is written and the units are
+listed (`final-no-adjudication`, `final-no-pass`). A `final` row the codes file already holds must equal the derived
+row cell for cell; one that differs (`final-differs`) or has no derived row (`final-extra`) refuses (O2). Rows are in
+the outcomes' declared order, then code-point order of `unit_id`.
+
+`survey-rollup <project> <final file> --out <path>` reads a `survey-finalize` output whose bytes are what
+`survey-finalize` gives from the study's inputs, in every status, and whose record matches its inputs (in a draft
+study a record that does not is reported and the stage runs; O3), and rolls its final codes up to the author: only
+counted, not excluded units; NA codes and the missing value skipped; `single-code` (a conflict is an error,
+`rollup-conflict`), `mixed-if-conflict`, `max-order`, `any-present` (two codes at the deciding `order` are an error
+too); nothing left gives the missing value. Columns: `person_id`, each `unit.rollup_by` key, `author_kind`, each
+rolled-up outcome and `<outcome>__types` where `unit.rollup_types` is set (the distinct values, in the order the
+attribute declares its levels, joined with `;`; O1). Rows are in code-point order of `person_id`, then of the
+`rollup_by` values. It refuses in an author study. Its record lists every file read: the final file and its record,
+and every file finalising lists. Both commands write through `check_output_target` and `write_all` with every file
+read guarded; an output named as a record (`.provenance.json`) is refused, and so is a record path holding anything
+but this output's record; an existing output is "unchanged" when identical and refused otherwise.
 
 ### The batch merge (step B part 2b)
 

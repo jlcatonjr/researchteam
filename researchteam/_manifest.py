@@ -101,6 +101,10 @@ SCHOLARLY_MANAGED_FILES = [
     # Step C: codes and adjudications (4.2) and survey-agreement.
     "scripts/survey/survey_codes.py",
     "scripts/survey/survey_agreement.py",
+    # Step C part 2: final codes and the rollup (4.2).
+    "scripts/survey/survey_final.py",
+    "scripts/survey/survey_finalize.py",
+    "scripts/survey/survey_rollup.py",
     # Step F: sign-off verification (6.2), reaching agentteams only as a child process.
     "scripts/survey/survey_verify.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.

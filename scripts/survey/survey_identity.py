@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from survey_attribution import columns as attribution_columns
-from survey_core import MAX_JSON_BYTES, Finding, fold, q, read_capped, reason, unsafe_chars
+from survey_core import MAX_JSON_BYTES, Finding, fold, in_file, q, read_capped, reason, unsafe_chars
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS
 from survey_evidence import REGISTRY_COLUMNS
 from survey_provenance import ABSENT
@@ -192,6 +192,7 @@ def read_overrides(study, persons: list) -> Overrides:
             out.findings.append(Finding("overrides-shared-identity", f"{where}:{links[1][0]}", f"{names} are all "
                                         f"linked to identity {q(target)}; two persons of one identity are a merge "
                                         "(contract silent; refused)"))
+    out.findings = in_file(out.findings, where)
     if not out.findings:
         out.rows = good
     return out
