@@ -188,14 +188,16 @@ def test_without_adjudications_the_file_may_be_absent(tmp_path):
 
 # --------------------------------------------------------------------------- agreement (4.2, lines 400-401)
 def test_agreement_on_the_invented_study(tmp_path):
-    """p-001: A for, B for (agree); p-002: A against, B tolerates (disagree); p-003: A only. So 1 of 2, and one unit
-    with one pass."""
+    """p-001: A for, B for (agree); p-002: A against, B tolerates (disagree); p-003: A only (left out). n = 2.
+    raw = 1/2. p_A: for 1/2, against 1/2; p_B: for 1/2, tolerates 1/2; p_e = 1/2 * 1/2 = 1/4; kappa = (1/2 - 1/4) /
+    (3/4) = 1/3 = 0.333. AC1: the allowed codes are for, tolerates, against, NA, NE, so q = 5; pi: for 1/2, against
+    1/4, tolerates 1/4; sum pi(1 - pi) = 1/4 + 3/16 + 3/16 = 5/8; p_e1 = (5/8) / 4 = 5/32; AC1 = (16/32 - 5/32) /
+    (27/32) = 11/27 = 0.407."""
     root = make_repo(tmp_path)
     before = tree(root)
     code, out, _ = run(survey_agreement, "--root", str(root), "tidebell")
     assert code == 0 and tree(root) == before
-    assert "slack_bell: raw agreement 1 of 2 unit(s) with both passes; 1 unit(s) with one pass only" in out
-    assert "not computed" in out
+    assert out == "slack_bell: n=2 raw=0.500 kappa=0.333 AC1=0.407; 1 unit(s) with one pass only\n"
 
 
 def test_agreement_by_hand():
@@ -209,6 +211,7 @@ def test_agreement_by_hand():
     c.rows["x"] = [("w", {"unit_id": u, "pass": p, "code": k}) for u, p, k in rows]
     (a,) = sc.agreement(c)
     assert (a.outcome, a.units, a.agreeing, a.missing_pass) == ("x", 4, 3, 1)
+    assert a.raw == sc.Fraction(3, 4)
 
 
 def test_agreement_refuses_on_a_code_error_and_writes_nothing(tmp_path):
@@ -244,7 +247,7 @@ def test_the_bridge_runs_survey_agreement_and_refuses_root(tmp_path):
     env["PATH"] = os.path.dirname(sys.executable) + os.pathsep + env.get("PATH", "")
     bridge = ["bash", str(root / "scripts" / "claude_researchteam_bridge.sh")]
     res = subprocess.run([*bridge, "survey-agreement", "tidebell"], capture_output=True, text=True, env=env)
-    assert res.returncode == 0 and "raw agreement 1 of 2" in res.stdout
+    assert res.returncode == 0 and "slack_bell: n=2 raw=0.500" in res.stdout
     res = subprocess.run([*bridge, "survey-agreement", "--root", str(tmp_path), "tidebell"], capture_output=True,
                          text=True, env=env)
     assert res.returncode == 2 and "--root is not accepted" in res.stderr
@@ -322,12 +325,62 @@ def test_agreement_lists_outcomes_in_declared_order(tmp_path):
     (root / ROWS / "codes-bell_rope.csv").write_bytes(CH)
     (root / ROWS / "codes-aaa_signal.csv").write_bytes(CH + A1.replace(b"slack_bell", b"aaa_signal"))
     out = run(survey_agreement, "--root", str(root), "tidebell")[1]
-    order = [ln.split(":")[0] for ln in out.splitlines() if ": raw agreement " in ln]
+    order = [ln.split(":")[0] for ln in out.splitlines() if ": n=" in ln]
     assert order == ["slack_bell", "aaa_signal", "bell_rope"]
 
 
-def test_agreement_says_it_does_not_yet_meet_line_400(tmp_path):
-    """B1: 4.2 line 400 requires κ and AC1 too; the output says the command does not yet meet it."""
+
+# --------------------------------------------------------------------------- the operator's definitions (2026-11-25)
+ALLOWED = {"for", "tolerates", "against", "NA", "NE"}  # the invented outcome's levels, NA code and missing value
+
+
+def _stats(pairs, allowed=ALLOWED):
+    return [sc.three_decimals(x) for x in sc.statistics(pairs, allowed)]
+
+
+def test_kappa_and_ac1_differ_visibly():
+    """Four units: three (for, for), one (for, against). n = 4, raw = 3/4.
+    p_A: for 1; p_B: for 3/4, against 1/4. p_e = 1 * 3/4 = 3/4, so kappa = (3/4 - 3/4) / (1/4) = 0.
+    pi: for (1 + 3/4)/2 = 7/8, against 1/8; sum pi(1 - pi) = 7/64 + 7/64 = 7/32; q = 5, so p_e1 = (7/32)/4 = 7/128;
+    AC1 = (96/128 - 7/128) / (121/128) = 89/121 = 0.73553... -> 0.736."""
+    assert _stats([("for", "for")] * 3 + [("for", "against")]) == ["0.750", "0.000", "0.736"]
+
+
+def test_na_codes_and_the_missing_value_are_categories():
+    """(NA, NA), (NE, NE), (for, NA), (for, for): every code its own category; both passes NE agree.
+    n = 4, raw = 3/4. p_A: NA 1/4, NE 1/4, for 1/2; p_B: NA 1/2, NE 1/4, for 1/4.
+    p_e = 1/4*1/2 + 1/4*1/4 + 1/2*1/4 = 2/16 + 1/16 + 2/16 = 5/16; kappa = (12/16 - 5/16) / (11/16) = 7/11 = 0.636.
+    pi: NA 3/8, NE 1/4, for 3/8; sum pi(1 - pi) = 15/64 + 12/64 + 15/64 = 21/32; p_e1 = (21/32)/4 = 21/128;
+    AC1 = (96/128 - 21/128) / (107/128) = 75/107 = 0.70093... -> 0.701."""
+    assert _stats([("NA", "NA"), ("NE", "NE"), ("for", "NA"), ("for", "for")]) == ["0.750", "0.636", "0.701"]
+
+
+def test_ac1_uses_the_codes_the_codebook_allows_not_those_that_occur():
+    """The pairs of test_kappa_and_ac1_differ_visibly. With q = 5 (the allowed codes) AC1 = 89/121 = 0.736. Were q
+    the 2 codes that occur, p_e1 = (7/32)/1 = 7/32 and AC1 = (24/32 - 7/32) / (25/32) = 17/25 = 0.680."""
+    pairs = [("for", "for")] * 3 + [("for", "against")]
+    assert _stats(pairs)[2] == "0.736"
+    assert _stats(pairs, {"for", "against"})[2] == "0.680"  # what "codes that occur" would give
+
+
+def test_the_undefined_cases():
+    """n = 0: all three undefined. Every unit (for, for): p_e = 1, so kappa is undefined, while pi_for = 1 gives
+    p_e1 = 0 and AC1 = (1 - 0) / 1 = 1.000. q = 1: AC1 undefined (and here p_e = 1, so kappa too)."""
+    assert _stats([]) == ["undefined", "undefined", "undefined"]
+    assert _stats([("for", "for")] * 3) == ["1.000", "undefined", "1.000"]
+    assert _stats([("x", "x")], {"x"}) == ["1.000", "undefined", "undefined"]
+
+
+def test_rounding_at_half_is_to_even():
+    """1/16 = 0.0625 -> 0.062 (half to the even 2, not 0.063); 3/16 = 0.1875 -> 0.188; 1/3 -> 0.333; -1/3 -> -0.333.
+    Sixteen units, one agreeing: raw = 1/16 -> 0.062."""
+    F = sc.Fraction
+    assert [sc.three_decimals(x) for x in (F(1, 16), F(3, 16), F(1, 3), F(-1, 3), F(1))] == \
+        ["0.062", "0.188", "0.333", "-0.333", "1.000"]
+    assert _stats([("for", "for")] + [("for", "against")] * 15)[0] == "0.062"
+
+
+def test_agreement_output_is_byte_identical_across_runs(tmp_path):
     root = make_repo(tmp_path)
-    out = run(survey_agreement, "--root", str(root), "tidebell")[1]
-    assert "does not yet meet contract 4.2 line 400" in out
+    first = run(survey_agreement, "--root", str(root), "tidebell")
+    assert first == run(survey_agreement, "--root", str(root), "tidebell") and first[0] == 0

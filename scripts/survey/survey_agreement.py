@@ -1,11 +1,12 @@
 """``survey-agreement <project>`` (contract section 7, line 932; 4.2, lines 400-401): report agreement between
-passes A and B, per outcome, with the number of units each figure rests on. It writes nothing.
+passes A and B, per coded outcome, in the order the study declares them. It writes nothing.
 
-Reported: raw agreement, as "k of n units", where n is the units with both an A and a B row and k those with the same
-code in both; and the units with only one of the two passes. Cohen's κ and Gwet's AC1, which 4.2 also names, are not
-computed yet: 4.2 (line 400) requires them, but the text leaves open how they are computed, and the operator settles
-that first (the check table lists the five open points). So this command does not yet meet line 400. It refuses
-when the study, its row files or its code files have an error (fail closed, rule 1.2).
+One line per outcome: ``<outcome>: n=<n> raw=<d.ddd> kappa=<d.ddd|undefined> AC1=<d.ddd|undefined>``, then the units
+with one pass only. n is the units with both an A and a B row; a unit with one pass is left out of the three
+statistics. The definitions are the operator's decisions of 2026-11-25 (``survey_codes.statistics``): every code its
+own category, kappa unweighted, AC1 over the codes the specification allows, exact arithmetic, three decimals rounded
+half to even, ``undefined`` where a statistic is. It refuses when the study, its row files or its code files have an
+error (rule 1.2).
 
 Exit 0 when reported, 1 when refused, 2 on a usage error. Not a gated stage (6.1).
 """
@@ -19,16 +20,12 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_codes import agreement, coded_outcomes  # noqa: E402
+from survey_codes import UNDEFINED, agreement, coded_outcomes, three_decimals  # noqa: E402
 from survey_core import SurveyUsageError, parse_args, print_findings, safe, usage_exit  # noqa: E402
 from survey_evidence import check_row_files  # noqa: E402
 from survey_spec import load_study  # noqa: E402
 
 PROG = "survey_agreement.py"
-NOT_COMPUTED = ("Cohen's kappa and Gwet's AC1: not computed: the contract leaves open how (the categories, units "
-                "with one pass, a zero denominator, rounding, weighting); the operator settles these first")
-NOT_YET = ("note: this command does not yet meet contract 4.2 line 400, which requires raw agreement, Cohen's kappa "
-           "and Gwet's AC1 per outcome")
 
 
 def main(argv=None) -> int:
@@ -49,13 +46,13 @@ def main(argv=None) -> int:
         print_findings(report.findings)
         print(f"REFUSED: the row or code files have {len(report.findings)} error(s); no agreement is reported on them")
         return 1
-    for a in agreement(report.codes):
-        print(safe(f"{a.outcome}: raw agreement {a.agreeing} of {a.units} unit(s) with both passes; "
-                   f"{a.missing_pass} unit(s) with one pass only"))
-    for outcome in [k for k in coded_outcomes(study.spec) if k not in report.codes.rows]:  # declared order, last
-        print(safe(f"{outcome}: raw agreement 0 of 0 unit(s) with both passes; no code rows"))
-    print(NOT_COMPUTED)
-    print(NOT_YET)
+    outcomes = coded_outcomes(study.spec)
+    for a in agreement(report.codes, outcomes):
+        print(safe(f"{a.outcome}: n={a.units} raw={three_decimals(a.raw)} kappa={three_decimals(a.kappa)} "
+                   f"AC1={three_decimals(a.ac1)}; {a.missing_pass} unit(s) with one pass only"))
+    for outcome in [k for k in outcomes if k not in report.codes.rows]:  # declared order, last
+        print(safe(f"{outcome}: n=0 raw={UNDEFINED} kappa={UNDEFINED} AC1={UNDEFINED}; 0 unit(s) with one pass "
+                   "only; no code rows"))
     return 0
 
 

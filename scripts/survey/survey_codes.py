@@ -1,12 +1,15 @@
 """Codes and adjudications (contract 4.2): their rows, every check on them, and agreement between passes A and B.
 
 Rule 1.3 holds: no tool fills a missing code. A code is written by a named coder and checked here, never derived.
-Finalising and the rollup (the rest of 4.2) are not in this module.
+Agreement follows the operator's decisions of 2026-11-25 (``statistics``). Finalising and the rollup are not in this
+module.
 """
 from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from decimal import ROUND_HALF_EVEN, Decimal
+from fractions import Fraction
 from pathlib import Path
 
 from survey_core import Finding, q, unsafe_chars
@@ -240,26 +243,81 @@ def _same_as_adjudication(final: dict, adjudication: dict) -> bool:
 
 
 # --------------------------------------------------------------------------- agreement (4.2, lines 400-401)
+UNDEFINED = "undefined"
+
+
 @dataclass
 class Agreement:
+    """The agreement of one outcome (4.2, line 400; operator decisions of 2026-11-25). The statistics are exact
+    fractions, or None where undefined."""
+
     outcome: str
-    units: int  # units with both an A and a B row
+    units: int  # n: units with both an A and a B row
     agreeing: int  # of those, units where A and B give the same code
     missing_pass: int  # units with exactly one of the two passes
+    raw: Fraction | None = None
+    kappa: Fraction | None = None
+    ac1: Fraction | None = None
 
 
-def agreement(codes: Codes) -> list:
-    """Raw agreement per outcome (4.2, lines 400-401): of the units with both an A and a B row, how many have the same
-    code in both, "with the number of units each rests on". Every code counts as itself, NA codes and the missing
-    value included. Cohen's κ and Gwet's AC1 are not computed: the contract names them without a formula
-    (proposal)."""
+def statistics(pairs: list, allowed: set) -> tuple:
+    """Raw agreement, Cohen's kappa and Gwet's AC1 over *pairs* (``(code A, code B)`` for each unit with both passes),
+    exactly, as fractions; None where undefined (operator decisions of 2026-11-25, "standard definitions"):
+
+    - every code is its own category, NA codes and the missing value included;
+    - raw p_a = agreeing / n;
+    - kappa, unweighted also for ordered levels: p_e = sum over codes of p_A(k) * p_B(k);
+      kappa = (p_a - p_e) / (1 - p_e);
+    - AC1: q = the number of codes *allowed* for the outcome (its level codes, NA codes and missing value, as the
+      specification declares them, not those that occur); pi_k = (p_A(k) + p_B(k)) / 2;
+      p_e1 = (1 / (q - 1)) * sum over the q allowed codes of pi_k * (1 - pi_k); AC1 = (p_a - p_e1) / (1 - p_e1);
+    - undefined: n = 0 (all three); 1 - p_e = 0 (kappa); q <= 1 or 1 - p_e1 = 0 (AC1)."""
+    n = len(pairs)
+    if n == 0:
+        return None, None, None
+    raw = Fraction(sum(1 for a, b in pairs if a == b), n)
+    count_a, count_b = {}, {}
+    for a, b in pairs:
+        count_a[a] = count_a.get(a, 0) + 1
+        count_b[b] = count_b.get(b, 0) + 1
+    p_a = {k: Fraction(v, n) for k, v in count_a.items()}
+    p_b = {k: Fraction(v, n) for k, v in count_b.items()}
+    p_e = sum((p_a.get(k, 0) * p_b.get(k, 0) for k in set(p_a) | set(p_b)), Fraction(0))
+    kappa = None if p_e == 1 else (raw - p_e) / (1 - p_e)
+    q = len(allowed)
+    ac1 = None
+    if q > 1:
+        pi = {k: (p_a.get(k, Fraction(0)) + p_b.get(k, Fraction(0))) / 2 for k in allowed}
+        p_e1 = sum((v * (1 - v) for v in pi.values()), Fraction(0)) / (q - 1)
+        ac1 = None if p_e1 == 1 else (raw - p_e1) / (1 - p_e1)
+    return raw, kappa, ac1
+
+
+def three_decimals(value: Fraction | None) -> str:
+    """A statistic as printed: rounded half to even at three decimals, from the exact fraction (Python's ``round`` of
+    a Fraction rounds half to even exactly), and formatted with ``decimal``, so every platform and Python version
+    prints the same (rule 1.5); ``undefined`` for None."""
+    if value is None:
+        return UNDEFINED
+    thousandths = round(value * 1000)
+    return str((Decimal(thousandths).scaleb(-3)).quantize(Decimal("0.001"), rounding=ROUND_HALF_EVEN))
+
+
+def agreement(codes: Codes, outcomes: dict | None = None) -> list:
+    """Agreement per outcome (4.2, lines 400-401), in the order the study declares the outcomes: over the units with
+    both an A and a B row (a unit with one pass is left out of all three statistics and counted apart), raw
+    agreement, Cohen's kappa and Gwet's AC1 (see :func:`statistics`). *outcomes* maps an outcome key to its
+    declaration, for the codes it allows."""
     out = []
     for outcome in codes.rows:  # in the order the study declares the outcomes (see read_codes)
         by_unit: dict = {}
         for _where, r in codes.rows[outcome]:
             if r["pass"] in ("A", "B"):
                 by_unit.setdefault(r["unit_id"], {})[r["pass"]] = r["code"]
-        both = [p for p in by_unit.values() if "A" in p and "B" in p]
-        out.append(Agreement(outcome, len(both), sum(1 for p in both if p["A"] == p["B"]),
-                             sum(1 for p in by_unit.values() if len(p) == 1)))
+        pairs = [(p["A"], p["B"]) for p in by_unit.values() if "A" in p and "B" in p]
+        allowed = allowed_codes(outcomes[outcome]) if outcomes and outcome in outcomes else \
+            {c for pair in pairs for c in pair}
+        raw, kappa, ac1 = statistics(pairs, allowed)
+        out.append(Agreement(outcome, len(pairs), sum(1 for a, b in pairs if a == b),
+                             sum(1 for p in by_unit.values() if len(p) == 1), raw, kappa, ac1))
     return out
