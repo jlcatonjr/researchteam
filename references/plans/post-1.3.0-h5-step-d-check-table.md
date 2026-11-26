@@ -27,7 +27,18 @@ Each is decided for the toolkit, and each is a proposal for a later contract ver
 - **B, "The tool, from arguments".** Given `--change-id`, `--date`, `--reason` and `--results-seen yes|no`,
   `survey-frame` appends the frame-change entry in the same write as the frame. The author gives every stated fact
   (rule 1.5: the date never comes from the clock), and an id already in the log is refused. Without the arguments,
-  the command refuses and prints the entry needed, as before. **Built up to one point, which is stopped (B2 below).**
+  the command refuses and prints the entry needed, as before. The tool computes `frame_sha256`, `n_units`, `added`,
+  `removed` and `units` from the frame; computing the last three as well was accepted with ruling B2.
+- **B2, "No record for the log"** (picker, 2026-11-25). `survey-frame` appends the entry and writes the frame in one
+  run, through one guarded write. The log gets no 4.6 record of its own. The records of the frame, the passage list
+  and the dropped list list the log as it stands **after** the append, so they are current. This is an exception to
+  line 549 ("Every file a tool writes for a later stage or a reader has a provenance record") and is proposed for a
+  later contract version.
+- **B3, "Replace when the log names it"** (picker, 2026-11-25). `survey-frame` may replace its own frame, passage
+  list and dropped list, and their records, at the same paths. It does so only when the log's last entry, after
+  this run's append if any, holds the new frame's hash, and only where the record beside each output is this tool's
+  record for it. D2 and D5 stand for the other commands: the shared writer's default stays "refuse", and replacing
+  is an explicit switch only `survey-frame` passes.
 - **D, "Read through the registry".** A merged id counts as the person it was merged into, through the recorded
   `merge` override; the rows stay as written. One function, `survey_final.merged_persons`, reads the overrides file's
   merges for both the rollup and the frame, so the two read ids the same way. **The rollup changes with this.** A
@@ -54,7 +65,14 @@ Each is decided for the toolkit, and each is a proposal for a later contract ver
 | B | The change arguments go together: all four or none, `--results-seen` `yes` or `no` | usage error | `test_the_change_arguments_go_together[...]` |
 | 461; B | With the arguments and an unchanged frame, no entry is written. The log has "one entry per change to the frame" (line 461), and giving the arguments breaks no rule, so they are not used and the command says so. It does not refuse | — | `test_the_change_arguments_and_an_unchanged_frame_write_no_entry` |
 | 474; B | An `--change-id` already in the log, or an empty one, is refused; so is an empty `--date` or `--reason` | `change-log-id`, `change-log-fact` | `test_an_id_already_in_the_log_is_refused` |
-| B, B2 | With the arguments and a changed frame, the author's four facts and the tool's `frame_sha256`, `n_units`, `added`, `removed` and `units` make the entry. Writing it is **stopped** (B2): the entry is printed in full, and nothing is written | `change-log-write` | `test_the_change_arguments_and_a_changed_frame_stop_on_the_open_point` |
+| B, B2 | With the arguments and a changed frame, the author's four facts and the tool's `frame_sha256`, `n_units`, `added`, `removed` and `units` make the entry. It is appended in the same guarded write as the frame, its lists and their records (`write_all`): either all are written or none. The log has no record; every record lists the log as it stands after the append | — | `test_the_first_build_with_the_change_arguments_creates_the_log`, `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run` |
+| B2 | The log grows by exactly one entry at its end. The new bytes are the bytes as read plus one line and a line feed, written whole through the guarded writer. The guard holds the bytes as read, so a log changed on disk since then refuses everything | — | `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run`, `test_a_log_changed_on_disk_before_the_write_refuses_everything` |
+| B2 (tightening 7) | A log whose last line does not end in a line feed is refused. The contract's text does not say how a line is joined to one, so nothing in the log as read is ever changed | `change-log-end` | `test_a_log_not_ending_in_a_line_feed_is_refused` |
+| B2; 218 | The log's path passes the same output checks: inside the study's folder (`check_output_target`, its own declared pointer allowed) and no link. A log that does not exist yet is created: section 3 lets `change_log` be absent "because a stage writes them or they start empty" (line 218), in any status | — | `test_the_first_build_with_the_change_arguments_creates_the_log` |
+| B3 | The command replaces its own earlier frame, passage list and dropped list at the same paths only when the log's last entry, after this run's append if any, holds the new frame's hash. Otherwise the log check refuses first | — | `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run`, `test_replacement_is_refused_when_the_last_entry_does_not_name_the_new_frame` |
+| B3 | Only this command's own outputs are replaced: the record at each record path must be this tool's record for that output. An output with no record, or a foreign record, is refused | — | `test_an_existing_different_output_is_refused`, `test_a_foreign_record_at_a_record_path_refuses_the_replacement` |
+| B3 | A dropped list that would no longer be written (the rule removed) is still refused: the tool deletes nothing | — | `test_a_dropped_list_without_the_rule_is_refused` |
+| D2, D5, B3 | Every other command keeps refusing to overwrite; `write_outputs` replaces only with `replace=True`, which only `survey-frame` passes | — | `test_every_other_command_keeps_refusing_to_overwrite` |
 | (tightening 1) | No blank line. `frame_sha256` is 64 lower-case hex digits. `n_units` is the number of `units`, and `units` has no repeats. A later entry's `added` and `removed` are exactly what its `units` gained and lost since the entry before. The last entry's `units` are the frame's, in its order | `change-log`, `change-log-entry` | `test_a_malformed_log_is_refused_and_no_entry_proposed[...]`, `test_a_later_entry_lists_what_changed` |
 
 ## Post-steps (4.5, lines 532-544): checked, not run
@@ -118,11 +136,11 @@ Each is decided for the toolkit, and each is a proposal for a later contract ver
 
 ## What the contract leaves open
 
-Points A to F were ruled on (above). E's third reading, every author crossed with every declared `rollup_by` level,
-was not chosen: such a frame would hold cells no passage stands behind. One point is new and **stopped**, and one
-stays as recorded.
+Points A to F, B2 and B3 were ruled on (above). E's third reading, every author crossed with every declared
+`rollup_by` level, was not chosen: such a frame would hold cells no passage stands behind. B2 and B3 are kept
+below as they were put to the operator, with the option chosen. Nothing in part 1 is stopped now.
 
-**B2. Writing the frame-change log from the run.** **Stopped.** The command refuses, writes nothing, and prints the
+**B2. Writing the frame-change log from the run.** *Ruled: option (a), "No record for the log".* As it was put: the command refuses, writes nothing, and prints the
 full entry, the author's facts included, for the author to append. The text does not settle this:
 
 - Line 549-550: "Every file a tool writes for a later stage or a reader has a provenance record". The log, once the
@@ -143,7 +161,7 @@ The options for the operator:
 - (c) Two runs: with the arguments the tool appends the entry and writes no frame; the next run reads the new log
   and writes the frame. This still meets line 549's record question for the log, so it needs (a) or (b) as well.
 
-**B3. A changed frame at the same path** (found in the hand run; not stopped, recorded). The writer refuses to
+**B3. A changed frame at the same path** (found in the hand run). *Ruled: option (a), "Replace when the log names it".* The writer refuses to
 write over an existing output with other bytes, as D2 ruled for the final codes and D5 for the rollup. So a changed
 frame cannot replace the old frame at the same path: the author has to move the old frame and its record aside.
 That holds even though the log's last entry already names the new frame, so the change is recorded. 4.4 assumes the
@@ -244,10 +262,15 @@ The design, with those conditions folded in:
    run (`write_outputs`).
 5. As for the rollup (O3), the final file's bytes must be what finalising gives, in every status.
 6. Merged ids that carry two `author_kind` values refuse the frame and the rollup (`author-kinds`).
+7. A frame-change log whose last line does not end in a line feed is refused before an entry is appended.
+8. B3's replacement is narrower than "replace": only `survey-frame`, only its own outputs with its own record
+   beside each, only when the log's last entry names the new frame. D2 and D5 stand for every other command.
 
 ## Proposals for a later contract version
 
-1. Rulings A to F, and B2 as ruled.
+1. Rulings A to F, B2 and B3, each as ruled. B2 is an exception to line 549: the frame-change log, which a tool now
+   writes, has no record of its own, and the records that rest on it list it as it stands after the append. B3: an
+   output may be replaced by its own tool when a recorded change names it.
 2. A declared field for the frame's path, so that `survey-validate` can run the log's hash check (B, C).
 3. `post_steps` entries as `Plugin` objects (the design, point 5).
 4. Running each post-step twice to check determinism (the design, point 6).
@@ -258,7 +281,6 @@ The design, with those conditions folded in:
 
 - **4.5 (lines 534-544):** post-steps are not run. A study that declares any is refused after its steps' paths and
   gates are checked. This is part 2, after the design and `@security`'s conditions are ruled on.
-- **Ruling B, writing the entry:** stopped on B2. The entry is printed for the author to append.
 - **5.2, line 745:** a vantage module's exclusions, recorded in the frame-change log, are not implemented. Such a
   study is refused, as the registry refuses it.
 - **4.4, line 475:** `results_seen` "is shown wherever the change is reported". No tool reports changes yet.

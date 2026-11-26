@@ -96,8 +96,9 @@ Commands:
                [--change-id <id> --date <date> --reason <text> --results-seen yes|no]
                 Write the frame of a passage or work study, its passage list and (with not-on-question)
                 its dropped list, from a current survey-finalize output, each with a provenance record;
-                refuses in an author study, and unless the frame-change log ends with this frame's entry
-                (it prints the entry needed, with the change arguments' facts filled in).
+                refuses in an author study, and unless the frame-change log ends with this frame's entry:
+                without the change arguments it prints the entry needed; with them it appends the entry in
+                the same write, and replaces its own earlier frame and lists at the same paths.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not

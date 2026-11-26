@@ -18,9 +18,12 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     is refused, and so is a dropped list left behind when the rule is not declared.
   - The frame must be the last entry of the frame-change log (4.4). Otherwise nothing is written and the entry the
     log needs is printed.
-  - With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the author's facts are filled in and
-    checked, and an id already in the log is refused. Writing the log from the same run waits on an open point, so
-    the entry is printed for the author to append. With an unchanged frame, no entry is written.
+  - With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the entry is appended in the same guarded
+    write as the frame and its lists. The author gives the four facts and the tool the hash and unit lists. An id
+    already in the log is refused, and so is a log whose last line has no line feed. The log has no record of its
+    own; the records list it after the append. With an unchanged frame, no entry is written.
+  - When the log names the new frame, `survey-frame` replaces its own earlier outputs at the same paths. Every other
+    command still refuses to write over an output with other bytes.
   - A merged id counts as the person it was merged into, through the overrides file's recorded merges. This is one
     function shared with `survey-rollup`, **which changes with it**: a passage attributed to a merged id now counts
     for its person in the rollup too.

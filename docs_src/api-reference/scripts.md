@@ -365,10 +365,17 @@ exceptions. Its input is a current `survey-finalize` output, checked as the roll
   rows stay as written.
 - Columns, outcome cells, the period and attribute evidence follow 4.7, and every cell is checked before anything is
   written.
-- The frame must be the frame-change log's last entry (4.4). Otherwise nothing is written and the entry the log needs
-  is printed. With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the author's facts are filled in
-  and checked (an id already in the log is refused). Writing the log from the run waits on an open point, so the
-  entry is printed for the author to append. With those arguments and an unchanged frame, no entry is written.
+- The frame must be the frame-change log's last entry (4.4). Without the change arguments, nothing is written and
+  the entry the log needs is printed.
+- With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the entry is appended in the same guarded
+  write as the frame and its lists. The author gives the four facts; the tool computes the hash and the unit lists.
+  An id already in the log is refused, and so is a log whose last line has no line feed. The log grows by exactly one
+  line, has no record of its own, and every record lists it as it stands after the append. With those arguments and
+  an unchanged frame, no entry is written.
+- When the log's last entry names the new frame, the command replaces its own earlier frame, passage list and
+  dropped list at the same paths. Only files whose record beside them is this command's are replaced. Every other
+  command still refuses to write over an output with other bytes (`write_outputs(..., replace=True)` is passed only
+  here).
 - It refuses in an author study, where a bucketer is a plug-in, where the identity source is a vantage module, and
   where the evidence is in a plug-in format.
 - It does not run post-steps (4.5): it checks each step's path, then the gates that cover it, and refuses. Running
