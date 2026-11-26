@@ -67,8 +67,8 @@ def _repo(tmp_path, mutate=None, log=True):
     return root
 
 
-def _frame(root, final="out/final.csv", out="out/frame.csv", passages="out/passages.csv"):
-    return run(survey_frame, "--root", str(root), "tidebell", final, "--out", out, "--passages", passages)
+def _frame(root, final="out/final.csv", out="out/frame.csv", passages="out/passages.csv", *more):
+    return run(survey_frame, "--root", str(root), "tidebell", final, "--out", out, "--passages", passages, *more)
 
 
 def _refused(root, *args, needle=""):
@@ -151,11 +151,12 @@ def test_an_existing_different_output_is_refused(tmp_path):
 
 
 @pytest.mark.parametrize("args,needle", [
-    (("out/final.csv", "study.json", "out/passages.csv"), "declared"),
+    (("out/final.csv", "rows/evidence.csv", "out/passages.csv"), "declared"),
+    (("out/final.csv", "out/frame.txt", "out/passages.csv"), "does not end in .csv"),
     (("out/final.csv", "../frame.csv", "out/passages.csv"), ""),
     (("out/final.csv", "out/frame.csv", "out/frame.csv"), "same path"),
     (("out/final.csv", "out/final.csv", "out/passages.csv"), "would be the final file"),
-    (("out/final.csv", "out/f.provenance.json", "out/passages.csv"), "the name of a provenance record"),
+    (("out/final.csv", "out/frame.csv", "out/f.provenance.json"), "the name of a provenance record"),
 ])
 def test_where_the_outputs_may_not_go(tmp_path, args, needle):
     root = _repo(tmp_path)
@@ -186,7 +187,7 @@ def test_a_plug_in_bucketer_is_refused(tmp_path):
         s["signoffs"]["gates"]["S0"]["covers"].append("rules/bucket.py")
     from survey_support import edit_spec
     edit_spec(root, mutate)
-    out = _refused(root, needle="does not load or define")
+    out = _refused(root, needle="does not load")
     assert "[frame-plugin-bucketer]" in out
 
 
@@ -200,35 +201,116 @@ def test_a_vantage_module_is_refused(tmp_path):
         s["vantage"] = {"module": {"file": "rules/vantage.py", "attr": "IDS", "version": "1"}}
         s["signoffs"]["gates"]["S0"]["covers"].append("rules/vantage.py")
     edit_spec(root, mutate)
-    out = _refused(root, needle="does not load or define")
+    out = _refused(root, needle="does not load")
     assert "[identity-vantage]" in out
 
 
-def test_a_study_declaring_not_on_question_stops_on_the_open_point(tmp_path):
-    root = _repo(tmp_path, lambda s: s["frame_rules"]["exclude"].append(
-        {"rule": "not-on-question", "reason": "a cell with no code says nothing on the question"}))
-    out = _refused(root)
-    assert "[frame-dropped-name]" in out and "open point" in out
+def _rule(s):
+    s["frame_rules"]["exclude"].append({"rule": "not-on-question",
+                                        "reason": "a cell with no code says nothing on the question"})
 
 
-def test_a_merged_id_named_by_no_file_does_not_stop(tmp_path):
+DROPPED_HEADER = b'"unit_id","rule","reason"\n'
+
+
+def test_the_rule_declared_and_nothing_dropped_writes_a_header_only_list(tmp_path):
+    """Ruling A: the dropped list is the frame's path with .csv replaced by .dropped.csv, written with its header
+    only when no cell is dropped, with a record of its own."""
+    root = _repo(tmp_path, _rule)
+    code, out, _ = _frame(root)
+    assert code == 0, out
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME
+    assert (root / OUT / "frame.dropped.csv").read_bytes() == DROPPED_HEADER
+    doc = json.loads((root / OUT / "frame.dropped.csv.provenance.json").read_bytes())
+    assert doc["tool"] == "survey-frame" and list(doc["gates"]) == ["S5", "S6"]
+    assert "dropped: 0 cell(s)" in out
+
+
+def test_a_cell_with_every_outcome_empty_is_dropped(tmp_path):
+    """p-003 made "firm": guild-01|letter is a cell, its one final code is NA, so every outcome column is empty
+    (line 614) and the rule drops it (lines 641-643); its passage reads "not-on-question" (line 669)."""
+    root = _repo(tmp_path, _rule)
+    att = root / ROWS / "attribution.csv"
+    att.write_bytes(att.read_bytes().replace(b",doubtful,", b",firm,"))
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
+    code, out, _ = _frame(root, "out/final2.csv")
+    assert code == 0, out
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME
+    assert (root / OUT / "frame.dropped.csv").read_bytes() == DROPPED_HEADER + (
+        b'"guild-01|letter","not-on-question","a cell with no code says nothing on the question"\n')
+    assert b'"guild-01|letter","p-003","ev-005","guild-01","firm","false","not-on-question"\n' in \
+        (root / OUT / "passages.csv").read_bytes()
+
+
+def test_a_dropped_list_without_the_rule_is_refused(tmp_path):
     root = _repo(tmp_path)
+    (root / OUT / "frame.dropped.csv").write_bytes(DROPPED_HEADER)
+    out = _refused(root, needle="does not declare not-on-question")
+    assert "remove it first" in out
+
+
+# --------------------------------------------------------------------------- ruling D: merged ids
+def _merge(root, code=b"for"):
+    """warden-03 (p-004, a counted letter, coded "for") is merged into warden-02 by a recorded override; the rows
+    still name warden-03, and the registry lists it in warden-02's merged_from."""
+    (root / ROWS / "overrides.csv").write_text("alias_id,target_id,decision,decided_by,reason\n"
+                                               "warden-03,warden-02,merge,operator (invented),one keeper, two "
+                                               "spellings\n".replace("one keeper, two spellings",
+                                                                      '"one keeper, two spellings"'),
+                                               encoding="utf-8")
     reg = root / ROWS / "registry.csv"
-    reg.write_bytes(reg.read_bytes().replace(b"Tamsin Rook (invented),,\n", b"Tamsin Rook (invented),,warden-09\n"))
-    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final.csv")[0] == 0
-    assert _frame(root)[0] == 0
+    reg.write_bytes(reg.read_bytes().replace(b"Tamsin Rook (invented),,\n", b"Tamsin Rook (invented),,warden-03\n"))
+    att = root / ROWS / "attribution.csv"
+    att.write_bytes(att.read_bytes() + b"p-004,warden-03,person,register-05,register-05#p1,firm,letter,own,\n")
+    ev = root / ROWS / "evidence.csv"
+    ev.write_bytes(ev.read_bytes() + b"ev-006,warden-03,harbour,South Pier,quoted,src-5,Invented pier book,"
+                   b"register-05#p1,kept the south pier light,,,,,own,,p-004,,\n")
+    codes = root / ROWS / "codes-slack_bell.csv"
+    codes.write_bytes(codes.read_bytes() + b"p-004,warden-03,slack_bell," + code + b",A,coder-a,own,,ev-006,,\n"
+                      b"p-004,warden-03,slack_bell," + code + b",B,coder-b,own,,ev-006,,\n")
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
 
 
-def test_a_merged_id_still_named_stops_on_the_open_point(tmp_path):
-    """warden-02 is merged into warden-02b, but the attribution and evidence files still name warden-02: whether the
-    frame reads warden-02's rows as warden-02b's is open, so the build stops."""
+def test_a_merged_id_counts_as_its_person_in_the_frame(tmp_path):
+    """Ruling D: p-004 of warden-03 belongs to the cell warden-02|letter; max-order over tolerates (p-002) and for
+    (p-004) is "for"; harbour over North Quay and South Pier is "north" (the table's first row that fires)."""
     root = _repo(tmp_path)
-    reg = root / ROWS / "registry.csv"
-    reg.write_bytes(reg.read_bytes().replace(b"warden-02,Tamsin Rook (invented),,\n",
-                                             b"warden-02b,Tamsin Rook (invented),,warden-02\n"))
-    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final.csv")[0] == 0
-    out = _refused(root)
-    assert "[frame-merged-id]" in out and "'warden-02'" in out
+    _merge(root)
+    code, out, _ = _frame(root, "out/final2.csv")
+    assert "the entry the log needs" in out and code == 1  # the frame changed
+    frame = FRAME.replace(b'"north","0","0","1","tolerates"', b'"north","0","0","1","for"')
+    sha = cl.frame_sha256(frame)
+    (root / LOG).write_text(_entry() + _entry(sha=sha, added=[], eid="fc-2"), encoding="utf-8")
+    code, out, _ = _frame(root, "out/final2.csv")
+    assert code == 0, out
+    assert (root / OUT / "frame.csv").read_bytes() == frame
+    assert b'"warden-02|letter","p-004","ev-006","warden-03","firm","true",""\n' in \
+        (root / OUT / "passages.csv").read_bytes()
+    doc = json.loads((root / OUT / "frame.csv.provenance.json").read_bytes())
+    assert f"{ROWS}/overrides.csv" in [e["path"] for e in doc["inputs"] if e["sha256"]]
+
+
+def test_the_rollup_reads_merged_ids_the_same_way(tmp_path):
+    """Ruling D, shared with the rollup: warden-03's passage counts for warden-02."""
+    import survey_rollup
+    root = _repo(tmp_path)
+    _merge(root)
+    code, out, _ = run(survey_rollup, "--root", str(root), "tidebell", "out/final2.csv", "--out", "out/rollup.csv")
+    assert code == 0, out
+    assert (root / OUT / "rollup.csv").read_bytes() == (b"person_id,genre,author_kind,slack_bell,slack_bell__types\n"
+                                                       b"warden-01,logbook,person,for,logbook\n"
+                                                       b"warden-02,letter,person,for,letter\n")
+    doc = json.loads((root / OUT / "rollup.csv.provenance.json").read_bytes())
+    assert f"{ROWS}/overrides.csv" in [e["path"] for e in doc["inputs"] if e["sha256"]]
+
+
+def test_merged_ids_with_two_author_kinds_are_an_error():
+    import survey_final as sf
+    att = {"p1": _att("p1", "x"), "p2": _att("p2", "y", kind="guild")}
+    _a, _k, findings = sf.authors(att, {"y": "x"})
+    assert [f.rule for f in findings] == ["author-kinds"]
+    assert [f.rule for f in _build(list(att.values()), [], [_final("p1", "a"), _final("p2", "a")],
+                                   persons={"y": "x"}).findings] == ["author-kinds"]
 
 
 # --------------------------------------------------------------------------- the final codes must be current (line 653)
@@ -398,8 +480,8 @@ def _final(uid, code, outcome="o"):
     return {"unit_id": uid, "outcome": outcome, "code": code, "pass": "final"}
 
 
-def _build(att, ev, finals, spec=SPEC):
-    return sc.build(spec, finals, {a["unit_id"]: a for a in att}, ev, _tables())
+def _build(att, ev, finals, spec=SPEC, persons=None):
+    return sc.build(spec, finals, {a["unit_id"]: a for a in att}, ev, _tables(), persons)
 
 
 def test_the_outcome_cell_table():
@@ -535,3 +617,108 @@ def test_usage_errors(tmp_path):
     root = _repo(tmp_path)
     assert run(survey_frame, "--root", str(root), "tidebell", "out/final.csv", "--out", "x.csv")[0] == 2
     assert run(survey_frame, "--root", str(root), "tidebell", "--out", "x.csv", "--passages", "y.csv")[0] == 2
+
+
+# --------------------------------------------------------------------------- ruling B: the change arguments
+CHANGE = ("--change-id", "fc-2", "--date", "2026-11-26", "--reason", "an adjudication was revised",
+          "--results-seen", "no")
+
+
+def test_the_change_arguments_and_an_unchanged_frame_write_no_entry(tmp_path):
+    root = _repo(tmp_path)
+    log = (root / LOG).read_bytes()
+    code, out, _ = _frame(root, "out/final.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert code == 0, out
+    assert "no entry: the frame is the log's last entry ('fc-1')" in out and "were not used" in out
+    assert (root / LOG).read_bytes() == log and (root / OUT / "frame.csv").read_bytes() == FRAME
+
+
+def test_the_change_arguments_and_a_changed_frame_stop_on_the_open_point(tmp_path):
+    """The facts are the author's, the hash, n_units and the unit lists the tool's; writing the log, which the run
+    also reads, is the open point: nothing is written and the full entry is printed."""
+    root = _repo(tmp_path)
+    adj = root / ROWS / "adjudications-slack_bell.csv"
+    adj.write_bytes(adj.read_bytes().replace(b"p-002,slack_bell,tolerates", b"p-002,slack_bell,against"))
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert "[change-log-write]" in out and "open point" in out
+    line = out.split("the entry to append to the log, then run again: ", 1)[1].splitlines()[0]
+    entry = json.loads(line)
+    assert (entry["id"], entry["date"], entry["reason"], entry["results_seen"]) == \
+        ("fc-2", "2026-11-26", "an adjudication was revised", False)
+    assert entry["n_units"] == 2 and entry["added"] == [] and entry["removed"] == [] and entry["units"] == CELLS
+    assert entry["frame_sha256"] != SHA
+
+
+def test_an_id_already_in_the_log_is_refused(tmp_path):
+    root = _repo(tmp_path)
+    adj = root / ROWS / "adjudications-slack_bell.csv"
+    adj.write_bytes(adj.read_bytes().replace(b"p-002,slack_bell,tolerates", b"p-002,slack_bell,against"))
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
+    args = list(CHANGE)
+    args[1] = "fc-1"
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *args)
+    assert "[change-log-id]" in out and "[change-log-write]" not in out
+
+
+@pytest.mark.parametrize("args", [CHANGE[:2], CHANGE[:6], CHANGE[:7] + ("maybe",)])
+def test_the_change_arguments_go_together(tmp_path, args):
+    root = _repo(tmp_path)
+    assert _frame(root, "out/final.csv", "out/frame.csv", "out/passages.csv", *args)[0] == 2
+
+
+# --------------------------------------------------------------------------- review fixes
+def test_a_flags_value_over_the_cap_is_a_finding_and_no_stray_column():
+    att = [_att("p1", "x")]
+    ev = [_ev("e1", "x", "duty", "lamp " * 20000, "p1")]
+    built = _build(att, ev, [_final("p1", "a")])
+    assert [f.rule for f in built.findings if f.rule == "frame-value-too-long"] == ["frame-value-too-long"]
+    assert all(set(r) <= set(built.columns) for r in built.rows)
+
+
+def test_bucket_tables_are_parsed_from_the_hashed_bytes(tmp_path):
+    """The frame reads each table from the bytes load_final hashed, not from the disk a second time."""
+    root = _repo(tmp_path)
+    from survey_spec import load_study
+    study = load_study("tidebell", root)
+    rel = f"{STUDY_REL}/tables/harbour.csv"
+    data = {rel: (root / rel).read_bytes(), f"{STUDY_REL}/tables/duties.csv":
+            (root / STUDY_REL / "tables" / "duties.csv").read_bytes()}
+    (root / rel).write_bytes(b"not a table\n")
+    tables, findings = survey_frame.load_tables(study, data)
+    assert findings == [] and [r.bucket for r in tables["harbour"]] == ["north", "south"]
+
+
+def test_a_post_step_that_is_a_folder_is_refused(tmp_path):
+    """The specification check already refuses a covered path that is not a regular file (covers-not-file); the
+    frame's own check is a second layer, called here on the loaded study."""
+    root = _repo(tmp_path)
+    (root / STUDY_REL / "steps" / "add.py").mkdir(parents=True)
+    from survey_spec import load_study
+    from survey_support import edit_spec
+
+    def mutate(s):
+        s["frame_rules"]["post_steps"] = ["steps/add.py"]
+        s["signoffs"]["gates"]["S6"]["covers"].append("steps/add.py")
+    edit_spec(root, mutate)
+    study = load_study("tidebell", root)
+    assert not study.ok and "malformed" in _frame(root)[1]
+    assert [f.rule for f in survey_frame.check_post_steps(study)] == ["post-step-file"]
+
+
+def test_post_steps_are_checked_paths_first_then_gates(tmp_path):
+    """Every step's path is checked, then the gates of the steps whose path passed; a step refused by its path is
+    not passed to a gate."""
+    root = _repo(tmp_path)
+    _with_step(root, "S5")
+    (root / "outside.py").write_text("print('never run')\n", encoding="utf-8")
+    from survey_support import edit_spec
+
+    def mutate(s):
+        s["frame_rules"]["post_steps"] = ["repo:outside.py", "steps/add.py"]
+        s["signoffs"]["gates"]["S6"]["covers"].append("repo:outside.py")
+    edit_spec(root, mutate)
+    from survey_spec import load_study
+    findings = survey_frame.check_post_steps(load_study("tidebell", root))
+    assert [f.rule for f in findings] == ["post-step-place", "post-step-gate"]
+    assert "outside.py" in findings[0].where and "S5" in findings[1].message
