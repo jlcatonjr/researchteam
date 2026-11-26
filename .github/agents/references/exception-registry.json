@@ -40,6 +40,27 @@
         "release-policy-1.0"
       ],
       "relaxing": true,
+      "retired_reason": "re-bound to the same decision's row re-signed with opr-2026-11 on 2026-11-22: repo-setting:delete-branch-on-merge:jlcatonjr/researchteam@dc79fe00692848c4 (key rotation; expiry unchanged)",
+      "scope": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+      "status": "sunset"
+    },
+    {
+      "action": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
+      "decision_key_id": "opr-2026-11",
+      "decision_sha256": "9e98e66d76d394d3086046fdcae23be07970cc6e8cb8234c4c4216e2313d7154",
+      "effect": {
+        "relaxes": [
+          "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam"
+        ]
+      },
+      "expires": "2027-02-18T23:59:59+00:00",
+      "id": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam@dc79fe00692848c4",
+      "issued": "2026-11-26T14:54:30.124792+00:00",
+      "kind": "repo-setting",
+      "lineage": [
+        "release-policy-1.0"
+      ],
+      "relaxing": true,
       "scope": "repo-setting:delete-branch-on-merge:jlcatonjr/researchteam",
       "status": "active"
     }
