@@ -324,22 +324,28 @@ a statistic is. It writes nothing. Finalising and the rollup are not in this ver
 ### Final codes and the rollup (step C, part 2)
 
 `survey-finalize <project> --out <path>` writes the final codes of every coded outcome to a file of its own (operator
-decision D2), with a provenance record beside it listing the inputs read, gate S5 and the legacy exceptions (D6). The
-passes file is only read. For each unit of the study (the attribution file's units; in an author study the
-registry's persons) and each coded outcome: agreed passes give pass A's row with `coder` `agreed`, `level` empty and
-`note` `agreed` or `agreed; evidence differed`; a disagreement, or a unit with one pass, the adjudication's coder,
-basis, reporter, evidence and note (D3); without one, or for a unit with no pass at all (D4), nothing is written and
-the units are listed (`final-no-adjudication`, `final-no-pass`; a final row in the passes file is `final-in-codes`).
-Rows are in the outcomes' declared order, then code-point order of `unit_id`.
+decision D2), with a provenance record beside it listing every file read (those read only to check them included;
+fetch receipts are not listed), gate S5 and the legacy exceptions (D6). The passes file is only read. For each unit of
+the study (the attribution file's units; in an author study the registry's persons) and each coded outcome: agreed
+passes give pass A's row with `coder` `agreed`, `level` empty and `note` `agreed` or `agreed; evidence differed` (the
+evidence ids compared as sets); a disagreement, or a unit with one pass, the adjudication's coder, basis, reporter,
+evidence and note (D3); without one, or for a unit with no pass at all (D4), nothing is written and the units are
+listed (`final-no-adjudication`, `final-no-pass`). A `final` row the codes file already holds must equal the derived
+row cell for cell; one that differs (`final-differs`) or has no derived row (`final-extra`) refuses (O2). Rows are in
+the outcomes' declared order, then code-point order of `unit_id`.
 
-`survey-rollup <project> <final file> --out <path>` reads a current `survey-finalize` output (its record matches, and
-its bytes are what `survey-finalize` gives from the study's inputs) and rolls its final codes up to the author: only
+`survey-rollup <project> <final file> --out <path>` reads a `survey-finalize` output whose bytes are what
+`survey-finalize` gives from the study's inputs, in every status, and whose record matches its inputs (in a draft
+study a record that does not is reported and the stage runs; O3), and rolls its final codes up to the author: only
 counted, not excluded units; NA codes and the missing value skipped; `single-code` (a conflict is an error,
-`rollup-conflict`), `mixed-if-conflict`, `max-order`, `any-present`; nothing left gives the missing value. Columns:
-`person_id`, each `unit.rollup_by` key, `author_kind`, each rolled-up outcome and `<outcome>__types` where
-`unit.rollup_types` is set. Rows are in code-point order of `person_id`, then of the `rollup_by` values. It refuses in
-an author study. Both commands write through `check_output_target` and `write_all` with guards, and an existing
-output is "unchanged" when identical and refused otherwise.
+`rollup-conflict`), `mixed-if-conflict`, `max-order`, `any-present` (two codes at the deciding `order` are an error
+too); nothing left gives the missing value. Columns: `person_id`, each `unit.rollup_by` key, `author_kind`, each
+rolled-up outcome and `<outcome>__types` where `unit.rollup_types` is set (the distinct values, in the order the
+attribute declares its levels, joined with `;`; O1). Rows are in code-point order of `person_id`, then of the
+`rollup_by` values. It refuses in an author study. Its record lists every file read: the final file and its record,
+and every file finalising lists. Both commands write through `check_output_target` and `write_all` with every file
+read guarded; an output named as a record (`.provenance.json`) is refused, and so is a record path holding anything
+but this output's record; an existing output is "unchanged" when identical and refused otherwise.
 
 ### The batch merge (step B part 2b)
 
