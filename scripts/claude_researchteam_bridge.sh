@@ -92,6 +92,10 @@ Commands:
   survey-rollup <project> <final file> --out <path>
                 Roll the final codes of a current survey-finalize output up to the author, by each
                 outcome's rule, into <path> with a provenance record.
+  survey-frame <project> <final file> --out <frame> --passages <path>
+                Write the frame of a passage or work study and its passage list from a current
+                survey-finalize output, each with a provenance record; refuses in an author study, and
+                unless the frame-change log ends with this frame's entry (it prints the entry needed).
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -392,6 +396,10 @@ case "$cmd" in
   survey-rollup)
     shift
     command_survey survey_rollup.py "$@"
+    ;;
+  survey-frame)
+    shift
+    command_survey survey_frame.py "$@"
     ;;
   code-query)
     shift
