@@ -285,7 +285,10 @@ them with `python3 -B -I`.
 | `survey_codes.py` | Step C. The codes and adjudications files' checks (4.2) and raw agreement between passes A and B |
 | `survey_agreement.py` | Step C. The `survey-agreement` command |
 | `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), and placing a path in the study's folder |
-| `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands |
+| `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands; `survey_finalize.py` also holds the final-codes loader both later stages share (`load_final`) and the writer of several outputs at once (`write_outputs`) |
+| `survey_cells.py` | Step D. The frame of a passage or work study (4.7): cells, columns, outcome cells, the period, attribute evidence, the cell checks, the cells `not-on-question` leaves out, and the passage list |
+| `survey_changelog.py` | Step D. The frame-change log (4.4): its entries' shape, the frame's hash, the check that the frame is the last entry's, and the entry a changed frame needs |
+| `survey_frame.py` | Step D. The `survey-frame` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
 | `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
@@ -348,6 +351,21 @@ attribute declares its levels, joined with `;`; O1). Rows are in code-point orde
 and every file finalising lists. Both commands write through `check_output_target` and `write_all` with every file
 read guarded; an output named as a record (`.provenance.json`) is refused, and so is a record path holding anything
 but this output's record; an existing output is "unchanged" when identical and refused otherwise.
+
+### The frame (step D, part 1)
+
+`survey-frame <project> <final file> --out <frame> --passages <path>` writes the frame of a passage or work study and
+its passage list (4.7), each with a provenance record listing gates S5 and S6, every file read (the frame-change log
+among them) and the legacy exceptions. Its input is a current `survey-finalize` output, checked as the rollup checks
+it. A cell is an author and one value of each `unit.rollup_by` attribute, made by its counted passages; columns,
+outcome cells, the period and attribute evidence follow 4.7, and every cell is checked before anything is written.
+The frame must be the frame-change log's last entry (4.4): otherwise nothing is written and the entry the log needs
+is printed, with `id`, `date`, `reason` and `results_seen` left for its author. The command refuses in an author
+study, where a bucketer is a plug-in, the identity source is a vantage module or the evidence is in a plug-in format.
+It does not run post-steps (4.5): it checks each step's path and the gate that covers it, then refuses. Two points
+wait for the operator, and a study they touch is refused: the dropped list's file name (`not-on-question`), and ids
+the registry has merged that the rows still name. Frame and passage list are CSV with every cell quoted, LF line
+endings, the frame in code-point order of `unit_id`, the passage list in evidence-file order.
 
 ### The batch merge (step B part 2b)
 

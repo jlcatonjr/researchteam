@@ -5,6 +5,24 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step D part 1: the frame** (`scripts/survey/survey_cells.py`, `survey_changelog.py`,
+  `survey_frame.py`). New bridge command `survey-frame <project> <final file> --out <frame> --passages <path>`: the
+  frame of a passage or work study and its passage list (contract 4.7), from a current `survey-finalize` output
+  checked as the rollup checks it. Each output has a provenance record listing gates S5 and S6, every file read and
+  the legacy exceptions.
+  - The frame has one row per cell: an author and one value of each `unit.rollup_by` attribute, made by its counted
+    passages. Its columns, outcome cells, period and attribute evidence follow 4.7. Every cell is checked before
+    anything is written. Both files are CSV with every cell quoted.
+  - The frame must be the last entry of the frame-change log (4.4). Otherwise nothing is written and the entry the
+    log needs is printed, with its `id`, `date`, `reason` and `results_seen` left for the author.
+  - The command refuses in an author study, and where a bucketer is a plug-in, the identity source is a vantage
+    module or the evidence is in a plug-in format.
+  - Post-steps (4.5) are checked (each step's path, and the gate that covers it) but not run, and a study that
+    declares them is refused.
+  - Two open points refuse a study they touch until the operator rules: the dropped list's file name (the rule
+    `not-on-question`), and ids the registry has merged that the rows still name.
+  - The final-codes loader and the writer of several outputs are now shared by the rollup and the frame. The check
+    table is `references/plans/post-1.3.0-h5-step-d-check-table.md`.
 - **Survey toolkit, step C part 2: final codes and the rollup** (`scripts/survey/survey_final.py`,
   `survey_finalize.py`, `survey_rollup.py`), by the operator's decisions of 2026-11-25 (D2-D6, O1-O3). New bridge
   command `survey-finalize <project> --out <path>`: the final codes of every coded outcome (contract 4.2 lines
