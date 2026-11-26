@@ -54,8 +54,9 @@ is a property of the packets (step G) and of the agents' grants (step H), not of
 
 | Line | What is reported | Output | Test |
 |---|---|---|---|
-| 400-401 | Raw agreement per outcome "with the number of units [it] rests on": of the units with both an A and a B row, those with the same code in both, as "k of n"; every code counts as itself (proposal 3); the units with one pass only are named apart | `<outcome>: raw agreement k of n unit(s) with both passes; m unit(s) with one pass only` | `test_agreement_on_the_invented_study`, `test_agreement_by_hand` |
-| 400 | Cohen's κ and Gwet's AC1 | **NOT IMPLEMENTED: required by line 400**; the output says so and that the command does not yet meet line 400 | `test_agreement_on_the_invented_study`, `test_agreement_says_it_does_not_yet_meet_line_400` |
+| 400-401; operator D1 | Raw agreement, Cohen's κ and Gwet's AC1 per outcome "with the number of units each rests on", by the operator's standard definitions (below): over the n units with both passes; every code its own category | `<outcome>: n=<n> raw=<d.ddd> kappa=<d.ddd\|undefined> AC1=<d.ddd\|undefined>; m unit(s) with one pass only` | `test_agreement_on_the_invented_study`, `test_agreement_by_hand` |
+| operator D1 | κ and AC1 on hand-worked examples: κ and AC1 differ visibly; NA codes and the missing value as categories; q from the codebook against "codes that occur"; every undefined case; rounding at a half | — | `test_kappa_and_ac1_differ_visibly`, `test_na_codes_and_the_missing_value_are_categories`, `test_ac1_uses_the_codes_the_codebook_allows_not_those_that_occur`, `test_the_undefined_cases`, `test_rounding_at_half_is_to_even` |
+| 1.5 | The output is byte-identical across runs (exact fractions; the rounding does not depend on the platform) | — | `test_agreement_output_is_byte_identical_across_runs` |
 | 4.7, 603 (the convention) | Outcomes are reported in the order the study declares them, those without rows last in declared order | — | `test_agreement_lists_outcomes_in_declared_order` |
 | 1.2 | Refused when the study, a row file or a code file has an error; refused without a coded outcome | `REFUSED` | `test_agreement_refuses_on_a_code_error_and_writes_nothing`, `test_agreement_refuses_without_a_coded_outcome` |
 | 1.5 | The same output twice; nothing written | — | `test_agreement_is_deterministic`, `test_agreement_on_the_invented_study` |
@@ -77,49 +78,48 @@ is a property of the packets (step G) and of the agents' grants (step H), not of
 - Every error of lines 377-386, and that adjudications are "checked like codes rows" with `coder` and `note` required
   and none for an agreed unit (lines 392-394), and the missing-pass note (lines 394-395).
 - A coder on every code row (rule 1.3, lines 31-32).
-- Raw agreement per outcome with the number of units it rests on (lines 400-401); κ and AC1 are required too (line
-  400), and not yet implemented.
+- Raw agreement, κ and AC1 per outcome with the number of units each rests on (lines 400-401); how they are computed
+  is the operator's decision D1.
 - `survey-agreement` is not a gated stage (6.1, lines 786-791).
 
 ## Not implemented
 
 | Section, line | What | Why |
 |---|---|---|
-| 4.2, 400 | Cohen's κ and Gwet's AC1 | **Required by line 400**: "Agreement is reported as raw agreement, Cohen's κ and Gwet's AC1, per outcome, with the number of units each rests on." `survey-agreement` therefore does not yet meet line 400. Waiting on the operator to settle the five points the text leaves open (below) |
 | 4.2, 397-400 | Finalising (`survey-finalize`) | Part 2 of step C |
 | 4.2, 403-422 | The rollup (`survey-rollup`) | Part 2 of step C |
 | 8, 956 | That passes are blind | A property of packets (step G) and grants (step H) |
 
-## Waiting on the operator
+## Operator decisions (2026-11-25)
 
-**κ and AC1 (4.2, line 400).** Required, not implemented. The text leaves open, and the operator settles first:
+The operator ruled on every open point (picker, 2026-11-25), starting from the first integrating project's reference
+tool. These are decided for the toolkit, and each is also a proposal for a later contract version, since the
+contract's text does not contain it.
 
-1. whether NA codes and the `missing` value count as categories, or units coded with them are left out;
-2. the category set q for AC1: all of the outcome's allowed codes, or only those that occur;
-3. whether units with one pass are left out (raw agreement leaves them out and reports them apart);
-4. what is reported when 1 − p_e = 0 (every unit in one category);
-5. rounding and output form, and whether ordinal outcomes stay unweighted.
+**D1, "standard definitions" (agreement, 4.2 line 400).** Per coded outcome, over the units with both a pass-A and a
+pass-B row (a unit with one pass is left out of all three statistics; n is the number of such units):
 
-For reference, the usual two-coder forms over the n units with both passes, with p_o = k/n and p_A(c), p_B(c) the
-share of units each pass gives code c: κ = (p_o − p_e)/(1 − p_e) with p_e = Σ_c p_A(c)·p_B(c) (Cohen, 1960); AC1 =
-(p_o − p_e)/(1 − p_e) with p_e = Σ_c π_c(1 − π_c)/(q − 1) and π_c = (p_A(c) + p_B(c))/2 (Gwet, 2008). They are not
-adopted until the operator rules. The first integrating project's session has been asked how its reference tool
-settles the five points.
+- every code is its own category, NA codes and the missing value included (two passes coding the missing value
+  agree);
+- raw agreement p_a = (units with identical codes) / n;
+- Cohen's κ, unweighted also for ordered levels: p_e = Σ_k p_A(k)·p_B(k) over the codes, with p_A(k), p_B(k) each
+  pass's proportions; κ = (p_a − p_e) / (1 − p_e);
+- Gwet's AC1: q = the number of codes the specification allows for the outcome (its level codes, NA codes and missing
+  value, as declared; not the number that occur); π_k = (p_A(k) + p_B(k)) / 2; p_e1 = (1/(q − 1))·Σ_k π_k(1 − π_k)
+  over all q allowed codes; AC1 = (p_a − p_e1) / (1 − p_e1);
+- `undefined`, never 1.0 or NaN: n = 0 (all three); 1 − p_e = 0 (κ); q ≤ 1 or 1 − p_e1 = 0 (AC1);
+- computed exactly (`fractions.Fraction`) and printed to three decimals, half to even, so the output is identical on
+  every platform and Python version (rule 1.5);
+- one line per outcome in declared order, then the units with one pass only.
 
-**Part 2 (open for the operator).**
+**Where this differs from the reference tool** (for step D's comparison): AC1's q is the number of codes the
+specification allows, not the number that occur; and the undefined cases print `undefined`, where the reference tool
+gives a number.
 
-- **Where `final` rows are written**, and whether the codes file is appended or rewritten. `pass` takes `final`
-  (line 372), so final rows belong in the codes file; but 4.6 (lines 563 and 566) records the files a tool read as
-  inputs, and an output written into one of its own inputs would make its record stale at once.
-- **Whose `coder`, `evidence_ids`, `basis` and `note` an agreed final row carries** (line 397: "the final row is
-  theirs"). In the invented study, p-001's passes A and B agree on the code but cite different evidence.
-- **An adjudication for a unit with neither pass.** Line 384 read literally allows a final row from it; lines 397-398
-  ("where one pass is missing") and section 8 (line 957: adjudications "for disagreements and for units where a pass
-  is missing") point the other way. Both the adjudication (`adjudication-no-pass`) and such a final row are refused
-  now; this needs a ruling, and is not recorded as decided.
-- **The rollup's file, location and columns.** Only `<outcome>__types` is named (line 421).
-- **Which gates the final codes' and the rollup's records list.** The frame's record lists S5 and S6 (4.7, line 653);
-  the text says nothing for these two outputs.
+**Part 2 (finalising and the rollup).** D2: final codes go to a separate file named on the command line; D3: an agreed
+unit's final row is pass A's with `coder` and `note` `agreed` (`agreed; evidence differed` where the evidence ids
+differ); D4: a unit with no pass at all refuses finalising (stricter than the reference tool); D5: the rollup's
+columns and inputs; D6: both records list gate S5 only. Recorded in full in part 2's check table.
 
 ## Conditions for part 2 (from @security, if final rows go into the codes file)
 
@@ -137,11 +137,10 @@ Not implemented; kept here for part 2.
 
 ## Proposed contract changes
 
-1. *(Moved to "Not implemented" and "Waiting on the operator": κ and AC1 are required by line 400.)*
+1. *(Decided by the operator, D1: κ and AC1 by the standard definitions; a proposal for a later contract version.)*
 2. **An adjudication for a unit with neither pass** is refused (`adjudication-no-pass`): needs a ruling (see "Waiting
    on the operator").
-3. **Every code counts as itself in raw agreement**, NA codes and the missing value included: the text does not say
-   whether they count (and the same question is open for κ and AC1).
+3. *(Decided by the operator, D1: every code is its own category, NA codes and the missing value included.)*
 4. **The `level` column of a codes row** is carried and not checked: the text names it (line 370) and says nothing of
    it.
 5. **The same coder for both passes** is not checked: the text requires blind passes (section 8, line 956), not

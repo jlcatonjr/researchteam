@@ -82,8 +82,9 @@ Commands:
                 unless every row passes and the registry is built and unchanged. --draft-exceptions
                 prints a first exceptions file for a legacy study and writes nothing.
   survey-agreement <project>
-                Report agreement between coding passes A and B per outcome: raw agreement, with the
-                number of units it rests on. Writes nothing; refuses when a row or code file has an error.
+                Report agreement between coding passes A and B per outcome: raw agreement, Cohen's kappa
+                and Gwet's AC1, with the number of units they rest on. Writes nothing; refuses when a row
+                or code file has an error.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not

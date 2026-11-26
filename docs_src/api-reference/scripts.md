@@ -313,9 +313,11 @@ outcome and pass; a `final` row needs both passes unless it is the adjudication 
 coder (rule 1.3); the unit is an attribution unit (or, in an author study, a registry person) and `person_id` its
 author. Adjudications: checked like codes rows, with a coder and a note; none for a unit on which A and B agree; where a
 pass is missing the note begins `missing pass: A, ` or `missing pass: B, ` and gives a reason; one per unit. Ids:
-`codes-*`, `adjudication-*`. `survey-agreement <project>` prints, per coded outcome, raw agreement as "k of n units
-with both passes" and the units with one pass only; Cohen's κ and Gwet's AC1 are not computed (the contract gives no
-formula). It writes nothing. Finalising and the rollup are not in this version.
+`codes-*`, `adjudication-*`. `survey-agreement <project>` prints, per coded outcome in declared order,
+`<outcome>: n=… raw=… kappa=… AC1=…` and the units with one pass only, by the operator's definitions of 2026-11-25
+(`survey_codes.statistics`): over the units with both passes, every code its own category, κ unweighted, AC1 with q
+the number of codes the specification allows; exact fractions, three decimals rounded half to even, `undefined` where
+a statistic is. It writes nothing. Finalising and the rollup are not in this version.
 
 ### The batch merge (step B part 2b)
 
