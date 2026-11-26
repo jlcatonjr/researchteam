@@ -138,9 +138,11 @@ Not implemented; kept here for part 2.
 ## Proposed contract changes
 
 1. *(Decided by the operator, D1: κ and AC1 by the standard definitions; a proposal for a later contract version.)*
-2. **An adjudication for a unit with neither pass** is refused (`adjudication-no-pass`). It follows from
-   operator decision D4 (finalising refuses a unit that has neither pass, so no adjudication can stand in for
-   both); line 384 read literally would allow it, so it is listed for a later contract version.
+2. **An adjudication for a unit with neither pass** is refused (`adjudication-no-pass`). Operator
+   decision D4 rules on finalising only (it refuses a unit with neither pass); it does not rule on the
+   adjudications file. Refusing such a row is a tightening consistent with D4, since the row could never be used,
+   and with lines 394-395, which provide for one missing pass only. Line 384 read literally would accept a final
+   row built from it. Listed for a later contract version.
 3. *(Decided by the operator, D1: every code is its own category, NA codes and the missing value included.)*
 4. **The `level` column of a codes row** is carried and not checked: the text names it (line 370) and says nothing of
    it.
