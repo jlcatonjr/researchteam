@@ -303,20 +303,21 @@ def three_decimals(value: Fraction | None) -> str:
     return str((Decimal(thousandths).scaleb(-3)).quantize(Decimal("0.001"), rounding=ROUND_HALF_EVEN))
 
 
-def agreement(codes: Codes, outcomes: dict | None = None) -> list:
-    """Agreement per outcome (4.2, lines 400-401), in the order the study declares the outcomes: over the units with
-    both an A and a B row (a unit with one pass is left out of all three statistics and counted apart), raw
-    agreement, Cohen's kappa and Gwet's AC1 (see :func:`statistics`). *outcomes* maps an outcome key to its
-    declaration, for the codes it allows."""
+def agreement(codes: Codes, outcomes: dict) -> list:
+    """Agreement per coded outcome (4.2, lines 400-401), one entry for every outcome in *outcomes*, in the order
+    the study declares them, an outcome with no code rows included (n = 0, all three statistics undefined): over
+    the units with both an A and a B row (a unit with one pass is left out of all three statistics and counted
+    apart), raw agreement, Cohen's kappa and Gwet's AC1 (see :func:`statistics`). *outcomes* maps each coded
+    outcome's key to its declaration, which gives the codes it allows; it is required, because AC1's number of
+    categories is the codes the specification allows, never the codes that happen to occur."""
     out = []
-    for outcome in codes.rows:  # in the order the study declares the outcomes (see read_codes)
+    for outcome, declaration in outcomes.items():  # the study's declared order
         by_unit: dict = {}
-        for _where, r in codes.rows[outcome]:
+        for _where, r in codes.rows.get(outcome, []):
             if r["pass"] in ("A", "B"):
                 by_unit.setdefault(r["unit_id"], {})[r["pass"]] = r["code"]
         pairs = [(p["A"], p["B"]) for p in by_unit.values() if "A" in p and "B" in p]
-        allowed = allowed_codes(outcomes[outcome]) if outcomes and outcome in outcomes else \
-            {c for pair in pairs for c in pair}
+        allowed = allowed_codes(declaration)
         raw, kappa, ac1 = statistics(pairs, allowed)
         out.append(Agreement(outcome, len(pairs), sum(1 for a, b in pairs if a == b),
                              sum(1 for p in by_unit.values() if len(p) == 1), raw, kappa, ac1))

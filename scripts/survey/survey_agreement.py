@@ -20,7 +20,7 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_codes import UNDEFINED, agreement, coded_outcomes, three_decimals  # noqa: E402
+from survey_codes import agreement, coded_outcomes, three_decimals  # noqa: E402
 from survey_core import SurveyUsageError, parse_args, print_findings, safe, usage_exit  # noqa: E402
 from survey_evidence import check_row_files  # noqa: E402
 from survey_spec import load_study  # noqa: E402
@@ -47,12 +47,10 @@ def main(argv=None) -> int:
         print(f"REFUSED: the row or code files have {len(report.findings)} error(s); no agreement is reported on them")
         return 1
     outcomes = coded_outcomes(study.spec)
-    for a in agreement(report.codes, outcomes):
+    for a in agreement(report.codes, outcomes):  # one line per coded outcome, in the study's declared order
+        empty = "" if report.codes.rows.get(a.outcome) else "; no code rows"
         print(safe(f"{a.outcome}: n={a.units} raw={three_decimals(a.raw)} kappa={three_decimals(a.kappa)} "
-                   f"AC1={three_decimals(a.ac1)}; {a.missing_pass} unit(s) with one pass only"))
-    for outcome in [k for k in outcomes if k not in report.codes.rows]:  # declared order, last
-        print(safe(f"{outcome}: n=0 raw={UNDEFINED} kappa={UNDEFINED} AC1={UNDEFINED}; 0 unit(s) with one pass "
-                   "only; no code rows"))
+                   f"AC1={three_decimals(a.ac1)}; {a.missing_pass} unit(s) with one pass only{empty}"))
     return 0
 
 
