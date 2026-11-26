@@ -143,6 +143,17 @@ The options for the operator:
 - (c) Two runs: with the arguments the tool appends the entry and writes no frame; the next run reads the new log
   and writes the frame. This still meets line 549's record question for the log, so it needs (a) or (b) as well.
 
+**B3. A changed frame at the same path** (found in the hand run; not stopped, recorded). The writer refuses to
+write over an existing output with other bytes, as D2 ruled for the final codes and D5 for the rollup. So a changed
+frame cannot replace the old frame at the same path: the author has to move the old frame and its record aside.
+That holds even though the log's last entry already names the new frame, so the change is recorded. 4.4 assumes the
+frame file changes ("the hash of the frame file as it stands", line 472; "a frame cannot change without an entry",
+line 476).
+
+- (a) Let `survey-frame` replace the frame, the passage list and the dropped list when the log's last entry names
+  the new frame's hash. The entry is the record of the change. **Recommended.**
+- (b) Keep refusing, as now.
+
 **G and H** stand as recorded:
 
 - G: section 11's point 4 cannot arise with a current final file; the frame applies no outcome `merges` (line 616);
