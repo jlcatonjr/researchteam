@@ -555,7 +555,7 @@ def test_a_rollup_whose_record_would_be_the_final_file_is_refused(tmp_path):
 def test_an_unrelated_file_at_the_record_path_is_refused(tmp_path):
     root = _repo(tmp_path)
     (root / OUT / "final.csv.provenance.json").write_bytes(b"keep\n")
-    _refused(_finalize, root, needle="is not the provenance record of")
+    _refused(_finalize, root, needle="is not the provenance record survey-finalize wrote")
     assert (root / OUT / "final.csv.provenance.json").read_bytes() == b"keep\n"
 
 
@@ -564,7 +564,7 @@ def test_another_outputs_record_at_the_record_path_is_refused(tmp_path):
     assert _finalize(root)[0] == 0
     os.replace(root / OUT / "final.csv.provenance.json", root / OUT / "other.csv.provenance.json")
     shutil.copy(root / OUT / "other.csv.provenance.json", root / OUT / "x.csv.provenance.json")
-    _refused(_finalize, root, "out/x.csv", needle="is not the provenance record of")
+    _refused(_finalize, root, "out/x.csv", needle="is not the provenance record survey-finalize wrote")
 
 
 def test_a_linked_record_of_the_final_file_is_refused(tmp_path):
@@ -610,3 +610,87 @@ def test_the_cap_groups_findings_by_their_exact_file(tmp_path):
              for f in read_rows(tmp_path / name, name, ("x", "y"), "r").findings]
     assert [f.file for f in found] == ["a (b).csv", "a (b).csv", "a.csv", "a.csv"]
     assert len(cap_findings(found, limit=2)) == 4
+
+
+# --------------------------------------------------------------------------- T1: no receipt read; inputs = files read
+def _cite_receipts(root, broken: bool):
+    """ev-001 (counted, quoted) cites a fetch receipt: its locator is not a text-store locus and it has a url. The
+    receipt is missing, or (broken) present and not JSON."""
+    import survey_evidence as se
+    ev = root / ROWS / "evidence.csv"
+    ev.write_bytes(ev.read_bytes().replace(b",Invented logbook,logbook-01#p3,the bell at slack,,",
+                                           b",Invented logbook,folio 3,the bell at slack,https://example.org/log,"))
+    if broken:
+        folder = root / ROWS / "receipts"
+        folder.mkdir()
+        (folder / f"{se.receipt_id('https://example.org/log', 'the bell at slack')}.json").write_bytes(b"{not json")
+
+
+def _opened(monkeypatch, root):
+    """Every study file the shared readers open, repository-relative, in a list the caller reads after the run."""
+    import survey_core as core
+    seen = []
+    real_open_regular, real_open = core._open_regular, open
+
+    def note(path):
+        p = os.path.realpath(path)
+        base = os.path.realpath(root) + os.sep
+        if p.startswith(base):
+            seen.append(p[len(base):].replace(os.sep, "/"))
+
+    def open_regular(path):
+        note(path)
+        return real_open_regular(path)
+
+    def opener(path, *a, **k):
+        note(path)
+        return real_open(path, *a, **k)
+    monkeypatch.setattr(core, "_open_regular", open_regular)
+    monkeypatch.setattr(core, "open", opener, raising=False)
+    return seen
+
+
+@pytest.mark.parametrize("broken", [False, True])
+def test_neither_command_reads_a_receipt(tmp_path, monkeypatch, broken):
+    """A receipt missing or broken: survey-validate reports it; finalising and the rollup open no receipt and run."""
+    import survey_validate
+    root = _repo(tmp_path)
+    _cite_receipts(root, broken)
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1 and ("[receipt-malformed]" if broken else "[receipt-missing]") in out
+    seen = _opened(monkeypatch, root)
+    assert _finalize(root)[0] == 0
+    assert _rollup(root)[0] == 0
+    assert seen and not [p for p in seen if "/receipts" in p]
+
+
+@pytest.mark.parametrize("command", ["finalize", "rollup"])
+def test_the_records_inputs_are_the_files_read(tmp_path, monkeypatch, command):
+    """T1 (4.6, line 563): every file a command opens is in its record's inputs, and every input listed with a hash
+    was opened; a declared file that is absent is listed with "" and not opened. Gate S5's reads (the ledger folder,
+    the files S5 covers) are what the gates entry stands for (see the check table) and are left out here."""
+    root = _repo(tmp_path)
+    if command == "rollup":
+        assert _finalize(root)[0] == 0
+    seen = _opened(monkeypatch, root)
+    code, out, _ = _finalize(root) if command == "finalize" else _rollup(root)
+    assert code == 0, out
+    name = "final.csv" if command == "finalize" else "rollup.csv"
+    doc = json.loads((root / OUT / f"{name}.provenance.json").read_bytes())
+    gate_reads = (f"{STUDY_REL}/ledger/", f"{STUDY_REL}/codebooks/")
+    opened = {p for p in seen if not p.startswith(gate_reads) and p not in (f"{OUT}/{name}",
+                                                                           f"{OUT}/{name}.provenance.json")}
+    listed = {e["path"] for e in doc["inputs"] if e["sha256"] != ""}
+    assert opened == listed
+    assert {e["path"] for e in doc["inputs"] if e["sha256"] == ""} == {f"{ROWS}/overrides.csv"}
+
+
+def test_a_record_another_tool_wrote_at_the_record_path_is_refused(tmp_path):
+    """S3: a record for this output is written over only when this command wrote it."""
+    root = _repo(tmp_path)
+    assert _finalize(root)[0] == 0
+    rec = root / OUT / "final.csv.provenance.json"
+    doc = json.loads(rec.read_bytes())
+    doc["tool"] = "survey-rollup"
+    rec.write_bytes(prov.record_bytes(doc))
+    _refused(_finalize, root, needle="is not the provenance record survey-finalize wrote")

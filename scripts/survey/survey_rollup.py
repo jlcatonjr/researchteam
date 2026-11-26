@@ -32,16 +32,16 @@ sys.dont_write_bytecode = True
 from survey_attribution import columns as attribution_columns  # noqa: E402
 from survey_codes import CODES_COLUMNS  # noqa: E402
 from survey_core import (  # noqa: E402
-    MAX_JSON_BYTES, SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes,
+    SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes,
     symlink_components, usage_exit,
 )
 from survey_final import csv_bytes, locate_in_study, roll_up, rollup_columns  # noqa: E402
 from survey_finalize import TOOL as FINALIZE, compute_final, hash_inputs, write_output  # noqa: E402
 from survey_provenance import (  # noqa: E402
-    ABSENT, check_current, gate_entries, make_record, record_bytes, record_rel,
+    ABSENT, MAX_INPUT_BYTES, check_current, gate_entries, make_record, record_bytes, record_rel,
 )
 from survey_spec import load_study  # noqa: E402
-from survey_tables import MAX_CSV_BYTES, rows_from_bytes  # noqa: E402
+from survey_tables import rows_from_bytes  # noqa: E402
 
 PROG = "survey_rollup.py"
 TOOL = "survey-rollup"
@@ -97,14 +97,14 @@ def main(argv=None) -> int:
     try:
         final_path = root.joinpath(*final.repo_rel.split("/"))
         rec_path = root.joinpath(*final_rec.split("/"))
-        final_data = read_capped(final_path, MAX_CSV_BYTES) if os.path.lexists(final_path) else None
-        record_data = read_capped(rec_path, MAX_JSON_BYTES) if os.path.lexists(rec_path) else b""
+        final_data = read_capped(final_path, MAX_INPUT_BYTES) if os.path.lexists(final_path) else None
+        record_data = read_capped(rec_path, MAX_INPUT_BYTES) if os.path.lexists(rec_path) else b""
         att_rp = study.paths["/unit/attribution/file"]
-        att_data = read_capped(root.joinpath(*att_rp.repo_rel.split("/")), MAX_CSV_BYTES)
+        att_data = read_capped(root.joinpath(*att_rp.repo_rel.split("/")), MAX_INPUT_BYTES)
     except OSError as exc:
         return refuse(f"an input cannot be read: {reason(exc)}; nothing was written")
     if final_data is None:
-        return refuse(f"{q(final.repo_rel)} does not exist, or is larger than {MAX_CSV_BYTES} bytes; nothing was "
+        return refuse(f"{q(final.repo_rel)} does not exist, or is larger than {MAX_INPUT_BYTES} bytes; nothing was "
                       "written")
     if att_data is None or record_data is None:
         return refuse("an input is larger than the cap; nothing was written")
@@ -146,7 +146,7 @@ def main(argv=None) -> int:
     # evidence was read with (4.1, line 366).
     record = record_bytes(make_record(study, out.repo_rel, TOOL, inputs, gate_entries(study, GATES), plugins=[],
                                       legacy_exceptions=exceptions))
-    code = write_output(root, study, out.repo_rel, data, record, guards)
+    code = write_output(root, study, out.repo_rel, data, record, guards, TOOL)
     if code == 0:
         print(f"rollup: {len(rolled.rows)} row(s); {rolled.left_out} author(s) left out, all of whose units were not "
               "counted or were excluded (4.2, lines 409-410)")

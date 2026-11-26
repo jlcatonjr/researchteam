@@ -31,17 +31,16 @@ sys.dont_write_bytecode = True
 
 from survey_codes import CODES_COLUMNS, coded_outcomes  # noqa: E402
 from survey_core import (  # noqa: E402
-    MAX_JSON_BYTES, SurveyUsageError, load_json_strict, parse_args, print_findings, q, read_capped, reason, safe,
-    sha256_bytes, symlink_components, usage_exit,
+    SurveyUsageError, load_json_strict, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes,
+    symlink_components, usage_exit,
 )
 from survey_evidence import check_row_files  # noqa: E402
 from survey_final import csv_bytes, finalise, locate_in_study, study_units  # noqa: E402
 from survey_provenance import (  # noqa: E402
-    ABSENT, SUFFIX, WriteRefused, check_output_target, check_record_shape, gate_entries, make_record, record_bytes,
-    record_rel, write_all,
+    ABSENT, MAX_INPUT_BYTES, SUFFIX, WriteRefused, check_output_target, check_record_shape, gate_entries,
+    make_record, record_bytes, record_rel, write_all,
 )
 from survey_spec import load_study  # noqa: E402
-from survey_tables import MAX_CSV_BYTES  # noqa: E402
 
 PROG = "survey_finalize.py"
 TOOL = "survey-finalize"
@@ -59,8 +58,8 @@ def input_paths(study) -> list:
     actually read"), in a fixed order: the specification is listed apart; then each coded outcome's codes file and
     adjudications file, the evidence file and its exceptions file, the attribution file (passage or work), the
     registry, the overrides file (read unless the identity source is one this version refuses), the forbidden
-    vocabulary and each attribute's bucket table, as the row checks read them (rule 1.2). Fetch receipts are not
-    listed (see the check table, proposal "files the output rests on")."""
+    vocabulary and each attribute's bucket table, as the row checks read them (rule 1.2). No fetch receipt is read:
+    the row checks run without the 5.4 citation check (``check_row_files(citations=False)``)."""
     from survey_identity import identity_refusals
 
     spec = study.spec
@@ -88,7 +87,8 @@ def input_paths(study) -> list:
 def hash_inputs(root: Path, study) -> tuple:
     """``(inputs for the record, guards for the write, error)``: each input file's SHA-256 as read now (``""``, ABSENT,
     when a declared file is not there)."""
-    inputs, guards = [(study.spec_rel, sha256_bytes(study.spec_bytes))], {study.spec_rel: sha256_bytes(study.spec_bytes)}
+    spec_sha = sha256_bytes(study.spec_bytes)
+    inputs, guards = [(study.spec_rel, spec_sha)], {study.spec_rel: spec_sha}
     for rp in input_paths(study):
         path = root.joinpath(*rp.repo_rel.split("/"))
         if not os.path.lexists(path):
@@ -96,18 +96,18 @@ def hash_inputs(root: Path, study) -> tuple:
             guards[rp.repo_rel] = None
             continue
         try:
-            data = read_capped(path, MAX_CSV_BYTES)
+            data = read_capped(path, MAX_INPUT_BYTES)
         except OSError as exc:
             return [], {}, f"{q(rp.repo_rel)} cannot be read: {reason(exc)}"
         if data is None:
-            return [], {}, f"{q(rp.repo_rel)} is larger than {MAX_CSV_BYTES} bytes"
+            return [], {}, f"{q(rp.repo_rel)} is larger than {MAX_INPUT_BYTES} bytes"
         digest = sha256_bytes(data)
         inputs.append((rp.repo_rel, digest))
         guards[rp.repo_rel] = digest
     return inputs, guards, ""
 
 
-def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, guards: dict) -> int:
+def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, guards: dict, tool: str = TOOL) -> int:
     """Write an output and its record (the output first, the record last), or report it unchanged. An existing
     output is never appended to: identical bytes are "unchanged" (its record renewed if the inputs moved), anything
     else is refused (D2)."""
@@ -127,15 +127,15 @@ def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, gu
     out_path = root.joinpath(*out_rel.split("/"))
     rec_path = root.joinpath(*rec_rel.split("/"))
     try:
-        existing = read_capped(out_path, MAX_CSV_BYTES) if os.path.lexists(out_path) else None
-        old_record = read_capped(rec_path, MAX_JSON_BYTES) if os.path.lexists(rec_path) else None
+        existing = read_capped(out_path, MAX_INPUT_BYTES) if os.path.lexists(out_path) else None
+        old_record = read_capped(rec_path, MAX_INPUT_BYTES) if os.path.lexists(rec_path) else None
     except OSError as exc:
         return refuse(f"{q(out_rel)} or its record cannot be read: {reason(exc)}; nothing was written")
     if os.path.lexists(rec_path):
         doc, errs = load_json_strict(old_record, rec_rel) if old_record is not None else (None, ["too large"])
-        if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel:
-            return refuse(f"{q(rec_rel)} exists and is not the provenance record of {q(out_rel)} (4.6); a record is "
-                          "never written over another file; nothing was written")
+        if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel or doc["tool"] != tool:
+            return refuse(f"{q(rec_rel)} exists and is not the provenance record {tool} wrote for {q(out_rel)} (4.6); "
+                          "a record is never written over another file; nothing was written")
     if existing is not None and existing != data:
         return refuse(f"{q(out_rel)} exists with other contents; an output is never appended to or overwritten with "
                       "different codes (operator decision D2); nothing was written")
@@ -169,7 +169,7 @@ def is_record_name(rel: str) -> bool:
 
 def compute_final(study) -> tuple:
     """The final codes a run would write, worked out without writing: ``(bytes, exceptions, findings)``."""
-    report = check_row_files(study)
+    report = check_row_files(study, citations=False)  # no receipt is read (see check_row_files)
     if report.findings:
         return b"", 0, report.findings
     units, unit_findings = study_units(study)
