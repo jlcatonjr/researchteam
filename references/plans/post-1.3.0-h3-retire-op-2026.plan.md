@@ -338,3 +338,33 @@ network; it pushed nothing and opened no pull request.
 registry's sunset entries (data); four generated memory indexes (rebuilt by the normal path); decision specs and
 signing inputs under `docs/release/` (history); three CHANGELOG lines and two dated notes (history); one test that
 writes its own key files. No standing rule names the key.
+
+## Phase 3 done: `op-2026` is retired (2026-11-26)
+
+- **The clearance (C2).** `@security` reviewed the row's spec and the two operator scripts, required three
+  changes (script 34's ownership check, an allowlist of changed files in both scripts, the evidence cited on
+  `main`), and passed them for hand-over at `f62ea90`. The operator signed the row `key-retire:op-2026` with
+  `opr-2026-11` (script 33); the session checked that it clears, that it is the only added line, and that its text
+  names script 34's hash, both files and their hash; committed as `5118fcc` before anything was removed (C-5).
+- **The deletion's confirmation (S-4).** Given by the operator in the picker.
+- **C3, the App.** The operator first answered that they did not know whether the App was idle, so the removal
+  was held. The managing repository's session reported, as data: nothing there is scheduled to use the App on this
+  repository; its wrapper could still reach this repository on demand and checks no decision row. The operator
+  then had the wrapper narrowed there so that it no longer reaches this repository, and afterwards ran the removal,
+  confirming at the script's prompt. The App's installation on GitHub still lists this repository; removing it
+  there is the operator's choice.
+- **The removal.** The operator ran script 34 at `5118fcc`. Its checks before and after passed. Exactly two files
+  were deleted: `op-2026.pub.pem` in the `.github` and `.codex` key stores.
+- **The session's checks on the result,** with the pinned agentteams 1.3.0: the clearance and the seven
+  carried-forward decisions clear; `release-line-agentteams-1.1` and `fleet-agent-pilot-2026-11` are refused; the
+  branch-deletion exception is bound and the registry audit is clean; the toolchain group verifies; `validate`,
+  `doctor` and the toolchain check exit 0; the suite gives 2209 passed, 2 skipped.
+- **The merge.** `@security` PASS at `522a1f8`, naming both key paths and the decisions log. Pull request #277
+  merged as `c0a8468` after the operator's answer "Merge #277 at 522a1f8". CI on `main` green; the same checks
+  repeated on `main`.
+- **Release lines (P4).** `release/1.0`, `1.1` and `1.2` are left alone. A pull request that brings `op-2026` back
+  onto `main` is a HALT.
+- **Still open.** Step 16: the next cut script must not require the row `s10-release-cooldown-restored` as text;
+  blocking for the next cut. Step 17: what the operator does with the old private key; the session never touches
+  it. The autosync is resumed by the operator. The release coordinator is told, as information (C6). The generated
+  memory indexes mention `op-2026` until they are next rebuilt.
