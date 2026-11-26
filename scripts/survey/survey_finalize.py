@@ -7,10 +7,14 @@ provenance record beside it, fail-closed.
   passes cite other evidence) and ``level`` empty (D3). A disagreement, or a unit with one pass, takes the
   adjudication's coder, basis, reporter, evidence and note. Without one, nothing is written and the units are listed.
   A unit with no pass at all refuses too (D4). No code is ever filled in (rule 1.3).
+- A ``final`` row the codes file already holds must equal the derived row, cell for cell; one that differs, or has no
+  derived row, refuses (operator decision O2).
 - The output lies inside the study's folder and is not a file the study declares or a gate covers
-  (``check_output_target``). The passes file is only read. An existing output is never appended to: identical bytes
-  are "unchanged", anything else is refused.
-- The record lists the inputs read, gate S5 with its state, and the legacy exceptions the evidence is read with (D6).
+  (``check_output_target``), nor named as a record. The passes file is only read. An existing output is never
+  appended to: identical bytes are "unchanged", anything else is refused. A file at the record's path that is not
+  this output's record is never written over.
+- The record lists every file read (4.6, line 563), gate S5 with its state, and the legacy exceptions the evidence is
+  read with (D6).
 
 Exit 0 when written (or unchanged), 1 when refused, 2 on a usage error. Not a refusing stage (D6).
 """
@@ -27,12 +31,14 @@ sys.dont_write_bytecode = True
 
 from survey_codes import CODES_COLUMNS, coded_outcomes  # noqa: E402
 from survey_core import (  # noqa: E402
-    SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes, usage_exit,
+    MAX_JSON_BYTES, SurveyUsageError, load_json_strict, parse_args, print_findings, q, read_capped, reason, safe,
+    sha256_bytes, symlink_components, usage_exit,
 )
 from survey_evidence import check_row_files  # noqa: E402
 from survey_final import csv_bytes, finalise, locate_in_study, study_units  # noqa: E402
 from survey_provenance import (  # noqa: E402
-    ABSENT, WriteRefused, check_output_target, gate_entries, make_record, record_bytes, record_rel, write_all,
+    ABSENT, SUFFIX, WriteRefused, check_output_target, check_record_shape, gate_entries, make_record, record_bytes,
+    record_rel, write_all,
 )
 from survey_spec import load_study  # noqa: E402
 from survey_tables import MAX_CSV_BYTES  # noqa: E402
@@ -49,17 +55,28 @@ def refuse(msg: str) -> int:
 
 
 def input_paths(study) -> list:
-    """The declared files the final codes rest on, in a fixed order: the specification is listed apart; then each
-    coded outcome's codes file and adjudications file, the evidence file and its exceptions file, and the attribution
-    file (passage or work) or the registry (author study), which give the units."""
+    """Every declared file the final codes are worked out from or checked against (4.6, line 563: "the files the tool
+    actually read"), in a fixed order: the specification is listed apart; then each coded outcome's codes file and
+    adjudications file, the evidence file and its exceptions file, the attribution file (passage or work), the
+    registry, the overrides file (read unless the identity source is one this version refuses), the forbidden
+    vocabulary and each attribute's bucket table, as the row checks read them (rule 1.2). Fetch receipts are not
+    listed (see the check table, proposal "files the output rests on")."""
+    from survey_identity import identity_refusals
+
+    spec = study.spec
     ptrs = []
-    for i, o in enumerate(study.spec["outcomes"]):
+    for i, o in enumerate(spec["outcomes"]):
         if o["source"]["kind"] == "codes":
             ptrs += [f"/outcomes/{i}/source/codes_file", f"/outcomes/{i}/source/adjudications"]
     ptrs += ["/evidence/file", "/evidence/legacy_exceptions"]
-    ptrs.append("/unit/attribution/file" if study.spec["unit"]["kind"] in ("passage", "work") else
-                "/identity/registry")
-    seen, out = set(), []
+    if spec["unit"]["kind"] in ("passage", "work"):
+        ptrs.append("/unit/attribution/file")
+    ptrs.append("/identity/registry")
+    if not identity_refusals(study):
+        ptrs.append("/identity/overrides")
+    ptrs.append("/vocabulary/forbidden")
+    ptrs += [f"/attributes/{i}/bucketer/table" for i in range(len(spec.get("attributes", [])))]
+    seen, out = {study.spec_rel}, []
     for ptr in ptrs:
         rp = study.paths.get(ptr)
         if rp is not None and rp.repo_rel not in seen:
@@ -95,18 +112,30 @@ def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, gu
     output is never appended to: identical bytes are "unchanged" (its record renewed if the inputs moved), anything
     else is refused (D2)."""
     rec_rel = record_rel(out_rel)
+    if is_record_name(out_rel):
+        return refuse(f"{q(out_rel)} ends in {SUFFIX!r}, the name of a provenance record (4.6, line 562); an output "
+                      "is not named as a record; nothing was written")
     try:
         check_output_target(study, out_rel)
         check_output_target(study, rec_rel)
     except WriteRefused as exc:
         return refuse(f"{reason(exc)}; nothing was written")
+    links = symlink_components(root, rec_rel)
+    if links:
+        return refuse(f"a component of the record path {q(rec_rel)} is a symbolic link ({', '.join(map(q, links))}); "
+                      "nothing was written")
     out_path = root.joinpath(*out_rel.split("/"))
     rec_path = root.joinpath(*rec_rel.split("/"))
     try:
         existing = read_capped(out_path, MAX_CSV_BYTES) if os.path.lexists(out_path) else None
-        old_record = read_capped(rec_path, MAX_CSV_BYTES) if os.path.lexists(rec_path) else None
+        old_record = read_capped(rec_path, MAX_JSON_BYTES) if os.path.lexists(rec_path) else None
     except OSError as exc:
-        return refuse(f"{q(out_rel)} cannot be read: {reason(exc)}; nothing was written")
+        return refuse(f"{q(out_rel)} or its record cannot be read: {reason(exc)}; nothing was written")
+    if os.path.lexists(rec_path):
+        doc, errs = load_json_strict(old_record, rec_rel) if old_record is not None else (None, ["too large"])
+        if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel:
+            return refuse(f"{q(rec_rel)} exists and is not the provenance record of {q(out_rel)} (4.6); a record is "
+                          "never written over another file; nothing was written")
     if existing is not None and existing != data:
         return refuse(f"{q(out_rel)} exists with other contents; an output is never appended to or overwritten with "
                       "different codes (operator decision D2); nothing was written")
@@ -130,6 +159,12 @@ def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, gu
     print(safe(f"{state}: {out_rel}"))
     print(safe(f"{'renewed' if existing == data and old_record != record else state}: {rec_rel}"))
     return 0
+
+
+def is_record_name(rel: str) -> bool:
+    """Whether a path is named as a provenance record (case and normalisation folded, as a file system may)."""
+    import unicodedata
+    return unicodedata.normalize("NFC", rel).casefold().endswith(SUFFIX)
 
 
 def compute_final(study) -> tuple:

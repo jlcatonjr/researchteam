@@ -1,8 +1,9 @@
-"""Final codes and the rollup (contract 4.2, lines 397-422; the operator's decisions of 2026-11-25, D2 to D6).
+"""Final codes and the rollup (contract 4.2, lines 397-422; the operator's decisions of 2026-11-25, D2 to D6 and O1 to O3).
 
 Finalising is fail-closed: where passes A and B agree the final row is theirs (pass A's, marked ``agreed``); where they
 disagree, or one pass is missing, it is the adjudication's; without one, nothing is written and the units are listed.
-A unit with no pass at all also refuses (D4). No code is ever filled in by the tool (rule 1.3).
+A unit with no pass at all also refuses (D4), and so does a ``final`` row of the codes file that is not the derived
+row (O2). No code is ever filled in by the tool (rule 1.3).
 
 The rollup takes the final codes of passage or work units to their author, by each outcome's declared rule.
 Both outputs are files named on the command line, inside the study's folder, with a provenance record beside them
@@ -87,18 +88,24 @@ class Finalised:
 
 def finalise(study, codes, units: dict) -> Finalised:
     """The final rows for every coded outcome, in the order the study declares them, then in code-point order of
-    ``unit_id``. *codes* is the checked ``survey_codes.Codes``; *units* maps each unit to its author."""
+    ``unit_id``. *codes* is the checked ``survey_codes.Codes``; *units* maps each unit to its author.
+
+    Final rows are derived from passes A and B and the adjudications. A ``final`` row the codes file already holds
+    (the contract allows and checks them, 4.2 lines 372 and 384) must equal the derived row for its unit and outcome,
+    cell for cell, in every column the final file carries; one that differs, or that has no derived row, refuses
+    (operator decision O2)."""
     out = Finalised()
     add = lambda rule, where, msg: out.findings.append(Finding(rule, where, msg))  # noqa: E731
     for outcome in coded_outcomes(study.spec):
         passes: dict = {}
+        existing: dict = {}  # unit -> (where, the codes file's own final row)
         for where, r in codes.rows.get(outcome, []):
             if r["pass"] == "final":
-                add("final-in-codes", where, "the codes file holds a final row; final codes go to the file "
-                    "survey-finalize writes (operator decision D2), so the passes file has passes A and B only")
+                existing.setdefault(r["unit_id"], (where, r))  # a second one is part 1's error (4.2, line 383)
                 continue
             passes.setdefault(r["unit_id"], {})[r["pass"]] = r
         adjudications = codes.adjudications.get(outcome, {})
+        derived: dict = {}
         for uid in sorted(units):
             p = passes.get(uid, {})
             a, b = p.get("A"), p.get("B")
@@ -108,9 +115,9 @@ def finalise(study, codes, units: dict) -> Finalised:
                     "before codes are final (operator decision D4)")
                 continue
             if a is not None and b is not None and a["code"] == b["code"]:
-                differ = sorted(a["evidence_ids"].split(";")) != sorted(b["evidence_ids"].split(";"))
-                out.rows.append(dict(a, coder=AGREED, level="", pass_="final",
-                                     note=AGREED_EVIDENCE_DIFFERED if differ else AGREED))
+                differ = set(a["evidence_ids"].split(";")) != set(b["evidence_ids"].split(";"))
+                derived[uid] = dict(a, coder=AGREED, level="", note=AGREED_EVIDENCE_DIFFERED if differ else AGREED)
+                derived[uid]["pass"] = "final"
                 continue
             if adj is None:
                 why = "passes A and B disagree" if (a is not None and b is not None) else \
@@ -119,11 +126,21 @@ def finalise(study, codes, units: dict) -> Finalised:
                     "adjudication; no final row is written (4.2, lines 398-399)")
                 continue
             _where, j = adj
-            out.rows.append({"unit_id": uid, "person_id": units[uid], "outcome": outcome, "code": j["code"],
-                             "pass_": "final", "coder": j["coder"], "basis": j["basis"], "reporter": j["reporter"],
-                             "evidence_ids": j["evidence_ids"], "level": "", "note": j["note"]})
-    for r in out.rows:
-        r["pass"] = r.pop("pass_")
+            derived[uid] = {"unit_id": uid, "person_id": units[uid], "outcome": outcome, "code": j["code"],
+                            "pass": "final", "coder": j["coder"], "basis": j["basis"], "reporter": j["reporter"],
+                            "evidence_ids": j["evidence_ids"], "level": "", "note": j["note"]}
+        for uid, (where, r) in sorted(existing.items()):
+            row = derived.get(uid)
+            if row is None:
+                add("final-extra", where, f"the codes file's final row for unit {q(uid)}, outcome {q(outcome)} has "
+                    "no final row derived from the passes and adjudications to match (operator decision O2)")
+                continue
+            cells = [c for c in CODES_COLUMNS if r[c] != row[c]]
+            if cells:
+                shown = "; ".join(f"{c} {q(r[c])}, derived {q(row[c])}" for c in cells)
+                add("final-differs", where, f"the codes file's final row for unit {q(uid)}, outcome {q(outcome)} is "
+                    f"not the derived final row: {shown} (operator decision O2)")
+        out.rows += [derived[uid] for uid in sorted(derived)]
     return out
 
 
@@ -152,7 +169,10 @@ class Rolled:
 
 def apply_rule(outcome: dict, codes: list) -> tuple:
     """One cell's value by the outcome's rule (4.2, lines 412-418), over the codes that remain after NA codes and the
-    missing value are skipped. ``(value, error)``; nothing left gives the missing value (line 408)."""
+    missing value are skipped. ``(value, error)``; nothing left gives the missing value (line 408). Section 3 does not
+    require each level's ``order`` to be unique: where more than one distinct remaining code holds the deciding
+    ``order`` (``max-order``, or ``any-present`` on an ordinal outcome), the cell is an error, not whichever code
+    comes first (a proposal: the text does not say)."""
     missing = outcome.get("missing", "NE")
     if not codes:
         return missing, ""
@@ -165,16 +185,32 @@ def apply_rule(outcome: dict, codes: list) -> tuple:
     if rule == "mixed-if-conflict":
         return (distinct[0] if len(distinct) == 1 else MIXED), ""
     order = {lv["code"]: lv.get("order") for lv in outcome["levels"]}
+
+    def by_order(pick) -> tuple:
+        deciding = pick(order[c] for c in distinct)
+        tied = [c for c in distinct if order[c] == deciding]
+        if len(tied) > 1:
+            return "", (f"the codes {', '.join(map(q, tied))} share the deciding order {deciding}; {rule} cannot pick "
+                        "one (the text does not say; a proposal)")
+        return tied[0], ""
     if rule == "max-order":
-        return max(codes, key=lambda c: order[c]), ""
+        return by_order(max)
     if rule == "any-present":
         if outcome["present_code"] in codes:
             return outcome["present_code"], ""
         if outcome["scale"] == "ordinal":
-            return min(codes, key=lambda c: order[c]), ""
+            return by_order(min)
         declared = [lv["code"] for lv in outcome["levels"]]
         return min(codes, key=declared.index), ""
     raise ValueError(f"no rollup rule {rule!r}")
+
+
+def types_value(values: set, declared: list) -> str:
+    """``<outcome>__types``: each distinct value once, joined with ``;``, in the order the study declares the
+    attribute's levels; a value that is not among them (none can be, once the attribution file passes 4.3's checks)
+    comes after the declared ones, in code-point order (operator decision O1)."""
+    known = [v for v in declared if v in values]
+    return ";".join(known + sorted(values - set(declared)))
 
 
 def roll_up(study, final_rows: list, attribution: dict) -> Rolled:
@@ -188,6 +224,8 @@ def roll_up(study, final_rows: list, attribution: dict) -> Rolled:
     exclude = unit.get("exclude_from_rollup", {})
     keys = unit.get("rollup_by", [])
     types_key = unit.get("rollup_types")
+    types_levels = next((ls["levels"] for ls in unit.get("passage_attributes", []) if ls["key"] == types_key), [])
+    declared_types = [lv["code"] for lv in types_levels]
     outcomes = {k: o for k, o in coded_outcomes(spec).items() if o["rollup"] != "none"}
     authors_seen, authors_kept = set(), set()
     cells: dict = {}  # (person, values) -> {outcome: [(code, type)]}
@@ -217,9 +255,10 @@ def roll_up(study, final_rows: list, attribution: dict) -> Rolled:
             remaining = [c for c, _t in behind if c not in skipped]
             value, error = apply_rule(o, remaining)
             if error:
-                out.findings.append(Finding("rollup-conflict", f"{person} {key}", error))
+                cell = "|".join((person, *values))  # the cell's unit_id (4.7, lines 582-584)
+                out.findings.append(Finding("rollup-conflict", f"cell {q(cell)}, outcome {q(key)}", error))
             row[key] = value
             if types_key:
-                row[f"{key}__types"] = ";".join(sorted({t for _c, t in behind}))
+                row[f"{key}__types"] = types_value({t for _c, t in behind}, declared_types)
         out.rows.append(row)
     return out
