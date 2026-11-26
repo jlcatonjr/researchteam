@@ -284,7 +284,7 @@ them with `python3 -B -I`.
 | `survey_rows.py` | Step B part 2b. The `survey-rows` command: the batch merge, and `--draft-exceptions` |
 | `survey_codes.py` | Step C. The codes and adjudications files' checks (4.2) and raw agreement between passes A and B |
 | `survey_agreement.py` | Step C. The `survey-agreement` command |
-| `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), and placing a path in the study's folder |
+| `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), placing a path in the study's folder, and reading a merged id as its person through the overrides file's recorded merges (`merged_persons`, `authors`; step D ruling D, shared by the rollup and the frame) |
 | `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands; `survey_finalize.py` also holds the final-codes loader both later stages share (`load_final`) and the writer of several outputs at once (`write_outputs`) |
 | `survey_cells.py` | Step D. The frame of a passage or work study (4.7): cells, columns, outcome cells, the period, attribute evidence, the cell checks, the cells `not-on-question` leaves out, and the passage list |
 | `survey_changelog.py` | Step D. The frame-change log (4.4): its entries' shape, the frame's hash, the check that the frame is the last entry's, and the entry a changed frame needs |
@@ -355,17 +355,26 @@ but this output's record; an existing output is "unchanged" when identical and r
 ### The frame (step D, part 1)
 
 `survey-frame <project> <final file> --out <frame> --passages <path>` writes the frame of a passage or work study and
-its passage list (4.7), each with a provenance record listing gates S5 and S6, every file read (the frame-change log
-among them) and the legacy exceptions. Its input is a current `survey-finalize` output, checked as the rollup checks
-it. A cell is an author and one value of each `unit.rollup_by` attribute, made by its counted passages; columns,
-outcome cells, the period and attribute evidence follow 4.7, and every cell is checked before anything is written.
-The frame must be the frame-change log's last entry (4.4): otherwise nothing is written and the entry the log needs
-is printed, with `id`, `date`, `reason` and `results_seen` left for its author. The command refuses in an author
-study, where a bucketer is a plug-in, the identity source is a vantage module or the evidence is in a plug-in format.
-It does not run post-steps (4.5): it checks each step's path and the gate that covers it, then refuses. Two points
-wait for the operator, and a study they touch is refused: the dropped list's file name (`not-on-question`), and ids
-the registry has merged that the rows still name. Frame and passage list are CSV with every cell quoted, LF line
-endings, the frame in code-point order of `unit_id`, the passage list in evidence-file order.
+its passage list (4.7). Where the study declares `not-on-question`, it also writes the dropped list, at the frame's
+path with `.csv` replaced by `.dropped.csv`; that list has its header only when nothing is dropped. Each output has a
+provenance record listing gates S5 and S6, every file read (the frame-change log among them) and the legacy
+exceptions. Its input is a current `survey-finalize` output, checked as the rollup checks it.
+
+- A cell is an author and one value of each `unit.rollup_by` attribute, made by its counted passages. A merged id
+  counts as the person it was merged into, through the overrides file's recorded merges, as in `survey-rollup`; the
+  rows stay as written.
+- Columns, outcome cells, the period and attribute evidence follow 4.7, and every cell is checked before anything is
+  written.
+- The frame must be the frame-change log's last entry (4.4). Otherwise nothing is written and the entry the log needs
+  is printed. With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the author's facts are filled in
+  and checked (an id already in the log is refused). Writing the log from the run waits on an open point, so the
+  entry is printed for the author to append. With those arguments and an unchanged frame, no entry is written.
+- It refuses in an author study, where a bucketer is a plug-in, where the identity source is a vantage module, and
+  where the evidence is in a plug-in format.
+- It does not run post-steps (4.5): it checks each step's path, then the gates that cover it, and refuses. Running
+  them is part 2; when it comes, it will not be a sandbox.
+- Frame, passage list and dropped list are CSV with every cell quoted and LF line endings. The frame and the dropped
+  list are in code-point order of `unit_id`, the passage list in evidence-file order.
 
 ### The batch merge (step B part 2b)
 

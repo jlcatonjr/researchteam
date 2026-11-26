@@ -6,6 +6,8 @@ provenance record beside the output.
   decision O3), and its record must exist and still match its inputs (``check_current``); in a draft study a record
   that does not match is reported and the stage runs (4.6, line 568). It lies inside the study's folder; so does the
   output, which is not a file the study declares. The record lists every file read (4.6, line 563).
+- A passage attributed to a merged id counts for the person it was merged into, through the overrides file's recorded
+  merges (step D ruling D, shared with the frame).
 - Only ``final`` rows count, and only units whose attribution status is counted and which no
   ``unit.exclude_from_rollup`` value leaves out; NA codes and the missing value are skipped; each outcome's rule
   (``single-code``, ``mixed-if-conflict``, ``max-order``, ``any-present``) gives the cell, and a cell with nothing left

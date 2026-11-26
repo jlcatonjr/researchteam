@@ -6,21 +6,28 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 ## Unreleased
 
 - **Survey toolkit, step D part 1: the frame** (`scripts/survey/survey_cells.py`, `survey_changelog.py`,
-  `survey_frame.py`). New bridge command `survey-frame <project> <final file> --out <frame> --passages <path>`: the
-  frame of a passage or work study and its passage list (contract 4.7), from a current `survey-finalize` output
-  checked as the rollup checks it. Each output has a provenance record listing gates S5 and S6, every file read and
-  the legacy exceptions.
+  `survey_frame.py`), with the operator's rulings of 2026-11-25. New bridge command
+  `survey-frame <project> <final file> --out <frame> --passages <path>`: the frame of a passage or work study and its
+  passage list (contract 4.7), from a current `survey-finalize` output checked as the rollup checks it. Each output
+  has a provenance record listing gates S5 and S6, every file read and the legacy exceptions.
   - The frame has one row per cell: an author and one value of each `unit.rollup_by` attribute, made by its counted
     passages. Its columns, outcome cells, period and attribute evidence follow 4.7. Every cell is checked before
-    anything is written. Both files are CSV with every cell quoted.
+    anything is written. Every file is CSV with every cell quoted.
+  - With the rule `not-on-question`, the dropped list is written at the frame's path with `.csv` replaced by
+    `.dropped.csv`, with its own record and a header only when nothing is dropped. A frame path not ending in `.csv`
+    is refused, and so is a dropped list left behind when the rule is not declared.
   - The frame must be the last entry of the frame-change log (4.4). Otherwise nothing is written and the entry the
-    log needs is printed, with its `id`, `date`, `reason` and `results_seen` left for the author.
+    log needs is printed.
+  - With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the author's facts are filled in and
+    checked, and an id already in the log is refused. Writing the log from the same run waits on an open point, so
+    the entry is printed for the author to append. With an unchanged frame, no entry is written.
+  - A merged id counts as the person it was merged into, through the overrides file's recorded merges. This is one
+    function shared with `survey-rollup`, **which changes with it**: a passage attributed to a merged id now counts
+    for its person in the rollup too.
   - The command refuses in an author study, and where a bucketer is a plug-in, the identity source is a vantage
     module or the evidence is in a plug-in format.
-  - Post-steps (4.5) are checked (each step's path, and the gate that covers it) but not run, and a study that
+  - Post-steps (4.5) are checked, each step's path and then the gates that cover it, but not run, and a study that
     declares them is refused.
-  - Two open points refuse a study they touch until the operator rules: the dropped list's file name (the rule
-    `not-on-question`), and ids the registry has merged that the rows still name.
   - The final-codes loader and the writer of several outputs are now shared by the rollup and the frame. The check
     table is `references/plans/post-1.3.0-h5-step-d-check-table.md`.
 - **Survey toolkit, step C part 2: final codes and the rollup** (`scripts/survey/survey_final.py`,
