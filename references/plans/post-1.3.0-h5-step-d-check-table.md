@@ -129,7 +129,8 @@ rollup.
 
 **D. Ids the registry has merged that the rows still name.** 4.7 reads "the author's rows" and the cell's
 `person_id`, and does not say whether an id in a registry row's `merged_from` is that person's. **Stopped.** A study
-whose attribution or evidence file names such an id is refused (`frame-merged-id`).
+whose attribution or evidence file names such an id is refused (`frame-merged-id`;
+`test_a_merged_id_still_named_stops_on_the_open_point`, `test_a_merged_id_named_by_no_file_does_not_stop`).
 
 - (a) Read a merged id as its person: the cell's author, and "the author's rows", go through the registry. This is
   not inference (rule 1.3): a merge is a recorded override (4.4, line 505). **Recommended.**
