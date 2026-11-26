@@ -170,3 +170,16 @@ not, the difference is recorded for the step D comparison.
 - **A final-codes file that differs from the derived one: "Refuse in every status".** A tightening. The contract's
   leniency for a draft study still applies to a record whose inputs changed while the final codes themselves
   still match.
+- **What the record's `gates` entry stands for: "Gates entry covers them".** `inputs` lists the files the output
+  is computed from. The reads made to check gate S5 (the codebook it covers and the study's sign-off folder) are
+  stood for by the record's `gates` entry, not listed in `inputs`. No code changed. A proposal for a later contract
+  version, with one consequence to state there: a record's gate state is fixed when the record is written and
+  `check_current` does not check it again; each gated stage checks its gate when it runs.
+
+**Step C part 2 merged (2026-11-25).** Pull request #272 (`survey-finalize`, `survey-rollup`) merged as `599dc90`
+after the operator's answer "Merge #272 at 77c6572"; the merge's tree equals that head. `@security` PASS at
+`e294f35` (one check-table sentence changed after it); `@technical-validator` confirmed every code fix. Finalising
+and the rollup read no fetch receipt, so a record's `inputs` are exactly the files opened apart from the gate's
+reads. Suite at the head: 2127 passed, 2 skipped. Step C is complete. Step D is being built on
+`feat/survey-tools-d` in two parts: the frame, its lists and the frame-change-log check first, with post-steps
+refused as not yet available; then running post-steps, after the operator and `@security` decide the design.
