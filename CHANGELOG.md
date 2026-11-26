@@ -21,8 +21,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   lists each value once, in the attribute's declared level order. Two codes at the deciding `order` are an error. The
   rollup reports how many authors were left out. An existing output with the same bytes is "unchanged"; one with
   other bytes is refused. Both commands also refuse an output named as a provenance record, and a file at a record's
-  path that is not that output's record. Both records list every file read, gate S5 only, and the legacy-exception
-  count. Fetch receipts are not listed, pending a ruling. Neither command is a refusing stage. Printed findings are now
+  path that is not this command's record of that output. Both records list every file read, gate S5 only, and the
+  legacy-exception count. Neither command reads a fetch receipt: `check_row_files` gains a `citations` switch, off for
+  these two, that skips the 5.4 citation check, which stays with `survey-validate` and `survey-rows`. Neither command
+  is a refusing stage. Printed findings are now
   capped by the exact file each is about. The check table is `references/plans/post-1.3.0-h5-step-c2-check-table.md`.
 - **Survey toolkit, step C part 1: codes and agreement** (`scripts/survey/survey_codes.py`, `survey_agreement.py`).
   `survey-validate` now also checks each coded outcome's codes file and adjudications file (contract 4.2): passes

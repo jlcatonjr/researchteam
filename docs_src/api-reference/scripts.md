@@ -324,8 +324,10 @@ a statistic is. It writes nothing. Finalising and the rollup are not in this ver
 ### Final codes and the rollup (step C, part 2)
 
 `survey-finalize <project> --out <path>` writes the final codes of every coded outcome to a file of its own (operator
-decision D2), with a provenance record beside it listing every file read (those read only to check them included;
-fetch receipts are not listed), gate S5 and the legacy exceptions (D6). The passes file is only read. For each unit of
+decision D2), with a provenance record beside it listing every file read (those read only to check them included),
+gate S5 and the legacy exceptions (D6). Neither this command nor `survey-rollup` reads a fetch receipt: they run the
+row checks without the 5.4 citation check, since no final code or rollup cell rests on a receipt; `survey-validate`,
+`survey-rows` and the later quotation step keep that check. The passes file is only read. For each unit of
 the study (the attribution file's units; in an author study the registry's persons) and each coded outcome: agreed
 passes give pass A's row with `coder` `agreed`, `level` empty and `note` `agreed` or `agreed; evidence differed` (the
 evidence ids compared as sets); a disagreement, or a unit with one pass, the adjudication's coder, basis, reporter,
