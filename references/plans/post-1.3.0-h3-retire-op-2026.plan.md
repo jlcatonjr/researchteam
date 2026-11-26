@@ -276,10 +276,8 @@ decision signing is active).
 
 - The managing repository's session built it by its own reviewed procedure (its script and clearance are in that
   repository's records) and the operator ran it. Where it is installed is not recorded here (PS-1).
-- Checked by this session, read-only: the install and its interpreter are root-owned; nothing under it is owned
-  by anyone else or writable by others; it is built on the root-owned framework Python; under an empty
-  environment with `-I -P` it reports agentteams 1.3.0 and cryptography 50.0.2, imports the four modules script
-  31 uses, and imports agentteams from inside the install.
+- Checked by this session, read-only: the install is root-owned throughout, it reports the agentteams version
+  `toolchain.lock` pins (1.3.0), and it has what script 31 uses.
 - The operator's copy of script 31 now names it. It differs from the tracked copy (sha256 `f3633962…`) in that
   one line only, checked by diff.
 - Rehearsed with that interpreter, under an empty environment, in a scratch export of the reviewed head

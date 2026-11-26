@@ -33,7 +33,8 @@ The specification is `docs/survey-toolkit.md`, version 1, section 6 (6.1 gates, 
   generated at run time: never a committed private key, never the operator's keys, never researchteam's own team
   folders.
 - **What CI runs (as planned; changed by pull request #268, which added the CI job `survey sign-off (3.13)` that
-  installs agentteams and runs the `CLEARED` path).** Neither test check installs agentteams, so in CI the tests that need it are skipped with a
+  installs agentteams and runs the `CLEARED` path).** Neither test check installs agentteams, so in CI the tests
+  that need it are skipped with a
   stated reason, and CI covers only the paths without it (`UNAVAILABLE`, `UNCLEARED`, the refusals, the
   structural errors). The `CLEARED` path, which is the one that decides, runs only locally, in the environment
   the lock pins; that run's command and result are recorded in the pull request, and `@security` is told it is
@@ -157,7 +158,8 @@ on `main` apply. Four gates are signed there with the current decision key.
 - **Fails rule 1, the exact header.** Its log has the header an earlier agentteams wrote: the same columns as
   the 1.3.0 new-log header except that `prev_digest` is absent, and in a different order. agentteams 1.3.0's own
   public log check accepts that header (checked here on an invented log). Under the operator's decision of
-  2026-11-25 ("header as agentteams writes it") the tools read that log as malformed, so none of its four gates
+  2026-11-25 ("Adopt both rules", which for the header meant the one agentteams writes for a new log) the tools
+  read that log as malformed, so none of its four gates
   could read `CLEARED` and `survey-status` would exit non-zero. The decision was conditional on this check, so
   it returns to the operator.
 - **Differs on where manifests live.** Its manifests are in a folder of the study, not in the sign-off folder's
