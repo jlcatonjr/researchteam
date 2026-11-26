@@ -11,13 +11,13 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   that exists and belongs to the coded unit's author, one row per unit, outcome and pass, a final row only with both
   passes or from a missing-pass adjudication, a coder on every row; adjudications with a coder and a note, none for a
   unit on which the passes agree, and a `missing pass: A, ` or `missing pass: B, ` note with a reason where a pass is
-  missing. New bridge command `survey-agreement <project>`: raw agreement, Cohen's κ and Gwet's AC1 per outcome (contract 4.2 line 400), by the operator's
-  standard definitions of 2026-11-25: over the units with both passes, every code its own category, κ unweighted, AC1
-  over the codes the specification allows, computed exactly and printed to three decimals rounded half to even, and
-  `undefined` where a statistic is (n = 0, a zero denominator). One line per outcome, in declared order:
-  `<outcome>: n=… raw=… kappa=… AC1=…`, then the units with one pass only. It writes nothing. At most 1000 findings
-  are printed per file, then one line saying how many more. Finalising and the rollup are
-  step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
+  missing. New bridge command `survey-agreement <project>`: raw agreement, Cohen's κ and Gwet's AC1 per outcome
+  (contract 4.2 line 400), by the operator's standard definitions of 2026-11-25: over the units with both passes,
+  every code its own category, κ unweighted, AC1 over the codes the specification allows, computed exactly and
+  printed to three decimals rounded half to even, and `undefined` where a statistic is (n = 0, a zero denominator).
+  One line per outcome, in declared order: `<outcome>: n=… raw=… kappa=… AC1=…`, then the units with one pass only.
+  It writes nothing. At most 1000 findings are printed per file, then one line saying how many more. Finalising and
+  the rollup are step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
   for an id holding a character the printed draft would escape. The check table is
   `references/plans/post-1.3.0-h5-step-c-check-table.md`.
 - **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
