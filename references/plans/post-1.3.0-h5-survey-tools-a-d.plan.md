@@ -159,3 +159,14 @@ not, the difference is recorded for the step D comparison.
 - **Rollup: "As the reference".** The same columns and rules, the output path an argument inside the study's
   folder, and an input without the finalising step's record refused.
 - **Gates listed: "S5 only, as the reference".** Neither command refuses on a gate; the records carry S5's state.
+
+**Operator's further decisions for step C part 2 (picker, 2026-11-25).**
+- **The `__types` column: "Distinct, in declared order".** Each distinct value once, joined with `;`, in the order
+  the study declares that attribute's levels. Which units are behind a cell is the contract's own definition
+  (4.7).
+- **A codes file that already holds `final` rows: "Accept if they match".** The tools compare each such row with
+  the row they derive from the passes and adjudications and refuse only where one differs or is extra; the
+  separate final-codes file is still what they write.
+- **A final-codes file that differs from the derived one: "Refuse in every status".** A tightening. The contract's
+  leniency for a draft study still applies to a record whose inputs changed while the final codes themselves
+  still match.
