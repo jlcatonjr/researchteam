@@ -64,13 +64,17 @@ Each is decided for the toolkit, and each is a proposal for a later contract ver
 | 1.2, 1.5 | The check fails before anything is written (rule 1.2). Without the change arguments, the entry the log needs is printed with `id`, `date`, `reason` and `results_seen` left for the author, because no tool fills in a date or a reason (rule 1.5) | — | the same two tests |
 | B | The change arguments go together: all four or none, `--results-seen` `yes` or `no` | usage error | `test_the_change_arguments_go_together[...]` |
 | 461; B | With the arguments and an unchanged frame, no entry is written. The log has "one entry per change to the frame" (line 461), and giving the arguments breaks no rule, so they are not used and the command says so. It does not refuse | — | `test_the_change_arguments_and_an_unchanged_frame_write_no_entry` |
-| 474; B | An `--change-id` already in the log, or an empty one, is refused; so is an empty `--date` or `--reason` | `change-log-id`, `change-log-fact` | `test_an_id_already_in_the_log_is_refused` |
+| 474; B | An `--change-id` already in the log, or an empty one, is refused | `change-log-id` | `test_an_id_already_in_the_log_is_refused` |
+| 1.5; B (tightening 9) | An empty `--date` or `--reason` is refused, and so is an id, date or reason holding a control, format or line-separator character: an entry is one line | `change-log-fact` | `test_the_authors_facts_are_checked[...]` |
 | B, B2 | With the arguments and a changed frame, the author's four facts and the tool's `frame_sha256`, `n_units`, `added`, `removed` and `units` make the entry. It is appended in the same guarded write as the frame, its lists and their records (`write_all`): either all are written or none. The log has no record; every record lists the log as it stands after the append | — | `test_the_first_build_with_the_change_arguments_creates_the_log`, `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run` |
 | B2 | The log grows by exactly one entry at its end. The new bytes are the bytes as read plus one line and a line feed, written whole through the guarded writer. The guard holds the bytes as read, so a log changed on disk since then refuses everything | — | `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run`, `test_a_log_changed_on_disk_before_the_write_refuses_everything` |
 | B2 (tightening 7) | A log whose last line does not end in a line feed is refused. The contract's text does not say how a line is joined to one, so nothing in the log as read is ever changed | `change-log-end` | `test_a_log_not_ending_in_a_line_feed_is_refused` |
 | B2; 218 | The log's path passes the same output checks: inside the study's folder (`check_output_target`, its own declared pointer allowed) and no link. A log that does not exist yet is created: section 3 lets `change_log` be absent "because a stage writes them or they start empty" (line 218), in any status | — | `test_the_first_build_with_the_change_arguments_creates_the_log` |
 | B3 | The command replaces its own earlier frame, passage list and dropped list at the same paths only when the log's last entry, after this run's append if any, holds the new frame's hash. Otherwise the log check refuses first | — | `test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run`, `test_replacement_is_refused_when_the_last_entry_does_not_name_the_new_frame` |
 | B3 | Only this command's own outputs are replaced: the record at each record path must be this tool's record for that output. An output with no record, or a foreign record, is refused | — | `test_an_existing_different_output_is_refused`, `test_a_foreign_record_at_a_record_path_refuses_the_replacement` |
+| B3; 4.6 (`@security`) | The existing record must also be this study's: its `study` field must be this specification's `id`. A study folder nested inside another study's folder therefore cannot have its outputs replaced by the outer study. **Known limit:** two studies that declare the same `id` are not told apart, because 4.6's record names the study by slug only. Its `inputs` hold the specification's path and hash, but these change with every edit, so they cannot identify the study | — | `test_a_record_of_another_study_is_not_replaced` |
+| (ruling D; `@security`) | `merged_persons` fails closed on its own: an overrides file it cannot parse, an id merged twice, or a merge into a merged id gives findings and no map, and the rollup and the frame refuse. `load_final` already refuses such a file first | `merged-twice`, `merged-chain`, `overrides-columns` | `test_merged_persons_fails_closed_on_its_own[...]`, `test_merged_persons_reads_the_recorded_merges` |
+| B3; 472 | With an unchanged frame, a changed passage list or dropped list is replaced without a new log entry: the log's last entry still names the frame, and the log follows the frame file alone (line 472). See proposal 5 | — | `test_deterministic_and_unchanged_twice` (unchanged), the B3 tests |
 | B3 | A dropped list that would no longer be written (the rule removed) is still refused: the tool deletes nothing | — | `test_a_dropped_list_without_the_rule_is_refused` |
 | D2, D5, B3 | Every other command keeps refusing to overwrite; `write_outputs` replaces only with `replace=True`, which only `survey-frame` passes | — | `test_every_other_command_keeps_refusing_to_overwrite` |
 | (tightening 1) | No blank line. `frame_sha256` is 64 lower-case hex digits. `n_units` is the number of `units`, and `units` has no repeats. A later entry's `added` and `removed` are exactly what its `units` gained and lost since the entry before. The last entry's `units` are the frame's, in its order | `change-log`, `change-log-entry` | `test_a_malformed_log_is_refused_and_no_entry_proposed[...]`, `test_a_later_entry_lists_what_changed` |
@@ -263,8 +267,10 @@ The design, with those conditions folded in:
 5. As for the rollup (O3), the final file's bytes must be what finalising gives, in every status.
 6. Merged ids that carry two `author_kind` values refuse the frame and the rollup (`author-kinds`).
 7. A frame-change log whose last line does not end in a line feed is refused before an entry is appended.
-8. B3's replacement is narrower than "replace": only `survey-frame`, only its own outputs with its own record
-   beside each, only when the log's last entry names the new frame. D2 and D5 stand for every other command.
+8. B3's replacement is narrower than "replace": only `survey-frame`, only its own outputs with its own record for
+   this study beside each, only when the log's last entry names the new frame. D2 and D5 stand for every other
+   command.
+9. The author's facts for a change entry may hold no control, format or line-separator character.
 
 ## Proposals for a later contract version
 
@@ -275,7 +281,8 @@ The design, with those conditions folded in:
 3. `post_steps` entries as `Plugin` objects (the design, point 5).
 4. Running each post-step twice to check determinism (the design, point 6).
 5. Whether a frame-change entry is required when only the dropped list or the passage list changes. The text makes
-   the log follow the frame file alone (line 472).
+   the log follow the frame file alone (line 472), so today `survey-frame` replaces a changed passage list or
+   dropped list beside an unchanged frame with no new entry.
 
 ## What part 1 does not satisfy
 

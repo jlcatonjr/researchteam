@@ -342,7 +342,9 @@ the outcomes' declared order, then code-point order of `unit_id`.
 `survey-rollup <project> <final file> --out <path>` reads a `survey-finalize` output whose bytes are what
 `survey-finalize` gives from the study's inputs, in every status, and whose record matches its inputs (in a draft
 study a record that does not is reported and the stage runs; O3), and rolls its final codes up to the author: only
-counted, not excluded units; NA codes and the missing value skipped; `single-code` (a conflict is an error,
+counted, not excluded units, each counted for its author, a merged id read as the surviving person it was merged
+into through the overrides file's recorded `merge` rows (the rows stay as written; the frame reads ids the same
+way); NA codes and the missing value skipped; `single-code` (a conflict is an error,
 `rollup-conflict`), `mixed-if-conflict`, `max-order`, `any-present` (two codes at the deciding `order` are an error
 too); nothing left gives the missing value. Columns: `person_id`, each `unit.rollup_by` key, `author_kind`, each
 rolled-up outcome and `<outcome>__types` where `unit.rollup_types` is set (the distinct values, in the order the
@@ -373,9 +375,11 @@ exceptions. Its input is a current `survey-finalize` output, checked as the roll
   line, has no record of its own, and every record lists it as it stands after the append. With those arguments and
   an unchanged frame, no entry is written.
 - When the log's last entry names the new frame, the command replaces its own earlier frame, passage list and
-  dropped list at the same paths. Only files whose record beside them is this command's are replaced. Every other
-  command still refuses to write over an output with other bytes (`write_outputs(..., replace=True)` is passed only
-  here).
+  dropped list at the same paths. Only files whose record beside them is this command's, for this study, are
+  replaced. Every other command still refuses to write over an output with other bytes
+  (`write_outputs(..., replace=True)` is passed only here).
+- With an unchanged frame, a changed passage list or dropped list is also replaced without a new log entry: the log's
+  last entry still names the frame, and the log follows the frame file alone (4.4, line 472).
 - It refuses in an author study, where a bucketer is a plug-in, where the identity source is a vantage module, and
   where the evidence is in a plug-in format.
 - It does not run post-steps (4.5): it checks each step's path, then the gates that cover it, and refuses. Running

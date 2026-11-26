@@ -22,8 +22,10 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
     write as the frame and its lists. The author gives the four facts and the tool the hash and unit lists. An id
     already in the log is refused, and so is a log whose last line has no line feed. The log has no record of its
     own; the records list it after the append. With an unchanged frame, no entry is written.
-  - When the log names the new frame, `survey-frame` replaces its own earlier outputs at the same paths. Every other
-    command still refuses to write over an output with other bytes.
+  - When the log names the new frame, `survey-frame` replaces its own earlier outputs at the same paths. That
+    includes a changed passage list or dropped list beside an unchanged frame, with no new entry. Only files whose
+    record is this command's, for this study, are replaced. Every other command still refuses to write over an
+    output with other bytes.
   - A merged id counts as the person it was merged into, through the overrides file's recorded merges. This is one
     function shared with `survey-rollup`, **which changes with it**: a passage attributed to a merged id now counts
     for its person in the rollup too.
