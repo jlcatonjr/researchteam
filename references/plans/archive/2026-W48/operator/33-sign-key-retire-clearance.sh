@@ -44,9 +44,9 @@ DATE=2026-11-26
 ACTION="key-retire:op-2026"
 TEAM=.github/agents
 SPEC=docs/release/key-retire-op-2026.decision-spec.json
-SPEC_SHA=851d20fc499e5c0ea27a8b21f48ada195e7268f91fe4f4d4ec0a9ba154be22f8
+SPEC_SHA=7481c41e6c923ab57c38882369f3a05bf09251270c8e005649753d78c95be89a
 S34=references/plans/archive/2026-W48/operator/34-remove-op-2026.sh
-S34_SHA=c3de6b666ba1698304982036eb40ca09e0e641b5db01c88875f123148c54e57e     # the tracked copy of script 34; the spec's text names the same hash
+S34_SHA=53f0ee5c549d9f8551a3de7dce27a43a91eac7b8d9cf8f54de5898bc78ec3f6f     # the tracked copy of script 34; the spec's text names the same hash
 KEY_SHA=08f69c5d0e899bd26b26deb6f9f3af9b1a65a9c5e0ee25733769cc1ea3e70e7b      # op-2026.pub.pem, the same in both stores
 F1=.github/agents/references/authorized-verify-keys/op-2026.pub.pem
 F2=.codex/agents/references/authorized-verify-keys/op-2026.pub.pem
@@ -83,6 +83,11 @@ cd "$WT"
 [[ "$("${G[@]}" rev-parse HEAD)" == "$HEAD_WANT" ]] || die "HEAD is $("${G[@]}" rev-parse HEAD), not the reviewed $HEAD_WANT"
 [[ -z "$("${G[@]}" status --porcelain --untracked-files=all)" ]] || die "$WT has uncommitted changes; if an earlier run failed, undo it first: $UNDO"
 "${G[@]}" merge-base --is-ancestor "$PHASE2_MAIN" HEAD || die "phase 2's merge $PHASE2_MAIN is not in $BRANCH"
+# Since phase 2's merge, the branch changes exactly the spec and scripts 33 and 34 (the log is not yet touched).
+want="$(printf '%s\n' "$SPEC" references/plans/archive/2026-W48/operator/33-sign-key-retire-clearance.sh "$S34" | LC_ALL=C /usr/bin/sort)"
+got="$("${G[@]}" diff --no-renames --name-only "$PHASE2_MAIN" HEAD)" || die "cannot list the branch's changes since $PHASE2_MAIN"
+got="$(printf '%s\n' "$got" | LC_ALL=C /usr/bin/sort)"
+[[ "$got" == "$want" ]] || die "the branch's changes since $PHASE2_MAIN are not exactly the allowlist (spec, scripts 33 and 34): $got"
 [[ -f "$SPEC" && ! -L "$SPEC" && "$(sha "$SPEC")" == "$SPEC_SHA" ]] || die "$SPEC is not the reviewed $SPEC_SHA"
 [[ -f "$S34" && ! -L "$S34" && "$(sha "$S34")" == "$S34_SHA" ]] || die "$S34 is not the reviewed $S34_SHA"
 /usr/bin/grep -qF "\"action_reviewed\": \"$ACTION\"" "$SPEC" || die "$SPEC is not for $ACTION"
