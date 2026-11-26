@@ -78,7 +78,11 @@ def main(argv=None) -> int:
         return code
     # A merged id counts as the person it was merged into (operator ruling D), read from the overrides file's bytes
     # that load_final hashed: the file is among the record's inputs.
-    rolled = roll_up(study, loaded.rows, loaded.attribution, merged_persons(study, overrides_bytes(study, loaded)))
+    persons, merge_findings = merged_persons(study, overrides_bytes(study, loaded))
+    if merge_findings:
+        print_findings(merge_findings)
+        return refuse("the overrides file's merges cannot be read; nothing was written")
+    rolled = roll_up(study, loaded.rows, loaded.attribution, persons)
     if rolled.findings:
         print_findings(rolled.findings)
         return refuse("an outcome's rule cannot give a value for a cell (4.2, lines 412-417), or merged ids disagree "

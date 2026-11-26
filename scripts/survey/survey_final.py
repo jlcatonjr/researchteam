@@ -214,20 +214,32 @@ def types_value(values: set, declared: list) -> str:
     return ";".join(known + sorted(values - set(declared)))
 
 
-def merged_persons(study, data: bytes | None) -> dict:
+def merged_persons(study, data: bytes | None) -> tuple:
     """``{merged id: the person it was merged into}``, from the recorded ``merge`` rows of the overrides file (4.4,
     lines 491-506; "the registry links and merges only from this file"), read from *data*, the bytes the caller
     hashed. The rows themselves stay as written; the rollup and the frame read an id through this map (operator
-    ruling D, 2026-11-25: "Read through the registry"). The file has already passed its checks (no chain of merges,
-    at most one merge per id), so this only reads it."""
+    ruling D, 2026-11-25: "Read through the registry"). Returns ``(map, findings)``: it fails closed on its own, so a
+    file it cannot parse, or one that merges an id twice or merges into a merged id, gives findings and no map. (The
+    stages call it after ``load_final``, whose row checks already refuse such a file.)"""
     from survey_identity import OVERRIDE_COLUMNS
     from survey_tables import rows_from_bytes
 
     rp = study.paths.get("/identity/overrides")
     if rp is None or data is None:
-        return {}
+        return {}, []
     rows, _sha = rows_from_bytes(data, rp.repo_rel, OVERRIDE_COLUMNS, "overrides-columns")
-    return {r["alias_id"]: r["target_id"] for _n, r in rows.rows if r["decision"] == "merge"}
+    if rows.findings:
+        return {}, rows.findings
+    merges, findings = {}, []
+    for n, r in rows.rows:
+        if r["decision"] != "merge":
+            continue
+        if r["alias_id"] in merges:
+            findings.append(Finding("merged-twice", f"{rp.repo_rel}:{n}", f"{q(r['alias_id'])} is merged twice"))
+        merges[r["alias_id"]] = r["target_id"]
+    findings += [Finding("merged-chain", rp.repo_rel, f"{q(a)} is merged into {q(t)}, which is itself merged")
+                 for a, t in sorted(merges.items()) if t in merges]
+    return ({}, findings) if findings else (merges, [])
 
 
 def authors(attribution: dict, persons: dict) -> tuple:

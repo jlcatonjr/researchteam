@@ -43,7 +43,8 @@ sys.dont_write_bytecode = True
 from survey_cells import DROPPED_COLUMNS, PASSAGE_COLUMNS, build, drops_not_on_question, quoted_csv  # noqa: E402
 from survey_changelog import check_frame, frame_sha256, needed_entry, read_log  # noqa: E402
 from survey_core import (  # noqa: E402
-    Finding, SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes, usage_exit,
+    Finding, SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes, unsafe_chars,
+    usage_exit,
 )
 from survey_evidence import COLUMNS as EVIDENCE_COLUMNS  # noqa: E402
 from survey_final import locate_in_study, merged_persons  # noqa: E402
@@ -202,7 +203,10 @@ def main(argv=None) -> int:
     if table_findings:
         print_findings(table_findings)
         return refuse("a bucket table cannot be read; nothing was written")
-    persons = merged_persons(study, overrides_bytes(study, loaded))
+    persons, merge_findings = merged_persons(study, overrides_bytes(study, loaded))
+    if merge_findings:
+        print_findings(merge_findings)
+        return refuse("the overrides file's merges cannot be read; nothing was written")
     built = build(spec, loaded.rows, loaded.attribution, evidence, tables, persons)
     if built.findings:
         print_findings(built.findings)
@@ -278,9 +282,14 @@ def appended_log(entries: list, log_data: bytes | None, rel: str, sha: str, unit
     if change["id"] == "" or change["id"] in {e["id"] for e in entries}:
         problems.append(Finding("change-log-id", rel, f"--change-id {q(change['id'])} is empty or already in the log; "
                                 "an id is what a report cites (4.4, line 474)"))
-    for key in ("date", "reason"):
-        if change[key] == "":
+    for key in ("id", "date", "reason"):
+        bad = unsafe_chars(change[key])
+        if key != "id" and change[key] == "":
             problems.append(Finding("change-log-fact", rel, f"--{key} is empty; the author gives it (rule 1.5)"))
+        elif bad:
+            codes = ", ".join(f"U+{ord(c):04X}" for c in bad)
+            problems.append(Finding("change-log-fact", rel, f"--{key} holds a control, format or line-separator "
+                                    f"character ({codes}); an entry is one line"))
     if log_data and not log_data.endswith(b"\n"):
         problems.append(Finding("change-log-end", rel, "the log's last line does not end in a line feed; an entry is "
                                 "appended only after a complete line (correct the log first)"))

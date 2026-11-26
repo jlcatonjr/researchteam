@@ -176,9 +176,11 @@ def write_outputs(root: Path, study, items: list, guards: dict, tool: str = TOOL
             return refuse(f"{q(out_rel)} or its record cannot be read: {reason(exc)}; nothing was written")
         if os.path.lexists(rec_path):
             doc, errs = load_json_strict(old_record, rec_rel) if old_record is not None else (None, ["too large"])
-            if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel or doc["tool"] != tool:
+            if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel or doc["tool"] != tool \
+                    or doc["study"] != study.spec["id"]:
                 return refuse(f"{q(rec_rel)} exists and is not the provenance record {tool} wrote for {q(out_rel)} "
-                              "(4.6); a record is never written over another file; nothing was written")
+                              f"in study {q(study.spec['id'])} (4.6); a record is never written over another file; "
+                              "nothing was written")
         if existing is not None and existing != data and not (replace and old_record is not None):
             if replace:
                 return refuse(f"{q(out_rel)} exists with other contents and no record of {tool}'s beside it; only "

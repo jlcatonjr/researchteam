@@ -812,3 +812,59 @@ def test_post_steps_are_checked_paths_first_then_gates(tmp_path):
     findings = survey_frame.check_post_steps(load_study("tidebell", root))
     assert [f.rule for f in findings] == ["post-step-place", "post-step-gate"]
     assert "outside.py" in findings[0].where and "S5" in findings[1].message
+
+
+@pytest.mark.parametrize("key,value,needle", [
+    ("--date", "", "--date is empty"),
+    ("--reason", "", "--reason is empty"),
+    ("--date", "2026-11-26\x07", "U+0007"),
+    ("--reason", "two\nlines", "U+000A"),
+    ("--change-id", "fc‮2", "U+202E"),
+])
+def test_the_authors_facts_are_checked(tmp_path, key, value, needle):
+    """An empty date or reason, or a fact holding a control, format or line-separator character, is refused: an
+    entry is one line, and its facts are the author's (rule 1.5)."""
+    root = _repo(tmp_path)
+    _recode(root)
+    args = list(CHANGE)
+    args[args.index(key) + 1] = value
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *args)
+    assert "[change-log-fact]" in out and needle in out
+
+
+def test_a_record_of_another_study_is_not_replaced(tmp_path):
+    """@security: a record names its study; a survey-frame record of another study (a study folder nested inside
+    this one, say) is not this study's output, so it is not replaced."""
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    rec = root / OUT / "frame.csv.provenance.json"
+    doc = json.loads(rec.read_bytes())
+    doc["study"] = "another-study"
+    rec.write_bytes(prov.record_bytes(doc))
+    _recode(root)
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert "in study 'tidebell-survey'" in out
+
+
+@pytest.mark.parametrize("data,rule", [
+    (b"alias_id,target_id\nwarden-03,warden-02\n", "overrides-columns"),
+    (b"alias_id,target_id,decision,decided_by,reason\nwarden-03,warden-02,merge,op,r\nwarden-03,warden-01,merge,op,r\n",
+     "merged-twice"),
+    (b"alias_id,target_id,decision,decided_by,reason\nwarden-03,warden-02,merge,op,r\nwarden-02,warden-01,merge,op,r\n",
+     "merged-chain"),
+])
+def test_merged_persons_fails_closed_on_its_own(tmp_path, data, rule):
+    import survey_final as sf
+    from survey_spec import load_study
+    root = _repo(tmp_path)
+    persons, findings = sf.merged_persons(load_study("tidebell", root), data)
+    assert persons == {} and rule in [f.rule for f in findings]
+
+
+def test_merged_persons_reads_the_recorded_merges(tmp_path):
+    import survey_final as sf
+    from survey_spec import load_study
+    root = _repo(tmp_path)
+    data = (b"alias_id,target_id,decision,decided_by,reason\nwarden-03,warden-02,merge,op,r\n"
+            b"warden-04,warden-04,link,op,r\n")
+    assert sf.merged_persons(load_study("tidebell", root), data) == ({"warden-03": "warden-02"}, [])

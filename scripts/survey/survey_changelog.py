@@ -2,11 +2,13 @@
 
 ``{ "id", "date", "reason", "results_seen", "frame_sha256", "n_units", "added", "removed", "units" }``
 
-The log is the project's: its ``id``, ``date``, ``reason`` and ``results_seen`` are an author's, so no tool writes an
-entry (rule 1.5: a tool does not read the clock to fill in a date). The check (line 475): the current frame's hash,
-taken as a manifest takes a text file's (6.1), must be the last entry's ``frame_sha256``; a frame cannot change
-without an entry. ``survey-frame`` runs it on the frame it is about to write and, where it fails, writes nothing and
-prints the entry the log needs, with the four fields that are the author's left for the author.
+An entry's ``id``, ``date``, ``reason`` and ``results_seen`` are always the author's (rule 1.5: no tool reads the
+clock to fill in a date); ``frame_sha256``, ``n_units``, ``added``, ``removed`` and ``units`` come from the frame. The
+check (line 475): the current frame's hash, taken as a manifest takes a text file's (6.1), must be the last entry's
+``frame_sha256``; a frame cannot change without an entry. ``survey-frame`` runs it on the frame it is about to write.
+Given the author's four facts (``--change-id``, ``--date``, ``--reason``, ``--results-seen``), it appends the entry
+itself, one line at the end of the log, in the same guarded write as the frame (operator ruling B2). Without them,
+where the check fails, it writes nothing and prints the entry the log needs, the author's four fields left open.
 """
 from __future__ import annotations
 
