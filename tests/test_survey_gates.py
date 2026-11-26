@@ -215,6 +215,36 @@ EXACT_HEADER = ("timestamp,requesting_agent,date,action_reviewed,verdict,scope,c
 OLD_FIXTURE_HEADER = EXACT_HEADER[len("timestamp,requesting_agent,"):]
 
 
+def _header_finding(root):
+    return [f.message for f in ledger_mod.check_ledger(_study(root)).findings if f.rule == "ledger-log"]
+
+
+@pytest.mark.parametrize("order", ["as-written", "reversed", "rotated"])
+def test_a_header_only_log_in_any_column_order_is_valid(tmp_path, order):
+    """Operator decision, 2026-11-25: the same set of columns, each once, in any order."""
+    cols = list(ledger_mod.LOG_HEADER)
+    cols = {"as-written": cols, "reversed": cols[::-1], "rotated": cols[7:] + cols[:7]}[order]
+    root = make_repo(tmp_path)
+    (root / LEDGER / "references" / "security-decisions.log.csv").write_text(",".join(cols) + "\n")
+    assert _ledger_rules(root) == set()
+
+
+@pytest.mark.parametrize("change,needle", [
+    (lambda c: [x for x in c if x != "prev_digest"], "missing 'prev_digest'"),
+    (lambda c: c + ["consumed"], "extra 'consumed'"),
+    (lambda c: c + ["verdict"], "repeated 'verdict'"),
+    (lambda c: [" timestamp" if x == "timestamp" else x for x in c], "extra ' timestamp'"),
+    (lambda c: ["\ufeff" + c[0]] + c[1:], "missing 'signature'"),  # a byte-order mark on the first cell
+    (lambda c: c + [""], "extra ''"),
+])
+def test_a_header_with_another_set_of_columns_is_malformed_and_says_which(tmp_path, change, needle):
+    root = make_repo(tmp_path)
+    cols = change(list(ledger_mod.LOG_HEADER)[::-1])
+    (root / LEDGER / "references" / "security-decisions.log.csv").write_text(",".join(cols) + "\n")
+    messages = _header_finding(root)
+    assert messages and needle in messages[0], messages
+
+
 def test_the_log_header_is_exactly_agentteams_new_log_header(tmp_path):
     assert ",".join(ledger_mod.LOG_HEADER) + "\n" == EXACT_HEADER
     root = make_repo(tmp_path)  # the fixture writes a header-only log with that header

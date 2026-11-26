@@ -75,10 +75,11 @@ Tests are in `tests/test_survey_verify.py` (step F) and `tests/test_survey_gates
 | 9d | A valid PASS for a study id that extends this one (`tidebell-survey-2`), same gate | `UNCLEARED` (caveat) | The deciding row must name exactly the computed action; the child is asked only about it | `test_a_row_for_a_study_id_that_extends_this_one_never_decides`, `test_signed_a_valid_pass_for_a_study_that_extends_this_one_never_clears_it` |
 | 10 | A HALT **on the action**, retracted, with no new PASS after it | `UNCLEARED` (caveat) until a new PASS; then `CLEARED` | After a retraction no earlier permission survives: the HALT behind the retraction decides, never an older PASS. For a HALT on the **scope** (not the action): a retracted HALT on the scope in the folder log is not a row for the action, so the older PASS reaches the child, which decides (S6) | `test_a_retraction_never_restores_an_older_sign_off`, `test_signed_a_retracted_halt_on_the_action_needs_a_new_pass` |
 | 10a | A retraction signed with a shared secret | It never counts: the child's `HOME` is empty, so no shared-secret key is found (Q11) | — | `test_the_childs_environment_is_an_allowlist`, `test_the_child_runs_isolated_with_an_empty_home` |
-| 11 | A `consumed` column in the folder log | malformed (`ledger-log`) | The exact header has no `consumed` column, so such a log is refused; a check spends nothing (852, 889) | `test_a_log_with_an_extra_column_is_malformed` |
+| 11 | A `consumed` column in the folder log | malformed (`ledger-log`) | The header's set of columns has no `consumed` column, so such a log is refused; a check spends nothing (852, 889) | `test_a_log_with_an_extra_column_is_malformed` |
 | 12 | `CONDITIONAL PASS` with conditions pending | `UNCLEARED` (caveat) | 889-891 | `…[…pending…]` |
 | 12a | `CONDITIONAL PASS` verified | `CLEARED` if agentteams' check clears it | 890 | `test_a_verified_conditional_pass_reaches_the_verifier` |
-| 13 | Folder log malformed | malformed ledger: `UNAVAILABLE` | Step A, plus the exact header (852) and `ledger-scheme` | step A tests |
+| 13 | Folder log malformed | malformed ledger: `UNAVAILABLE` | Step A, plus the header's set of columns (852) and `ledger-scheme` | step A tests |
+| 13c | A header with agentteams' columns in another order; one missing `prev_digest`; one with an extra or repeated column | Any order: well-formed, and every rule reads rows by column name, so a reordered log decides as the written order does. Otherwise: malformed (`ledger-log`), naming what is missing, extra or repeated | 852; operator decision, 2026-11-25 | `test_a_header_only_log_in_any_column_order_is_valid`, `test_a_header_with_another_set_of_columns_is_malformed_and_says_which`, `test_a_row_in_a_log_with_its_columns_reordered_is_read_by_name`, `test_signed_a_signed_row_in_a_reordered_log_still_clears` |
 | 13a | agentteams' check does not clear an action whose row passed the tools' rules | `UNCLEARED` | The tools read only the child's `cleared` answer, never its message (Q3) | `test_signed_a_swapped_key_is_not_cleared_by_agentteams` |
 | 13b | A team log that cannot be read (link, size, encoding, open quote, width, no action or verdict column, permission) | `UNAVAILABLE`, status 0, reason without a path | 910-913; S4 | `test_a_team_log_that_cannot_be_read_leaves_every_gate_unavailable` (four cases), `test_a_log_that_cannot_be_read_is_reported_without_its_path` |
 | 14 | agentteams or `cryptography` absent, or agentteams older than 1.3.0 or not `X.Y.Z` | `UNAVAILABLE` for every gate with a current request. No request and a stale request stay `UNCLEARED`. A blocking stage refuses | Rule 1.7 (45); 915-917; T1 | `test_python_without_agentteams_reads_unavailable_and_blocking_stages_refuse`, `test_without_agentteams_…` (four cases), `test_an_old_or_unreadable_agentteams_version_is_unavailable` |
@@ -119,7 +120,7 @@ Tests are in `tests/test_survey_verify.py` (step F) and `tests/test_survey_gates
 | 10 | A waiver file in the folder | A waiver file is an error; checked again after the call |
 | 11 | A HALT on the action or the scope, in any scanned log | Row 8; row 9 |
 | 12 | A HALT on a family name, however spelt | Row 8a |
-| 13 | A `consumed` column | The exact header refuses it |
+| 13 | A `consumed` column | The header's set of columns refuses it |
 | 14 | A `CONDITIONAL PASS` with conditions pending; any verdict but `PASS` or verified `CONDITIONAL PASS` | Row 12 |
 | 15 | A row with `derives_from`, `scope` or an `effect_*` value | Row 9b |
 | 16 | A row signed from a checkout | The checkout-signing mark is refused (840; Q4) |
@@ -159,8 +160,10 @@ The child runs `sys.executable -B -I -c survey_verify.CHILD <folder> <scope> <ma
      are joined with `/`. So the tools keep their own family scan after 1.3.1.
    - A public listing of a log's open HALTs (asked of agentteams) will then replace the any-HALT-row rule.
    - Whether the family names should use colons is a proposal for a later contract version.
-2. **The log's header and schemes** (Q5): exactly agentteams 1.3.0's new-log header (line 852), and every row
-   Ed25519. The exact header has no `consumed` column, so such a log is refused; a check spends nothing (889).
+2. **The log's header and schemes** (Q5; header revised by the operator on 2026-11-25): the header holds exactly
+   the set of columns of agentteams 1.3.0's new-log header (line 852), each once, in any order, the chain column
+   `prev_digest` required; and every row is Ed25519. The set has no `consumed` column, so such a log is refused; a
+   check spends nothing (889). Every row is read by column name, so the order changes no rule.
 3. **A `build-only` stage refuses when the sign-off folder is malformed** (Q9). The 6.1 table alone says it runs.
 4. **Identical manifests are accepted for version 1** (Q10); a repository identity in the manifest is proposed for
    version 2.
