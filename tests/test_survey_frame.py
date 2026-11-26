@@ -190,6 +190,20 @@ def test_a_plug_in_bucketer_is_refused(tmp_path):
     assert "[frame-plugin-bucketer]" in out
 
 
+def test_a_vantage_module_is_refused(tmp_path):
+    """5.2: included()'s exclusions go to the frame-change log; a vantage module is not loaded by this version."""
+    root = _repo(tmp_path)
+    (root / STUDY_REL / "rules" / "vantage.py").write_text("IDS = None\n", encoding="utf-8")
+    from survey_support import edit_spec
+
+    def mutate(s):
+        s["vantage"] = {"module": {"file": "rules/vantage.py", "attr": "IDS", "version": "1"}}
+        s["signoffs"]["gates"]["S0"]["covers"].append("rules/vantage.py")
+    edit_spec(root, mutate)
+    out = _refused(root, needle="does not load or define")
+    assert "[identity-vantage]" in out
+
+
 def test_a_study_declaring_not_on_question_stops_on_the_open_point(tmp_path):
     root = _repo(tmp_path, lambda s: s["frame_rules"]["exclude"].append(
         {"rule": "not-on-question", "reason": "a cell with no code says nothing on the question"}))
