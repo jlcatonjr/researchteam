@@ -13,11 +13,14 @@ its dropped list, each with a provenance record beside it.
 - The final file must be a current ``survey-finalize`` output and exactly what finalising gives from the study's
   inputs (4.7, line 653; the rollup's checks, shared through ``load_final``).
 - Every cell is checked before anything is written (lines 651-653); on any breach nothing is written.
-- The frame-change log (4.4, lines 461-476) must end with the entry for the frame about to be written. Where it does
-  not, nothing is written and the entry the log needs is printed. With the change arguments the tool would append it
-  (operator ruling B), but how the log's own record and the frame's record list the log, which the run both reads
-  and writes, is an open point the text does not settle: the command stops there and prints the entry, with the
-  author's facts filled in. With the change arguments and an unchanged frame, no entry is written and it says so.
+- The frame-change log (4.4, lines 461-476) must end with the entry for the frame about to be written. Without the
+  change arguments, where it does not, nothing is written and the entry the log needs is printed. With them, the
+  entry is appended in the same guarded write as the frame (operator rulings B and B2): the log grows by one line,
+  has no record of its own, and every record lists it as it stands after the append. With the change arguments and
+  an unchanged frame, no entry is written and it says so.
+- Since the log's last entry names the frame being written, the command replaces its own earlier frame, passage list
+  and dropped list at the same paths (operator ruling B3); a file with no record of this tool's beside it is
+  refused. Every other command keeps refusing to write over an output with other bytes (D2, D5).
 - Post-steps (4.5) are not run by this version: a study that declares any is refused once each step file's path and
   the gate that covers it have been checked (a blocking gate not cleared refuses, rule 1.7 and 6.1).
 - The records list gates S5 and S6 (lines 569, 653), every file read, and the legacy exceptions. An existing output
@@ -227,12 +230,18 @@ def main(argv=None) -> int:
                    f"{needed_entry(entries, sha, built.units)}"))
         return refuse("the frame-change log does not end with this frame's entry (4.4, lines 475-476); nothing was "
                       "written")
+    new_log = None
     if mismatch:
-        return change_entry_stop(entries, log_rp.repo_rel, sha, built.units, change)
-    if change is not None:
+        new_log, code = appended_log(entries, log_data, log_rp.repo_rel, sha, built.units, change)
+        if new_log is None:
+            return code
+    elif change is not None:
         print(safe(f"no entry: the frame is the log's last entry ({q(entries[-1]['id'])}); the log has one entry per "
                    "change to the frame (4.4, line 461), so the change arguments were not used"))
-    inputs = list(loaded.inputs) + [(log_rp.repo_rel, sha256_bytes(log_data) if log_data is not None else ABSENT)]
+    # The records list the log as it stands after this run (ruling B2: the log has no record of its own); the guard
+    # holds the bytes read, so a log changed on disk since then refuses the whole write.
+    after = new_log if new_log is not None else log_data
+    inputs = list(loaded.inputs) + [(log_rp.repo_rel, sha256_bytes(after) if after is not None else ABSENT)]
     guards = dict(loaded.guards)
     guards[log_rp.repo_rel] = sha256_bytes(log_data) if log_data is not None else None
     gates = gate_entries(study, GATES)
@@ -241,7 +250,11 @@ def main(argv=None) -> int:
         outputs.append((dropped_rel, quoted_csv(DROPPED_COLUMNS, built.dropped)))
     items = [(rel, data, record_bytes(make_record(study, rel, TOOL, inputs, gates, plugins=[],
                                                   legacy_exceptions=loaded.exceptions))) for rel, data in outputs]
-    code = write_outputs(root, study, items, guards, TOOL)
+    # The log's last entry names this frame (checked above, after this run's append if any), so the command may
+    # replace its own earlier outputs at these paths (ruling B3); a foreign file or an output with no record of this
+    # tool's is still refused.
+    unrecorded = (log_rp.repo_rel, new_log, "/frame_rules/change_log") if new_log is not None else None
+    code = write_outputs(root, study, items, guards, TOOL, replace=True, unrecorded=unrecorded)
     if code == 0:
         dropped_note = f"; dropped: {len(built.dropped)} cell(s)" if rule is not None else ""
         print(safe(f"frame: {len(built.rows)} cell(s); passage list: {len(built.passages)} row(s){dropped_note}; "
@@ -249,12 +262,18 @@ def main(argv=None) -> int:
     return code
 
 
-def change_entry_stop(entries: list, rel: str, sha: str, units: list, change: dict) -> int:
-    """The change arguments were given and the frame changed. The author's facts are checked (an ``id`` not empty and
-    not already in the log; a ``date`` and a ``reason`` not empty), then the command stops on the open point: the run
-    would write the log, a file it also reads, and the text does not settle how the log's own record (4.6, lines
-    549-550) and the frame's record ("each as it was read", line 563) then list it without one of them being stale
-    from the moment it is written (lines 566-567). The entry is printed with the author's facts; nothing is written."""
+def appended_log(entries: list, log_data: bytes | None, rel: str, sha: str, units: list, change: dict) -> tuple:
+    """The change arguments were given and the frame changed (operator ruling B2): ``(the log's new bytes, 0)`` or
+    ``(None, exit code)`` with the refusal printed.
+
+    - The author's facts are checked: an ``id`` not empty and not already in the log (4.4, line 474); a ``date`` and a
+      ``reason`` not empty (rule 1.5: the tool never takes the date from the clock). The tool supplies
+      ``frame_sha256``, ``n_units``, ``added``, ``removed`` and ``units``, all from the frame.
+    - The log grows by exactly one line at its end: its bytes as read, then the entry and a line feed. A log whose
+      last line does not end in a line feed is refused (JSON Lines; the contract does not say how to join a line to
+      one), so nothing in the log as read ever changes.
+    - A log that does not exist yet is created: section 3 lets ``change_log`` be absent "because a stage writes them"
+      (line 218)."""
     problems = []
     if change["id"] == "" or change["id"] in {e["id"] for e in entries}:
         problems.append(Finding("change-log-id", rel, f"--change-id {q(change['id'])} is empty or already in the log; "
@@ -262,16 +281,21 @@ def change_entry_stop(entries: list, rel: str, sha: str, units: list, change: di
     for key in ("date", "reason"):
         if change[key] == "":
             problems.append(Finding("change-log-fact", rel, f"--{key} is empty; the author gives it (rule 1.5)"))
+    if log_data and not log_data.endswith(b"\n"):
+        problems.append(Finding("change-log-end", rel, "the log's last line does not end in a line feed; an entry is "
+                                "appended only after a complete line (correct the log first)"))
     if problems:
         print_findings(problems)
-        return refuse("the frame-change entry's facts are not usable; nothing was written")
+        return None, refuse("the frame-change entry cannot be appended; nothing was written")
     entry = json.loads(needed_entry(entries, sha, units))
     entry.update(change)
-    print_findings([Finding("change-log-write", rel, "writing the log from this run is an open point awaiting the "
-                            "operator's ruling: the log is an input this run would also write, and the contract does "
-                            "not say how its record and the frame's record then list it (4.6, lines 549, 563, 566)")])
-    print(safe(f"the entry to append to the log, then run again: {json.dumps(entry, ensure_ascii=True)}"))
-    return refuse("the frame changed and its entry is not in the log; nothing was written")
+    new = (log_data or b"") + json.dumps(entry, ensure_ascii=True).encode("utf-8") + b"\n"
+    grown, findings = read_log(new, rel)
+    findings += [] if findings else check_frame(grown, rel, sha, units)
+    if findings or len(grown) != len(entries) + 1:
+        print_findings(findings)
+        return None, refuse("the entry does not make a well-formed log for this frame; nothing was written")
+    return new, 0
 
 
 def load_tables(study, data: dict) -> tuple:

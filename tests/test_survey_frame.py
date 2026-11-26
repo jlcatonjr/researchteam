@@ -147,7 +147,7 @@ def test_deterministic_and_unchanged_twice(tmp_path):
 def test_an_existing_different_output_is_refused(tmp_path):
     root = _repo(tmp_path)
     (root / OUT / "passages.csv").write_bytes(b"other\n")
-    _refused(root, needle="never appended to or overwritten")
+    _refused(root, needle="no record of survey-frame's beside it")
 
 
 @pytest.mark.parametrize("args,needle", [
@@ -633,21 +633,111 @@ def test_the_change_arguments_and_an_unchanged_frame_write_no_entry(tmp_path):
     assert (root / LOG).read_bytes() == log and (root / OUT / "frame.csv").read_bytes() == FRAME
 
 
-def test_the_change_arguments_and_a_changed_frame_stop_on_the_open_point(tmp_path):
-    """The facts are the author's, the hash, n_units and the unit lists the tool's; writing the log, which the run
-    also reads, is the open point: nothing is written and the full entry is printed."""
+def _recode(root, name="out/final2.csv"):
+    """p-002's adjudication changed: a new final file, and a changed frame with the same cells."""
+    adj = root / ROWS / "adjudications-slack_bell.csv"
+    adj.write_bytes(adj.read_bytes().replace(b"p-002,slack_bell,tolerates", b"p-002,slack_bell,against"))
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", name)[0] == 0
+    return FRAME.replace(b'"tolerates"', b'"against"')
+
+
+def _current(root, names=("frame.csv", "passages.csv")):
+    return all(prov.check_current(root, f"{OUT}/{n}.provenance.json").built for n in names)
+
+
+def test_the_first_build_with_the_change_arguments_creates_the_log(tmp_path):
+    """Ruling B2: the entry is appended in the same write as the frame. A log that does not exist yet is created
+    (section 3, line 218: change_log may be absent "because a stage writes them"). It has no record of its own, and
+    the records list it as it stands after the append, so they are current."""
+    root = _repo(tmp_path, log=False)
+    args = ("--change-id", "fc-1", "--date", "2026-11-25", "--reason", "the first frame", "--results-seen", "no")
+    code, out, _ = _frame(root, "out/final.csv", "out/frame.csv", "out/passages.csv", *args)
+    assert code == 0, out
+    entries, findings = cl.read_log((root / LOG).read_bytes(), "log")
+    assert findings == [] and len(entries) == 1
+    e = entries[0]
+    assert (e["id"], e["date"], e["reason"], e["results_seen"]) == ("fc-1", "2026-11-25", "the first frame", False)
+    assert e["frame_sha256"] == SHA and e["units"] == CELLS and e["added"] == CELLS and e["removed"] == []
+    assert not (root / f"{LOG}.provenance.json").exists()
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME and _current(root)
+    assert f"appended one entry: {LOG}" in out
+
+
+def test_a_changed_frame_with_the_change_arguments_is_replaced_in_one_run(tmp_path):
+    """Rulings B2 and B3: the log grows by exactly one line at its end, nothing else in it changes, and the frame is
+    replaced at the same path because the log's last entry, after the append, names it."""
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    before = (root / LOG).read_bytes()
+    frame = _recode(root)
+    code, out, _ = _frame(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert code == 0, out
+    after = (root / LOG).read_bytes()
+    assert after.startswith(before) and after[len(before):].count(b"\n") == 1 and after.endswith(b"\n")
+    entry = json.loads(after[len(before):])
+    assert (entry["id"], entry["date"], entry["reason"], entry["results_seen"]) == \
+        ("fc-2", "2026-11-26", "an adjudication was revised", False)
+    assert entry["frame_sha256"] == cl.frame_sha256(frame) and entry["n_units"] == 2
+    assert entry["added"] == [] and entry["removed"] == [] and entry["units"] == CELLS
+    assert (root / OUT / "frame.csv").read_bytes() == frame and "replaced: " in out and _current(root)
+
+
+def test_a_log_changed_on_disk_before_the_write_refuses_everything(tmp_path, monkeypatch):
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    _recode(root)
+    calls = []
+    real = prov.check_writable
+
+    def touch(r, rel):
+        calls.append(rel)
+        if len(calls) == 3:
+            with open(root / LOG, "ab") as fh:
+                fh.write(_entry(eid="fc-x").encode())
+        real(r, rel)
+    monkeypatch.setattr(prov, "check_writable", touch)
+    code, out, _ = _frame(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert code == 1 and "changed while this run was being prepared" in out
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME
+    assert (root / LOG).read_bytes() == (_entry() + _entry(eid="fc-x")).encode()
+
+
+def test_a_log_not_ending_in_a_line_feed_is_refused(tmp_path):
+    root = _repo(tmp_path)
+    (root / LOG).write_text(_entry().rstrip("\n"), encoding="utf-8")
+    _recode(root)
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert "[change-log-end]" in out
+
+
+def test_replacement_is_refused_when_the_last_entry_does_not_name_the_new_frame(tmp_path):
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    _recode(root)
+    out = _refused(root, "out/final2.csv", needle="does not end with this frame's entry")
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME and "replaced" not in out
+
+
+def test_a_foreign_record_at_a_record_path_refuses_the_replacement(tmp_path):
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    rec = root / OUT / "passages.csv.provenance.json"
+    doc = json.loads(rec.read_bytes())
+    doc["tool"] = "survey-rollup"
+    rec.write_bytes(prov.record_bytes(doc))
+    _recode(root)
+    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
+    assert "is not the provenance record survey-frame wrote" in out
+
+
+def test_every_other_command_keeps_refusing_to_overwrite(tmp_path):
+    """D2 and D5 stand: survey-finalize does not replace its own earlier output, record and all."""
     root = _repo(tmp_path)
     adj = root / ROWS / "adjudications-slack_bell.csv"
     adj.write_bytes(adj.read_bytes().replace(b"p-002,slack_bell,tolerates", b"p-002,slack_bell,against"))
-    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
-    out = _refused(root, "out/final2.csv", "out/frame.csv", "out/passages.csv", *CHANGE)
-    assert "[change-log-write]" in out and "open point" in out
-    line = out.split("the entry to append to the log, then run again: ", 1)[1].splitlines()[0]
-    entry = json.loads(line)
-    assert (entry["id"], entry["date"], entry["reason"], entry["results_seen"]) == \
-        ("fc-2", "2026-11-26", "an adjudication was revised", False)
-    assert entry["n_units"] == 2 and entry["added"] == [] and entry["removed"] == [] and entry["units"] == CELLS
-    assert entry["frame_sha256"] != SHA
+    before = tree(root)
+    code, out, _ = run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final.csv")
+    assert code == 1 and "never appended to or overwritten" in out and tree(root) == before
 
 
 def test_an_id_already_in_the_log_is_refused(tmp_path):

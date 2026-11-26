@@ -119,18 +119,40 @@ def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, gu
     return write_outputs(root, study, [(out_rel, data, record)], guards, tool)
 
 
-def write_outputs(root: Path, study, items: list, guards: dict, tool: str = TOOL) -> int:
+def write_outputs(root: Path, study, items: list, guards: dict, tool: str = TOOL, *, replace: bool = False,
+                  unrecorded: tuple | None = None) -> int:
     """Write each ``(output, bytes, record bytes)`` of *items* and its record in one ``write_all``: every output first,
-    every record last, or report them unchanged. Everything is checked before anything is written. An existing
-    output is never appended to: identical bytes are "unchanged" (its record renewed if the inputs moved), anything
-    else is refused (D2). A file at a record's path that is not the record *tool* wrote for that output is never
-    written over."""
+    then *unrecorded*, then every record, or report them unchanged. Everything is checked before anything is written.
+
+    - An existing output is never appended to: identical bytes are "unchanged" (its record renewed if the inputs
+      moved), anything else is refused (D2). A file at a record's path that is not the record *tool* wrote for that
+      output is never written over.
+    - With *replace* (``survey-frame`` only, operator ruling B3), an existing output with other bytes is replaced, but
+      only where the record beside it is *tool*'s record for that output: an output with no record, or a foreign
+      file, is still refused. Every other command keeps the default, refuse.
+    - *unrecorded* is ``(path, bytes, own pointer)``: one declared file written with no record of its own (the
+      frame-change log, operator ruling B2). It passes the same output checks, its declared pointer allowed; the
+      caller guards it with the bytes it read, so a change on disk since then refuses the write."""
     fold = lambda p: unicodedata.normalize("NFC", p).casefold()  # noqa: E731
     named = [fold(p) for out_rel, _d, _r in items for p in (out_rel, record_rel(out_rel))]
+    if unrecorded is not None:
+        named.append(fold(unrecorded[0]))
     if len(set(named)) != len(named):
         return refuse("two of the outputs, or an output and a record, are the same path; nothing was written")
     guards = dict(guards)
     data_out, record_out, report = [], [], []
+    if unrecorded is not None:
+        log_rel, log_data, pointer = unrecorded
+        try:
+            check_output_target(study, log_rel, own_pointer=pointer)
+        except WriteRefused as exc:
+            return refuse(f"{reason(exc)}; nothing was written")
+        links = symlink_components(root, log_rel)
+        if links:
+            return refuse(f"a component of {q(log_rel)} is a symbolic link ({', '.join(map(q, links))}); nothing "
+                          "was written")
+        if log_rel not in guards:
+            return refuse(f"{q(log_rel)} was not read before it is written; nothing was written")
     for out_rel, data, record in items:
         rec_rel = record_rel(out_rel)
         if is_record_name(out_rel):
@@ -157,7 +179,10 @@ def write_outputs(root: Path, study, items: list, guards: dict, tool: str = TOOL
             if errs or check_record_shape(doc, rec_rel) or doc["output"] != out_rel or doc["tool"] != tool:
                 return refuse(f"{q(rec_rel)} exists and is not the provenance record {tool} wrote for {q(out_rel)} "
                               "(4.6); a record is never written over another file; nothing was written")
-        if existing is not None and existing != data:
+        if existing is not None and existing != data and not (replace and old_record is not None):
+            if replace:
+                return refuse(f"{q(out_rel)} exists with other contents and no record of {tool}'s beside it; only "
+                              f"{tool}'s own output is replaced (operator ruling B3); nothing was written")
             return refuse(f"{q(out_rel)} exists with other contents; an output is never appended to or overwritten "
                           "(operator decision D2); nothing was written")
         guards[out_rel] = sha256_bytes(existing) if existing is not None else None
@@ -166,10 +191,14 @@ def write_outputs(root: Path, study, items: list, guards: dict, tool: str = TOOL
             data_out.append((out_rel, data))
         if old_record != record:
             record_out.append((rec_rel, record))
-        state = "unchanged" if existing == data else "wrote"
+        state = "unchanged" if existing == data else ("replaced" if existing is not None else "wrote")
         report += [f"{state}: {out_rel}",
                    f"{'renewed' if existing == data and old_record != record else state}: {rec_rel}"]
-    outputs = data_out + record_out
+    middle = []
+    if unrecorded is not None:
+        middle = [(unrecorded[0], unrecorded[1])]
+        report.append(f"appended one entry: {unrecorded[0]}")
+    outputs = data_out + middle + record_out
     if outputs:
         try:
             # Every output first, the records last. Interrupted between them, an old record (if any) names other
