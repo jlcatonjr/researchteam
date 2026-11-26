@@ -85,6 +85,13 @@ Commands:
                 Report agreement between coding passes A and B per outcome: raw agreement, Cohen's kappa
                 and Gwet's AC1, with the number of units they rest on. Writes nothing; refuses when a row
                 or code file has an error.
+  survey-finalize <project> --out <path>
+                Write the final codes of every coded outcome to <path> (inside the study's folder; not
+                a declared file) with a provenance record: agreed passes, else the adjudication; refuses,
+                writing nothing, when a unit lacks a pass and an adjudication or has no pass at all.
+  survey-rollup <project> <final file> --out <path>
+                Roll the final codes of a current survey-finalize output up to the author, by each
+                outcome's rule, into <path> with a provenance record.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -377,6 +384,14 @@ case "$cmd" in
   survey-agreement)
     shift
     command_survey survey_agreement.py "$@"
+    ;;
+  survey-finalize)
+    shift
+    command_survey survey_finalize.py "$@"
+    ;;
+  survey-rollup)
+    shift
+    command_survey survey_rollup.py "$@"
     ;;
   code-query)
     shift

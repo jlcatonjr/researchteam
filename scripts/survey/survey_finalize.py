@@ -132,6 +132,18 @@ def write_output(root: Path, study, out_rel: str, data: bytes, record: bytes, gu
     return 0
 
 
+def compute_final(study) -> tuple:
+    """The final codes a run would write, worked out without writing: ``(bytes, exceptions, findings)``."""
+    report = check_row_files(study)
+    if report.findings:
+        return b"", 0, report.findings
+    units, unit_findings = study_units(study)
+    final = finalise(study, report.codes, units)
+    if unit_findings or final.findings:
+        return b"", 0, unit_findings + final.findings
+    return csv_bytes(CODES_COLUMNS, final.rows), report.exceptions, []
+
+
 def parse(argv: list) -> tuple:
     args = list(argv)
     if "--out" not in args or args.index("--out") == len(args) - 1:
@@ -161,19 +173,13 @@ def main(argv=None) -> int:
     inputs, guards, error = hash_inputs(root, study)
     if error:
         return refuse(f"{error}; nothing was written")
-    report = check_row_files(study)
-    if report.findings:
-        print_findings(report.findings)
-        return refuse(f"the row or code files have {len(report.findings)} error(s); nothing was written")
-    units, unit_findings = study_units(study)
-    final = finalise(study, report.codes, units)
-    if unit_findings or final.findings:
-        print_findings(unit_findings + final.findings)
-        return refuse("final codes cannot be written for every unit (4.2, lines 397-399; operator decision D4); "
-                      "nothing was written")
-    data = csv_bytes(CODES_COLUMNS, final.rows)
+    data, exceptions, findings = compute_final(study)
+    if findings:
+        print_findings(findings)
+        return refuse("final codes cannot be written for every unit, or a row or code file has an error (4.2, lines "
+                      "397-399; operator decision D4); nothing was written")
     record = record_bytes(make_record(study, out.repo_rel, TOOL, inputs, gate_entries(study, GATES), plugins=[],
-                                      legacy_exceptions=report.exceptions))
+                                      legacy_exceptions=exceptions))
     return write_output(root, study, out.repo_rel, data, record, guards)
 
 

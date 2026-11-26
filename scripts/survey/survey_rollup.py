@@ -33,7 +33,7 @@ from survey_core import (  # noqa: E402
     sha256_bytes, usage_exit,
 )
 from survey_final import csv_bytes, locate_in_study, roll_up, rollup_columns  # noqa: E402
-from survey_finalize import TOOL as FINALIZE, write_output  # noqa: E402
+from survey_finalize import TOOL as FINALIZE, compute_final, write_output  # noqa: E402
 from survey_provenance import check_current, gate_entries, make_record, record_bytes, record_rel  # noqa: E402
 from survey_spec import load_study  # noqa: E402
 from survey_tables import MAX_CSV_BYTES, rows_from_bytes  # noqa: E402
@@ -92,6 +92,13 @@ def main(argv=None) -> int:
         return refuse(f"an input cannot be read: {reason(exc)}; nothing was written")
     if final_data is None or att_data is None or record_data is None:
         return refuse("an input is larger than the cap; nothing was written")
+    # The record holds no hash of the final file (4.6, line 565), so a hand edit leaves it "built": the final codes
+    # are worked out again from their declared inputs, and the file must be exactly those bytes.
+    expected, _exceptions, findings = compute_final(study)
+    if findings or expected != final_data:
+        print_findings(findings)
+        return refuse(f"{q(final.repo_rel)} is not what survey-finalize gives from the study's inputs (edited by "
+                      "hand, or written from other inputs): run survey-finalize again; nothing was written")
     final_rows, final_sha = rows_from_bytes(final_data, final.repo_rel, CODES_COLUMNS, "codes-columns")
     att_rows, att_sha = rows_from_bytes(att_data, att_rp.repo_rel, attribution_columns(study.spec),
                                         "attribution-columns")
