@@ -105,6 +105,9 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/survey/survey_final.py",
     "scripts/survey/survey_finalize.py",
     "scripts/survey/survey_rollup.py",
+    "scripts/survey/survey_cells.py",
+    "scripts/survey/survey_changelog.py",
+    "scripts/survey/survey_frame.py",
     # Step F: sign-off verification (6.2), reaching agentteams only as a child process.
     "scripts/survey/survey_verify.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.

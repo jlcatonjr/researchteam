@@ -284,8 +284,11 @@ them with `python3 -B -I`.
 | `survey_rows.py` | Step B part 2b. The `survey-rows` command: the batch merge, and `--draft-exceptions` |
 | `survey_codes.py` | Step C. The codes and adjudications files' checks (4.2) and raw agreement between passes A and B |
 | `survey_agreement.py` | Step C. The `survey-agreement` command |
-| `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), and placing a path in the study's folder |
-| `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands |
+| `survey_final.py` | Step C part 2. Final codes (4.2 lines 397-400; operator decisions D3, D4), the rollup's rules and columns (lines 403-422; D5), placing a path in the study's folder, and reading a merged id as its person through the overrides file's recorded merges (`merged_persons`, `authors`; step D ruling D, shared by the rollup and the frame) |
+| `survey_finalize.py`, `survey_rollup.py` | Step C part 2. The `survey-finalize` and `survey-rollup` commands; `survey_finalize.py` also holds the final-codes loader both later stages share (`load_final`) and the writer of several outputs at once (`write_outputs`) |
+| `survey_cells.py` | Step D. The frame of a passage or work study (4.7): cells, columns, outcome cells, the period, attribute evidence, the cell checks, the cells `not-on-question` leaves out, and the passage list |
+| `survey_changelog.py` | Step D. The frame-change log (4.4): its entries' shape, the frame's hash, the check that the frame is the last entry's, and the entry a changed frame needs |
+| `survey_frame.py` | Step D. The `survey-frame` command |
 | `survey_evidence.py` | Step B. The evidence row checks with the rule ids of 4.1, the legacy exceptions, the forbidden vocabulary (5.3), the registry read, the receipt-citation check (5.4) and the re-find seam (`refind_quotation`, step G) |
 | `survey_verify.py` | Step F: sign-off verification through agentteams, reached only as a child process (`sys.executable -I -c` with one fixed snippet, an allowlisted environment and an empty `HOME`); it imports no agentteams code |
 
@@ -339,7 +342,9 @@ the outcomes' declared order, then code-point order of `unit_id`.
 `survey-rollup <project> <final file> --out <path>` reads a `survey-finalize` output whose bytes are what
 `survey-finalize` gives from the study's inputs, in every status, and whose record matches its inputs (in a draft
 study a record that does not is reported and the stage runs; O3), and rolls its final codes up to the author: only
-counted, not excluded units; NA codes and the missing value skipped; `single-code` (a conflict is an error,
+counted, not excluded units, each counted for its author, a merged id read as the surviving person it was merged
+into through the overrides file's recorded `merge` rows (the rows stay as written; the frame reads ids the same
+way); NA codes and the missing value skipped; `single-code` (a conflict is an error,
 `rollup-conflict`), `mixed-if-conflict`, `max-order`, `any-present` (two codes at the deciding `order` are an error
 too); nothing left gives the missing value. Columns: `person_id`, each `unit.rollup_by` key, `author_kind`, each
 rolled-up outcome and `<outcome>__types` where `unit.rollup_types` is set (the distinct values, in the order the
@@ -348,6 +353,39 @@ attribute declares its levels, joined with `;`; O1). Rows are in code-point orde
 and every file finalising lists. Both commands write through `check_output_target` and `write_all` with every file
 read guarded; an output named as a record (`.provenance.json`) is refused, and so is a record path holding anything
 but this output's record; an existing output is "unchanged" when identical and refused otherwise.
+
+### The frame (step D, part 1)
+
+`survey-frame <project> <final file> --out <frame> --passages <path>` writes the frame of a passage or work study and
+its passage list (4.7). Where the study declares `not-on-question`, it also writes the dropped list, at the frame's
+path with `.csv` replaced by `.dropped.csv`; that list has its header only when nothing is dropped. Each output has a
+provenance record listing gates S5 and S6, every file read (the frame-change log among them) and the legacy
+exceptions. Its input is a current `survey-finalize` output, checked as the rollup checks it.
+
+- A cell is an author and one value of each `unit.rollup_by` attribute, made by its counted passages. A merged id
+  counts as the person it was merged into, through the overrides file's recorded merges, as in `survey-rollup`; the
+  rows stay as written.
+- Columns, outcome cells, the period and attribute evidence follow 4.7, and every cell is checked before anything is
+  written.
+- The frame must be the frame-change log's last entry (4.4). Without the change arguments, nothing is written and
+  the entry the log needs is printed.
+- With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the entry is appended in the same guarded
+  write as the frame and its lists. The author gives the four facts; the tool computes the hash and the unit lists.
+  An id already in the log is refused, and so is a log whose last line has no line feed. The log grows by exactly one
+  line, has no record of its own, and every record lists it as it stands after the append. With those arguments and
+  an unchanged frame, no entry is written.
+- When the log's last entry names the new frame, the command replaces its own earlier frame, passage list and
+  dropped list at the same paths. Only files whose record beside them is this command's, for this study, are
+  replaced. Every other command still refuses to write over an output with other bytes
+  (`write_outputs(..., replace=True)` is passed only here).
+- With an unchanged frame, a changed passage list or dropped list is also replaced without a new log entry: the log's
+  last entry still names the frame, and the log follows the frame file alone (4.4, line 472).
+- It refuses in an author study, where a bucketer is a plug-in, where the identity source is a vantage module, and
+  where the evidence is in a plug-in format.
+- It does not run post-steps (4.5): it checks each step's path, then the gates that cover it, and refuses. Running
+  them is part 2; when it comes, it will not be a sandbox.
+- Frame, passage list and dropped list are CSV with every cell quoted and LF line endings. The frame and the dropped
+  list are in code-point order of `unit_id`, the passage list in evidence-file order.
 
 ### The batch merge (step B part 2b)
 
