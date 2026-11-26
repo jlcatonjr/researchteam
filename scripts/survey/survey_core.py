@@ -17,7 +17,7 @@ import re
 import stat
 import sys
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 #: The gates of 6.1, in the order every command lists them. The one definition; the other modules import it.
@@ -43,6 +43,9 @@ class Finding:
     rule: str
     where: str
     message: str
+    #: The exact file the finding is about, where the code that made it knows it; the cap on printed findings groups
+    #: by it (display only, so it takes no part in equality).
+    file: str = field(default="", compare=False)
 
     def line(self, label: str = "ERROR") -> str:
         """The finding as one output line. Every control character is escaped, whatever produced the text: a cell, a
@@ -382,9 +385,16 @@ def load_json_strict(data: bytes, where: str) -> tuple:
 MAX_FINDINGS_PER_FILE = 1000
 
 
+def in_file(findings, rel: str) -> list:
+    """*findings* with *rel* as the file each is about, unless one already names its file."""
+    return [f if f.file else replace(f, file=rel) for f in findings]
+
+
 def finding_file(f: Finding) -> str:
-    """The file a finding is about: its ``where`` before a line number (``:``), a JSON pointer (``#``) or a note in
-    brackets; a batch row's findings belong to the batch."""
+    """The file a finding is about: the exact path it carries (:func:`in_file`); failing that, its ``where`` before a
+    line number (``:``), a JSON pointer (``#``) or a note in brackets; a batch row's findings belong to the batch."""
+    if f.file:
+        return f.file
     where = f.where
     if where.startswith("batch row"):
         return "batch"

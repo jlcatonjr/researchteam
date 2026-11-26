@@ -13,7 +13,7 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, TooLarge, fold, open_text_capped, q, read_capped, reason, sha256_bytes
+from survey_core import Finding, TooLarge, fold, in_file, open_text_capped, q, read_capped, reason, sha256_bytes
 
 #: The toolkit's own limits (proposals): the bytes of one row file; the length of one project pattern; the number
 #: of patterns in one file; the length of the folded text one pattern is searched in.
@@ -47,9 +47,9 @@ def read_rows(path: Path, where: str, columns: tuple, rule: str) -> Rows:
     try:
         stream = open_text_capped(path, MAX_CSV_BYTES)
     except TooLarge:
-        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")])
+        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read", where)])
     except OSError as exc:
-        return Rows(findings=[Finding(rule, where, f"cannot be read: {reason(exc)}")])
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {reason(exc)}", where)])
     return _parse(stream, where, columns, rule)
 
 
@@ -59,9 +59,9 @@ def read_rows_hashed(path: Path, where: str, columns: tuple, rule: str) -> tuple
     try:
         data = read_capped(path, MAX_CSV_BYTES)
     except OSError as exc:
-        return Rows(findings=[Finding(rule, where, f"cannot be read: {reason(exc)}")]), None
+        return Rows(findings=[Finding(rule, where, f"cannot be read: {reason(exc)}", where)]), None
     if data is None:
-        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read")]), None
+        return Rows(findings=[Finding(rule, where, f"larger than {MAX_CSV_BYTES} bytes; not read", where)]), None
     return _parse(io.TextIOWrapper(io.BytesIO(data), encoding="utf-8", newline=""), where, columns, rule), \
         sha256_bytes(data)
 
@@ -73,6 +73,12 @@ def rows_from_bytes(data: bytes, where: str, columns: tuple, rule: str) -> tuple
 
 
 def _parse(stream, where: str, columns: tuple, rule: str) -> Rows:
+    out = _parse_rows(stream, where, columns, rule)
+    out.findings = in_file(out.findings, where)
+    return out
+
+
+def _parse_rows(stream, where: str, columns: tuple, rule: str) -> Rows:
     out = Rows()
     try:
         with stream:
@@ -154,6 +160,11 @@ def check_table(path: Path, where: str, allowed: list | None) -> tuple:
     toolkit's own refusals: a ``bucket`` outside the attribute's declared levels or flags (*allowed*, when
     declared), an upper-case or over-long pattern, more than MAX_PATTERNS rows. It searches no text, so it never
     raises the ValueError that :func:`search` raises for text over MAX_MATCH_CHARS: every problem is a finding."""
+    rows, findings = _check_table(path, where, allowed)
+    return rows, in_file(findings, where)
+
+
+def _check_table(path: Path, where: str, allowed: list | None) -> tuple:
     read = read_rows(path, where, TABLE_COLUMNS, "table-columns")
     findings, rows = list(read.findings), []
     if read.findings:

@@ -10,7 +10,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from survey_core import Finding, q
+from survey_core import Finding, in_file, q
 from survey_tables import read_rows
 
 BASE = ("unit_id", "person_id", "author_kind", "work", "locator", "status")
@@ -84,4 +84,5 @@ def check_attribution(study, registry_persons: set | None, evidence_persons: set
             out.findings.append(Finding("attribution-unit-is-person", where, f"unit_id {q(uid)} is also a person_id "
                                         "the registry holds; a passage would be indistinguishable from a person-level "
                                         "evidence row (4.1)"))
+    out.findings = in_file(out.findings, where)
     return out

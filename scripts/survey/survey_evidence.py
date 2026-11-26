@@ -14,7 +14,7 @@ from pathlib import Path
 
 from survey_attribution import check_attribution
 from survey_core import (
-    MAX_JSON_BYTES, Finding, fold, inside, load_json_strict, q, read_capped, reason, safe, sha256_bytes,
+    MAX_JSON_BYTES, Finding, fold, in_file, inside, load_json_strict, q, read_capped, reason, safe, sha256_bytes,
     unsafe_chars,
 )
 from survey_tables import MAX_PATTERNS, check_table, compile_pattern, read_rows, read_rows_hashed, search
@@ -89,7 +89,7 @@ def read_registry(study) -> tuple:
                 findings.append(Finding("registry-person", f"{rp.repo_rel}:{n}", f"id {q(pid)} is empty or held "
                                         "twice (as a person_id or in merged_from)"))
             persons.add(pid)
-    return persons, findings
+    return persons, in_file(findings, rp.repo_rel)
 
 
 # --------------------------------------------------------------------------- vocabulary (5.3)
@@ -122,7 +122,7 @@ def read_vocabulary(study) -> tuple:
             findings.append(Finding("vocabulary-file", f"{where}:{n}", f"{q(line)} {why}"))
         else:
             patterns.append((n, pattern))
-    return patterns, findings
+    return patterns, in_file(findings, where)
 
 
 # --------------------------------------------------------------------------- receipts (5.4; section 3 line 223)
@@ -278,7 +278,7 @@ def read_exceptions_hashed(study) -> tuple:
             findings.append(Finding("exceptions-duplicate", at, f"({q(r['id'])}, {q(r['rule'])}) is listed twice"))
         else:
             listed[(r["id"], r["rule"])] = n
-    return listed, findings, digest
+    return listed, in_file(findings, rp.repo_rel), digest
 
 
 def check_row_files(study, merged=None, batch_from: int | None = None) -> EvidenceReport:
@@ -377,6 +377,7 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
     for _n, r in rows.rows:
         ids[r["id"]] = ids.get(r["id"], 0) + 1
     used = set()
+    marks = len(report.findings), len(report.reported)
     for index, (n, r) in enumerate(rows.rows):
         at = f"{where}:{n}"
         in_batch = batch_from is not None and index >= batch_from
@@ -391,13 +392,16 @@ def _check_rows(study, rows, where: str, persons, units: dict, vocab: list, repo
                 continue
             report.findings.append(Finding(rule, at, msg))
         _check_citation(study, r, at, r["tier"] in counted_tiers, legacy and not in_batch, report)
+    # every row finding above is about the evidence file (*where*), batch rows included (display only)
+    report.findings[marks[0]:] = in_file(report.findings[marks[0]:], where)
+    report.reported[marks[1]:] = in_file(report.reported[marks[1]:], where)
     if listed:
         exc_rel = study.paths["/evidence/legacy_exceptions"].repo_rel
         for key, line in sorted(listed.items(), key=lambda kv: kv[1]):
             if key not in used:
                 report.findings.append(Finding("exceptions-stale", f"{exc_rel}:{line}", f"row {q(key[0])} does not "
                                                f"break rule {q(key[1])} (or is gone); the file must not claim more "
-                                               "than is true (4.1)"))
+                                               "than is true (4.1)", exc_rel))
 
 
 def _check_citation(study, row: dict, at: str, counted: bool, legacy: bool, report: EvidenceReport) -> None:
