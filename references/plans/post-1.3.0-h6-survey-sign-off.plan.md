@@ -180,3 +180,7 @@ module (`identity-vantage`), not the evidence reader. An earlier note in this se
 project uses a reader plug-in, was wrong: it came from a reviewer's reading of an example in the contract, not
 from the project. The managing repository's session will rehearse agentteams' log migration on a copy of that
 project's log when the project decides to adopt the tools, and report whether the existing signatures survive.
+
+**Recorded from `@security`'s read of the header change (pull request #271):** the tools check only that the
+hash-chain column is present in the header. The chain's values are verified by agentteams' own check, which the
+tools run in the child process; the tools themselves check nothing about them.
