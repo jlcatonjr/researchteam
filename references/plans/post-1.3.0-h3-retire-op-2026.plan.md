@@ -303,3 +303,38 @@ decision signing is active).
 - `docs/release-policy.md` now marks the two cooldown rows it cites as history (P2; part of step 11a).
 - Next: the remaining tests of step 11a in a scratch copy without the key, then the clearance for the removal
   (C2), script two, and the operator's run.
+
+## Step 11a: the tests before the removal's clearance (2026-11-26; scratch clone of `main` at `8e827f9`)
+
+Run in a local clone with both `op-2026.pub.pem` files deleted, with the agentteams the lock pins (1.3.0). The real
+checkout was not touched and nothing was signed. All passed.
+
+| Test | Result |
+|---|---|
+| Regeneration (`researchteam update --layer1-only --yes`, the command the autosync gate runs) | exit 0; nothing under any key store, the registry, the group file or either decisions log changed; no `op-2026` file came back |
+| Runtime hooks without the key (toolchain check, term-index hook, constitutional gate, hook guard, pre-commit) | all exit 0; the gate still asks on a force-push and on a recursive delete |
+| Binding check on the committed registry | the active entry (`…@dc79fe00692848c4`) is bound; the exception audit reports nothing |
+| Toolchain-group verification, `--verify-toolchain-pin`, `--audit-exceptions`, `--verify-integrity`, the frozen-key audit | all exit 0 |
+| Clearance of the six re-signed ids, of `release-line-agentteams-1.3` and of the `.codex` `release-policy-1.0` | all clear |
+| `researchteam doctor`, `validate` | exit 0 |
+| The test suite | 2209 passed, 2 skipped |
+
+Not run: the stop hook that writes a work summary, because it starts another agent process and is not read-only.
+One note on the regeneration: it reads a public vulnerability feed and the provenance of the pinned tag over the
+network; it pushed nothing and opened no pull request.
+
+**The rows the removal revokes: 29** (27 in the `.github` log, 2 in the `.codex` log).
+- With a later `opr-2026-11` row for the same id, so the decision stays in force: `release-policy-1.0` (both
+  logs), `management-roster-enroll:infrastructure-management`, `s10-first-party-releases-2026-11`,
+  `term-index-2026-11`, `release-line-agentteams-1.2`, `repo-setting:delete-branch-on-merge:jlcatonjr/researchteam`.
+- With no later row, so they lapse, as ruled: `s10-release-key-exemption`, `s10-release-key-exemption-1.1`,
+  `release-line-agentteams-1.1`, `s10-release-cooldown-deprecated`, `s10-release-cooldown-restored`,
+  `s10-cooldown-exempt:jlcatonjr/agentteams`, `fleet-agent-pilot-2026-11`,
+  `codex-orchestrator-only-native-render` (both logs), and thirteen pin rows for agentteams 1.0 and 1.1 tags.
+- The registry's two sunset entries then point at rows that no longer verify. They are inert history and are left
+  as they are.
+
+**Where `op-2026` still appears in the tracked tree after the removal (49 files):** the two decisions logs and the
+registry's sunset entries (data); four generated memory indexes (rebuilt by the normal path); decision specs and
+signing inputs under `docs/release/` (history); three CHANGELOG lines and two dated notes (history); one test that
+writes its own key files. No standing rule names the key.
