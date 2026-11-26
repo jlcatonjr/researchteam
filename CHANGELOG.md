@@ -5,6 +5,19 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step C part 2: final codes and the rollup** (`scripts/survey/survey_final.py`,
+  `survey_finalize.py`, `survey_rollup.py`), by the operator's decisions of 2026-11-25. New bridge command
+  `survey-finalize <project> --out <path>`: the final codes of every coded outcome (contract 4.2 lines 397-400), written
+  to a file of their own inside the study's folder (never a declared or covered file; the passes file is only read),
+  with the codes columns and `pass` = `final`. An agreed unit takes pass A's row with coder `agreed` and the note
+  `agreed`, or `agreed; evidence differed`; a disagreement or a single pass takes its adjudication's row. A
+  disagreement or single pass without an adjudication, a unit with no pass at all (stricter than the reference tool;
+  every such unit listed) or a final row in the passes file refuses, and nothing is written. New bridge command
+  `survey-rollup <project> <final file> --out <path>`: passage or work codes rolled up to their author by the rules of
+  4.2 lines 403-422, from a current `survey-finalize` output whose bytes are what finalising gives; it reports how many
+  authors were left out. An existing output with the same bytes is "unchanged", one with other bytes is refused. Both
+  records list gate S5 only, the inputs read with their hashes and the legacy-exception count; neither command is a
+  refusing stage. The check table is `references/plans/post-1.3.0-h5-step-c2-check-table.md`.
 - **Survey toolkit, step C part 1: codes and agreement** (`scripts/survey/survey_codes.py`, `survey_agreement.py`).
   `survey-validate` now also checks each coded outcome's codes file and adjudications file (contract 4.2): passes
   `A`, `B` and `final`, allowed codes, evidence and basis for every code but the missing value, reporters, evidence
