@@ -28,7 +28,8 @@ contract's text does not contain it.
 - **D6** Both records list gate S5 only (its state from `gate_entries`), the inputs read with their hashes, and
   `legacy_exceptions` where 4.1 (line 366) requires it. Neither command is a refusing stage.
 
-After the reviews of pull request #272 the operator ruled on three more points (picker, 2026-11-25):
+After the reviews of pull request #272 the operator ruled on four more points (picker, 2026-11-25; O4 after the
+last review round):
 
 - **O1** `<outcome>__types` holds each distinct value once, joined with `;`, in the order the study declares that
   passage attribute's levels. Code-point order applies only where the attribute declares no levels, or to a value that
