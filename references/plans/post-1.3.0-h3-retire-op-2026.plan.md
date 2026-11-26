@@ -298,7 +298,7 @@ decision signing is active).
   audit clean; the decisions log unchanged. The outputs are on pull request #275.
 - `@security` PASS at `e900602`, naming `.github/agents/references/exception-registry.json`. Merged as `8e827f9`
   after the operator's answer "Merge #275 at e900602"; the merge's tree equals that head; CI on `main` green.
-- The autosync is still paused. Phase 3 needs it paused from script two's run to its merge (C4); whether it is
+- At this point the autosync was still paused (it was resumed after phase 3; see the end of this plan). Phase 3 needs it paused from script two's run to its merge (C4); whether it is
   resumed in between is the operator's choice.
 - `docs/release-policy.md` now marks the two cooldown rows it cites as history (P2; part of step 11a).
 - Next: the remaining tests of step 11a in a scratch copy without the key, then the clearance for the removal
@@ -366,5 +366,7 @@ writes its own key files. No standing rule names the key.
   onto `main` is a HALT.
 - **Still open.** Step 16: the next cut script must not require the row `s10-release-cooldown-restored` as text;
   blocking for the next cut. Step 17: what the operator does with the old private key; the session never touches
-  it. The autosync is resumed by the operator. The release coordinator is told, as information (C6). The generated
-  memory indexes mention `op-2026` until they are next rebuilt.
+  it. The release coordinator is not yet told (C6, information): the session to tell is the operator's choice. The
+  generated memory indexes mention `op-2026` until they are next rebuilt.
+- **The autosync.** The operator resumed it on 2026-11-26, after the phase 3 record merged as `da69cf0`
+  (PR #278). The workflow reads `active`. Condition C4 is closed.
