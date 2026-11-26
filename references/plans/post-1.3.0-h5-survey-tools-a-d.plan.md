@@ -180,7 +180,7 @@ not, the difference is recorded for the step D comparison.
 after the operator's answer "Merge #272 at 77c6572"; the merge's tree equals that head. `@security` PASS at
 `e294f35` (one check-table sentence changed after it); `@technical-validator` confirmed every code fix. Finalising
 and the rollup read no fetch receipt, so a record's `inputs` are exactly the files opened apart from the gate's
-reads. Suite at the head: 2127 passed, 2 skipped. Step C is complete. Step D is being built on
+reads. Suite at the head: 2127 passed, 2 skipped. Step C is complete. Step D was then built on
 `feat/survey-tools-d` in two parts: the frame, its lists and the frame-change-log check first, with post-steps
 refused as not yet available; then running post-steps, after the operator and `@security` decide the design.
 
@@ -207,7 +207,7 @@ operator's decisions (picker):
 
 Reviews: `@security` PASS at `a413cf1`; `@technical-validator` PASS at `1a8caec`, its four small points then
 fixed. Suite at the head: 2209 passed, 2 skipped. The comparison with the reference tool was requested from the
-first project's session on 2026-11-26 at that head; the merge waits for it.
+first project's session on 2026-11-26 at that head; the merge waited for it (next paragraph).
 
 **Step D part 2, not started: running post-steps.** `@security` would accept it only under conditions, which the
 check table records as not yet decided by the operator: a blocking gate the operator has signed and cleared, pinned
@@ -219,8 +219,9 @@ user documentation that says it is not a sandbox.
 byte-equal with the reference tool in three runs on the invented study. The differences are in the dropped list
 (its name, by ruling; no list without the rule, by the contract's text; the `reason` cell, a proposal) and in the
 final-codes file's quoting (a proposal). They are set out in the step D check table. Pull request #273 merged as
-`40c9902` after the operator's answer "Merge #273 at 89dbb42"; the merge's tree equals that head. Steps A to D of
-H5 are merged. What remains of H5: running post-steps (part 2), which waits for the operator's decision, and the
+`40c9902` after the operator's answer "Merge #273 at 89dbb42"; the merge's tree equals that head. The one commit
+between `a413cf1` and `89dbb42` adds the comparison report to the check table and changes nothing else. Steps A to D of
+H5 are merged. What remains of H5: running post-steps (part 2), which the operator deferred (below), and the
 contract proposals gathered in the check tables, for a later contract version.
 
 **Running post-steps: deferred (operator's decision, picker, 2026-11-26: "Defer; keep refusing").** `survey-frame`

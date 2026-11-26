@@ -212,7 +212,7 @@ removal. Conditions, binding on phases 2 and 3:
 - Rehearsed in a scratch export of `main` with agentteams 1.3.0: the check passes; the change retires
   `…@c4c40701ad95ad92` and registers `…@dc79fe00692848c4` (key `opr-2026-11`, expiry unchanged); the binding
   verifies, also in a copy with `op-2026` removed; the decisions log is byte-identical; a second run refuses.
-- `@security` is reviewing it for the clearance of condition C1.
+- `@security` reviewed it for the clearance of condition C1 (next section).
 
 ## Clearance for script one (`@security`, 2026-11-25): CONDITIONAL PASS, conditions operational
 
@@ -250,59 +250,25 @@ decision signing is active).
 - The 1.3.0 cut scripts (29, 30) ran their pin verification and clearance check with that 1.2.1 install. Both
   passed and nothing suggests a wrong result, but it means the release was checked by the previous agentteams,
   not the one it pins. Recorded here; the next cut script names the version it expects.
-- Operator ruling (picker, 2026-11-25): **"Build a root-owned 1.3.0".** Script 32 builds a second root-owned
-  install from the signed tag `v1.3.0`, beside the existing one, which is not touched. Tracked copy on the branch
-  `chore/root-owned-agentteams-1.3.0` (head `58bc8db`); `@security` is reviewing it. Where it is installed is not
-  recorded (PS-1).
-- Order for the operator: script 32; then script 28 `pause`; then script 31.
+- Operator ruling (picker, 2026-11-25): **"Build a root-owned 1.3.0".** A second root-owned install, built from
+  the signed tag `v1.3.0`, beside the existing one, which is not touched. Where it is installed is not recorded
+  (PS-1).
 
-## Finding: how the existing root-owned install was built (`@security`, 2026-11-25)
+## Script 32 drafted here, then withdrawn (2026-11-25)
 
-Reviewing script 32, `@security` found defects that its model, the October script that built the existing
-root-owned install, also has. Script 32 was refused twice (HALT at `58bc8db` and at `361b044`) and rewritten each
-time; its third review is running.
-
-- **What was wrong in the model.** Steps run as root started in a world-writable folder with `python -m`, an
-  existing folder was reused without checking who owned what was in it, the operator's environment reached root's
-  Python, and the interpreter's standard library came from a location the operator's own account can write.
-- **What follows for the existing install.** It was never protected from a process running as the operator, at
-  build time or at any signing since. There is no evidence that anything was tampered with. Its build integrity
-  cannot be shown after the fact.
-- **`@security`'s recommendations, for the operator to rule on:**
-  - (a) re-check that every tag and every signed decision row made with it says exactly what the operator
-    approved. The session can do the comparison for the rows (each against its tracked decision spec) and the
-    tags (each against the commit and message its cut script names), read-only;
-  - (b) the operator decides whether to rotate the keys that install handled (the decision key `opr-2026-11`;
-    the release key was used by `git`, not by that install);
-  - (c) no further signing with it: signing waits for the new install, and later signing scripts point to it.
-- **What script 32 does differently.** Every root command runs with an empty environment from `/`; the target
-  folder, each folder above it and the interpreter's home must be real folders owned by root and not writable by
-  others; an existing folder is reused only if everything in it, links included, is root's and every link stays
-  inside; the interpreter is the root-owned framework build; the one build tool is installed by hash and the
-  build runs without downloading anything else to run.
-
-## Correction (2026-11-25): the root-owned install in use, and script 32 withdrawn
-
-The section "Finding: how the existing root-owned install was built" above rests on a wrong premise that the
-session gave `@security`: that the install in use was built by the October script in this repository. It was not.
-
-- **What is true, read from the install itself.** The root-owned agentteams install the operator scripts use is
-  version 1.2.1, built on the root-owned framework Python with hash-pinned wheels, and nothing in its tree is
-  owned by anyone but root or writable by others. It was built on 2026-11-21 by the managing repository's own
-  reviewed procedure, after that repository's security review of the interpreter question and the operator's
-  ruling to rebuild. Earlier installs, built on the other interpreter, sit beside it and are not the ones in use.
-- **So `@security`'s three recommendations (re-check what was signed, consider rotating the key, stop using the
-  install) do not follow for the install in use.** They were answers to the session's wrong description. Whether
-  anything is owed for signatures made with the earlier installs was the managing repository's review of
-  2026-11-21 and is not reopened here; the release coordinator has been asked nothing about it.
-- **Script 32 is withdrawn and was not handed over.** Building the trusted install is the managing repository's
-  procedure, with its own review; a second builder here would be the wrong shape. The branch
-  `chore/root-owned-agentteams-1.3.0` stays as the record of the draft and its four reviews. The operator's
-  ruling "Build a root-owned 1.3.0" stands; it is carried out by asking the managing repository's session for a 1.3.0
-  build by that procedure. Asked on 2026-11-25, as a question, of the managing repository's session the operator
-  named in the picker.
-- **What does not change:** script 31 needs agentteams 1.3.0 and waits for that install. Scripts 29 and 30 ran
-  their checks with the 1.2.1 install; that fact stands as recorded.
+- The session first drafted its own build script (script 32, branch `chore/root-owned-agentteams-1.3.0`).
+  `@security` refused it three times and it was rewritten each time; it was never handed to the operator.
+- While it was under review the session told `@security` and the operator that the install in use had been built
+  by an older script of this repository. That was wrong, and what was concluded from it is withdrawn. Read from the
+  install itself: it is root-owned throughout and was built on 2026-11-21 by the managing repository's own reviewed
+  procedure.
+- Building the trusted install is the managing repository's procedure, with its own review, so script 32 was
+  withdrawn. The branch stays as the record of the draft and its reviews. The operator's ruling stands and was
+  carried out by asking the managing repository's session, which the operator named in the picker, for a 1.3.0
+  build by that procedure.
+- Script 31 needs agentteams 1.3.0 and waited for that install. Scripts 29 and 30 ran their checks with the 1.2.1
+  install; that fact stands as recorded.
+- Order for the operator: script 28 `pause`; then script 31.
 - **Lesson for the session:** a claim about how something outside this repository was built is checked against
   the thing itself before it is given to a reviewer or to the operator.
 

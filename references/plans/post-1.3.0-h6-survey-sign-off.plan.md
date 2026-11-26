@@ -32,7 +32,8 @@ The specification is `docs/survey-toolkit.md`, version 1, section 6 (6.1 gates, 
 - An invented ledger folder built by the test in a temporary git repository, with a throwaway key pair
   generated at run time: never a committed private key, never the operator's keys, never researchteam's own team
   folders.
-- **What CI runs.** Neither test check installs agentteams, so in CI the tests that need it are skipped with a
+- **What CI runs (as planned; changed by pull request #268, which added the CI job `survey sign-off (3.13)` that
+  installs agentteams and runs the `CLEARED` path).** Neither test check installs agentteams, so in CI the tests that need it are skipped with a
   stated reason, and CI covers only the paths without it (`UNAVAILABLE`, `UNCLEARED`, the refusals, the
   structural errors). The `CLEARED` path, which is the one that decides, runs only locally, in the environment
   the lock pins; that run's command and result are recorded in the pull request, and `@security` is told it is
@@ -78,8 +79,7 @@ folder and a throwaway key. `@security` read it: CONDITIONAL PASS; code may star
 six questions; the code gets its own `@security` review.
 
 **Findings that shape the step.**
-- The contract's HALT rule for the two family names has no public route in agentteams 1.3.0, and the private one
-  binds too widely (one study's HALT would stop every study's gates).
+- The contract's HALT rule for the two family names has no public route in agentteams 1.3.0.
 - A sign-off is bound to its manifest only through the signed action id, which carries the manifest's hash.
 - agentteams' clearance check is looser than the contract in several respects, so the tools enforce the
   contract's rules themselves and never rely on agentteams alone to refuse. The particulars are with agentteams
@@ -96,7 +96,8 @@ six questions; the code gets its own `@security` review.
   leaves the gates `UNAVAILABLE`. A retracted family HALT therefore keeps blocking until agentteams offers a
   public call; the session confirms none exists today, says so in the reason text, and asks agentteams for the
   call.
-- **Log structure: "Adopt both rules".** A study's sign-off log has the header agentteams writes for a new log,
+- **Log structure: "Adopt both rules"** (for the header, later replaced by "Same columns, any order"; pull
+  request #271). A study's sign-off log has the header agentteams writes for a new log,
   and every row is Ed25519. The first project's session is asked to check its log against the rule before the
   merge; if its log would fail, the question returns to the operator.
 - **A malformed sign-off folder and a `build-only` stage: "Refuse".** Recorded as a contract proposal, since the
@@ -176,7 +177,7 @@ on `main` apply. Four gates are signed there with the current decision key.
 
 **Follow-up from the first project (2026-11-25; data).** Its study's evidence is in the built-in CSV format, not a
 reader plug-in; it does declare a vantage module. So what stops the tools on that study today is the vantage
-module (`identity-vantage`), not the evidence reader. An earlier note in this session's reports, that the first
+module, not the evidence reader. An earlier note in this session's reports, that the first
 project uses a reader plug-in, was wrong: it came from a reviewer's reading of an example in the contract, not
 from the project. The managing repository's session will rehearse agentteams' log migration on a copy of that
 project's log when the project decides to adopt the tools, and report whether the existing signatures survive.
