@@ -57,7 +57,7 @@ is a property of the packets (step G) and of the agents' grants (step H), not of
 | 400-401; operator D1 | Raw agreement, Cohen's κ and Gwet's AC1 per outcome "with the number of units each rests on", by the operator's standard definitions (below): over the n units with both passes; every code its own category | `<outcome>: n=<n> raw=<d.ddd> kappa=<d.ddd\|undefined> AC1=<d.ddd\|undefined>; m unit(s) with one pass only` | `test_agreement_on_the_invented_study`, `test_agreement_by_hand` |
 | operator D1 | κ and AC1 on hand-worked examples: κ and AC1 differ visibly; NA codes and the missing value as categories; q from the codebook against "codes that occur"; every undefined case; rounding at a half | — | `test_kappa_and_ac1_differ_visibly`, `test_na_codes_and_the_missing_value_are_categories`, `test_ac1_uses_the_codes_the_codebook_allows_not_those_that_occur`, `test_the_undefined_cases`, `test_rounding_at_half_is_to_even` |
 | 1.5 | The output is byte-identical across runs (exact fractions; the rounding does not depend on the platform) | — | `test_agreement_output_is_byte_identical_across_runs` |
-| 4.7, 603 (the convention) | Outcomes are reported in the order the study declares them, those without rows last in declared order | — | `test_agreement_lists_outcomes_in_declared_order` |
+| 4.7, 603 (the convention) | One line for every coded outcome, in the order the study declares them (operator decision D1); an outcome without code rows keeps its place, with n = 0, the three statistics undefined and "no code rows" | — | `test_agreement_lists_outcomes_in_declared_order` |
 | 1.2 | Refused when the study, a row file or a code file has an error; refused without a coded outcome | `REFUSED` | `test_agreement_refuses_on_a_code_error_and_writes_nothing`, `test_agreement_refuses_without_a_coded_outcome` |
 | 1.5 | The same output twice; nothing written | — | `test_agreement_is_deterministic`, `test_agreement_on_the_invented_study` |
 | 7, 932 | The bridge command, refusing `--root` | exit 2 | `test_the_bridge_runs_survey_agreement_and_refuses_root` |
@@ -138,8 +138,11 @@ Not implemented; kept here for part 2.
 ## Proposed contract changes
 
 1. *(Decided by the operator, D1: κ and AC1 by the standard definitions; a proposal for a later contract version.)*
-2. **An adjudication for a unit with neither pass** is refused (`adjudication-no-pass`): needs a ruling (see "Waiting
-   on the operator").
+2. **An adjudication for a unit with neither pass** is refused (`adjudication-no-pass`). Operator
+   decision D4 rules on finalising only (it refuses a unit with neither pass); it does not rule on the
+   adjudications file. Refusing such a row is a tightening consistent with D4, since the row could never be used,
+   and with lines 394-395, which provide for one missing pass only. Line 384 read literally would accept a final
+   row built from it. Listed for a later contract version.
 3. *(Decided by the operator, D1: every code is its own category, NA codes and the missing value included.)*
 4. **The `level` column of a codes row** is carried and not checked: the text names it (line 370) and says nothing of
    it.

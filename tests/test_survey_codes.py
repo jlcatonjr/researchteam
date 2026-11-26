@@ -209,9 +209,14 @@ def test_agreement_by_hand():
             ("u3", "A", "NA"), ("u3", "B", "NA"), ("u4", "A", "NE"), ("u4", "B", "NE"), ("u5", "A", "for"),
             ("u1", "final", "for")]
     c.rows["x"] = [("w", {"unit_id": u, "pass": p, "code": k}) for u, p, k in rows]
-    (a,) = sc.agreement(c)
+    declaration = {"levels": [{"code": "for"}, {"code": "against"}], "na_codes": ["NA"], "missing": "NE"}
+    (a,) = sc.agreement(c, {"x": declaration})
     assert (a.outcome, a.units, a.agreeing, a.missing_pass) == ("x", 4, 3, 1)
     assert a.raw == sc.Fraction(3, 4)
+    # an outcome the study declares but that has no code rows still gets its entry, in declared order
+    first, second = sc.agreement(c, {"y": declaration, "x": declaration})
+    assert (first.outcome, first.units, first.raw, first.kappa, first.ac1) == ("y", 0, None, None, None)
+    assert second.outcome == "x"
 
 
 def test_agreement_refuses_on_a_code_error_and_writes_nothing(tmp_path):
@@ -312,8 +317,8 @@ def test_findings_are_capped_per_file(tmp_path):
 
 
 def test_agreement_lists_outcomes_in_declared_order(tmp_path):
-    """A3: the order the study declares the outcomes (as the frame orders its columns, line 603); outcomes without
-    rows come last, in declared order."""
+    """The order the study declares the outcomes (operator decision D1; as the frame orders its columns, line 603),
+    an outcome without code rows in its declared place, marked as such."""
     def three(s):
         base = s["outcomes"][0]
         for key in ("bell_rope", "aaa_signal"):  # declared after slack_bell; "aaa" sorts first
@@ -326,7 +331,9 @@ def test_agreement_lists_outcomes_in_declared_order(tmp_path):
     (root / ROWS / "codes-aaa_signal.csv").write_bytes(CH + A1.replace(b"slack_bell", b"aaa_signal"))
     out = run(survey_agreement, "--root", str(root), "tidebell")[1]
     order = [ln.split(":")[0] for ln in out.splitlines() if ": n=" in ln]
-    assert order == ["slack_bell", "aaa_signal", "bell_rope"]
+    assert order == ["slack_bell", "bell_rope", "aaa_signal"]
+    (empty,) = [ln for ln in out.splitlines() if ln.startswith("bell_rope:")]
+    assert "n=0 raw=undefined kappa=undefined AC1=undefined" in empty and empty.endswith("; no code rows")
 
 
 

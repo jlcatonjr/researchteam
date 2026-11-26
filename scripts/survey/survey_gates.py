@@ -143,7 +143,7 @@ def deciding_row(rows: list, act: str):
     action followed by one of ``- _ . :`` (ids are matched across separators), compared case-insensitively. The tools
     then require that row to name exactly the action they computed (:func:`row_refusal`), so a row for another study
     or another hash never decides. After a retraction no earlier permission survives: the HALT behind a retraction
-    decides, never an older PASS. The exact header (``survey_ledger.LOG_HEADER``) has no ``consumed`` column, so such
+    decides, never an older PASS. The header's set of columns (``survey_ledger.LOG_HEADER``) has no ``consumed`` column, so such
     a log is refused; a check spends nothing (6.2, line 889)."""
     want = act.strip().lower()
     suffixed = tuple(want + sep for sep in "-_.:")
