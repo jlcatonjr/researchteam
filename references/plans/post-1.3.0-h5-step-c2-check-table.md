@@ -47,6 +47,10 @@ After the reviews of pull request #272 the operator ruled on three more points (
   stage runs") applies where it speaks: to the final file's record. When `check_current` says the record no longer
   matches its inputs (or is missing) but the bytes still equal the derived ones, a draft study prints the reasons and
   goes on; any other status refuses.
+- **O4** The `gates` entry stands for the reads made to compute it (reading (a) in "The gates entry" below).
+  `inputs` lists the files the output is computed from. The codebook and the sign-off folder's files are not listed
+  there: the entry's `manifest_sha256` covers the covered files, and its `state` reports the sign-off folder. No code
+  changed.
 
 ## Finalising (4.2, lines 397-400; D2-D4, D6)
 
@@ -125,7 +129,7 @@ text; nothing differed.
    missing-coded units are among them; line 407 skips their codes only when the rule is applied. The text does not say
    how the values are written. O1: each distinct value once, joined with `;`, in the order the attribute declares its
    levels. A value that is not among them comes after, in code-point order.
-2. **Each operator decision above (D2-D6, O1-O3)** is a proposal for a later contract version.
+2. **Each operator decision above (D2-D6, O1-O4)** is a proposal for a later contract version.
 3. **A later recode that leaves an adjudication behind.** The reference tool's users met this. When a later ruling
    recodes a pass so that the passes agree, the earlier adjudication becomes an error (`adjudication-agreed`, part 1).
    Once it is removed, the final row shows `agreed` with no pointer to the ruling. Proposed for a later version: a way
@@ -140,7 +144,7 @@ text; nothing differed.
    an error naming the outcome, the cell and the codes, and refuses the rollup. It does not take whichever code comes
    first. Proposed: make `order` unique within an outcome (a specification error), or name a tie-break.
 
-## The gates entry (4.6) and what it stands for: STOPPED
+## The gates entry (4.6) and what it stands for (decided: O4)
 
 Computing gate S5's entry (`gate_entries`) reads files that are not in `inputs`. It reads the files the manifest
 lists: the specification, which is in `inputs`, and the files S5 covers, here the codebook. It also reads the study's
@@ -159,8 +163,8 @@ sign-off folder: the stored manifest (the request), the log, the verify keys and
 As written, line 563 lets nothing but a plug-in stand outside `inputs`. It does not say that a `gates` entry stands
 for the reads made to compute it, even though `manifest_sha256` does cover the covered files' content in fact.
 Listing the codebook and the sign-off files in `inputs` would need no new field, but it would make the final codes
-stale whenever a sign-off is recorded or a codebook changes. **This needs a ruling; nothing was changed.** The two
-readings are:
+stale whenever a sign-off is recorded or a codebook changes. The builder stopped here for a ruling. The operator chose
+reading (a) (O4); nothing was changed. The two readings were:
 
 - (a) Line 563 covers the files the output's content is computed from. The gate's reads are met by `gates`: the
   covered files through `manifest_sha256`, and the sign-off folder through `state`. This is what all three records do
