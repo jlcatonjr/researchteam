@@ -47,7 +47,7 @@ Static data that defines what researchteam owns in a derived repository: the ups
 
 `toolchain.lock` itself is not managed: it is repo-owned and written by the autosync gate after a green sync. `.claude/settings.toolchain.example.json` is a SessionStart hook example that the operator merges into `.claude/settings.json` by hand.
 
-`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (25 files):
+`SCHOLARLY_MANAGED_FILES` — synced only when the profile is scholarly (51 files):
 
 | Path | Merge strategy |
 |------|----------------|
@@ -74,6 +74,32 @@ Static data that defines what researchteam owns in a derived repository: the ups
 | `scripts/term-index-core/_term_text.py` | exact bytes (`BYTE_EXACT_PREFIXES`) |
 | `scripts/term-index-core/term_index.py` | exact bytes (`BYTE_EXACT_PREFIXES`) |
 | `scripts/term-index-core/LICENSE` | exact bytes (`BYTE_EXACT_PREFIXES`) |
+| `docs/survey-toolkit.md` | overwrite |
+| `scripts/survey/survey_core.py` | overwrite |
+| `scripts/survey/survey_spec.py` | overwrite |
+| `scripts/survey/survey_ledger.py` | overwrite |
+| `scripts/survey/survey_gates.py` | overwrite |
+| `scripts/survey/survey_schema.py` | overwrite |
+| `scripts/survey/study.schema.json` | overwrite |
+| `scripts/survey/survey_validate.py` | overwrite |
+| `scripts/survey/survey_status.py` | overwrite |
+| `scripts/survey/survey_manifest.py` | overwrite |
+| `scripts/survey/survey_tables.py` | overwrite |
+| `scripts/survey/survey_attribution.py` | overwrite |
+| `scripts/survey/survey_evidence.py` | overwrite |
+| `scripts/survey/survey_provenance.py` | overwrite |
+| `scripts/survey/survey_identity.py` | overwrite |
+| `scripts/survey/survey_registry.py` | overwrite |
+| `scripts/survey/survey_rows.py` | overwrite |
+| `scripts/survey/survey_codes.py` | overwrite |
+| `scripts/survey/survey_agreement.py` | overwrite |
+| `scripts/survey/survey_final.py` | overwrite |
+| `scripts/survey/survey_finalize.py` | overwrite |
+| `scripts/survey/survey_rollup.py` | overwrite |
+| `scripts/survey/survey_cells.py` | overwrite |
+| `scripts/survey/survey_changelog.py` | overwrite |
+| `scripts/survey/survey_frame.py` | overwrite |
+| `scripts/survey/survey_verify.py` | overwrite |
 | `.github/agents/interpretation-advisor.agent.md` | `above-notes` |
 | `.github/agents/references/methodology/_TEMPLATE.methodology.guide.md` | overwrite |
 

@@ -61,6 +61,44 @@ Commands:
   term-core-check
                 Check the pinned agentteams term-index core (scripts/term-index-core/) against its
                 manifest, offline. term-build, term-check and term-query run this check themselves.
+  survey-validate <project>
+                Check a position survey's specification (Projects/<project>/study.json), its
+                ledger folder and its gates' manifest files. Writes nothing. See docs/survey-toolkit.md.
+  survey-status <project>
+                Print each survey gate's manifest hash, state, enforce and mode. Exits 0 whatever
+                the states; 1 only when the specification, a manifest or the ledger is malformed.
+                A gate reads CLEARED only where agentteams 1.3.0 or later verifies its sign-off;
+                without a usable agentteams it reads UNAVAILABLE.
+  survey-manifest <project> <gate>
+                Write the gate's manifest file into the ledger folder and print what the operator
+                signs. Signs nothing and writes no ledger row.
+  survey-registry <project> [--candidates]
+                Build the identity registry from the study's rows, applying the recorded overrides,
+                and write its provenance record; with --candidates, list possible matches for a person
+                to review (never applied). Refuses, writing nothing, on any error.
+  survey-rows <project> <batch> | --draft-exceptions
+                Check a batch of evidence rows (a file inside the study's folder) together with the
+                evidence file and append it, renewing the registry's record; refuses, writing nothing,
+                unless every row passes and the registry is built and unchanged. --draft-exceptions
+                prints a first exceptions file for a legacy study and writes nothing.
+  survey-agreement <project>
+                Report agreement between coding passes A and B per outcome: raw agreement, Cohen's kappa
+                and Gwet's AC1, with the number of units they rest on. Writes nothing; refuses when a row
+                or code file has an error.
+  survey-finalize <project> --out <path>
+                Write the final codes of every coded outcome to <path> (inside the study's folder; not
+                a declared file) with a provenance record: agreed passes, else the adjudication; refuses,
+                writing nothing, when a unit lacks a pass and an adjudication or has no pass at all.
+  survey-rollup <project> <final file> --out <path>
+                Roll the final codes of a current survey-finalize output up to the author, by each
+                outcome's rule, into <path> with a provenance record.
+  survey-frame <project> <final file> --out <frame> --passages <path>
+               [--change-id <id> --date <date> --reason <text> --results-seen yes|no]
+                Write the frame of a passage or work study, its passage list and (with not-on-question)
+                its dropped list, from a current survey-finalize output, each with a provenance record;
+                refuses in an author study, and unless the frame-change log ends with this frame's entry:
+                without the change arguments it prints the entry needed; with them it appends the entry in
+                the same write, and replaces its own earlier frame and lists at the same paths.
   code-query "<terms>" [--code-kind local|api|doc|all] [--code-query-k N]
                 Retrieval surface #2 (agentteams code & API index) — ranked candidates for
                 "where is this function / which API does this script call". NAVIGATION ONLY, not
@@ -223,6 +261,27 @@ command_term() {
   python3 -B "$script" "$@"
 }
 
+# Survey toolkit (docs/survey-toolkit.md). The tools are synced only to scholarly-profile repositories, and this
+# bridge goes to every repository; a repository synced by an older researchteam has no scripts/survey/. $1 is the
+# command's script; the rest are passed to it. -I: the scripts put their own folder on sys.path themselves.
+command_survey() {
+  local script="scripts/survey/$1"; shift
+  if [[ ! -d "scripts/survey" || -L "scripts/survey" || ! -f "$script" ]]; then
+    echo "Survey tools not found at $script: this repository has no scripts/survey/ (it was synced by a" >&2
+    echo "researchteam without the survey toolkit, or is not a scholarly-profile repository). Upgrade researchteam," >&2
+    echo "then run researchteam update." >&2
+    exit 1
+  fi
+  local arg
+  for arg in "$@"; do
+    if [[ "$arg" == --root* ]]; then
+      echo "The survey commands work on this repository only; --root is not accepted here." >&2
+      exit 2
+    fi
+  done
+  python3 -B -I "$script" "$@"
+}
+
 command_code_query() {
   # Surface #2 (code index) — thin convenience over `agentteams --query-code`. NAVIGATION ONLY:
   # a hit is a candidate to open, never evidence and never a claim/link anchor. See
@@ -308,6 +367,42 @@ case "$cmd" in
   term-core-check)
     shift
     command_term scripts/check_term_core.py "$@"
+    ;;
+  survey-validate)
+    shift
+    command_survey survey_validate.py "$@"
+    ;;
+  survey-status)
+    shift
+    command_survey survey_status.py "$@"
+    ;;
+  survey-manifest)
+    shift
+    command_survey survey_manifest.py "$@"
+    ;;
+  survey-registry)
+    shift
+    command_survey survey_registry.py "$@"
+    ;;
+  survey-rows)
+    shift
+    command_survey survey_rows.py "$@"
+    ;;
+  survey-agreement)
+    shift
+    command_survey survey_agreement.py "$@"
+    ;;
+  survey-finalize)
+    shift
+    command_survey survey_finalize.py "$@"
+    ;;
+  survey-rollup)
+    shift
+    command_survey survey_rollup.py "$@"
+    ;;
+  survey-frame)
+    shift
+    command_survey survey_frame.py "$@"
     ;;
   code-query)
     shift

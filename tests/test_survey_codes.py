@@ -1,0 +1,393 @@
+"""Step C part 1: codes and adjudications (contract 4.2, lines 368-395) and survey-agreement (lines 400-401;
+section 7, line 932)."""
+import os
+import shutil
+import subprocess
+import sys
+
+import pytest
+
+from survey_support import (
+    ROOT, STUDY_REL, SURVEY, make_repo, run, survey_agreement, survey_codes as sc, survey_evidence as ev,
+    survey_spec as sp, survey_validate, tree,
+)
+
+ROWS = f"{STUDY_REL}/rows"
+CODES = f"{ROWS}/codes-slack_bell.csv"
+ADJ = f"{ROWS}/adjudications-slack_bell.csv"
+CH = b"unit_id,person_id,outcome,code,pass,coder,basis,reporter,evidence_ids,level,note\n"
+AH = b"unit_id,outcome,code,coder,basis,reporter,evidence_ids,note\n"
+A1 = b"p-001,warden-01,slack_bell,for,A,coder-a,own,,ev-001,,\n"
+B1 = b"p-001,warden-01,slack_bell,for,B,coder-b,own,,ev-001,,\n"
+
+
+def _codes(root, *lines, header=CH):
+    """Write the codes file's bytes directly (a value may be one csv.writer cannot write on every Python)."""
+    (root / CODES).write_bytes(header + b"".join(lines))
+
+
+def _adj(root, *lines, header=AH):
+    (root / ADJ).write_bytes(header + b"".join(lines))
+
+
+def _rules(root):
+    return {f.rule for f in ev.check_row_files(sp.load_study("tidebell", root)).findings}
+
+
+def test_the_invented_codes_and_adjudications_pass(tmp_path):
+    root = make_repo(tmp_path)
+    assert _rules(root) == set()
+    assert run(survey_validate, "--root", str(root), "tidebell")[0] == 0
+
+
+# --------------------------------------------------------------------------- every codes check (4.2)
+CODES_CASES = {
+    "codes-pass": [A1.replace(b",A,", b",C,")],
+    "codes-outcome": [A1.replace(b"slack_bell", b"bell_metal")],  # bell_metal's source is an evidence attribute
+    "codes-code": [A1.replace(b",for,", b",perhaps,")],
+    "codes-coder": [A1.replace(b"coder-a", b"")],
+    "codes-evidence": [A1.replace(b"ev-001", b"")],
+    "codes-basis": [A1.replace(b",own,", b",,")],
+    "codes-reporter": [A1.replace(b",own,,", b",reported,,")],
+    "codes-evidence-unknown": [A1.replace(b"ev-001", b"ev-999")],
+    "codes-evidence-person": [A1.replace(b"ev-001", b"ev-003")],  # ev-003 belongs to warden-02
+    "codes-duplicate": [A1, A1.replace(b"coder-a", b"coder-z")],
+    "codes-unit": [A1.replace(b"p-001", b"p-404")],
+    "codes-unit-person": [A1.replace(b"p-001,warden-01", b"p-001,warden-02")],
+    "codes-value": [A1.replace(b"coder-a", "coder​a".encode())],
+}
+
+
+#: Every codes-row id the module emits (the shared ones are built as f"{prefix}-..." with prefix "codes").
+CODES_IDS = {"codes-pass", "codes-outcome", "codes-code", "codes-coder", "codes-evidence", "codes-basis",
+             "codes-reporter", "codes-evidence-unknown", "codes-evidence-person", "codes-duplicate", "codes-unit",
+             "codes-unit-person", "codes-value", "codes-final-unpaired"}
+
+
+def test_every_codes_check_has_a_case():
+    assert set(CODES_CASES) | {"codes-final-unpaired"} == CODES_IDS
+
+
+@pytest.mark.parametrize("rule", sorted(CODES_CASES))
+def test_each_codes_check(tmp_path, rule):
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, *CODES_CASES[rule])
+    assert rule in _rules(root)
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    assert code == 1 and f"[{rule}]" in out
+
+
+def test_codes_columns(tmp_path):
+    root = make_repo(tmp_path)
+    _codes(root, header=b"unit_id,person_id,outcome,code,pass\n")
+    assert "codes-columns" in _rules(root)
+
+
+def test_the_missing_value_needs_no_evidence_or_basis(tmp_path):
+    """4.2, line 378: "a code other than missing without evidence_ids or without a basis" is the error."""
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, b"p-001,warden-01,slack_bell,NE,A,coder-a,,,,,\n")
+    assert _rules(root) == set()
+
+
+def test_a_person_level_evidence_row_belongs_to_its_person(tmp_path):
+    """4.2, lines 380-382: ev-002 is warden-01's own row (its unit_id is the person)."""
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, A1.replace(b"ev-001", b"ev-001;ev-002"))
+    assert _rules(root) == set()
+
+
+def test_a_codes_file_shared_by_two_outcomes_keeps_each_rows_outcome(tmp_path):
+    """A row naming another coded outcome that has a file of its own is refused (a tightening)."""
+    def second(s):
+        o = dict(s["outcomes"][0])
+        o.update(key="tide_horn", label="Horn at the turn")
+        o["source"] = {"kind": "codes", "codes_file": "rows/codes-horn.csv",
+                       "adjudications": "rows/adjudications-horn.csv"}
+        s["outcomes"].append(o)
+    root = make_repo(tmp_path, second)
+    (root / ROWS / "codes-horn.csv").write_bytes(CH)
+    _adj(root)
+    _codes(root, A1.replace(b"slack_bell", b"tide_horn"))
+    assert "codes-outcome" in _rules(root)
+
+
+# --------------------------------------------------------------------------- final rows (4.2, lines 384-386)
+def test_a_final_row_needs_both_passes(tmp_path):
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, A1, A1.replace(b",A,", b",final,"))
+    assert "codes-final-unpaired" in _rules(root)
+
+
+def test_a_final_row_from_a_missing_pass_adjudication_is_accepted(tmp_path):
+    root = make_repo(tmp_path)
+    note = b'"missing pass: B, the packet was lost"'
+    _adj(root, b"p-001,slack_bell,for,adjudicator-c,own,,ev-001," + note + b"\n")
+    _codes(root, A1, b"p-001,warden-01,slack_bell,for,final,adjudicator-c,own,,ev-001,," + note + b"\n")
+    assert _rules(root) == set()
+
+
+@pytest.mark.parametrize("final_note,adj_note", [
+    (b'"missing pass: B, the packet was lost"', b'"missing pass: A, the packet was lost"'),  # names the wrong pass
+    (b'"another note"', b'"missing pass: B, the packet was lost"'),  # the final row is not the adjudication's
+])
+def test_a_final_row_that_does_not_come_from_the_adjudication_is_refused(tmp_path, final_note, adj_note):
+    root = make_repo(tmp_path)
+    _adj(root, b"p-001,slack_bell,for,adjudicator-c,own,,ev-001," + adj_note + b"\n")
+    _codes(root, A1, b"p-001,warden-01,slack_bell,for,final,adjudicator-c,own,,ev-001,," + final_note + b"\n")
+    assert "codes-final-unpaired" in _rules(root)
+
+
+# --------------------------------------------------------------------------- adjudications (4.2, lines 388-395)
+ADJ_CASES = {
+    "adjudication-columns": dict(header=b"unit_id,outcome,code\n", lines=[]),
+    "adjudication-outcome": dict(lines=[b"p-002,bell_metal,for,adjudicator-c,own,,ev-003,why\n"]),
+    "adjudication-note": dict(lines=[b"p-002,slack_bell,tolerates,adjudicator-c,reported,clerk,ev-003,\n"]),
+    "adjudication-coder": dict(lines=[b"p-002,slack_bell,tolerates,,reported,clerk,ev-003,why\n"]),
+    "adjudication-code": dict(lines=[b"p-002,slack_bell,perhaps,adjudicator-c,reported,clerk,ev-003,why\n"]),
+    "adjudication-evidence-person": dict(lines=[b"p-002,slack_bell,tolerates,adjudicator-c,own,,ev-001,why\n"]),
+    "adjudication-duplicate": dict(lines=[b"p-002,slack_bell,tolerates,adjudicator-c,reported,clerk,ev-003,why\n"] * 2),
+    "adjudication-agreed": dict(lines=[b"p-001,slack_bell,against,adjudicator-c,own,,ev-001,why\n"]),
+    "adjudication-missing-pass": dict(lines=[b"p-003,slack_bell,NA,adjudicator-c,own,,ev-005,no reason given\n"]),
+    "adjudication-no-pass": dict(lines=[b"p-099,slack_bell,NA,adjudicator-c,own,,ev-005,why\n"]),
+    "adjudication-unit": dict(lines=[b"p-404,slack_bell,NA,adjudicator-c,own,,ev-005,why\n"]),
+}
+
+
+@pytest.mark.parametrize("rule", sorted(ADJ_CASES))
+def test_each_adjudication_check(tmp_path, rule):
+    root = make_repo(tmp_path)
+    case = ADJ_CASES[rule]
+    _adj(root, *case["lines"], header=case.get("header", AH))
+    assert rule in _rules(root)
+
+
+@pytest.mark.parametrize("note", [b'"missing pass: B, "', b'"missing pass: B,the packet"', b"missing pass B the packet"])
+def test_a_missing_pass_note_must_name_the_pass_and_a_reason(tmp_path, note):
+    root = make_repo(tmp_path)
+    _adj(root, b"p-002,slack_bell,tolerates,adjudicator-c,reported,clerk,ev-003,why\n",
+         b"p-003,slack_bell,NA,adjudicator-c,own,,ev-005," + note + b"\n")
+    assert "adjudication-missing-pass" in _rules(root)
+
+
+def test_a_missing_pass_note_on_a_unit_with_both_passes_is_refused(tmp_path):
+    root = make_repo(tmp_path)
+    _adj(root, b'p-002,slack_bell,tolerates,adjudicator-c,reported,clerk,ev-003,"missing pass: A, but it is there"\n')
+    assert "adjudication-missing-pass" in _rules(root)
+
+
+def test_without_adjudications_the_file_may_be_absent(tmp_path):
+    root = make_repo(tmp_path)
+    (root / ADJ).unlink()
+    assert _rules(root) == set()
+
+
+# --------------------------------------------------------------------------- agreement (4.2, lines 400-401)
+def test_agreement_on_the_invented_study(tmp_path):
+    """p-001: A for, B for (agree); p-002: A against, B tolerates (disagree); p-003: A only (left out). n = 2.
+    raw = 1/2. p_A: for 1/2, against 1/2; p_B: for 1/2, tolerates 1/2; p_e = 1/2 * 1/2 = 1/4; kappa = (1/2 - 1/4) /
+    (3/4) = 1/3 = 0.333. AC1: the allowed codes are for, tolerates, against, NA, NE, so q = 5; pi: for 1/2, against
+    1/4, tolerates 1/4; sum pi(1 - pi) = 1/4 + 3/16 + 3/16 = 5/8; p_e1 = (5/8) / 4 = 5/32; AC1 = (16/32 - 5/32) /
+    (27/32) = 11/27 = 0.407."""
+    root = make_repo(tmp_path)
+    before = tree(root)
+    code, out, _ = run(survey_agreement, "--root", str(root), "tidebell")
+    assert code == 0 and tree(root) == before
+    assert out == "slack_bell: n=2 raw=0.500 kappa=0.333 AC1=0.407; 1 unit(s) with one pass only\n"
+
+
+def test_agreement_by_hand():
+    """Five units. u1 for/for (agree), u2 for/against (no), u3 NA/NA (agree: every code counts as itself),
+    u4 NE/NE (agree), u5 A only (one pass). Units with both passes: u1..u4 = 4; agreeing: u1, u3, u4 = 3.
+    Raw agreement 3 of 4; one unit with one pass."""
+    c = sc.Codes()
+    rows = [("u1", "A", "for"), ("u1", "B", "for"), ("u2", "A", "for"), ("u2", "B", "against"),
+            ("u3", "A", "NA"), ("u3", "B", "NA"), ("u4", "A", "NE"), ("u4", "B", "NE"), ("u5", "A", "for"),
+            ("u1", "final", "for")]
+    c.rows["x"] = [("w", {"unit_id": u, "pass": p, "code": k}) for u, p, k in rows]
+    declaration = {"levels": [{"code": "for"}, {"code": "against"}], "na_codes": ["NA"], "missing": "NE"}
+    (a,) = sc.agreement(c, {"x": declaration})
+    assert (a.outcome, a.units, a.agreeing, a.missing_pass) == ("x", 4, 3, 1)
+    assert a.raw == sc.Fraction(3, 4)
+    # an outcome the study declares but that has no code rows still gets its entry, in declared order
+    first, second = sc.agreement(c, {"y": declaration, "x": declaration})
+    assert (first.outcome, first.units, first.raw, first.kappa, first.ac1) == ("y", 0, None, None, None)
+    assert second.outcome == "x"
+
+
+def test_agreement_refuses_on_a_code_error_and_writes_nothing(tmp_path):
+    root = make_repo(tmp_path)
+    _codes(root, A1.replace(b",for,", b",perhaps,"))
+    before = tree(root)
+    code, out, _ = run(survey_agreement, "--root", str(root), "tidebell")
+    assert code == 1 and "REFUSED" in out and "[codes-code]" in out and tree(root) == before
+
+
+def test_agreement_refuses_without_a_coded_outcome(tmp_path):
+    def author(s):
+        s["unit"] = {"kind": "author"}
+        s["outcomes"][0]["source"] = {"kind": "evidence-attribute", "attribute": "duty"}
+        s["frame_rules"]["exclude"] = []
+    root = make_repo(tmp_path, author)
+    code, out, _ = run(survey_agreement, "--root", str(root), "tidebell")
+    assert code == 1 and "no outcome whose source is codes" in out
+
+
+def test_agreement_is_deterministic(tmp_path):
+    root = make_repo(tmp_path)
+    assert run(survey_agreement, "--root", str(root), "tidebell") == run(survey_agreement, "--root", str(root),
+                                                                           "tidebell")
+
+
+def test_the_bridge_runs_survey_agreement_and_refuses_root(tmp_path):
+    root = make_repo(tmp_path)
+    (root / "scripts").mkdir()
+    shutil.copy(ROOT / "scripts" / "claude_researchteam_bridge.sh", root / "scripts")
+    shutil.copytree(SURVEY, root / "scripts" / "survey", ignore=shutil.ignore_patterns("__pycache__"))
+    env = {k: v for k, v in os.environ.items() if not k.startswith("PYTHON")}
+    env["PATH"] = os.path.dirname(sys.executable) + os.pathsep + env.get("PATH", "")
+    bridge = ["bash", str(root / "scripts" / "claude_researchteam_bridge.sh")]
+    res = subprocess.run([*bridge, "survey-agreement", "tidebell"], capture_output=True, text=True, env=env)
+    assert res.returncode == 0 and "slack_bell: n=2 raw=0.500" in res.stdout
+    res = subprocess.run([*bridge, "survey-agreement", "--root", str(tmp_path), "tidebell"], capture_output=True,
+                         text=True, env=env)
+    assert res.returncode == 2 and "--root is not accepted" in res.stderr
+    assert not list((root / "scripts" / "survey").glob("__pycache__"))
+
+
+# --------------------------------------------------------------------------- review of part 1
+def test_a_basis_other_than_own_or_reported_is_refused(tmp_path):
+    """A1: 4.1 (line 289) gives two bases, and 4.2 (line 379) speaks of `reported`."""
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, A1.replace(b",own,", b",hearsay,"))
+    assert "codes-basis" in _rules(root)
+
+
+def _author_study(tmp_path):
+    def author(s):
+        s["unit"] = {"kind": "author"}
+        s["frame_rules"]["exclude"] = []
+    root = make_repo(tmp_path, author)
+    path = root / ROWS / "evidence.csv"
+    path.write_bytes(path.read_bytes().replace(b",p-001,", b",,").replace(b",p-002,", b",,").replace(b",p-003,", b",,")
+                     .replace(b",warden-01,,", b",,,").replace(b",warden-02,searched", b",,searched"))
+    _adj(root)
+    return root
+
+
+@pytest.mark.parametrize("line,rule", [
+    (b"warden-01,warden-01,slack_bell,for,A,coder-a,own,,ev-001,,\n", None),  # a unit is its person
+    (b"warden-99,warden-99,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-unit"),  # not a registry person
+    (b"warden-01,warden-02,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-unit-person"),
+    (b"warden-02,warden-02,slack_bell,for,A,coder-a,own,,ev-001,,\n", "codes-evidence-person"),  # ev-001 is warden-01's
+])
+def test_the_unit_checks_in_an_author_study(tmp_path, line, rule):
+    """A1: in an author study a unit is a registry person, a codes row's person_id is that person, and evidence
+    belongs to the row's person_id."""
+    root = _author_study(tmp_path)
+    _codes(root, line)
+    found = _rules(root)
+    assert (rule in found) if rule else not any(r.startswith("codes-") for r in found), found
+
+
+def test_an_author_study_adjudication_unit_must_be_a_person(tmp_path):
+    root = _author_study(tmp_path)
+    _codes(root, b"warden-01,warden-01,slack_bell,for,A,coder-a,own,,ev-001,,\n")
+    _adj(root, b"warden-77,slack_bell,for,adjudicator-c,own,,ev-001,why\n")
+    assert "adjudication-unit" in _rules(root)
+
+
+def test_findings_are_capped_per_file(tmp_path):
+    """A2: a file that would give far more findings shows MAX_FINDINGS_PER_FILE and one line saying how many more;
+    the run still fails."""
+    from survey_support import survey_core as core
+    root = make_repo(tmp_path)
+    _adj(root)
+    _codes(root, *[f"p-{i:05d},warden-01,slack_bell,perhaps,A,,own,,ev-404,,\n".encode() for i in range(2000)])
+    code, out, _ = run(survey_validate, "--root", str(root), "tidebell")
+    lines = [ln for ln in out.splitlines() if ln.startswith("ERROR") and CODES in ln]
+    assert code == 1 and len(lines) == core.MAX_FINDINGS_PER_FILE + 1
+    assert lines[-1].startswith("ERROR [findings-suppressed]") and "not shown" in lines[-1]
+    assert core.cap_findings([core.Finding("x", "f.csv:1", "m")] * 3, limit=2)[-1].message.startswith("1 more")
+
+
+def test_agreement_lists_outcomes_in_declared_order(tmp_path):
+    """The order the study declares the outcomes (operator decision D1; as the frame orders its columns, line 603),
+    an outcome without code rows in its declared place, marked as such."""
+    def three(s):
+        base = s["outcomes"][0]
+        for key in ("bell_rope", "aaa_signal"):  # declared after slack_bell; "aaa" sorts first
+            o = dict(base, key=key, label=key)
+            o["source"] = {"kind": "codes", "codes_file": f"rows/codes-{key}.csv",
+                           "adjudications": f"rows/adjudications-{key}.csv"}
+            s["outcomes"].append(o)
+    root = make_repo(tmp_path, three)
+    (root / ROWS / "codes-bell_rope.csv").write_bytes(CH)
+    (root / ROWS / "codes-aaa_signal.csv").write_bytes(CH + A1.replace(b"slack_bell", b"aaa_signal"))
+    out = run(survey_agreement, "--root", str(root), "tidebell")[1]
+    order = [ln.split(":")[0] for ln in out.splitlines() if ": n=" in ln]
+    assert order == ["slack_bell", "bell_rope", "aaa_signal"]
+    (empty,) = [ln for ln in out.splitlines() if ln.startswith("bell_rope:")]
+    assert "n=0 raw=undefined kappa=undefined AC1=undefined" in empty and empty.endswith("; no code rows")
+
+
+
+# --------------------------------------------------------------------------- the operator's definitions (2026-11-25)
+ALLOWED = {"for", "tolerates", "against", "NA", "NE"}  # the invented outcome's levels, NA code and missing value
+
+
+def _stats(pairs, allowed=ALLOWED):
+    return [sc.three_decimals(x) for x in sc.statistics(pairs, allowed)]
+
+
+def test_kappa_and_ac1_differ_visibly():
+    """Four units: three (for, for), one (for, against). n = 4, raw = 3/4.
+    p_A: for 1; p_B: for 3/4, against 1/4. p_e = 1 * 3/4 = 3/4, so kappa = (3/4 - 3/4) / (1/4) = 0.
+    pi: for (1 + 3/4)/2 = 7/8, against 1/8; sum pi(1 - pi) = 7/64 + 7/64 = 7/32; q = 5, so p_e1 = (7/32)/4 = 7/128;
+    AC1 = (96/128 - 7/128) / (121/128) = 89/121 = 0.73553... -> 0.736."""
+    assert _stats([("for", "for")] * 3 + [("for", "against")]) == ["0.750", "0.000", "0.736"]
+
+
+def test_na_codes_and_the_missing_value_are_categories():
+    """(NA, NA), (NE, NE), (for, NA), (for, for): every code its own category; both passes NE agree.
+    n = 4, raw = 3/4. p_A: NA 1/4, NE 1/4, for 1/2; p_B: NA 1/2, NE 1/4, for 1/4.
+    p_e = 1/4*1/2 + 1/4*1/4 + 1/2*1/4 = 2/16 + 1/16 + 2/16 = 5/16; kappa = (12/16 - 5/16) / (11/16) = 7/11 = 0.636.
+    pi: NA 3/8, NE 1/4, for 3/8; sum pi(1 - pi) = 15/64 + 12/64 + 15/64 = 21/32; p_e1 = (21/32)/4 = 21/128;
+    AC1 = (96/128 - 21/128) / (107/128) = 75/107 = 0.70093... -> 0.701."""
+    assert _stats([("NA", "NA"), ("NE", "NE"), ("for", "NA"), ("for", "for")]) == ["0.750", "0.636", "0.701"]
+
+
+def test_ac1_uses_the_codes_the_codebook_allows_not_those_that_occur():
+    """The pairs of test_kappa_and_ac1_differ_visibly. With q = 5 (the allowed codes) AC1 = 89/121 = 0.736. Were q
+    the 2 codes that occur, p_e1 = (7/32)/1 = 7/32 and AC1 = (24/32 - 7/32) / (25/32) = 17/25 = 0.680."""
+    pairs = [("for", "for")] * 3 + [("for", "against")]
+    assert _stats(pairs)[2] == "0.736"
+    assert _stats(pairs, {"for", "against"})[2] == "0.680"  # what "codes that occur" would give
+
+
+def test_the_undefined_cases():
+    """n = 0: all three undefined. Every unit (for, for): p_e = 1, so kappa is undefined, while pi_for = 1 gives
+    p_e1 = 0 and AC1 = (1 - 0) / 1 = 1.000. q = 1: AC1 undefined (and here p_e = 1, so kappa too)."""
+    assert _stats([]) == ["undefined", "undefined", "undefined"]
+    assert _stats([("for", "for")] * 3) == ["1.000", "undefined", "1.000"]
+    assert _stats([("x", "x")], {"x"}) == ["1.000", "undefined", "undefined"]
+
+
+def test_rounding_at_half_is_to_even():
+    """1/16 = 0.0625 -> 0.062 (half to the even 2, not 0.063); 3/16 = 0.1875 -> 0.188; 1/3 -> 0.333; -1/3 -> -0.333.
+    Sixteen units, one agreeing: raw = 1/16 -> 0.062."""
+    F = sc.Fraction
+    assert [sc.three_decimals(x) for x in (F(1, 16), F(3, 16), F(1, 3), F(-1, 3), F(1))] == \
+        ["0.062", "0.188", "0.333", "-0.333", "1.000"]
+    assert _stats([("for", "for")] + [("for", "against")] * 15)[0] == "0.062"
+
+
+def test_agreement_output_is_byte_identical_across_runs(tmp_path):
+    root = make_repo(tmp_path)
+    first = run(survey_agreement, "--root", str(root), "tidebell")
+    assert first == run(survey_agreement, "--root", str(root), "tidebell") and first[0] == 0

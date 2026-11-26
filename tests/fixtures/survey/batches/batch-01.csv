@@ -1,0 +1,3 @@
+id,person_id,attribute_kind,value,tier,source_id,citation,locator,quote,url,access,via,audit,basis,reporter,unit_id,note,downgraded_from
+ev-101,guild-01,duty,lamp,quoted,src-5,Invented guild minutes,minutes-01#p4,the lamp is the guild's charge,,,,,own,,p-003,,
+ev-102,warden-02,harbour,South Steps,paraphrased,src-6,Invented harbour register,register-02#p7,kept to the south steps,,,,,reported,the invented harbour clerk,p-002,,

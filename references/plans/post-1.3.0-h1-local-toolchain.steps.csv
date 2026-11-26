@@ -1,0 +1,6 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,orchestrator,Read scripts/bootstrap_toolchain.sh for what it replaces,script,notes,done,installs in place with --force-reinstall; no backup,
+2,orchestrator,Record pip freeze; copy .venv aside under the ignored tmp/,.venv,copy,done,pip freeze recorded; .venv copied under the ignored tmp/,1
+3,orchestrator,Run the bootstrap in the main checkout; nothing else runs meanwhile,toolchain.lock,.venv (ignored),done,ran in the sandbox with the system certificate file; exit 0,2
+4,orchestrator,check_toolchain.py; researchteam doctor; group verification,3,results in the plan,done,check_toolchain --strict: installed pair equals the lock (researchteam 535c7ca; agentteams 536306d); --verify-toolchain-pin exit 0; doctor ran,3
+5,orchestrator,Remove the copy; or move it back and record the failure,4,clean state,done,copy removed,4

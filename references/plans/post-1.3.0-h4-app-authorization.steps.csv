@@ -1,0 +1,11 @@
+step,agent,action,inputs,outputs,status,notes,depends_on
+1,operator,Say when to sign,,signing day,pending,ruling 2026-11-25: regenerate when asked,
+2,git-operations,Confirm the spec and script 26 name opr-2026-11 only; merge main into governance/fleet-agent-tier1; log; group file and registry equal main's,1,branch head,pending,,1
+3,git-operations,Re-date the spec and script 26; recompute the spec hash,2,branch head,pending,nothing else in the row changes,2
+4,orchestrator,Checks without signing,3,results,pending,,3
+5,security,Re-read the head and the script,3,verdict,pending,,3
+6,orchestrator,Operator copy; hash; command; check-only run first,4;5,handoff,pending,,4;5
+7,operator,Run script 26,6,signed row; registry,pending,operator signs; not while an H3 pull request with log or registry changes is open,6
+8,orchestrator,Verify; commit; pull request; @security PASS naming the paths; operator's answer; merge,7,merge commit,pending,no H3 log merge in between,7
+9,operator,Return the cap to one by 2027-02-18 or when either exception ends,8,registry,pending,operator script; carried forward,8
+10,primary-producer,Pointer to the row in the Project-Specific Rules before the App's first write,8,pull request,pending,PS-2 path: @security PASS,8

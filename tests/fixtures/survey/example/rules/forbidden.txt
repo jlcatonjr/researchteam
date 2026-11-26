@@ -1,0 +1,2 @@
+# Invented forbidden vocabulary for the example study.
+\bobviously\b

@@ -5,6 +5,229 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
 
 ## Unreleased
 
+- **Survey toolkit, step D part 1: the frame** (`scripts/survey/survey_cells.py`, `survey_changelog.py`,
+  `survey_frame.py`), with the operator's rulings of 2026-11-25. New bridge command
+  `survey-frame <project> <final file> --out <frame> --passages <path>`: the frame of a passage or work study and its
+  passage list (contract 4.7), from a current `survey-finalize` output checked as the rollup checks it. Each output
+  has a provenance record listing gates S5 and S6, every file read and the legacy exceptions.
+  - The frame has one row per cell: an author and one value of each `unit.rollup_by` attribute, made by its counted
+    passages. Its columns, outcome cells, period and attribute evidence follow 4.7. Every cell is checked before
+    anything is written. Every file is CSV with every cell quoted.
+  - With the rule `not-on-question`, the dropped list is written at the frame's path with `.csv` replaced by
+    `.dropped.csv`, with its own record and a header only when nothing is dropped. A frame path not ending in `.csv`
+    is refused, and so is a dropped list left behind when the rule is not declared.
+  - The frame must be the last entry of the frame-change log (4.4). Otherwise nothing is written and the entry the
+    log needs is printed.
+  - With `--change-id`, `--date`, `--reason` and `--results-seen yes|no`, the entry is appended in the same guarded
+    write as the frame and its lists. The author gives the four facts and the tool the hash and unit lists. An id
+    already in the log is refused, and so is a log whose last line has no line feed. The log has no record of its
+    own; the records list it after the append. With an unchanged frame, no entry is written.
+  - When the log names the new frame, `survey-frame` replaces its own earlier outputs at the same paths. That
+    includes a changed passage list or dropped list beside an unchanged frame, with no new entry. Only files whose
+    record is this command's, for this study, are replaced. Every other command still refuses to write over an
+    output with other bytes.
+  - A merged id counts as the person it was merged into, through the overrides file's recorded merges. This is one
+    function shared with `survey-rollup`, **which changes with it**: a passage attributed to a merged id now counts
+    for its person in the rollup too.
+  - The command refuses in an author study, and where a bucketer is a plug-in, the identity source is a vantage
+    module or the evidence is in a plug-in format.
+  - Post-steps (4.5) are checked, each step's path and then the gates that cover it, but not run, and a study that
+    declares them is refused.
+  - The final-codes loader and the writer of several outputs are now shared by the rollup and the frame. The check
+    table is `references/plans/post-1.3.0-h5-step-d-check-table.md`.
+- **Survey toolkit, step C part 2: final codes and the rollup** (`scripts/survey/survey_final.py`,
+  `survey_finalize.py`, `survey_rollup.py`), by the operator's decisions of 2026-11-25 (D2-D6, O1-O3). New bridge
+  command `survey-finalize <project> --out <path>`: the final codes of every coded outcome (contract 4.2 lines
+  397-400), written to a file of their own inside the study's folder (never a declared or covered file; the passes file
+  is only read), with the codes columns and `pass` = `final`. An agreed unit takes pass A's row with coder `agreed` and
+  the note `agreed`, or `agreed; evidence differed` (evidence ids compared as sets); a disagreement or a single pass
+  takes its adjudication's row. These cases refuse, and nothing is written:
+  - a disagreement or single pass without an adjudication;
+  - a unit with no pass at all (stricter than the reference tool; every such unit listed);
+  - a `final` row in the codes file that is not, cell for cell, the derived row, or that has no derived row.
+  New bridge command `survey-rollup <project> <final file> --out <path>`: passage or work codes rolled up to their
+  author by the rules of 4.2 lines 403-422, from a final file whose bytes are what finalising gives, in every status.
+  Its record must be current; in a draft study a stale record is reported and the rollup runs. `<outcome>__types`
+  lists each value once, in the attribute's declared level order. Two codes at the deciding `order` are an error. The
+  rollup reports how many authors were left out. An existing output with the same bytes is "unchanged"; one with
+  other bytes is refused. Both commands also refuse an output named as a provenance record, and a file at a record's
+  path that is not this command's record of that output. Both records list every file read, gate S5 only, and the
+  legacy-exception count. Neither command reads a fetch receipt: `check_row_files` gains a `citations` switch, off for
+  these two, that skips the 5.4 citation check, which stays with `survey-validate` and `survey-rows`. Neither command
+  is a refusing stage. Printed findings are now
+  capped by the exact file each is about. The check table is `references/plans/post-1.3.0-h5-step-c2-check-table.md`.
+- **Survey toolkit, step C part 1: codes and agreement** (`scripts/survey/survey_codes.py`, `survey_agreement.py`).
+  `survey-validate` now also checks each coded outcome's codes file and adjudications file (contract 4.2): passes
+  `A`, `B` and `final`, allowed codes, evidence and basis for every code but the missing value, reporters, evidence
+  that exists and belongs to the coded unit's author, one row per unit, outcome and pass, a final row only with both
+  passes or from a missing-pass adjudication, a coder on every row; adjudications with a coder and a note, none for a
+  unit on which the passes agree, and a `missing pass: A, ` or `missing pass: B, ` note with a reason where a pass is
+  missing. New bridge command `survey-agreement <project>`: raw agreement, Cohen's κ and Gwet's AC1 per outcome
+  (contract 4.2 line 400), by the operator's standard definitions of 2026-11-25: over the units with both passes,
+  every code its own category, κ unweighted, AC1 over the codes the specification allows, computed exactly and
+  printed to three decimals rounded half to even, and `undefined` where a statistic is (n = 0, a zero denominator).
+  One line per outcome, in declared order: `<outcome>: n=… raw=… kappa=… AC1=…`, then the units with one pass only.
+  It writes nothing. At most 1000 findings are printed per file, then one line saying how many more. Finalising and
+  the rollup are step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
+  for an id holding a character the printed draft would escape. The check table is
+  `references/plans/post-1.3.0-h5-step-c-check-table.md`.
+
+- **Survey toolkit: the sign-off log's header is a set of columns, not an order** (operator decision, 2026-11-25).
+  The header of `<ledger>/references/security-decisions.log.csv` must hold exactly the columns of agentteams 1.3.0's
+  new-log header (`survey_ledger.LOG_HEADER`), each once, in any order; the hash-chain column `prev_digest` stays
+  required. A header with a column missing, extra or repeated (a leading space, a byte-order mark and an empty cell
+  count as such) is a malformed ledger (`ledger-log`) whose message names those columns. Every rule reads a row by
+  column name, so a reordered log decides exactly as before; every row must still be Ed25519. This replaces the
+  exact-order rule.
+
+- **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
+  `survey-rows <project> <batch>`: a batch of evidence rows (a file inside the study's folder, with the evidence
+  columns) is checked together with the evidence file it joins, every row check of the merged file included, and
+  appended in batch order; no legacy exception covers a batch row, and a merge into a plugin format is refused. The
+  merge refuses unless the registry is built and a build over the merged file gives the registry's present rows (so a
+  registry edited by hand is found); then it writes the evidence file and renews the registry's provenance record,
+  last. Everything is checked before anything is written; a refusal changes nothing. The merged file must read
+  back, cell for cell, as the file's rows followed by the batch's; every row file is now read as strict CSV (an
+  unterminated quote is an error); the files a merge read are checked again just before it writes, so two merges at
+  once cannot lose one; a batch is read without following a link; a batch cell follows the file's rules (a line
+  break or TAB in a text cell is accepted; an identifier cell, a lone CR, and control, format or line-separator
+  characters are refused); a registry whose bytes differ from what a build gives is refused. `survey-rows <project>
+  --draft-exceptions` prints a first exceptions file of a legacy study's current breaches for a person to review, and
+  writes nothing. Messages that quote sign-off log cells now cut long values like every other message. The check
+  table is `references/plans/post-1.3.0-h5-step-b3-check-table.md`.
+
+- **CI: the survey sign-off tests run with agentteams installed** (operator decision, 2026-11-25). The `tests` job
+  installs no agentteams, so every test in which a survey gate reads `CLEARED` was skipped in CI. A second job in
+  `.github/workflows/tests.yml`, `survey sign-off (3.13)`, installs agentteams at the commit `toolchain.lock` pins
+  (from its git commit, with `--no-deps`) and its signing backend from a new hash-locked file,
+  `.github/ci/requirements-agentteams.txt`, then runs `tests/test_survey_verify.py` and
+  `tests/test_survey_gates.py` and fails if any of them is skipped. The locked versions are those of
+  `docs/release/constraints-2026-11-13.txt` plus the one build requirement agentteams pins;
+  `tests/test_ci_survey_signoff.py` keeps the two equal. The job is read-only, like `tests`. It is not a required
+  check: making it one is a ruleset change, which is the operator's.
+
+- **Survey toolkit, step B part 2a: the identity registry** (`scripts/survey/survey_provenance.py`,
+  `survey_identity.py`, `survey_registry.py`). New bridge command `survey-registry <project>`:
+  - it builds `identity.registry` from the persons of the evidence and attribution files, applying the overrides file
+    (a `link` sets `identity_id`, a `merge` folds one id into another), and writes the registry's provenance record
+    beside it, last; a run interrupted anywhere leaves the registry "not built";
+  - `--candidates` lists possible matches (`exact`, `similar`, with the study's stop words) for a person to decide in
+    the overrides file; nothing is applied and nothing is written;
+  - every check of the overrides file (a named author and a reason in every row, one link or merge per alias, no
+    repeated or self pairs, no `distinct` row for a linked or merged pair) refuses the build and writes nothing;
+    `survey-validate` reports them too.
+  The provenance record of contract 4.6 is written in one shared module (`make_record`, `check_current`,
+  `write_all`, `check_output_target`), for later steps' outputs too. A record also lists a declared input that was
+  absent at build, so its appearing later makes the output stale. An output and its record are written only inside
+  the study's own folder (checked by path, real path and device and inode), never over the specification or a file
+  it declares, never inside a declared folder or the ledger folder, and never under `.git`, `.github` or a team
+  location; where the platform allows, the write is made relative to the folder that was checked. The registry holds
+  the ids a merge folded in, so evidence keeps them (a merge alias must be an id of the project's rows); it records
+  how many legacy exceptions the evidence is read with; a value with a control, format or line-break character
+  refuses the build. The build reads only its declared inputs.
+  Candidates are indexed by word; only undecided ones are listed, at most 1000 shown. A study with a vantage module, or with evidence in a plugin format,
+  is refused: this version loads no project code. The batch merge (`survey-rows`) is step B part 2b. The check table
+  is `references/plans/post-1.3.0-h5-step-b2-check-table.md`.
+- Survey toolkit, step B part 1 follow-ups: `B.C`, `B.C.E` and `B. C.` count as BC; a century range
+  (`4th-5th centuries`) reads both centuries; a number grouped by thousands (`1,750`, `1,750.5`) gives no year, while
+  a list (`450,500`, `12.03.1750`) gives one from each run; quoted
+  values are cut in every message, step A's included.
+- **Survey toolkit, step F: sign-off verification and stage refusal** (`scripts/survey/`, contract 6.1 and 6.2;
+  check table `references/plans/post-1.3.0-h6-step-f-check-table.md`). A gate can now read `CLEARED`.
+  - **agentteams is reached only as a child process.** The new `survey_verify.py` runs `sys.executable -B -I -c`, one
+    fixed snippet calling agentteams' public `check_file_clearance`, with an allowlisted environment: a minimal
+    `PATH`, `LC_ALL`, and an empty temporary `HOME` and `TMPDIR`. No `AGENTTEAMS_*`, `XDG_*` or `GIT_*` variable
+    passes through, so no shared-secret key is found. It decides from the exit status and one JSON line, never from
+    message text.
+  - **The tools' own rules come first.** They enforce the contract's rules themselves, in addition to agentteams'
+    check:
+    - every row of the folder's log is `ed25519` (`ledger-scheme`);
+    - the row that decides names exactly the action the tools computed (so a row for a study id that extends this
+      one never decides) and is a `PASS`, or a `CONDITIONAL PASS` whose conditions are verified;
+    - it does not carry agentteams' checkout-signing mark;
+    - its `derives_from`, `scope` and `effect_*` columns are empty;
+    - its `key_id` is a plain stem naming a key file in the folder;
+    - its author is on the folder's list.
+  - **The interim family-HALT rule.** A HALT row on a family name in any log the HALT scan covers blocks the gates
+    it names (`UNAVAILABLE`), signed or not, retracted or not. A study's exact scope, optionally with exactly
+    `:sha256-<64 hex>`, is exempt, judged on the raw cell. Every other id is squashed (NFKD, non-spacing marks and
+    format characters dropped, lower-cased, only `a-z0-9` kept): it names gate `g` when it contains
+    `surveysignoff<g>`, else every gate when it contains `surveysignoff`. No public
+    call exists yet to judge a retraction under each log's own rules (asked of agentteams).
+  - **Other states.**
+    - More than one git root above the ledger folder: `UNAVAILABLE`.
+    - No request: `UNCLEARED`, also when the manifest cannot be built.
+    - Otherwise, agentteams absent (always on Python 3.10), older than 1.3.0, or without `cryptography`:
+      `UNAVAILABLE`, before the tools' row rules (rule 1.7).
+  - **Stages.** A `build-only` gated stage now refuses when the sign-off folder is malformed (`stage_decision`, new
+    `require_gate`).
+  - **Output.**
+    - `survey-status` prints where the verifying agentteams is installed (inside or outside the work tree), what a
+      sign-off proves (6.2), and that no tool can detect every edit to a log's history.
+    - `survey-manifest` prints the operator's signing spec and command, with placeholders.
+    - Every value read from a log is escaped before it is printed.
+  - **The child.** It runs with `-B -I` in a session of its own; on a timeout or an over-long answer the whole
+    process group is stopped. Its answer counts only with `cleared` exactly true, the package exactly at
+    `<purelib>/agentteams/__init__.py`, and its output read through a bounded read. `survey-status` says whether the
+    verifier and its interpreter are inside the work tree. No message names an absolute path.
+  - **Tests.** The signing tests generate an Ed25519 key pair at run time. They skip, with the reason, where
+    agentteams 1.3.0 or `cryptography` is absent, which includes the current CI.
+
+- **Survey toolkit: the sign-off log's header is agentteams' own.** Step A required only some signature columns,
+  and its test fixture wrote a header without `timestamp` and `requesting_agent`. agentteams 1.3.0 refuses such a log
+  as malformed, and `--sign-decision` will not extend it, so an operator who copied the fixture could not sign.
+  The header of `<ledger>/references/security-decisions.log.csv` must now be exactly the one agentteams 1.3.0 writes
+  for a new log (`survey_ledger.LOG_HEADER`; operator decision, 2026-11-25); any other header is a malformed ledger
+  (`ledger-log`), and a header-only log is valid. The fixture writes that header.
+
+- **Survey toolkit, step B part 1: the row files** (`scripts/survey/survey_tables.py`, `survey_attribution.py`,
+  `survey_evidence.py`). `survey-validate` now also checks every row file contract sections 4.1, 4.3 and 4.8 define
+  that is present:
+  - evidence rows, with the contract's rule ids (`columns`, `id-empty`, … `vocabulary`), and a legacy study's
+    exceptions file (a listed breach is counted and does not fail; an exception that no longer applies is an error);
+  - the attribution file of a passage or work study;
+  - the registry's presence and shape ("a missing registry is itself an error"); the registry is not built yet;
+  - the forbidden vocabulary, matched on folded text;
+  - bucket tables, with the bucketer (`match` first and all) and the year and period rule as functions for later
+    steps (a run of three or four digits, else a stated century in any of its usual spellings; a year marked BC or
+    BCE is negative and not read);
+  - the form and presence of a fetch-receipt citation (a row whose locator is not a `<work slug>#p<N>` locus; a
+    receipt must carry the ten required keys of 4.4). Nothing re-finds a quotation yet: that is step G.
+  Row files are streamed (at most 64 MiB) and opened at their resolved place under rule 1.6. Every output line
+  escapes control characters, so a file cannot forge a line. Project patterns are capped in length and number, and
+  every compile failure is a finding. The excused breaches and the quotations not re-found are printed on every run.
+  Evidence in a `plugin` format is not read (the reader plug-in is not loaded: not implemented), and
+  `survey-validate` fails for it.
+  The batch merge (`survey-rows`), the identity registry (`survey-registry`) and writing a first exceptions file
+  are step B part 2. The check table is `references/plans/post-1.3.0-h5-step-b-check-table.md`.
+- Survey toolkit, step A follow-ups: a `parent_team` with a `..` segment says so; the example study's S0 manifest
+  hash is pinned in a test; a `study.json` reached through a link inside the repository is tested to load.
+
+- **Survey toolkit, step A** (`scripts/survey/`, against the frozen contract `docs/survey-toolkit.md`, version 1).
+  The specification validator makes every check of section 3, with the path rule (1.6), and stable error ids of its
+  own (the contract gives none for section 3). A JSON Schema of `study.json` (`scripts/survey/study.schema.json`)
+  is generated from the validator's rule table; a test keeps the tracked file equal to the generator's output. The
+  gate list, the manifest builder (6.1), the rule that turns a gate's state into "runs" or "refuses", and the
+  structural checks of the ledger folder (6.2). Three bridge commands, each taking a project: `survey-validate`,
+  `survey-status` and `survey-manifest <gate>`; the bridge refuses a `--root` argument. Standard library only,
+  Python 3.10 to 3.13. The files, and the contract `docs/survey-toolkit.md` they cite, are synced with the
+  scholarly profile.
+  - **Nothing verifies a signature yet.** A gate reads `UNCLEARED` when its files changed since its manifest file
+    was written (step A's stand-in for the `agentteams` sign-off request, which it does not read), and
+    `UNAVAILABLE` otherwise; it never reads `CLEARED`. A team directory reached through a symbolic link (or with a
+    link inside it), or a `parent_team` with one of the faults 6.2 lists, leaves the gates `UNAVAILABLE` without
+    failing a command; a `parent_team` value that is no path at all is a malformed ledger. No command of this step
+    is a gated stage.
+  - The manifest file is written beside the ledger's log, as `<ledger>/references/<study id>.<gate>.manifest.json`.
+    A manifest carries each path as declared, so a path with a `.` or empty segment is refused. Two spellings of one
+    file are one file (by device and inode). Every capped read opens without following a link or blocking on a FIFO
+    and checks the open file is regular. The ledger's keys and approvers are compared with a team directory only when
+    it has both an approver and a verify key; one that lacks either "has neither" (6.2). A ledger inside `.git` or a
+    generated team location is refused, by case-folded name and by device and inode.
+  - Not in this step: the row checks of section 4 (step B), sign-off verification and the HALT scan (step F), and
+    the CI gate (step H). The check table, with the points where the contract is silent, is
+    `references/plans/post-1.3.0-h5-step-a-check-table.md`.
+
 - **Docs: the release policy gives the order for moving a derived repository to a new line.** No rule changes.
   `docs/release-policy.md` told a derived repository to run `--write-lock` with both tags and did not say that a
   locked repository must first drop both `.tag=` lines (said in the 1.2.0 and 1.3.0 changelog sections), that the

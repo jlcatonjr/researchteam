@@ -1,0 +1,6 @@
+id,person_id,attribute_kind,value,tier,source_id,citation,locator,quote,url,access,via,audit,basis,reporter,unit_id,note,downgraded_from
+ev-001,warden-01,work_date,1742,quoted,src-1,Invented logbook,logbook-01#p3,the bell at slack,,,,,own,,p-001,,
+ev-002,warden-01,life_dates,1701-1768,quoted,src-2,Invented parish roll,roll-01#p1,born in the year 1701,,,,,own,,warden-01,,
+ev-003,warden-02,harbour,North Quay,paraphrased,src-3,Invented harbour register,register-02#p4,kept the light on the north quay,,,,,reported,harbour clerk,p-002,,
+ev-004,warden-02,bell_metal,,not-established,,,,,,,,,,,warden-02,searched the invented register; nothing on the metal,
+ev-005,guild-01,duty,lamp and bell,quoted,src-4,Invented guild minutes,minutes-01#p2,to keep the lamp and the bell,,,,,own,,p-003,,

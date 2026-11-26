@@ -75,6 +75,41 @@ SCHOLARLY_MANAGED_FILES = [
     "scripts/term-index-core/_term_text.py",
     "scripts/term-index-core/term_index.py",
     "scripts/term-index-core/LICENSE",
+    # Survey toolkit, step A (docs/survey-toolkit.md, version 1): the shared core, the specification validator and
+    # its generated JSON Schema, the ledger checks, the gates, and the three commands the bridge runs. Every file
+    # of scripts/survey/ is listed: the commands import one another by file name.
+    "docs/survey-toolkit.md",                      # the contract the tools implement and their messages cite
+    "scripts/survey/survey_core.py",
+    "scripts/survey/survey_spec.py",
+    "scripts/survey/survey_ledger.py",
+    "scripts/survey/survey_gates.py",
+    "scripts/survey/survey_schema.py",
+    "scripts/survey/study.schema.json",
+    "scripts/survey/survey_validate.py",
+    "scripts/survey/survey_status.py",
+    "scripts/survey/survey_manifest.py",
+    # Step B: the row files (4.1 evidence, 4.3 attribution, 4.8 bucket tables and years).
+    "scripts/survey/survey_tables.py",
+    "scripts/survey/survey_attribution.py",
+    "scripts/survey/survey_evidence.py",
+    # Step B part 2: the provenance record (4.6), the identity files and survey-registry (4.4).
+    "scripts/survey/survey_provenance.py",
+    "scripts/survey/survey_identity.py",
+    "scripts/survey/survey_registry.py",
+    # Step B part 2b: the batch merge (4.1, 4.4).
+    "scripts/survey/survey_rows.py",
+    # Step C: codes and adjudications (4.2) and survey-agreement.
+    "scripts/survey/survey_codes.py",
+    "scripts/survey/survey_agreement.py",
+    # Step C part 2: final codes and the rollup (4.2).
+    "scripts/survey/survey_final.py",
+    "scripts/survey/survey_finalize.py",
+    "scripts/survey/survey_rollup.py",
+    "scripts/survey/survey_cells.py",
+    "scripts/survey/survey_changelog.py",
+    "scripts/survey/survey_frame.py",
+    # Step F: sign-off verification (6.2), reaching agentteams only as a child process.
+    "scripts/survey/survey_verify.py",
     # OrthodoxLLM Item 1: formerly seeded at init only; now synced.
     ".github/agents/interpretation-advisor.agent.md",       # above-notes (see MERGE_STRATEGIES)
     ".github/agents/references/methodology/_TEMPLATE.methodology.guide.md",
