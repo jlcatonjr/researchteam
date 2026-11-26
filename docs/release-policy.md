@@ -137,8 +137,11 @@ to (the environment keeps agentteams' `signing` extra where step 2 requires it),
   `docs/release/` (for example `pin-agentteams-v1.1.3.decision-spec.json`) is the lasting copy of the review,
   because a PR body can be edited after the fact.
 - **S-10:** the 14-day release cooldown is **in force** (operator ruling 2026-11-03, reversing the 2026-10-26
-  deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). Two
-  carve-outs:
+  deprecation `s10-release-cooldown-deprecated`; agentteams #349/#350 restore it in the rendered `@security`). The
+  two decision rows named here (`s10-release-cooldown-deprecated` and `s10-release-cooldown-restored`) are history:
+  they were signed with the earlier decision key and are not signed again (operator ruling 2026-11-25). The
+  cooldown rests on Rule S-10's text and on the signed toolchain-group file, not on those rows, and no check may
+  depend on either row verifying. Two carve-outs:
   - **Vulnerability remediation.** A release that fixes a vulnerability found by `pip-audit`, `npm audit`,
     `cargo audit` or an OSV.dev query may be adopted inside the cooldown.
   - **First-party toolchain group.** The cooldown does not apply to releases of the repositories the

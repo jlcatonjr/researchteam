@@ -285,3 +285,21 @@ decision signing is active).
   expiry unchanged), with the binding verifying also without the old key.
 - At hand-over: the worktree is clean at `0341dd4`; the registry there has the hash the clearance names; no
   autosync pull request is open; the autosync is enabled and is paused by the operator first (condition C4).
+
+## Phase 2 done (2026-11-26)
+
+- The operator paused the autosync, then ran script 31 with agentteams 1.3.0. Its checks before and after passed.
+  It retired `…@c4c40701ad95ad92` and registered `…@dc79fe00692848c4` (key `opr-2026-11`, expiry
+  `2027-02-18T23:59:59+00:00`). Nothing was signed. Registry sha256 after the run:
+  `0e7044b4a8ec152d033e144fe528c9504b85283f98934049cb43cf07038d921b`.
+- The session checked the result read-only with the pinned agentteams: the file's hash; a diff of 21 added lines
+  in that one file; the new entry's binding equal to the `opr-2026-11` row's; the binding check passing now and in
+  a copy without the old key; no HALT on `branch-delete`, the `repo-setting` family or the action; the exception
+  audit clean; the decisions log unchanged. The outputs are on pull request #275.
+- `@security` PASS at `e900602`, naming `.github/agents/references/exception-registry.json`. Merged as `8e827f9`
+  after the operator's answer "Merge #275 at e900602"; the merge's tree equals that head; CI on `main` green.
+- The autosync is still paused. Phase 3 needs it paused from script two's run to its merge (C4); whether it is
+  resumed in between is the operator's choice.
+- `docs/release-policy.md` now marks the two cooldown rows it cites as history (P2; part of step 11a).
+- Next: the remaining tests of step 11a in a scratch copy without the key, then the clearance for the removal
+  (C2), script two, and the operator's run.
