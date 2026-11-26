@@ -868,3 +868,22 @@ def test_merged_persons_reads_the_recorded_merges(tmp_path):
     data = (b"alias_id,target_id,decision,decided_by,reason\nwarden-03,warden-02,merge,op,r\n"
             b"warden-04,warden-04,link,op,r\n")
     assert sf.merged_persons(load_study("tidebell", root), data) == ({"warden-03": "warden-02"}, [])
+
+
+def test_a_changed_passage_list_beside_an_unchanged_frame_is_replaced_without_an_entry(tmp_path):
+    """A not-established row on p-001 adds a passage-list row and leaves the frame as it was: the log's last entry
+    still names the frame (the log follows the frame file alone, line 472), so the list is replaced and no entry
+    is added (proposal 5)."""
+    root = _repo(tmp_path)
+    assert _frame(root)[0] == 0
+    log = (root / LOG).read_bytes()
+    ev = root / ROWS / "evidence.csv"
+    ev.write_bytes(ev.read_bytes() + b"ev-007,warden-01,harbour,,not-established,,,,,,,,,,,p-001,searched the "
+                   b"invented logbook,\n")
+    assert run(survey_finalize, "--root", str(root), "tidebell", "--out", "out/final2.csv")[0] == 0
+    code, out, _ = _frame(root, "out/final2.csv")
+    assert code == 0, out
+    assert (root / OUT / "frame.csv").read_bytes() == FRAME and (root / LOG).read_bytes() == log
+    assert "replaced: Projects/tidebell/out/passages.csv\n" in out
+    assert b'"warden-01|logbook","p-001","ev-007","warden-01","firm","false","tier-not-established"' in \
+        (root / OUT / "passages.csv").read_bytes()
