@@ -214,3 +214,11 @@ check table records as not yet decided by the operator: a blocking gate the oper
 to the step file's hash; never in CI, a hook or `survey-validate`, nor under a standing grant, directive or waiver;
 a child process with the step's bytes and the frame over standard input; the result parsed and checked again; and
 user documentation that says it is not a sandbox.
+
+**Step D part 1 merged (2026-11-26).** The comparison came back at `a413cf1`: the frame and the passage list are
+byte-equal with the reference tool in three runs on the invented study. The differences are in the dropped list
+(its name, by ruling; no list without the rule, by the contract's text; the `reason` cell, a proposal) and in the
+final-codes file's quoting (a proposal). They are set out in the step D check table. Pull request #273 merged as
+`40c9902` after the operator's answer "Merge #273 at 89dbb42"; the merge's tree equals that head. Steps A to D of
+H5 are merged. What remains of H5: running post-steps (part 2), which waits for the operator's decision, and the
+contract proposals gathered in the check tables, for a later contract version.
