@@ -42,6 +42,8 @@ import survey_evidence  # noqa: E402,F401
 import survey_provenance  # noqa: E402,F401
 import survey_identity  # noqa: E402,F401
 import survey_registry  # noqa: E402,F401
+import survey_codes  # noqa: E402,F401
+import survey_agreement  # noqa: E402,F401
 sys.dont_write_bytecode = _saved
 
 #: An invented PEM-shaped block. It is not a key of anyone's and does not decode to a usable key.
@@ -109,3 +111,15 @@ def tree(root: Path) -> dict:
     """Every file under *root* (outside .git) with its bytes: to prove a run wrote nothing."""
     return {str(p.relative_to(root)): p.read_bytes() for p in sorted(root.rglob("*"))
             if p.is_file() and ".git" not in p.relative_to(root).parts}
+
+
+CODES_HEADER = b"unit_id,person_id,outcome,code,pass,coder,basis,reporter,evidence_ids,level,note\n"
+
+
+def uncode(root: Path) -> None:
+    """As before any coding: the codes file holds its header only, and there is no adjudications file."""
+    rows = root / STUDY_REL / "rows"
+    (rows / "codes-slack_bell.csv").write_bytes(CODES_HEADER)
+    adj = rows / "adjudications-slack_bell.csv"
+    if adj.exists():
+        adj.unlink()

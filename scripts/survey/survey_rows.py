@@ -182,7 +182,8 @@ def merge(root: Path, project: str, batch_arg: str) -> int:
     unsafe = unsafe_cells(batch)
     if unsafe:
         print_findings(unsafe)
-        return refuse("the batch has cells with control characters; nothing was merged")
+        return refuse("the batch has cells with control, format or line-separator characters they may not hold; "
+                      "nothing was merged")
 
     try:
         existing, ev_sha = _read(root, ev.repo_rel)

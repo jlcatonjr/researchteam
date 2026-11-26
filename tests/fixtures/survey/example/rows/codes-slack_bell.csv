@@ -1,1 +1,6 @@
 unit_id,person_id,outcome,code,pass,coder,basis,reporter,evidence_ids,level,note
+p-001,warden-01,slack_bell,for,A,coder-a (invented),own,,ev-001,,
+p-001,warden-01,slack_bell,for,B,coder-b (invented),own,,ev-001;ev-002,,
+p-002,warden-02,slack_bell,against,A,coder-a (invented),reported,harbour clerk,ev-003,,
+p-002,warden-02,slack_bell,tolerates,B,coder-b (invented),reported,harbour clerk,ev-003,,
+p-003,guild-01,slack_bell,NA,A,coder-a (invented),own,,ev-005,,"the minutes speak of duty, not of slack water"

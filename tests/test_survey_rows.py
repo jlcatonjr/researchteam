@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from survey_support import STUDY_REL, edit_spec, make_repo, run, survey_validate, tree
+from survey_support import STUDY_REL, edit_spec, make_repo, run, survey_validate, tree, uncode
 from survey_support import survey_attribution as att_mod
 from survey_support import survey_evidence as ev
 from survey_support import survey_spec as sp
@@ -177,6 +177,7 @@ def test_a_missing_registry_is_itself_an_error(tmp_path):
 
 def test_a_draft_without_evidence_needs_no_registry(tmp_path):
     root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    uncode(root)  # before any evidence, nothing is coded either
     (root / ROWS / "registry.csv").unlink()
     (root / ROWS / "evidence.csv").unlink()
     assert _report(root).findings == []
@@ -612,6 +613,7 @@ def test_a_row_file_that_is_a_fifo_is_not_opened(tmp_path):
 def test_a_draft_may_lack_the_attribution_and_vocabulary_files(tmp_path):
     """T1: a missing input file is an error "unless status is draft" (section 3, line 217)."""
     root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    uncode(root)
     (root / ROWS / "attribution.csv").unlink()
     assert {f.rule for f in _report(root).findings} <= {"unit-unknown"}  # the units it named are gone
     root2 = make_repo(tmp_path / "b", lambda s: s.update(status="draft"))

@@ -9,6 +9,7 @@ import pytest
 
 from survey_support import (
     FIXTURES, ROOT, STUDY_REL, SURVEY, edit_spec, make_repo, run, survey_provenance as prov, survey_registry, tree,
+    uncode,
 )
 
 _saved = sys.dont_write_bytecode
@@ -92,6 +93,7 @@ def test_a_file_without_a_final_line_feed_gets_one(tmp_path):
 
 def test_a_first_batch_creates_the_evidence_file_in_a_draft(tmp_path):
     root = make_repo(tmp_path, lambda s: s.update(status="draft"))
+    uncode(root)
     (root / EVIDENCE).unlink()
     assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
     name = _batch(root, GOOD)
@@ -579,3 +581,46 @@ def test_an_id_with_a_control_character_in_a_row_without_a_breach_does_not_stop_
         b"ev-001,warden-01,work_date,1742,quoted", b"ev-001,warden-01,work_date,1742,rumoured"))
     code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
     assert code == 0 and out == "id,rule\nev-001,tier-unknown\n"
+
+
+
+# --------------------------------------------------------------------------- step B follow-ups (in step C)
+def test_nel_is_refused_even_in_a_text_column(tmp_path):
+    """(a) NEL (U+0085) is a control character (Cc), not one of the allowed TAB, LF and CR LF."""
+    root = _repo(tmp_path)
+    name = _batch(root, GOOD.replace(b"from the north quay", "from the north\u0085quay".encode()))
+    out = _refused(root, name)
+    assert "[batch-control]" in out and "control, format or line-separator characters" in out
+
+
+def test_a_plain_space_is_accepted_everywhere_but_where_a_check_refuses_it(tmp_path):
+    root = _repo(tmp_path)
+    name = _batch(root, GOOD.replace(b"Invented letter", b"An invented  letter"))
+    assert _merge(root, name)[0] == 0
+
+
+def test_a_crlf_text_cell_merges_into_a_crlf_file(tmp_path):
+    """(c) a CR LF inside a quoted text cell, merged into a CR LF file: the row is written as the writer quotes it,
+    with the file's CR LF line ending."""
+    root = make_repo(tmp_path)
+    uncode(root)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"\n", b"\r\n"))
+    assert run(survey_registry, "--root", str(root), "tidebell")[0] == 0
+    body = GOOD.replace(b"\n", b"\r\n").replace(b"from the north quay", b'"from the north,\r\nquay"')
+    name = _batch(root, body, header=HEADER.replace(b"\n", b"\r\n"))
+    before = path.read_bytes()
+    assert _merge(root, name)[0] == 0
+    after = path.read_bytes()
+    assert after.startswith(before) and after[len(before):].endswith(b",own,,p-001,,\r\n")
+    assert b'"from the north,\r\nquay"' in after[len(before):]
+
+
+def test_no_exceptions_draft_for_an_id_with_a_private_use_character(tmp_path):
+    """(d) safe() would print it escaped, so a saved draft would not name the row: refused (the stricter choice)."""
+    root = _legacy_without_exceptions(tmp_path)
+    path = root / EVIDENCE
+    path.write_bytes(path.read_bytes().replace(b"ev-005,guild-01,duty,lamp and bell,quoted",
+                                               "ev\ue000-005,guild-01,duty,lamp and bell,rumoured".encode()))
+    code, out, _ = run(survey_rows, "--root", str(root), "tidebell", "--draft-exceptions")
+    assert code == 1 and "[exceptions-draft]" in out and "private-use" in out
