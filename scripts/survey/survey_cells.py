@@ -21,7 +21,7 @@ from dataclasses import dataclass, field
 
 from survey_codes import coded_outcomes
 from survey_core import Finding, q
-from survey_final import apply_rule
+from survey_final import apply_rule, authors
 from survey_tables import bucket_all, bucket_first, life_year, period_of, year_of
 
 NOT_ON_QUESTION = "not-on-question"
@@ -80,9 +80,11 @@ def frame_columns(spec: dict) -> tuple:
     return tuple(cols)
 
 
-def cell_id(spec: dict, att: dict) -> str:
-    """``<person_id>|<value>|...`` in ``rollup_by`` order; the ``person_id`` alone without ``rollup_by`` (line 583)."""
-    return "|".join((att["person_id"], *(att[k] for k in spec["unit"].get("rollup_by", []))))
+def cell_id(spec: dict, att: dict, person: str | None = None) -> str:
+    """``<person_id>|<value>|...`` in ``rollup_by`` order; the ``person_id`` alone without ``rollup_by`` (line 583).
+    *person* is the passage's author read through the merges (ruling D); the attribution row's own id otherwise."""
+    return "|".join((att["person_id"] if person is None else person,
+                     *(att[k] for k in spec["unit"].get("rollup_by", []))))
 
 
 def excluded_by(spec: dict, att: dict) -> tuple | None:
@@ -118,21 +120,26 @@ class Built:
         return [r["unit_id"] for r in self.rows]
 
 
-def build(spec: dict, final_rows: list, attribution: dict, evidence: list, tables: dict) -> Built:
+def build(spec: dict, final_rows: list, attribution: dict, evidence: list, tables: dict,
+          persons: dict | None = None) -> Built:
     """The frame (4.7). *final_rows* are the current final codes; *attribution* maps a unit to its attribution row, in
     file order; *evidence* is the evidence file's rows, in file order; *tables* maps an attribute key to its checked
-    bucket-table rows."""
+    bucket-table rows; *persons* maps a merged id to the person it was merged into (``survey_final.merged_persons``,
+    ruling D), shared with the rollup: a passage, and a row, of a merged id count for that person."""
     out = Built(columns=frame_columns(spec))
     add = lambda rule, where, msg: out.findings.append(Finding(rule, where, msg))  # noqa: E731
+    persons = persons or {}
+    person_of = lambda pid: persons.get(pid, pid)  # noqa: E731
     unit = spec["unit"]
     keys = unit.get("rollup_by", [])
     counted_tiers = set(spec["evidence"]["counted_tiers"])
+    author_of, kind_of, out.findings = authors(attribution, persons)
     cells: dict = {}  # cell id -> {"person", "values", "kind", "passages"}
     for uid, att in attribution.items():
         if is_counted(spec, att):
-            c = cells.setdefault(cell_id(spec, att), {"person": att["person_id"],
-                                                      "values": tuple(att[k] for k in keys),
-                                                      "kind": att["author_kind"], "passages": []})
+            person = author_of[uid]
+            c = cells.setdefault(cell_id(spec, att, person), {"person": person, "values": tuple(att[k] for k in keys),
+                                                              "kind": kind_of[person], "passages": []})
             c["passages"].append(uid)
     finals = {(r["unit_id"], r["outcome"]): r["code"] for r in final_rows if r["pass"] == "final"}
     outcomes = frame_outcomes(spec)
@@ -145,15 +152,17 @@ def build(spec: dict, final_rows: list, attribution: dict, evidence: list, table
         person, passages = c["person"], set(c["passages"])
         row = {"unit_id": cid, "author": person, "unit_kind": c["kind"]}
         row.update(dict(zip(keys, c["values"])))
-        period = _period(spec, person, passages, evidence, counted_tiers)
+        period = _period(spec, person, passages, evidence, counted_tiers, person_of)
         row[pkey], row[pnum] = (spec["periods"]["labels"][period - 1], str(period)) if period else (pmissing, pmissing)
         for a in spec["attributes"]:
             if a["kind"] == "period":
                 continue
+            # the author's rows: person-level (the row's unit_id is its own person_id) or on one of the cell's
+            # passages; a merged id's rows are its person's (ruling D)
             values = [(r["attribute_kind"], r["value"]) for r in evidence
-                      if r["tier"] in counted_tiers and r["person_id"] == person
+                      if r["tier"] in counted_tiers and person_of(r["person_id"]) == person
                       and r["attribute_kind"] in a.get("source_attributes", [])
-                      and (r["unit_id"] == person or r["unit_id"] in passages)]
+                      and (r["unit_id"] == r["person_id"] or r["unit_id"] in passages)]
             given = [(k, v) for k, v in values if v != ""]
             missing = a.get("missing", "NE")
             try:
@@ -168,7 +177,8 @@ def build(spec: dict, final_rows: list, attribution: dict, evidence: list, table
                     row[f"{a['key']}_{missing}"] = "0" if found & set(flags) else "1"
             except ValueError as exc:
                 add("frame-value-too-long", f"cell {q(cid)}", f"attribute {q(a['key'])}: {exc}")
-                row[a["key"]] = ""
+                for col in attribute_columns(a):
+                    row[col] = ""
         for key, o in outcomes.items():
             row[key] = _outcome_cell(o, [finals[(p, key)] for p in c["passages"] if (p, key) in finals],
                                      cid, key, add)
@@ -178,11 +188,20 @@ def build(spec: dict, final_rows: list, attribution: dict, evidence: list, table
             continue
         out.rows.append(row)
     out.findings += check_rows(spec, out.columns, out.rows)
-    out.passages = passage_list(spec, attribution, evidence, dropped_ids)
+    out.passages = passage_list(spec, attribution, evidence, dropped_ids, author_of)
     return out
 
 
-def _period(spec: dict, person: str, passages: set, evidence: list, counted_tiers: set) -> int | None:
+def attribute_columns(a: dict) -> list:
+    """The frame columns one attribute gives (lines 601-602)."""
+    if a["kind"] == "categorical":
+        return [a["key"]]
+    if a["kind"] == "flags":
+        return [f"{a['key']}_{flag}" for flag in a.get("flags", [])] + [f"{a['key']}_{a.get('missing', 'NE')}"]
+    return []
+
+
+def _period(spec: dict, person: str, passages: set, evidence: list, counted_tiers: set, person_of) -> int | None:
     """The cell's period number from 1, or None (lines 623-633)."""
     cuts = spec["periods"]["cuts"]
     for basis in spec["periods"]["basis"]:
@@ -195,7 +214,7 @@ def _period(spec: dict, person: str, passages: set, evidence: list, counted_tier
         elif basis == "life_dates":
             year = life_year([r["value"] for r in evidence
                               if r["tier"] in counted_tiers and r["attribute_kind"] == "life_dates"
-                              and r["unit_id"] == person and r["person_id"] == person])
+                              and r["unit_id"] == r["person_id"] and person_of(r["person_id"]) == person])
             if year is not None:
                 return period_of(year, cuts)
     return None
@@ -274,10 +293,13 @@ def allowed_values(spec: dict) -> dict:
 
 
 # --------------------------------------------------------------------------- the passage list (lines 656-671)
-def passage_list(spec: dict, attribution: dict, evidence: list, dropped: set) -> list:
+def passage_list(spec: dict, attribution: dict, evidence: list, dropped: set, author_of: dict | None = None) -> list:
     """One row per evidence row whose ``unit_id`` is an attribution unit, counted or not, in the order of the evidence
     file; person-level rows are not listed. A row not counted gives the first reason that applies: its tier, an
-    exclusion, its attribution status, its cell dropped."""
+    exclusion, its attribution status, its cell dropped. ``unit_id`` is the cell, its author read through the merges
+    (*author_of*, ruling D); ``person_id`` is the attributed author as the attribution file writes it (rows stay as
+    written)."""
+    author_of = author_of or {}
     counted_tiers = set(spec["evidence"]["counted_tiers"])
     counted_statuses = set(spec["unit"]["attribution"]["counted_statuses"])
     rows = []
@@ -285,7 +307,7 @@ def passage_list(spec: dict, attribution: dict, evidence: list, dropped: set) ->
         att = attribution.get(r["unit_id"])
         if att is None:
             continue
-        cid = cell_id(spec, att)
+        cid = cell_id(spec, att, author_of.get(r["unit_id"]))
         excl = excluded_by(spec, att)
         if r["tier"] not in counted_tiers:
             why = f"tier-{r['tier'] or 'blank'}"

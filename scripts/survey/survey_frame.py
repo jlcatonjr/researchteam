@@ -1,25 +1,33 @@
-"""``survey-frame <project> <final file> --out <frame> --passages <path>`` (contract section 7, line 935; 4.7, 4.4,
-4.5): write the frame of a passage or work study and its passage list, each with a provenance record beside it.
+"""``survey-frame <project> <final file> --out <frame> --passages <path>`` and, to record a change,
+``--change-id <id> --date <date> --reason <text> --results-seen yes|no`` (contract section 7, line 935; 4.7, 4.4,
+4.5): write the frame of a passage or work study, its passage list and, where the study declares ``not-on-question``,
+its dropped list, each with a provenance record beside it.
 
 - It refuses in an author study (4.7, line 580), and where a bucketer is a plug-in (line 639, open point 6), the
   identity source is a vantage module, or the evidence is in a plug-in format (code this version does not load).
+- ``--out`` takes the frame's full path, which ends in ``.csv``; the dropped list is that path with ``.csv`` replaced
+  by ``.dropped.csv`` (4.7, line 643; operator ruling A, "Replace .csv"). With the rule declared it is written even
+  when nothing is dropped (its header only); without the rule, a dropped list at that path is refused.
+- A merged id counts as the person it was merged into, through the overrides file's recorded merges, as in the
+  rollup (operator ruling D, "Read through the registry").
 - The final file must be a current ``survey-finalize`` output and exactly what finalising gives from the study's
   inputs (4.7, line 653; the rollup's checks, shared through ``load_final``).
 - Every cell is checked before anything is written (lines 651-653); on any breach nothing is written.
-- The frame-change log (4.4, lines 461-476) must end with the entry for the frame about to be written; where it does
-  not, nothing is written and the entry the log needs is printed, its ``id``, ``date``, ``reason`` and
-  ``results_seen`` left for the author.
+- The frame-change log (4.4, lines 461-476) must end with the entry for the frame about to be written. Where it does
+  not, nothing is written and the entry the log needs is printed. With the change arguments the tool would append it
+  (operator ruling B), but how the log's own record and the frame's record list the log, which the run both reads
+  and writes, is an open point the text does not settle: the command stops there and prints the entry, with the
+  author's facts filled in. With the change arguments and an unchanged frame, no entry is written and it says so.
 - Post-steps (4.5) are not run by this version: a study that declares any is refused once each step file's path and
   the gate that covers it have been checked (a blocking gate not cleared refuses, rule 1.7 and 6.1).
-- The rule ``not-on-question`` (lines 641-644) is not yet applied: the dropped list's file name is an open point
-  (the check table), so a study that declares the rule is refused.
-- The records list gates S5 and S6 (line 653), every file read, and the legacy exceptions. An existing output is
-  never appended to: identical bytes are "unchanged", anything else is refused.
+- The records list gates S5 and S6 (lines 569, 653), every file read, and the legacy exceptions. An existing output
+  is never appended to: identical bytes are "unchanged", anything else is refused.
 
 Exit 0 when written (or unchanged), 1 when refused, 2 on a usage error.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -29,24 +37,26 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 sys.dont_write_bytecode = True
 
-from survey_cells import PASSAGE_COLUMNS, build, drops_not_on_question, quoted_csv  # noqa: E402
+from survey_cells import DROPPED_COLUMNS, PASSAGE_COLUMNS, build, drops_not_on_question, quoted_csv  # noqa: E402
 from survey_changelog import check_frame, frame_sha256, needed_entry, read_log  # noqa: E402
 from survey_core import (  # noqa: E402
     Finding, SurveyUsageError, parse_args, print_findings, q, read_capped, reason, safe, sha256_bytes, usage_exit,
 )
-from survey_evidence import COLUMNS as EVIDENCE_COLUMNS, REGISTRY_COLUMNS  # noqa: E402
-from survey_final import locate_in_study  # noqa: E402
-from survey_finalize import load_final, write_outputs  # noqa: E402
+from survey_evidence import COLUMNS as EVIDENCE_COLUMNS  # noqa: E402
+from survey_final import locate_in_study, merged_persons  # noqa: E402
+from survey_finalize import load_final, overrides_bytes, write_outputs  # noqa: E402
 from survey_gates import REFUSES, require_gate  # noqa: E402
 from survey_identity import identity_refusals  # noqa: E402
 from survey_provenance import ABSENT, MAX_INPUT_BYTES, gate_entries, make_record, record_bytes  # noqa: E402
 from survey_spec import load_study  # noqa: E402
-from survey_tables import check_table, rows_from_bytes  # noqa: E402
+from survey_tables import check_table_bytes, rows_from_bytes  # noqa: E402
 
 PROG = "survey_frame.py"
 TOOL = "survey-frame"
-#: The gates the frame's record lists (4.7, line 653); the passage list, an output of the same stage, lists them too.
+#: The gates every output's record lists: the frame's by line 653; the passage list and the dropped list are outputs
+#: of the same stage, and a record lists "each gate the stage depends on" (line 569).
 GATES = ("S5", "S6")
+CHANGE_FLAGS = ("--change-id", "--date", "--reason", "--results-seen")
 
 
 def refuse(msg: str) -> int:
@@ -55,53 +65,74 @@ def refuse(msg: str) -> int:
 
 
 def parse(argv: list) -> tuple:
+    """``(root, project, final file, frame, passages, change)``, where *change* is None or the author's facts for a
+    frame-change entry: all four change arguments, or none (operator ruling B)."""
     args = list(argv)
-    usage = f"usage: {PROG} [--root DIR] <project> <final file> --out <frame> --passages <path>"
+    usage = (f"usage: {PROG} [--root DIR] <project> <final file> --out <frame> --passages <path> "
+             "[--change-id <id> --date <date> --reason <text> --results-seen yes|no]")
     found = {}
-    for flag in ("--out", "--passages"):
+    for flag in ("--out", "--passages", *CHANGE_FLAGS):
+        if flag in CHANGE_FLAGS and flag not in args:
+            continue
         if args.count(flag) != 1 or args.index(flag) == len(args) - 1:
             raise SurveyUsageError(usage)
         i = args.index(flag)
         found[flag] = args[i + 1]
         del args[i:i + 2]
+    given = [f for f in CHANGE_FLAGS if f in found]
+    if given and len(given) != len(CHANGE_FLAGS):
+        raise SurveyUsageError(f"{usage}\nthe change arguments go together: {', '.join(CHANGE_FLAGS)}")
+    change = None
+    if given:
+        if found["--results-seen"] not in ("yes", "no"):
+            raise SurveyUsageError(f"{usage}\n--results-seen is yes or no")
+        change = {"id": found["--change-id"], "date": found["--date"], "reason": found["--reason"],
+                  "results_seen": found["--results-seen"] == "yes"}
     root, project, extra = parse_args(args, PROG, ("final file",))
-    return root, project, extra[0], found["--out"], found["--passages"]
+    return root, project, extra[0], found["--out"], found["--passages"], change
+
+
+def dropped_path(frame_rel: str) -> str | None:
+    """The dropped list's path: the frame's with ``.csv`` replaced by ``.dropped.csv`` (ruling A); None when the
+    frame's path does not end in ``.csv``."""
+    return frame_rel[:-len(".csv")] + ".dropped.csv" if frame_rel.endswith(".csv") else None
 
 
 def unsupported(study) -> list:
-    """What this version does not load or define in a frame, each refused (fail closed)."""
+    """What this version does not load in a frame, each refused (fail closed)."""
     out = list(identity_refusals(study))
     for i, a in enumerate(study.spec["attributes"]):
         if a["bucketer"]["kind"] == "plugin":
             out.append(Finding("frame-plugin-bucketer", f"{study.spec_rel}#/attributes/{i}/bucketer",
                                f"attribute {q(a['key'])} has a plug-in bucketer, which is refused in a frame, and "
                                "nothing is written (4.7, line 639; open point 6)"))
-    rule = drops_not_on_question(study.spec)
-    if rule is not None:
-        out.append(Finding("frame-dropped-name", f"{study.spec_rel}#/frame_rules/exclude",
-                           "the study declares not-on-question, whose dropped list is written to <frame>.dropped.csv "
-                           "(4.7, line 643); whether that is the frame's path with .dropped.csv added or with its "
-                           "suffix replaced is an open point awaiting the operator's ruling, so no frame is written"))
     return out
 
 
 def check_post_steps(study) -> list:
-    """Post-steps (4.5) are not run by this version. Each declared step is checked first: its path (rule 1.6, inside
-    the study's folder, no link, a regular file) and every gate that covers it (``require_gate``: a blocking gate not
-    cleared, or a gate that is not declared, refuses). Where all of that passes, the finding says that running
-    post-steps is not yet available. Returns the findings; any finding refuses the build."""
-    findings = []
+    """Post-steps (4.5) are not run by this version. Each declared step is checked in two passes, in this order:
+
+    1. its path, for every step: rule 1.6, inside the study's folder, no symbolic link on its way (``locate_in_study``)
+       and a regular file;
+    2. then, for each step whose path passed, every gate that covers it (``require_gate``: a blocking gate not
+       cleared, or a gate that is not declared, refuses). A step whose path fails is not passed to a gate: a gate
+       clears the file at a place, and a place that is refused has nothing to clear.
+
+    Where every step passes both, the finding says that running post-steps is not yet available. Returns the
+    findings; any finding refuses the build."""
+    findings, placed = [], []
     steps = [(ptr, rp) for ptr, rp in study.paths.items() if ptr.startswith("/frame_rules/post_steps/")]
     for ptr, rp in steps:
-        where = f"{study.spec_rel}#{ptr}"
         located, errors = locate_in_study(study, rp.declared, "post-step")
         if errors:
             findings += errors
-            continue
-        real = located.real
-        if os.path.islink(real) or not os.path.isfile(real):
-            findings.append(Finding("post-step-file", where, f"{q(rp.declared)} is not a regular file"))
-            continue
+        elif not os.path.isfile(located.real):
+            findings.append(Finding("post-step-file", f"{study.spec_rel}#{ptr}",
+                                    f"{q(rp.declared)} is not a regular file"))
+        else:
+            placed.append((ptr, rp))
+    for ptr, rp in placed:
+        where = f"{study.spec_rel}#{ptr}"
         gates = [g for g in study.spec["signoffs"]["gates"] if rp.identity in study.covered(g)]
         if not gates:
             findings.append(Finding("post-step-uncovered", where, f"{q(rp.declared)} is covered by no gate (4.5)"))
@@ -121,7 +152,7 @@ def check_post_steps(study) -> list:
 
 def main(argv=None) -> int:
     try:
-        root, project, final_arg, out_arg, passages_arg = parse(sys.argv[1:] if argv is None else argv)
+        root, project, final_arg, out_arg, passages_arg, change = parse(sys.argv[1:] if argv is None else argv)
         study = load_study(project, root)
     except SurveyUsageError as exc:
         return usage_exit(exc)
@@ -135,7 +166,7 @@ def main(argv=None) -> int:
     stops = unsupported(study)
     if stops:
         print_findings(stops)
-        return refuse("the frame needs what this version does not load or define; nothing was written")
+        return refuse("the frame needs what this version does not load; nothing was written")
     steps = check_post_steps(study)
     if steps:
         print_findings(steps)
@@ -145,7 +176,17 @@ def main(argv=None) -> int:
     if errors or p_errors:
         print_findings(errors + p_errors)
         return refuse("a path is not allowed; nothing was written")
-    loaded, code = load_final(root, study, final_arg, [out.repo_rel, passages.repo_rel])
+    dropped_rel = dropped_path(out.repo_rel)
+    if dropped_rel is None:
+        return refuse(f"{q(out.repo_rel)} does not end in .csv: the dropped list is the frame's path with .csv "
+                      "replaced by .dropped.csv (4.7, line 643; ruling A); nothing was written")
+    rule = drops_not_on_question(spec)
+    if rule is None and os.path.lexists(root.joinpath(*dropped_rel.split("/"))):
+        return refuse(f"{q(dropped_rel)} is there, but the study does not declare not-on-question, so this build "
+                      "writes no dropped list, and one from an earlier build would stand beside a frame it does not "
+                      "describe (ruling A); remove it first; nothing was written")
+    outs = [out.repo_rel, passages.repo_rel] + ([dropped_rel] if rule is not None else [])
+    loaded, code = load_final(root, study, final_arg, outs)
     if loaded is None:
         return code
     ev_rel = study.paths["/evidence/file"].repo_rel
@@ -154,12 +195,12 @@ def main(argv=None) -> int:
         print_findings(evidence.findings)
         return refuse("the evidence file cannot be read; nothing was written")
     evidence = [r for _n, r in evidence.rows]
-    stops = merged_ids(study, loaded, evidence)
-    tables, table_findings = load_tables(study)
-    if stops or table_findings:
-        print_findings(stops + table_findings)
-        return refuse("the frame cannot be built from these inputs; nothing was written")
-    built = build(spec, loaded.rows, loaded.attribution, evidence, tables)
+    tables, table_findings = load_tables(study, loaded.data)
+    if table_findings:
+        print_findings(table_findings)
+        return refuse("a bucket table cannot be read; nothing was written")
+    persons = merged_persons(study, overrides_bytes(study, loaded))
+    built = build(spec, loaded.rows, loaded.attribution, evidence, tables, persons)
     if built.findings:
         print_findings(built.findings)
         return refuse("a cell breaks the frame's checks (4.7, lines 651-652); nothing was written")
@@ -175,66 +216,78 @@ def main(argv=None) -> int:
     if log_data is None and os.path.lexists(log_path):
         return refuse(f"{q(log_rp.repo_rel)} is larger than {MAX_INPUT_BYTES} bytes; nothing was written")
     entries, log_findings = read_log(log_data, log_rp.repo_rel) if log_data is not None else ([], [])
-    sha = frame_sha256(frame)
-    log_findings += [] if log_findings else check_frame(entries, log_rp.repo_rel, sha, built.units)
     if log_findings:
         print_findings(log_findings)
-        if not read_log_errors(log_findings):
-            print(safe(f"the entry the log needs (id, date, reason and results_seen are yours to give): "
-                       f"{needed_entry(entries, sha, built.units)}"))
+        return refuse("the frame-change log is malformed (4.4, lines 461-473); correct it first; nothing was written")
+    sha = frame_sha256(frame)
+    mismatch = check_frame(entries, log_rp.repo_rel, sha, built.units)
+    if mismatch and change is None:
+        print_findings(mismatch)
+        print(safe("the entry the log needs (id, date, reason and results_seen are yours to give): "
+                   f"{needed_entry(entries, sha, built.units)}"))
         return refuse("the frame-change log does not end with this frame's entry (4.4, lines 475-476); nothing was "
                       "written")
+    if mismatch:
+        return change_entry_stop(entries, log_rp.repo_rel, sha, built.units, change)
+    if change is not None:
+        print(safe(f"no entry: the frame is the log's last entry ({q(entries[-1]['id'])}); the log has one entry per "
+                   "change to the frame (4.4, line 461), so the change arguments were not used"))
     inputs = list(loaded.inputs) + [(log_rp.repo_rel, sha256_bytes(log_data) if log_data is not None else ABSENT)]
     guards = dict(loaded.guards)
     guards[log_rp.repo_rel] = sha256_bytes(log_data) if log_data is not None else None
     gates = gate_entries(study, GATES)
-    items = []
-    for rel, data in ((out.repo_rel, frame), (passages.repo_rel, passage_bytes)):
-        items.append((rel, data, record_bytes(make_record(study, rel, TOOL, inputs, gates, plugins=[],
-                                                          legacy_exceptions=loaded.exceptions))))
+    outputs = [(out.repo_rel, frame), (passages.repo_rel, passage_bytes)]
+    if rule is not None:
+        outputs.append((dropped_rel, quoted_csv(DROPPED_COLUMNS, built.dropped)))
+    items = [(rel, data, record_bytes(make_record(study, rel, TOOL, inputs, gates, plugins=[],
+                                                  legacy_exceptions=loaded.exceptions))) for rel, data in outputs]
     code = write_outputs(root, study, items, guards, TOOL)
     if code == 0:
-        print(safe(f"frame: {len(built.rows)} cell(s); passage list: {len(built.passages)} row(s); frame_sha256 {sha}"))
+        dropped_note = f"; dropped: {len(built.dropped)} cell(s)" if rule is not None else ""
+        print(safe(f"frame: {len(built.rows)} cell(s); passage list: {len(built.passages)} row(s){dropped_note}; "
+                   f"frame_sha256 {sha}"))
     return code
 
 
-def read_log_errors(findings: list) -> bool:
-    """Whether the log itself is malformed (then no entry is proposed: the log must be corrected first)."""
-    return any(f.rule == "change-log" for f in findings)
+def change_entry_stop(entries: list, rel: str, sha: str, units: list, change: dict) -> int:
+    """The change arguments were given and the frame changed. The author's facts are checked (an ``id`` not empty and
+    not already in the log; a ``date`` and a ``reason`` not empty), then the command stops on the open point: the run
+    would write the log, a file it also reads, and the text does not settle how the log's own record (4.6, lines
+    549-550) and the frame's record ("each as it was read", line 563) then list it without one of them being stale
+    from the moment it is written (lines 566-567). The entry is printed with the author's facts; nothing is written."""
+    problems = []
+    if change["id"] == "" or change["id"] in {e["id"] for e in entries}:
+        problems.append(Finding("change-log-id", rel, f"--change-id {q(change['id'])} is empty or already in the log; "
+                                "an id is what a report cites (4.4, line 474)"))
+    for key in ("date", "reason"):
+        if change[key] == "":
+            problems.append(Finding("change-log-fact", rel, f"--{key} is empty; the author gives it (rule 1.5)"))
+    if problems:
+        print_findings(problems)
+        return refuse("the frame-change entry's facts are not usable; nothing was written")
+    entry = json.loads(needed_entry(entries, sha, units))
+    entry.update(change)
+    print_findings([Finding("change-log-write", rel, "writing the log from this run is an open point awaiting the "
+                            "operator's ruling: the log is an input this run would also write, and the contract does "
+                            "not say how its record and the frame's record then list it (4.6, lines 549, 563, 566)")])
+    print(safe(f"the entry to append to the log, then run again: {json.dumps(entry, ensure_ascii=True)}"))
+    return refuse("the frame changed and its entry is not in the log; nothing was written")
 
 
-def merged_ids(study, loaded, evidence: list) -> list:
-    """An open point stops the build: an id the registry lists in a person's ``merged_from`` that the attribution or
-    evidence file still names. 4.7 reads "the author's rows" and the cell's ``person_id`` without saying whether a
-    merged id is its person (the check table), so such a study is refused, nothing inferred (rule 1.3)."""
-    rp = study.paths.get("/identity/registry")
-    data = loaded.data.get(rp.repo_rel) if rp is not None else None
-    if data is None:
-        return []
-    reg, _sha = rows_from_bytes(data, rp.repo_rel, REGISTRY_COLUMNS, "registry-columns")
-    aliases = {m for _n, r in reg.rows for m in r["merged_from"].split(";") if m != ""}
-    named = {a["person_id"] for a in loaded.attribution.values()} | {r["person_id"] for r in evidence}
-    hit = sorted(aliases & named)
-    if not hit:
-        return []
-    return [Finding("frame-merged-id", rp.repo_rel, f"the ids {', '.join(map(q, hit))} are merged into another person "
-                    "but still named by the attribution or evidence file; whether the frame reads them as that person "
-                    "is an open point awaiting the operator's ruling, so no frame is written")]
-
-
-def load_tables(study) -> tuple:
-    """Each non-period attribute's bucket table, checked (4.8): ``({key: rows}, findings)``."""
+def load_tables(study, data: dict) -> tuple:
+    """Each non-period attribute's bucket table, checked (4.8), parsed from the bytes ``load_final`` hashed (*data*,
+    by repository-relative path): ``({key: rows}, findings)``."""
     tables, findings = {}, []
     for i, a in enumerate(study.spec["attributes"]):
         if a["kind"] == "period":
             continue
         rp = study.paths.get(f"/attributes/{i}/bucketer/table")
-        if rp is None or not os.path.lexists(rp.real):
+        if rp is None or rp.repo_rel not in data:
             findings.append(Finding("frame-table", f"{study.spec_rel}#/attributes/{i}/bucketer/table",
                                     f"attribute {q(a['key'])} has no bucket table to read"))
             continue
         allowed = a.get("flags") if a["kind"] == "flags" else a.get("levels")
-        rows, errs = check_table(Path(rp.real), rp.repo_rel, allowed)
+        rows, errs = check_table_bytes(data[rp.repo_rel], rp.repo_rel, allowed)
         findings += errs
         tables[a["key"]] = rows
     return tables, findings

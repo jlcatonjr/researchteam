@@ -270,6 +270,12 @@ def load_final(root: Path, study, final_arg: str, out_rels: list) -> tuple:
                         keep, inputs, guards, exceptions), 0
 
 
+def overrides_bytes(study, loaded: CurrentFinal) -> bytes | None:
+    """The overrides file's bytes as :func:`load_final` hashed them, or None when it is not declared or absent."""
+    rp = study.paths.get("/identity/overrides")
+    return loaded.data.get(rp.repo_rel) if rp is not None else None
+
+
 def is_record_name(rel: str) -> bool:
     """Whether a path is named as a provenance record (case and normalisation folded, as a file system may)."""
     return unicodedata.normalize("NFC", rel).casefold().endswith(SUFFIX)

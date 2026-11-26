@@ -1,4 +1,5 @@
-"""Final codes and the rollup (contract 4.2, lines 397-422; the operator's decisions of 2026-11-25, D2 to D6 and O1 to O3).
+"""Final codes and the rollup (contract 4.2, lines 397-422; the operator's decisions of 2026-11-25, D2 to D6, O1
+to O3, and ruling D on merged ids).
 
 Finalising is fail-closed: where passes A and B agree the final row is theirs (pass A's, marked ``agreed``); where they
 disagree, or one pass is missing, it is the adjudication's; without one, nothing is written and the units are listed.
@@ -213,10 +214,41 @@ def types_value(values: set, declared: list) -> str:
     return ";".join(known + sorted(values - set(declared)))
 
 
-def roll_up(study, final_rows: list, attribution: dict) -> Rolled:
+def merged_persons(study, data: bytes | None) -> dict:
+    """``{merged id: the person it was merged into}``, from the recorded ``merge`` rows of the overrides file (4.4,
+    lines 491-506; "the registry links and merges only from this file"), read from *data*, the bytes the caller
+    hashed. The rows themselves stay as written; the rollup and the frame read an id through this map (operator
+    ruling D, 2026-11-25: "Read through the registry"). The file has already passed its checks (no chain of merges,
+    at most one merge per id), so this only reads it."""
+    from survey_identity import OVERRIDE_COLUMNS
+    from survey_tables import rows_from_bytes
+
+    rp = study.paths.get("/identity/overrides")
+    if rp is None or data is None:
+        return {}
+    rows, _sha = rows_from_bytes(data, rp.repo_rel, OVERRIDE_COLUMNS, "overrides-columns")
+    return {r["alias_id"]: r["target_id"] for _n, r in rows.rows if r["decision"] == "merge"}
+
+
+def authors(attribution: dict, persons: dict) -> tuple:
+    """``({unit: its author, read through *persons*}, {author: author_kind}, findings)``. An author whose merged ids
+    carry more than one ``author_kind`` is an error (4.3 gives each person one; a merge can join two)."""
+    author_of, kinds = {}, {}
+    for uid, a in attribution.items():
+        person = persons.get(a["person_id"], a["person_id"])
+        author_of[uid] = person
+        kinds.setdefault(person, set()).add(a["author_kind"])
+    findings = [Finding("author-kinds", f"person {q(p)}", f"the ids merged into {q(p)} carry more than one "
+                        f"author_kind: {', '.join(map(q, sorted(k)))} (4.3)") for p, k in sorted(kinds.items())
+                if len(k) > 1]
+    return author_of, {p: sorted(k)[0] for p, k in kinds.items()}, findings
+
+
+def roll_up(study, final_rows: list, attribution: dict, persons: dict | None = None) -> Rolled:
     """The rollup (4.2, lines 403-422). *final_rows* are the final file's rows; *attribution* maps a unit to its
-    attribution row. Rows are one per author and combination of ``rollup_by`` values, in code-point order of
-    ``person_id``, then of those values in the order ``rollup_by`` names them."""
+    attribution row; *persons* maps a merged id to its person (:func:`merged_persons`), so a passage attributed to
+    a merged id counts for that person. Rows are one per author and combination of ``rollup_by`` values, in
+    code-point order of ``person_id``, then of those values in the order ``rollup_by`` names them."""
     spec = study.spec
     unit = spec["unit"]
     out = Rolled()
@@ -229,21 +261,20 @@ def roll_up(study, final_rows: list, attribution: dict) -> Rolled:
     outcomes = {k: o for k, o in coded_outcomes(spec).items() if o["rollup"] != "none"}
     authors_seen, authors_kept = set(), set()
     cells: dict = {}  # (person, values) -> {outcome: [(code, type)]}
-    kind_of: dict = {}
+    author_of, kind_of, out.findings = authors(attribution, persons or {})
     for uid, a in attribution.items():
-        authors_seen.add(a["person_id"])
+        authors_seen.add(author_of[uid])
         if a["status"] not in counted or any(a.get(k) in vals for k, vals in exclude.items()):
             continue
-        authors_kept.add(a["person_id"])
-        kind_of[a["person_id"]] = a["author_kind"]
-        cells.setdefault((a["person_id"], tuple(a[k] for k in keys)), {})
+        authors_kept.add(author_of[uid])
+        cells.setdefault((author_of[uid], tuple(a[k] for k in keys)), {})
     for r in final_rows:
         if r["pass"] != "final" or r["outcome"] not in outcomes or r["unit_id"] not in attribution:
             continue
         a = attribution[r["unit_id"]]
         if a["status"] not in counted or any(a.get(k) in vals for k, vals in exclude.items()):
             continue
-        cell = cells.setdefault((a["person_id"], tuple(a[k] for k in keys)), {})
+        cell = cells.setdefault((author_of[r["unit_id"]], tuple(a[k] for k in keys)), {})
         cell.setdefault(r["outcome"], []).append((r["code"], a[types_key] if types_key else ""))
     out.left_out = len(authors_seen - authors_kept)
     for (person, values) in sorted(cells):

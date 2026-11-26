@@ -28,8 +28,8 @@ if str(HERE) not in sys.path:
 sys.dont_write_bytecode = True
 
 from survey_core import SurveyUsageError, parse_args, print_findings, safe, usage_exit  # noqa: E402
-from survey_final import csv_bytes, locate_in_study, roll_up, rollup_columns  # noqa: E402
-from survey_finalize import load_final, write_output  # noqa: E402
+from survey_final import csv_bytes, locate_in_study, merged_persons, roll_up, rollup_columns  # noqa: E402
+from survey_finalize import load_final, overrides_bytes, write_output  # noqa: E402
 from survey_provenance import gate_entries, make_record, record_bytes  # noqa: E402
 from survey_spec import load_study  # noqa: E402
 
@@ -74,10 +74,13 @@ def main(argv=None) -> int:
     loaded, code = load_final(root, study, final_arg, [out.repo_rel])
     if loaded is None:
         return code
-    rolled = roll_up(study, loaded.rows, loaded.attribution)
+    # A merged id counts as the person it was merged into (operator ruling D), read from the overrides file's bytes
+    # that load_final hashed: the file is among the record's inputs.
+    rolled = roll_up(study, loaded.rows, loaded.attribution, merged_persons(study, overrides_bytes(study, loaded)))
     if rolled.findings:
         print_findings(rolled.findings)
-        return refuse("an outcome's rule cannot give a value for a cell (4.2, lines 412-417); nothing was written")
+        return refuse("an outcome's rule cannot give a value for a cell (4.2, lines 412-417), or merged ids disagree "
+                      "on their author_kind; nothing was written")
     data = csv_bytes(rollup_columns(study.spec), rolled.rows)
     # The rollup rests on the evidence file through the final codes: it carries the count of legacy exceptions the
     # evidence was read with (4.1, line 366).

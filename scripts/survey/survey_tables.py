@@ -160,12 +160,18 @@ def check_table(path: Path, where: str, allowed: list | None) -> tuple:
     toolkit's own refusals: a ``bucket`` outside the attribute's declared levels or flags (*allowed*, when
     declared), an upper-case or over-long pattern, more than MAX_PATTERNS rows. It searches no text, so it never
     raises the ValueError that :func:`search` raises for text over MAX_MATCH_CHARS: every problem is a finding."""
-    rows, findings = _check_table(path, where, allowed)
+    rows, findings = _check_table(read_rows(path, where, TABLE_COLUMNS, "table-columns"), where, allowed)
     return rows, in_file(findings, where)
 
 
-def _check_table(path: Path, where: str, allowed: list | None) -> tuple:
-    read = read_rows(path, where, TABLE_COLUMNS, "table-columns")
+def check_table_bytes(data: bytes, where: str, allowed: list | None) -> tuple:
+    """As :func:`check_table`, over bytes already read (and hashed) by the caller."""
+    read, _sha = rows_from_bytes(data, where, TABLE_COLUMNS, "table-columns")
+    rows, findings = _check_table(read, where, allowed)
+    return rows, in_file(findings, where)
+
+
+def _check_table(read: Rows, where: str, allowed: list | None) -> tuple:
     findings, rows = list(read.findings), []
     if read.findings:
         return rows, findings
