@@ -73,6 +73,12 @@ ALLOWED_SIGNERS="<allowed-signers-file>"     # @ph <allowed-signers-file> the op
 PY="${SIGNER%/agentteams}/python"
 [[ -x "$PY" ]] || die "no interpreter beside the root-owned agentteams at $PY"
 [[ "$(/usr/bin/stat -f %Su "$PY")" == root ]] || die "$PY is not root-owned"
+# The checks below import the whole library: every entry of the install and of its base Python must be root-owned
+# and not group/world-writable (the same check as script 33).
+VENV="${SIGNER%/bin/agentteams}"
+base=$("$PY" -I -c 'import sys; print(sys.base_prefix)')
+bad=$(/usr/bin/find "$VENV" "$base" \( ! -user root -o \( ! -type l \( -perm -0020 -o -perm -0002 \) \) \) -print 2>&1 | /usr/bin/head -3) || :   # find may be cut off by head (SIGPIPE); what it printed decides
+[[ -z "$bad" ]] || die "the root-owned agentteams or its base Python has an entry that is not root-owned or is group/world-writable: $bad"
 ver=$("$SIGNER" --version 2>&1) || die "the root-owned agentteams does not run"
 [[ "$ver" =~ ^agentteams\ 1\.3\.0([^0-9]|$) ]] || die "the root-owned agentteams is $ver, not 1.3.0, the version toolchain.lock pins"
 [[ -f "$ALLOWED_SIGNERS" && ! -L "$ALLOWED_SIGNERS" ]] || die "the allowed-signers file is missing or a link"
@@ -87,6 +93,18 @@ sha() { /usr/bin/shasum -a 256 "$1" | /usr/bin/cut -d' ' -f1; }
 [[ "$("${GIT[@]}" rev-parse HEAD)" == "$HEAD_REVIEWED" ]] || die "$BR is at $("${GIT[@]}" rev-parse HEAD), not the reviewed $HEAD_REVIEWED"
 [[ -z "$("${GIT[@]}" status --porcelain --untracked-files=all)" ]] || die "$WT has uncommitted changes; stop"
 "${GIT[@]}" merge-base --is-ancestor "$PHASE2_MAIN" HEAD || die "phase 2's merge $PHASE2_MAIN is not in $BR"
+# Since phase 2's merge, the branch changes exactly the spec, scripts 33 and 34, and the decisions log, and the log
+# by exactly one appended row (the signed key-retire:op-2026 row).
+LOG_REL=".github/agents/references/security-decisions.log.csv"
+want="$(printf '%s\n' docs/release/key-retire-op-2026.decision-spec.json references/plans/archive/2026-W48/operator/33-sign-key-retire-clearance.sh "$SELF_REL" "$LOG_REL" | LC_ALL=C /usr/bin/sort)"
+got="$("${GIT[@]}" diff --no-renames --name-only "$PHASE2_MAIN" HEAD)" || die "cannot list the branch's changes since $PHASE2_MAIN"
+got="$(printf '%s\n' "$got" | LC_ALL=C /usr/bin/sort)"
+[[ "$got" == "$want" ]] || die "the branch's changes since $PHASE2_MAIN are not exactly the allowlist (spec, scripts 33 and 34, the decisions log): $got"
+[[ "$("${GIT[@]}" diff --no-renames --numstat "$PHASE2_MAIN" HEAD -- "$LOG_REL")" == $'1\t0\t'"$LOG_REL" ]] || die "the decisions log does not differ from $PHASE2_MAIN by exactly one added line"
+n_base=$("${GIT[@]}" cat-file -s "$PHASE2_MAIN:$LOG_REL")
+/usr/bin/cmp -s <("${GIT[@]}" show "$PHASE2_MAIN:$LOG_REL") <("${GIT[@]}" show "HEAD:$LOG_REL" | /usr/bin/head -c "$n_base") \
+  || die "the decisions log at HEAD does not begin with the log at $PHASE2_MAIN: the row is not appended"
+[[ "$("${GIT[@]}" show "HEAD:$LOG_REL" | /usr/bin/wc -l)" -eq $(( $("${GIT[@]}" show "$PHASE2_MAIN:$LOG_REL" | /usr/bin/wc -l) + 1 )) ]] || die "the decisions log does not have exactly one more row than at $PHASE2_MAIN"
 for f in "$F1" "$F2"; do
   [[ -f "$f" && ! -L "$f" && "$(sha "$f")" == "$KEY_SHA" ]] || die "$f is missing, a link, or not the expected $KEY_SHA; nothing changed"
   [[ -f "${f%/*}/$NEW_KEY.pub.pem" && "$(sha "${f%/*}/$NEW_KEY.pub.pem")" == "$NEW_PUB_SHA" ]] || die "${f%/*}/$NEW_KEY.pub.pem is not $NEW_PUB_SHA; nothing changed"
