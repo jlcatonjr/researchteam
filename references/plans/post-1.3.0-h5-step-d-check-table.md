@@ -291,3 +291,28 @@ The design, with those conditions folded in:
 - **5.2, line 745:** a vantage module's exclusions, recorded in the frame-change log, are not implemented. Such a
   study is refused, as the registry refuses it.
 - **4.4, line 475:** `results_seen` "is shown wherever the change is reported". No tool reports changes yet.
+
+## Comparison with the reference tool (2026-11-26)
+
+The first integrating project's session ran both tools at head `a413cf1` on the invented study that
+`tests/test_survey_frame.py` builds, one copy per tool with identical inputs, on Python 3.14 for both (a version
+this toolkit does not yet list as supported). It reported data only. The reference tool needed `schema_version`
+`"0"` and a header-only main decisions log; neither changes the study's content. Three runs: the `not-on-question`
+rule removed; the rule declared; the rule declared with one cell made to drop.
+
+- **The frame: byte-equal in all three runs** (`frame_sha256` `e86702a8…` in runs 1 and 2, `0f590de8…` in run 3).
+- **The passage list: byte-equal in all three runs.**
+- **The dropped list** differs in three ways:
+  1. Its name (ruling A).
+  2. Without the rule, the reference tool still writes a header-only list and this tool writes none. Settled by the
+     contract's text: line 641 writes the list "where `frame_rules.exclude` declares the rule".
+  3. The `reason` cell. This tool writes the reason of the specification's `frame_rules.exclude` entry; the
+     reference tool writes a fixed sentence of its own. The contract names the column (line 643) and does not say
+     what it holds. Proposal 6 (to add to the list above): say that the reason is the declared rule's `reason`.
+  This tool also writes a record for the dropped list (line 549); the reference tool writes none.
+- **The final-codes file** (step C, not part of the frame): the same values row for row, but this tool quotes a
+  cell only where CSV needs it and the reference tool quotes every cell. The contract fixes quoting for the frame's
+  three files (line 646) and the enumeration log (line 445) and is silent for the final-codes file. Proposal 7:
+  fix the final-codes file's quoting in a later version. Nothing reads the file by its bytes across the two tools.
+- Not compared: the records and the frame-change log. None of the other decided differences arose in this study (no
+  unit without a pass, no plug-in, vantage module or post-step, no merged id).
