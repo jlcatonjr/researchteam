@@ -183,3 +183,34 @@ and the rollup read no fetch receipt, so a record's `inputs` are exactly the fil
 reads. Suite at the head: 2127 passed, 2 skipped. Step C is complete. Step D is being built on
 `feat/survey-tools-d` in two parts: the frame, its lists and the frame-change-log check first, with post-steps
 refused as not yet available; then running post-steps, after the operator and `@security` decide the design.
+
+**Step D part 1 (pull request #273, 2026-11-25 and 26).** `survey-frame` builds the frame of a passage or work
+study, the passage list and the dropped list, checks the frame-change log, and checks post-steps without running
+them. The check table is `references/plans/post-1.3.0-h5-step-d-check-table.md` on the feature branch. The
+operator's decisions (picker):
+- **The dropped list's name: "Replace .csv".** The frame's path with `.csv` replaced by `.dropped.csv`; a frame
+  path that does not end in `.csv` is refused.
+- **Who writes a frame-change-log entry: "The tool, from arguments".** The author gives the id, the date, the
+  reason and whether results were seen; the tool computes the rest from the frame. Without the arguments the tool
+  refuses and prints the entry.
+- **How the log is recorded: "No record for the log".** The entry and the frame are written in one guarded write.
+  The log has no record of its own; the outputs' records list it as it stands after the append.
+- **Replacing a changed frame: "Replace when the log names it".** Only `survey-frame`, only its own recorded
+  outputs, and only when the log's last entry holds the new frame's hash. Every other command keeps refusing to
+  overwrite.
+- **Merged person ids: "Read through the registry".** A merged id counts as the surviving person, by the recorded
+  merge override. Applied to the rollup too, through one shared function, so the two agree (the session's choice,
+  told to the operator).
+- **Which cells the frame has: "Cells with a counted passage".**
+- The command's arguments and the passage list's record gates stay as built (the session's choice, told to the
+  operator).
+
+Reviews: `@security` PASS at `a413cf1`; `@technical-validator` PASS at `1a8caec`, its four small points then
+fixed. Suite at the head: 2209 passed, 2 skipped. The comparison with the reference tool was requested from the
+first project's session on 2026-11-26 at that head; the merge waits for it.
+
+**Step D part 2, not started: running post-steps.** `@security` would accept it only under conditions, which the
+check table records as not yet decided by the operator: a blocking gate the operator has signed and cleared, pinned
+to the step file's hash; never in CI, a hook or `survey-validate`, nor under a standing grant, directive or waiver;
+a child process with the step's bytes and the frame over standard input; the result parsed and checked again; and
+user documentation that says it is not a sandbox.
