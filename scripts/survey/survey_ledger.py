@@ -40,9 +40,10 @@ KEYS = "references/authorized-verify-keys"
 APPROVERS = "references/security-approvers.txt"
 WAIVERS = "references/security-waivers.log.csv"
 PARENT_TEAM_KEY = "parent_team"
-#: The header the log must have, exactly (6.2 "with the signature columns"; operator decision, 2026-11-25: adopt
-#: agentteams' own new-log header): agentteams 1.3.0's new-log header, ``timestamp`` and ``requesting_agent`` followed
-#: by its ``SIGNED_DECISION_COLUMNS``.
+#: The columns the log's header must have (6.2 "with the signature columns"): agentteams 1.3.0's new-log header,
+#: ``timestamp`` and ``requesting_agent`` followed by its ``SIGNED_DECISION_COLUMNS``, the hash-chain column
+#: ``prev_digest`` included. Operator decision, 2026-11-25: the header holds exactly this SET of columns, each once,
+#: in any order (column order changes nothing in how a row is read: every row is read by column name).
 LOG_HEADER = (
     "timestamp", "requesting_agent", "date", "action_reviewed", "verdict", "scope", "conditions",
     "conditions_verified", "evidence", "author", "derives_from", "effect_class", "effect_grants", "effect_targets",
@@ -257,6 +258,31 @@ def _read_json_object(path: Path, where: str, rule: str, add, missing: str):
     return doc
 
 
+def header_problem(header: list) -> str:
+    """Why *header* is not a sign-off log's header, or ``""``: its cells must be exactly the set of
+    :data:`LOG_HEADER`, each once, in any order. Cells are compared exactly, so a leading space, a byte-order mark or
+    an empty cell makes a column missing and another extra."""
+    wanted = set(LOG_HEADER)
+    seen, repeated = set(), []
+    for cell in header:
+        if cell in seen and cell not in repeated:
+            repeated.append(cell)
+        seen.add(cell)
+    missing = [c for c in LOG_HEADER if c not in seen]
+    extra = [c for c in header if c not in wanted]
+    parts = []
+    if missing:
+        parts.append("missing " + ", ".join(q(c) for c in missing))
+    if extra:
+        parts.append("extra " + ", ".join(q(c) for c in dict.fromkeys(extra)))
+    if repeated:
+        parts.append("repeated " + ", ".join(q(c) for c in repeated))
+    if not parts:
+        return ""
+    return ("the header must hold exactly agentteams 1.3.0's sign-off log columns, each once, in any order (6.2): "
+            + "; ".join(parts))
+
+
 def _check_log(path: Path, where: str, add) -> tuple:
     """The folder log's structure. Returns ``(rows, sha256 of the bytes read)``: the rows as ``{column: cell}`` (with
     ``_line``, the 1-based line of the record) when the structure is sound, else ``([], "")``."""
@@ -277,10 +303,10 @@ def _check_log(path: Path, where: str, add) -> tuple:
         return [], ""
     header = records[0]
     sound = True
-    if tuple(header) != LOG_HEADER:
+    problem = header_problem(header)
+    if problem:
         sound = False
-        add("ledger-log", where, "the header is not exactly the one agentteams 1.3.0 writes for a new log: "
-            + ",".join(LOG_HEADER))
+        add("ledger-log", where, problem)
     rows = []
     for n, record in enumerate(records[1:], start=2):
         if not record:

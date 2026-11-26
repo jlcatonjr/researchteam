@@ -20,6 +20,15 @@ builds `1.0.0rc1`, and `v1.0.0` builds `1.0.0`. See `docs/release-policy.md`.
   the rollup are step C part 2. A batch cell with NEL (U+0085) is refused in every column, and no first exceptions draft is printed
   for an id holding a character the printed draft would escape. The check table is
   `references/plans/post-1.3.0-h5-step-c-check-table.md`.
+
+- **Survey toolkit: the sign-off log's header is a set of columns, not an order** (operator decision, 2026-11-25).
+  The header of `<ledger>/references/security-decisions.log.csv` must hold exactly the columns of agentteams 1.3.0's
+  new-log header (`survey_ledger.LOG_HEADER`), each once, in any order; the hash-chain column `prev_digest` stays
+  required. A header with a column missing, extra or repeated (a leading space, a byte-order mark and an empty cell
+  count as such) is a malformed ledger (`ledger-log`) whose message names those columns. Every rule reads a row by
+  column name, so a reordered log decides exactly as before; every row must still be Ed25519. This replaces the
+  exact-order rule.
+
 - **Survey toolkit, step B part 2b: the batch merge** (`scripts/survey/survey_rows.py`). New bridge command
   `survey-rows <project> <batch>`: a batch of evidence rows (a file inside the study's folder, with the evidence
   columns) is checked together with the evidence file it joins, every row check of the merged file included, and
