@@ -222,3 +222,10 @@ final-codes file's quoting (a proposal). They are set out in the step D check ta
 `40c9902` after the operator's answer "Merge #273 at 89dbb42"; the merge's tree equals that head. Steps A to D of
 H5 are merged. What remains of H5: running post-steps (part 2), which waits for the operator's decision, and the
 contract proposals gathered in the check tables, for a later contract version.
+
+**Running post-steps: deferred (operator's decision, picker, 2026-11-26: "Defer; keep refusing").** `survey-frame`
+goes on checking a study's post-steps and refusing to run them. The reasons given to the operator: a step would run
+with the user's full privileges, since a standard-library tool cannot sandbox it; the operator's signature on the
+step file would be the only real control; a fault in the gate check would then be a way to run code; and no study
+needs it now. The question is to be decided with the plug-in questions (the vantage module, the evidence reader)
+and the next contract version. H5 is complete as planned for this round: steps A to D are merged.
