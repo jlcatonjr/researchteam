@@ -9,6 +9,6 @@ M7,orchestrator,Wave 2: H5 step B; H6 (step F),the H5-A merge,pull requests,done
 M8,orchestrator,Wave 3: H5 step C,the H5-B merge,pull request,done,"step C complete: part 1 merged aa578bc (PR #270), part 2 merged 599dc90 (PR #272)",M7
 M9,orchestrator,Wave 4: H5 step D with the reference comparison on the pull request head,the H5-C merge,pull request,done,step D part 1 merged 40c9902 (PR #273) after the comparison; running post-steps deferred by the operator on 2026-11-26,M8
 M10,orchestrator,H3 on its own track: phase 1; then 2; then 3,M4,audit record; operator steps; key retired or date moved,done,phase 2 merged 8e827f9 (PR #275); phase 3 merged c0a8468 (PR #277): op-2026 retired on 2026-11-26; open: the next cut script (H3 step 16) and the operator's disposition of the old private key (step 17),M5
-M11,orchestrator,H4 when the operator asks,operator's word,signed row merged,pending,own track,M4
+M11,orchestrator,H4 when the operator asks,operator's word,signed row merged,pending,own track; left waiting by the operator's answer of 2026-11-26,M4
 M12,work-summarizer,Work summary for each day worked,each wave,workSummaries/daily,done,2026-11-25 and 2026-11-26 written,M5
 M13,conflict-auditor,Close-out audit,M9;M10;M11,findings,pending,read-only,M9;M10;M11

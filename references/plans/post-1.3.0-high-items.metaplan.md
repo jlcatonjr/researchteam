@@ -31,7 +31,7 @@ what the tools are. The contract `docs/survey-toolkit.md` (version 1) is the spe
   survey work touches. It depends on H4 in one respect. The key-rotation plan (2026-11-22) lets `fleet-agent-pilot-2026-11` lapse and
   says a new authorization "is drafted and reviewed before `op-2026` is retired". So before the retirement the
   operator either signs the H4 row or rules that the old key is retired without it.
-- H4 waits for the operator's word (picker, 2026-11-25: "Regenerate when I ask"). No session work before that.
+- H4 waits for the operator's word (picker, 2026-11-25: "Regenerate when I ask"; 2026-11-26: "Leave H4 waiting"). No session work before that.
 - H5 is a chain: A, then B, then C, then D, each its own reviewed pull request.
 - H6 needs only H5 step A. Step A ships the gate states and the one function that turns a state into a refusal;
   until H6, verification answers `UNAVAILABLE`, and a blocking gate in that state refuses (contract rule 1.7).
