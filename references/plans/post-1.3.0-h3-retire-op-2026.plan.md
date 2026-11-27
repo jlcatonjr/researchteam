@@ -369,5 +369,7 @@ writes its own key files. No standing rule names the key.
   it. The generated memory indexes mention `op-2026` until they are next rebuilt.
 - **The autosync.** The operator resumed it on 2026-11-26, after the phase 3 record merged as `da69cf0`
   (PR #278). The workflow reads `active`. Condition C4 is closed.
-- **The release coordinator (C6).** Told on 2026-11-26, as information, in the session the operator named in the
-  picker. Condition C6 is closed.
+- **The release coordinator (C6).** The note was sent on 2026-11-26, as information, to the session the operator
+  named in the picker; delivery is confirmed, reading is not. C6 asked for a note before and after. No note was
+  sent before the removal, because the session to tell was named only afterwards; C6 is met for the after-note
+  only.
