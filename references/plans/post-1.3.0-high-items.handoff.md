@@ -110,8 +110,8 @@ deletion needs the signed grant or a `--branch-cleanup` PASS.
   autosync pause script and the two 1.3.0 cut scripts, with the run logs of the two cuts. The cuts' outcome
   is in `docs/release/release-notes-v1.3.0-rc.1.md` and `release-notes-v1.3.0.md`. The two logs exist only in
   that ignored folder. Under PS-1 they are either published after the operator has reviewed each file, since
-  they may carry machine detail, or deleted with the operator's confirmation. That choice is the operator's. The copies of scripts 31, 33 and 34 were
-  deleted after `@security`'s review; their tracked copies are in `references/plans/archive/2026-W48/operator/`.
+  they may carry machine detail, or deleted with the operator's confirmation. That choice is the operator's.
+  The copies of scripts 31, 33 and 34 were deleted after `@security`'s review; their tracked copies are in `references/plans/archive/2026-W48/operator/`.
 - **The session's scratch folders** hold only invented or public content and are cleared by the system.
 
 ## Where to start
