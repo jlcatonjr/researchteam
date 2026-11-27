@@ -366,7 +366,8 @@ writes its own key files. No standing rule names the key.
   onto `main` is a HALT.
 - **Still open.** Step 16: the next cut script must not require the row `s10-release-cooldown-restored` as text;
   blocking for the next cut. Step 17: what the operator does with the old private key; the session never touches
-  it. The release coordinator is not yet told (C6, information): the session to tell is the operator's choice. The
-  generated memory indexes mention `op-2026` until they are next rebuilt.
+  it. The generated memory indexes mention `op-2026` until they are next rebuilt.
 - **The autosync.** The operator resumed it on 2026-11-26, after the phase 3 record merged as `da69cf0`
   (PR #278). The workflow reads `active`. Condition C4 is closed.
+- **The release coordinator (C6).** Told on 2026-11-26, as information, in the session the operator named in the
+  picker. Condition C6 is closed.
