@@ -364,9 +364,9 @@ writes its own key files. No standing rule names the key.
   repeated on `main`.
 - **Release lines (P4).** `release/1.0`, `1.1` and `1.2` are left alone. A pull request that brings `op-2026` back
   onto `main` is a HALT.
-- **Still open.** Step 16: the next cut script must not require the row `s10-release-cooldown-restored` as text;
-  blocking for the next cut. Step 17: what the operator does with the old private key; the session never touches
-  it. The generated memory indexes mention `op-2026` until they are next rebuilt.
+- **Still open.** Step 17: what the operator does with the old private key; the session never touches it. The
+  generated memory indexes mention `op-2026` until they are next rebuilt. Step 16 was done on 2026-11-28 as
+  script 35 of the v1.3.1 plan (PR #283, `e8ad83a`).
 - **The autosync.** The operator resumed it on 2026-11-26, after the phase 3 record merged as `da69cf0`
   (PR #278). The workflow reads `active`. Condition C4 is closed.
 - **The release coordinator (C6).** The note was sent on 2026-11-26, as information, to the session the operator

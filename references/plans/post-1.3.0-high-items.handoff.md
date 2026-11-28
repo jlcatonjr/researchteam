@@ -15,7 +15,7 @@ requests #262 to #280. Apart from the run logs of the two 1.3.0 cuts
 |------|------|-------|
 | H1 | The local toolchain equals the lock | done 2026-11-25 |
 | H2 | Release-policy text for a line move | merged (PR #262) |
-| H3 | The decision key `op-2026` retired | merged (PRs #275 to #278); steps 16 and 17 and a few smaller points open, below |
+| H3 | The decision key `op-2026` retired | merged (PRs #275 to #278); step 17 and a few smaller points open, below; step 16 done 2026-11-28 |
 | H5 | Survey tools, steps A to D | merged (PRs #263, #264, #267, #269, #270, #272, #273); running post-steps deferred |
 | H6 | Survey sign-off (step F) and its CI job | merged (PRs #265, #266, #268, #271) |
 | Records | Plans, check tables, work summaries | merged (PRs #274, #278 to #280; #278 is also counted under H3) |
@@ -117,4 +117,5 @@ deletion needs the signed grant or a `--branch-cleanup` PASS.
 
 1. Read `post-1.3.0-high-items.metaplan.md` and its step list, then the target plan of the item in hand.
 2. `workSummaries/daily/2026-11-25.md` and `2026-11-26.md` give the order of events and the operator's answers.
-3. Before any release work, do item 1 of "Open, with the next agent session".
+3. Item 1 of "Open, with the next agent session" is done (2026-11-28). The release in hand is
+   `release-1.3.1.plan.md`.

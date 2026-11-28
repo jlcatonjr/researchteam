@@ -200,7 +200,7 @@ R3 and R4 are asked when they fall due.
   `CHANGELOG.md` conflict is resolved, by the rule fixed in D3. For any other, the session stops and reports.
 - **The suite fails against 1.3.3.** Step 2 shows this before the tag exists. A fix goes to `main` first; if the
   fault is upstream it is reported to the agentteams release session as data.
-- **The tag slips.** Nothing in steps 7 onward starts without it.
+- **The tag slips.** Nothing in steps 8 onward starts without it.
 - **The fleet wave waits on this release.** That is not a reason to skip a gate.
 
 ## Step 5: the rows the cut rests on (2026-11-28)
