@@ -1,8 +1,8 @@
 step,agent,action,inputs,outputs,status,notes,depends_on
 1,orchestrator,Write this plan and step list; audit (@adversarial; @conflict-auditor); revise; pull request,operator rulings 2026-11-28,plan on main,in_progress,audited and revised 2026-11-28,
 2,orchestrator,Test main against the agentteams 1.3.3 candidate commit in a scratch install; report the result as data,main 7d05fde; candidate commit,test result in the plan,done,2209 passed and 2 skipped with the version read as 1.3.3; a test only; nothing is pinned to the candidate; started before this list was written,
-3,orchestrator,Ask the operator R1; R2 and R5 in the picker,1,answers recorded,pending,,1
-4,git-operations,Draft script 35 from script 30 with the changes of D5; tracked copy with placeholders; pull request; operator's answer; merge,3; script 30,script 35 on main,pending,H3 step 16 is done by this step,3
+3,orchestrator,Ask the operator R1; R2 and R5 in the picker,1,answers recorded,done,R1 leave the line alone; R2 final directly; R5 allow one regeneration commit (picker 2026-11-28),1
+4,git-operations,Draft script 35 from script 30 with the changes of D5; tracked copy with placeholders; the release-policy sentence of R5; pull request; operator's answer; merge,3; script 30,script 35 on main,pending,H3 step 16 is done by this step,3
 5,orchestrator,Settle which rows the cut rests on by running the clearance check on the tree of release/1.3,4,list in the plan,pending,no text requirement on any row; checked again at the backport head in step 14,4
 6,orchestrator,Check whether the root-owned 1.3.0 install can verify a lock pinned to 1.3.3; if not ask the managing repository for a 1.3.3 install by its procedure,4;8,note in the plan,pending,the operator runs any build; a build needs the tag,4;8
 7,security,Review script 35,4;5,verdict,pending,before it merges; reviewed again in step 16 after the placeholders are filled,4;5

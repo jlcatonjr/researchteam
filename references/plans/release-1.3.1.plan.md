@@ -175,7 +175,15 @@ and is handed over with one hash-checked command (PS-3).
   for generated output only, and say so in `docs/release-policy.md`. The alternative is to cherry-pick `main`'s
   regeneration and stop if regenerating on the line gives a different result.
 
-R1, R2 and R5 are asked after this plan's audit. R3 and R4 are asked when they fall due.
+**Answers (picker, 2026-11-28, after the audit).**
+- **R1: "Leave the line alone".** `v1.3.1` keeps both decision keys, as `v1.3.0` has them. Nothing is deleted on
+  `release/1.3`.
+- **R2: "Final directly".** No candidate. The dry run is made against the backport head.
+- **R5: "Allow one regeneration commit".** One commit of generated output made on the line, reproduced by
+  `@security` before the cut and named in the cut script. `docs/release-policy.md` gets a sentence allowing this
+  for generated output only, in the pull request of step 4.
+
+R3 and R4 are asked when they fall due.
 
 ## Gates
 
