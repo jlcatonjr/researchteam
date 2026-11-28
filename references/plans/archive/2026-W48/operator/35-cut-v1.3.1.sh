@@ -11,8 +11,8 @@
 # Running this script is the operator's go for v1.3.1 (the go/no-go stays with the operator).
 # OPERATOR ONLY, plain Terminal, from any directory:
 #   /bin/bash <checkout>/tmp/by-week/2026-W48/operator/35-cut-v1.3.1.sh <40-hex reviewed backport head>
-# (the runnable copy lives under the ignored tmp/; this tracked copy is the record and holds placeholders, so it
-# stops at its first placeholder check)
+# (the runnable copy lives under the ignored tmp/; this tracked copy is the record and holds placeholders. It does
+# not run: run_log refuses a folder that git does not ignore, and the placeholder checks would stop it next)
 # The session hands over one command that first checks this copy's sha256 and that the shell is not an agent's or
 # an editor's. Every run writes its own log under logs/ beside this file.
 # Until the question "Move release/1.3 ..." nothing is pushed or signed.
@@ -27,6 +27,7 @@ SHA="${1:?usage: $0 <40-hex reviewed backport head>}"
 BP_PR="<backport pull request number>"
 PICK_PIN="<main commit of the pin files>"            # 40 hex; on origin/main
 REGEN="<regeneration commit on the line>"            # 40 hex; reproduced by @security
+REGEN_MAIN="<main commit of the regeneration>"       # 40 hex; on origin/main; named in the line commit's message
 PICK_REL="<main commit of the release files>"        # 40 hex; on origin/main
 SIGNER_VERSION="<agentteams version of the root-owned install>"   # X.Y.Z; the script refuses another
 AGENTTEAMS_BIN="<signer>"                            # root-owned install built from a signed agentteams tag
@@ -34,10 +35,10 @@ AGENTTEAMS_BIN="<signer>"                            # root-owned install built 
 # Settled in plan step 5 on the line's tree and checked again at the backport head in step 14.
 ROWS=(release-line-agentteams-1.3)
 [[ "$BP_PR" =~ ^[1-9][0-9]*$ ]] || die "BP_PR is not a pull-request number (this is the tracked copy, or the copy is not filled in)"
-for v in "$PICK_PIN" "$REGEN" "$PICK_REL"; do [[ "$v" =~ ^[0-9a-f]{40}$ ]] || die "a commit placeholder is not filled in"; done
+for v in "$PICK_PIN" "$REGEN" "$REGEN_MAIN" "$PICK_REL"; do [[ "$v" =~ ^[0-9a-f]{40}$ ]] || die "a commit placeholder is not filled in"; done
 [[ "$SIGNER_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "SIGNER_VERSION is not X.Y.Z"
 
-fp="$(/usr/bin/ssh-keygen -lf "$RELEASE_PUB" | awk '{print $2}')"
+fp="$(/usr/bin/ssh-keygen -lf "$RELEASE_PUB" | awk '{print $2}')" || die "cannot read the release key file"
 [ "$fp" = "$RELEASE_FP" ] || die "$RELEASE_PUB is $fp, not the release key $RELEASE_FP"
 RT_URL="https://github.com/$REPO"
 cd "$MAIN"
@@ -67,7 +68,7 @@ mkdir "$TMP/empty"
 got_version="$(cd "$TMP/empty" && "$SIGNER_PY" -I -P -c 'from importlib.metadata import version; print(version("agentteams"))')" || die "cannot read the root-owned install's version"
 [ "$got_version" = "$SIGNER_VERSION" ] || die "the root-owned install is agentteams $got_version, not the expected $SIGNER_VERSION"
 
-ngit fetch --quiet --tags "$RT_URL" "+refs/heads/main:refs/remotes/origin/main" "+refs/heads/$LINE:refs/remotes/origin/$LINE"
+ngit fetch --quiet --tags "$RT_URL" "+refs/heads/main:refs/remotes/origin/main" || die "cannot fetch main and the tags"
 
 # The previous release: signed, exactly the tag object recorded at its cut, and the base of the backport.
 PREV="v1.3.0"; PREV_OBJ="68d0dcd826ce7a8da5aa7a44ee217bfb07299cf3"   # read from the remote on 2026-11-28
@@ -106,25 +107,38 @@ for c in "${COMMITS[@]}"; do
 done
 C_PIN="${COMMITS[0]}"; C_REGEN="${COMMITS[1]}"; C_REL="${COMMITS[2]}"
 patch_id() { ngit diff-tree --no-renames -p "$@" | ngit patch-id --stable | cut -d' ' -f1; }
-for src in "$PICK_PIN" "$PICK_REL"; do
+# patch-id ignores whitespace inside a line, so the patches are also compared as text: every changed and context
+# line must be equal. Only the blob ids and the hunk headers (line numbers, which differ between main and the
+# line) are left out.
+exact() { ngit diff-tree --no-renames --no-commit-id -p "$@" | grep -v '^index ' | sed -E 's/^@@ .*/@@/'; }
+for src in "$PICK_PIN" "$REGEN_MAIN" "$PICK_REL"; do
   ngit merge-base --is-ancestor "$src" refs/remotes/origin/main || die "$src is not on origin/main"
   [ "$(ngit rev-list --parents -n 1 "$src" | wc -w | tr -d ' ')" = 2 ] || die "$src is a merge commit; the pick must name the branch's own commit"
 done
 # 1. The pin files: the same patch as the main commit the plan names (not only the commit's own text).
 [ -n "$(patch_id "$PICK_PIN")" ] && [ "$(patch_id "$C_PIN")" = "$(patch_id "$PICK_PIN")" ] || die "${C_PIN:0:12} is not the same patch as the main commit ${PICK_PIN:0:12}"
+[ -n "$(exact "$PICK_PIN")" ] && [ "$(exact "$C_PIN")" = "$(exact "$PICK_PIN")" ] || die "${C_PIN:0:12} is not line for line the patch of the main commit ${PICK_PIN:0:12}"
 ngit log -1 --format=%B "$C_PIN" | grep -xF "(cherry picked from commit $PICK_PIN)" >/dev/null || die "${C_PIN:0:12} does not record its source $PICK_PIN"
-# 2. The regeneration commit: the one @security reproduced, and generated output only.
+# 2. The regeneration commit: the one @security reproduced, generated output only, and its message names the
+# main commit it corresponds to (release policy).
 [ "$C_REGEN" = "$REGEN" ] || die "the second commit is ${C_REGEN:0:12}, not the reviewed regeneration ${REGEN:0:12}"
-REGEN_PATHS="$(ngit diff-tree --no-renames --no-commit-id --name-only -r "$C_REGEN")"
+ngit log -1 --format=%B "$C_REGEN" | grep -F "$REGEN_MAIN" >/dev/null || die "the regeneration commit's message does not name the main commit $REGEN_MAIN"
+REGEN_PATHS="$(ngit diff-tree --no-renames --no-commit-id --name-only -r "$C_REGEN")" || die "cannot list the regeneration commit's paths"
 [ -n "$REGEN_PATHS" ] || die "the regeneration commit changes nothing"
-NOT_GENERATED="$(printf '%s\n' "$REGEN_PATHS" | grep -E '^(toolchain\.lock|pyproject\.toml|brief\.json|CHANGELOG\.md|\.agentteams/|\.github/workflows/|\.github/ci/|\.github/agentteams-autosync-ref$|scripts/|researchteam/|tests/|docs/|docs_src/|Projects/|references/)|/authorized-verify-keys/|/security-decisions\.log\.csv$|/exception-registry\.json$' || true)"
+# An allow-list of the generated surfaces first. Hook, settings and sandbox files are not on it; if the reviewed
+# regeneration writes one, it is added by name in the runnable copy after @security's second review.
+OUTSIDE="$(printf '%s\n' "$REGEN_PATHS" | grep -vE '^(\.github/agents/|\.claude/agents/|\.codex/agents/|\.goose/recipes/|\.claude/(agent-team|README|quickstart-snippet|CLAUDE)\.md$|AGENTS\.md$|\.github/copilot-instructions\.md$)' || true)"
+[ -z "$OUTSIDE" ] || die "the regeneration commit touches paths outside the generated surfaces: $(printf '%s' "$OUTSIDE" | tr '\n' ' ')"
+# Then a deny-list, which also catches a trust root that sits inside a generated surface.
+NOT_GENERATED="$(printf '%s\n' "$REGEN_PATHS" | grep -E '^(toolchain\.lock|pyproject\.toml|brief\.json|CHANGELOG\.md|\.agentteams/|\.github/workflows/|\.github/ci/|\.github/agentteams-autosync-ref$|scripts/|researchteam/|tests/|docs/|docs_src/|Projects/|references/)|/authorized-verify-keys/|\.log\.csv$|allowed_signers|roster|/exception-registry\.json$' || true)"
 [ -z "$NOT_GENERATED" ] || die "the regeneration commit touches paths that are not generated output: $(printf '%s' "$NOT_GENERATED" | tr '\n' ' ')"
 # 3. The release files: the same patch as the main commit, except CHANGELOG.md, which was resolved by the plan's
 # fixed rule: the line's own file plus the 1.3.1 entry of the main commit, and nothing else.
-[ "$(patch_id "$C_REL" -- . ':(exclude)CHANGELOG.md')" = "$(patch_id "$PICK_REL" -- . ':(exclude)CHANGELOG.md')" ] || die "${C_REL:0:12} differs from the main commit ${PICK_REL:0:12} outside CHANGELOG.md"
+[ -n "$(patch_id "$PICK_REL" -- . ':(exclude)CHANGELOG.md')" ] && [ "$(patch_id "$C_REL" -- . ':(exclude)CHANGELOG.md')" = "$(patch_id "$PICK_REL" -- . ':(exclude)CHANGELOG.md')" ] || die "${C_REL:0:12} differs from the main commit ${PICK_REL:0:12} outside CHANGELOG.md"
+[ -n "$(exact "$PICK_REL" -- . ':(exclude)CHANGELOG.md')" ] && [ "$(exact "$C_REL" -- . ':(exclude)CHANGELOG.md')" = "$(exact "$PICK_REL" -- . ':(exclude)CHANGELOG.md')" ] || die "${C_REL:0:12} is not line for line the patch of the main commit ${PICK_REL:0:12} outside CHANGELOG.md"
 ngit log -1 --format=%B "$C_REL" | grep -xF "(cherry picked from commit $PICK_REL)" >/dev/null || die "${C_REL:0:12} does not record its source $PICK_REL"
 HEADING='## 1.3.1 (tag `v1.3.1`, on `release/1.3`)'
-ngit show "$BASE:CHANGELOG.md" > "$TMP/cl.base"; ngit show "$SHA:CHANGELOG.md" > "$TMP/cl.now"; ngit show "$PICK_REL:CHANGELOG.md" > "$TMP/cl.main"
+{ ngit show "$BASE:CHANGELOG.md" > "$TMP/cl.base" && ngit show "$SHA:CHANGELOG.md" > "$TMP/cl.now" && ngit show "$PICK_REL:CHANGELOG.md" > "$TMP/cl.main"; } || die "cannot read CHANGELOG.md at the three commits"
 ( cd "$TMP/empty" && "$SIGNER_PY" -I -P - "$TMP/cl.base" "$TMP/cl.now" "$TMP/cl.main" "$HEADING" ) <<'PY' || die "CHANGELOG.md at $SHA is not the line's file plus the 1.3.1 entry of the main commit; nothing was pushed or signed"
 import sys
 base, now, main = (open(p, encoding="utf-8").read().split("\n") for p in sys.argv[1:4])
@@ -145,8 +159,11 @@ if now[:a[0]] + now[a[1]:] != base:
 print(f"  CHANGELOG.md: the previous release's file plus the 1.3.1 entry ({a[1] - a[0]} lines)")
 PY
 
-# The line's trust state is unchanged from v1.3.0 (R1): key stores, decisions logs, registries, the group file.
-TRUST_DIFF="$(ngit diff --no-renames --name-only "$BASE" "$SHA" | grep -E '/authorized-verify-keys/|/security-decisions\.log\.csv$|/exception-registry\.json$|^\.agentteams/' || true)"
+# The line's trust state is unchanged from v1.3.0 (R1): key stores, every governance log (decisions, waivers),
+# allowed-signers files, registries, rosters and the group file.
+SINCE_PREV="$(ngit diff --no-renames --name-only "$BASE" "$SHA")" || die "cannot list the changes since $PREV"
+[ -n "$SINCE_PREV" ] || die "$SHA changes nothing since $PREV"
+TRUST_DIFF="$(printf '%s\n' "$SINCE_PREV" | grep -E '\.log\.csv$|/authorized-verify-keys/|allowed_signers|/exception-registry\.json$|roster|^\.agentteams/' || true)"
 [ -z "$TRUST_DIFF" ] || die "the trust state differs from $PREV: $(printf '%s' "$TRUST_DIFF" | tr '\n' ' ')"
 
 # The agentteams pin at the commit: the stable AT_TAG, verified HERE (signature, remote object), in the lock, in
@@ -162,7 +179,6 @@ ngit show "$SHA:toolchain.lock" | grep -x "agentteams.tag=$AT_TAG" >/dev/null ||
 [ "$(ngit show "$SHA:pyproject.toml" | grep -c "jlcatonjr/agentteams@$AT_PEELED")" = 2 ] || die "the update/research extras at $SHA do not both pin $AT_PEELED"
 [ "$(ngit show "$SHA:.github/agentteams-autosync-ref")" = "$AT_PEELED" ] || die "the autosync ref at $SHA is not $AT_PEELED"
 ngit cat-file -e "$SHA:.agentteams/toolchain-group.json" || die "no .agentteams/toolchain-group.json at $SHA"
-ngit show "$SHA:CHANGELOG.md" | grep -xF "$HEADING" >/dev/null || die "no '## 1.3.1' CHANGELOG entry at $SHA"
 NOTES="$(ngit show "$SHA:docs/release/release-notes-v1.3.1.md")" || die "no docs/release/release-notes-v1.3.1.md at $SHA"
 for f in CLAUDE.md researchteam/scaffold/CLAUDE.template.md; do
   ngit show "$SHA:$f" | grep -xF '# a release instead of main: append the signed tag, e.g. ...researchteam.git@v1.3.1' >/dev/null \
@@ -188,10 +204,15 @@ print(f"  {sys.argv[2]}: {'clears' if ok else 'REFUSED: ' + str(why)[:200]}")
 sys.exit(0 if ok else 1)
 PY
 done
-# The decisions log at the commit: no unretracted HALT anywhere. (The log equals the previous release's, checked
-# above, so no row was added.)
-ngit show "$SHA:.github/agents/references/security-decisions.log.csv" > "$TMP/log.now.csv"
-( cd "$TMP/empty" && "$SIGNER_PY" -I -P - "$TMP/log.now.csv" ) <<'PY' || die "the decisions log at $SHA has an unretracted HALT; nothing was pushed or signed"
+# The decisions log of every surface at the commit: no unretracted HALT anywhere (a HALT in any surface's log
+# binds, C-2). The logs equal the previous release's, checked above, so no row was added and no new pending
+# condition can exist.
+SURFACES=0
+for surface in .github/agents .claude/agents .codex/agents .goose/recipes; do
+  ngit cat-file -e "$SHA:$surface/references/security-decisions.log.csv" 2>/dev/null || continue
+  SURFACES=$((SURFACES + 1))
+  ngit show "$SHA:$surface/references/security-decisions.log.csv" > "$TMP/log.now.csv" || die "cannot read the decisions log of $surface at $SHA"
+  ( cd "$TMP/empty" && "$SIGNER_PY" -I -P - "$TMP/log.now.csv" "$surface" ) <<'PY' || die "the decisions log of $surface at $SHA has an unretracted HALT; nothing was pushed or signed"
 import csv, sys
 with open(sys.argv[1], newline="", encoding="utf-8") as f:
     now = list(csv.DictReader(f))
@@ -203,9 +224,12 @@ for i, r in enumerate(now):
                         and (n.get("action_reviewed") or "").strip() == action for n in now[i + 1:])
         if not retracted:
             print(f"  HALT stands: {action}"); bad += 1
-print(f"  decisions log: {len(now)} rows; {bad} blocking")
+print(f"  decisions log of {sys.argv[2]}: {len(now)} rows; {bad} blocking")
 sys.exit(1 if bad else 0)
 PY
+done
+ngit cat-file -e "$SHA:.github/agents/references/security-decisions.log.csv" || die "no decisions log under .github/agents at $SHA"
+[ "$SURFACES" -ge 1 ] || die "no decisions log was scanned"
 # The copied term-index core at the commit: it matches its manifest, every file equals the signed agentteams tag
 # the manifest names, and its commit is the commit the lock pins. The comparing code is the checkout's own package,
 # run from an empty directory with the root-owned python (-I: no current directory, no user site).
@@ -221,7 +245,7 @@ remote_tag="$(ngit ls-remote "$RT_URL" "refs/tags/$TAG")" || die "cannot list th
 
 say "$LINE and $TAG at $SHA (pins agentteams $AT_TAG ${AT_PEELED:0:12})"
 ngit log --format='  %h %s' "$BASE..$SHA"
-echo "  Paths that differ from $PREV (${BASE:0:12}):"; ngit diff --no-renames --name-only "$BASE" "$SHA" | sed 's/^/    /'
+echo "  Paths that differ from $PREV (${BASE:0:12}):"; printf '%s\n' "$SINCE_PREV" | sed 's/^/    /'
 confirm "Move $LINE forward to ${SHA:0:12} and sign $TAG there? (This is the go for v1.3.1.)"
 # Pushes use your credentials (so plain git, but no hooks and an explicit URL); everything else stays neutralised.
 # Forward only: the lease names the v1.3.0 commit, so the branch moves only if it is still exactly there, and the
@@ -241,8 +265,8 @@ confirm "Push $TAG (object ${OBJ:0:12}) to origin?"
 git -c core.hooksPath=/dev/null push --quiet "$RT_URL" "refs/tags/$TAG"
 [ "$(ngit ls-remote "$RT_URL" "refs/tags/$TAG" | cut -f1)" = "$OBJ" ] || die "remote tag object differs"
 if ! gh release view "$TAG" -R "$REPO" >/dev/null 2>&1; then
-  drain; read -r -p "Create the GitHub release for $TAG (marked Latest)? [y/N] " a
-  if [ "$a" = y ]; then
+  drain; read -r -p "Create the GitHub release for $TAG (marked Latest)? [y/N] " answer
+  if [ "$answer" = y ]; then
     gh release create "$TAG" -R "$REPO" --verify-tag --latest --title "researchteam 1.3.1" --notes "$NOTES" \
       || echo "  WARNING: the GitHub release was not created; the tag is signed and pushed. Tell the researchteam session."
   fi
