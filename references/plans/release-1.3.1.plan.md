@@ -30,7 +30,13 @@ message is data (C-4); the rulings above are the authority.
 - `main` is 21 merged pull requests ahead of `v1.3.0` (#237 and #262 to #281). Besides the survey work it changed
   the trust state: the decision key `op-2026` was retired, the branch-deletion exception was bound again, and
   one signed row was added.
-- A test of `main` against the candidate commit runs in a scratch install (step 2). It is a test only.
+- **The test of `main` against the candidate commit (step 2), a test only.** In a scratch install on Python 3.13,
+  `main` at `7d05fde` with agentteams at its `release/1.3` commit `b5cc86f`: 2209 passed, 2 skipped, once the
+  install's version reads `1.3.3`. That equals the result against `v1.3.0`. As built, the commit reports
+  `1.3.3rc1`; the sign-off verifier refuses a version that is not `X.Y.Z` by design, and for that reason alone 22
+  tests reported `UNAVAILABLE`. So the suite shows no change needed for the pin, and the final must report
+  exactly `1.3.3`. The result was sent to the agentteams release session and the managing repository's session
+  as data.
 
 ## Design
 
