@@ -15,6 +15,12 @@ How collaborators work within this policy (branches, installs, contributions, ba
 - `release/1.0` is cut at `1.0.0rc1`. After that it takes **selected fixes only**, already merged to `main`,
   through a regular merge or a `git cherry-pick -x` PR. It never takes a squash, so each backport keeps
   its link to the `main` commit.
+- **One exception, for generated output only** (operator ruling, 2026-11-28). When a backport moves the
+  agentteams pin, the agent team is regenerated on the release line's own tree, as one commit that holds
+  generated output and nothing else. `main`'s regeneration cannot be cherry-picked in its place, because it was
+  rendered from `main`'s tree. The commit's message names the `main` commit it corresponds to, `@security`
+  reproduces it before the cut, and the cut script names it and refuses if it touches a pin, a workflow, a script,
+  a package file, a key store, a decisions log or a registry.
 - RC and final tags (`v1.0.0-rc.N`, `v1.0.0`, `v1.0.N`) are cut and signed **on `release/1.0` only**.
 - After each tag, `release/1.0` is merged forward into `main` with a regular merge, so `main` always
   contains every tagged commit.
