@@ -203,6 +203,21 @@ R3 and R4 are asked when they fall due.
 - **The tag slips.** Nothing in steps 7 onward starts without it.
 - **The fleet wave waits on this release.** That is not a reason to skip a gate.
 
+## Step 5: the rows the cut rests on (2026-11-28)
+
+The gate's clearance check was run on the tree of `release/1.3` (`570724f`) with the pinned agentteams 1.3.0. The
+line holds both decision keys, and a decisions log on each of the four surfaces.
+
+| Row | On the line | Signed with | In script 35's `ROWS` |
+|-----|-------------|-------------|------------------------|
+| `release-line-agentteams-1.3` | clears | `opr-2026-11` | yes: the lock's line, which the pin move stays on |
+| `s10-first-party-releases-2026-11` | clears | both keys | no: it is the lineage of the toolchain-group file, which `--verify-toolchain-pin` checks with its signature and HALTs |
+| `management-roster-enroll:infrastructure-management` | clears | both keys | no: a pin release does not rest on the management roster |
+| `s10-release-cooldown-restored` | clears | `op-2026` only | no: history; no check may depend on it (release policy, "Pins") |
+
+Script 30 required all four as lines of text. Script 35 requires none as text and one to clear. The list is
+checked again at the backport head in step 14, and `@security` reads it with the filled copy in step 16.
+
 ## The handoff report
 
 `post-1.3.0-high-items.handoff.md` listed the next cut script (H3 step 16) for the next agent session; this plan
